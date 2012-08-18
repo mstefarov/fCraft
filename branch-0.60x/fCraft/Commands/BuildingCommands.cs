@@ -846,8 +846,8 @@ namespace fCraft {
 
             int volume = bounds.Volume;
             if( !player.CanDraw( volume ) ) {
-                player.MessageNow( String.Format( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                               player.Info.Rank.DrawLimit, volume ) );
+                player.MessageNow( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                                   player.Info.Rank.DrawLimit, volume );
                 return;
             }
 
@@ -1410,7 +1410,7 @@ namespace fCraft {
 
         #region UndoPlayer and UndoArea
 
-        class BlockDBUndoArgs {
+        sealed class BlockDBUndoArgs {
             public Player Player;
             public PlayerInfo[] Targets;
             public World World;
@@ -1422,6 +1422,7 @@ namespace fCraft {
 
 
         // parses and checks command parameters (for both UndoPlayer and UndoArea)
+        [CanBeNull]
         static BlockDBUndoArgs ParseBlockDBUndoParams( Player player, CommandReader cmd, string cmdName ) {
             // check if command's being called by a worldless player (e.g. console)
             World playerWorld = player.World;
@@ -1443,7 +1444,7 @@ namespace fCraft {
                 CdUndoPlayer.PrintUsage( player );
                 return null;
             }
-            int countLimit = 0;
+            int countLimit;
             TimeSpan ageLimit = TimeSpan.Zero;
             if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimespan( out ageLimit ) ) {
                 player.Message( "{0}: First parameter should be a number or a timespan.", cmdName );
@@ -1457,9 +1458,11 @@ namespace fCraft {
             // parse second and consequent parameters (player names)
             HashSet<PlayerInfo> targets = new HashSet<PlayerInfo>();
             bool allPlayers = false;
-            while( cmd.HasNext ) {
+            while( true ) {
                 string name = cmd.Next();
-                if( name == "*" ) {
+                if( name == null ) {
+                    break;
+                } else if( name == "*" ) {
                     // all players
                     if( allPlayers ) {
                         player.Message( "{0}: \"*\" was listed twice.", cmdName );

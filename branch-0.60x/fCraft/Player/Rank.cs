@@ -542,7 +542,7 @@ namespace fCraft {
 
             if( name.Contains( "#" ) ) {
                 // new format
-                string id = name.Substring( name.IndexOf( "#" ) + 1 );
+                string id = name.Substring( name.IndexOf( '#' ) + 1 );
 
                 if( RankManager.RanksByID.ContainsKey( id ) ) {
                     // current class

@@ -5,7 +5,6 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using JetBrains.Annotations;
-using System.IO;
 
 namespace fCraft {
     /// <summary> Object representing persistent state ("record") of a player, online or offline.
@@ -788,7 +787,7 @@ namespace fCraft {
 
             LastFailedLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 12
 
-            if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP.ToString() ); // 13
+            if( !LastFailedLoginIP.Equals( IPAddress.None ) ) sb.Append( LastFailedLoginIP ); // 13
             sb.Append( ',', 2 ); // skip 14
 
             FirstLoginDate.ToUnixTimeString( sb ).Append( ',' ); // 15

@@ -1,35 +1,19 @@
-// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
-using fCraftGUI.Properties;
 using JetBrains.Annotations;
+using fCraftGUI.Properties;
 
 namespace fCraft.GUI {
-
-    /// <summary> Drawing/clipping mode of IsoCat map renderer. </summary>
-    public enum IsoCatMode {
-        /// <summary> Normal isometric view. </summary>
-        Normal,
-
-        /// <summary> Isometric view with the outermost layer of blocks stripped (useful for boxed maps). </summary>
-        Peeled,
-
-        /// <summary> Isometric view with a front-facing quarter of the map cut out (to show map cross-section). </summary>
-        Cut,
-
-        /// <summary> Only a specified chunk of the map is drawn. </summary>
-        Chunk
-    }
-
-
-    /// <summary> Isometric map renderer, tightly integrated with BackgroundWorker.
+    /// <summary> Isometric map renderer.
     /// Creates a bitmap of the map. Every IsoCat instance is single-use. </summary>
-    unsafe public sealed class IsoCat {
+    public sealed unsafe class IsoCat {
         static readonly byte[] Tiles, ShadowTiles;
         static readonly int TileX, TileY;
         static readonly int MaxTileDim, TileStride;
+
 
         static IsoCat() {
             using( Bitmap tilesBmp = Resources.Tileset ) {
@@ -43,7 +27,7 @@ namespace fCraft.GUI {
                 for( int i = 0; i < 50; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
-                            int p = i * TileStride + (y * TileX + x) * 4;
+                            int p = i * TileStride + ( y * TileX + x ) * 4;
                             System.Drawing.Color c = tilesBmp.GetPixel( x + i * TileX, y );
                             Tiles[p] = c.B;
                             Tiles[p + 1] = c.G;
@@ -61,7 +45,7 @@ namespace fCraft.GUI {
                 for( int i = 0; i < 50; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
-                            int p = i * TileStride + (y * TileX + x) * 4;
+                            int p = i * TileStride + ( y * TileX + x ) * 4;
                             System.Drawing.Color c = stilesBmp.GetPixel( x + i * TileX, y );
                             ShadowTiles[p] = c.B;
                             ShadowTiles[p + 1] = c.G;
@@ -74,43 +58,62 @@ namespace fCraft.GUI {
         }
 
 
+        public int[] ChunkCoords { get; private set; }
+
+        public int Rotation { get; set; }
+
+        public IsoCatMode Mode { get; set; }
+
+        public bool SeeThroughWater { get; set; }
+        public bool SeeThroughLava { get; set; }
+        public bool DrawShadows { get; set; }
+        public bool Gradient { get; set; }
+
+
+        public IsoCat() {
+            Rotation = 0;
+            Mode = IsoCatMode.Normal;
+            ChunkCoords = new int[6];
+            DrawShadows = true;
+            Gradient = true;
+        }
+
+
+        byte* bp, ctp, image;
+        int blendDivisor, mh34;
         int x, y, z;
         byte block;
-        public readonly int[] ChunkCoords = new int[6];
-
-        readonly byte* image;
-        readonly Bitmap imageBmp;
-        readonly BitmapData imageData;
-        readonly int imageWidth, imageHeight;
-
-        readonly int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
-        readonly int offsetX, offsetY;
-        readonly int isoOffset, isoX, isoY, isoH;
-        readonly int imageStride;
-
-        public readonly int Rot;
-        public readonly IsoCatMode Mode;
-        public readonly Map Map;
+        Map map;
+        Bitmap imageBmp;
+        BitmapData imageData;
+        int imageWidth, imageHeight;
+        int dimX, dimY, dimX1, dimY1, dimX2, dimY2;
+        int offsetX, offsetY;
+        int isoOffset, isoX, isoY, isoH;
+        int imageStride;
 
 
-        public IsoCat( Map map, IsoCatMode mode, int rot ) {
-            Rot = rot;
-            Mode = mode;
-            Map = map;
+        [NotNull]
+        [Pure]
+        public IsoCatResult Draw( [NotNull] Map mapToDraw ) {
+            if( mapToDraw == null ) throw new ArgumentNullException( "mapToDraw" );
+            map = mapToDraw;
 
-            dimX = Map.Width;
-            dimY = Map.Length;
-            offsetY = Math.Max( 0, Map.Width - Map.Length );
-            offsetX = Math.Max( 0, Map.Length - Map.Width );
+            x = y = z = 0;
+            dimX = map.Width;
+            dimY = map.Length;
+            offsetY = Math.Max( 0, map.Width - map.Length );
+            offsetX = Math.Max( 0, map.Length - map.Width );
             dimX2 = dimX / 2 - 1;
             dimY2 = dimY / 2 - 1;
             dimX1 = dimX - 1;
             dimY1 = dimY - 1;
 
-            blendDivisor = 255 * Map.Height;
+            blendDivisor = 255 * map.Height;
 
-            imageWidth = TileX * Math.Max( dimX, dimY ) + TileY / 2 * Map.Height + TileX * 2;
-            imageHeight = TileY / 2 * Map.Height + MaxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), Map.Height ) + TileY * 2;
+            imageWidth = TileX * Math.Max( dimX, dimY ) + TileY / 2 * map.Height + TileX * 2;
+            imageHeight = TileY / 2 * map.Height + MaxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), map.Height ) +
+                          TileY * 2;
 
             imageBmp = new Bitmap( imageWidth, imageHeight, PixelFormat.Format32bppArgb );
             imageData = imageBmp.LockBits( new Rectangle( 0, 0, imageBmp.Width, imageBmp.Height ),
@@ -120,74 +123,87 @@ namespace fCraft.GUI {
             image = (byte*)imageData.Scan0;
             imageStride = imageData.Stride;
 
-            isoOffset = (Map.Height * TileY / 2 * imageStride + imageStride / 2 + TileX * 2);
-            isoX = (TileX / 4 * imageStride + TileX * 2);
-            isoY = (TileY / 4 * imageStride - TileY * 2);
-            isoH = (-TileY / 2 * imageStride);
+            isoOffset = ( map.Height * TileY / 2 * imageStride + imageStride / 2 + TileX * 2 );
+            isoX = ( TileX / 4 * imageStride + TileX * 2 );
+            isoY = ( TileY / 4 * imageStride - TileY * 2 );
+            isoH = ( -TileY / 2 * imageStride );
 
-            mh34 = Map.Height * 3 / 4;
-        }
+            mh34 = map.Height * 3 / 4;
 
-        byte* bp, ctp;
-        [CanBeNull]
-        public Bitmap Draw( out Rectangle cropRectangle, BackgroundWorker worker ) {
-            cropRectangle = Rectangle.Empty;
+            short[,] shadows;
+            if( DrawShadows ) {
+                shadows = map.ComputeHeightmap();
+            } else {
+                shadows = new short[map.Width, map.Length];
+            }
+
             try {
-                fixed( byte* bpx = Map.Blocks ) {
-                    fixed( byte* tp = Tiles ) {
-                        fixed( byte* stp = ShadowTiles ) {
-                            bp = bpx;
-                            while( z < Map.Height ) {
-                                block = GetBlock( x, y, z );
-                                if( block != 0 ) {
+                fixed( byte* bpx = map.Blocks,
+                    tp = Tiles,
+                    stp = ShadowTiles ) {
+                    bp = bpx;
+                    while( z < map.Height ) {
+                        block = GetBlock( x, y, z );
+                        if( block != 0 ) {
 
-                                    switch( Rot ) {
-                                        case 0: ctp = (z >= Map.Shadows[x, y] ? tp : stp); break;
-                                        case 1: ctp = (z >= Map.Shadows[dimX1 - y, x] ? tp : stp); break;
-                                        case 2: ctp = (z >= Map.Shadows[dimX1 - x, dimY1 - y] ? tp : stp); break;
-                                        case 3: ctp = (z >= Map.Shadows[y, dimY1 - x] ? tp : stp); break;
-                                    }
+                            switch( Rotation ) {
+                                case 0:
+                                    ctp = ( z >= shadows[x, y] ? tp : stp );
+                                    break;
+                                case 1:
+                                    ctp = ( z >= shadows[dimX1 - y, x] ? tp : stp );
+                                    break;
+                                case 2:
+                                    ctp = ( z >= shadows[dimX1 - x, dimY1 - y] ? tp : stp );
+                                    break;
+                                case 3:
+                                    ctp = ( z >= shadows[y, dimY1 - x] ? tp : stp );
+                                    break;
+                            }
 
-                                    int blockRight, blockLeft, blockUp;
+                            int blockRight, blockLeft, blockUp;
 
-                                    if( x != (Rot == 1 || Rot == 3 ? dimY1 : dimX1) ) blockRight = GetBlock( x + 1, y, z );
-                                    else blockRight = 0;
-                                    if( y != (Rot == 1 || Rot == 3 ? dimX1 : dimY1) ) blockLeft = GetBlock( x, y + 1, z );
-                                    else blockLeft = 0;
-                                    if( z != Map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
-                                    else blockUp = 0;
+                            if( x != ( Rotation == 1 || Rotation == 3 ? dimY1 : dimX1 ) )
+                                blockRight = GetBlock( x + 1, y, z );
+                            else blockRight = 0;
+                            if( y != ( Rotation == 1 || Rotation == 3 ? dimX1 : dimY1 ) )
+                                blockLeft = GetBlock( x, y + 1, z );
+                            else blockLeft = 0;
+                            if( z != map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
+                            else blockUp = 0;
 
-                                    if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
-                                        blockUp == 8 || blockLeft == 8 || blockRight == 8 || // water
-                                        blockUp == 9 || blockLeft == 9 || blockRight == 9 || // water
-                                        (block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20)) || // glass
-                                        blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
-                                        blockLeft == 44 || blockRight == 44 || // step
+                            if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
 
-                                        blockUp == 10 || blockLeft == 10 || blockRight == 10 || // lava
-                                        blockUp == 11 || blockLeft == 11 || blockRight == 11 || // lava
+                                ( block != 8 && block != 9 || !SeeThroughWater ) &&
+                                ( blockUp == 8 || blockLeft == 8 || blockRight == 8 || blockUp == 9 || blockLeft == 9 || blockRight == 9 ) || // water
 
-                                        blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
-                                        blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
-                                        blockUp == 6 || blockLeft == 6 || blockRight == 6 || // tree
-                                        blockUp == 39 || blockLeft == 39 || blockRight == 39 || // mushroom
-                                        blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
-                                        BlendTile();
-                                }
+                                ( block != 10 && block != 11 || !SeeThroughLava ) &&
+                                ( blockUp == 10 || blockLeft == 10 || blockRight == 10 || blockUp == 11 || blockLeft == 11 || blockRight == 11 ) || // lava
 
-                                x++;
-                                if( x == (Rot == 1 || Rot == 3 ? dimY : dimX) ) {
-                                    y++;
-                                    x = 0;
-                                }
-                                if( y == (Rot == 1 || Rot == 3 ? dimX : dimY) ) {
-                                    z++;
-                                    y = 0;
-                                    if( worker != null && z % 4 == 0 ) {
-                                        if( worker.CancellationPending ) return null;
-                                        worker.ReportProgress( (z * 100) / Map.Height );
-                                    }
-                                }
+                                block != 20 && ( blockUp == 20 || blockLeft == 20 || blockRight == 20 ) || // glass
+                                blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
+                                blockLeft == 44 || blockRight == 44 || // step
+
+                                blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
+                                blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
+                                blockUp == 6 || blockLeft == 6 || blockRight == 6 || // sapling
+                                blockUp == 39 || blockLeft == 39 || blockRight == 39 ||
+                                blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
+
+                                BlendTile();
+                        }
+
+                        x++;
+                        if( x == ( Rotation == 1 || Rotation == 3 ? dimY : dimX ) ) {
+                            y++;
+                            x = 0;
+                        }
+                        if( y == ( Rotation == 1 || Rotation == 3 ? dimX : dimY ) ) {
+                            z++;
+                            y = 0;
+                            if( z % 8 == 0 ) {
+                                if( isCanceled ) return CanceledResult;
+                                ReportProgress( z / (float)map.Height );
                             }
                         }
                     }
@@ -210,7 +226,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( isCanceled ) return CanceledResult;
 
                 // find top bound (yMin)
                 cont = true;
@@ -226,7 +242,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( isCanceled ) return CanceledResult;
 
                 // find right bound (xMax)
                 cont = true;
@@ -242,7 +258,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( worker != null && worker.CancellationPending ) return null;
+                if( isCanceled ) return CanceledResult;
 
                 // find bottom bound (yMax)
                 cont = true;
@@ -258,14 +274,14 @@ namespace fCraft.GUI {
                     }
                 }
 
-                cropRectangle = new Rectangle( Math.Max( 0, xMin - 2 ),
-                                               Math.Max( 0, yMin - 2 ),
-                                               Math.Min( imageBmp.Width, xMax - xMin + 4 ),
-                                               Math.Min( imageBmp.Height, yMax - yMin + 4 ) );
-                return imageBmp;
+                Rectangle cropRectangle = new Rectangle( Math.Max( 0, xMin - 2 ),
+                                                         Math.Max( 0, yMin - 2 ),
+                                                         Math.Min( imageBmp.Width, xMax - xMin + 4 ),
+                                                         Math.Min( imageBmp.Height, yMax - yMin + 4 ) );
+                return new IsoCatResult( false, imageBmp, cropRectangle );
             } finally {
                 imageBmp.UnlockBits( imageData );
-                if( worker != null && worker.CancellationPending && imageBmp != null ) {
+                if( isCanceled && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
                     } catch( ObjectDisposedException ) { }
@@ -275,7 +291,8 @@ namespace fCraft.GUI {
 
 
         void BlendTile() {
-            int pos = (x + (Rot == 1 || Rot == 3 ? offsetY : offsetX)) * isoX + (y + (Rot == 1 || Rot == 3 ? offsetX : offsetY)) * isoY + z * isoH + isoOffset;
+            int pos = ( x + ( Rotation == 1 || Rotation == 3 ? offsetY : offsetX ) ) * isoX +
+                      ( y + ( Rotation == 1 || Rotation == 3 ? offsetX : offsetY ) ) * isoY + z * isoH + isoOffset;
             if( block > 49 ) return;
             int tileOffset = block * TileStride;
             BlendPixel( pos, tileOffset );
@@ -300,9 +317,6 @@ namespace fCraft.GUI {
         }
 
 
-        const byte ShadingStrength = 48;
-        readonly int blendDivisor, mh34;
-
         // inspired by http://www.devmaster.net/wiki/Alpha_blending
         void BlendPixel( int imageOffset, int tileOffset ) {
             int sourceAlpha;
@@ -311,7 +325,7 @@ namespace fCraft.GUI {
             byte tA = ctp[tileOffset + 3];
 
             // Get final alpha channel.
-            int finalAlpha = tA + ((255 - tA) * image[imageOffset + 3]) / 255;
+            int finalAlpha = tA + ( ( 255 - tA ) * image[imageOffset + 3] ) / 255;
 
             // Get percentage (out of 256) of source alpha compared to final alpha
             if( finalAlpha == 0 ) {
@@ -323,25 +337,41 @@ namespace fCraft.GUI {
             // Destination percentage is just the additive inverse.
             int destAlpha = 255 - sourceAlpha;
 
-            if( z < (Map.Height >> 1) ) {
-                int shadow = (z >> 1) + mh34;
-                image[imageOffset] = (byte)((ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * Map.Height) / blendDivisor);
-                image[imageOffset + 1] = (byte)((ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * Map.Height) / blendDivisor);
-                image[imageOffset + 2] = (byte)((ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * Map.Height) / blendDivisor);
+            if( Gradient ) {
+                // Apply shading
+                if( z < ( map.Height >> 1 ) ) {
+                    int shadow = ( z >> 1 ) + mh34;
+                    image[imageOffset] =
+                        (byte)( ( ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * map.Height ) / blendDivisor );
+                    image[imageOffset + 1] =
+                        (byte)( ( ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * map.Height ) / blendDivisor );
+                    image[imageOffset + 2] =
+                        (byte)( ( ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * map.Height ) / blendDivisor );
+                } else {
+                    int shadow = ( z - ( map.Height >> 1 ) ) * 48;
+                    image[imageOffset] =
+                        (byte)Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha ) / 255 );
+                    image[imageOffset + 1] =
+                        (byte)Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha ) / 255 );
+                    image[imageOffset + 2] =
+                        (byte)Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha ) / 255 );
+                }
             } else {
-                int shadow = (z - (Map.Height >> 1)) * ShadingStrength;
-                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha) / 255 );
-                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha) / 255 );
-                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha) / 255 );
+                image[imageOffset] =
+                    (byte)Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + image[imageOffset] * destAlpha ) / 255 );
+                image[imageOffset + 1] =
+                    (byte)Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + image[imageOffset + 1] * destAlpha ) / 255 );
+                image[imageOffset + 2] =
+                    (byte)Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + image[imageOffset + 2] * destAlpha ) / 255 );
             }
-
             image[imageOffset + 3] = (byte)finalAlpha;
         }
+
 
         byte GetBlock( int xx, int yy, int zz ) {
             int realx;
             int realy;
-            switch( Rot ) {
+            switch( Rotation ) {
                 case 0:
                     realx = xx;
                     realy = yy;
@@ -359,19 +389,42 @@ namespace fCraft.GUI {
                     realy = dimY1 - xx;
                     break;
             }
-            int pos = (zz * dimY + realy) * dimX + realx;
+            int pos = ( zz * dimY + realy ) * dimX + realx;
 
             if( Mode == IsoCatMode.Normal ) {
                 return bp[pos];
-            } else if( Mode == IsoCatMode.Peeled && (xx == (Rot == 1 || Rot == 3 ? dimY1 : dimX1) || yy == (Rot == 1 || Rot == 3 ? dimX1 : dimY1) || zz == Map.Height - 1) ) {
+            } else if( Mode == IsoCatMode.Peeled &&
+                       ( xx == ( Rotation == 1 || Rotation == 3 ? dimY1 : dimX1 ) || yy == ( Rotation == 1 || Rotation == 3 ? dimX1 : dimY1 ) ||
+                         zz == map.Height - 1 ) ) {
                 return 0;
-            } else if( Mode == IsoCatMode.Cut && xx > (Rot == 1 || Rot == 3 ? dimY2 : dimX2) && yy > (Rot == 1 || Rot == 3 ? dimX2 : dimY2) ) {
+            } else if( Mode == IsoCatMode.Cut && xx > ( Rotation == 1 || Rotation == 3 ? dimY2 : dimX2 ) &&
+                       yy > ( Rotation == 1 || Rotation == 3 ? dimX2 : dimY2 ) ) {
                 return 0;
-            } else if( Mode == IsoCatMode.Chunk && (realx < ChunkCoords[0] || realy < ChunkCoords[1] || zz < ChunkCoords[2] || realx > ChunkCoords[3] || realy > ChunkCoords[4] || zz > ChunkCoords[5]) ) {
+            } else if( Mode == IsoCatMode.Chunk &&
+                       ( realx < ChunkCoords[0] || realy < ChunkCoords[1] || zz < ChunkCoords[2] ||
+                         realx > ChunkCoords[3] || realy > ChunkCoords[4] || zz > ChunkCoords[5] ) ) {
                 return 0;
             }
 
             return bp[pos];
         }
+
+
+        public event ProgressChangedEventHandler ProgressChanged;
+
+        void ReportProgress( float progress ) {
+            var handler = ProgressChanged;
+            if( handler != null ) {
+                handler( this, new ProgressChangedEventArgs( (int)Math.Round( 100 * progress ), "Drawing" ) );
+            }
+        }
+
+        public void CancelAsync() {
+            isCanceled = true;
+        }
+
+        volatile bool isCanceled;
+
+        static readonly IsoCatResult CanceledResult = new IsoCatResult( true, null, default( Rectangle ) );
     }
 }

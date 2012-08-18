@@ -23,7 +23,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+        public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Block block, altBlock;
@@ -73,7 +73,7 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -119,14 +119,14 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation state ) {
+        public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
             return true;
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation state ) {
+        public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
                 return Block1;

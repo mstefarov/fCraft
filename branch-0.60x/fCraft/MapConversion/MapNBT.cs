@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     public sealed class MapNBT : IMapConverter {
@@ -22,13 +21,13 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( [NotNull] string fileName ) {
+        public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        public bool Claims( [NotNull] string fileName ) {
+        public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
@@ -42,7 +41,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map LoadHeader( [NotNull] string fileName ) {
+        public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             Map map = Load( fileName );
             map.Blocks = null;
@@ -50,7 +49,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public Map Load( [NotNull] string fileName ) {
+        public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
@@ -85,7 +84,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( [NotNull] Map mapToSave, [NotNull] string fileName ) {
+        public bool Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             throw new NotImplementedException();

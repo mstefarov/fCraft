@@ -777,7 +777,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( infos[0], max );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             int count = 0;
@@ -825,7 +825,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
@@ -954,7 +954,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( area, infos[0], max );
             if( area == null ) throw new ArgumentNullException( "area" );
             Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
@@ -1004,7 +1004,7 @@ namespace fCraft {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "info" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( area, infos[0], span );
             if( area == null ) throw new ArgumentNullException( "area" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();

@@ -232,7 +232,6 @@ namespace fCraft {
             }
 
             if( parseExceptions ) {
-                //maxRank = Rank.Parse( root.Element( "maxRank" ).Value );
                 foreach( XElement player in el.Elements( "included" ) ) {
                     if( !Player.IsValidName( player.Value ) ) continue;
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );

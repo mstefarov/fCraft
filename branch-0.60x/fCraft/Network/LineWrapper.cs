@@ -258,7 +258,10 @@ namespace fCraft {
                 lastColor = color;
             }
             
+#if DEBUG_LINE_WRAPPER
             int spacesToAppend = spaceCount;
+#endif
+
             if( spaceCount > 0 && outputIndex > outputStart ) {
                 // append spaces that accumulated since last word
                 while( spaceCount > 0 ) {

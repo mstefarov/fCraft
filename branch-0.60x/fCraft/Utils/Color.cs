@@ -271,9 +271,7 @@ namespace fCraft {
                         case 'm': sb[i] = Me[1]; break;
                         case 'i': sb[i] = IRC[1]; break;
                         default:
-                            if( IsValidColorCode( sb[i] ) ) {
-                                continue;
-                            } else {
+                            if( !IsValidColorCode( sb[i] ) ) {
                                 sb.Remove( i - 1, 1 );
                             }
                             break;

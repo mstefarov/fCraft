@@ -2,11 +2,11 @@
 using System;
 
 namespace fCraft.Drawing {
-    public class BlockDBDrawOperation : DrawOpWithBrush {
-        protected BlockDBEntry[] changes;
+    public sealed class BlockDBDrawOperation : DrawOpWithBrush {
+        BlockDBEntry[] changes;
         int entryIndex;
         Block block;
-        string commandName;
+        readonly string commandName;
 
 
         public override string Name {
@@ -43,9 +43,9 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Prepare( Vector3I[] marks, BlockDBEntry[] changes ) {
-            if( changes == null ) throw new ArgumentNullException( "changes" );
-            this.changes = changes;
+        public bool Prepare( Vector3I[] marks, BlockDBEntry[] changesToApply ) {
+            if( changesToApply == null ) throw new ArgumentNullException( "changesToApply" );
+            changes = changesToApply;
             return Prepare( marks );
         }
 

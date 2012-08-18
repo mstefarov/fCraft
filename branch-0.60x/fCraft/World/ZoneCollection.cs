@@ -290,7 +290,7 @@ namespace fCraft {
         }
 
 
-        public void CopyTo( [NotNull] Zone[] array, int arrayIndex ) {
+        public void CopyTo( Zone[] array, int arrayIndex ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( arrayIndex < 0 || arrayIndex > array.Length ) throw new ArgumentOutOfRangeException( "arrayIndex" );
             Zone[] cache = Cache;
@@ -298,7 +298,7 @@ namespace fCraft {
         }
 
 
-        void ICollection.CopyTo( [NotNull] Array array, int index ) {
+        void ICollection.CopyTo( Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
             Zone[] cache = Cache;

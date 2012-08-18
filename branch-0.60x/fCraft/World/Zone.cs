@@ -167,7 +167,8 @@ namespace fCraft {
             }
         }
 
-        internal string rawWhitelist, rawBlacklist;
+        internal readonly string rawWhitelist,
+                                 rawBlacklist;
 
 
         public string ClassyName {

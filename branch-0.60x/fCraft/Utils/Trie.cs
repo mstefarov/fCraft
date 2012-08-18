@@ -528,7 +528,7 @@ namespace fCraft {
         /// <summary> Removes an entry by key. </summary>
         /// <param name="key"> Key for the entry to remove. </param>
         /// <returns> True if the entry was removed, false if no entry was found for this key. </returns>
-        public bool Remove( [NotNull] string key ) {
+        public bool Remove( string key ) {
             if( key == null ) throw new ArgumentNullException( "key" );
             if( key.Length == 0 ) {
                 if( root.Payload == null ) return false;
@@ -622,7 +622,7 @@ namespace fCraft {
         }
 
 
-        object IDictionary.this[[NotNull] object key] {
+        object IDictionary.this[ object key] {
             get {
                 if( key == null ) {
                     throw new ArgumentNullException( "key" );
@@ -653,7 +653,7 @@ namespace fCraft {
         }
 
 
-        void IDictionary.Remove( [NotNull] object key ) {
+        void IDictionary.Remove( object key ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -665,7 +665,7 @@ namespace fCraft {
         }
 
 
-        void IDictionary.Add( [NotNull] object key, [NotNull] object value ) {
+        void IDictionary.Add( object key, [NotNull] object value ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -684,7 +684,7 @@ namespace fCraft {
         }
 
 
-        bool IDictionary.Contains( [NotNull] object key ) {
+        bool IDictionary.Contains( object key ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }
@@ -784,7 +784,7 @@ namespace fCraft {
             public object SyncRoot { get { return trie.syncRoot; } }
 
 
-            public void CopyTo( [NotNull] Array array, int index ) {
+            public void CopyTo( Array array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -801,7 +801,7 @@ namespace fCraft {
             }
 
 
-            public void CopyTo( [NotNull] T[] array, int index ) {
+            public void CopyTo( T[] array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -952,7 +952,7 @@ namespace fCraft {
             public object SyncRoot { get { return trie.syncRoot; } }
 
 
-            public void CopyTo( [NotNull] Array array, int index ) {
+            public void CopyTo( Array array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -969,7 +969,7 @@ namespace fCraft {
             }
 
 
-            public void CopyTo( [NotNull] string[] array, int index ) {
+            public void CopyTo( string[] array, int index ) {
                 if( array == null ) throw new ArgumentNullException( "array" );
                 if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -1175,7 +1175,7 @@ namespace fCraft {
         }
 
 
-        public void CopyTo( [NotNull] KeyValuePair<string, T>[] pairArray, int index ) {
+        public void CopyTo( KeyValuePair<string, T>[] pairArray, int index ) {
             if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
             if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
@@ -1198,7 +1198,7 @@ namespace fCraft {
         public object SyncRoot { get { return syncRoot; } }
 
 
-        public void CopyTo( [NotNull] Array pairArray, int index ) {
+        public void CopyTo( Array pairArray, int index ) {
             if( pairArray == null ) throw new ArgumentNullException( "pairArray" );
             if( index < 0 || index > pairArray.Length ) throw new ArgumentOutOfRangeException( "index" );
 
