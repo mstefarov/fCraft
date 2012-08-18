@@ -142,8 +142,8 @@ namespace fCraft {
                     }
                 }
             } else {
-                rawWhitelist = parts[1];
-                rawBlacklist = parts[2];
+                RawWhitelist = parts[1];
+                RawBlacklist = parts[2];
             }
 
             // Part 4: extended header
@@ -167,8 +167,8 @@ namespace fCraft {
             }
         }
 
-        internal readonly string rawWhitelist,
-                                 rawBlacklist;
+        internal readonly string RawWhitelist,
+                                 RawBlacklist;
 
 
         public string ClassyName {

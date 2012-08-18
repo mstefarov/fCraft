@@ -14,20 +14,16 @@ namespace fCraft {
 
         internal static readonly string[] DataFilesToBackup;
 
+
         static Paths() {
-            string assemblyDir = Path.GetDirectoryName( Assembly.GetExecutingAssembly().Location );
-            if( assemblyDir != null ) {
-                WorkingPathDefault = Path.GetFullPath( assemblyDir );
-            } else {
-                WorkingPathDefault = Path.GetPathRoot( Assembly.GetExecutingAssembly().Location );
-            }
+            WorkingPathDefault = GetDirectoryNameOrRoot( Assembly.GetExecutingAssembly().Location );
 
             WorkingPath = WorkingPathDefault;
             MapPath = MapPathDefault;
             LogPath = LogPathDefault;
             ConfigFileName = ConfigFileNameDefault;
 
-            ProtectedFiles = new[]{
+            ProtectedFiles = new[] {
                 "ConfigGUI.exe",
                 "ConfigCLI.exe",
                 "fCraft.dll",
@@ -47,7 +43,7 @@ namespace fCraft {
                 AutoRankFileName
             };
 
-            DataFilesToBackup = new[]{
+            DataFilesToBackup = new[] {
                 PlayerDBFileName,
                 IPBanListFileName,
                 WorldListFileName,
@@ -117,9 +113,7 @@ namespace fCraft {
 
         /// <summary> Path where map backups are stored </summary>
         public static string BackupPath {
-            get {
-                return Path.Combine( MapPath, "backups" );
-            }
+            get { return Path.Combine( MapPath, "backups" ); }
         }
 
 
@@ -163,7 +157,7 @@ namespace fCraft {
                 DirectoryInfo info = new DirectoryInfo( path );
                 if( checkForWriteAccess ) {
                     string randomFileName = Path.Combine( info.FullName, "fCraft_write_test_" + Guid.NewGuid() );
-                    using( File.Create( randomFileName ) ) { }
+                    using( File.Create( randomFileName ) ) {}
                     File.Delete( randomFileName );
                 }
                 return true;
@@ -208,14 +202,14 @@ namespace fCraft {
             try {
                 new FileInfo( filename );
                 if( File.Exists( filename ) ) {
-                    if( (neededAccess & FileAccess.Read) == FileAccess.Read ) {
-                        using( File.OpenRead( filename ) ) { }
+                    if( ( neededAccess & FileAccess.Read ) == FileAccess.Read ) {
+                        using( File.OpenRead( filename ) ) {}
                     }
-                    if( (neededAccess & FileAccess.Write) == FileAccess.Write ) {
-                        using( File.OpenWrite( filename ) ) { }
+                    if( ( neededAccess & FileAccess.Write ) == FileAccess.Write ) {
+                        using( File.OpenWrite( filename ) ) {}
                     }
                 } else if( createIfDoesNotExist ) {
-                    using( File.Create( filename ) ) { }
+                    using( File.Create( filename ) ) {}
                 }
                 return true;
 
@@ -261,7 +255,7 @@ namespace fCraft {
         public static bool Compare( [NotNull] string p1, [NotNull] string p2, bool caseSensitive ) {
             if( p1 == null ) throw new ArgumentNullException( "p1" );
             if( p2 == null ) throw new ArgumentNullException( "p2" );
-            StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
             return String.Equals( Path.GetFullPath( p1 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
                                   Path.GetFullPath( p2 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
                                   sc );
@@ -320,20 +314,32 @@ namespace fCraft {
         }
 
 
-        /// <summary>Checks whether the file exists in a specified way (case-sensitive or case-insensitive)</summary>
-        /// <param name="fileInfo">FileInfo object in question</param>
-        /// <param name="caseSensitive">Whether check should be case-sensitive or case-insensitive.</param>
-        /// <returns>true if file exists, otherwise false</returns>
+        /// <summary> Checks whether the file exists in a specified way (case-sensitive or case-insensitive). </summary>
+        /// <param name="fileInfo"> FileInfo object in question. </param>
+        /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
+        /// <returns> true if file exists, otherwise false. </returns>
         public static bool Exists( [NotNull] this FileInfo fileInfo, bool caseSensitive ) {
             if( fileInfo == null ) throw new ArgumentNullException( "fileInfo" );
             if( caseSensitive == MonoCompat.IsCaseSensitive ) {
                 return fileInfo.Exists;
             } else {
                 DirectoryInfo parentDir = fileInfo.Directory;
-                StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+                StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
                 return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
                                 .Any( file => file.Name.Equals( fileInfo.Name, sc ) );
             }
+        }
+
+
+        /// <summary> Gets full directory name for a given path, or path root for directory-less paths. </summary>
+        /// <param name="fileOrDirName"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"> fileOrDirName is null </exception>
+        [NotNull]
+        public static string GetDirectoryNameOrRoot( [NotNull] string fileOrDirName ) {
+            if( fileOrDirName == null ) throw new ArgumentNullException( "fileOrDirName" );
+            string fullPath = Path.GetFullPath( fileOrDirName );
+            return Path.GetDirectoryName( fullPath ) ?? Path.GetPathRoot( fullPath );
         }
 
 
@@ -345,7 +351,7 @@ namespace fCraft {
             if( newFileName == null ) throw new ArgumentNullException( "newFileName" );
             FileInfo originalFile = new FileInfo( originalFullFileName );
             if( originalFile.Name == newFileName ) return;
-            FileInfo newFile = new FileInfo( Path.Combine( originalFile.DirectoryName, newFileName ) );
+            FileInfo newFile = new FileInfo( Path.Combine( GetDirectoryNameOrRoot( originalFullFileName ), newFileName ) );
             string tempFileName = originalFile.FullName + Guid.NewGuid();
             MoveOrReplace( originalFile.FullName, tempFileName );
             MoveOrReplace( tempFileName, newFile.FullName );
@@ -357,10 +363,10 @@ namespace fCraft {
         /// <returns> Array of matches. Empty array if no files matches. </returns>
         public static FileInfo[] FindFiles( [NotNull] string fullFileName ) {
             if( fullFileName == null ) throw new ArgumentNullException( "fullFileName" );
-            FileInfo fi = new FileInfo( fullFileName );
-            DirectoryInfo parentDir = fi.Directory;
-            return parentDir.GetFiles( "*", SearchOption.TopDirectoryOnly )
-                            .Where( file => file.Name.Equals( fi.Name, StringComparison.OrdinalIgnoreCase ) )
+            string fileName = Path.GetFileName( fullFileName );
+            DirectoryInfo directory = new DirectoryInfo( GetDirectoryNameOrRoot( fullFileName ) );
+            return directory.GetFiles( "*", SearchOption.TopDirectoryOnly )
+                            .Where( file => file.Name.Equals( fileName, StringComparison.OrdinalIgnoreCase ) )
                             .ToArray();
         }
 

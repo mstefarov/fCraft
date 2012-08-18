@@ -241,8 +241,11 @@ namespace fCraft {
             if( Callback.Target != null ) {
                 sb.Append( Callback.Target ).Append( "::" );
             }
-            sb.Append( Callback.Method.DeclaringType.Name );
-            sb.Append( '.' );
+            Type declaringType = Callback.Method.DeclaringType;
+            if( declaringType != null ) {
+                sb.Append( declaringType.Name );
+                sb.Append( '.' );
+            }
             sb.Append( Callback.Method.Name );
             sb.Append( " @ " );
 
