@@ -755,7 +755,7 @@ namespace fCraft {
         /// <param name="block"> Block corresponding to given blockName;
         /// Block.Undefined if value could not be parsed. </param>
         /// <returns> True if given blockName was parsed as an acceptible block type. </returns>
-        /// <exception cref="ArgumentNullException"> If blockName is null. </exception>
+        /// <exception cref="ArgumentNullException"> blockName is null. </exception>
         public static bool GetBlockByName( [NotNull] string blockName, bool allowNoneBlock, out Block block ) {
             if( blockName == null ) throw new ArgumentNullException( "blockName" );
             if( BlockNames.TryGetValue( blockName.ToLower(), out block ) ) {

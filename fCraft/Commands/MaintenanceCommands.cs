@@ -750,15 +750,14 @@ namespace fCraft {
 
                     Rank oldPreviousRank = info.PreviousRank;
 
-                    if( newPreviousRank == oldPreviousRank ) {
-                        if( newPreviousRank == null ) {
-                            player.Message( "SetInfo: PreviousRank for {0}&S is not set.",
-                                            info.ClassyName );
-                        } else {
-                            player.Message( "SetInfo: PreviousRank for {0}&S is already set to {1}",
-                                            info.ClassyName,
-                                            newPreviousRank.ClassyName );
-                        }
+                    if( newPreviousRank == null && oldPreviousRank == null ) {
+                        player.Message( "SetInfo: PreviousRank for {0}&S is not set.",
+                                        info.ClassyName );
+                        return;
+                    } else if( newPreviousRank == oldPreviousRank ) {
+                        player.Message( "SetInfo: PreviousRank for {0}&S is already set to {1}",
+                                        info.ClassyName,
+                                        newPreviousRank.ClassyName );
                         return;
                     }
                     info.PreviousRank = newPreviousRank;

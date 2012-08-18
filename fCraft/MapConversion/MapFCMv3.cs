@@ -301,8 +301,8 @@ namespace fCraft.MapConversion {
 
             var zoneExceptions = zone.Controller.ExceptionList;
 
-            string whitelist = zone.rawWhitelist ?? zoneExceptions.Included.JoinToString( " ", p => p.Name );
-            string blacklist = zone.rawBlacklist ?? zoneExceptions.Excluded.JoinToString( " ", p => p.Name );
+            string whitelist = zone.RawWhitelist ?? zoneExceptions.Included.JoinToString( " ", p => p.Name );
+            string blacklist = zone.RawBlacklist ?? zoneExceptions.Excluded.JoinToString( " ", p => p.Name );
 
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",

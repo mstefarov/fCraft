@@ -588,7 +588,7 @@ namespace fCraft {
             lock( SyncRoot ) {
                 if( Map == null ) return;
 
-                lock( backupLock ) {
+                lock( BackupLock ) {
                     if( BackupsEnabled &&
                         DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
                         (HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
@@ -611,7 +611,7 @@ namespace fCraft {
         #region Backups
 
         DateTime lastBackup = DateTime.UtcNow;
-        static readonly object backupLock = new object();
+        static readonly object BackupLock = new object();
 
         /// <summary> Whether timed backups are enabled (either manually or by default) on this world. </summary>
         public bool BackupsEnabled {
@@ -637,7 +637,7 @@ namespace fCraft {
         public YesNoAuto BackupEnabledState {
             get { return backupEnabledState; }
             set {
-                lock( backupLock ) {
+                lock( BackupLock ) {
                     if( value == backupEnabledState ) return;
                     if( value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero ) {
                         throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval." );
@@ -664,7 +664,7 @@ namespace fCraft {
                 }
             }
             set {
-                lock( backupLock ) {
+                lock( BackupLock ) {
                     backupInterval = value;
                     if( value > TimeSpan.Zero ) {
                         BackupEnabledState = YesNoAuto.Yes;
@@ -710,7 +710,7 @@ namespace fCraft {
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
 
             if( !File.Exists( MapFileName ) ) return;
-            lock( backupLock ) {
+            lock( BackupLock ) {
                 DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );
 
                 if( !directory.Exists ) {

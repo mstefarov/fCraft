@@ -1525,12 +1525,11 @@ namespace fCraft {
         // called after player types "/ok" to the confirmation prompt.
         static void BlockDBUndoConfirmCallback( Player player, object tag, bool fromConsole ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
-            bool undoArea = (args.Area == null);
-            string cmdName = (undoArea ? "UndoArea" : "UndoPlayer");
+            string cmdName = ( args.Area == null ? "UndoArea" : "UndoPlayer" );
 
             // Produce 
             Vector3I[] coords;
-            if( undoArea ) {
+            if( args.Area != null ) {
                 coords = new[] { args.Area.MinVertex, args.Area.MaxVertex };
             } else {
                 coords = new Vector3I[0];

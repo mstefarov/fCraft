@@ -23,15 +23,13 @@ namespace fCraft.Drawing {
                 }
             }
         }
-
-
-        public string paramDescription;
+        readonly string paramDescription;
 
 
         public override int ExpectedMarks {
             get { return expectedMarks; }
         }
-        int expectedMarks;
+        readonly int expectedMarks;
 
 
         public BlockDBDrawOperation( Player player, string commandName, string paramDescription, int expectedMarks )
