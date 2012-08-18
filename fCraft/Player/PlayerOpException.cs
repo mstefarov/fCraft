@@ -67,7 +67,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation("=> halt")]
         internal static void ThrowCannotTargetSelf( [NotNull] Player player, [CanBeNull] PlayerInfo target, [NotNull] string action ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
@@ -77,7 +77,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPermissionMissing( [NotNull] Player player, [CanBeNull] PlayerInfo target,
                                               [NotNull] string action, [NotNull] params Permission[] permissions ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -99,7 +99,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPermissionLimitIP( [NotNull] Player player, [NotNull] PlayerInfo infoWhomPlayerCantBan, [NotNull] IPAddress targetAddress ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( infoWhomPlayerCantBan == null ) throw new ArgumentNullException( "infoWhomPlayerCantBan" );
@@ -125,7 +125,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPermissionLimit( [NotNull] Player player, [NotNull] PlayerInfo targetInfo, [NotNull] string action, Permission permission ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
@@ -141,7 +141,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPlayerAndIPNotBanned( [NotNull] Player player, [NotNull] PlayerInfo targetInfo, [NotNull] IPAddress address ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
@@ -162,7 +162,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowNoOneToBan( [NotNull] Player player, [CanBeNull] PlayerInfo targetInfo, [NotNull] IPAddress address ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -192,7 +192,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowNoOneToUnban( [NotNull] Player player, [CanBeNull] PlayerInfo targetInfo, [NotNull] IPAddress address ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -208,7 +208,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPlayerAlreadyBanned( [NotNull] Player player, [NotNull] PlayerInfo target, [NotNull] string action ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -219,7 +219,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowPlayerNotBanned( [NotNull] Player player, [NotNull] PlayerInfo target, [NotNull] string action ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -230,7 +230,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowCancelled( [NotNull] Player player, [NotNull] PlayerInfo target ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -240,7 +240,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowNoWorld( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             const string msg = "Player must be in a world to do this.";
@@ -249,7 +249,7 @@ namespace fCraft {
         }
 
 
-        [TerminatesProgram]
+        [ContractAnnotation( "=> halt" )]
         internal static void ThrowInvalidIP( [NotNull] Player player, [CanBeNull] PlayerInfo target, [NotNull] IPAddress ip ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( ip == null ) throw new ArgumentNullException( "ip" );

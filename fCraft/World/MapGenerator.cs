@@ -669,14 +669,14 @@ namespace fCraft {
 
             Random rn = new Random();
 
-            map.CalculateShadows();
+            short[,] shadows = map.ComputeHeightmap();
 
             for( int x = 0; x < map.Width; x += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
                 for( int y = 0; y < map.Length; y += rn.Next( minTrunkPadding, maxTrunkPadding + 1 ) ) {
                     int nx = x + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
                     int ny = y + rn.Next( -(minTrunkPadding / 2), (maxTrunkPadding / 2) + 1 );
                     if( nx < 0 || nx >= map.Width || ny < 0 || ny >= map.Length ) continue;
-                    int nz = map.Shadows[nx, ny];
+                    int nz = shadows[nx, ny];
 
                     if( (map.GetBlock( nx, ny, nz ) == bGroundSurface) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,

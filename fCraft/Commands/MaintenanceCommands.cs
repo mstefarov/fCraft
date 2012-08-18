@@ -1360,11 +1360,10 @@ namespace fCraft {
 
         // by Chris Wilson
         static string[] ParseCsvRow( string r ) {
-            string[] c;
             List<string> resp = new List<string>();
             bool cont = false;
             string cs = "";
-            c = r.Split( new char[] { ',' }, StringSplitOptions.None );
+            string[] c = r.Split( new[] { ',' }, StringSplitOptions.None );
             foreach( string y in c ) {
                 string x = y;
                 if( cont ) {
@@ -1515,7 +1514,6 @@ namespace fCraft {
 
             if( !cmd.IsConfirmed ) {
                 player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
-                return;
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
                 player.Message( "InfoSwap: Stats of {0}&S and {1}&S have been swapped.",

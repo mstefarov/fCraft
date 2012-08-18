@@ -56,9 +56,6 @@ namespace fCraft {
         /// <summary> Whether the map was modified since last time it was saved. </summary>
         public bool HasChangedSinceSave { get; internal set; }
 
-        // used by IsoCat and MapGenerator
-        public short[,] Shadows;
-
 
         // FCMv3 additions
         public DateTime DateModified { get; set; }
@@ -726,13 +723,11 @@ namespace fCraft {
         }
 
 
-        public void CalculateShadows() {
-            if( Shadows != null ) return;
-
-            Shadows = new short[Width, Length];
+        public short[,] ComputeHeightmap() {
+            short[,] shadows = new short[Width, Length];
             for( int x = 0; x < Width; x++ ) {
                 for( int y = 0; y < Length; y++ ) {
-                    for( short z = (short)(Height - 1); z >= 0; z-- ) {
+                    for( short z = (short)( Height - 1 ); z >= 0; z-- ) {
                         switch( GetBlock( x, y, z ) ) {
                             case Block.Air:
                             case Block.BrownMushroom:
@@ -743,13 +738,14 @@ namespace fCraft {
                             case Block.YellowFlower:
                                 continue;
                             default:
-                                Shadows[x, y] = z;
+                                shadows[x, y] = z;
                                 break;
                         }
                         break;
                     }
                 }
             }
+            return shadows;
         }
 
 

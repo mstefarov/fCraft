@@ -92,9 +92,6 @@ namespace fCraft {
 
         #region Saving/Loading
 
-        static Dictionary<int, Rank> rankMapping;
-
-
         internal static void Load() {
             lock( SaveLoadLocker ) {
                 if( File.Exists( Paths.PlayerDBFileName ) ) {
@@ -210,19 +207,6 @@ namespace fCraft {
             }
 
             RunCompatibilityChecks( version );
-        }
-
-
-        internal static Rank GetRankByIndex( int index ) {
-            Rank rank;
-            if( rankMapping.TryGetValue( index, out rank ) ) {
-                return rank;
-            } else {
-                Logger.Log( LogType.Error,
-                            "Unknown rank index ({0}). Assigning rank {1} instead.",
-                            index, RankManager.DefaultRank );
-                return RankManager.DefaultRank;
-            }
         }
 
 
@@ -592,6 +576,7 @@ namespace fCraft {
         /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoByID( int id ) {
+            if( id < 0 ) throw new ArgumentOutOfRangeException( "id" );
             CheckIfLoaded();
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {

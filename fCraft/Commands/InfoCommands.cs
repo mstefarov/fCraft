@@ -210,9 +210,9 @@ namespace fCraft {
                 }
                 if( target != null ) {
                     if( info.IsHidden ) {
-                        firstLine.AppendFormat( "HIDDEN", info.ClassyName );
+                        firstLine.AppendFormat( "HIDDEN" );
                     } else {
-                        firstLine.AppendFormat( "Online now", info.ClassyName );
+                        firstLine.AppendFormat( "Online now" );
                     }
                     if( target.IsDeaf ) {
                         firstLine.Append( " (deaf)" );

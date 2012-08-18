@@ -27,7 +27,7 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+        public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
@@ -58,7 +58,7 @@ namespace fCraft.Drawing {
     }
 
 
-    public unsafe sealed class RandomBrush : IBrushInstance, IBrush {
+    public sealed class RandomBrush : IBrushInstance, IBrush {
         public const int MaxRatio = 10000;
 
         public Block[] Blocks { get; private set; }
@@ -134,7 +134,7 @@ namespace fCraft.Drawing {
 
 
         [CanBeNull]
-        public IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation state ) {
+        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             if( state == null ) throw new ArgumentNullException( "state" );
@@ -188,7 +188,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin( [NotNull] Player player, [NotNull] DrawOperation op ) {
+        public bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( op == null ) throw new ArgumentNullException( "op" );
             if( Blocks == null || Blocks.Length == 0 ) {
@@ -198,12 +198,12 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( [NotNull] DrawOperation op ) {
+        public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             int n = seed ^ (op.Coords.X + 1290 * op.Coords.Y + 1664510 * op.Coords.Z);
             n = (n << 13) ^ n;
             n = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF;
-            double derp = (((double)n) / (double)0x7FFFFFFF) * actualBlocks.Length;
+            double derp = (n / (double)0x7FFFFFFF) * actualBlocks.Length;
             return actualBlocks[(int)Math.Floor( derp )];
         }
 

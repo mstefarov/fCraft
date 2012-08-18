@@ -57,6 +57,7 @@ namespace fCraft.ConfigGUI {
 
         public AddWorldPopup( WorldListEntry world ) {
             InitializeComponent();
+            renderer = new IsoCat();
             fileBrowser.Filter = MapLoadFilter;
 
             cBackup.Items.AddRange( WorldListEntry.BackupEnumNames );
@@ -226,7 +227,6 @@ namespace fCraft.ConfigGUI {
             stopwatch = Stopwatch.StartNew();
             try {
                 Map = MapUtility.Load( fileToLoad );
-                Map.CalculateShadows();
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
                                                 ex.GetType().Name, ex.Message ) );
@@ -252,13 +252,14 @@ namespace fCraft.ConfigGUI {
 
         #region Map Preview
 
-        IsoCat renderer;
+        readonly IsoCat renderer;
 
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
                 progressBar.Visible = true;
                 progressBar.Style = ProgressBarStyle.Continuous;
                 if( bwRenderer.IsBusy ) {
+                    renderer.CancelAsync();
                     bwRenderer.CancelAsync();
                     while( bwRenderer.IsBusy ) {
                         Thread.Sleep( 1 );
@@ -271,15 +272,20 @@ namespace fCraft.ConfigGUI {
 
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
-            renderer = new IsoCat( Map, IsoCatMode.Normal, previewRotation );
-            Rectangle cropRectangle;
+            renderer.Rotation = previewRotation;
+
             if( bwRenderer.CancellationPending ) return;
-            Bitmap rawImage = renderer.Draw( out cropRectangle, bwRenderer );
-            if( bwRenderer.CancellationPending ) return;
+
+            renderer.ProgressChanged +=
+                ( progressSender, progressArgs ) =>
+                bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+            IsoCatResult result = renderer.Draw( map );
+            if( result.Canceled || bwRenderer.CancellationPending ) return;
+
+            Bitmap rawImage = result.Bitmap;
             if( rawImage != null ) {
-                previewImage = rawImage.Clone( cropRectangle, rawImage.PixelFormat );
+                previewImage = rawImage.Clone( result.CropRectangle, rawImage.PixelFormat );
             }
-            renderer = null;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
@@ -366,7 +372,6 @@ namespace fCraft.ConfigGUI {
             if( floodBarrier ) {
                 MapGenerator.MakeFloodBarrier( generatedMap );
             }
-            generatedMap.CalculateShadows();
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }

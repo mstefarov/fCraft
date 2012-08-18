@@ -24,6 +24,7 @@ namespace fCraft {
     /// <summary> Represents the method that responds to a confirmation command. </summary>
     /// <param name="player"> Player who confirmed the action. </param>
     /// <param name="tag"> Parameter that was passed to Player.Confirm() </param>
+    /// <param name="fromConsole"> Whether player is console. </param>
     public delegate void ConfirmationCallback( Player player, object tag, bool fromConsole );
 
 
@@ -1161,6 +1162,8 @@ namespace fCraft {
         readonly LinkedList<UndoState> undoStack = new LinkedList<UndoState>();
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
+
+        [CanBeNull]
         internal UndoState RedoPop() {
             if( redoStack.Count > 0 ) {
                 var lastNode = redoStack.Last;
@@ -1171,6 +1174,8 @@ namespace fCraft {
             }
         }
 
+
+        [NotNull]
         internal UndoState RedoBegin( DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
@@ -1178,6 +1183,8 @@ namespace fCraft {
             return newState;
         }
 
+
+        [NotNull]
         internal UndoState UndoBegin( DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
@@ -1185,6 +1192,8 @@ namespace fCraft {
             return newState;
         }
 
+
+        [CanBeNull]
         public UndoState UndoPop() {
             if( undoStack.Count > 0 ) {
                 var lastNode = undoStack.Last;
@@ -1424,7 +1433,7 @@ namespace fCraft {
         public static AccountType CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
-            request.ServicePoint.BindIPEndPointDelegate = new BindIPEndPoint( Server.BindIPEndPointCallback );
+            request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
             request.Timeout = PaidCheckTimeout;
             request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
 

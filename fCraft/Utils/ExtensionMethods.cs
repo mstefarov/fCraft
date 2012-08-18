@@ -242,9 +242,7 @@ namespace fCraft {
                     }
                     expectingDigit = false;
                 } else {
-                    if( text[i] >= '0' && text[i] <= '9' ) {
-                        continue;
-                    } else {
+                    if( text[i] < '0' || text[i] > '9' ) {
                         string numberString = text.Substring( digitOffset, i - digitOffset );
                         digitOffset = i + 1;
                         int number = Int32.Parse( numberString );

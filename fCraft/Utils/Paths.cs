@@ -19,7 +19,7 @@ namespace fCraft {
             if( assemblyDir != null ) {
                 WorkingPathDefault = Path.GetFullPath( assemblyDir );
             } else {
-                WorkingPathDefault = Path.GetPathRoot( assemblyDir );
+                WorkingPathDefault = Path.GetPathRoot( Assembly.GetExecutingAssembly().Location );
             }
 
             WorkingPath = WorkingPathDefault;

@@ -215,7 +215,7 @@ namespace fCraft {
     }
 
 
-    public class ChatTimerEventArgs : EventArgs {
+    public sealed class ChatTimerEventArgs : EventArgs {
         public ChatTimerEventArgs( ChatTimer timer ) {
             Timer = timer;
         }

@@ -11,9 +11,7 @@ namespace fCraft {
     public sealed class BoundingBox : IEquatable<BoundingBox> {
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
-        // ReSharper disable FieldCanBeMadeReadOnly.Global
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;
-        // ReSharper restore FieldCanBeMadeReadOnly.Global
 
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
         public BoundingBox( Vector3I p1, Vector3I p2 ) :

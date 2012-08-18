@@ -168,8 +168,7 @@ namespace fCraft {
             }
             if( firstWorld == null ) firstWorld = world;
 
-            XElement tempEl;
-            tempEl = el.Element( "Greeting" );
+            XElement tempEl = el.Element( "Greeting" );
             if( tempEl != null && !String.IsNullOrEmpty( tempEl.Value ) ) world.Greeting = tempEl.Value;
 
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {

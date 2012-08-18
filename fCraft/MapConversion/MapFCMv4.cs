@@ -33,7 +33,7 @@ namespace fCraft.MapConversion {
 
 
         /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
-        public bool ClaimsName( [NotNull] string fileName ) {
+        public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
@@ -41,7 +41,7 @@ namespace fCraft.MapConversion {
 
         /// <summary> Allows validating the map format while using minimal resources. </summary>
         /// <returns> Returns true if specified file/directory is valid for this format. </returns>
-        public bool Claims( [NotNull] string path ) {
+        public bool Claims( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 BinaryReader reader = new BinaryReader( fs );
@@ -62,7 +62,7 @@ namespace fCraft.MapConversion {
 
         /// <summary> Fully loads map from specified location. </summary>
         /// <returns> Map object on success, or null on failure. </returns>
-        public Map Load( [NotNull] string path ) {
+        public Map Load( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 return LoadInternal( fs, true );
@@ -72,7 +72,7 @@ namespace fCraft.MapConversion {
 
         /// <summary> Saves given map at the given location. </summary>
         /// <returns> true if saving succeeded. </returns>
-        public bool Save( [NotNull] Map map, [NotNull] string path ) {
+        public bool Save( Map map, string path ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream mapStream = File.Create( path ) ) {
