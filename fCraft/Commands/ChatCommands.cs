@@ -29,6 +29,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSay = new CommandDescriptor {
             Name = "Say",
+            Aliases = new[] { "broadcast" },
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             NotRepeatable = true,

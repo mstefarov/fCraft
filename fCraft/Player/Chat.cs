@@ -133,7 +133,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
-            var recepientList = Server.Players.NotIgnoring( player );
+            var recepientList = Server.Players;
 
             string formattedMessage = Color.Say + rawMessage;
 
