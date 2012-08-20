@@ -309,8 +309,16 @@ namespace fCraft {
             if( !Can( Permission.Draw ) && Can( Permission.DrawAdvanced ) ) {
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Rank is allowed to DrawAdvanced but not allowed to Draw. " +
-                            "Assuming that Draw permission were meant to be off.", Name );
+                            "Assuming that DrawAdvanced permission was meant to be off.", Name );
                 Permissions[(int)Permission.DrawAdvanced] = false;
+            }
+
+            // check consistency of Undo permissions
+            if( !Can( Permission.UndoOthersActions ) && Can( Permission.UndoAll ) ) {
+                Logger.Log( LogType.Warning,
+                            "Rank({0}): Rank is allowed to UndoAll but not allowed to UndoOthersActions. " +
+                            "Assuming that UndoAll permission was meant to be off.", Name );
+                Permissions[(int)Permission.UndoAll] = false;
             }
         }
 

@@ -117,8 +117,7 @@ namespace fCraft {
         BringAll,
 
         /// <summary> Ability to patrol lower-ranked players.
-        /// "Patrolling" means teleporting to other players to check on them,
-        /// usually while hidden. </summary>
+        /// "Patrolling" means teleporting to other players to check on them, usually while hidden. </summary>
         Patrol,
 
         /// <summary> Ability to use /Spectate. </summary>
@@ -149,7 +148,7 @@ namespace fCraft {
         /// changing per-world permissions, and using the map generator. </summary>
         ManageWorlds,
 
-        /// <summary> Ability to use /WFlush command. </summary>
+        /// <summary> Ability to flush pending draw commands with /WFlush. </summary>
         FlushWorlds,
 
         /// <summary> Ability to enable/disable, clear, and configure BlockDB. </summary>
