@@ -1000,9 +1000,23 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     break;
 
                 case Permission.DrawAdvanced:
+                    if( check ) vPermissions.Items[(int)Permission.Draw].Checked = true;
                     lFillLimit.Enabled = check;
                     lFillLimitUnits.Enabled = check;
                     nFillLimit.Enabled = check;
+                    break;
+
+                case Permission.UndoAll:
+                    if( check ) vPermissions.Items[(int)Permission.UndoOthersActions].Checked = true;
+                    break;
+
+                case Permission.UndoOthersActions:
+                    if( check ) {
+                        vPermissions.Items[(int)Permission.UndoAll].ForeColor = SystemColors.ControlText;
+                    } else {
+                        vPermissions.Items[(int)Permission.UndoAll].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.UndoAll].Checked = false;
+                    }
                     break;
 
                 case Permission.CopyAndPaste:
