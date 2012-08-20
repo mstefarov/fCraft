@@ -101,6 +101,18 @@ namespace fCraft.Drawing {
                     }
                 }
             }
+
+            // Draw filling
+            if( Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2 ) {
+                UseAlternateBlock = true;
+                for( int x = Bounds.XMin + 1; x < Bounds.XMax - 1; x++ ) {
+                    for( int y = Bounds.YMin + 1; y < Bounds.YMax - 1; y++ ) {
+                        for( int z = Bounds.ZMin + 1; z < Bounds.ZMax - 1; z++ ) {
+                            yield return new Vector3I( x, y, z );
+                        }
+                    }
+                }
+            }
         }
     }
 }
