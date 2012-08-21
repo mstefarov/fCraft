@@ -72,8 +72,8 @@ namespace fCraft.Drawing {
             get { return Description; }
         }
 
-        bool IBrushInstance.HasAlternateBlock {
-            get { return false; }
+        int IBrushInstance.AlternateBlocks {
+            get { return 1; }
         }
 
         bool IBrushInstance.Begin( Player player, DrawOperation op ) {

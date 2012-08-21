@@ -7,12 +7,12 @@ namespace fCraft.Drawing {
 
         RainbowBrush() { }
 
-        public bool HasAlternateBlock {
-            get { return false; }
-        }
-
         public string Name {
             get { return "Rainbow"; }
+        }
+
+        public int AlternateBlocks {
+            get { return 1; }
         }
 
         public string[] Aliases {

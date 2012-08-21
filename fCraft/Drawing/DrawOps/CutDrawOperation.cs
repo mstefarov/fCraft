@@ -14,13 +14,18 @@ namespace fCraft.Drawing {
         public override string Description {
             get {
                 var normalBrush = Brush as NormalBrush;
-                if( normalBrush != null && normalBrush.Block != Block.Air ) {
-                    return String.Format( "{0}/{1}", Name, normalBrush.Block );
+                if( normalBrush != null ) {
+                    if( normalBrush.AlternateBlocks > 0 && normalBrush.AltBlocks[0] == Block.Air ) {
+                        return Name;
+                    } else {
+                        return String.Format( "{0}/{1}", Name, normalBrush.AltBlocks[0] );
+                    }
                 } else {
-                    return Name;
+                    return base.Description;
                 }
             }
         }
+
 
         public CutDrawOperation( Player player )
             : base( player ) {

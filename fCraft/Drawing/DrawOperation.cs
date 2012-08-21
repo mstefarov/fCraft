@@ -98,8 +98,9 @@ namespace fCraft.Drawing {
         public Vector3I Coords;
 
         /// <summary> Whether the brush should use alternate block (if available)
-        /// for filling insides of hollow DrawOps. Currently only usable with NormalBrush. </summary>
-        public bool UseAlternateBlock { get; set; }
+        /// for filling insides of hollow DrawOps. Currently only supported by NormalBrush. 
+        /// Used with CuboidH/CuboidW/EllipsoidH drawops. </summary>
+        public int AlternateBlockIndex { get; set; }
 
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         public abstract string Name { get; }

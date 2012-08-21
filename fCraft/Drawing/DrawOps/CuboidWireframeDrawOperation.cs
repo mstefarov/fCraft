@@ -17,15 +17,22 @@ namespace fCraft.Drawing {
         }
 
 
+        bool fillSides, fillCenter;
+
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
+
+            fillSides = Brush.AlternateBlocks > 1;
+            fillCenter = Brush.AlternateBlocks > 2;
 
             int hollowVolume = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );
             int sideVolumeX = Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * (Bounds.ZMax != Bounds.ZMin ? 2 : 1);
             int sideVolumeY = Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 ) * (Bounds.XMax != Bounds.XMin ? 2 : 1);
             int sideVolumeZ = Math.Max( 0, Bounds.Height - 2 ) * Math.Max( 0, Bounds.Width - 2 ) * (Bounds.YMax != Bounds.YMin ? 2 : 1);
 
-            BlocksTotalEstimate = Bounds.Volume - hollowVolume - sideVolumeX - sideVolumeY - sideVolumeZ;
+            BlocksTotalEstimate = Bounds.Volume;
+            if( !fillSides ) BlocksTotalEstimate -= sideVolumeX + sideVolumeY + sideVolumeZ;
+            if( !fillCenter ) BlocksTotalEstimate -= hollowVolume;
 
             coordEnumerator = BlockEnumerator().GetEnumerator();
             return true;
@@ -103,8 +110,8 @@ namespace fCraft.Drawing {
             }
 
             // Draw filling
-            if( Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2 ) {
-                UseAlternateBlock = true;
+            if( fillCenter && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2 ) {
+                AlternateBlockIndex = 2;
                 for( int x = Bounds.XMin + 1; x < Bounds.XMax - 1; x++ ) {
                     for( int y = Bounds.YMin + 1; y < Bounds.YMax - 1; y++ ) {
                         for( int z = Bounds.ZMin + 1; z < Bounds.ZMax - 1; z++ ) {

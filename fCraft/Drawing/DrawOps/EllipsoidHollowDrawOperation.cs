@@ -31,7 +31,7 @@ namespace fCraft.Drawing {
             center.Y = (Bounds.YMin + Bounds.YMax) / 2f;
             center.Z = (Bounds.ZMin + Bounds.ZMax) / 2f;
 
-            fillInner = Brush.HasAlternateBlock &&
+            fillInner = Brush.AlternateBlocks > 1 &&
                         Bounds.Width > 2 &&
                         Bounds.Length > 2 &&
                         Bounds.Height > 2;
@@ -110,14 +110,14 @@ namespace fCraft.Drawing {
                                     break;
                                 }
 
-                                UseAlternateBlock = true;
+                                AlternateBlockIndex = 1;
                                 goto case State.InnerBlock;
 
 
                             case State.InnerBlock:
                                 state = State.InnerBlock;
-                                if( Coords.Z > (int)(center.Z - delta.Z) ) {
-                                    UseAlternateBlock = false;
+                                if( Coords.Z > (int)( center.Z - delta.Z ) ) {
+                                    AlternateBlockIndex = 0;
                                     state = State.BeforeBlock;
                                     break;
                                 }
