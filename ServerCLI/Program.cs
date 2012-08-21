@@ -43,7 +43,7 @@ namespace fCraft.ServerCLI {
 #if !DEBUG
             try {
 #endif
-                if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ServerCLI.Program ).Assembly.GetName().Version ) {
+                if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                     Console.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
                     ReportFailure( ShutdownReason.FailedToInitialize, false );
                     return;
@@ -218,13 +218,11 @@ namespace fCraft.ServerCLI {
                         var key = Console.ReadKey();
                         if( key.KeyChar == 'y' ) {
                             RestartForUpdate();
-                            return;
                         } else {
                             Console.WriteLine( "You can update manually by shutting down the server and running " + Paths.UpdaterFileName );
                         }
                     } else {
                         RestartForUpdate();
-                        return;
                     }
                 }
             }

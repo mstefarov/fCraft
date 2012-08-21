@@ -1,6 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
@@ -41,7 +40,7 @@ namespace fCraft.ServerGUI {
 
 
         protected override void OnShown( EventArgs e ) {
-            if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ServerGUI.Program ).Assembly.GetName().Version ) {
+            if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 MessageBox.Show( "fCraft.dll version does not match ServerGUI.exe version." );
                 Application.Exit();
                 return;
@@ -317,7 +316,7 @@ namespace fCraft.ServerGUI {
         // CopyMenuOnClickHandler and CopyMenuPopupHandler by Jonty800
         private void CopyMenuOnClickHandler( object sender, EventArgs e ) {
             if( logBox.SelectedText.Length > 0 ) {
-                Clipboard.SetText( logBox.SelectedText.ToString(), TextDataFormat.Text );
+                Clipboard.SetText( logBox.SelectedText, TextDataFormat.Text );
             }
         }
 
