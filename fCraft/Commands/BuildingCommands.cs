@@ -361,7 +361,7 @@ namespace fCraft {
             Name = "Solid",
             Aliases = new[] { "s" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.PlaceAdmincrete },
+            Permissions = new[] { Permission.Build, Permission.PlaceAdmincrete },
             Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
             Handler = SolidHandler
         };
@@ -403,7 +403,7 @@ namespace fCraft {
             Name = "Grass",
             Aliases = new[] { "g" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.PlaceGrass },
+            Permissions = new[] { Permission.Build, Permission.PlaceGrass },
             Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
             Handler = GrassHandler
         };
@@ -424,7 +424,7 @@ namespace fCraft {
             Name = "Water",
             Aliases = new[] { "w" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.PlaceWater },
+            Permissions = new[] { Permission.Build, Permission.PlaceWater },
             Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
             Handler = WaterHandler
         };
@@ -449,7 +449,7 @@ namespace fCraft {
             Name = "Lava",
             Aliases = new[] { "l" },
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.PlaceLava },
+            Permissions = new[] { Permission.Build, Permission.PlaceLava },
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
             Handler = LavaHandler
         };
