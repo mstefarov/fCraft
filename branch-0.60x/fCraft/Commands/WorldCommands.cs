@@ -983,7 +983,6 @@ namespace fCraft {
                     player.Message( "&WAn error occured while saving generated map to {0}", fileName );
                 }
             } else {
-                if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
                 player.MessageNow( "Generation done. Changing map..." );
                 playerWorld.MapChangedBy = player.Name;
                 playerWorld.ChangeMap( map );

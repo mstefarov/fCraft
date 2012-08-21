@@ -37,7 +37,7 @@ namespace fCraft.ConfigGUI {
         protected override void OnShown( EventArgs e ) {
             base.OnShown( e );
 
-            if( typeof( fCraft.Server ).Assembly.GetName().Version != typeof( fCraft.ConfigGUI.Program ).Assembly.GetName().Version ) {
+            if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 MessageBox.Show( "fCraft.dll version does not match ConfigGUI.exe version." );
                 Application.Exit();
                 return;
@@ -639,7 +639,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void RebuildRankList() {
             vRanks.Items.Clear();
             foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( MainForm.ToComboBoxOption( rank ) );
+                vRanks.Items.Add( ToComboBoxOption( rank ) );
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
@@ -701,7 +701,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             box.Items.Clear();
             box.Items.Add( firstItem );
             foreach( Rank rank in RankManager.Ranks ) {
-                box.Items.Add( MainForm.ToComboBoxOption( rank ) );
+                box.Items.Add( ToComboBoxOption( rank ) );
             }
         }
 
@@ -720,7 +720,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             RebuildRankList();
             SelectRank( rank );
 
-            rankNameList.Insert( rank.Index + 1, MainForm.ToComboBoxOption( rank ) );
+            rankNameList.Insert( rank.Index + 1, ToComboBoxOption( rank ) );
         }
 
         private void bDeleteRank_Click( object sender, EventArgs e ) {
@@ -771,12 +771,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 // Update world permissions
                 string worldUpdates = "";
                 foreach( WorldListEntry world in Worlds ) {
-                    if( world.AccessPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
-                        world.AccessPermission = MainForm.ToComboBoxOption( replacementRank );
+                    if( world.AccessPermission == ToComboBoxOption( deletedRank ) ) {
+                        world.AccessPermission = ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": access permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
-                    if( world.BuildPermission == MainForm.ToComboBoxOption( deletedRank ) ) {
-                        world.BuildPermission = MainForm.ToComboBoxOption( replacementRank );
+                    if( world.BuildPermission == ToComboBoxOption( deletedRank ) ) {
+                        world.BuildPermission = ToComboBoxOption( replacementRank );
                         worldUpdates += " - " + world.Name + ": build permission changed to " + replacementRank.Name + Environment.NewLine;
                     }
                 }
@@ -813,7 +813,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
             if( selectedRank.Prefix == tPrefix.Text ) return;
 
-            string oldName = MainForm.ToComboBoxOption( selectedRank );
+            string oldName = ToComboBoxOption( selectedRank );
 
             // To avoid DataErrors in World tab's DataGridView while renaming a rank,
             // the new name is first added to the list of options (without removing the old name)
@@ -1111,8 +1111,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
             if( newName == selectedRank.Name ) {
                 return;
-
-            } else if( newName.Length == 0 ) {
+            }
+            if( newName.Length == 0 ) {
                 MessageBox.Show( "Rank name cannot be blank." );
                 tRankName.ForeColor = System.Drawing.Color.Red;
                 e.Cancel = true;
@@ -1129,7 +1129,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 e.Cancel = true;
 
             } else {
-                string oldName = MainForm.ToComboBoxOption( selectedRank );
+                string oldName = ToComboBoxOption( selectedRank );
 
                 // To avoid DataErrors in World tab's DataGridView while renaming a rank,
                 // the new name is first added to the list of options (without removing the old name)
@@ -1150,7 +1150,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.RaiseRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 1, MainForm.ToComboBoxOption( selectedRank ) );
+                rankNameList.Insert( selectedRank.Index + 1, ToComboBoxOption( selectedRank ) );
                 rankNameList.RemoveAt( selectedRank.Index + 3 );
             }
         }
@@ -1159,7 +1159,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( RankManager.LowerRank( selectedRank ) ) {
                 RebuildRankList();
-                rankNameList.Insert( selectedRank.Index + 2, MainForm.ToComboBoxOption( selectedRank ) );
+                rankNameList.Insert( selectedRank.Index + 2, ToComboBoxOption( selectedRank ) );
                 rankNameList.RemoveAt( selectedRank.Index );
             }
         }
@@ -1567,7 +1567,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } catch( Exception ) { }
         }
 
-        public static bool usePrefixes = false;
+        public static bool usePrefixes;
 
 
         public static string ToComboBoxOption( Rank rank ) {

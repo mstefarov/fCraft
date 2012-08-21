@@ -134,7 +134,7 @@ namespace fCraft.MapConversion {
         }
 
         public NBTag Remove() {
-            if( Parent != null && Parent is NBTCompound ) {
+            if( Parent as NBTCompound != null ) {
                 Parent.Remove( Name );
                 return this;
             } else {
