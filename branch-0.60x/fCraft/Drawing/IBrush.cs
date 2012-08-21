@@ -61,7 +61,7 @@ namespace fCraft.Drawing {
         string InstanceDescription { get; }
 
         /// <summary> Whether the brush is capable of providing alternate blocks (e.g. for filling hollow DrawOps).</summary>
-        bool HasAlternateBlock { get; }
+        int AlternateBlocks { get; }
 
         /// <summary> Called when the DrawOperation starts. Should be used to verify that the brush is ready for use.
         /// Resources used by the brush should be obtained here. </summary>

@@ -22,11 +22,12 @@ namespace fCraft.Drawing {
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
 
-            fillInner = Brush.HasAlternateBlock && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;
+            fillInner = ( Brush.AlternateBlocks > 1 ) && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;
 
             BlocksTotalEstimate = Bounds.Volume;
             if( !fillInner ) {
-                BlocksTotalEstimate -= Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) * Math.Max( 0, Bounds.Height - 2 );
+                BlocksTotalEstimate -= Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) *
+                                       Math.Max( 0, Bounds.Height - 2 );
             }
 
             coordEnumerator = BlockEnumerator().GetEnumerator();
@@ -81,7 +82,7 @@ namespace fCraft.Drawing {
             }
 
             if( fillInner ) {
-                UseAlternateBlock = true;
+                AlternateBlockIndex = 1;
                 for( int x = Bounds.XMin + 1; x < Bounds.XMax; x++ ) {
                     for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
                         for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {

@@ -126,8 +126,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool HasAlternateBlock {
-            get { return false; }
+        public int AlternateBlocks {
+            get { return 1; }
         }
 
 
