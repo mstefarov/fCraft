@@ -66,15 +66,15 @@ namespace fCraft.Drawing {
 
 
     public sealed class NormalBrush : IBrushInstance {
-        public Block[] AltBlocks { get; set; }
+        public Block[] Blocks { get; set; }
 
 
         public string InstanceDescription {
             get {
-                if( AltBlocks.Length == 0 ) {
+                if( Blocks.Length == 0 ) {
                     return Brush.Factory.Name;
                 } else {
-                    return String.Format( "{0}({1})", Brush.Factory.Name, AltBlocks.JoinToString() );
+                    return String.Format( "{0}({1})", Brush.Factory.Name, Blocks.JoinToString() );
                 }
             }
         }
@@ -86,19 +86,19 @@ namespace fCraft.Drawing {
 
 
         public NormalBrush( params Block[] blocks ) {
-            AltBlocks = blocks;
+            Blocks = blocks;
         }
 
 
         public bool Begin( Player player, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( state == null ) throw new ArgumentNullException( "state" );
-            if( AltBlocks == null ) {
+            if( Blocks == null || Blocks.Length == 0 ) {
                 if( player.LastUsedBlockType == Block.None ) {
                     player.Message( "Cannot deduce desired block. Click a block or type out the block name." );
                     return false;
                 } else {
-                    AltBlocks = new[] {
+                    Blocks = new[] {
                         player.GetBind( player.LastUsedBlockType )
                     };
                 }
@@ -109,16 +109,16 @@ namespace fCraft.Drawing {
 
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            if( state.AlternateBlockIndex < AltBlocks.Length ) {
-                return AltBlocks[state.AlternateBlockIndex];
+            if( state.AlternateBlockIndex < Blocks.Length ) {
+                return Blocks[state.AlternateBlockIndex];
             } else {
-                return AltBlocks[AltBlocks.Length - 1];
+                return Block.None;
             }
         }
 
 
         public int AlternateBlocks {
-            get { return AltBlocks.Length; }
+            get { return Blocks.Length; }
         }
 
 

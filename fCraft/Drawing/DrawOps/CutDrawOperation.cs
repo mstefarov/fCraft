@@ -15,10 +15,10 @@ namespace fCraft.Drawing {
             get {
                 var normalBrush = Brush as NormalBrush;
                 if( normalBrush != null ) {
-                    if( normalBrush.AlternateBlocks > 0 && normalBrush.AltBlocks[0] == Block.Air ) {
+                    if( normalBrush.AlternateBlocks > 0 && normalBrush.Blocks[0] == Block.Air ) {
                         return Name;
                     } else {
-                        return String.Format( "{0}/{1}", Name, normalBrush.AltBlocks[0] );
+                        return String.Format( "{0}/{1}", Name, normalBrush.Blocks[0] );
                     }
                 } else {
                     return base.Description;
