@@ -2,17 +2,22 @@
  Feature: New permissions! FlushWorlds (previously part of ManageWorlds), UseTimers (previously part of Say), and UndoAll (for new /UndoArea and /UndoPlayer functionality).
  Feature: Added ability to undo multiple players' actions at once, or EVERYONE's actions at once, using /UndoPlayer and /UndoArea. Command syntax changed, see wiki.
  Feature: /Info now shows whether minecraft.net accounts are free or paid.
- Feature: Added special "skip" blocktype, usable with brushes and draw commands.
+ Feature: Added special "skip"/"none" blocktype, usable with brushes and draw commands.
+ Feature: /CuboidW now supports optionally filling sides and center of the cuboid with different blocktypes, e.g. "/cw white blue red"
  Fix: Fixed ServerCLI launching the wrong fCraft binary after running the updater.
  Fix: Fixed a missing warning in /Gen when map height is not a multiple of 16.
  Fix: Fixed a rare case of players receiving desynchronized copies of maps where draw commands are in progress.
- Fix: Improved performance of /Gen, /UndoArea, /UndoAll, and world changes (e.g. /Join).
+ Fix: Improved performance of /Gen, /UndoArea, /UndoPlayer, and world changes (e.g. /Join).
  Fix: Fixed a crash in "/Commands <Category>"
+ Fix: Fixed a potential crash in SchedulerTask.ToString() when a task was created from method without a declaring type.
+ Fix: Fixed potential crashes in Paths.ForceRename and Paths.FindFiles when working with files in root directories (e.g. C:/)
  Change: Adjustments to block names and aliases.
  Change: Merged /Cancel and /Nvm commands.
  Change: Made /Say, /Me, and /Staff usable by frozen players.
  Change: Added a warning to /Colors regarding the minimum rank required to use colorcodes in chat (thanks Jonty800).
  Change: /Paint command no longer shows up in /Commands for players who cant build/delete.
+ Change: Added /Broadcast as an alias for /Say, to emulate vanilla Minecraft behavior.
+ Change: Ignoring a player no longer prevents you from seeing /Say messages written by them.
  API: Added ChatTimer.Started and ChatTimer.Stopped events.
 
 0.624
