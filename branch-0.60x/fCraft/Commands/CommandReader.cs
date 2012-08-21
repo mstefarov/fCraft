@@ -178,13 +178,13 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public bool NextBlock( [NotNull] Player player, bool allowNone, out Block block ) {
+        public bool NextBlock( [NotNull] Player player, bool allowNoneBlock, out Block block ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             string blockName = Next();
             block = Block.None;
             if( blockName != null ) {
                 if( Map.GetBlockByName( blockName, true, out block ) ) {
-                    if( block == Block.None && !allowNone ) {
+                    if( block == Block.None && !allowNoneBlock ) {
                         player.Message( "The \"none\" block is not allowed here" );
                         return false;
                     } else {

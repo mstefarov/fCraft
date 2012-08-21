@@ -37,7 +37,6 @@ namespace fCraft.Drawing {
                 int ratio;
                 Block block;
                 if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
-                if( block == Block.None ) return null;
                 if( ratio < 1 || ratio > RandomBrush.MaxRatio ) {
                     player.Message( "Random brush: Invalid block ratio ({0}). Must be between 1 and {1}.",
                                     ratio, RandomBrush.MaxRatio );
