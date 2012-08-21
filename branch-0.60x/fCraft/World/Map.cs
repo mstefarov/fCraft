@@ -512,10 +512,8 @@ namespace fCraft {
         static Map() {
             // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
-                if( block != Block.None ) {
-                    BlockNames.Add( block.ToString().ToLower(), block );
-                    BlockNames.Add( ((int)block).ToString(), block );
-                }
+                BlockNames.Add( block.ToString().ToLower(), block );
+                BlockNames.Add( ( (int)block ).ToString(), block );
             }
 
             // alternative names for blocks

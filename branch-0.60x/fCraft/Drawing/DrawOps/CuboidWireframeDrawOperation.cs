@@ -120,38 +120,38 @@ namespace fCraft.Drawing {
             if( fillSides ) {
                 AlternateBlockIndex = 1;
                 if( Bounds.Length > 2 && Bounds.Height > 2 ) {
-                    for( int y = Bounds.YMin + 1; y < Bounds.YMax - 1; y++ ) {
-                        for( int z = Bounds.ZMin + 1; z < Bounds.ZMax - 1; z++ ) {
+                    for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
+                        for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
                             yield return new Vector3I( Bounds.XMin, y, z );
                             if( Bounds.XMin != Bounds.XMax ) yield return new Vector3I( Bounds.XMax, y, z );
                         }
                     }
-                    if( Bounds.Width > 2 && Bounds.Height > 2 ) {
-                        for( int x = Bounds.XMin + 1; x < Bounds.XMax - 1; x++ ) {
-                            for( int z = Bounds.ZMin + 1; z < Bounds.ZMax - 1; z++ ) {
-                                yield return new Vector3I( x, Bounds.YMin, z );
-                                if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( x, Bounds.YMax, z );
-                            }
-                        }
-                    }
-                    if( Bounds.Length > 2 && Bounds.Width > 2 ) {
-                        for( int x = Bounds.XMin + 1; x < Bounds.XMax - 1; x++ ) {
-                            for( int y = Bounds.YMin + 1; y < Bounds.YMax - 1; y++ ) {
-                                yield return new Vector3I( x, y, Bounds.ZMin );
-                                if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( x, y, Bounds.ZMax );
-                            }
+                }
+                if( Bounds.Width > 2 && Bounds.Height > 2 ) {
+                    for( int x = Bounds.XMin + 1; x < Bounds.XMax; x++ ) {
+                        for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
+                            yield return new Vector3I( x, Bounds.YMin, z );
+                            if( Bounds.YMin != Bounds.YMax ) yield return new Vector3I( x, Bounds.YMax, z );
                         }
                     }
                 }
+                if( Bounds.Length > 2 && Bounds.Width > 2 ) {
+                    for( int x = Bounds.XMin + 1; x < Bounds.XMax; x++ ) {
+                        for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
+                            yield return new Vector3I( x, y, Bounds.ZMin );
+                            if( Bounds.ZMin != Bounds.ZMax ) yield return new Vector3I( x, y, Bounds.ZMax );
+                        }
+                    }
+                }
+            }
 
-                // Draw filling
-                if( fillCenter ) {
-                    AlternateBlockIndex = 2;
-                    for( int x = Bounds.XMin + 1; x < Bounds.XMax - 1; x++ ) {
-                        for( int y = Bounds.YMin + 1; y < Bounds.YMax - 1; y++ ) {
-                            for( int z = Bounds.ZMin + 1; z < Bounds.ZMax - 1; z++ ) {
-                                yield return new Vector3I( x, y, z );
-                            }
+            // Draw filling
+            if( fillCenter ) {
+                AlternateBlockIndex = 2;
+                for( int x = Bounds.XMin + 1; x < Bounds.XMax; x++ ) {
+                    for( int y = Bounds.YMin + 1; y < Bounds.YMax; y++ ) {
+                        for( int z = Bounds.ZMin + 1; z < Bounds.ZMax; z++ ) {
+                            yield return new Vector3I( x, y, z );
                         }
                     }
                 }
