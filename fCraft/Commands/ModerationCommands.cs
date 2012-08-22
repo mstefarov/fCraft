@@ -336,6 +336,9 @@ namespace fCraft {
                         player.Message( "IP-Ban exemption removed for player {0}",
                                         target.ClassyName );
                         target.BanStatus = BanStatus.NotBanned;
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} removed a ban exemption for {1}", player.Name, target.Name );
+
                     }
                     break;
                 case BanStatus.NotBanned:
@@ -343,6 +346,8 @@ namespace fCraft {
                         player.Message( "IP-Ban exemption added for player {0}",
                                         target.ClassyName );
                         target.BanStatus = BanStatus.IPBanExempt;
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} added a ban exemption for {1}", player.Name, target.Name );
                     } else {
                         player.Message( "No IP-Ban exemption exists for player {0}",
                                         target.ClassyName );

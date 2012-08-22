@@ -183,7 +183,9 @@ namespace fCraft {
             Permissions = new[] { Permission.ManageZones },
             Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             Help = "Allows editing the zone permissions after creation. " +
-                   "You can change the rank restrictions, and include or exclude individual players.",
+                   "You can change the rank restrictions, and include or exclude individual players. " +
+                   "To include individuals, use \"+PlayerName\". To exclude, use \"-PlayerName\". " +
+                   "To clear whitelist, use \"-*\". To clear blacklist use \"+*\"",
             Handler = ZoneEditHandler
         };
 
@@ -201,22 +203,59 @@ namespace fCraft {
                 return;
             }
 
-            string name;
-            while( (name = cmd.Next()) != null ) {
-                if( name.StartsWith( "+" ) ) {
-                    if( name.Length == 1 ) {
-                        CdZoneEdit.PrintUsage( player );
-                        break;
+            string nextToken;
+            while( (nextToken = cmd.Next()) != null ) {
+                // Clear whitelist
+                if( nextToken.Equals( "-*" ) ) {
+                    PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included;
+                    if( oldWhitelist.Length > 0 ) {
+                        zone.Controller.ResetIncludedList();
+                        player.Message( "Whitelist of zone {0}&S cleared: {1}",
+                                        zone.ClassyName, oldWhitelist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared whitelist of zone {1} on world {2}: {3}",
+                                    player.Name, zone.Name, player.World.Name,
+                                    oldWhitelist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Whitelist of zone {0}&S is empty.",
+                                        zone.ClassyName );
                     }
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    continue;
+                }
+
+                // Clear blacklist
+                if( nextToken.Equals( "+*" ) ) {
+                    PlayerInfo[] oldBlacklist = zone.Controller.ExceptionList.Excluded;
+                    if( oldBlacklist.Length > 0 ) {
+                        zone.Controller.ResetExcludedList();
+                        player.Message( "Blacklist of zone {0}&S cleared: {1}",
+                                        zone.ClassyName, oldBlacklist.JoinToClassyString() );
+                        Logger.Log( LogType.UserActivity,
+                                    "Player {0} cleared blacklist of zone {1} on world {2}: {3}",
+                                    player.Name, zone.Name, player.World.Name,
+                                    oldBlacklist.JoinToString( pi => pi.Name ) );
+                    } else {
+                        player.Message( "Blacklist of zone {0}&S is empty.",
+                                        zone.ClassyName );
+                    }
+                    continue;
+                }
+
+                if( nextToken.StartsWith( "+" ) ) {
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
                     if( !player.Info.Rank.AllowSecurityCircumvention && player.Info == info ) {
-                        if( !zone.Controller.Check( info ) ) {
-                            player.Message( "You must be {0}+&S to add yourself to this zone's whitelist.",
-                                            zone.Controller.MinRank.ClassyName );
-                            continue;
+                        switch( zone.Controller.CheckDetailed( info ) ) {
+                            case SecurityCheckResult.BlackListed:
+                                player.Message( "You are not allowed to remove yourself from the blacklist of zone {0}",
+                                                zone.ClassyName );
+                                continue;
+                            case SecurityCheckResult.RankTooLow:
+                                player.Message( "You must be {0}+&S to add yourself to the whitelist of zone {1}",
+                                                zone.Controller.MinRank.ClassyName, zone.ClassyName );
+                                continue;
                         }
                     }
 
@@ -237,12 +276,8 @@ namespace fCraft {
                             break;
                     }
 
-                } else if( name.StartsWith( "-" ) ) {
-                    if( name.Length == 1 ) {
-                        CdZoneEdit.PrintUsage( player );
-                        break;
-                    }
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                } else if( nextToken.StartsWith( "-" ) ) {
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
                     if( info == null ) return;
 
                     switch( zone.Controller.Exclude( info ) ) {
@@ -263,7 +298,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    Rank minRank = RankManager.FindRank( name );
+                    Rank minRank = RankManager.FindRank( nextToken );
 
                     if( minRank != null ) {
                         // prevent players from lowering rank so bypass protection
@@ -281,7 +316,7 @@ namespace fCraft {
                             changesWereMade = true;
                         }
                     } else {
-                        player.MessageNoRank( name );
+                        player.MessageNoRank( nextToken );
                     }
                 }
 
@@ -471,8 +506,24 @@ namespace fCraft {
 
         static void ZoneRemoveHandler( Player player, CommandReader cmd ) {
             string zoneName = cmd.Next();
-            if( zoneName == null ) {
+            if( zoneName == null || cmd.HasNext ) {
                 CdZoneRemove.PrintUsage( player );
+                return;
+            }
+
+            if( zoneName == "*" ) {
+                if( !cmd.IsConfirmed ) {
+                    player.Confirm( cmd,
+                                    "&WRemove ALL zones on this world ({0}&W)? This cannot be undone.&S",
+                                    player.World.ClassyName );
+                    return;
+                }
+                player.WorldMap.Zones.Clear();
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} removed all zones on world {1}",
+                            player.Name, player.World.Name );
+                Server.Message( "Player {0}&S removed all zones on world {1}",
+                                player.ClassyName, player.World.ClassyName );
                 return;
             }
 
