@@ -670,17 +670,17 @@ namespace fCraft {
         };
 
         static void FreezeHandler( Player player, CommandReader cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
+            string targetName = cmd.Next();
+            if( targetName == null ) {
                 CdFreeze.PrintUsage( player );
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
 
             try {
-                target.Info.Freeze( player, true, true );
+                target.Freeze( player, true, true );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -699,17 +699,17 @@ namespace fCraft {
         };
 
         static void UnfreezeHandler( Player player, CommandReader cmd ) {
-            string name = cmd.Next();
-            if( name == null ) {
+            string targetName = cmd.Next();
+            if( targetName == null ) {
                 CdFreeze.PrintUsage( player );
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
 
             try {
-                target.Info.Unfreeze( player, true, true );
+                target.Unfreeze( player, true, true );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -1202,7 +1202,7 @@ namespace fCraft {
             TimeSpan duration;
 
             // validate command parameters
-            if( String.IsNullOrEmpty( targetName ) || String.IsNullOrEmpty( timeString ) ||
+            if( targetName == null || timeString == null ||
                 !timeString.TryParseMiniTimespan( out duration ) || duration <= TimeSpan.Zero ) {
                 CdMute.PrintUsage( player );
                 return;
@@ -1215,12 +1215,12 @@ namespace fCraft {
             }
 
             // find the target
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
 
             // actually mute
             try {
-                target.Info.Mute( player, duration, true, true );
+                target.Mute( player, duration, true, true );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -1245,11 +1245,11 @@ namespace fCraft {
             }
 
             // find target
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
             if( target == null ) return;
 
             try {
-                target.Info.Unmute( player, true, true );
+                target.Unmute( player, true, true );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
