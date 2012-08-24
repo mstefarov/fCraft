@@ -1,4 +1,4 @@
-// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Initial support contributed by Tyler Kennedy <tk@tkte.ch>
 using System;
 using System.IO;
@@ -7,17 +7,28 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    public sealed class MapMinerCPP : IMapConverter {
+    /// <summary> MinerCPP/LuaCraft map conversion implementation, for converting MinerCPP/LuaCraft map format into fCraft's default map format. </summary>
+    public sealed class MapMinerCPP : IMapImporter, IMapExporter {
 
         public string ServerName {
             get { return "MinerCPP/LuaCraft"; }
         }
 
+        public bool SupportsImport {
+            get { return true; }
+        }
+
+        public bool SupportsExport {
+            get { return true; }
+        }
+
+        public string FileExtension {
+            get { return "dat"; }
+        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.MinerCPP; }
@@ -36,7 +47,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                         BinaryReader bs = new BinaryReader( gs );
-                        return (bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef);
+                        return ( bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef );
                     }
                 }
             } catch( Exception ) {
@@ -62,17 +73,19 @@ namespace fCraft.MapConversion {
 
             // Read in the magic number
             if( bs.ReadByte() != 0xbe || bs.ReadByte() != 0xee || bs.ReadByte() != 0xef ) {
-                throw new MapFormatException( "MinerCPP map header is incorrect." );
+                throw new MapFormatException( "MapMinerCPP: Map header is incorrect." );
             }
 
             // Read in the map dimesions
-            // Saved in big endian for who-know-what reason.
+            // Saved in big endian for who-knows-what reason.
             // XYZ(?)
             int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             // XYZ(?)
@@ -100,7 +113,7 @@ namespace fCraft.MapConversion {
                     Map map = LoadHeaderInternal( gs );
 
                     if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                        throw new MapFormatException( "MapMinerCPP: One or more of the map dimensions are invalid." );
                     }
 
                     // Read in the map data

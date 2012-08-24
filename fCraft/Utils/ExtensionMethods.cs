@@ -580,6 +580,26 @@ namespace fCraft {
                 }
             }
         }
+
+
+        /// <summary> Checks whether the sequence of bytes in data at the given offset matches the sequence of ASCII characters in value.
+        /// Basically, checks whether the byte array contains the string at this offset. </summary>
+        /// <param name="data"> Byte array to search. </param>
+        /// <param name="offset"> Offset, in bytes, from the start of data. </param>
+        /// <param name="value"> Value to search for. Must contain only ASCII characters. </param>
+        /// <returns> Whether the pattern was found. </returns>
+        /// <exception cref="ArgumentNullException">If data or value is null.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If offset is less than 0 or greater than data.Length. </exception>
+        [Pure]
+        public static bool MemCmp( [NotNull] byte[] data, int offset, [NotNull] string value ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
+            if( value == null ) throw new ArgumentNullException( "value" );
+            if( offset < 0 || offset > data.Length ) throw new ArgumentOutOfRangeException( "offset" );
+            for( int i = 0; i < value.Length; i++ ) {
+                if( offset + i >= data.Length || data[offset + i] != value[i] ) return false;
+            }
+            return true;
+        }
     }
 
 

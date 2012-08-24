@@ -1,4 +1,4 @@
-// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -7,13 +7,24 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
-    public sealed class MapFCMv2 : IMapConverter {
-        public const uint Identifier = 0xfc000002;
+    public sealed class MapFCMv2 : IMapImporter {
+        private const uint Identifier = 0xfc000002;
 
         public string ServerName {
             get { return "fCraft"; }
         }
 
+        public bool SupportsImport {
+            get { return true; }
+        }
+
+        public bool SupportsExport {
+            get { return false; }
+        }
+
+        public string FileExtension {
+            get { return "fcm"; }
+        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
@@ -36,7 +47,7 @@ namespace fCraft.MapConversion {
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
-                    return (reader.ReadUInt32() == Identifier);
+                    return ( reader.ReadUInt32() == Identifier );
                 }
             } catch( Exception ) {
                 return false;
@@ -67,7 +78,9 @@ namespace fCraft.MapConversion {
             int length = reader.ReadInt16();
             int height = reader.ReadInt16();
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
             map.Spawn = new Position {
@@ -89,7 +102,7 @@ namespace fCraft.MapConversion {
                 Map map = LoadHeaderInternal( mapStream );
 
                 if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "One or more of the map dimensions are invalid." );
+                    throw new MapFormatException( "MapFCMv2: One or more of the map dimensions are invalid." );
                 }
 
                 BinaryReader reader = new BinaryReader( mapStream );
@@ -124,13 +137,6 @@ namespace fCraft.MapConversion {
 
                 return map;
             }
-        }
-
-
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            throw new NotImplementedException();
         }
 
 

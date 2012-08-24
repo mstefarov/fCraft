@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -8,19 +8,29 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for format version #3 (2011).
     /// Soon to be obsoleted by FCMv4. </summary>
-    public sealed class MapFCMv3 : IMapConverter {
-        public const int Identifier = 0x0FC2AF40;
-        public const byte Revision = 13;
+    public sealed class MapFCMv3 : IMapImporter, IMapExporter {
+        private const int Identifier = 0x0FC2AF40;
+        private const byte Revision = 13;
 
         public string ServerName {
             get { return "fCraft"; }
         }
 
+        public bool SupportsImport {
+            get { return true; }
+        }
+
+        public bool SupportsExport {
+            get { return true; }
+        }
+
+        public string FileExtension {
+            get { return "fcm"; }
+        }
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
-
 
         public MapFormat Format {
             get { return MapFormat.FCMv3; }
@@ -40,7 +50,7 @@ namespace fCraft.MapConversion {
                     BinaryReader reader = new BinaryReader( mapStream );
                     int id = reader.ReadInt32();
                     int rev = reader.ReadByte();
-                    return (id == Identifier && rev == Revision);
+                    return ( id == Identifier && rev == Revision );
                 } catch( Exception ) {
                     return false;
                 }
@@ -104,7 +114,7 @@ namespace fCraft.MapConversion {
                 // read the layer index
                 int layerCount = reader.ReadByte();
                 if( layerCount < 1 ) {
-                    throw new MapFormatException( "No data layers found." );
+                    throw new MapFormatException( "MapFCMv3: No data layers found." );
                 }
                 mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
 
@@ -156,7 +166,9 @@ namespace fCraft.MapConversion {
             int height = reader.ReadInt16();
             int length = reader.ReadInt16();
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // read spawn
             map.Spawn = new Position {
@@ -219,7 +231,7 @@ namespace fCraft.MapConversion {
                         metaCount = WriteMetadata( bs, mapToSave );
                         offset = mapStream.Position; // inaccurate, but who cares
                         bs.Write( blocksCache, 0, blocksCache.Length );
-                        compressedLength = (int)(mapStream.Position - offset);
+                        compressedLength = (int)( mapStream.Position - offset );
                     }
                 }
 
@@ -247,7 +259,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static void WriteLengthPrefixedString( [NotNull] BinaryWriter writer, [NotNull] string str ) {
+        static void WriteLengthPrefixedString( [NotNull] BinaryWriter writer, [NotNull] string str ) {
             if( writer == null ) throw new ArgumentNullException( "writer" );
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > ushort.MaxValue ) throw new ArgumentException( "String is too long.", "str" );

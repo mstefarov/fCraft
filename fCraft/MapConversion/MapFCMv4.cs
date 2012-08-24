@@ -1,57 +1,59 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
-using System.Text;
 using System.IO;
 using System.IO.Compression;
+using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Next file format that fCraft shall use. </summary>
-    public sealed class MapFCMv4 : IMapConverter {
-        public const int FormatID = 0x00FC0004;
+    public sealed class MapFCMv4 : IMapImporter, IMapExporter {
+        private const int FormatID = 0x00FC0004;
         const string ZoneMetaGroupName = "fCraft.Zones",
                      BlockLayerName = "Blocks";
 
 
-        /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         public string ServerName {
             get { return "fCraft"; }
         }
 
+        public bool SupportsImport {
+            get { return true; }
+        }
 
-        /// <summary> Returns the format type (file-based or directory-based). </summary>
+        public bool SupportsExport {
+            get { return true; }
+        }
+
+        public string FileExtension {
+            get { return "fcm"; }
+        }
+
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
 
-
-        /// <summary> Returns the format name. </summary>
         public MapFormat Format {
             get { return MapFormat.FCMv4; }
         }
 
 
-        /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
         public bool ClaimsName( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase );
         }
 
 
-        /// <summary> Allows validating the map format while using minimal resources. </summary>
-        /// <returns> Returns true if specified file/directory is valid for this format. </returns>
         public bool Claims( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
                 BinaryReader reader = new BinaryReader( fs );
-                return (reader.ReadInt32() == FormatID);
+                return ( reader.ReadInt32() == FormatID );
             }
         }
 
 
-        /// <summary> Attempts to load map dimensions from specified location. </summary>
-        /// <returns> Map object on success, or null on failure. </returns>
         public Map LoadHeader( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
@@ -60,8 +62,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Fully loads map from specified location. </summary>
-        /// <returns> Map object on success, or null on failure. </returns>
         public Map Load( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             using( FileStream fs = File.OpenRead( path ) ) {
@@ -70,8 +70,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        /// <summary> Saves given map at the given location. </summary>
-        /// <returns> true if saving succeeded. </returns>
         public bool Save( Map map, string path ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             if( path == null ) throw new ArgumentNullException( "path" );
@@ -153,7 +151,9 @@ namespace fCraft.MapConversion {
             int height = bs.ReadInt32();
             int length = bs.ReadInt32();
 
+            // ReSharper disable UseObjectOrCollectionInitializer
             Map map = new Map( null, width, length, height, false );
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             // spawn
             map.Spawn = new Position {
@@ -171,7 +171,7 @@ namespace fCraft.MapConversion {
             map.DateModified = modifiedTime.ToDateTime();
 
             int metaEntryCount = bs.ReadInt32();
-            if( metaEntryCount < 0 ) throw new MapFormatException( "Negative metadata entry count." );
+            if( metaEntryCount < 0 ) throw new MapFormatException( "MapFCMv4: Negative metadata entry count." );
 
             // metadata
             for( int i = 0; i < metaEntryCount; i++ ) {
@@ -184,7 +184,7 @@ namespace fCraft.MapConversion {
                 if( map.Metadata.TryGetValue( groupName, keyName, out oldValue ) ) {
                     Logger.Log( LogType.Warning,
                                 "MapFCMv4: Duplicate metadata entry \"{0}.{1}\". " +
-                                "Old value: \"{2}\", new value \"{3}\"", 
+                                "Old value: \"{2}\", new value \"{3}\"",
                                 groupName, keyName, oldValue, value );
                 }
 
@@ -208,14 +208,14 @@ namespace fCraft.MapConversion {
             }
 
             int layerCount = bs.ReadInt32();
-            if( layerCount < 0 ) throw new MapFormatException( "Negative layer count." );
+            if( layerCount < 0 ) throw new MapFormatException( "MapFCMv4: Negative layer count." );
 
             // layers
             if( readLayers ) {
                 for( int l = 0; l < layerCount; l++ ) {
                     string layerName = ReadString( bs );
                     int layerSize = bs.ReadInt32();
-                    if( layerSize < 0 ) throw new MapFormatException( "Invalid layer size." );
+                    if( layerSize < 0 ) throw new MapFormatException( "MapFCMv4: Invalid layer size." );
 
                     switch( layerName ) {
                         case BlockLayerName:
@@ -253,7 +253,7 @@ namespace fCraft.MapConversion {
         static string ReadString( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             int stringLength = reader.ReadInt32();
-            if( stringLength < 0 ) throw new MapFormatException( "Negative string length." );
+            if( stringLength < 0 ) throw new MapFormatException( "MapFCMv4: Negative string length." );
             return Encoding.ASCII.GetString( reader.ReadBytes( stringLength ) );
         }
 
