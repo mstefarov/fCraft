@@ -501,7 +501,7 @@ namespace fCraft {
 
 
         public BlockDBEntry[] Lookup( int max ) {
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => true );
         }
 
@@ -510,7 +510,7 @@ namespace fCraft {
             if( !World.LoadMap().InBounds( coords ) ) {
                 throw new ArgumentOutOfRangeException( "coords" );
             }
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => ( entry.X == coords.X && entry.Y == coords.Y && entry.Z == coords.Z ) );
         }
 
@@ -518,14 +518,14 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, TimeSpan span ) {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks );
         }
 
 
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area ) {
             if( area == null ) throw new ArgumentNullException( "area" );
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
@@ -534,7 +534,7 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks && area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
@@ -542,7 +542,7 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.PlayerID == pid );
         }
 
@@ -552,7 +552,7 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             int pid = info.ID;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
         }
 
@@ -561,7 +561,7 @@ namespace fCraft {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( max, infos[0] );
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => infos.Any( t => entry.PlayerID == t.ID ) );
         }
 
@@ -572,7 +572,7 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             if( infos.Length == 1 ) return Lookup( max, infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                           entry => infos.Any( t => entry.Timestamp >= ticks && entry.PlayerID == t.ID ) );
         }
 
@@ -581,7 +581,7 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.PlayerID == pid && area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
@@ -592,7 +592,7 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             int pid = info.ID;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks && entry.PlayerID == pid && area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
@@ -602,7 +602,7 @@ namespace fCraft {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( max, area, infos[0] );
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
         }
 
@@ -614,52 +614,126 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             if( infos.Length == 1 ) return Lookup( max, infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max,
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks && area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
         }
 
 
-        public BlockDBEntry[] Lookup( int max, Func<BlockDBEntry,bool> selector ) {
+        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, Func<BlockDBEntry, bool> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
             if( max == 0 ) return new BlockDBEntry[0];
             if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
             if( selector == null ) throw new ArgumentNullException( "selector" );
-            Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
             Map map = World.LoadMap();
             int count = 0;
 
-            if( isPreloaded ) {
-                lock( SyncRoot ) {
-                    fixed( BlockDBEntry* entries = cacheStore ) {
-                        for( int i = CacheSize - 1; i >= 0; i-- ) {
-                            if( selector(entries[i]) ) {
-                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                results[index] = entries[i];
-                                count++;
-                                if( count >= max ) break;
+            switch( searchType ) {
+                case BlockDBSearchType.ReturnAll: {
+                        List<BlockDBEntry> results = new List<BlockDBEntry>();
+                    if( isPreloaded ) {
+                        lock( SyncRoot ) {
+                            fixed( BlockDBEntry* entries = cacheStore ) {
+                                for( int i = CacheSize - 1; i >= 0; i-- ) {
+                                    if( selector( entries[i] ) ) {
+                                        results.Add( entries[i] );
+                                        count++;
+                                        if( count >= max ) break;
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Flush();
+                        byte[] bytes = Load();
+                        int entryCount = bytes.Length / BlockDBEntry.Size;
+                        fixed( byte* parr = bytes ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            for( int i = entryCount - 1; i >= 0; i-- ) {
+                                if( selector( entries[i] ) ) {
+                                    results.Add( entries[i] );
+                                    count++;
+                                    if( count >= max ) break;
+                                }
                             }
                         }
                     }
+                    return results.ToArray();
                 }
-            } else {
-                Flush();
-                byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntry.Size;
-                fixed( byte* parr = bytes ) {
-                    BlockDBEntry* entries = (BlockDBEntry*)parr;
-                    for( int i = entryCount - 1; i >= 0; i-- ) {
-                        if( selector( entries[i] ) ) {
-                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                            results[index] = entries[i];
-                            count++;
-                            if( count >= max ) break;
+                case BlockDBSearchType.ReturnNewest: {
+                        Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+                        if( isPreloaded ) {
+                            lock( SyncRoot ) {
+                                fixed( BlockDBEntry* entries = cacheStore ) {
+                                    for( int i = CacheSize - 1; i >= 0; i-- ) {
+                                        if( selector( entries[i] ) ) {
+                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                            if( !results.ContainsKey( index ) ) {
+                                                results[index] = entries[i];
+                                                count++;
+                                                if( count >= max ) break;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Flush();
+                            byte[] bytes = Load();
+                            int entryCount = bytes.Length / BlockDBEntry.Size;
+                            fixed( byte* parr = bytes ) {
+                                BlockDBEntry* entries = (BlockDBEntry*)parr;
+                                for( int i = entryCount - 1; i >= 0; i-- ) {
+                                    if( selector( entries[i] ) ) {
+                                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                        if( !results.ContainsKey( index ) ) {
+                                            results[index] = entries[i];
+                                            count++;
+                                            if( count >= max ) break;
+                                        }
+                                    }
+                                }
+                            }
                         }
+                        return results.Values.ToArray();
                     }
-                }
+                case BlockDBSearchType.ReturnOldest: {
+                        Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+                        if( isPreloaded ) {
+                            lock( SyncRoot ) {
+                                fixed( BlockDBEntry* entries = cacheStore ) {
+                                    for( int i = CacheSize - 1; i >= 0; i-- ) {
+                                        if( selector( entries[i] ) ) {
+                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                            results[index] = entries[i];
+                                            count++;
+                                            if( count >= max ) break;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            Flush();
+                            byte[] bytes = Load();
+                            int entryCount = bytes.Length / BlockDBEntry.Size;
+                            fixed( byte* parr = bytes ) {
+                                BlockDBEntry* entries = (BlockDBEntry*)parr;
+                                for( int i = entryCount - 1; i >= 0; i-- ) {
+                                    if( selector( entries[i] ) ) {
+                                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                        results[index] = entries[i];
+                                        count++;
+                                        if( count >= max ) break;
+                                    }
+                                }
+                            }
+                        }
+                        return results.Values.ToArray();
+                    }
+                default:
+                    throw new ArgumentOutOfRangeException( "searchType" );
             }
-            return results.Values.ToArray();
         }
 
 
@@ -773,5 +847,19 @@ namespace fCraft {
         }
 
         #endregion
+    }
+
+
+    /// <summary> Describes what kind of results should BlockDB.Lookup return. </summary>
+    public enum BlockDBSearchType {
+        /// <summary> All BlockDB Entries (even those that have been overriden) are returned,
+        /// possibly multiple entries per coordinate. </summary>
+        ReturnAll,
+
+        /// <summary> Only one newest entry is returned for each coordinate. </summary>
+        ReturnNewest,
+
+        /// <summary> Only one oldest entry is returned for each coordinate. </summary>
+        ReturnOldest
     }
 }
