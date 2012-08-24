@@ -480,6 +480,14 @@ namespace fCraft {
             a[0] = char.ToUpper( a[0] );
             return new string( a );
         }
+
+        public static string ToStringInvariant( this int i ) {
+            return i.ToString( CultureInfo.InvariantCulture );
+        }
+
+        public static int IndexOfOrdinal( this string haystack, string needle ) {
+            return haystack.IndexOf( needle, StringComparison.Ordinal );
+        }
     }
 
 

@@ -8,7 +8,6 @@ using System.Net;
 using System.Text;
 using JetBrains.Annotations;
 
-// ReSharper disable UnusedMember.Global
 namespace fCraft.MapConversion {
     /// <summary> Standard NBT data types. </summary>
     public enum NBTType : byte {
@@ -27,12 +26,10 @@ namespace fCraft.MapConversion {
 
 
     public class NBTag : IEnumerable<NBTag> {
-        // ReSharper disable MemberCanBeProtected.Global
         public NBTType Type { get; protected set; }
         public string Name { get; set; }
         public object Payload { get; set; }
         public NBTag Parent { get; set; }
-        // ReSharper restore MemberCanBeProtected.Global
 
 
         #region Constructors
@@ -44,14 +41,12 @@ namespace fCraft.MapConversion {
             Parent = parent;
         }
 
-        // ReSharper disable MemberCanBeProtected.Global
         public NBTag( NBTType type, string name, object payload, NBTag parent ) {
             Type = type;
             Name = name;
             Payload = payload;
             Parent = parent;
         }
-        // ReSharper restore MemberCanBeProtected.Global
 
         #endregion
 

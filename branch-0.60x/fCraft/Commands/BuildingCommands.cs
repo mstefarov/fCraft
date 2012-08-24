@@ -1515,7 +1515,7 @@ namespace fCraft {
                 Player = player,
                 AgeLimit = ageLimit,
                 CountLimit = countLimit,
-                Area = playerWorld.Map.Bounds,
+                Area = player.WorldMap.Bounds,
                 World = playerWorld,
                 Targets = targets.ToArray()
             };
@@ -1540,7 +1540,7 @@ namespace fCraft {
             string description;
             if( args.CountLimit > 0 ) {
                 if( args.Targets.Length == 0 ) {
-                    description = args.CountLimit.ToString();
+                    description = args.CountLimit.ToStringInvariant();
                 } else {
                     description = String.Format( "{0} by {1}",
                                                  args.CountLimit,
@@ -1565,7 +1565,7 @@ namespace fCraft {
                         cmdName,
                         player.Name,
                         args.Entries.Length,
-                        args.CountLimit == 0 ? args.AgeLimit.ToMiniString() : args.CountLimit.ToString(),
+                        args.CountLimit == 0 ? args.AgeLimit.ToMiniString() : args.CountLimit.ToStringInvariant(),
                         args.Targets.Length == 0 ? "(everyone)" : args.Targets.JoinToString( p => p.Name ),
                         args.World.Name );
 

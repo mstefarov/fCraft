@@ -128,7 +128,6 @@ namespace fCraft {
         /// <param name="info"> Player to check. </param>
         /// <returns> True if player is allowed. </returns>
         public bool Check( [NotNull] PlayerInfo info ) {
-            // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
@@ -137,7 +136,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) return true; // TODO: implement maxrank
+            if( info.Rank >= MinRank ) return true; // TODO: implement maxrank
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -146,7 +145,6 @@ namespace fCraft {
             }
 
             return false;
-            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 
@@ -154,7 +152,6 @@ namespace fCraft {
         /// <param name="info"> Player to check. </param>
         /// <returns> Security check result. </returns>
         public SecurityCheckResult CheckDetailed( [NotNull] PlayerInfo info ) {
-            // ReSharper disable LoopCanBeConvertedToQuery
             if( info == null ) throw new ArgumentNullException( "info" );
             PlayerExceptions listCache = ExceptionList;
             for( int i = 0; i < listCache.Excluded.Length; i++ ) {
@@ -163,8 +160,9 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank /*&& player.info.rank <= maxRank*/ ) // TODO: implement maxrank
+            if( info.Rank >= MinRank ) {
                 return SecurityCheckResult.Allowed;
+            }
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -173,7 +171,6 @@ namespace fCraft {
             }
 
             return SecurityCheckResult.RankTooLow;
-            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 
@@ -224,9 +221,7 @@ namespace fCraft {
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             if( el.Element( "minRank" ) != null ) {
-                // ReSharper disable PossibleNullReferenceException
                 minRank = Rank.Parse( el.Element( "minRank" ).Value );
-                // ReSharper restore PossibleNullReferenceException
             } else {
                 minRank = null;
             }

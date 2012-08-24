@@ -6,8 +6,6 @@ using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 
-// ReSharper disable UnusedMemberInSuper.Global
-// ReSharper disable MemberCanBeProtected.Global
 namespace fCraft.Drawing {
     /// <summary> Abstract class representing a drawing operation. </summary>
     public abstract class DrawOperation {

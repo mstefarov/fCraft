@@ -190,7 +190,6 @@ namespace fCraft {
                 xyz.Y++;
 
                 bool displaced = false;
-                // ReSharper disable LoopCanBeConvertedToQuery
                 foreach( Tree otherTree in treelist ) {
                     Vector3I otherLoc = otherTree.Pos;
                     float otherheight = otherTree.Height;
@@ -203,7 +202,6 @@ namespace fCraft {
                         break;
                     }
                 }
-                // ReSharper restore LoopCanBeConvertedToQuery
                 if( displaced ) continue;
                 treelist.Add( new RainforestTree {
                     Args = args,
@@ -406,18 +404,12 @@ namespace fCraft {
 
 
         class ProceduralTree : Tree {
-
-            // ReSharper disable MemberCanBePrivate.Local
-            // ReSharper disable MemberCanBeProtected.Local
             public float TrunkRadius { get; set; }
             public float BranchSlope { get; set; }
             public float TrunkHeight { get; set; }
             public float BranchDensity { get; set; }
             public float[] FoliageShape { get; set; }
             public Vector3I[] FoliageCoords { get; set; }
-            // ReSharper restore MemberCanBeProtected.Local
-            // ReSharper restore MemberCanBePrivate.Local
-
 
             void CrossSection( Vector3I center, float radius, int diraxis, Block matidx ) {
                 int rad = (int)(radius + .618);
@@ -891,7 +883,6 @@ namespace fCraft {
     }
 
     // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
-    // ReSharper disable ConvertToConstant.Global
     public sealed class ForesterArgs {
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant

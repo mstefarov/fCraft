@@ -153,7 +153,6 @@ namespace fCraft {
             bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
             bool isCommon = CheckForCommonErrors( exception );
 
-            // ReSharper disable EmptyGeneralCatchClause
             try {
                 var eventArgs = new CrashedEventArgs( message,
                                                       assembly,
@@ -164,7 +163,6 @@ namespace fCraft {
                 RaiseCrashedEvent( eventArgs );
                 isCommon = eventArgs.IsCommonProblem;
             } catch { }
-            // ReSharper restore EmptyGeneralCatchClause
 
             if( !submitCrashReport || isCommon ) {
                 return;
@@ -229,9 +227,7 @@ namespace fCraft {
                     string responseString;
                     using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
                         using( Stream responseStream = response.GetResponseStream() ) {
-                            // ReSharper disable AssignNullToNotNullAttribute
                             using( StreamReader reader = new StreamReader( responseStream ) ) {
-                                // ReSharper restore AssignNullToNotNullAttribute
                                 responseString = reader.ReadLine();
                             }
                         }

@@ -28,7 +28,6 @@
 using System;
 
 namespace fCraft {
-    // ReSharper disable UnusedMember.Global
     public static class IRCCommands {
         public static string Pass( string password ) {
             return "PASS " + password;

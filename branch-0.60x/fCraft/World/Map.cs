@@ -158,7 +158,6 @@ namespace fCraft {
                 return false;
             }
             return true;
-            // ReSharper restore EmptyGeneralCatchClause
         }
 
         #endregion
@@ -513,7 +512,7 @@ namespace fCraft {
             // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 BlockNames.Add( block.ToString().ToLower(), block );
-                BlockNames.Add( ( (int)block ).ToString(), block );
+                BlockNames.Add( ( (int)block ).ToStringInvariant(), block );
             }
 
             // alternative names for blocks

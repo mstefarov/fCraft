@@ -181,7 +181,7 @@ namespace fCraft.ServerGUI {
         #endregion
 
 
-        public void OnLogged( object sender, LogEventArgs e ) {
+        void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;
             try {
                 if( shutdownComplete ) return;
@@ -244,7 +244,7 @@ namespace fCraft.ServerGUI {
         }
 
 
-        public void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
+        void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( uriDisplay.InvokeRequired ) {
@@ -260,7 +260,7 @@ namespace fCraft.ServerGUI {
         }
 
 
-        public void OnPlayerListChanged( object sender, EventArgs e ) {
+        void OnPlayerListChanged( object sender, EventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( playerList.InvokeRequired ) {

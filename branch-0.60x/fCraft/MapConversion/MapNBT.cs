@@ -57,7 +57,6 @@ namespace fCraft.MapConversion {
 
 
                 NBTag mapTag = tag["Map"];
-                // ReSharper disable UseObjectOrCollectionInitializer
                 Map map = new Map( null,
                                    mapTag["Width"].GetShort(),
                                    mapTag["Length"].GetShort(),
@@ -70,7 +69,6 @@ namespace fCraft.MapConversion {
                     R = 0,
                     L = 0
                 };
-                // ReSharper restore UseObjectOrCollectionInitializer
 
                 if( !map.ValidateHeader() ) {
                     throw new MapFormatException( "One or more of the map dimensions are invalid." );

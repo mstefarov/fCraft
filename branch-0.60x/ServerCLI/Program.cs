@@ -166,9 +166,9 @@ namespace fCraft.ServerCLI {
         static readonly AutoResetEvent UpdateDownloadWaiter = new AutoResetEvent( false );
         static bool updateFailed;
 
-        static readonly object progressReportLock = new object();
+        static readonly object ProgressReportLock = new object();
         static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
-            lock( progressReportLock ) {
+            lock( ProgressReportLock ) {
                 Console.CursorLeft = 0;
                 int maxProgress = Console.WindowWidth - 9;
                 int progress = (int)Math.Round((e.ProgressPercentage / 100f) * (maxProgress - 1));
@@ -200,30 +200,29 @@ namespace fCraft.ServerCLI {
             if( updaterMode == UpdaterMode.Disabled ) return;
 
             UpdaterResult update = Updater.CheckForUpdates();
+            if( !update.UpdateAvailable ) return;
 
-            if( update.UpdateAvailable ) {
-                Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
-                                   update.LatestRelease.VersionString,
-                                   update.LatestRelease.Age.TotalDays );
-                if( updaterMode != UpdaterMode.Notify ) {
-                    WebClient client = new WebClient();
-                    client.DownloadProgressChanged += OnUpdateDownloadProgress;
-                    client.DownloadFileCompleted += OnUpdateDownloadCompleted;
-                    client.DownloadFileAsync( update.DownloadUri, Paths.UpdaterFileName );
-                    UpdateDownloadWaiter.WaitOne();
-                    if( updateFailed ) return;
+            Console.WriteLine( "** A new version of fCraft is available: {0}, released {1:0} day(s) ago. **",
+                               update.LatestRelease.VersionString,
+                               update.LatestRelease.Age.TotalDays );
+            if( updaterMode != UpdaterMode.Notify ) {
+                WebClient client = new WebClient();
+                client.DownloadProgressChanged += OnUpdateDownloadProgress;
+                client.DownloadFileCompleted += OnUpdateDownloadCompleted;
+                client.DownloadFileAsync( update.DownloadUri, Paths.UpdaterFileName );
+                UpdateDownloadWaiter.WaitOne();
+                if( updateFailed ) return;
 
-                    if( updaterMode == UpdaterMode.Prompt ) {
-                        Console.WriteLine( "Restart the server and update now? y/n" );
-                        var key = Console.ReadKey();
-                        if( key.KeyChar == 'y' ) {
-                            RestartForUpdate();
-                        } else {
-                            Console.WriteLine( "You can update manually by shutting down the server and running " + Paths.UpdaterFileName );
-                        }
-                    } else {
+                if( updaterMode == UpdaterMode.Prompt ) {
+                    Console.WriteLine( "Restart the server and update now? y/n" );
+                    var key = Console.ReadKey();
+                    if( key.KeyChar == 'y' ) {
                         RestartForUpdate();
+                    } else {
+                        Console.WriteLine( "You can update manually by shutting down the server and running " + Paths.UpdaterFileName );
                     }
+                } else {
+                    RestartForUpdate();
                 }
             }
         }

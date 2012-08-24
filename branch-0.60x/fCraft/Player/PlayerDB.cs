@@ -635,9 +635,7 @@ namespace fCraft {
                 }
 
                 int count = 0;
-                // ReSharper disable LoopCanBeConvertedToQuery
                 for( int i = 0; i < playerInfoListCache.Length; i++ ) {
-                    // ReSharper restore LoopCanBeConvertedToQuery
                     if( PlayerIsInactive( playersByIP, playerInfoListCache[i], true ) ) count++;
                 }
                 return count;

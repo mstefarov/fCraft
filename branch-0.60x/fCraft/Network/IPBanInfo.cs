@@ -137,7 +137,7 @@ namespace fCraft {
             fields[2] = BanDate.ToUnixTimeString();
             fields[3] = PlayerInfo.Escape( BanReason );
             fields[4] = PlayerInfo.Escape( PlayerName );
-            fields[5] = Attempts.ToString();
+            fields[5] = Attempts.ToStringInvariant();
             fields[6] = PlayerInfo.Escape( LastAttemptName );
             fields[7] = LastAttemptDate.ToUnixTimeString();
 

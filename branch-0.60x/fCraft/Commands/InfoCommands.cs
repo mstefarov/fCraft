@@ -835,9 +835,7 @@ namespace fCraft {
 
             if( ruleFileName != null ) {
                 string sectionFullName = Path.GetFileNameWithoutExtension( ruleFileName );
-                // ReSharper disable AssignNullToNotNullAttribute
                 player.Message( "Rule section \"{0}\":", sectionFullName );
-                // ReSharper restore AssignNullToNotNullAttribute
                 PrintRuleFile( player, new FileInfo( ruleFileName ) );
 
             } else {

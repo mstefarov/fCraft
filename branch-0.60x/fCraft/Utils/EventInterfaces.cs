@@ -1,5 +1,4 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-// ReSharper disable UnusedMemberInSuper.Global
 using System;
 
 namespace fCraft {

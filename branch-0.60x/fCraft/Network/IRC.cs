@@ -843,9 +843,9 @@ namespace fCraft {
             // conform to RFC 2812
             string from = linear[0];
             string messagecode = linear[1];
-            int exclamationpos = from.IndexOf( "!" );
-            int atpos = from.IndexOf( "@" );
-            int colonpos = line.IndexOf( " :" );
+            int exclamationpos = from.IndexOf( '!' );
+            int atpos = from.IndexOf( '@' );
+            int colonpos = line.IndexOfOrdinal( " :" );
             if( colonpos != -1 ) {
                 // we want the exact position of ":" not beginning from the space
                 colonpos += 1;
@@ -925,7 +925,7 @@ namespace fCraft {
     }
 
 
-    // ReSharper disable UnusedMember.Global
+#pragma warning disable 1591
     /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
         Null = 000,
@@ -1107,4 +1107,5 @@ namespace fCraft {
         ErrorMessage,
         Unknown
     }
+#pragma warning restore 1591
 }

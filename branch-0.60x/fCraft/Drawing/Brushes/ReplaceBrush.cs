@@ -158,9 +158,7 @@ namespace fCraft.Drawing {
         public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             Block block = op.Map.GetBlock( op.Coords );
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < Blocks.Length; i++ ) {
-                // ReSharper restore LoopCanBeConvertedToQuery
                 if( block == Blocks[i] ) {
                     return Replacement;
                 }
