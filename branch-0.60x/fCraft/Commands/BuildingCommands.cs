@@ -1629,9 +1629,9 @@ namespace fCraft {
             if( args.CountLimit > 0 ) {
                 // count-limited lookup
                 if( args.Targets.Length == 0 ) {
-                    changes = args.World.BlockDB.Lookup( args.Area, args.CountLimit );
+                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.Area, args.Targets, args.CountLimit );
+                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area, args.Targets );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1642,9 +1642,9 @@ namespace fCraft {
             } else {
                 // time-limited lookup
                 if( args.Targets.Length == 0 ) {
-                    changes = args.World.BlockDB.Lookup( args.Area, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.AgeLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.Area, args.Targets, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.Targets, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1705,7 +1705,7 @@ namespace fCraft {
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( args.CountLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.Targets, args.CountLimit );
+                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Targets );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1716,9 +1716,9 @@ namespace fCraft {
             } else {
                 // time-limited lookup
                 if( args.Targets.Length == 0 ) {
-                    changes = args.World.BlockDB.Lookup( args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.AgeLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.Targets, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Targets, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
