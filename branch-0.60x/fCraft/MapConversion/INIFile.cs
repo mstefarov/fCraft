@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,8 +43,8 @@ namespace fCraft.MapConversion {
                     section = new Dictionary<string, string>();
                     contents.Add( sectionName, section );
                 } else if( line.Contains( Separator ) && section != null ) {
-                    string keyName = line.Substring( 0, line.IndexOfOrdinal( Separator ) ).TrimEnd().ToLower();
-                    string valueName = line.Substring( line.IndexOfOrdinal( Separator ) + 1 ).TrimStart();
+                    string keyName = line.Substring( 0, line.IndexOf( Separator, StringComparison.Ordinal ) ).TrimEnd().ToLower();
+                    string valueName = line.Substring( line.IndexOf( Separator, StringComparison.Ordinal ) + 1 ).TrimStart();
                     section.Add( keyName, valueName );
                 }
             }
@@ -68,7 +68,7 @@ namespace fCraft.MapConversion {
 
         public bool IsEmpty {
             get {
-                return (contents.Count == 0);
+                return ( contents.Count == 0 );
             }
         }
     }

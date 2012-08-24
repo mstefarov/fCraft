@@ -122,7 +122,7 @@
     <Compile Include="MapConversion\MapFormat.cs" />
     <Compile Include="MapConversion\MapMCSharp.cs" />
     <Compile Include="MapConversion\MapMinerCPP.cs" />
-    <Compile Include="MapConversion\MapNBT.cs" />
+    <Compile Include="MapConversion\MapIndev.cs" />
     <Compile Include="MapConversion\MapUtility.cs" />
     <Compile Include="MapConversion\NBTag.cs" />
     <Compile Include="Network\IRC.cs" />
@@ -212,6 +212,7 @@
     <Compile Include="Drawing\DrawOps\CutDrawOperation.cs" />
     <Compile Include="Drawing\UndoState.cs" />
     <Compile Include="MapConversion\INIFile.cs" />
+    <Compile Include="MapConversion\MapRaw.cs" />
     <Compile Include="Network\IPBanInfo.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
