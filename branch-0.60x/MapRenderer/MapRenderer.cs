@@ -51,13 +51,13 @@ namespace fCraft.MapRenderer {
                 if( File.Exists( inputPath ) ) {
                     directoryMode = false;
                     if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
                     }
 
                 } else if( Directory.Exists( inputPath ) ) {
                     directoryMode = true;
                     if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirNameOrPathRoot( inputPath );
+                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
                     }
 
                 } else {
@@ -132,9 +132,11 @@ namespace fCraft.MapRenderer {
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 if( inputFilter == null ) inputFilter = "*";
-                foreach( FileSystemInfo dirInfo in inputDirInfo.EnumerateFileSystemInfos( inputFilter, recursiveOption )
-                    ) {
-                    RenderOneMap( dirInfo );
+                foreach( var file in inputDirInfo.GetDirectories( inputFilter, recursiveOption ) ) {
+                    RenderOneMap( file );
+                }
+                foreach( var file in inputDirInfo.GetFiles( inputFilter, recursiveOption ) ) {
+                    RenderOneMap( file );
                 }
             }
 
@@ -341,7 +343,7 @@ namespace fCraft.MapRenderer {
             }
 
             // Parse mode
-            if( isoCatModeName != null && !Enum.TryParse( isoCatModeName, true, out mode ) ) {
+            if( isoCatModeName != null && !EnumUtil.TryParse( isoCatModeName, out mode, true ) ) {
                 Console.Error.WriteLine(
                     "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peeled\", or \"chunk\"." );
                 return ReturnCode.ArgumentError;
@@ -411,7 +413,7 @@ namespace fCraft.MapRenderer {
             // parse importer name
             if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                 MapFormat importFormat;
-                if( !Enum.TryParse( importerName, true, out importFormat ) ||
+                if( !EnumUtil.TryParse( importerName, out importFormat, true ) ||
                     ( mapImporter = MapUtility.GetImporter( importFormat ) ) == null ) {
                     Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
