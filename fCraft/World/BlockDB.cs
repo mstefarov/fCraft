@@ -569,6 +569,7 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, TimeSpan span ) {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
+            if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             if( infos.Length == 1 ) return Lookup( max, infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             return Lookup( max,
@@ -597,9 +598,10 @@ namespace fCraft {
 
 
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos ) {
+            if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0] );
+            if( infos.Length == 1 ) return Lookup( max, area, infos[0] );
             return Lookup( max,
                            entry => area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
         }
@@ -610,7 +612,7 @@ namespace fCraft {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0] );
+            if( infos.Length == 1 ) return Lookup( max, infos[0], span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             return Lookup( max,
                            entry => entry.Timestamp >= ticks && area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
