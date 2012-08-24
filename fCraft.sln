@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual C# Express 2008
+# Visual Studio 2008
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraft", "fCraft\fCraft.csproj", "{7FBE7809-6F77-415C-ABEB-A3F627E817B0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerGUI", "ServerGUI\ServerGUI.csproj", "{4D4EEAA2-190C-496D-B014-0EB68CA4E535}"
@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBuilder", "UpdaterBui
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "fCraftGUI", "fCraftGUI\fCraftGUI.csproj", "{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MapRenderer", "MapRenderer\MapRenderer.csproj", "{52922C22-50A7-4E5D-8020-C5B0571B0F74}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{300DF2F8-0CD5-4DDD-BAC9-4367E23B5264}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -103,8 +107,23 @@ Global
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}.Release|Any CPU.Build.0 = Release|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_Events|Any CPU.ActiveCfg = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_Events|Any CPU.Build.0 = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_IRC|Any CPU.ActiveCfg = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_IRC|Any CPU.Build.0 = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_Scheduler|Any CPU.ActiveCfg = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug_Scheduler|Any CPU.Build.0 = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E5719EAF-5ECF-4BBD-842B-39DDFBCE8FE7} = {300DF2F8-0CD5-4DDD-BAC9-4367E23B5264}
+		{478256DE-BD19-4046-9449-A12FF90EE6A8} = {300DF2F8-0CD5-4DDD-BAC9-4367E23B5264}
+		{52922C22-50A7-4E5D-8020-C5B0571B0F74} = {300DF2F8-0CD5-4DDD-BAC9-4367E23B5264}
 	EndGlobalSection
 EndGlobal
