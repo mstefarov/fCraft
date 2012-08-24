@@ -99,9 +99,7 @@ namespace fCraft {
                 return;
             }
 
-            // ReSharper disable AssignNullToNotNullAttribute
             if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
-                // ReSharper restore AssignNullToNotNullAttribute
                 player.Message( "You may not use this file." );
                 return;
             }
@@ -135,9 +133,7 @@ namespace fCraft {
 
                     List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
                     foreach( Rank rank in RankManager.Ranks ) {
-                        // ReSharper disable LoopCanBeConvertedToQuery
                         for( int i = 0; i < infos.Length; i++ ) {
-                            // ReSharper restore LoopCanBeConvertedToQuery
                             if( infos[i].Rank == rank ) rankPlayers.Add( infos[i] );
                         }
                         if( rankPlayers.Count == 0 ) {

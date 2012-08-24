@@ -1,10 +1,10 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
 
-// ReSharper disable LoopCanBeConvertedToQuery
 namespace fCraft {
     /// <summary> Contains a set of utilities that simplify working with sets of players.
     /// All the utilities are implemented as extension methods,
@@ -469,8 +469,9 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     player.Send( packet );
                     i++;
                 }
@@ -489,8 +490,9 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     if( player == except ) continue;
                     player.Send( packet );
                     i++;
@@ -514,8 +516,9 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     if( player == except ) continue;
                     player.Send( packet );
                     i++;
@@ -538,8 +541,9 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     player.Send( packet );
                     i++;
                 }
@@ -559,8 +563,9 @@ namespace fCraft {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( message == null ) throw new ArgumentNullException( "message" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, message ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     player.Send( packet );
                     i++;
                 }
@@ -583,8 +588,9 @@ namespace fCraft {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             int i = 0;
+            Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, String.Format( message, formatArgs ) ) ) {
-                foreach( Player player in source ) {
+                foreach( Player player in sourceArray ) {
                     player.Send( packet );
                     i++;
                 }

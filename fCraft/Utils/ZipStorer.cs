@@ -33,10 +33,8 @@ namespace System.IO.Compression {
             /// <summary>Offset of file inside Zip storage</summary>
             public uint FileOffset;
 
-            // ReSharper disable UnaccessedField.Global
             /// <summary>Size of header information</summary>
             public uint HeaderSize;
-            // ReSharper restore UnaccessedField.Global
 
             /// <summary>32-bit checksum of entire file</summary>
             public uint Crc32;
@@ -710,9 +708,7 @@ namespace System.IO.Compression {
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     return true;
                 } while( zipFileStream.Position > 0 );
-                // ReSharper disable EmptyGeneralCatchClause
             } catch { }
-            // ReSharper restore EmptyGeneralCatchClause
 
             return false;
         }

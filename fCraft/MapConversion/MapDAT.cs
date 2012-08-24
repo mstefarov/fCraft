@@ -240,11 +240,9 @@ namespace fCraft.MapConversion {
         static bool MemCmp( [NotNull] IList<byte> data, int offset, [NotNull] string value ) {
             if( data == null ) throw new ArgumentNullException( "data" );
             if( value == null ) throw new ArgumentNullException( "value" );
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < value.Length; i++ ) {
                 if( offset + i >= data.Count || data[offset + i] != value[i] ) return false;
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
     }

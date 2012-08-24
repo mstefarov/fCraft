@@ -26,9 +26,7 @@ namespace fCraft.Drawing {
             }
         }
 
-        // ReSharper disable MemberCanBeProtected.Global
         public bool Not { get; private set; }
-        // ReSharper restore MemberCanBeProtected.Global
         public Block[] Blocks { get; private set; }
         public Vector3I Start { get; private set; }
 
@@ -142,7 +140,6 @@ namespace fCraft.Drawing {
 
 
         protected override Block NextBlock() {
-            // ReSharper disable LoopCanBeConvertedToQuery
             Block block = CopyInfo.Buffer[Coords.X - Start.X, Coords.Y - Start.Y, Coords.Z - Start.Z];
             if( Blocks == null ) return block;
             if( Not ) {
@@ -156,7 +153,6 @@ namespace fCraft.Drawing {
                 }
                 return Block.None;
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
         }
     }
 }

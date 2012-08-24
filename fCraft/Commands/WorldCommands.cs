@@ -149,7 +149,7 @@ namespace fCraft {
                             }
                         }
                         player.Message( "    Change limit: {0}    Time limit: {1}",
-                                        db.Limit == 0 ? "none" : db.Limit.ToString(),
+                                        db.Limit == 0 ? "none" : db.Limit.ToStringInvariant(),
                                         db.TimeLimit == TimeSpan.Zero ? "none" : db.TimeLimit.ToMiniString() );
                     }
                     return;
@@ -222,7 +222,7 @@ namespace fCraft {
                             if( limitString == null ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is {1}",
                                                 world.ClassyName,
-                                                (db.Limit == 0 ? "none" : db.Limit.ToString()) );
+                                                ( db.Limit == 0 ? "none" : db.Limit.ToStringInvariant() ) );
                                 return;
                             }
 
@@ -238,7 +238,7 @@ namespace fCraft {
                                 return;
                             }
 
-                            string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToString());
+                            string limitDisplayString = ( limitNumber == 0 ? "none" : limitNumber.ToStringInvariant() );
                             if( db.Limit == limitNumber ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                world.ClassyName, limitDisplayString );

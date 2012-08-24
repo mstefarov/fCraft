@@ -26,7 +26,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        // ReSharper disable EmptyGeneralCatchClause
         public static MapFormat Identify( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -63,7 +62,6 @@ namespace fCraft.MapConversion {
 
             return MapFormat.Unknown;
         }
-        // ReSharper restore EmptyGeneralCatchClause
 
 
         public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
@@ -82,7 +80,6 @@ namespace fCraft.MapConversion {
 
 
         public static Map LoadHeader( [NotNull] string fileName ) {
-            // ReSharper disable EmptyGeneralCatchClause
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -124,7 +121,6 @@ namespace fCraft.MapConversion {
             }
 
             throw new MapFormatException( "Unknown map format." );
-            // ReSharper restore EmptyGeneralCatchClause
         }
 
 
@@ -142,7 +138,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        // ReSharper disable EmptyGeneralCatchClause
         public static Map Load( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -183,7 +178,6 @@ namespace fCraft.MapConversion {
 
             throw new MapFormatException( "Unknown map format." );
         }
-        // ReSharper restore EmptyGeneralCatchClause
 
 
         public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat format ) {

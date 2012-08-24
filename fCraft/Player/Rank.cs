@@ -445,7 +445,6 @@ namespace fCraft {
         public static bool IsValidRankName( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
                 if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) ||
@@ -453,7 +452,6 @@ namespace fCraft {
                     return false;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 
@@ -461,14 +459,12 @@ namespace fCraft {
         public static bool IsValidID( [NotNull] string id ) {
             if( id == null ) throw new ArgumentNullException( "id" );
             if( id.Length != 16 ) return false;
-            // ReSharper disable LoopCanBeConvertedToQuery
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
                 if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < 'a' ) || ch > 'z' ) {
                     return false;
                 }
             }
-            // ReSharper restore LoopCanBeConvertedToQuery
             return true;
         }
 

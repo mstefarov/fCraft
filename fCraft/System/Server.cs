@@ -853,14 +853,14 @@ namespace fCraft {
             } else {
                 sb.Replace( "{WORLD}", player.World.ClassyName );
             }
-            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToString() );
+            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToStringInvariant() );
             sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
             sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
-            if( input.IndexOf( "{PLAYER" ) != -1 ) {
+            if( input.IndexOfOrdinal( "{PLAYER" ) != -1 ) {
                 Player[] playerList = Players.CanBeSeen( player ).Union( player ).ToArray();
                 sb.Replace( "{PLAYER_NAME}", player.ClassyName );
                 sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );
-                sb.Replace( "{PLAYERS}", playerList.Length.ToString() );
+                sb.Replace( "{PLAYERS}", playerList.Length.ToStringInvariant() );
             }
             return sb.ToString();
         }
@@ -896,11 +896,9 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         string responseString = responseReader.ReadToEnd();
-                        int startIndex = responseString.IndexOf( ":" ) + 2;
+                        int startIndex = responseString.IndexOf( ':' ) + 2;
                         int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;
                         IPAddress result;
                         if( IPAddress.TryParse( responseString.Substring( startIndex, endIndex ), out result ) ) {

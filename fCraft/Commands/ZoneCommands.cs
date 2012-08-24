@@ -190,6 +190,7 @@ namespace fCraft {
         };
 
         static void ZoneEditHandler( Player player, CommandReader cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
@@ -505,6 +506,8 @@ namespace fCraft {
         };
 
         static void ZoneRemoveHandler( Player player, CommandReader cmd ) {
+            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+
             string zoneName = cmd.Next();
             if( zoneName == null || cmd.HasNext ) {
                 CdZoneRemove.PrintUsage( player );

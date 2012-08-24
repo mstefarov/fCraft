@@ -60,16 +60,12 @@ namespace fCraft {
                 request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
-                    // ReSharper disable PossibleNullReferenceException
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         XDocument doc = XDocument.Load( reader );
                         XElement root = doc.Root;
                         if( root.Attribute( "result" ).Value == "update" ) {
                             string downloadUrl = root.Attribute( "url" ).Value;
                             var releases = new List<ReleaseInfo>();
-                            // ReSharper disable LoopCanBeConvertedToQuery
                             foreach( XElement el in root.Elements( "Release" ) ) {
                                 releases.Add(
                                     new ReleaseInfo(
@@ -82,8 +78,6 @@ namespace fCraft {
                                     )
                                 );
                             }
-                            // ReSharper restore LoopCanBeConvertedToQuery
-                            // ReSharper restore PossibleNullReferenceException
                             UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
                                                                       releases.ToArray() );
                             RaiseCheckedForUpdatesEvent( UpdateUrl, result );
@@ -141,7 +135,7 @@ namespace fCraft {
                 return new UpdaterResult( false, null, new ReleaseInfo[0] );
             }
         }
-        internal UpdaterResult( bool updateAvailable, Uri downloadUri, IEnumerable<ReleaseInfo> releases ) {
+        internal UpdaterResult( bool updateAvailable, Uri downloadUri, ReleaseInfo[] releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();

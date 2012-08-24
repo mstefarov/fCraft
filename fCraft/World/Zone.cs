@@ -184,7 +184,6 @@ namespace fCraft {
 
         public Zone( [NotNull] XContainer root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
-            // ReSharper disable PossibleNullReferenceException
             Name = root.Element( "name" ).Value;
 
             if( root.Element( "created" ) != null ) {
@@ -206,7 +205,6 @@ namespace fCraft {
             temp = root.Element( SecurityController.XmlRootElementName );
             if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
             Controller = new SecurityController( temp, true );
-            // ReSharper restore PossibleNullReferenceException
         }
 
 

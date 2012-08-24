@@ -66,11 +66,11 @@ namespace fCraft {
             } else {
                 // If heartbeats are disabled, the server data is written
                 // to a text file instead (heartbeatdata.txt)
-                string[] data = new[]{
+                string[] data = new[] {
                     Salt,
                     Server.InternalIP.ToString(),
-                    Server.Port.ToString(),
-                    Server.CountPlayers( false ).ToString(),
+                    Server.Port.ToStringInvariant(),
+                    Server.CountPlayers( false ).ToStringInvariant(),
                     ConfigKey.MaxPlayers.GetString(),
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString()
@@ -80,6 +80,7 @@ namespace fCraft {
                 Paths.MoveOrReplace( tempFile, Paths.HeartbeatDataFileName );
             }
         }
+
 
         static HttpWebRequest minecraftNetRequest,
                               womDirectRequest;
@@ -133,9 +134,7 @@ namespace fCraft {
             try {
                 string responseText;
                 using( HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse( result ) ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
                     }
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );

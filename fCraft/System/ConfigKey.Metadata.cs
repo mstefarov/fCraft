@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
     /// <summary> Describes attributes and metadata of a configuration key. </summary>
     [AttributeUsage( AttributeTargets.Field )]
     public class ConfigKeyAttribute : DescriptionAttribute {
@@ -24,9 +23,7 @@ namespace fCraft {
         public Type ValueType { get; protected set; }
         public object DefaultValue { get; protected set; }
         public ConfigSection Section { get; private set; }
-        // ReSharper disable MemberCanBeProtected.Global
         public bool NotBlank { get; set; }
-        // ReSharper restore MemberCanBeProtected.Global
         public ConfigKey Key { get; internal set; }
 
 
@@ -363,7 +360,9 @@ namespace fCraft {
             base.Validate( value );
             if( !NotBlank && String.IsNullOrEmpty( value ) ) return;
             try {
+                // ReSharper disable ReturnValueOfPureMethodIsNotUsed
                 Enum.Parse( ValueType, value, true );
+                // ReSharper restore ReturnValueOfPureMethodIsNotUsed
             } catch( ArgumentException ) {
                 string message = String.Format( "Could not parse value as {0}. Valid values are: {1}",
                                                 ValueType.Name,

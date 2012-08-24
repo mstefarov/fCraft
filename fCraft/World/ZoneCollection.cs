@@ -193,7 +193,6 @@ namespace fCraft {
         /// null if none of the zones deny the player. </returns>
         [CanBeNull]
         public Zone FindDenied( Vector3I coords, [NotNull] Player player ) {
-            // ReSharper disable LoopCanBeConvertedToQuery
             if( player == null ) throw new ArgumentNullException( "player" );
             Zone[] zoneListCache = Cache;
             for( int i = 0; i < zoneListCache.Length; i++ ) {
@@ -203,7 +202,6 @@ namespace fCraft {
                 }
             }
             return null;
-            // ReSharper restore LoopCanBeConvertedToQuery
         }
 
 

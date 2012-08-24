@@ -42,7 +42,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdFreeze );
             CommandManager.RegisterCommand( CdUnfreeze );
 
-            CommandManager.RegisterCommand( CdTP );
+            CommandManager.RegisterCommand( CdTeleport );
             CommandManager.RegisterCommand( CdBring );
             CommandManager.RegisterCommand( CdWorldBring );
             CommandManager.RegisterCommand( CdBringAll );
@@ -578,9 +578,7 @@ namespace fCraft {
             player.Info.IsHidden = false;
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    // ReSharper disable AssignNullToNotNullAttribute
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
-                    // ReSharper restore AssignNullToNotNullAttribute
                     Server.Players.CantSee( player ).Message( msg );
                 }
                 if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
@@ -720,20 +718,21 @@ namespace fCraft {
 
         #region TP
 
-        static readonly CommandDescriptor CdTP = new CommandDescriptor {
+        static readonly CommandDescriptor CdTeleport = new CommandDescriptor {
             Name = "TP",
+            Aliases = new[] { "teleport" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.Teleport },
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
-            Handler = TPHandler
+            Handler = TeleportHandler
         };
 
-        static void TPHandler( Player player, CommandReader cmd ) {
+        static void TeleportHandler( Player player, CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                CdTP.PrintUsage( player );
+                CdTeleport.PrintUsage( player );
                 return;
             }
 
@@ -755,7 +754,7 @@ namespace fCraft {
                         } );
                     }
                 } else {
-                    CdTP.PrintUsage( player );
+                    CdTeleport.PrintUsage( player );
                 }
 
             } else {

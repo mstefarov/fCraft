@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using JetBrains.Annotations;
 
-// ReSharper disable UnusedMemberInSuper.Global
 namespace fCraft.Drawing {
 
     /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /Brush.

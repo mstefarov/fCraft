@@ -200,16 +200,16 @@ namespace fCraft {
             if( fileLabel == null ) throw new ArgumentNullException( "fileLabel" );
             if( filename == null ) throw new ArgumentNullException( "filename" );
             try {
-                new FileInfo( filename );
-                if( File.Exists( filename ) ) {
+                FileInfo fi = new FileInfo( filename );
+                if( fi.Exists ) {
                     if( ( neededAccess & FileAccess.Read ) == FileAccess.Read ) {
-                        using( File.OpenRead( filename ) ) {}
+                        using( fi.OpenRead() ) {}
                     }
                     if( ( neededAccess & FileAccess.Write ) == FileAccess.Write ) {
-                        using( File.OpenWrite( filename ) ) {}
+                        using( fi.OpenWrite() ) {}
                     }
                 } else if( createIfDoesNotExist ) {
-                    using( File.Create( filename ) ) {}
+                    using( fi.Create() ) {}
                 }
                 return true;
 
@@ -264,7 +264,9 @@ namespace fCraft {
 
         public static bool IsValidPath( string path ) {
             try {
+                // ReSharper disable ObjectCreationAsStatement
                 new FileInfo( path );
+                // ReSharper restore ObjectCreationAsStatement
                 return true;
             } catch( ArgumentException ) {
             } catch( PathTooLongException ) {

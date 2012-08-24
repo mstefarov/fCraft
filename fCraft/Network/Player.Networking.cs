@@ -51,9 +51,9 @@ namespace fCraft {
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
 
-        internal static void StartSession( [NotNull] TcpClient tcpClient ) {
+        internal static Player StartSession( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
-            new Player( tcpClient );
+            return new Player( tcpClient );
         }
 
         Player( [NotNull] TcpClient tcpClient ) {
@@ -501,9 +501,7 @@ namespace fCraft {
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
-            // ReSharper disable PossibleNullReferenceException
             Position = WorldManager.MainWorld.Map.Spawn;
-            // ReSharper restore PossibleNullReferenceException
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
@@ -720,13 +718,11 @@ namespace fCraft {
 
             // ==== Beyond this point, player is considered ready (has a world) ====
 
-            var canSee = Server.Players.CanSee( this );
+            var canSee = Server.Players.CanSee( this ).ToArray();
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                // ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-                // ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 

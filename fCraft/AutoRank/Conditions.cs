@@ -48,14 +48,12 @@ namespace fCraft.AutoRank {
 
         public ConditionIntRange( [NotNull] XElement el )
             : this() {
-            // ReSharper disable PossibleNullReferenceException
             if( el == null ) throw new ArgumentNullException( "el" );
             Field = (ConditionField)Enum.Parse( typeof( ConditionField ), el.Attribute( "field" ).Value, true );
             Value = Int32.Parse( el.Attribute( "val" ).Value );
             if( el.Attribute( "op" ) != null ) {
                 Comparison = (ComparisonOp)Enum.Parse( typeof( ComparisonOp ), el.Attribute( "op" ).Value, true );
             }
-            // ReSharper restore PossibleNullReferenceException
         }
 
 
@@ -157,9 +155,7 @@ namespace fCraft.AutoRank {
 
         public ConditionRankChangeType( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            // ReSharper disable PossibleNullReferenceException
             Type = (RankChangeType)Enum.Parse( typeof( RankChangeType ), el.Attribute( "val" ).Value, true );
-            // ReSharper restore PossibleNullReferenceException
         }
 
         public override bool Eval( [NotNull] PlayerInfo info ) {
@@ -190,11 +186,9 @@ namespace fCraft.AutoRank {
         }
 
         public ConditionPreviousRank( [NotNull] XElement el ) {
-            // ReSharper disable PossibleNullReferenceException
             if( el == null ) throw new ArgumentNullException( "el" );
             Rank = Rank.Parse( el.Attribute( "val" ).Value );
             Comparison = (ComparisonOp)Enum.Parse( typeof( ComparisonOp ), el.Attribute( "op" ).Value, true );
-            // ReSharper restore PossibleNullReferenceException
         }
 
         public override bool Eval( [NotNull] PlayerInfo info ) {
