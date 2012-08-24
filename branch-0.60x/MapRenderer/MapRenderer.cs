@@ -132,8 +132,8 @@ namespace fCraft.MapRenderer {
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 if( inputFilter == null ) inputFilter = "*";
-                foreach( var file in inputDirInfo.GetDirectories( inputFilter, recursiveOption ) ) {
-                    RenderOneMap( file );
+                foreach( var dir in inputDirInfo.GetDirectories( inputFilter, recursiveOption ) ) {
+                    RenderOneMap( dir );
                 }
                 foreach( var file in inputDirInfo.GetFiles( inputFilter, recursiveOption ) ) {
                     RenderOneMap( file );
