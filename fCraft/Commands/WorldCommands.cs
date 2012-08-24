@@ -453,10 +453,9 @@ namespace fCraft {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
             }
-            BlockDBEntry[] results = args.World.BlockDB.Lookup( args.Coordinate );
+            BlockDBEntry[] results = args.World.BlockDB.Lookup( MaxBlockChangesToList, args.Coordinate );
             if( results.Length > 0 ) {
-                int startIndex = Math.Max( 0, results.Length - MaxBlockChangesToList );
-                for( int i = startIndex; i < results.Length; i++ ) {
+                for( int i = 0; i < results.Length; i++ ) {
                     BlockDBEntry entry = results[i];
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
@@ -2190,13 +2189,12 @@ namespace fCraft {
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 var mainedRanks = RankManager.Ranks
-                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld );
-                if( mainedRanks.Any() ) {
+                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
+                                             .ToArray();
+                if( mainedRanks.Length > 0 ) {
                     player.Message( "Rank mains: {0}",
                                     mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
-                                        // ReSharper disable PossibleNullReferenceException
                                                                                   r.MainWorld.ClassyName,
-                                        // ReSharper restore PossibleNullReferenceException
                                                                                   r.ClassyName ) ) );
                 }
                 return;
