@@ -161,10 +161,6 @@ namespace fCraft.MapConversion {
 
                     map = new Map( null, width, length, height, false ) { Spawn = spawn };
 
-                    if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "MapDAT: One or more of the map dimensions are invalid." );
-                    }
-
                     // find the start of the block array
                     bool foundBlockArray = false;
                     offset = Array.IndexOf<byte>( data, 0x00, headerEnd );

@@ -82,10 +82,6 @@ namespace fCraft.MapConversion {
                     L = 0
                 };
 
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapNBT: One or more of the map dimensions are invalid." );
-                }
-
                 map.Blocks = mapTag["Blocks"].GetBytes();
                 map.RemoveUnknownBlocktypes();
 

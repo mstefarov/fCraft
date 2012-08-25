@@ -38,6 +38,7 @@ namespace fCraft.MapRenderer {
 
 
         static int Main( string[] args ) {
+            args = new[] { "maps/ajania" };
             Logger.Logged += OnLogged;
 
             ReturnCode optionParsingResult = ParseOptions( args );
@@ -123,12 +124,21 @@ namespace fCraft.MapRenderer {
                     break;
             }
 
-            // go through the map files, and draw each one
-            if( mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
+            if( !recursive && mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
+                // single-directory map
                 RenderOneMap( new DirectoryInfo( inputPath ) );
+
             } else if( !directoryMode ) {
+                // single-file map
                 RenderOneMap( new FileInfo( inputPath ) );
+
             } else {
+                // possible single-directory conversion
+                if( !recursive && RenderOneMap( new DirectoryInfo( inputPath ) ) ) {
+                    return (int)ReturnCode.Success;
+                }
+
+                // go through all files inside the given directory
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 if( inputFilter == null ) inputFilter = "*";
@@ -145,15 +155,18 @@ namespace fCraft.MapRenderer {
 
 
 
-        static void RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
+        static bool RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
             if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
 
             try {
                 Map map;
                 if( mapImporter != null ) {
-                    if( !mapImporter.ClaimsName( fileSystemInfo.FullName ) ) return;
+                    if( !mapImporter.ClaimsName( fileSystemInfo.FullName ) ) {
+                        return false;
+                    }
                     Console.Write( "Loading {0}... ", fileSystemInfo.Name );
                     map = mapImporter.Load( fileSystemInfo.FullName );
+
                 } else {
                     Console.Write( "Checking {0}... ", fileSystemInfo.Name );
                     map = MapUtility.Load( fileSystemInfo.FullName );
@@ -170,7 +183,7 @@ namespace fCraft.MapRenderer {
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();
                     if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
-                        return;
+                        return false;
                     }
                 }
                 Console.Write( "Drawing... " );
@@ -182,23 +195,26 @@ namespace fCraft.MapRenderer {
                     SaveImage( result.Bitmap.Clone( result.CropRectangle, result.Bitmap.PixelFormat ), targetPath );
                 }
                 Console.WriteLine( "ok" );
+                return true;
 
             } catch( NoMapConverterFoundException ) {
                 Console.WriteLine( "skip" );
+                return false;
 
             } catch( Exception ex ) {
                 Console.WriteLine( "ERROR" );
                 Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
+                return false;
             }
         }
 
 
         static void SaveImage( Bitmap image, string targetFileName ) {
-            if( exportFormat == ImageFormat.Jpeg ) {
+            if( exportFormat.Equals( ImageFormat.Jpeg ) ) {
                 EncoderParameters encoderParams = new EncoderParameters();
                 encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
                 image.Save( targetFileName, imageEncoder, encoderParams );
-            } else if( exportFormat == ImageFormat.Gif ) {
+            } else if( exportFormat.Equals( ImageFormat.Gif ) ) {
                 OctreeQuantizer q = new OctreeQuantizer( 255, 8 );
                 image = q.Quantize( image );
                 image.Save( targetFileName, exportFormat );

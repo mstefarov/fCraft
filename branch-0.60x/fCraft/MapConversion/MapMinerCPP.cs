@@ -112,10 +112,6 @@ namespace fCraft.MapConversion {
 
                     Map map = LoadHeaderInternal( gs );
 
-                    if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "MapMinerCPP: One or more of the map dimensions are invalid." );
-                    }
-
                     // Read in the map data
                     map.Blocks = new byte[map.Volume];
                     mapStream.Read( map.Blocks, 0, map.Blocks.Length );

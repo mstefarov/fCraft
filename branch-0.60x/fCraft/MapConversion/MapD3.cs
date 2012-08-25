@@ -115,10 +115,6 @@ namespace fCraft.MapConversion {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
                     Map map = LoadHeaderInternal( gs );
 
-                    if( !map.ValidateHeader() ) {
-                        throw new MapFormatException( "MapD3: One or more of the map dimensions are invalid." );
-                    }
-
                     // Read in the map data
                     byte[] buffer = new byte[4];
                     map.Blocks = new byte[map.Volume];

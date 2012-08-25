@@ -85,8 +85,6 @@ namespace fCraft.MapConversion {
 
 
         static void LoadBlocks( [NotNull] Map map, [NotNull] Stream mapStream ) {
-            mapStream.Seek( 0, SeekOrigin.Begin );
-
             // Setup a GZipStream to decompress and read the map file
             GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
             BinaryReader bs = new BinaryReader( gs );
@@ -117,10 +115,6 @@ namespace fCraft.MapConversion {
             int height = Int32.Parse( metaFile["size", "y"] );
 
             Map map = new Map( null, width, length, height, false );
-
-            if( !map.ValidateHeader() ) {
-                throw new MapFormatException( "MapMyne: One or more of the map dimensions are invalid." );
-            }
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
                 map.Spawn = new Position {

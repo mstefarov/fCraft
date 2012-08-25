@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
@@ -42,7 +43,7 @@ namespace fCraft.MapConverter {
             MapFormat exportFormat;
             if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ||
                 ( exporter = MapUtility.GetExporter( exportFormat ) ) == null ) {
-                    Console.Error.WriteLine( "Unsupported exporter \"{0}\"", exporterName );
+                Console.Error.WriteLine( "Unsupported exporter \"{0}\"", exporterName );
                 PrintUsage();
                 return (int)ReturnCode.UnrecognizedExporter;
             }
@@ -88,12 +89,21 @@ namespace fCraft.MapConverter {
                 Console.Error.WriteLine( "MapConverter: Filter param is given, but input is not a directory." );
             }
 
-
-            if( importer != null && importer.StorageType == MapStorageType.Directory ) {
+            if( !recursive && importer != null && importer.StorageType == MapStorageType.Directory ) {
+                // single-directory conversion
                 ConvertOneMap( new DirectoryInfo( inputPath ) );
+
             } else if( !directoryMode ) {
+                // single-file conversion
                 ConvertOneMap( new FileInfo( inputPath ) );
+
             } else {
+                // possible single-directory conversion
+                if( !recursive && ConvertOneMap( new DirectoryInfo( inputPath ) ) ) {
+                    return (int)ReturnCode.Success;
+                }
+
+                // otherwise, go through all files inside the given directory
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 if( inputFilter == null ) inputFilter = "*";
@@ -109,13 +119,15 @@ namespace fCraft.MapConverter {
         }
 
 
-        static void ConvertOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
+        static bool ConvertOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
             if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
 
             try {
                 Map map;
                 if( importer != null ) {
-                    if( !importer.ClaimsName( fileSystemInfo.FullName ) ) return;
+                    if( !importer.ClaimsName( fileSystemInfo.FullName ) ) {
+                        return false;
+                    }
                     Console.Write( "Loading {0}... ", fileSystemInfo.Name );
                     map = importer.Load( fileSystemInfo.FullName );
                 } else {
@@ -135,19 +147,22 @@ namespace fCraft.MapConverter {
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();
                     if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
-                        return;
+                        return false;
                     }
                 }
                 Console.Write( "Saving {0}... ", Path.GetFileName( targetFileName ) );
                 exporter.Save( map, targetPath );
                 Console.WriteLine( "ok" );
+                return true;
 
             } catch( NoMapConverterFoundException ) {
                 Console.WriteLine( "skip" );
+                return false;
 
             } catch( Exception ex ) {
                 Console.WriteLine( "ERROR" );
                 Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
+                return false;
             }
         }
 
