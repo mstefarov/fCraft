@@ -208,7 +208,7 @@ namespace fCraft.MapConverter {
                       o => overwrite = ( o != null ) )
 
                 .Add( "?|help|h",
-                      "Prints out the options.",
+                      "Prints usage information and a list of options.",
                       o => printHelp = ( o != null ) );
 
             List<string> pathList;

@@ -266,7 +266,7 @@ namespace fCraft.MapRenderer {
                       o => isoCatModeName = o )
 
                 .Add( "g|nogradient",
-                      "Disables gradient shading.",
+                      "Disables altitude-based gradient/shading on terrain.",
                       o => noGradient = ( o != null ) )
 
                 .Add( "s|noshadows",
@@ -275,7 +275,7 @@ namespace fCraft.MapRenderer {
 
                 .Add( "o=|output=",
                       "Path to save images to. " +
-                      "If not specified, images will be saved to the original maps' directory.",
+                      "If not specified, images will be saved to the maps' directories.",
                       o => outputDirName = o )
 
                 .Add( "y|overwrite",

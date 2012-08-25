@@ -156,10 +156,9 @@ namespace fCraft {
                     Ranks[i + 1].NextRankUp = Ranks[i];
                     Ranks[i].NextRankDown = Ranks[i + 1];
                 }
-            } else {
-                Ranks[0].NextRankUp = null;
-                Ranks[0].NextRankDown = null;
             }
+            HighestRank.NextRankUp = null;
+            LowestRank.NextRankDown = null;
         }
 
 
