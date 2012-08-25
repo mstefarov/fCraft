@@ -33,14 +33,27 @@ namespace fCraft {
         /// Affects /WMain, /WAccess, /WBuild, /ZAdd, /ZEdit, and /ZRemove. </summary>
         public bool AllowSecurityCircumvention;
 
-        public int CopySlots = 2,
-                   FillLimit = 32,
-                   DrawLimit;
+        /// <summary> Maximum number of buffered copies this rank is allowed to have. </summary>
+        public int CopySlots = 2;
 
-        public int IdleKickTimer,
-                   AntiGriefBlocks,
-                   AntiGriefSeconds;
+        /// <summary> Maximum number of blocks away the origin that a fill is allowed to travel.
+        /// Applies to /Fill2D command. For example, a limit of 32, means that the maximum fill
+        /// dimensions are (32 * 2 + 1), which is 65 x 65 </summary>
+        public int FillLimit = 32;
 
+        /// <summary> Maximum number of blocks that player is allowed to draw at a time using draw commands. </summary>
+        public int DrawLimit;
+
+        /// <summary> Time until the idle kicker will kick this Rank from the server. </summary>
+        public int IdleKickTimer;
+
+        /// <summary> Number of blocks that need to be modified in AntiGriefSeconds for the AntiGrief to kick in for this Rank. </summary>
+        public int AntiGriefBlocks;
+
+        /// <summary> The interval in seconds for which to count number of blocks broken for use in AntiGrief for this Rank. </summary>
+        public int AntiGriefSeconds;
+
+        /// <summary> Whether this rank has a reserved slot (is allowed to join the server even if it's full). </summary>
         public bool ReservedSlot;
 
         /// <summary> Rank's relative index on the hierarchy. Index of the top rank is always 0.
@@ -48,12 +61,15 @@ namespace fCraft {
         public int Index;
 
 
+        /// <summary> The Rank immediately above this Rank. Null if there is no higher rank. Set by RankManager. </summary>
         [CanBeNull]
         public Rank NextRankUp { get; internal set; }
 
+        /// <summary> The Rank immediately below this Rank. Null if there is no lower rank. Set by RankManager. </summary>
         [CanBeNull]
         public Rank NextRankDown { get; internal set; }
 
+        /// <summary> The main world for this Rank. Set and saved by WorldManager. </summary>
         [CanBeNull]
         public World MainWorld { get; set; }
 

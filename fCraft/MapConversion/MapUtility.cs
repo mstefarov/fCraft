@@ -37,6 +37,7 @@ namespace fCraft.MapConversion {
             RegisterConverter( new MapMyne() );
             RegisterConverter( new MapIndev() );
             RegisterConverter( new MapOpticraft() );
+            RegisterConverter( new MapRaw() );
         }
 
 
