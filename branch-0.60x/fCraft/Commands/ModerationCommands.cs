@@ -576,14 +576,13 @@ namespace fCraft {
                                                      player.ClassyName );
             player.Message( "&8You are no longer hidden." );
             player.Info.IsHidden = false;
+
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
                     Server.Players.CantSee( player ).Message( msg );
                 }
-                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
-                    IRC.PlayerReadyHandler( null, new PlayerConnectedEventArgs( player, player.World ) );
-                }
+                Player.RaisePlayerConnectedEvent( player, player.World, true );
             }
 
             Player.RaisePlayerHideChangedEvent( player );

@@ -3,15 +3,11 @@ using System;
 
 namespace fCraft {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
-    public interface ICancellableEvent {
+    public interface ICancelableEvent {
         bool Cancel { get; set; }
     }
 
 
-    /// <summary> An EventArgs for an event that directly relates to a particular player. </summary>
-    public interface IPlayerEvent {
-        Player Player { get; }
-    }
 
 
     /// <summary> An EventArgs for an event that directly relates to a particular world. </summary>

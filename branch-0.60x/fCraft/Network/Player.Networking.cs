@@ -675,7 +675,7 @@ namespace fCraft {
 
             // Figure out what the starting world should be
             World startingWorld = Info.Rank.MainWorld ?? WorldManager.MainWorld;
-            startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
+            startingWorld = RaisePlayerConnectedEvent( this, startingWorld, false );
 
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();

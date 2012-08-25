@@ -337,7 +337,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancellableEvent {
+    public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancelableEvent {
         internal CheckingForUpdatesEventArgs( string url ) {
             Url = url;
         }

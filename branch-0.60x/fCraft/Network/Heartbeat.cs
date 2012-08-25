@@ -295,7 +295,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class HeartbeatSendingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
         internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {
             HeartbeatData = data;
             Uri = uri;
