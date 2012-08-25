@@ -56,8 +56,17 @@ namespace fCraft.ConfigGUI {
                 comboBox.SelectedIndex = -1;
                 Visible = false;
             } else {
-                comboBox.SelectedIndex = rank.GetLimitIndex( Permission );
+                comboBox.SelectedIndex = GetLimitIndex( rank, Permission );
                 Visible = rank.Can( Permission );
+            }
+        }
+
+
+        int GetLimitIndex( Rank rank, Permission permission ) {
+            if( rank.HasLimitSet( permission ) ) {
+                return 0;
+            } else {
+                return rank.GetLimit( permission ).Index + 1;
             }
         }
 
