@@ -75,6 +75,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Gets the lowest rank that has any/all permissions to call this command.
+        /// Returns null if none of the ranks have necessary permissions. </summary>
         public Rank MinRank {
             get {
                 if( Permissions == null ) {
@@ -127,6 +129,9 @@ namespace fCraft {
             return String.Format( "CommandDescriptor({0})", Name );
         }
 
+
+        /// <summary> Returns a formatted name of the command,
+        /// colored and possibly prefixed according to MinRank requried to call this command. </summary>
         public string ClassyName {
             get {
                 if( ConfigKey.RankColorsInChat.Enabled() ) {

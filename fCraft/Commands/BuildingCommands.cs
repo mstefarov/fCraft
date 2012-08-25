@@ -1394,6 +1394,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCancel = new CommandDescriptor {
             Name = "Cancel",
+            Aliases = new[] { "Nvm" },
             Category = CommandCategory.Building | CommandCategory.Chat,
             NotRepeatable = true,
             Help = "If you are writing a partial/multiline message, it's canceled. " +

@@ -128,7 +128,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancelableEvent {
         internal PlayerInfoCreatingEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
                                               [NotNull] Rank startingRank, bool isUnrecognized ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -195,7 +195,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancellableEvent {
+    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancelableEvent {
         internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
                                                   [NotNull] Rank newRank, [CanBeNull] string reason,
                                                   RankChangeType rankChangeType, bool announce )
@@ -226,7 +226,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoBanChangingEventArgs : PlayerInfoEventArgs, ICancellableEvent {
+    public sealed class PlayerInfoBanChangingEventArgs : PlayerInfoEventArgs, ICancelableEvent {
         internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
                                                  bool isBeingUnbanned, [CanBeNull] string reason, bool announce )
             : base( target ) {
@@ -246,7 +246,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancellableEvent {
+    public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancelableEvent {
         internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce )
             : base( target, freezer, unfreezing, announce ) {
         }
@@ -271,7 +271,7 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancellableEvent {
+    public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancelableEvent {
         internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
                                                   TimeSpan duration, bool unmuting, bool announce )
             : base( target, muter, duration, unmuting, announce ) {

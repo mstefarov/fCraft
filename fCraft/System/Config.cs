@@ -1250,7 +1250,7 @@ namespace fCraft {
 
 namespace fCraft.Events {
 
-    public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancellableEvent {
+    public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancelableEvent {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }
         public string NewValue { get; set; }

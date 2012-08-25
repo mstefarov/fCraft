@@ -328,7 +328,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancellableEvent {
+    public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
                                        ChatMessageType messageType, IEnumerable<Player> recepientList ) {
             Player = player;
