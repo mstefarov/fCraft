@@ -79,7 +79,7 @@ namespace fCraft {
         private Rank() {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
-            PermissionLimitStrings = new string[Permissions.Length];
+            permissionLimitStrings = new string[Permissions.Length];
             Color = fCraft.Color.White;
             Prefix = "";
         }
@@ -299,7 +299,7 @@ namespace fCraft {
                 if( ( temp = el.Element( permission ) ) != null ) {
                     Permissions[i] = true;
                     if( ( attr = temp.Attribute( "max" ) ) != null ) {
-                        PermissionLimitStrings[i] = attr.Value;
+                        permissionLimitStrings[i] = attr.Value;
                     }
                 }
             }
@@ -404,16 +404,23 @@ namespace fCraft {
 
         #region Permissions
 
+        /// <summary> Checks whether this rank is granted the given permission. </summary>
+        [Pure]
         public bool Can( Permission permission ) {
             return Permissions[(int)permission];
         }
 
+
+        /// <summary> Checks whether this rank is granted the given permission, and whether the limit is high </summary>
+        [Pure]
         public bool Can( Permission permission, [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return Permissions[(int)permission] && GetLimit( permission ) >= other;
         }
 
 
+        /// <summary> Whether players of this rank are allowed to see hidden players of the given rank. </summary>
+        [Pure]
         public bool CanSee( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return this > other.GetLimit( Permission.Hide );
@@ -428,28 +435,44 @@ namespace fCraft {
             get;
             private set;
         }
-        public readonly string[] PermissionLimitStrings;
 
+        readonly string[] permissionLimitStrings;
+
+
+        /// <summary> Returns the highest rank that is allowed to be affected by this rank,
+        /// in the conext of the given permission. If no limit was explicitly specified, returns this/own rank. </summary>
+        [NotNull]
         public Rank GetLimit( Permission permission ) {
             return PermissionLimits[(int)permission] ?? this;
         }
 
+        /// <summary> Checks whether this rank has a rank limit explicitly set for the given permission. </summary>
+        public bool HasLimitSet( Permission permission ) {
+            return ( PermissionLimits[(int)permission] != null );
+        }
 
+        /// <summary> Sets the rank limit for the given permission. </summary>
         public void SetLimit( Permission permission, [CanBeNull] Rank limit ) {
             PermissionLimits[(int)permission] = limit;
         }
 
 
+        /// <summary> Resets the rank limit for the given permission to default ("own rank"). </summary>
         public void ResetLimit( Permission permission ) {
             SetLimit( permission, null );
         }
 
 
-        public int GetLimitIndex( Permission permission ) {
-            if( PermissionLimits[(int)permission] == null ) {
-                return 0;
-            } else {
-                return PermissionLimits[(int)permission].Index + 1;
+        internal void ParsePermissionLimits() {
+            for( int i = 0; i < PermissionLimits.Length; i++ ) {
+                if( permissionLimitStrings[i] == null ) continue;
+                Rank limit = Parse( permissionLimitStrings[i] );
+                if( limit == null ) {
+                    Logger.Log( LogType.Warning,
+                                "Could not parse \"{0}\" as a {1} permission limit for rank \"{2}\". Reset to default (same rank).",
+                                permissionLimitStrings[i], (Permission)i, Name );
+                }
+                SetLimit( (Permission)i, limit );
             }
         }
 
@@ -518,17 +541,6 @@ namespace fCraft {
                 }
                 return displayedName;
             }
-        }
-
-
-        internal bool ParsePermissionLimits() {
-            bool ok = true;
-            for( int i = 0; i < PermissionLimits.Length; i++ ) {
-                if( PermissionLimitStrings[i] == null ) continue;
-                SetLimit( (Permission)i, Parse( PermissionLimitStrings[i] ) );
-                ok &= ( GetLimit( (Permission)i ) != null );
-            }
-            return ok;
         }
 
         /// <summary> Shortcut to the list of all online players of this rank. </summary>

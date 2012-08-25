@@ -211,12 +211,7 @@ namespace fCraft {
 
         internal static void ParsePermissionLimits() {
             foreach( Rank rank in Ranks ) {
-                if( !rank.ParsePermissionLimits() ) {
-                    Logger.Log( LogType.Warning,
-                                "Could not parse one of the rank-limits for kick, ban, promote, and/or demote permissions for {0}. " +
-                                "Any unrecognized limits were reset to defaults (own rank).",
-                                rank.Name );
-                }
+                rank.ParsePermissionLimits();
             }
         }
 
