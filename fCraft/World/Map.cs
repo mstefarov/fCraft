@@ -34,16 +34,21 @@ namespace fCraft {
 
 
         /// <summary> Default spawning point on the map. </summary>
-        Position spawn;
+        /// <exception cref="ArgumentOutOfRangeException"> If spawn coordinates are outside the map. </exception>
         public Position Spawn {
             get {
                 return spawn;
             }
             set {
+                if( value.X > Width * 32 || value.Y > Length * 32 || value.Z > Height * 32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value",
+                                                           "Spawn coordinates are outside the map." );
+                }
                 spawn = value;
                 HasChangedSinceSave = true;
             }
         }
+        Position spawn;
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
@@ -82,10 +87,11 @@ namespace fCraft {
         /// <param name="length"> Length (horizontal, Notch's Z). </param>
         /// <param name="height"> Height (vertical, Notch's Y). </param>
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
+        /// <exception cref="ArgumentOutOfRangeException"> If width/length/height are not between 16 and 2048. </exception>
         public Map( World world, int width, int length, int height, bool initBlockArray ) {
-            if( !IsValidDimension( width ) ) throw new ArgumentException( "Invalid map dimension.", "width" );
-            if( !IsValidDimension( length ) ) throw new ArgumentException( "Invalid map dimension.", "length" );
-            if( !IsValidDimension( height ) ) throw new ArgumentException( "Invalid map dimension.", "height" );
+            if( !IsValidDimension( width ) ) throw new ArgumentOutOfRangeException( "width", "Invalid map dimension." );
+            if( !IsValidDimension( length ) ) throw new ArgumentOutOfRangeException( "length", "Invalid map dimension." );
+            if( !IsValidDimension( height ) ) throw new ArgumentOutOfRangeException( "height", "Invalid map dimension." );
             DateCreated = DateTime.UtcNow;
             DateModified = DateCreated;
             Guid = Guid.NewGuid();
@@ -432,36 +438,6 @@ namespace fCraft {
 
 
         #region Utilities
-
-        public bool ValidateHeader() {
-            if( !IsValidDimension( Width ) ) {
-                Logger.Log( LogType.Error,
-                            "Map.ValidateHeader: Unsupported map width: {0}.", Width );
-                return false;
-            }
-
-            if( !IsValidDimension( Length ) ) {
-                Logger.Log( LogType.Error,
-                            "Map.ValidateHeader: Unsupported map length: {0}.", Length );
-                return false;
-            }
-
-            if( !IsValidDimension( Height ) ) {
-                Logger.Log( LogType.Error,
-                            "Map.ValidateHeader: Unsupported map height: {0}.", Height );
-                return false;
-            }
-
-            if( Spawn.X > Width * 32 || Spawn.Y > Length * 32 || Spawn.Z > Height * 32 || Spawn.X < 0 || Spawn.Y < 0 || Spawn.Z < 0 ) {
-                Logger.Log( LogType.Warning,
-                            "Map.ValidateHeader: Spawn coordinates are outside the valid range! Using center of the map instead." );
-                ResetSpawn();
-            }
-
-            return true;
-        }
-
-
         /// <summary> Checks if a given map dimension (width, height, or length) is acceptable.
         /// Values between 1 and 2047 are technically allowed. </summary>
         public static bool IsValidDimension( int dimension ) {

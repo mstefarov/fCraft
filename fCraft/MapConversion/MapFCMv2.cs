@@ -101,10 +101,6 @@ namespace fCraft.MapConversion {
 
                 Map map = LoadHeaderInternal( mapStream );
 
-                if( !map.ValidateHeader() ) {
-                    throw new MapFormatException( "MapFCMv2: One or more of the map dimensions are invalid." );
-                }
-
                 BinaryReader reader = new BinaryReader( mapStream );
 
                 // Read the metadata

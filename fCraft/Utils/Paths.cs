@@ -341,6 +341,7 @@ namespace fCraft {
         public static string GetDirectoryNameOrRoot( [NotNull] string fileOrDirName ) {
             if( fileOrDirName == null ) throw new ArgumentNullException( "fileOrDirName" );
             string fullPath = Path.GetFullPath( fileOrDirName );
+            if( Directory.Exists( fullPath ) ) return fullPath;
             return Path.GetDirectoryName( fullPath ) ?? Path.GetPathRoot( fullPath );
         }
 
