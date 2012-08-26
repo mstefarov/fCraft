@@ -211,7 +211,7 @@
     <Compile Include="Drawing\DrawOps\PasteDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CutDrawOperation.cs" />
     <Compile Include="Drawing\UndoState.cs" />
-    <Compile Include="MapConversion\INIFile.cs" />
+    <Compile Include="MapConversion\MyneMetaFile.cs" />
     <Compile Include="MapConversion\MapRaw.cs" />
     <Compile Include="Network\IPBanInfo.cs" />
     <Compile Include="Player\ChatTimer.cs" />

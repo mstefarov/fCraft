@@ -266,7 +266,10 @@ namespace fCraft.ConfigGUI {
                         Application.DoEvents();
                     }
                 }
-                if( drawAgain ) bwRenderer.RunWorkerAsync();
+                if( drawAgain ) {
+                    renderer.Rotation = previewRotation;
+                    bwRenderer.RunWorkerAsync();
+                }
             }
         }
 

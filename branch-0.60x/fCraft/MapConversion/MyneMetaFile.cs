@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> INI parser used by MapMyne. </summary>
-    sealed class INIFile {
+    sealed class MyneMetaFile {
         const string Separator = "=";
         readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
 
@@ -28,24 +28,33 @@ namespace fCraft.MapConversion {
             }
         }
 
-        public INIFile( [NotNull] Stream fileStream ) {
+        public MyneMetaFile( [NotNull] Stream fileStream ) {
             if( fileStream == null ) throw new ArgumentNullException( "fileStream" );
             StreamReader reader = new StreamReader( fileStream );
             Dictionary<string, string> section = null;
+            string lastKey = null;
             while( true ) {
                 string line = reader.ReadLine();
                 if( line == null ) break;
 
-                line = line.Trim();
-                if( line.StartsWith( "#" ) ) continue;
-                if( line.StartsWith( "[" ) ) {
+                if( line.StartsWith( "#" ) ) {
+                    lastKey = null;
+                } else if( line.StartsWith( "[" ) ) {
+                    lastKey = null;
                     string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
                     section = new Dictionary<string, string>();
                     contents.Add( sectionName, section );
+                } else if( line.StartsWith( "\t" ) ) {
+                    if( lastKey != null ) {
+                        section[lastKey] += Environment.NewLine + line.Substring( 1 );
+                    }
                 } else if( line.Contains( Separator ) && section != null ) {
                     string keyName = line.Substring( 0, line.IndexOf( Separator, StringComparison.Ordinal ) ).TrimEnd().ToLower();
                     string valueName = line.Substring( line.IndexOf( Separator, StringComparison.Ordinal ) + 1 ).TrimStart();
                     section.Add( keyName, valueName );
+                    lastKey = keyName;
+                } else {
+                    lastKey = null;
                 }
             }
         }
