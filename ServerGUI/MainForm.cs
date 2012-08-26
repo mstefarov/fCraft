@@ -11,7 +11,7 @@ using fCraft.GUI;
 namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
-        volatile bool shutdownPending, startupComplete, shutdownComplete;
+        volatile bool shutdownPending, startupComplete, shutdownComplete, shutdownIsPlayerInitiated;
         const int MaxLinesInLog = 2000,
                   LinesToTrimWhenExceeded = 50;
 
@@ -104,7 +104,7 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true );
-                Shutdown( ShutdownReason.Crashed, Server.HasArg( ArgKey.ExitOnCrash ) );
+                Shutdown( ShutdownReason.Crashed );
             }
 #endif
         }
@@ -125,7 +125,7 @@ namespace fCraft.ServerGUI {
 
 
         void OnStartupFailure() {
-            Shutdown( ShutdownReason.FailedToStart, Server.HasArg( ArgKey.ExitOnCrash ) );
+            Shutdown( ShutdownReason.FailedToStart );
         }
 
         #endregion
@@ -135,7 +135,7 @@ namespace fCraft.ServerGUI {
 
         protected override void OnFormClosing( FormClosingEventArgs e ) {
             if( startupThread != null && !shutdownComplete ) {
-                Shutdown( ShutdownReason.ProcessClosing, true );
+                Shutdown( ShutdownReason.ProcessClosing );
                 e.Cancel = true;
             } else {
                 base.OnFormClosing( e );
@@ -143,7 +143,7 @@ namespace fCraft.ServerGUI {
         }
 
 
-        void Shutdown( ShutdownReason reason, bool quit ) {
+        void Shutdown( ShutdownReason reason ) {
             if( shutdownPending ) return;
             shutdownPending = true;
             console.Enabled = false;
@@ -153,7 +153,7 @@ namespace fCraft.ServerGUI {
             if( !startupComplete ) {
                 startupThread.Join();
             }
-            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, quit, false ), false );
+            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), false );
         }
 
 

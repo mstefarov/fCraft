@@ -30,13 +30,13 @@ using System.Threading;
 using fCraft.Events;
 
 namespace fCraft.ServerCLI {
-
     static class Program {
         static bool useColor = true;
 
         static void Main( string[] args ) {
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
+            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
             Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
@@ -53,6 +53,7 @@ namespace fCraft.ServerCLI {
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
                 Server.InitServer();
+                Console.CancelKeyPress += OnCancelKeyPress;
 
                 CheckForUpdates();
                 Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
@@ -65,34 +66,37 @@ namespace fCraft.ServerCLI {
                     }
                 }
 
-                if( Server.StartServer() ) {
-                    Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
-                    Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
+                    if( Server.StartServer() ) {
+                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
+                        Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
 
-                    while( !Server.IsShuttingDown ) {
-                        string cmd = Console.ReadLine();
-                        if( cmd == null ) {
-                            Console.WriteLine( "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
-                            break;
-                        }
-                        if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
-                            Console.Clear();
-                        } else {
-#if !DEBUG
-                            try {
-                                Player.Console.ParseMessage( cmd, true );
-                            } catch( Exception ex ) {
-                                Logger.LogAndReportCrash( "Error while executing a command from console", "ServerCLI", ex, false );
+                        while( !Server.IsShuttingDown ) {
+                            string cmd = Console.ReadLine();
+                            if( cmd == null ) {
+                                Console.WriteLine(
+                                    "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
+                                break;
                             }
+                            if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
+                                Console.Clear();
+                            } else {
+#if !DEBUG
+                                try {
+                                    Player.Console.ParseMessage( cmd, true );
+                                } catch( Exception ex ) {
+                                    Logger.LogAndReportCrash( "Error while executing a command from console",
+                                                              "ServerCLI",
+                                                              ex, false );
+                                }
 #else
                             Player.Console.ParseMessage( cmd, true );
 #endif
+                            }
                         }
-                    }
 
-                } else {
-                    ReportFailure( ShutdownReason.FailedToStart, true );
-                }
+                    } else {
+                        ReportFailure( ShutdownReason.FailedToStart, true );
+                    }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
@@ -104,12 +108,40 @@ namespace fCraft.ServerCLI {
         }
 
 
+        static void OnCancelKeyPress( object sender, ConsoleCancelEventArgs e ) {
+            switch( e.SpecialKey ) {
+                case ConsoleSpecialKey.ControlBreak:
+                    Console.WriteLine( "*** Shutting down (Ctrl-Break) ***" );
+                    Thread t = new Thread( OnControlShutdown );
+                    t.Start();
+                    t.Join();
+                    break;
+                case ConsoleSpecialKey.ControlC:
+                    e.Cancel = true;
+                    Console.WriteLine( "*** Shutting down (Ctrl-C) ***" );
+                    new Thread( OnControlShutdown ).Start();
+                    break;
+            }
+        }
+
+
+        static void OnControlShutdown() {
+            Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, TimeSpan.Zero, false ), true );
+            Environment.Exit( (int)ShutdownReason.ProcessClosing );
+        }
+
+
+        static void OnProcessExit( object sender, EventArgs e ) {
+            Logger.Log( LogType.Debug, "OnProcessExit" );
+        }
+
+
         static void ReportFailure( ShutdownReason reason, bool shutdown ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
-            if(shutdown) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false, false ), true );
+            if(shutdown) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }
@@ -161,7 +193,6 @@ namespace fCraft.ServerCLI {
 
 
         #region Updates
-
 
         static readonly AutoResetEvent UpdateDownloadWaiter = new AutoResetEvent( false );
         static bool updateFailed;

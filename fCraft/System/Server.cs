@@ -28,11 +28,14 @@ namespace fCraft {
         /// <summary> Time when the server started (UTC). Used to check uptime. </summary>
         public static DateTime StartTime { get; private set; }
 
-        internal static int MaxUploadSpeed,   // set by Config.ApplyConfig
+        internal static int MaxUploadSpeed,
+                            // set by Config.ApplyConfig
                             BlockUpdateThrottling; // used when there are no players in a world
 
-        internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
+        internal const int MaxSessionPacketsPerTick = 128,
+                           // used when there are no players in a world
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
+
         internal static float TicksPerSecond;
 
 
@@ -50,6 +53,7 @@ namespace fCraft {
 
         static readonly Dictionary<ArgKey, string> Args = new Dictionary<ArgKey, string>();
 
+
         /// <summary> Returns value of a given command-line argument (if present). Use HasArg to check flag arguments. </summary>
         /// <param name="key"> Command-line argument name (enumerated) </param>
         /// <returns> Value of the command-line argument, or null if this argument was not set or argument is a flag. </returns>
@@ -61,6 +65,7 @@ namespace fCraft {
                 return null;
             }
         }
+
 
         /// <summary> Checks whether a command-line argument was set. </summary>
         /// <param name="key"> Command-line argument name (enumerated) </param>
@@ -100,7 +105,9 @@ namespace fCraft {
         // flags used to ensure proper initialization order
         static bool libraryInitialized,
                     serverInitialized;
+
         public static bool IsRunning { get; private set; }
+
 
         /// <summary> Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
@@ -229,8 +236,7 @@ namespace fCraft {
             // Instantiate DeflateStream to make sure that libMonoPosix is present.
             // This allows catching misconfigured Mono installs early, and stopping the server.
             using( var testMemStream = new MemoryStream() ) {
-                using( new DeflateStream( testMemStream, CompressionMode.Compress ) ) {
-                }
+                using( new DeflateStream( testMemStream, CompressionMode.Compress ) ) {}
             }
 
             // warnings/disclaimers
@@ -313,7 +319,8 @@ namespace fCraft {
                 throw new InvalidOperationException( "Server is already running" );
             }
             if( !libraryInitialized || !serverInitialized ) {
-                throw new InvalidOperationException( "Server.InitLibrary and Server.InitServer must be called before Server.StartServer" );
+                throw new InvalidOperationException(
+                    "Server.InitLibrary and Server.InitServer must be called before Server.StartServer" );
             }
 
             StartTime = DateTime.UtcNow;
@@ -363,7 +370,7 @@ namespace fCraft {
                 return false;
             }
 
-            InternalIP = ((IPEndPoint)listener.LocalEndpoint).Address;
+            InternalIP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
             ExternalIP = CheckExternalIP();
 
             if( ExternalIP == null ) {
@@ -418,7 +425,7 @@ namespace fCraft {
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
-                Shutdown( new ShutdownParams( ShutdownReason.Restarting, restartIn, true, true ), false );
+                Shutdown( new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true ), false );
                 ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
             }
 
@@ -440,7 +447,7 @@ namespace fCraft {
         #region Shutdown
 
         static readonly object ShutdownLock = new object();
-        public static bool IsShuttingDown;
+        public static volatile bool IsShuttingDown;
         static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
         static Thread shutdownThread;
         static ChatTimer shutdownTimer;
@@ -472,7 +479,8 @@ namespace fCraft {
                     if( Sessions.Count > 0 ) {
                         foreach( Player p in Sessions ) {
                             // NOTE: kick packet delivery here is not currently guaranteed
-                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")", LeaveReason.ServerShutdown );
+                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
+                                    LeaveReason.ServerShutdown );
                         }
                         // increase the chances of kick packets being delivered
                         Thread.Sleep( 1000 );
@@ -569,7 +577,7 @@ namespace fCraft {
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
-            bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
+            bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
             string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
             if( Updater.RunAtShutdown && doRestart ) {
@@ -586,9 +594,7 @@ namespace fCraft {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
             }
 
-            if( param.KillProcess ) {
-                Process.GetCurrentProcess().Kill();
-            }
+            Environment.ExitCode = (int)param.Reason;
         }
 
         #endregion
@@ -625,7 +631,8 @@ namespace fCraft {
         /// <summary> Broadcasts a message to all online players except one.
         /// Shorthand for Server.Players.Except(except).Message </summary>
         [StringFormatMethod( "message" )]
-        public static void Message( [CanBeNull] Player except, [NotNull] string message, [NotNull] params object[] formatArgs ) {
+        public static void Message( [CanBeNull] Player except, [NotNull] string message,
+                                    [NotNull] params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Except( except ).Message( message, formatArgs );
@@ -639,6 +646,7 @@ namespace fCraft {
         // checks for incoming connections
         static SchedulerTask checkConnectionsTask;
         static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
+
         public static TimeSpan CheckConnectionsInterval {
             get { return checkConnectionsInterval; }
             set {
@@ -647,6 +655,7 @@ namespace fCraft {
                 if( checkConnectionsTask != null ) checkConnectionsTask.Interval = value;
             }
         }
+
 
         static void CheckConnections( SchedulerTask param ) {
             TcpListener listenerCache = listener;
@@ -664,6 +673,7 @@ namespace fCraft {
         // checks for idle players
         static SchedulerTask checkIdlesTask;
         static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
+
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
@@ -672,6 +682,7 @@ namespace fCraft {
                 if( checkIdlesTask != null ) checkIdlesTask.Interval = checkIdlesInterval;
             }
         }
+
 
         static void CheckIdles( SchedulerTask task ) {
             Player[] tempPlayerList = Players;
@@ -694,6 +705,7 @@ namespace fCraft {
         // collects garbage (forced collection is necessary under Mono)
         static SchedulerTask gcTask;
         static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
+
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
@@ -703,18 +715,19 @@ namespace fCraft {
             }
         }
 
+
         static void DoGC( SchedulerTask task ) {
             if( !gcRequested ) return;
             gcRequested = false;
 
             Process proc = Process.GetCurrentProcess();
             proc.Refresh();
-            long usageBefore = proc.PrivateMemorySize64 / (1024 * 1024);
+            long usageBefore = proc.PrivateMemorySize64 / ( 1024 * 1024 );
 
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
 
             proc.Refresh();
-            long usageAfter = proc.PrivateMemorySize64 / (1024 * 1024);
+            long usageAfter = proc.PrivateMemorySize64 / ( 1024 * 1024 );
 
             Logger.Log( LogType.Debug,
                         "Server.DoGC: Collected on schedule ({0}->{1} MB).",
@@ -745,13 +758,14 @@ namespace fCraft {
         static readonly TimeSpan MonitorProcessorUsageInterval = TimeSpan.FromSeconds( 30 );
         static DateTime lastMonitorTime = DateTime.UtcNow;
 
+
         static void MonitorProcessorUsage( SchedulerTask task ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
-            CPUUsageLastMinute = (newCPUTime - oldCPUTime).TotalSeconds /
-                                 (Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
+            CPUUsageLastMinute = ( newCPUTime - oldCPUTime ).TotalSeconds /
+                                 ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
             lastMonitorTime = DateTime.UtcNow;
             CPUUsageTotal = newCPUTime.TotalSeconds /
-                            (Environment.ProcessorCount * DateTime.UtcNow.Subtract( StartTime ).TotalSeconds);
+                            ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
             oldCPUTime = newCPUTime;
             IsMonitoringCPUUsage = true;
         }
@@ -762,6 +776,7 @@ namespace fCraft {
         #region Utilities
 
         static bool gcRequested;
+
 
         public static void RequestGC() {
             gcRequested = true;
@@ -786,8 +801,8 @@ namespace fCraft {
 
         public static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            int packetsPerTick = (int)(BlockUpdateThrottling / TicksPerSecond);
-            int maxPacketsPerUpdate = (int)(MaxUploadSpeed / TicksPerSecond * 128);
+            int packetsPerTick = (int)( BlockUpdateThrottling / TicksPerSecond );
+            int maxPacketsPerUpdate = (int)( MaxUploadSpeed / TicksPerSecond * 128 );
 
             int playerCount = world.Players.Length;
             if( playerCount > 0 && !world.IsFlushing ) {
@@ -803,8 +818,10 @@ namespace fCraft {
         }
 
 
-        static readonly Regex RegexIP = new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
-                                                   RegexOptions.Compiled );
+        static readonly Regex RegexIP =
+            new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
+                       RegexOptions.Compiled );
+
 
         public static bool IsIP( [NotNull] string ipString ) {
             if( ipString == null ) throw new ArgumentNullException( "ipString" );
@@ -883,8 +900,10 @@ namespace fCraft {
             return sb.ToString();
         }
 
+
         static readonly Uri IPCheckUri = new Uri( "http://checkip.dyndns.org/" );
         const int IPCheckTimeout = 30000;
+
 
         /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
         [CanBeNull]
@@ -915,8 +934,10 @@ namespace fCraft {
             }
         }
 
+
         // Callback for setting the local IP binding. Implements System.Net.BindIPEndPoint delegate.
-        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
+        public static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint,
+                                                         int retryCount ) {
             return new IPEndPoint( InternalIP, 0 );
         }
 
@@ -1050,8 +1071,8 @@ namespace fCraft {
         internal static void UpdatePlayerList() {
             lock( PlayerListLock ) {
                 Players = PlayerIndex.Values.Where( p => p.IsOnline )
-                                            .OrderBy( player => player.Name )
-                                            .ToArray();
+                    .OrderBy( player => player.Name )
+                    .ToArray();
                 RaiseEvent( PlayerListChanged );
             }
         }
@@ -1139,7 +1160,8 @@ namespace fCraft {
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
-        public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name, bool includeHidden, bool raiseEvent ) {
+        public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name,
+                                                       bool includeHidden, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name == "-" ) {
@@ -1189,73 +1211,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-
-
-    /// <summary> Describes the circumstances of server shutdown. </summary>
-    public sealed class ShutdownParams {
-        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess, bool restart ) {
-            Reason = reason;
-            Delay = delay;
-            KillProcess = killProcess;
-            Restart = restart;
-        }
-
-        public ShutdownParams( ShutdownReason reason, TimeSpan delay, bool killProcess,
-                               bool restart, [CanBeNull] string customReason, [CanBeNull] Player initiatedBy ) :
-            this( reason, delay, killProcess, restart ) {
-            customReasonString = customReason;
-            InitiatedBy = initiatedBy;
-        }
-
-        public ShutdownReason Reason { get; private set; }
-
-        readonly string customReasonString;
-        [NotNull]
-        public string ReasonString {
-            get {
-                return customReasonString ?? Reason.ToString();
-            }
-        }
-
-        /// <summary> Delay before shutting down. </summary>
-        public TimeSpan Delay { get; private set; }
-
-        /// <summary> Whether fCraft should try to forcefully kill the current process. </summary>
-        public bool KillProcess { get; private set; }
-
-        /// <summary> Whether the server is expected to restart itself after shutting down. </summary>
-        public bool Restart { get; private set; }
-
-        /// <summary> Player who initiated the shutdown. May be null or Console. </summary>
-        [CanBeNull]
-        public Player InitiatedBy { get; private set; }
-    }
-
-
-    /// <summary> Categorizes conditions that lead to server shutdowns. </summary>
-    public enum ShutdownReason {
-        Unknown,
-
-        /// <summary> Use for mod- or plugin-triggered shutdowns. </summary>
-        Other,
-
-        /// <summary> InitLibrary or InitServer failed. </summary>
-        FailedToInitialize,
-
-        /// <summary> StartServer failed. </summary>
-        FailedToStart,
-
-        /// <summary> Server is restarting, usually because someone called /Restart. </summary>
-        Restarting,
-
-        /// <summary> Server has experienced a non-recoverable crash. </summary>
-        Crashed,
-
-        /// <summary> Server is shutting down, usually because someone called /Shutdown. </summary>
-        ShuttingDown,
-
-        /// <summary> Server process is being closed/killed. </summary>
-        ProcessClosing
     }
 }
