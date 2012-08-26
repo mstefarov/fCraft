@@ -313,18 +313,18 @@ namespace fCraft {
 namespace fCraft.Events {
     /// <summary> Provides data for CommandManager.CommandRegistered event. Immutable. </summary>
     public class CommandRegisteredEventArgs : EventArgs {
-        internal CommandRegisteredEventArgs( CommandDescriptor commandDescriptor ) {
-            CommandDescriptor = commandDescriptor;
+        internal CommandRegisteredEventArgs( CommandDescriptor descriptor ) {
+            Descriptor = descriptor;
         }
 
-        public CommandDescriptor CommandDescriptor { get; private set; }
+        public CommandDescriptor Descriptor { get; private set; }
     }
 
 
     /// <summary> Provides data for CommandManager.CommandRegistering event. Cancellable. </summary>
     public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
-        internal CommandRegistringEventArgs( CommandDescriptor commandDescriptor )
-            : base( commandDescriptor ) {
+        internal CommandRegistringEventArgs( CommandDescriptor descriptor )
+            : base( descriptor ) {
         }
 
         public bool Cancel { get; set; }
@@ -332,23 +332,23 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for CommandManager.CommandCalled event. Immutable. </summary>
-    public class CommandCalledEventArgs : EventArgs {
-        internal CommandCalledEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) {
+    public class CommandCalledEventArgs : EventArgs, IPlayerEvent {
+        internal CommandCalledEventArgs( CommandReader command, CommandDescriptor descriptor, Player player ) {
             Command = command;
-            CommandDescriptor = commandDescriptor;
+            Descriptor = descriptor;
             Player = player;
         }
 
         public CommandReader Command { get; private set; }
-        public CommandDescriptor CommandDescriptor { get; private set; }
+        public CommandDescriptor Descriptor { get; private set; }
         public Player Player { get; private set; }
     }
 
 
     /// <summary> Provides data for CommandManager.CommandCalling event. Cancellable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
-        internal CommandCallingEventArgs( CommandReader command, CommandDescriptor commandDescriptor, Player player ) :
-            base( command, commandDescriptor, player ) {
+        internal CommandCallingEventArgs( CommandReader command, CommandDescriptor descriptor, Player player ) :
+            base( command, descriptor, player ) {
         }
 
         public bool Cancel { get; set; }

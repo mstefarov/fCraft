@@ -195,7 +195,7 @@ namespace Mono.Options
         }
 
         private static int GetNextWidth( IEnumerator<int> ewidths, int curWidth, ref bool? eValid ) {
-            if( !eValid.HasValue || ( eValid.HasValue && eValid.Value ) ) {
+            if( !eValid.HasValue || eValid.Value ) {
                 curWidth = ( eValid = ewidths.MoveNext() ).Value ? ewidths.Current : curWidth;
                 // '.' is any character, - is for a continuation
                 const string minWidth = ".-";
@@ -321,7 +321,7 @@ namespace Mono.Options
 
         public OptionContext( OptionSet set ) {
             this.set = set;
-            this.c = new OptionValueCollection( this );
+            c = new OptionValueCollection( this );
         }
 
         public Option Option {
@@ -375,30 +375,30 @@ namespace Mono.Options
 
             this.prototype = prototype;
             this.description = description;
-            this.count = maxValueCount;
-            this.names = ( this is OptionSet.Category )
+            count = maxValueCount;
+            names = ( this is OptionSet.Category )
                 // append GetHashCode() so that "duplicate" categories have distinct
                 // names, e.g. adding multiple "" categories should be valid.
-                ? new[] { prototype + this.GetHashCode() }
+                ? new[] { prototype + GetHashCode() }
                 : prototype.Split( '|' );
 
             if( this is OptionSet.Category )
                 return;
 
-            this.type = ParsePrototype();
+            type = ParsePrototype();
 
-            if( this.count == 0 && type != OptionValueType.None )
+            if( count == 0 && type != OptionValueType.None )
                 throw new ArgumentException(
                         "Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
                             "OptionValueType.Optional.",
                         "maxValueCount" );
-            if( this.type == OptionValueType.None && maxValueCount > 1 )
+            if( type == OptionValueType.None && maxValueCount > 1 )
                 throw new ArgumentException(
                         string.Format( "Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount ),
                         "maxValueCount" );
             if( Array.IndexOf( names, "<>" ) >= 0 &&
-                    ( ( names.Length == 1 && this.type != OptionValueType.None ) ||
-                     ( names.Length > 1 && this.MaxValueCount > 1 ) ) )
+                    ( ( names.Length == 1 && type != OptionValueType.None ) ||
+                     ( names.Length > 1 && MaxValueCount > 1 ) ) )
                 throw new ArgumentException(
                         "The default option handler '<>' cannot require values.",
                         "prototype" );
@@ -443,7 +443,7 @@ namespace Mono.Options
         internal string[] Names { get { return names; } }
         internal string[] ValueSeparators { get { return separators; } }
 
-        static readonly char[] NameTerminator = new char[] { '=', ':' };
+        static readonly char[] NameTerminator = new[] { '=', ':' };
 
         private OptionValueType ParsePrototype() {
             char type = '\0';
@@ -475,11 +475,11 @@ namespace Mono.Options
                         "prototype" );
             if( count > 1 ) {
                 if( seps.Count == 0 )
-                    this.separators = new string[] { ":", "=" };
+                    separators = new[] { ":", "=" };
                 else if( seps.Count == 1 && seps[0].Length == 0 )
-                    this.separators = null;
+                    separators = null;
                 else
-                    this.separators = seps.ToArray();
+                    separators = seps.ToArray();
             }
 
             return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
@@ -588,7 +588,7 @@ namespace Mono.Options
     public class ResponseFileSource : ArgumentSource {
 
         public override string[] GetNames() {
-            return new string[] { "@file" };
+            return new[] { "@file" };
         }
 
         public override string Description {
@@ -600,7 +600,7 @@ namespace Mono.Options
                 replacement = null;
                 return false;
             }
-            replacement = ArgumentSource.GetArgumentsFromFile( value.Substring( 1 ) );
+            replacement = GetArgumentsFromFile( value.Substring( 1 ) );
             return true;
         }
     }
@@ -614,21 +614,21 @@ namespace Mono.Options
 
         public OptionException( string message, string optionName )
             : base( message ) {
-            this.option = optionName;
+            option = optionName;
         }
 
         public OptionException( string message, string optionName, Exception innerException )
             : base( message, innerException ) {
-            this.option = optionName;
+            option = optionName;
         }
 
         protected OptionException( SerializationInfo info, StreamingContext context )
             : base( info, context ) {
-            this.option = info.GetString( "OptionName" );
+            option = info.GetString( "OptionName" );
         }
 
         public string OptionName {
-            get { return this.option; }
+            get { return option; }
         }
 
         [SecurityPermission( SecurityAction.LinkDemand, SerializationFormatter = true )]
@@ -647,7 +647,7 @@ namespace Mono.Options
 
         public OptionSet( Converter<string, string> localizer ) {
             this.localizer = localizer;
-            this.roSources = new ReadOnlyCollection<ArgumentSource>( sources );
+            roSources = new ReadOnlyCollection<ArgumentSource>( sources );
         }
 
         Converter<string, string> localizer;
@@ -989,7 +989,7 @@ namespace Mono.Options
             if( option != null )
                 foreach( string o in c.Option.ValueSeparators != null
                         ? option.Split( c.Option.ValueSeparators, c.Option.MaxValueCount - c.OptionValues.Count, StringSplitOptions.None )
-                        : new string[] { option } ) {
+                        : new[] { option } ) {
                     c.OptionValues.Add( o );
                 }
             if( c.OptionValues.Count == c.Option.MaxValueCount ||
@@ -1024,8 +1024,8 @@ namespace Mono.Options
                 return false;
             for( int i = 0; i < n.Length; ++i ) {
                 Option p;
-                string opt = f + n[i].ToString();
-                string rn = n[i].ToString();
+                string opt = f + n[i].ToString( CultureInfo.InvariantCulture );
+                string rn = n[i].ToString( CultureInfo.InvariantCulture );
                 if( !Contains( rn ) ) {
                     if( i == 0 )
                         return false;
@@ -1181,9 +1181,9 @@ namespace Mono.Options
                 return maxIndex == 1 ? "VALUE" : "VALUE" + ( index + 1 );
             string[] nameStart;
             if( maxIndex == 1 )
-                nameStart = new string[] { "{0:", "{" };
+                nameStart = new[] { "{0:", "{" };
             else
-                nameStart = new string[] { "{" + index + ":" };
+                nameStart = new[] { "{" + index + ":" };
             for( int i = 0; i < nameStart.Length; ++i ) {
                 int start, j = 0;
                 do {

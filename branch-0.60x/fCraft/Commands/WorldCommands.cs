@@ -755,7 +755,6 @@ namespace fCraft {
         static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
             string themeName = cmd.Next();
-            string templateName;
             bool genOcean = false;
             bool genEmpty = false;
             bool noTrees = false;
@@ -775,7 +774,7 @@ namespace fCraft {
                 genEmpty = true;
 
             } else {
-                templateName = cmd.Next();
+                string templateName = cmd.Next();
                 if( templateName == null ) {
                     CdGenerate.PrintUsage( player );
                     return;
@@ -867,7 +866,7 @@ namespace fCraft {
                 player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
                 return;
             }
-            long volume = (long)mapWidth * (long)mapLength * (long)mapHeight;
+            long volume = (long)mapWidth * mapLength * mapHeight;
             if( volume > Int32.MaxValue ) {
                 player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;

@@ -2,7 +2,6 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
 
 namespace fCraft.MapConversion {
     /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
