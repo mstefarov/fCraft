@@ -137,7 +137,7 @@ namespace fCraft {
                 foreach( string alias in descriptor.Aliases ) {
                     string normalizedAlias = alias.ToLower();
                     if( ReservedCommandNames.Contains( normalizedAlias ) &&
-                        !( descriptor.Name != "Cancel" && alias != "Nvm" ) ) { // special case for cancel/nvm aliases
+                        !( descriptor.Name == "Cancel" && alias == "Nvm" ) ) { // special case for cancel/nvm aliases
                         Logger.Log( LogType.Warning,
                                     "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).",
                                     alias, descriptor.Name );
