@@ -983,14 +983,14 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a shutdown ({1} delay).",
                             player.Name, delayTime.ToCompactString() );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShutdownCommand, delayTime, false );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&SShutdown reason: {0}", reason );
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a shutdown ({1} delay). Reason: {2}",
                             player.Name, delayTime.ToCompactString(), reason );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShuttingDown, delayTime, true, false, reason, player );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.ShutdownCommand, delayTime, false, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
@@ -1047,14 +1047,14 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a restart ({1} delay).",
                             player.Name, delayTime.ToCompactString() );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartCommand, delayTime, true );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&WRestart reason: {0}", reason );
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a restart ({1} delay). Reason: {2}",
                             player.Name, delayTime.ToCompactString(), reason );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.Restarting, delayTime, true, true, reason, player );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartCommand, delayTime, true, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
