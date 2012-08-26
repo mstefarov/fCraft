@@ -539,83 +539,139 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => entry.PlayerID == pid );
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.PlayerID != pid );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.PlayerID == pid );
+            }
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, TimeSpan span ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            int pid = info.ID;
-            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
-        }
-
-
-        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos ) {
-            if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0] );
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => infos.Any( t => entry.PlayerID == t.ID ) );
-        }
-
-
-        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, TimeSpan span ) {
-            if( infos == null ) throw new ArgumentNullException( "infos" );
-            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
-            if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0], span );
-            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                          entry => infos.Any( t => entry.Timestamp >= ticks && entry.PlayerID == t.ID ) );
-        }
-
-
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info ) {
-            if( area == null ) throw new ArgumentNullException( "area" );
-            if( info == null ) throw new ArgumentNullException( "info" );
-            int pid = info.ID;
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => entry.PlayerID == pid && area.Contains( entry.X, entry.Y, entry.Z ) );
-        }
-
-
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, TimeSpan span ) {
-            if( area == null ) throw new ArgumentNullException( "area" );
+        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             int pid = info.ID;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => entry.Timestamp >= ticks && entry.PlayerID == pid && area.Contains( entry.X, entry.Y, entry.Z ) );
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        entry.PlayerID != pid );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        entry.PlayerID == pid );
+            }
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, bool exclude ) {
+            if( infos == null ) throw new ArgumentNullException( "infos" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
+            if( infos.Length == 1 ) return Lookup( max, infos[0], exclude );
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => infos.All( t => entry.PlayerID != t.ID ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => infos.Any( t => entry.PlayerID == t.ID ) );
+            }
+        }
+
+
+        public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
+            if( infos == null ) throw new ArgumentNullException( "infos" );
+            if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
+            if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
+            if( infos.Length == 1 ) return Lookup( max, infos[0], exclude, span );
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        infos.All( t => entry.PlayerID != t.ID ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        infos.Any( t => entry.PlayerID == t.ID ) );
+            }
+        }
+
+
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude ) {
+            if( area == null ) throw new ArgumentNullException( "area" );
+            if( info == null ) throw new ArgumentNullException( "info" );
+            int pid = info.ID;
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.PlayerID != pid &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.PlayerID == pid &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+            }
+        }
+
+
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
+            if( area == null ) throw new ArgumentNullException( "area" );
+            if( info == null ) throw new ArgumentNullException( "info" );
+            if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
+            int pid = info.ID;
+            long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        entry.PlayerID != pid &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        entry.PlayerID == pid &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+            }
+        }
+
+
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
-            if( infos.Length == 1 ) return Lookup( max, area, infos[0] );
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
+            if( infos.Length == 1 ) return Lookup( max, area, infos[0], exclude );
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                        infos.All( t => entry.PlayerID != t.ID ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                        infos.Any( t => entry.PlayerID == t.ID ) );
+            }
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0], span );
+            if( infos.Length == 1 ) return Lookup( max, infos[0], exclude, span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => entry.Timestamp >= ticks && area.Contains( entry.X, entry.Y, entry.Z ) && infos.Any( t => entry.PlayerID == t.ID ) );
+            if( exclude ) {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                        infos.All( t => entry.PlayerID != t.ID ) );
+            } else {
+                return Lookup( max, BlockDBSearchType.ReturnOldest,
+                               entry => entry.Timestamp >= ticks &&
+                                        area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                        infos.Any( t => entry.PlayerID == t.ID ) );
+            }
         }
 
 
