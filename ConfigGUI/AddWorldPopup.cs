@@ -130,7 +130,7 @@ namespace fCraft.ConfigGUI {
                 tName.Text = World.Name;
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
-                cBackup.SelectedIndex = 5;
+                cBackup.SelectedIndex = 0;
                 xBlockDB.CheckState = CheckState.Indeterminate;
                 Map = null;
 
