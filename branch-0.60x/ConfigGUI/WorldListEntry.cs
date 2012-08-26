@@ -16,7 +16,7 @@ namespace fCraft.ConfigGUI {
         public const string DefaultRankOption = "(everyone)";
         const string MapFileExtension = ".fcm";
 
-        internal bool LoadingFailed { get; private set; }
+        bool LoadingFailed { get; set; }
 
 
         public WorldListEntry( [NotNull] string newName ) {
@@ -48,32 +48,35 @@ namespace fCraft.ConfigGUI {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
 
-            if( (temp = el.Attribute( "name" )) == null ) {
+            if( ( temp = el.Attribute( "name" ) ) == null ) {
                 throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
             }
             if( !World.IsValidName( temp.Value ) ) {
-                throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" + temp.Value + "\"." );
+                throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid world name skipped \"" +
+                                           temp.Value + "\"." );
             }
             name = temp.Value;
 
-            if( (temp = el.Attribute( "hidden" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+            if( ( temp = el.Attribute( "hidden" ) ) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 bool hidden;
                 if( Boolean.TryParse( temp.Value, out hidden ) ) {
                     Hidden = hidden;
                 } else {
-                    throw new FormatException( "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
+                    throw new FormatException(
+                        "WorldListEntity: Cannot parse XML: Invalid value for \"hidden\" attribute." );
                 }
             } else {
                 Hidden = false;
             }
 
-            if( (temp = el.Attribute( "backup" )) != null ) {
+            if( ( temp = el.Attribute( "backup" ) ) != null ) {
                 TimeSpan realBackupTimer;
                 if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
                     Backup = BackupNameFromValue( realBackupTimer );
                 } else {
                     Logger.Log( LogType.Error,
-                                "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.", name );
+                                "WorldListEntity: Cannot parse backup settings for world \"{0}\". Assuming default.",
+                                name );
                     Backup = BackupEnumNames[0];
                 }
             } else {
@@ -81,12 +84,12 @@ namespace fCraft.ConfigGUI {
             }
 
             XElement tempEl;
-            if( (tempEl = el.Element( WorldManager.AccessSecurityXmlTagName )) != null ||
-                (tempEl = el.Element( "accessSecurity" )) != null ) {
+            if( ( tempEl = el.Element( WorldManager.AccessSecurityXmlTagName ) ) != null ||
+                ( tempEl = el.Element( "accessSecurity" ) ) != null ) {
                 accessSecurity = new SecurityController( tempEl, false );
             }
-            if( (tempEl = el.Element( WorldManager.BuildSecurityXmlTagName )) != null ||
-                (tempEl = el.Element( "buildSecurity" )) != null ) {
+            if( ( tempEl = el.Element( WorldManager.BuildSecurityXmlTagName ) ) != null ||
+                ( tempEl = el.Element( "buildSecurity" ) ) != null ) {
                 buildSecurity = new SecurityController( tempEl, false );
             }
 
@@ -94,7 +97,7 @@ namespace fCraft.ConfigGUI {
             if( blockEl == null ) {
                 BlockDBEnabled = YesNoAuto.Auto;
             } else {
-                if( (temp = blockEl.Attribute( "enabled" )) != null ) {
+                if( ( temp = blockEl.Attribute( "enabled" ) ) != null ) {
                     YesNoAuto enabledStateTemp;
                     if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                         BlockDBEnabled = enabledStateTemp;
@@ -106,7 +109,7 @@ namespace fCraft.ConfigGUI {
                     }
                 }
 
-                if( (temp = blockEl.Attribute( "preload" )) != null ) {
+                if( ( temp = blockEl.Attribute( "preload" ) ) != null ) {
                     bool isPreloaded;
                     if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
                         blockDBIsPreloaded = isPreloaded;
@@ -116,7 +119,7 @@ namespace fCraft.ConfigGUI {
                                     name );
                     }
                 }
-                if( (temp = blockEl.Attribute( "limit" )) != null ) {
+                if( ( temp = blockEl.Attribute( "limit" ) ) != null ) {
                     int limit;
                     if( Int32.TryParse( temp.Value, out limit ) ) {
                         blockDBLimit = limit;
@@ -126,7 +129,7 @@ namespace fCraft.ConfigGUI {
                                     name );
                     }
                 }
-                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
+                if( ( temp = blockEl.Attribute( "timeLimit" ) ) != null ) {
                     int timeLimitSeconds;
                     if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                         blockDBTimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
@@ -138,25 +141,26 @@ namespace fCraft.ConfigGUI {
                 }
             }
 
-            if( (tempEl = el.Element( "LoadedBy" )) != null ) {
+            if( ( tempEl = el.Element( "LoadedBy" ) ) != null ) {
                 LoadedBy = tempEl.Value;
             }
-            if( (tempEl = el.Element( "MapChangedBy" )) != null ) {
+            if( ( tempEl = el.Element( "MapChangedBy" ) ) != null ) {
                 MapChangedBy = tempEl.Value;
             }
 
-            if( (tempEl = el.Element( "LoadedOn" )) != null ) {
+            if( ( tempEl = el.Element( "LoadedOn" ) ) != null ) {
                 if( !tempEl.Value.ToDateTime( ref LoadedOn ) ) {
                     LoadedOn = DateTime.MinValue;
                 }
             }
-            if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
+            if( ( tempEl = el.Element( "MapChangedOn" ) ) != null ) {
                 if( !tempEl.Value.ToDateTime( ref MapChangedOn ) ) {
                     MapChangedOn = DateTime.MinValue;
                 }
             }
             environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
         }
+
 
         public string LoadedBy, MapChangedBy;
         public DateTime LoadedOn, MapChangedOn;
@@ -166,11 +170,10 @@ namespace fCraft.ConfigGUI {
         #region List Properties
 
         string name;
+
         [SortableProperty( typeof( WorldListEntry ), "Compare" )]
         public string Name {
-            get {
-                return name;
-            }
+            get { return name; }
             set {
                 if( name == value ) return;
                 if( !World.IsValidName( value ) ) {
@@ -191,7 +194,8 @@ namespace fCraft.ConfigGUI {
                             isSameFile = newFileName.Equals( oldFileName, StringComparison.OrdinalIgnoreCase );
                         }
                         if( File.Exists( newFileName ) && !isSameFile ) {
-                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?", value + ".fcm" );
+                            string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?",
+                                                                value + ".fcm" );
                             var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
                             if( result == DialogResult.Cancel ) return;
                         }
@@ -227,6 +231,7 @@ namespace fCraft.ConfigGUI {
 
         readonly SecurityController accessSecurity = new SecurityController();
         string accessRankString;
+
         public string AccessPermission {
             get {
                 if( accessSecurity.HasRankRestriction ) {
@@ -237,7 +242,7 @@ namespace fCraft.ConfigGUI {
             }
             set {
                 foreach( Rank rank in RankManager.Ranks ) {
-                    if( MainForm.ToComboBoxOption(rank) == value ) {
+                    if( MainForm.ToComboBoxOption( rank ) == value ) {
                         accessSecurity.MinRank = rank;
                         accessRankString = rank.FullName;
                         return;
@@ -251,17 +256,18 @@ namespace fCraft.ConfigGUI {
 
         readonly SecurityController buildSecurity = new SecurityController();
         string buildRankString;
+
         public string BuildPermission {
             get {
                 if( buildSecurity.HasRankRestriction ) {
-                    return MainForm.ToComboBoxOption(buildSecurity.MinRank);
+                    return MainForm.ToComboBoxOption( buildSecurity.MinRank );
                 } else {
                     return DefaultRankOption;
                 }
             }
             set {
                 foreach( Rank rank in RankManager.Ranks ) {
-                    if( MainForm.ToComboBoxOption(rank) == value ) {
+                    if( MainForm.ToComboBoxOption( rank ) == value ) {
                         buildSecurity.MinRank = rank;
                         buildRankString = rank.FullName;
                         return;
@@ -321,8 +327,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        Map cachedMapHeader;
-        internal Map MapHeader {
+        Map MapHeader {
             get {
                 if( cachedMapHeader == null && !LoadingFailed ) {
                     string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
@@ -331,6 +336,8 @@ namespace fCraft.ConfigGUI {
                 return cachedMapHeader;
             }
         }
+
+        Map cachedMapHeader;
 
 
         internal string FileName {
@@ -350,9 +357,11 @@ namespace fCraft.ConfigGUI {
             return BackupEnumNames[Array.IndexOf( BackupEnumValues, closestMatch )];
         }
 
+
         public static TimeSpan BackupValueFromName( string name ) {
             return BackupEnumValues[Array.IndexOf( BackupEnumNames, name )];
         }
+
 
         public static readonly string[] BackupEnumNames = new[] {
             "(default)",
@@ -375,23 +384,23 @@ namespace fCraft.ConfigGUI {
         };
 
         static readonly TimeSpan[] BackupEnumValues = new[] {
-            TimeSpan.FromSeconds(-1), // default
+            TimeSpan.FromSeconds( -1 ), // default
             TimeSpan.Zero,
-            TimeSpan.FromMinutes(5),
-            TimeSpan.FromMinutes(10),
-            TimeSpan.FromMinutes(15),
-            TimeSpan.FromMinutes(20),
-            TimeSpan.FromMinutes(30),
-            TimeSpan.FromMinutes(45),
-            TimeSpan.FromHours(1),
-            TimeSpan.FromHours(2),
-            TimeSpan.FromHours(3),
-            TimeSpan.FromHours(4),
-            TimeSpan.FromHours(6),
-            TimeSpan.FromHours(8),
-            TimeSpan.FromHours(12),
-            TimeSpan.FromHours(24),
-            TimeSpan.FromHours(48)
+            TimeSpan.FromMinutes( 5 ),
+            TimeSpan.FromMinutes( 10 ),
+            TimeSpan.FromMinutes( 15 ),
+            TimeSpan.FromMinutes( 20 ),
+            TimeSpan.FromMinutes( 30 ),
+            TimeSpan.FromMinutes( 45 ),
+            TimeSpan.FromHours( 1 ),
+            TimeSpan.FromHours( 2 ),
+            TimeSpan.FromHours( 3 ),
+            TimeSpan.FromHours( 4 ),
+            TimeSpan.FromHours( 6 ),
+            TimeSpan.FromHours( 8 ),
+            TimeSpan.FromHours( 12 ),
+            TimeSpan.FromHours( 24 ),
+            TimeSpan.FromHours( 48 )
         };
 
         #endregion
