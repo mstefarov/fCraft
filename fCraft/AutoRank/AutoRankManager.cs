@@ -1,28 +1,28 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
-    public static class AutoRankManager {
-
+    static class AutoRankManager {
         internal static readonly TimeSpan TickInterval = TimeSpan.FromSeconds( 60 );
 
-        public static readonly List<Criterion> Criteria = new List<Criterion>();
+        static readonly List<Criterion> Criteria = new List<Criterion>();
 
         public const string TagName = "fCraftAutoRankConfig";
 
-        /// <summary> Whether any criteria are defined. </summary>
-        public static bool HasCriteria {
+        // Whether any criteria are defined.
+        static bool HasCriteria {
             get { return Criteria.Count > 0; }
         }
 
 
-        /// <summary> Adds a new criterion to the list. Throws an ArgumentException on duplicates. </summary>
-        public static void Add( [NotNull] Criterion criterion ) {
+        //  Adds a new criterion to the list. Throws an ArgumentException on duplicates.
+        static void Add( [NotNull] Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
             if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
@@ -50,7 +50,7 @@ namespace fCraft.AutoRank {
         internal static void TaskCallback( SchedulerTask schedulerTask ) {
             if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
             PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
-            MaintenanceCommands.DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
+            DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
         }
 
 
@@ -82,6 +82,39 @@ namespace fCraft.AutoRank {
                 Logger.Log( LogType.Warning, "AutoRank.Init: autorank.xml not found. No criteria loaded." );
                 return false;
             }
+        }
+
+
+        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( list == null ) throw new ArgumentNullException( "list" );
+
+            if( !HasCriteria ) {
+                player.Message( "AutoRankAll: No criteria found." );
+                return;
+            }
+
+            player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
+
+            Stopwatch sw = Stopwatch.StartNew();
+            int promoted = 0, demoted = 0;
+            for( int i = 0; i < list.Length; i++ ) {
+                Rank newRank = Check( list[i] );
+                if( newRank != null ) {
+                    if( newRank > list[i].Rank ) {
+                        promoted++;
+                    } else if( newRank < list[i].Rank ) {
+                        demoted++;
+                    }
+                    try {
+                        list[i].ChangeRank( player, newRank, message, !silent, true, true );
+                    } catch( PlayerOpException ex ) {
+                        player.Message( ex.MessageColored );
+                    }
+                }
+            }
+            sw.Stop();
+            player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
         }
     }
 
