@@ -85,7 +85,10 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
+            CommandManager.RegisterCommand( CdUndoAreaNot );
+            CommandManager.RegisterCommand( CdUndoPlayerNot );
             CdUndoArea.Help += GeneralDrawingHelp;
+            CdUndoAreaNot.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdStatic );
 
@@ -1420,12 +1423,13 @@ namespace fCraft {
             public TimeSpan AgeLimit;
             public BlockDBEntry[] Entries;
             public BoundingBox Area;
+            public bool Not;
         }
 
 
         // parses and checks command parameters (for both UndoPlayer and UndoArea)
         [CanBeNull]
-        static BlockDBUndoArgs ParseBlockDBUndoParams( Player player, CommandReader cmd, string cmdName ) {
+        static BlockDBUndoArgs ParseBlockDBUndoParams( Player player, CommandReader cmd, string cmdName, bool not ) {
             // check if command's being called by a worldless player (e.g. console)
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
@@ -1466,6 +1470,10 @@ namespace fCraft {
                     break;
                 } else if( name == "*" ) {
                     // all players
+                    if( not ) {
+                        player.Message( "{0}: \"*\" not allowed (cannot undo \"everyone except everyone\")", cmdName );
+                        return null;
+                    }
                     if( allPlayers ) {
                         player.Message( "{0}: \"*\" was listed twice.", cmdName );
                         return null;
@@ -1484,7 +1492,8 @@ namespace fCraft {
                         return null;
                     }
                     // make sure player has the permission
-                    if( player.Info != target && !player.Can( Permission.UndoAll ) &&
+                    if( !not &&
+                        player.Info != target && !player.Can( Permission.UndoAll ) &&
                         !player.Can( Permission.UndoOthersActions, target.Rank ) ) {
                         player.Message( "&W{0}: You may only undo actions of players ranked {1}&S or lower.",
                                         cmdName,
@@ -1506,7 +1515,7 @@ namespace fCraft {
             }
 
             // undoing everyone ('*' in place of player name) requires UndoAll permission
-            if( allPlayers && !player.Can( Permission.UndoAll ) ) {
+            if( ( not || allPlayers ) && !player.Can( Permission.UndoAll ) ) {
                 player.MessageNoAccess( Permission.UndoAll );
                 return null;
             }
@@ -1518,9 +1527,9 @@ namespace fCraft {
                 CountLimit = countLimit,
                 Area = player.WorldMap.Bounds,
                 World = playerWorld,
-                Targets = targets.ToArray()
+                Targets = targets.ToArray(),
+                Not = not
             };
-
         }
 
 
@@ -1528,6 +1537,7 @@ namespace fCraft {
         static void BlockDBUndoConfirmCallback( Player player, object tag, bool fromConsole ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
             string cmdName = ( args.Area == null ? "UndoArea" : "UndoPlayer" );
+            if( args.Not ) cmdName += "Not";
 
             // Produce 
             Vector3I[] coords;
@@ -1542,6 +1552,10 @@ namespace fCraft {
             if( args.CountLimit > 0 ) {
                 if( args.Targets.Length == 0 ) {
                     description = args.CountLimit.ToStringInvariant();
+                } else if( args.Not ) {
+                    description = String.Format( "{0} by everyone except {1}",
+                                                 args.CountLimit,
+                                                 args.Targets.JoinToString( p => p.Name ) );
                 } else {
                     description = String.Format( "{0} by {1}",
                                                  args.CountLimit,
@@ -1550,6 +1564,10 @@ namespace fCraft {
             } else {
                 if( args.Targets.Length == 0 ) {
                     description = args.AgeLimit.ToMiniString();
+                } else if( args.Not ) {
+                    description = String.Format( "{0} by everyone except {1}",
+                                                 args.AgeLimit.ToMiniString(),
+                                                 args.Targets.JoinToString( p => p.Name ) );
                 } else {
                     description = String.Format( "{0} by {1}",
                                                  args.AgeLimit.ToMiniString(),
@@ -1561,13 +1579,22 @@ namespace fCraft {
             var op = new BlockDBDrawOperation( player, cmdName, description, coords.Length );
             op.Prepare( coords, args.Entries );
 
+            // log operation
+            string targetList;
+            if( args.Targets.Length == 0 ) {
+                targetList = "(everyone)";
+            } else if( args.Not ) {
+                targetList = "(everyone) except " + args.Targets.JoinToClassyString();
+            } else {
+                targetList = args.Targets.JoinToClassyString();
+            }
             Logger.Log( LogType.UserActivity,
                         "{0}: Player {1} will undo {2} changes (limit of {3}) by {4} on world {5}",
                         cmdName,
                         player.Name,
                         args.Entries.Length,
                         args.CountLimit == 0 ? args.AgeLimit.ToMiniString() : args.CountLimit.ToStringInvariant(),
-                        args.Targets.Length == 0 ? "(everyone)" : args.Targets.JoinToString( p => p.Name ),
+                        targetList,
                         args.World.Name );
 
             op.Begin();
@@ -1583,14 +1610,15 @@ namespace fCraft {
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
             Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
-            Help = "Reverses changes made by a given player in the current world, in the given area. " +
+            Help = "Reverses changes made by the given player(s). " +
+                   "Applies to a selected area in the current world. " +
                    "More than one player name can be given at a time. " +
                    "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",
             Handler = UndoAreaHandler
         };
 
         static void UndoAreaHandler( Player player, CommandReader cmd ) {
-            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoArea" );
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoArea", false );
             if( args == null ) return;
 
             Permission permission;
@@ -1601,6 +1629,28 @@ namespace fCraft {
             }
             player.SelectionStart( 2, UndoAreaSelectionCallback, args, permission );
             player.MessageNow( "UndoArea: Click or &H/Mark&S 2 blocks." );
+        }
+
+
+        static readonly CommandDescriptor CdUndoAreaNot = new CommandDescriptor {
+            Name = "UndoAreaNot",
+            Aliases = new[] { "uan", "una" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
+            RepeatableSelection = true,
+            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
+                   "Applies to a selected area in the current world. " +
+                   "More than one player name can be given at a time.",
+            Handler = UndoAreaNotHandler
+        };
+
+        static void UndoAreaNotHandler( Player player, CommandReader cmd ) {
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoAreaNot", true );
+            if( args == null ) return;
+
+            player.SelectionStart( 2, UndoAreaSelectionCallback, args, CdUndoAreaNot.Permissions );
+            player.MessageNow( "UndoAreaNot: Click or &H/Mark&S 2 blocks." );
         }
 
 
@@ -1622,7 +1672,9 @@ namespace fCraft {
             string targetList;
             if( allPlayers ) {
                 targetList = "EVERYONE";
-            } else {
+            } else if( args.Not ) {
+                targetList = "EVERYONE except " + args.Targets.JoinToClassyString();
+            }else{
                 targetList = args.Targets.JoinToClassyString();
             }
             BlockDBEntry[] changes;
@@ -1632,7 +1684,7 @@ namespace fCraft {
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area, args.Targets );
+                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area, args.Targets, args.Not );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1645,7 +1697,7 @@ namespace fCraft {
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.AgeLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.Targets, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.Targets, args.Not, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1680,7 +1732,26 @@ namespace fCraft {
         };
 
         static void UndoPlayerHandler( Player player, CommandReader cmd ) {
-            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer" );
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer", false );
+            if( args == null ) return;
+            Scheduler.NewBackgroundTask( UndoPlayerLookup )
+                     .RunOnce( args, TimeSpan.Zero );
+        }
+
+
+        static readonly CommandDescriptor CdUndoPlayerNot = new CommandDescriptor {
+            Name = "UndoPlayerNot",
+            Aliases = new[] { "upn", "unp" },
+            Category = CommandCategory.Moderation,
+            Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
+            Usage = "/UndoPlayerNot (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Help = "Reverses changes made by a given player in the current world. " +
+                   "More than one player name can be given at a time.",
+            Handler = UndoPlayerNotHandler
+        };
+
+        static void UndoPlayerNotHandler( Player player, CommandReader cmd ) {
+            BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayerNot", true );
             if( args == null ) return;
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
                      .RunOnce( args, TimeSpan.Zero );
@@ -1696,6 +1767,8 @@ namespace fCraft {
             string targetList;
             if( allPlayers ) {
                 targetList = "EVERYONE";
+            } else if( args.Not ) {
+                targetList = "EVERYONE except " + args.Targets.JoinToClassyString();
             } else {
                 targetList = args.Targets.JoinToClassyString();
             }
@@ -1706,7 +1779,7 @@ namespace fCraft {
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( args.CountLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Targets );
+                    changes = args.World.BlockDB.Lookup( args.CountLimit, args.Targets, args.Not );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
@@ -1719,7 +1792,7 @@ namespace fCraft {
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.AgeLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Targets, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Targets, args.Not, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
