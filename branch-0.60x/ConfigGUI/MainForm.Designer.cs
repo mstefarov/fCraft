@@ -25,8 +25,8 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -97,6 +97,7 @@
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -172,6 +173,8 @@
             this.xRequireRankChangeReason = new System.Windows.Forms.CheckBox();
             this.xRequireBanReason = new System.Windows.Forms.CheckBox();
             this.gSpamChat = new System.Windows.Forms.GroupBox();
+            this.xAntispamMuteDuration = new System.Windows.Forms.CheckBox();
+            this.xAntispamMessageCount = new System.Windows.Forms.CheckBox();
             this.lAntispamMaxWarnings = new System.Windows.Forms.Label();
             this.nAntispamMaxWarnings = new System.Windows.Forms.NumericUpDown();
             this.xAntispamKicks = new System.Windows.Forms.CheckBox();
@@ -291,9 +294,6 @@
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xAntispamMessageCount = new System.Windows.Forms.CheckBox();
-            this.xAntispamMuteDuration = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gWoMDirect.SuspendLayout();
@@ -301,69 +301,69 @@
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
             this.gInformation.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAnnouncements ) ).BeginInit();
             this.gBasic.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayersPerWorld)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPort)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayersPerWorld ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nPort ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nUploadBandwidth ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayers ) ).BeginInit();
             this.tabChat.SuspendLayout();
             this.gChatColors.SuspendLayout();
             this.gAppearence.SuspendLayout();
             this.tabWorlds.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.dgvWorlds ) ).BeginInit();
             this.tabRanks.SuspendLayout();
             this.gPermissionLimits.SuspendLayout();
             this.gRankOptions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nFillLimit ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nCopyPasteSlots ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefSeconds ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nDrawLimit ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nKickIdle ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefBlocks ) ).BeginInit();
             this.tabSecurity.SuspendLayout();
             this.gBlockDB.SuspendLayout();
             this.gSecurityMisc.SuspendLayout();
             this.gSpamChat.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMuteDuration)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMaxWarnings ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMuteDuration ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamInterval ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMessageCount ) ).BeginInit();
             this.gVerify.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxConnectionsPerIP ) ).BeginInit();
             this.tabSavingAndBackup.SuspendLayout();
             this.gDataBackup.SuspendLayout();
             this.gSaving.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nSaveInterval ) ).BeginInit();
             this.gBackups.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackupSize)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackupSize ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackups ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nBackupInterval ) ).BeginInit();
             this.tabLogging.SuspendLayout();
             this.gLogFile.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nLogLimit ) ).BeginInit();
             this.gConsole.SuspendLayout();
             this.tabIRC.SuspendLayout();
             this.gIRCColors.SuspendLayout();
             this.gIRCOptions.SuspendLayout();
             this.gIRCNetwork.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nIRCDelay ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nIRCBotPort ) ).BeginInit();
             this.tabAdvanced.SuspendLayout();
             this.gCrashReport.SuspendLayout();
             this.gPerformance.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nTickInterval ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nThrottling ) ).BeginInit();
             this.gAdvancedMisc.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndoStates ) ).BeginInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndo ) ).BeginInit();
             this.SuspendLayout();
             // 
             // tabs
             // 
-            this.tabs.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tabs.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.tabs.Controls.Add( this.tabGeneral );
             this.tabs.Controls.Add( this.tabChat );
             this.tabs.Controls.Add( this.tabWorlds );
@@ -373,7 +373,7 @@
             this.tabs.Controls.Add( this.tabLogging );
             this.tabs.Controls.Add( this.tabIRC );
             this.tabs.Controls.Add( this.tabAdvanced );
-            this.tabs.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tabs.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.tabs.Location = new System.Drawing.Point( 12, 12 );
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
@@ -503,7 +503,7 @@
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBox2.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.groupBox2.Controls.Add( this.bChangelog );
             this.groupBox2.Controls.Add( this.bCredits );
             this.groupBox2.Controls.Add( this.bReadme );
@@ -547,7 +547,7 @@
             // 
             // gHelpAndSupport
             // 
-            this.gHelpAndSupport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.gHelpAndSupport.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.gHelpAndSupport.Controls.Add( this.bOpenWiki );
             this.gHelpAndSupport.Controls.Add( this.bReportABug );
             this.gHelpAndSupport.Location = new System.Drawing.Point( 8, 412 );
@@ -594,8 +594,8 @@
             // 
             // bGreeting
             // 
-            this.bGreeting.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bGreeting.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bGreeting.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bGreeting.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bGreeting.Location = new System.Drawing.Point( 538, 20 );
             this.bGreeting.Name = "bGreeting";
             this.bGreeting.Size = new System.Drawing.Size( 92, 28 );
@@ -649,8 +649,8 @@
             // 
             // bRules
             // 
-            this.bRules.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bRules.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bRules.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bRules.Location = new System.Drawing.Point( 445, 20 );
             this.bRules.Name = "bRules";
             this.bRules.Size = new System.Drawing.Size( 87, 28 );
@@ -661,9 +661,9 @@
             // 
             // bAnnouncements
             // 
-            this.bAnnouncements.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.bAnnouncements.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.bAnnouncements.Enabled = false;
-            this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bAnnouncements.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bAnnouncements.Location = new System.Drawing.Point( 301, 20 );
             this.bAnnouncements.Name = "bAnnouncements";
             this.bAnnouncements.Size = new System.Drawing.Size( 138, 28 );
@@ -813,8 +813,8 @@
             // 
             // tServerName
             // 
-            this.tServerName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tServerName.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.tServerName.HideSelection = false;
             this.tServerName.Location = new System.Drawing.Point( 123, 20 );
             this.tServerName.MaxLength = 64;
@@ -869,8 +869,8 @@
             // 
             // tMOTD
             // 
-            this.tMOTD.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tMOTD.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.tMOTD.Location = new System.Drawing.Point( 123, 47 );
             this.tMOTD.MaxLength = 64;
             this.tMOTD.Name = "tMOTD";
@@ -889,7 +889,7 @@
             // cPublic
             // 
             this.cPublic.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.cPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.cPublic.FormattingEnabled = true;
             this.cPublic.Items.AddRange( new object[] {
             "Public",
@@ -925,7 +925,7 @@
             // lPublic
             // 
             this.lPublic.AutoSize = true;
-            this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lPublic.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.lPublic.Location = new System.Drawing.Point( 14, 131 );
             this.lPublic.Name = "lPublic";
             this.lPublic.Size = new System.Drawing.Size( 103, 15 );
@@ -1186,6 +1186,13 @@
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
             // 
+            // chatPreview
+            // 
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
+            // 
             // tabWorlds
             // 
             this.tabWorlds.Controls.Add( this.xWoMEnableEnvExtensions );
@@ -1210,7 +1217,7 @@
             // 
             // xWoMEnableEnvExtensions
             // 
-            this.xWoMEnableEnvExtensions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.xWoMEnableEnvExtensions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.xWoMEnableEnvExtensions.AutoSize = true;
             this.xWoMEnableEnvExtensions.Location = new System.Drawing.Point( 8, 436 );
             this.xWoMEnableEnvExtensions.Name = "xWoMEnableEnvExtensions";
@@ -1221,7 +1228,7 @@
             // 
             // bMapPath
             // 
-            this.bMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bMapPath.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.bMapPath.Enabled = false;
             this.bMapPath.Location = new System.Drawing.Point( 587, 409 );
             this.bMapPath.Name = "bMapPath";
@@ -1233,7 +1240,7 @@
             // 
             // xMapPath
             // 
-            this.xMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.xMapPath.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.xMapPath.AutoSize = true;
             this.xMapPath.Location = new System.Drawing.Point( 8, 409 );
             this.xMapPath.Name = "xMapPath";
@@ -1245,10 +1252,10 @@
             // 
             // tMapPath
             // 
-            this.tMapPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.tMapPath.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.tMapPath.Enabled = false;
-            this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.tMapPath.Font = new System.Drawing.Font( "Lucida Console", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.tMapPath.Location = new System.Drawing.Point( 203, 411 );
             this.tMapPath.Name = "tMapPath";
             this.tMapPath.Size = new System.Drawing.Size( 378, 19 );
@@ -1256,7 +1263,7 @@
             // 
             // lDefaultBuildRank
             // 
-            this.lDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lDefaultBuildRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.lDefaultBuildRank.AutoSize = true;
             this.lDefaultBuildRank.Location = new System.Drawing.Point( 24, 381 );
             this.lDefaultBuildRank.Name = "lDefaultBuildRank";
@@ -1266,7 +1273,7 @@
             // 
             // cDefaultBuildRank
             // 
-            this.cDefaultBuildRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.cDefaultBuildRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.cDefaultBuildRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cDefaultBuildRank.FormattingEnabled = true;
             this.cDefaultBuildRank.Location = new System.Drawing.Point( 372, 378 );
@@ -1277,7 +1284,7 @@
             // 
             // cMainWorld
             // 
-            this.cMainWorld.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cMainWorld.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.cMainWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cMainWorld.Location = new System.Drawing.Point( 542, 17 );
             this.cMainWorld.Name = "cMainWorld";
@@ -1286,7 +1293,7 @@
             // 
             // lMainWorld
             // 
-            this.lMainWorld.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lMainWorld.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.lMainWorld.AutoSize = true;
             this.lMainWorld.Location = new System.Drawing.Point( 465, 20 );
             this.lMainWorld.Name = "lMainWorld";
@@ -1332,9 +1339,9 @@
             this.dgvWorlds.AllowUserToDeleteRows = false;
             this.dgvWorlds.AllowUserToOrderColumns = true;
             this.dgvWorlds.AllowUserToResizeRows = false;
-            this.dgvWorlds.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvWorlds.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.dgvWorlds.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvWorlds.Columns.AddRange( new System.Windows.Forms.DataGridViewColumn[] {
             this.dgvcName,
@@ -1348,8 +1355,8 @@
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 325 );
             this.dgvWorlds.TabIndex = 0;
@@ -1407,8 +1414,8 @@
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1437,9 +1444,9 @@
             // 
             // gPermissionLimits
             // 
-            this.gPermissionLimits.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gPermissionLimits.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.gPermissionLimits.Controls.Add( this.permissionLimitBoxContainer );
             this.gPermissionLimits.Location = new System.Drawing.Point( 160, 292 );
             this.gPermissionLimits.Name = "gPermissionLimits";
@@ -1471,7 +1478,7 @@
             // 
             // bLowerRank
             // 
-            this.bLowerRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bLowerRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.bLowerRank.Location = new System.Drawing.Point( 84, 455 );
             this.bLowerRank.Name = "bLowerRank";
             this.bLowerRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1482,7 +1489,7 @@
             // 
             // bRaiseRank
             // 
-            this.bRaiseRank.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.bRaiseRank.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
             this.bRaiseRank.Location = new System.Drawing.Point( 8, 455 );
             this.bRaiseRank.Name = "bRaiseRank";
             this.bRaiseRank.Size = new System.Drawing.Size( 70, 23 );
@@ -1493,8 +1500,8 @@
             // 
             // gRankOptions
             // 
-            this.gRankOptions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gRankOptions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.gRankOptions.Controls.Add( this.lFillLimitUnits );
             this.gRankOptions.Controls.Add( this.nFillLimit );
             this.gRankOptions.Controls.Add( this.lFillLimit );
@@ -1811,8 +1818,8 @@
             // 
             // vPermissions
             // 
-            this.vPermissions.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.vPermissions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.vPermissions.CheckBoxes = true;
             this.vPermissions.Columns.AddRange( new System.Windows.Forms.ColumnHeader[] {
             this.chPermissions} );
@@ -1845,7 +1852,7 @@
             // 
             // lPermissions
             // 
-            this.lPermissions.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lPermissions.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.lPermissions.AutoSize = true;
             this.lPermissions.Location = new System.Drawing.Point( 473, 10 );
             this.lPermissions.Name = "lPermissions";
@@ -1855,9 +1862,9 @@
             // 
             // vRanks
             // 
-            this.vRanks.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)));
-            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.vRanks.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.vRanks.Font = new System.Drawing.Font( "Lucida Console", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.vRanks.FormattingEnabled = true;
             this.vRanks.IntegralHeight = false;
             this.vRanks.ItemHeight = 15;
@@ -2066,6 +2073,29 @@
             this.gSpamChat.TabIndex = 2;
             this.gSpamChat.TabStop = false;
             this.gSpamChat.Text = "Chat Spam Prevention";
+            // 
+            // xAntispamMuteDuration
+            // 
+            this.xAntispamMuteDuration.AutoSize = true;
+            this.xAntispamMuteDuration.Enabled = false;
+            this.xAntispamMuteDuration.Location = new System.Drawing.Point( 42, 60 );
+            this.xAntispamMuteDuration.Name = "xAntispamMuteDuration";
+            this.xAntispamMuteDuration.Size = new System.Drawing.Size( 127, 19 );
+            this.xAntispamMuteDuration.TabIndex = 12;
+            this.xAntispamMuteDuration.Text = "Mute spammer for";
+            this.xAntispamMuteDuration.UseVisualStyleBackColor = true;
+            this.xAntispamMuteDuration.CheckedChanged += new System.EventHandler( this.xAntispamMuteDuration_CheckedChanged );
+            // 
+            // xAntispamMessageCount
+            // 
+            this.xAntispamMessageCount.AutoSize = true;
+            this.xAntispamMessageCount.Location = new System.Drawing.Point( 42, 26 );
+            this.xAntispamMessageCount.Name = "xAntispamMessageCount";
+            this.xAntispamMessageCount.Size = new System.Drawing.Size( 116, 19 );
+            this.xAntispamMessageCount.TabIndex = 11;
+            this.xAntispamMessageCount.Text = "Limit chat rate to";
+            this.xAntispamMessageCount.UseVisualStyleBackColor = true;
+            this.xAntispamMessageCount.CheckedChanged += new System.EventHandler( this.xAntispamMessageCount_CheckedChanged );
             // 
             // lAntispamMaxWarnings
             // 
@@ -2300,6 +2330,11 @@
             // nSaveInterval
             // 
             this.nSaveInterval.Location = new System.Drawing.Point( 136, 20 );
+            this.nSaveInterval.Maximum = new decimal( new int[] {
+            86400,
+            0,
+            0,
+            0} );
             this.nSaveInterval.Name = "nSaveInterval";
             this.nSaveInterval.Size = new System.Drawing.Size( 48, 21 );
             this.nSaveInterval.TabIndex = 1;
@@ -2433,6 +2468,11 @@
             // nBackupInterval
             // 
             this.nBackupInterval.Location = new System.Drawing.Point( 164, 45 );
+            this.nBackupInterval.Maximum = new decimal( new int[] {
+            100000,
+            0,
+            0,
+            0} );
             this.nBackupInterval.Name = "nBackupInterval";
             this.nBackupInterval.Size = new System.Drawing.Size( 48, 21 );
             this.nBackupInterval.TabIndex = 2;
@@ -2899,7 +2939,7 @@
             // lIRCBotChannels2
             // 
             this.lIRCBotChannels2.AutoSize = true;
-            this.lIRCBotChannels2.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lIRCBotChannels2.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.lIRCBotChannels2.Location = new System.Drawing.Point( 15, 65 );
             this.lIRCBotChannels2.Name = "lIRCBotChannels2";
             this.lIRCBotChannels2.Size = new System.Drawing.Size( 97, 13 );
@@ -3044,8 +3084,8 @@
             // 
             // gCrashReport
             // 
-            this.gCrashReport.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gCrashReport.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.gCrashReport.Controls.Add( this.lCrashReportDisclaimer );
             this.gCrashReport.Controls.Add( this.xSubmitCrashReports );
             this.gCrashReport.Location = new System.Drawing.Point( 8, 13 );
@@ -3058,7 +3098,7 @@
             // lCrashReportDisclaimer
             // 
             this.lCrashReportDisclaimer.AutoSize = true;
-            this.lCrashReportDisclaimer.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lCrashReportDisclaimer.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.lCrashReportDisclaimer.Location = new System.Drawing.Point( 42, 42 );
             this.lCrashReportDisclaimer.Name = "lCrashReportDisclaimer";
             this.lCrashReportDisclaimer.Size = new System.Drawing.Size( 521, 39 );
@@ -3068,7 +3108,7 @@
             // xSubmitCrashReports
             // 
             this.xSubmitCrashReports.AutoSize = true;
-            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.xSubmitCrashReports.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.xSubmitCrashReports.Location = new System.Drawing.Point( 6, 20 );
             this.xSubmitCrashReports.Name = "xSubmitCrashReports";
             this.xSubmitCrashReports.Size = new System.Drawing.Size( 446, 19 );
@@ -3078,9 +3118,9 @@
             // 
             // gPerformance
             // 
-            this.gPerformance.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gPerformance.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+                        | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.gPerformance.Controls.Add( this.lAdvancedWarning );
             this.gPerformance.Controls.Add( this.xLowLatencyMode );
             this.gPerformance.Controls.Add( this.lProcessPriority );
@@ -3101,7 +3141,7 @@
             // lAdvancedWarning
             // 
             this.lAdvancedWarning.AutoSize = true;
-            this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lAdvancedWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.lAdvancedWarning.Location = new System.Drawing.Point( 15, 21 );
             this.lAdvancedWarning.Name = "lAdvancedWarning";
             this.lAdvancedWarning.Size = new System.Drawing.Size( 558, 30 );
@@ -3237,8 +3277,8 @@
             // 
             // gAdvancedMisc
             // 
-            this.gAdvancedMisc.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.gAdvancedMisc.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left )
+                        | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.gAdvancedMisc.Controls.Add( this.nMaxUndoStates );
             this.gAdvancedMisc.Controls.Add( this.lMaxUndoStates );
             this.gAdvancedMisc.Controls.Add( this.lIPWarning );
@@ -3288,7 +3328,7 @@
             // lIPWarning
             // 
             this.lIPWarning.AutoSize = true;
-            this.lIPWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.lIPWarning.Font = new System.Drawing.Font( "Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.lIPWarning.Location = new System.Drawing.Point( 112, 151 );
             this.lIPWarning.Name = "lIPWarning";
             this.lIPWarning.Size = new System.Drawing.Size( 408, 13 );
@@ -3400,8 +3440,8 @@
             // 
             // bOK
             // 
-            this.bOK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bOK.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bOK.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bOK.Location = new System.Drawing.Point( 360, 528 );
             this.bOK.Name = "bOK";
             this.bOK.Size = new System.Drawing.Size( 100, 28 );
@@ -3411,9 +3451,9 @@
             // 
             // bCancel
             // 
-            this.bCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.bCancel.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
             this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bCancel.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bCancel.Location = new System.Drawing.Point( 466, 528 );
             this.bCancel.Name = "bCancel";
             this.bCancel.Size = new System.Drawing.Size( 100, 28 );
@@ -3423,8 +3463,8 @@
             // 
             // bResetTab
             // 
-            this.bResetTab.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bResetTab.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.bResetTab.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bResetTab.Location = new System.Drawing.Point( 132, 528 );
             this.bResetTab.Name = "bResetTab";
             this.bResetTab.Size = new System.Drawing.Size( 100, 28 );
@@ -3435,8 +3475,8 @@
             // 
             // bResetAll
             // 
-            this.bResetAll.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bResetAll.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left ) ) );
+            this.bResetAll.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bResetAll.Location = new System.Drawing.Point( 12, 528 );
             this.bResetAll.Name = "bResetAll";
             this.bResetAll.Size = new System.Drawing.Size( 114, 28 );
@@ -3447,8 +3487,8 @@
             // 
             // bApply
             // 
-            this.bApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)) );
+            this.bApply.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right ) ) );
+            this.bApply.Font = new System.Drawing.Font( "Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bApply.Location = new System.Drawing.Point( 572, 528 );
             this.bApply.Name = "bApply";
             this.bApply.Size = new System.Drawing.Size( 100, 28 );
@@ -3463,36 +3503,6 @@
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xAntispamMessageCount
-            // 
-            this.xAntispamMessageCount.AutoSize = true;
-            this.xAntispamMessageCount.Location = new System.Drawing.Point( 42, 26 );
-            this.xAntispamMessageCount.Name = "xAntispamMessageCount";
-            this.xAntispamMessageCount.Size = new System.Drawing.Size( 116, 19 );
-            this.xAntispamMessageCount.TabIndex = 11;
-            this.xAntispamMessageCount.Text = "Limit chat rate to";
-            this.xAntispamMessageCount.UseVisualStyleBackColor = true;
-            this.xAntispamMessageCount.CheckedChanged += new System.EventHandler( this.xAntispamMessageCount_CheckedChanged );
-            // 
-            // xAntispamMuteDuration
-            // 
-            this.xAntispamMuteDuration.AutoSize = true;
-            this.xAntispamMuteDuration.Enabled = false;
-            this.xAntispamMuteDuration.Location = new System.Drawing.Point( 42, 60 );
-            this.xAntispamMuteDuration.Name = "xAntispamMuteDuration";
-            this.xAntispamMuteDuration.Size = new System.Drawing.Size( 127, 19 );
-            this.xAntispamMuteDuration.TabIndex = 12;
-            this.xAntispamMuteDuration.Text = "Mute spammer for";
-            this.xAntispamMuteDuration.UseVisualStyleBackColor = true;
-            this.xAntispamMuteDuration.CheckedChanged += new System.EventHandler( this.xAntispamMuteDuration_CheckedChanged );
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3504,7 +3514,7 @@
             this.Controls.Add( this.bCancel );
             this.Controls.Add( this.bOK );
             this.Controls.Add( this.tabs );
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject( "$this.Icon" )));
+            this.Icon = ( (System.Drawing.Icon)( resources.GetObject( "$this.Icon" ) ) );
             this.MinimumSize = new System.Drawing.Size( 700, 547 );
             this.Name = "MainForm";
             this.Text = "fCraft Config Tool";
@@ -3519,13 +3529,13 @@
             this.gHelpAndSupport.ResumeLayout( false );
             this.gInformation.ResumeLayout( false );
             this.gInformation.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nAnnouncements)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAnnouncements ) ).EndInit();
             this.gBasic.ResumeLayout( false );
             this.gBasic.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayersPerWorld)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nPort)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nUploadBandwidth)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxPlayers)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayersPerWorld ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nPort ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nUploadBandwidth ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxPlayers ) ).EndInit();
             this.tabChat.ResumeLayout( false );
             this.gChatColors.ResumeLayout( false );
             this.gChatColors.PerformLayout();
@@ -3533,18 +3543,18 @@
             this.gAppearence.PerformLayout();
             this.tabWorlds.ResumeLayout( false );
             this.tabWorlds.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvWorlds)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.dgvWorlds ) ).EndInit();
             this.tabRanks.ResumeLayout( false );
             this.tabRanks.PerformLayout();
             this.gPermissionLimits.ResumeLayout( false );
             this.gRankOptions.ResumeLayout( false );
             this.gRankOptions.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFillLimit)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nCopyPasteSlots)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefSeconds)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nDrawLimit)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nKickIdle)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntiGriefBlocks)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nFillLimit ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nCopyPasteSlots ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefSeconds ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nDrawLimit ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nKickIdle ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntiGriefBlocks ) ).EndInit();
             this.tabSecurity.ResumeLayout( false );
             this.gBlockDB.ResumeLayout( false );
             this.gBlockDB.PerformLayout();
@@ -3552,28 +3562,28 @@
             this.gSecurityMisc.PerformLayout();
             this.gSpamChat.ResumeLayout( false );
             this.gSpamChat.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMaxWarnings)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMuteDuration)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamInterval)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nAntispamMessageCount)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMaxWarnings ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMuteDuration ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamInterval ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nAntispamMessageCount ) ).EndInit();
             this.gVerify.ResumeLayout( false );
             this.gVerify.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxConnectionsPerIP)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxConnectionsPerIP ) ).EndInit();
             this.tabSavingAndBackup.ResumeLayout( false );
             this.gDataBackup.ResumeLayout( false );
             this.gDataBackup.PerformLayout();
             this.gSaving.ResumeLayout( false );
             this.gSaving.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSaveInterval)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nSaveInterval ) ).EndInit();
             this.gBackups.ResumeLayout( false );
             this.gBackups.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackupSize)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxBackups)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nBackupInterval)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackupSize ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxBackups ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nBackupInterval ) ).EndInit();
             this.tabLogging.ResumeLayout( false );
             this.gLogFile.ResumeLayout( false );
             this.gLogFile.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nLogLimit)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nLogLimit ) ).EndInit();
             this.gConsole.ResumeLayout( false );
             this.gConsole.PerformLayout();
             this.tabIRC.ResumeLayout( false );
@@ -3584,19 +3594,19 @@
             this.gIRCOptions.PerformLayout();
             this.gIRCNetwork.ResumeLayout( false );
             this.gIRCNetwork.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nIRCDelay)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nIRCBotPort)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nIRCDelay ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nIRCBotPort ) ).EndInit();
             this.tabAdvanced.ResumeLayout( false );
             this.gCrashReport.ResumeLayout( false );
             this.gCrashReport.PerformLayout();
             this.gPerformance.ResumeLayout( false );
             this.gPerformance.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nTickInterval)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nThrottling)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nTickInterval ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nThrottling ) ).EndInit();
             this.gAdvancedMisc.ResumeLayout( false );
             this.gAdvancedMisc.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndoStates ) ).EndInit();
+            ( (System.ComponentModel.ISupportInitialize)( this.nMaxUndo ) ).EndInit();
             this.ResumeLayout( false );
 
         }
