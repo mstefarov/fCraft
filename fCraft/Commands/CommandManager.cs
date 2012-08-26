@@ -81,7 +81,7 @@ namespace fCraft {
 
 #if DEBUG
             if( descriptor.Category == CommandCategory.None && !descriptor.IsCustom ) {
-                throw new CommandRegistrationException( "Standard commands must have a category set." );
+                throw new CommandRegistrationException( descriptor, "Standard commands must have a category set." );
             }
 #endif
 

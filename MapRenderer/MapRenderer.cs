@@ -38,7 +38,6 @@ namespace fCraft.MapRenderer {
 
 
         static int Main( string[] args ) {
-            args = new[] { "maps/ajania" };
             Logger.Logged += OnLogged;
 
             ReturnCode optionParsingResult = ParseOptions( args );
