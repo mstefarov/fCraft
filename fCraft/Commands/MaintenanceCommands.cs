@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -119,10 +118,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo[] infos;
             using( FileStream fs = File.Create( fileName ) ) {
                 using( StreamWriter writer = new StreamWriter( fs ) ) {
-                    infos = PlayerDB.PlayerInfoList;
+                    PlayerInfo[] infos = PlayerDB.PlayerInfoList;
                     if( infos.Length == 0 ) {
                         writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
@@ -132,9 +130,7 @@ namespace fCraft {
 
                     List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
                     foreach( Rank rank in RankManager.Ranks ) {
-                        for( int i = 0; i < infos.Length; i++ ) {
-                            if( infos[i].Rank == rank ) rankPlayers.Add( infos[i] );
-                        }
+                        rankPlayers.AddRange( infos.Where( t => t.Rank == rank ) );
                         if( rankPlayers.Count == 0 ) {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
@@ -1187,7 +1183,7 @@ namespace fCraft {
                         return;
                     }
 
-                    string reason = "(imported from MCSharp)";
+                    const string reason = "(imported from MCSharp)";
                     foreach( string name in names ) {
                         try {
                             IPAddress ip;

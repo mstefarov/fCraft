@@ -36,6 +36,7 @@ namespace fCraft.MapConversion {
         public NBTType Type { get; protected set; }
         public string Name { get; set; }
         public object Payload { get; set; }
+        [CanBeNull]
         public NBTag Parent { get; set; }
 
 
@@ -136,7 +137,7 @@ namespace fCraft.MapConversion {
         }
 
         public NBTag Remove() {
-            if( Parent != null && Parent is NBTCompound ) {
+            if( Parent is NBTCompound ) {
                 Parent.Remove( Name );
                 return this;
             } else {
