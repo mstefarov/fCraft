@@ -73,7 +73,7 @@ namespace fCraft {
                     throw new ArgumentException( "A PlayerDB entry already exists for this name.", "name" );
                 }
 
-                var e = new PlayerInfoCreatingEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
+                var e = new PlayerInfoBeingCreatedEventArgs( name, IPAddress.None, RankManager.DefaultRank, true );
                 PlayerInfo.RaiseCreatingEvent( e );
                 if( e.Cancel ) {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
@@ -350,7 +350,7 @@ namespace fCraft {
             lock( AddLocker ) {
                 info = Trie.Get( name );
                 if( info == null ) {
-                    var e = new PlayerInfoCreatingEventArgs( name, lastIP, RankManager.DefaultRank, false );
+                    var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseCreatingEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 

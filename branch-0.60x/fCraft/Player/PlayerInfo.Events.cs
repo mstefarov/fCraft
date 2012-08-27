@@ -9,7 +9,7 @@ namespace fCraft {
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
         /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
-        public static event EventHandler<PlayerInfoCreatingEventArgs> Creating;
+        public static event EventHandler<PlayerInfoBeingCreatedEventArgs> BeingCreated;
 
         /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
         public static event EventHandler<PlayerInfoCreatedEventArgs> Created;
@@ -39,8 +39,8 @@ namespace fCraft {
         public static event EventHandler<PlayerInfoMuteChangedEventArgs> MuteChanged;
 
 
-        internal static void RaiseCreatingEvent( [NotNull] PlayerInfoCreatingEventArgs e ) {
-            var h = Creating;
+        internal static void RaiseCreatingEvent( [NotNull] PlayerInfoBeingCreatedEventArgs e ) {
+            var h = BeingCreated;
             if( h != null ) h( null, e );
         }
 
@@ -117,19 +117,17 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    public class PlayerInfoEventArgs : EventArgs {
-        protected PlayerInfoEventArgs( [NotNull] PlayerInfo playerInfo ) {
-            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
-            PlayerInfo = playerInfo;
-        }
-
-        [NotNull]
-        public PlayerInfo PlayerInfo { get; private set; }
+    /// <summary> An EventArgs for an event that directly related to a particular PlayerInfo. </summary>
+    public interface IPlayerInfoEvent {
+        /// <summary> Player affected by the event. </summary>
+        PlayerInfo PlayerInfo { get; }
     }
 
 
-    public sealed class PlayerInfoCreatingEventArgs : EventArgs, ICancelableEvent {
-        internal PlayerInfoCreatingEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
+    /// <summary> Provides data for PlayerInfo.BeingCreated event. Cancellable.
+    /// Allows changing StartingRank. </summary>
+    public sealed class PlayerInfoBeingCreatedEventArgs : EventArgs, ICancelableEvent {
+        internal PlayerInfoBeingCreatedEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
                                               [NotNull] Rank startingRank, bool isUnrecognized ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
@@ -139,163 +137,335 @@ namespace fCraft.Events {
             IsUnrecognized = isUnrecognized;
         }
 
+        /// <summary> Name of the new player for whom PlayerInfo is being created. </summary>
         [NotNull]
         public string Name { get; private set; }
 
+        /// <summary> Rank to assign to the new player. Defaults to RankManager.DefaultRank. </summary>
         [NotNull]
         public Rank StartingRank { get; set; }
 
+        /// <summary> IP Address from which player has connected. May be null if adding an unrecognized/offline player. </summary>
         [CanBeNull]
         public IPAddress IP { get; private set; }
+
+        /// <summary> Whether new player is unrecognized. </summary>
+        /// <value> False if a real player is actually connected. </value>
+        /// <value> True if the player is just being added by name. </value>
         public bool IsUnrecognized { get; private set; }
+
         public bool Cancel { get; set; }
     }
 
 
-    public sealed class PlayerInfoCreatedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoCreatedEventArgs( [NotNull] PlayerInfo playerInfo, bool isUnrecognized )
-            : base( playerInfo ) {
+    /// <summary> Provides data for PlayerInfo.Created event. Immutable. </summary>
+    public sealed class PlayerInfoCreatedEventArgs : EventArgs, IPlayerInfoEvent {
+        internal PlayerInfoCreatedEventArgs( [NotNull] PlayerInfo playerInfo, bool isUnrecognized ) {
+            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
+            PlayerInfo = playerInfo;
             IsUnrecognized = isUnrecognized;
         }
 
+        /// <summary> Newly-added PlayerInfo object. </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Whether new player is unrecognized. </summary>
+        /// <value> False if a real player is actually connected. </value>
+        /// <value> True if the player is just being added by name. </value>
         public bool IsUnrecognized { get; private set; }
     }
 
 
-    public class PlayerInfoRankChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoRankChangedEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
+    /// <summary> Provides data for PlayerInfo.RankChanging event. Cancellable. </summary>
+    public sealed class PlayerInfoRankChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
+        internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player rankChanger,
+                                                  [NotNull] Rank newRank, [CanBeNull] string reason,
+                                                  RankChangeType rankChangeType, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( rankChanger == null ) throw new ArgumentNullException( "rankChanger" );
+            if( newRank == null ) throw new ArgumentNullException( "newRank" );
+            PlayerInfo = target;
+            RankChanger = rankChanger;
+            OldRank = target.Rank;
+            NewRank = newRank;
+            Reason = reason;
+            RankChangeType = rankChangeType;
+            Announce = announce;
+            NewRank = newRank;
+        }
+
+        /// <summary> Player whose rank will be changed (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated promotion/demotion. </summary>
+        [NotNull]
+        public Player RankChanger { get; private set; }
+
+        /// <summary> Player's current (old) rank. </summary>
+        [NotNull]
+        public Rank OldRank { get; private set; }
+
+        /// <summary> Player's proposed (new) rank. </summary>
+        [NotNull]
+        public Rank NewRank { get; private set; }
+
+        /// <summary> Given promotion/demotion reason. May be null. Can be changed. </summary>
+        [CanBeNull]
+        public string Reason { get; set; }
+
+        /// <summary> Type of rank change. </summary>
+        public RankChangeType RankChangeType { get; private set; }
+
+        /// <summary> Whether the promotion/demotion should be announced in-game and on IRC. Can be changed. </summary>
+        public bool Announce { get; set; }
+
+        public bool Cancel { get; set; }
+    }
+
+
+    /// <summary> Provides data for PlayerInfo.RankChanged event. Immutable. </summary>
+    public sealed class PlayerInfoRankChangedEventArgs : EventArgs, IPlayerInfoEvent {
+        internal PlayerInfoRankChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player rankChanger,
                                                  [NotNull] Rank oldRank, [CanBeNull] string reason,
-                                                 RankChangeType rankChangeType, bool announce )
-            : base( playerInfo ) {
+                                                 RankChangeType rankChangeType, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             if( rankChanger == null ) throw new ArgumentNullException( "rankChanger" );
             if( oldRank == null ) throw new ArgumentNullException( "oldRank" );
+            PlayerInfo = target;
             RankChanger = rankChanger;
             OldRank = oldRank;
-            NewRank = playerInfo.Rank;
+            NewRank = target.Rank;
             Reason = reason;
             RankChangeType = rankChangeType;
             Announce = announce;
         }
 
+        /// <summary> Player whose rank was just changed (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated promotion/demotion. </summary>
         [NotNull]
         public Player RankChanger { get; private set; }
 
+        /// <summary> Player's previous (old) rank. </summary>
         [NotNull]
         public Rank OldRank { get; private set; }
 
+        /// <summary> Player's current (new) rank. </summary>
         [NotNull]
-        public Rank NewRank { get; protected set; }
+        public Rank NewRank { get; private set; }
 
-        [CanBeNull] 
+        /// <summary> Given promotion/demotion reason. May be null. </summary>
+        [CanBeNull]
         public string Reason { get; private set; }
 
-        public bool Announce { get; private set; }
-
+        /// <summary> Type of rank change. </summary>
         public RankChangeType RankChangeType { get; private set; }
-    }
 
-
-    public sealed class PlayerInfoRankChangingEventArgs : PlayerInfoRankChangedEventArgs, ICancelableEvent {
-        internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
-                                                  [NotNull] Rank newRank, [CanBeNull] string reason,
-                                                  RankChangeType rankChangeType, bool announce )
-            : base( playerInfo, rankChanger, playerInfo.Rank, reason, rankChangeType, announce ) {
-            NewRank = newRank;
-        }
-
-        public bool Cancel { get; set; }
-    }
-
-
-    public sealed class PlayerInfoBanChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoBanChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
-                                                bool isBeingUnbanned, string reason, bool announce )
-            : base( target ) {
-            if( banner == null ) throw new ArgumentNullException( "banner" );
-            Banner = banner;
-            IsBeingUnbanned = isBeingUnbanned;
-            Reason = reason;
-            Announce = announce;
-        }
-
-        [NotNull]
-        public Player Banner { get; private set; }
-        public bool IsBeingUnbanned { get; private set; }
+        /// <summary> Whether the promotion/demotion was announced in-game and on IRC. </summary>
         public bool Announce { get; private set; }
-        public string Reason { get; private set; }
     }
 
 
-    public sealed class PlayerInfoBanChangingEventArgs : PlayerInfoEventArgs, ICancelableEvent {
+    /// <summary> Provides data for PlayerInfo.BanChanging event. Cancellable.
+    /// Reason and Announce properties may be changed. </summary>
+    public sealed class PlayerInfoBanChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
-                                                 bool isBeingUnbanned, [CanBeNull] string reason, bool announce )
-            : base( target ) {
+                                                 bool isBeingUnbanned, [CanBeNull] string reason, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( banner == null ) throw new ArgumentNullException( "banner" );
+            PlayerInfo = target;
             Banner = banner;
             IsBeingUnbanned = isBeingUnbanned;
             Reason = reason;
             Announce = announce;
         }
 
+
+        /// <summary> Player who is being banned/unbanned (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated ban/unban. </summary>
         [NotNull]
         public Player Banner { get; private set; }
+
+        /// <summary> Whether player is being banned or unbanned. </summary>
         public bool IsBeingUnbanned { get; private set; }
+
+        /// <summary> Given ban/unban reason. May be null. Can be changed. </summary>
         [CanBeNull]
         public string Reason { get; set; }
-        public bool Announce { get; private set; }
-        public bool Cancel { get; set; }
-    }
 
-
-    public sealed class PlayerInfoFrozenChangingEventArgs : PlayerInfoFrozenChangedEventArgs, ICancelableEvent {
-        internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce )
-            : base( target, freezer, unfreezing, announce ) {
-        }
+        /// <summary> Whether the promotion/demotion should be announced in-game and on IRC. Can be changed. </summary>
+        public bool Announce { get; set; }
 
         public bool Cancel { get; set; }
     }
 
 
-    public class PlayerInfoFrozenChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoFrozenChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce )
-            : base( target ) {
-            if( freezer == null ) throw new ArgumentNullException( "freezer" );
-            Freezer = freezer;
-            Unfreezing = unfreezing;
+    /// <summary> Provides data for PlayerInfo.BanChanged event. Immutable. </summary>
+    public sealed class PlayerInfoBanChangedEventArgs : EventArgs, IPlayerInfoEvent {
+        internal PlayerInfoBanChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
+                                                bool wasUnbanned, [CanBeNull] string reason, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( banner == null ) throw new ArgumentNullException( "banner" );
+            PlayerInfo = target;
+            Banner = banner;
+            WasUnbanned = wasUnbanned;
+            Reason = reason;
             Announce = announce;
         }
 
+        /// <summary> Player who was just banned/unbanned (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated ban/unban. </summary>
+        [NotNull]
+        public Player Banner { get; private set; }
+
+        /// <summary> Whether player was banned or unbanned. </summary>
+        public bool WasUnbanned { get; private set; }
+
+        /// <summary> Given ban/unban reason. May be null. </summary>
+        [CanBeNull]
+        public string Reason { get; private set; }
+
+        /// <summary> Whether the ban/unban was announced in-game and on IRC. </summary>
+        public bool Announce { get; private set; }
+    }
+
+
+    /// <summary> Provides data for PlayerInfo.FrozenChanging event. Cancellable. 
+    /// Announce property may be changed. </summary>
+    public sealed class PlayerInfoFrozenChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
+        internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer,
+                                                     bool isBeingUnfrozen, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( freezer == null ) throw new ArgumentNullException( "freezer" );
+            PlayerInfo = target;
+            Freezer = freezer;
+            IsBeingUnfrozen = isBeingUnfrozen;
+            Announce = announce;
+        }
+
+        /// <summary> Player who is being frozen/unfrozen (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated freeze/unfreeze. </summary>
         [NotNull]
         public Player Freezer { get; private set; }
-        public bool Unfreezing { get; private set; }
-        public bool Announce { get; private set; }
-    }
 
+        /// <summary> Whether target player is being frozen or unfrozen. </summary>
+        public bool IsBeingUnfrozen { get; private set; }
 
-    public sealed class PlayerInfoMuteChangingEventArgs : PlayerInfoMuteChangedEventArgs, ICancelableEvent {
-        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
-                                                  TimeSpan duration, bool unmuting, bool announce )
-            : base( target, muter, duration, unmuting, announce ) {
-        }
+        /// <summary> Whether the freeze/unfreeze should be announced in-game. Can be changed. </summary>
+        public bool Announce { get; set; }
+
         public bool Cancel { get; set; }
     }
 
 
-    public class PlayerInfoMuteChangedEventArgs : PlayerInfoEventArgs {
-        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
-                                                 TimeSpan duration, bool unmuting, bool announce )
-            : base( target ) {
-            if( muter == null ) throw new ArgumentNullException( "muter" );
-            Muter = muter;
-            Duration = duration;
-            Unmuting = unmuting;
+    /// <summary> Provides data for PlayerInfo.FrozenChanged event. Immutable. </summary>
+    public sealed class PlayerInfoFrozenChangedEventArgs : EventArgs, IPlayerInfoEvent {
+        internal PlayerInfoFrozenChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer,
+                                                   bool wasUnfrozen, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( freezer == null ) throw new ArgumentNullException( "freezer" );
+            PlayerInfo = target;
+            Freezer = freezer;
+            WasUnfrozen = wasUnfrozen;
             Announce = announce;
         }
 
+        /// <summary> Player who was just frozen/unfrozen (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
 
+        /// <summary> Player who initiated freeze/unfreeze. </summary>
+        [NotNull]
+        public Player Freezer { get; private set; }
+
+        /// <summary> Whether target player was frozen or unfrozen. </summary>
+        public bool WasUnfrozen { get; private set; }
+
+        /// <summary> Whether the freeze/unfreeze has been announced in-game. </summary>
+        public bool Announce { get; private set; }
+    }
+
+
+    /// <summary> Provides data for PlayerInfo.MuteChanging event. Cancellable. 
+    /// Duration and Announce properties may be changed. </summary>
+    public sealed class PlayerInfoMuteChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
+        internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                                  TimeSpan duration, bool unmuting, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( muter == null ) throw new ArgumentNullException( "muter" );
+            PlayerInfo = target;
+            Muter = muter;
+            Duration = duration;
+            IsBeingUnmuted = unmuting;
+            Announce = announce;
+        }
+
+        /// <summary> Player who is being muted/unmuted (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated mute/unmute. </summary>
         [NotNull]
         public Player Muter { get; private set; }
+
+        /// <summary> Mute duration. Must not be negative. May be changed.
+        /// If player is being unmuted, this is the current remaining mute duration.
+        /// If player is being muted, this is the desired mute duration, counting from now. </summary>
+        public TimeSpan Duration { get; set; }
+
+        /// <summary> Whether player is being muted or unmuted. </summary>
+        public bool IsBeingUnmuted { get; private set; }
+
+        /// <summary> Whether the mute/unmute should be announced in-game. Can be changed. </summary>
+        public bool Announce { get; set; }
+
+        public bool Cancel { get; set; }
+    }
+
+
+    /// <summary> Provides data for PlayerInfo.MuteChanged event. Immutable. </summary>
+    public sealed class PlayerInfoMuteChangedEventArgs : EventArgs, IPlayerInfoEvent {
+        internal PlayerInfoMuteChangedEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
+                                                 TimeSpan duration, bool unmuting, bool announce ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( muter == null ) throw new ArgumentNullException( "muter" );
+            PlayerInfo = target;
+            Muter = muter;
+            Duration = duration;
+            WasUnmuted = unmuting;
+            Announce = announce;
+        }
+
+        /// <summary> Player who was just muted/unmuted (target). </summary>
+        [NotNull]
+        public PlayerInfo PlayerInfo { get; private set; }
+
+        /// <summary> Player who initiated mute/unmute. </summary>
+        [NotNull]
+        public Player Muter { get; private set; }
+
+        /// <summary> Mute duration.
+        /// If player was unmuted, this is the remaining mute duration before unmute.
+        /// If player was muted, this is the new mute duration, counting from now. </summary>
         public TimeSpan Duration { get; private set; }
-        public bool Unmuting { get; private set; }
+
+        /// <summary> Whether player was muted or unmuted. </summary>
+        public bool WasUnmuted { get; private set; }
+
+        /// <summary> Whether the mute/unmute was announced in-game. </summary>
         public bool Announce { get; private set; }
     }
 }

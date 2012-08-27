@@ -595,7 +595,7 @@ namespace fCraft {
 
         static void PlayerInfoBanChangedHandler( object sender, PlayerInfoBanChangedEventArgs e ) {
             if( e.Announce ) {
-                if( e.IsBeingUnbanned ) {
+                if( e.WasUnbanned ) {
                     PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
                 } else {
                     PlayerSomethingMessage( e.Banner, "banned", e.PlayerInfo, e.Reason );
