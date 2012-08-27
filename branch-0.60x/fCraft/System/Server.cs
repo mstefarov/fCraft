@@ -508,6 +508,8 @@ namespace fCraft {
                 }
                 IsRunning = false;
 
+                Environment.ExitCode = (int)shutdownParams.Reason;
+
                 RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG
             } catch( Exception ex ) {
@@ -593,8 +595,6 @@ namespace fCraft {
             } else if( doRestart ) {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
             }
-
-            Environment.ExitCode = (int)param.Reason;
         }
 
         #endregion
