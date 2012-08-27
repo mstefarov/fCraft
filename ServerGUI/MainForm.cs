@@ -17,7 +17,6 @@ namespace fCraft.ServerGUI {
 
         public MainForm() {
             InitializeComponent();
-            Shown += StartUp;
             console.OnCommand += console_Enter;
 
             logBox.ContextMenu = new ContextMenu( new[] {

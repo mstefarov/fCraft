@@ -42,7 +42,6 @@ namespace fCraft.ServerCLI {
 
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
-            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
             Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
@@ -131,12 +130,6 @@ namespace fCraft.ServerCLI {
         static void OnControlShutdown() {
             Server.Shutdown( new ShutdownParams( ShutdownReason.ProcessClosing, TimeSpan.Zero, false ), true );
             Environment.Exit( (int)ShutdownReason.ProcessClosing );
-        }
-
-
-        static void OnProcessExit( object sender, EventArgs e ) {
-            Console.Beep();
-            Logger.Log( LogType.Debug, "OnProcessExit" );
         }
 
 
