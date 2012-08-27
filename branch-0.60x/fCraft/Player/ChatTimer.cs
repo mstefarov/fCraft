@@ -108,6 +108,7 @@ namespace fCraft {
             Stop( true );
         }
 
+
         void Stop( bool aborted ) {
             Aborted = aborted;
             IsRunning = false;
@@ -195,6 +196,8 @@ namespace fCraft {
         #endregion
 
 
+        #region Events
+
         /// <summary> Occurs after a ChatTimer was added. </summary>
         public static event EventHandler<ChatTimerEventArgs> Started;
 
@@ -208,17 +211,22 @@ namespace fCraft {
             if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
         }
 
+
         static void RaiseStoppedEvent( ChatTimer timer ) {
             var h = Stopped;
             if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
         }
+
+        #endregion
     }
 
 
+    /// <summary> Provides data for ChatTimer.Started and ChatTimer.Stopped events. Immutable. </summary>
     public sealed class ChatTimerEventArgs : EventArgs {
         public ChatTimerEventArgs( ChatTimer timer ) {
             Timer = timer;
         }
+
         public ChatTimer Timer { get; private set; }
     }
 }
