@@ -43,7 +43,6 @@ namespace fCraft {
 
         public readonly bool IsSuper;
 
-
         /// <summary> Whether the player has completed the login sequence. </summary>
         public SessionState State { get; private set; }
 
@@ -172,7 +171,9 @@ namespace fCraft {
         string partialMessage;
 
 
-        // Parses message incoming from the player
+        /// <summary> Parses a message on behalf of this player. </summary>
+        /// <param name="rawMessage"> Message to parse. </param>
+        /// <exception cref="ArgumentNullException"> If rawMessage is null. </exception>
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
@@ -398,9 +399,9 @@ namespace fCraft {
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
                                 SendToSpectators( "/ok" );
-                                ConfirmCallback( this, ConfirmArgument, fromConsole );
+                                ConfirmCallback( this, ConfirmParameter, fromConsole );
                                 ConfirmCallback = null;
-                                ConfirmArgument = null;
+                                ConfirmParameter = null;
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
                             }
@@ -422,6 +423,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a message to all players who are spectating this player, e.g. to forward typed-in commands and PMs. </summary>
+        /// <param name="message"> Message to be displayed </param>
+        /// <param name="args"> Additional arguments </param>
+        /// <exception cref="ArgumentNullException"> If any of the parameters are null. </exception>
         public void SendToSpectators( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
@@ -432,8 +437,20 @@ namespace fCraft {
         }
 
 
-        public void MessageAlt( [NotNull] string message ) {
+        /// <summary> Sends a message as a WoM alert.
+        /// Players who use World of Minecraft client will see this message on the left side of the screen.
+        /// Other players will receive it as a normal message. </summary>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If message is null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
+        [StringFormatMethod( "message" )]
+        public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
             if( this == Console ) {
                 Logger.LogToConsole( message );
             } else if( IsUsingWoM ) {
@@ -448,16 +465,19 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sends a text message to this player.
+        /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
         [StringFormatMethod( "message" )]
-        public void MessageAlt( [NotNull] string message, [NotNull] params object[] args ) {
+        public void Message( [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
-            MessageAlt( String.Format( message, args ) );
-        }
-
-
-        public void Message( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
+            }
             if( IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
@@ -468,14 +488,12 @@ namespace fCraft {
         }
 
 
-        [StringFormatMethod( "message" )]
-        public void Message( [NotNull] string message, [NotNull] params object[] args ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            Message( String.Format( message, args ) );
-        }
-
-
+        /// <summary> Sends a text message to this player, prefixing each line. </summary>
+        /// <param name="prefix"> Prefix to prepend to each wrapped line. Not prepended to the first line. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="args"> An object array that contains zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
+        /// <exception cref="FormatException"> If message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public void MessagePrefixed( [NotNull] string prefix, [NotNull] string message, [NotNull] params object[] args ) {
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
@@ -539,30 +557,53 @@ namespace fCraft {
 
         #region Macros
 
+        /// <summary> Prints "No players found matching ___" message. </summary>
+        /// <param name="playerName"> Given name, for which no players were found. </param>
+        /// <exception cref="ArgumentNullException"> If playerName is null. </exception>
         public void MessageNoPlayer( [NotNull] string playerName ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "No players found matching \"{0}\"", playerName );
         }
 
 
+        /// <summary> Prints "No worlds found matching ___" message. </summary>
+        /// <param name="worldName"> Given name, for which no worlds were found. </param>
+        /// <exception cref="ArgumentNullException"> If worldName is null. </exception>
         public void MessageNoWorld( [NotNull] string worldName ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "No worlds found matching \"{0}\". See &H/Worlds", worldName );
         }
 
 
-        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> names ) {
-            if( itemType == null ) throw new ArgumentNullException( "itemType" );
-            if( names == null ) throw new ArgumentNullException( "names" );
+        const int MatchesToPrint = 30;
 
-            string nameList = names.JoinToString( ", ", p => p.ClassyName );
-            Message( "More than one {0} matched: {1}",
-                     itemType, nameList );
+        /// <summary> Prints a comma-separated list of matches (up to 30): "More than one ___ matched: ___, ___, ..." </summary>
+        /// <param name="itemType"> Type of item in the list. Should be singular (e.g. "player" or "world"). </param>
+        /// <param name="items"> List of zero or more matches. ClassyName properties are used in the list. </param>
+        /// <exception cref="ArgumentNullException"> If itemType or items is null. </exception>
+        public void MessageManyMatches( [NotNull] string itemType, [NotNull] IEnumerable<IClassy> items ) {
+            if( itemType == null ) throw new ArgumentNullException( "itemType" );
+            if( items == null ) throw new ArgumentNullException( "items" );
+
+            IClassy[] itemsEnumerated = items.ToArray();
+            string nameList = itemsEnumerated.Take( MatchesToPrint ).JoinToString( ", ", p => p.ClassyName );
+            int count = itemsEnumerated.Length;
+            if( count > MatchesToPrint ) {
+                Message( "More than {0} {1} matched: {2}",
+                         count, itemType, nameList );
+            } else {
+                Message( "More than one {0} matched: {1}",
+                         itemType, nameList );
+            }
         }
 
 
+        /// <summary> Prints "This command requires ___+ rank" message. </summary>
+        /// <param name="permissions"> List of permissions required for the command. </param>
+        /// <exception cref="ArgumentNullException"> If permissions is null. </exception>
         public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
+            if( permissions.Length == 0 ) throw new ArgumentException( "At least one permission required.", "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if( reqRank == null ) {
                 Message( "None of the ranks have permissions for this command." );
@@ -573,6 +614,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Prints "This command requires ___+ rank" message. </summary>
+        /// <param name="cmd"> Command to check. </param>
+        /// <exception cref="ArgumentNullException"> If cmd is null. </exception>
         public void MessageNoAccess( [NotNull] CommandDescriptor cmd ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             Rank reqRank = cmd.MinRank;
@@ -585,42 +629,55 @@ namespace fCraft {
         }
 
 
+        /// <summary> Prints "Unrecognized rank ___" message. </summary>
+        /// <param name="rankName"> Given name, for which no rank was found. </param>
         public void MessageNoRank( [NotNull] string rankName ) {
             if( rankName == null ) throw new ArgumentNullException( "rankName" );
             Message( "Unrecognized rank \"{0}\". See &H/Ranks", rankName );
         }
 
 
+        /// <summary> Prints "You cannot access files outside the map folder." message. </summary>
         public void MessageUnsafePath() {
             Message( "&WYou cannot access files outside the map folder." );
         }
 
 
+        /// <summary> Prints "No zones found matching ___" message. </summary>
+        /// <param name="zoneName"> Given name, for which no zones was found. </param>
         public void MessageNoZone( [NotNull] string zoneName ) {
             if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
             Message( "No zones found matching \"{0}\". See &H/Zones", zoneName );
         }
 
 
+        /// <summary> Prints "Unacceptable world name" message, and requirements for world names. </summary>
+        /// <param name="worldName"> Given world name, deemed to be invalid. </param>
         public void MessageInvalidWorldName( [NotNull] string worldName ) {
+            if( worldName == null ) throw new ArgumentNullException( "worldName" );
             Message( "Unacceptable world name: \"{0}\"", worldName );
             Message( "World names must be 1-16 characters long, and only contain letters, numbers, and underscores." );
         }
 
 
+        /// <summary> Prints "___ is not a valid player name" message. </summary>
+        /// <param name="playerName"> Given player name, deemed to be invalid. </param>
         public void MessageInvalidPlayerName( [NotNull] string playerName ) {
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
             Message( "\"{0}\" is not a valid player name.", playerName );
         }
 
 
+        /// <summary> Prints "You are muted for ___ longer" message. </summary>
         public void MessageMuted() {
             Message( "You are muted for {0} longer.",
                      Info.TimeMutedLeft.ToMiniString() );
         }
 
 
+        /// <summary> Prints "Specify a time range up to ___" message </summary>
         public void MessageMaxTimeSpan() {
-            Message( "Specify a time range up to {0:0}d.", DateTimeUtil.MaxTimeSpan.TotalDays );
+            Message( "Specify a time range up to {0}", DateTimeUtil.MaxTimeSpan.ToMiniString() );
         }
 
         #endregion
@@ -686,11 +743,20 @@ namespace fCraft {
 
         #region Confirmation
 
+        /// <summary> Callback to be called when player types in "/ok" to confirm an action.
+        /// Use Player.Confirm(...) methods to set this. </summary>
         [CanBeNull]
         public ConfirmationCallback ConfirmCallback { get; private set; }
 
+
+        /// <summary> Custom parameter to be passed to Player.ConfirmCallback. </summary>
         [CanBeNull]
-        public object ConfirmArgument { get; private set; }
+        public object ConfirmParameter { get; private set; }
+
+
+        /// <summary> Time when the confirmation was requested. UTC. </summary>
+        public DateTime ConfirmRequestTime { get; private set; }
+
 
         static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -700,8 +766,6 @@ namespace fCraft {
             CommandManager.ParseCommand( player, cmd, fromConsole );
         }
 
-        /// <summary> Time when the confirmation was requested. UTC. </summary>
-        public DateTime ConfirmRequestTime { get; private set; }
 
         /// <summary> Request player to confirm continuing with the command.
         /// Player is prompted to type "/ok", and when he/she does,
@@ -709,18 +773,27 @@ namespace fCraft {
         /// <param name="cmd"> Command that needs confirmation. </param>
         /// <param name="message"> Message to print before "Type /ok to continue". </param>
         /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        /// <exception cref="ArgumentNullException"> If cmd, message, or args is null. </exception>
         [StringFormatMethod( "message" )]
         public void Confirm( [NotNull] CommandReader cmd, [NotNull] string message, [NotNull] params object[] args ) {
             Confirm( ConfirmCommandCallback, cmd, message, args );
         }
 
+
+        /// <summary> Request player to confirm an action.
+        /// Player is prompted to type "/ok", and when he/she does, custom callback will be called </summary>
+        /// <param name="callback"> Method to call when player confirms. </param>
+        /// <param name="callbackParameter"> Argument to pass to the callback. May be null. </param>
+        /// <param name="message"> Message to print before "Type /ok to continue". </param>
+        /// <param name="args"> Optional String.Format() arguments, for the message. </param>
+        /// <exception cref="ArgumentNullException"> If callback, message, or args is null. </exception>
         [StringFormatMethod( "message" )]
-        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object arg, [NotNull] string message, [NotNull] params object[] args ) {
+        public void Confirm( [NotNull] ConfirmationCallback callback, [CanBeNull] object callbackParameter, [NotNull] string message, [NotNull] params object[] args ) {
             if( callback == null ) throw new ArgumentNullException( "callback" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             ConfirmCallback = callback;
-            ConfirmArgument = arg;
+            ConfirmParameter = callbackParameter;
             ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
         }
@@ -730,9 +803,14 @@ namespace fCraft {
 
         #region AntiSpam
 
+        /// <summary> Number of messages in a AntiSpamInterval seconds required to trigger the anti-spam filter </summary>
         public static int AntispamMessageCount = 3;
+
+        /// <summary> Interval in seconds to record number of message for anti-spam filter </summary>
         public static int AntispamInterval = 4;
+
         readonly Queue<DateTime> spamChatLog = new Queue<DateTime>( AntispamMessageCount );
+
 
         internal bool DetectChatSpam() {
             if( IsSuper || AntispamMessageCount < 1 || AntispamInterval < 1 ) return false;
