@@ -82,7 +82,6 @@ namespace fCraft {
 
                 ioThread = new Thread( IoLoop ) {
                     Name = "fCraft.Session",
-                    IsBackground = true,
                     CurrentCulture = new CultureInfo( "en-US" )
                 };
                 ioThread.Start();

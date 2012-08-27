@@ -34,6 +34,12 @@ namespace fCraft.ServerCLI {
         static bool useColor = true;
 
         static void Main( string[] args ) {
+            if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
+                Console.Error.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
+                Environment.ExitCode = (int)ShutdownReason.FailedToInitialize;
+                return;
+            }
+
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
@@ -43,11 +49,6 @@ namespace fCraft.ServerCLI {
 #if !DEBUG
             try {
 #endif
-                if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
-                    Console.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
-                    ReportFailure( ShutdownReason.FailedToInitialize, false );
-                    return;
-                }
 
                 Server.InitLibrary( args );
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
@@ -56,47 +57,49 @@ namespace fCraft.ServerCLI {
                 Console.CancelKeyPress += OnCancelKeyPress;
 
                 CheckForUpdates();
-                Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " + ConfigKey.ServerName.GetString();
+                Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " +
+                                ConfigKey.ServerName.GetString();
 
                 if( !ConfigKey.ProcessPriority.IsBlank() ) {
                     try {
-                        Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                        Process.GetCurrentProcess().PriorityClass =
+                            ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
                     } catch( Exception ) {
                         Logger.Log( LogType.Warning, "Program.Main: Could not set process priority, using defaults." );
                     }
                 }
 
-                    if( Server.StartServer() ) {
-                        Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
-                        Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
+                if( Server.StartServer() ) {
+                    Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
+                    Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
 
-                        while( !Server.IsShuttingDown ) {
-                            string cmd = Console.ReadLine();
-                            if( cmd == null ) {
-                                Console.WriteLine(
-                                    "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
-                                break;
-                            }
-                            if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
-                                Console.Clear();
-                            } else {
+                    while( !Server.IsShuttingDown ) {
+                        string cmd = Console.ReadLine();
+                        if( cmd == null ) {
+                            Console.WriteLine(
+                                "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
+                            break;
+                        }
+                        if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
+                            Console.Clear();
+                        } else {
 #if !DEBUG
-                                try {
-                                    Player.Console.ParseMessage( cmd, true );
-                                } catch( Exception ex ) {
-                                    Logger.LogAndReportCrash( "Error while executing a command from console",
-                                                              "ServerCLI",
-                                                              ex, false );
-                                }
+                            try {
+                                Player.Console.ParseMessage( cmd, true );
+                            } catch( Exception ex ) {
+                                Logger.LogAndReportCrash( "Error while executing a command from console",
+                                                          "ServerCLI",
+                                                          ex, false );
+                            }
 #else
                             Player.Console.ParseMessage( cmd, true );
 #endif
-                            }
                         }
-
-                    } else {
-                        ReportFailure( ShutdownReason.FailedToStart, true );
                     }
+
+                } else {
+                    ReportFailure( ShutdownReason.FailedToStart, true );
+                }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
@@ -132,6 +135,7 @@ namespace fCraft.ServerCLI {
 
 
         static void OnProcessExit( object sender, EventArgs e ) {
+            Console.Beep();
             Logger.Log( LogType.Debug, "OnProcessExit" );
         }
 
