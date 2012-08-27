@@ -283,19 +283,35 @@ namespace fCraft {
     }
 
 
+    /// <summary> Type of a broadcast chat message. </summary>
     public enum ChatMessageType {
+        /// <summary> Unknown or custom chat message type. </summary>
         Other,
 
+        /// <summary> Global (white) chat message. </summary>
         Global,
+
+        /// <summary> Message directed to or from IRC. </summary>
         IRC,
+
+        /// <summary> Message produced by /Me command (action). </summary>
         Me,
+
+        /// <summary> Private message (@Player message). </summary>
         PM,
+
+        /// <summary> Rank-wide message (@@Rank message). </summary>
         Rank,
+
+        /// <summary> Message produced by /Say command (global announcement). </summary>
         Say,
+
+        /// <summary> Message produced by /Staff command. </summary>
         Staff,
+
+        /// <summary> Local (world) chat message. </summary>
         World
     }
-
 
 
     /// <summary> Type of message sent by the player. Determined by CommandManager.GetMessageType() </summary>
@@ -328,6 +344,8 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
+    /// <summary> Provides data for Chat.Sending event. Cancellable.
+    /// FormattedMessage and recipientList properties may be changed. </summary>
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
                                        ChatMessageType messageType, IEnumerable<Player> recepientList ) {
@@ -347,6 +365,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
                                     ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {

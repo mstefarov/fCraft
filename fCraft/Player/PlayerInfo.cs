@@ -981,6 +981,7 @@ namespace fCraft {
 
         #region Utilities
 
+        [NotNull]
         public static string Escape( [CanBeNull] string str ) {
             if( String.IsNullOrEmpty( str ) ) {
                 return "";
@@ -992,12 +993,14 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static string UnescapeOldFormat( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
         }
 
 
+        [NotNull]
         public static string Unescape( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.IndexOf( '\xFF' ) > -1 ) {

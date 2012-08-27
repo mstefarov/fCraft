@@ -8,6 +8,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Handles the addition, lookup, and removal of IP bans. </summary>
     public static class IPBanList {
         static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
         static readonly object BanListLock = new object();
@@ -207,6 +208,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Number of active IP bans on record. </summary>
         public static int Count {
             get {
                 return Bans.Count;
@@ -221,6 +223,8 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan and AddedIPBan events should be raised. </param>
+        /// <exception cref="ArgumentNullException"> If targetAddress or player is null. </exception>
+        /// <exception cref="PlayerOpException"> If permission or configuration issues arise, or if IP is already banned. </exception>
         public static void BanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                   bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
@@ -317,6 +321,8 @@ namespace fCraft {
         /// <param name="reason"> Reason for unban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan and RemovedIPBan events should be raised. </param>
+        /// <exception cref="ArgumentNullException"> If targetAddress or player is null. </exception>
+        /// <exception cref="PlayerOpException"> If permission or configuration issues arise, or if IP is already unbanned. </exception>
         public static void UnbanIP( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                     bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
@@ -376,6 +382,8 @@ namespace fCraft {
         /// <param name="reason"> Reason for ban. May be empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether ban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether AddingIPBan, AddedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="ArgumentNullException"> If targetAddress or player is null. </exception>
+        /// <exception cref="PlayerOpException"> If permission or configuration issues arise, or if everyone has already been banned. </exception>
         public static void BanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                    bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
@@ -484,12 +492,14 @@ namespace fCraft {
         }
 
 
-        /// <summary> Unbans given IP address and all accounts on that IP. Throws PlayerOpException on problems. </summary>
+        /// <summary> Unbans given IP address and all accounts on that IP. </summary>
         /// <param name="targetAddress"> IP address that is being unbanned. </param>
         /// <param name="player"> Player who is unbanning. </param>
         /// <param name="reason"> Reason for unban. May be null or empty, if permitted by server configuration. </param>
         /// <param name="announce"> Whether unban should be publicly announced on the server. </param>
         /// <param name="raiseEvents"> Whether RemovingIPBan, RemovedIPBan, BanChanging, and BanChanged events should be raised. </param>
+        /// <exception cref="ArgumentNullException"> If targetAddress or player is null. </exception>
+        /// <exception cref="PlayerOpException"> If permission or configuration issues arise, or if everyone has already been unbanned. </exception>
         public static void UnbanAll( [NotNull] this IPAddress targetAddress, [NotNull] Player player, [CanBeNull] string reason,
                                      bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
@@ -630,7 +640,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
+    /// <summary> Provides data for IPBanList.AddedIPBan and RemovedIPBan events. Immutable. </summary>
     public class IPBanEventArgs : EventArgs {
         internal IPBanEventArgs( [NotNull] IPBanInfo info ) {
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -642,6 +652,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for IPBanList.AddingIPBan and RemovingIPBan events. Cancellable. </summary>
     public sealed class IPBanCancelableEventArgs : IPBanEventArgs, ICancelableEvent {
         internal IPBanCancelableEventArgs( IPBanInfo info ) :
             base( info ) {
