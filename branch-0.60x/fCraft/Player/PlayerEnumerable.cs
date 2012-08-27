@@ -615,7 +615,7 @@ namespace fCraft {
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             int i = 0;
             foreach( Player player in source ) {
-                player.MessageAlt( message, formatArgs );
+                player.MessageWoMAlert( message, formatArgs );
                 i++;
             }
             return i;
