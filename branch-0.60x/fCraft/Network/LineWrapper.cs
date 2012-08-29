@@ -192,10 +192,15 @@ namespace fCraft {
                 default:
                     if( expectingColor ) {
                         expectingColor = false;
-                        if( ProcessColor( ref ch ) ) {
+                        if( ch == 'N' || ch == 'n' ) {
+                            // newline
+                            inputIndex++;
+                            return true;
+                        } else if( ProcessColor( ref ch ) ) {
+                            // valid colorcode
                             color = ch;
                             hadColor = true;
-                        }// else colorcode is invalid, skip
+                        } // else colorcode is invalid, skip
                     } else {
                         if( spaceCount > 0 ) {
                             // set wrapping point, if at beginning of a word
@@ -236,7 +241,6 @@ namespace fCraft {
         bool Append( byte ch ) {
             // calculate the number of characters to insert
             int bytesToInsert = 1;
-            if( ch == (byte)'&' ) bytesToInsert++;
 
             bool prependColor = (lastColor != color || (color == NoColor && hadColor && outputIndex == outputStart));
 
