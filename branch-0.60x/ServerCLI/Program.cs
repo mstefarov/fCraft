@@ -33,27 +33,27 @@ namespace fCraft.ServerCLI {
     static class Program {
         static bool useColor = true;
 
+
         static void Main( string[] args ) {
+            // Check fCraft.dll version
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 Console.Error.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
                 Environment.ExitCode = (int)ShutdownReason.FailedToInitialize;
                 return;
             }
 
+            Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
-
-            Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
 #if !DEBUG
             try {
 #endif
-
                 Server.InitLibrary( args );
                 useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
                 Server.InitServer();
-                Console.CancelKeyPress += OnCancelKeyPress;
 
                 CheckForUpdates();
                 Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " +
@@ -67,6 +67,9 @@ namespace fCraft.ServerCLI {
                         Logger.Log( LogType.Warning, "Program.Main: Could not set process priority, using defaults." );
                     }
                 }
+
+                // dont hook up Ctrl+C handler until the server's about to start
+                Console.CancelKeyPress += OnCancelKeyPress;
 
                 if( Server.StartServer() ) {
                     Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
@@ -138,7 +141,7 @@ namespace fCraft.ServerCLI {
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
-            if(shutdown) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), true );
+            if( shutdown ) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), true );
             if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
                 Console.ReadLine();
             }
@@ -150,7 +153,7 @@ namespace fCraft.ServerCLI {
             if( !e.WriteToConsole ) return;
             switch( e.MessageType ) {
                 case LogType.Error:
-                    if(useColor)Console.ForegroundColor = ConsoleColor.Red;
+                    if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
                     Console.Error.WriteLine( e.Message );
                     if( useColor ) Console.ResetColor();
                     return;
@@ -195,11 +198,13 @@ namespace fCraft.ServerCLI {
         static bool updateFailed;
 
         static readonly object ProgressReportLock = new object();
+
+
         static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
             lock( ProgressReportLock ) {
                 Console.CursorLeft = 0;
                 int maxProgress = Console.WindowWidth - 9;
-                int progress = (int)Math.Round((e.ProgressPercentage / 100f) * (maxProgress - 1));
+                int progress = (int)Math.Round( ( e.ProgressPercentage / 100f ) * ( maxProgress - 1 ) );
                 Console.Write( "{0,3}% |", e.ProgressPercentage );
                 Console.Write( new String( '=', progress ) );
                 Console.Write( '>' );
@@ -247,7 +252,8 @@ namespace fCraft.ServerCLI {
                     if( key.KeyChar == 'y' ) {
                         RestartForUpdate();
                     } else {
-                        Console.WriteLine( "You can update manually by shutting down the server and running " + Paths.UpdaterFileName );
+                        Console.WriteLine( "You can update manually by shutting down the server and running " +
+                                           Paths.UpdaterFileName );
                     }
                 } else {
                     RestartForUpdate();
