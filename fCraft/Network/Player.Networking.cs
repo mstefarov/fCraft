@@ -1034,6 +1034,7 @@ namespace fCraft {
                 Message( "Joined world {0}", newWorld.ClassyName );
                 string greeting = newWorld.Greeting;
                 if( greeting != null ) {
+                    greeting = Server.ReplaceTextKeywords( this, greeting );
                     Message( "&R* {0}: {1}", newWorld.Name, greeting );
                 }
             }

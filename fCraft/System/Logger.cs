@@ -24,7 +24,8 @@ namespace fCraft {
 
         const string DefaultLogFileName = "fCraft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
-                     ShortDateFormat = "yyyy'-'MM'-'dd";
+                     ShortDateFormat = "yyyy'-'MM'-'dd",
+                     TimeFormat = "HH':'mm':'ss";
         static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
         public static LogSplittingType SplittingType = LogSplittingType.OneFile;
 
@@ -65,6 +66,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Logs a message of type ConsoleOutput, strips colors,
+        /// and splits into multiple messages at newlines.
+        /// Use this method for all messages of LogType.ConsoleOutput </summary>
         public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( message.Contains( '\n' ) ) {
@@ -73,12 +77,9 @@ namespace fCraft {
                 }
                 return;
             }
-            string processedMessage = "# ";
-            for( int i = 0; i < message.Length; i++ ) {
-                if( message[i] == '&' ) i++;
-                else processedMessage += message[i];
-            }
-            Log( LogType.ConsoleOutput, processedMessage );
+
+            message = "# " + Color.StripColors( message );
+            Log( LogType.ConsoleOutput, message );
         }
 
 
@@ -95,7 +96,7 @@ namespace fCraft {
         public static void Log( LogType type, [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( !Enabled ) return;
-            string line = DateTime.Now.ToLongTimeString() + " > " + GetPrefix( type ) + message; // localized
+            string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {
                 RaiseLoggedEvent( message, line, type );
@@ -107,11 +108,16 @@ namespace fCraft {
 
                 if( LogFileOptions[(int)type] ) {
                     try {
-                        File.AppendAllText( Path.Combine( Paths.LogPath, CurrentLogFileName ), line + Environment.NewLine );
+                        File.AppendAllText( Path.Combine( Paths.LogPath, CurrentLogFileName ),
+                                            line + Environment.NewLine );
                     } catch( Exception ex ) {
-                        string errorMessage = "Logger.Log: " + ex.Message;
+                        string errorMessage = "Logger.Log: " + ex;
+                        line = String.Format( "{0} > {1}{2}",
+                                              DateTime.Now.ToString( TimeFormat ),// localized
+                                              GetPrefix( LogType.Error ),
+                                              errorMessage );
                         RaiseLoggedEvent( errorMessage,
-                                          DateTime.Now.ToLongTimeString() + " > " + GetPrefix( LogType.Error ) + errorMessage, // localized
+                                          line, 
                                           LogType.Error );
                     }
                 }
@@ -255,7 +261,7 @@ namespace fCraft {
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if this type of error is common, and crash report should NOT be submitted.
-        public static bool CheckForCommonErrors( [CanBeNull] Exception ex ) {
+        static bool CheckForCommonErrors( [CanBeNull] Exception ex ) {
             if( ex == null ) throw new ArgumentNullException( "ex" );
             string message = null;
             try {
