@@ -2565,7 +2565,8 @@ namespace fCraft {
                         player.Message( GetBackupSettingsString( world ) );
                         return;
 
-                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) || value.StartsWith( "disable", StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ||
+                               value.StartsWith( "disable", StringComparison.OrdinalIgnoreCase ) ) {
                         // Disable backups on the world
                         if( world.BackupEnabledState == YesNoAuto.No ) {
                             MessageSameBackupSettings( player, world );
@@ -2574,7 +2575,8 @@ namespace fCraft {
                             world.BackupEnabledState = YesNoAuto.No;
                         }
 
-                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) || value.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
+                    } else if( value.Equals( "default", StringComparison.OrdinalIgnoreCase ) ||
+                               value.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                         // Set world to use default settings
                         if( world.BackupEnabledState == YesNoAuto.Auto ) {
                             MessageSameBackupSettings( player, world );
@@ -2592,7 +2594,8 @@ namespace fCraft {
                             } else {
                                 world.BackupEnabledState = YesNoAuto.No;
                             }
-                        } else if( world.BackupEnabledState != YesNoAuto.Yes || world.BackupInterval != backupInterval ) {
+                        } else if( world.BackupEnabledState != YesNoAuto.Yes ||
+                                   world.BackupInterval != backupInterval ) {
                             // Alter world's backup interval
                             world.BackupInterval = backupInterval;
                         } else {
@@ -2616,6 +2619,7 @@ namespace fCraft {
                             player.Message( "No greeting message is set for world {0}", world.ClassyName );
                         } else {
                             player.Message( "Greeting message removed for world {0}", world.ClassyName );
+                            world.Greeting = null;
                         }
                     } else {
                         world.Greeting = value;
