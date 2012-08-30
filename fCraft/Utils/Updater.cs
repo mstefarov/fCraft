@@ -17,10 +17,10 @@ namespace fCraft {
 
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             630,
-            1700,
+            1704,
             new DateTime( 2012, 7, 9, 20, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.ConfigFormatChange
+            ReleaseFlags.Dev | ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.Optimized
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -32,11 +32,11 @@ namespace fCraft {
 
         public const string LatestStable = "0.624_r1635";
 
-        public static string UpdateUrl { get; set; }
+        public static string UpdateUri { get; set; }
 
         static Updater() {
             UpdateCheckTimeout = 4000;
-            UpdateUrl = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+            UpdateUri = "http://www.fcraft.net/UpdateCheck.php?r={0}";
         }
 
 
@@ -46,7 +46,7 @@ namespace fCraft {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
 
-            string url = String.Format( UpdateUrl, CurrentRelease.Revision );
+            string url = String.Format( UpdateUri, CurrentRelease.Revision );
             if( RaiseCheckingForUpdatesEvent( ref url ) ) return UpdaterResult.NoUpdate;
 
             Logger.Log( LogType.SystemActivity, "Checking for fCraft updates..." );
@@ -80,7 +80,7 @@ namespace fCraft {
                             }
                             UpdaterResult result = new UpdaterResult( (releases.Count > 0), new Uri( downloadUrl ),
                                                                       releases.ToArray() );
-                            RaiseCheckedForUpdatesEvent( UpdateUrl, result );
+                            RaiseCheckedForUpdatesEvent( UpdateUri, result );
                             return result;
                         } else {
                             return UpdaterResult.NoUpdate;
