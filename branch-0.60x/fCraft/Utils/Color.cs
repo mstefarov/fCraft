@@ -246,6 +246,7 @@ namespace fCraft {
             sb.Replace( "%D", "&d" );
             sb.Replace( "%E", "&e" );
             sb.Replace( "%F", "&f" );
+            sb.Replace( "%n", "\n" );
             sb.Replace( "%N", "\n" );
         }
 

@@ -41,6 +41,7 @@ namespace fCraft.ConfigGUI {
             MapChangedBy = original.MapChangedBy;
             MapChangedOn = original.MapChangedOn;
             environmentEl = original.environmentEl;
+            rankMains = original.rankMains;
         }
 
 
@@ -159,6 +160,8 @@ namespace fCraft.ConfigGUI {
                 }
             }
             environmentEl = el.Element( WorldManager.EnvironmentXmlTagName );
+
+            rankMains = el.Elements( WorldManager.RankMainXmlTagName ).ToArray();
         }
 
 
@@ -306,6 +309,8 @@ namespace fCraft.ConfigGUI {
             if( !String.IsNullOrEmpty( MapChangedBy ) ) element.Add( new XElement( "MapChangedBy", MapChangedBy ) );
             if( LoadedOn != DateTime.MinValue ) element.Add( new XElement( "LoadedOn", LoadedOn ) );
             if( MapChangedOn != DateTime.MinValue ) element.Add( new XElement( "MapChangedOn", MapChangedOn ) );
+
+            if( rankMains != null && rankMains.Length > 0 ) element.Add( rankMains );
             return element;
         }
 
@@ -410,6 +415,8 @@ namespace fCraft.ConfigGUI {
         readonly bool blockDBIsPreloaded;
         readonly int blockDBLimit;
         TimeSpan blockDBTimeLimit;
+
+        XElement[] rankMains;
 
 
         public object Clone() {

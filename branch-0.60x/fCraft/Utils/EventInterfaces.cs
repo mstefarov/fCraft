@@ -4,15 +4,8 @@ using System;
 namespace fCraft {
     /// <summary> An EventArgs for an event that can be cancelled. </summary>
     public interface ICancelableEvent {
+        /// <summary> Set to "true" to cancel the event. </summary>
         bool Cancel { get; set; }
-    }
-
-
-
-
-    /// <summary> An EventArgs for an event that directly relates to a particular world. </summary>
-    public interface IWorldEvent {
-        World World { get; }
     }
 
 

@@ -9,12 +9,14 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Manages the world list. Handles loading/unloading, renaming, map changes, and more. </summary>
     public static class WorldManager {
         public const string BuildSecurityXmlTagName = "BuildSecurity",
                             AccessSecurityXmlTagName = "AccessSecurity",
                             EnvironmentXmlTagName = "Environment",
                             RankMainXmlTagName = "RankMainWorld";
 
+        /// <summary> List of worlds currently being managed by WorldManager. </summary>
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>( StringComparer.OrdinalIgnoreCase );
 
@@ -38,10 +40,10 @@ namespace fCraft {
                 }
                 World oldWorld;
                 lock( SyncRoot ) {
-                    value.NeverUnload = true;
+                    value.Preload = true;
                     oldWorld = mainWorld;
                     if( oldWorld != null ) {
-                        oldWorld.NeverUnload = false;
+                        oldWorld.Preload = false;
                     }
                     mainWorld = value;
                 }
@@ -393,7 +395,7 @@ namespace fCraft {
                             break;
                     }
 
-                    if( world.NeverUnload ) {
+                    if( world.Preload ) {
                         temp.Add( new XAttribute( "noUnload", true ) );
                     }
                     if( world.IsHidden ) {
@@ -551,7 +553,17 @@ namespace fCraft {
         #endregion
 
 
-        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool neverUnload ) {
+        /// <summary> Creates a new world and adds it to the current list of worlds being managed by WorldManager. </summary>
+        /// <param name="player"> Player who is adding the world. May be null. </param>
+        /// <param name="name"> Name of the world being added. May NOT be null. </param>
+        /// <param name="map"> Map to assign to the newly created world. May be null. </param>
+        /// <param name="preload"> Whether or not the map should be preloaded. </param>
+        /// <returns> Newly-created world. </returns>
+        /// <exception cref="ArgumentNullException"> If name is null. </exception>
+        /// <exception cref="WorldOpException"> If world name was invalid, a world with this name already exists,
+        /// or if an event callback canceled the addition. </exception>
+        [NotNull]
+        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             if( !World.IsValidName( name ) ) {
@@ -571,8 +583,8 @@ namespace fCraft {
                     Map = map
                 };
 
-                if( neverUnload ) {
-                    newWorld.NeverUnload = true;
+                if( preload ) {
+                    newWorld.Preload = true;
                 }
 
                 if( map != null ) {
@@ -671,7 +683,7 @@ namespace fCraft {
 
                 // cycle load/unload on the new world to save it under the new name
                 newWorld.Name = oldWorld.Name;
-                if( newWorld.NeverUnload ) {
+                if( newWorld.Preload ) {
                     newWorld.SaveMap();
                 } else {
                     newWorld.UnloadMap( false );
@@ -691,6 +703,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Removes the specified world from the list of worlds being managed by WorldManager. </summary>
+        /// <param name="worldToDelete"> World to be deleted. </param>
         public static void RemoveWorld( [NotNull] World worldToDelete ) {
             if( worldToDelete == null ) throw new ArgumentNullException( "worldToDelete" );
 
@@ -719,35 +733,53 @@ namespace fCraft {
         }
 
 
+        /// <summary> Number of all worlds that are currently loaded. </summary>
+        /// <returns> Number of all loaded worlds. </returns>
         public static int CountLoadedWorlds() {
             return Worlds.Count( world => world.IsLoaded );
         }
 
 
+        /// <summary> Number of worlds that are currently loaded and can be seen by the specified observer. </summary>
+        /// <param name="observer"> Player to observe as. </param>
+        /// <returns> Number of worlds the specified player has permission to observe. </returns>
         public static int CountLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return ListLoadedWorlds( observer ).Count();
         }
 
 
+        /// <summary> List of all the worlds that are currently loaded. </summary>
+        /// <returns> List of all loaded worlds. </returns>
         public static IEnumerable<World> ListLoadedWorlds() {
             return Worlds.Where( world => world.IsLoaded );
         }
 
 
+        /// <summary> List of worlds that are currently loaded and can be seen by the specified observer. </summary>
+        /// <param name="observer"> Player to observe as. </param>
+        /// <returns> List of worlds the specified player has permission to observe. </returns>
         public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Worlds.Where( w => w.Players.Any( observer.CanSee ) );
         }
 
 
-        public static void UpdateWorldList() {
+        internal static void UpdateWorldList() {
             lock( SyncRoot ) {
                 Worlds = WorldIndex.Values.ToArray();
             }
         }
 
 
+
+        /// <summary> Searches for a map using the specified fileName. 
+        /// Prints any errors/warnings directly to the player. </summary>
+        /// <param name="player"> Player who is doing the search. </param>
+        /// <param name="fileName"> FileName of the map to be searched for. </param>
+        /// <returns> Full source filename.
+        /// Null if file could not be found, or an error occured. </returns>
+        /// <exception cref="ArgumentNullException"> If player or fileName is null. </exception>
         [CanBeNull]
         public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
             if( player == null ) throw new ArgumentNullException( "player" );

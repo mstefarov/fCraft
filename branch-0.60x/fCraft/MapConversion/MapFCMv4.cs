@@ -130,7 +130,8 @@ namespace fCraft.MapConversion {
                 writer.Write( 1 ); // layer count
                 WriteString( writer, BlockLayerName );
                 writer.Write( map.Volume );
-                map.GetCompressedCopy( mapStream, true );
+                byte[] mapData = map.GetCompressedCopy();
+                mapStream.Write( mapData, 0, mapData.Length );
 
                 return true;
             }

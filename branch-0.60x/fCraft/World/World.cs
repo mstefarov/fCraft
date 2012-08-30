@@ -166,7 +166,10 @@ namespace fCraft {
         }
 
 
-        public void ChangeMap( [NotNull] Map newMap ) {
+        /// <summary> Creates a new World for the given Map, with same properties as this world. </summary>
+        /// <returns> Newly-created World object, with the new map. </returns>
+        [NotNull]
+        public World ChangeMap( [NotNull] Map newMap ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             lock( SyncRoot ) {
                 World newWorld = new World( Name ) {
@@ -193,7 +196,7 @@ namespace fCraft {
                 };
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
-                newWorld.NeverUnload = neverUnload;
+                newWorld.Preload = preload;
                 WorldManager.ReplaceWorld( this, newWorld );
                 lock( BlockDB.SyncRoot ) {
                     BlockDB.Clear();
@@ -202,20 +205,21 @@ namespace fCraft {
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }
+                return newWorld;
             }
         }
 
 
-        bool neverUnload;
-        public bool NeverUnload {
+        /// <summary> Controls if the map should be loaded before players enter </summary>
+        public bool Preload {
             get {
-                return neverUnload;
+                return preload;
             }
             set {
                 lock( SyncRoot ) {
-                    if( neverUnload == value ) return;
-                    neverUnload = value;
-                    if( neverUnload ) {
+                    if( preload == value ) return;
+                    preload = value;
+                    if( preload ) {
                         if( Map == null ) LoadMap();
                     } else {
                         if( Map != null && playerIndex.Count == 0 ) UnloadMap( false );
@@ -223,6 +227,7 @@ namespace fCraft {
                 }
             }
         }
+        bool preload;
 
         #endregion
 
@@ -352,7 +357,7 @@ namespace fCraft {
                 UpdatePlayerList();
 
                 // unload map (if needed)
-                if( playerIndex.Count == 0 && !neverUnload ) {
+                if( playerIndex.Count == 0 && !preload ) {
                     IsPendingMapUnload = true;
                 }
                 return true;
@@ -452,7 +457,7 @@ namespace fCraft {
                     Map mapCache = Map;
                     if( mapCache != null ) {
                         mapCache.ClearUpdateQueue();
-                        mapCache.StopAllDrawOps();
+                        mapCache.CancelAllDrawOps();
                     }
                     Players.Message( "&WWorld was locked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
