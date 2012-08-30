@@ -513,8 +513,34 @@ namespace fCraft {
         }
 
 
+        const int MaxMessageSize = 512;
         public static void SendRawMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
+            // handle newlines
+            if( line.Contains( '\n' ) ) {
+                string prefix = line.Substring( 0, line.IndexOf( ':' ) + 1 );
+                string[] segments = line.Substring( prefix.Length ).Split( '\n' );
+                SendRawMessage( prefix + segments[0] );
+                for( int i = 1; i < segments.Length; i++ ) {
+                    SendRawMessage( prefix + "> " + segments[i] );
+                }
+                return;
+            }
+
+            // handle line wrapping
+            if( line.Length > MaxMessageSize ) {
+                string prefix = line.Substring( 0, line.IndexOf( ':' ) + 1 );
+                SendRawMessage( line.Substring( 0, MaxMessageSize ) );
+                int offset = MaxMessageSize;
+                while( offset < line.Length ) {
+                    int length = Math.Min( line.Length - offset, MaxMessageSize - prefix.Length );
+                    SendRawMessage( prefix + "> " + line.Substring( offset, length - 2 ) );
+                    offset += length;
+                }
+                return;
+            }
+
+            // actually send
             OutputQueue.Enqueue( line );
         }
 
@@ -546,7 +572,7 @@ namespace fCraft {
         }
 
 
-        internal static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
+        static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
             bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
@@ -565,7 +591,7 @@ namespace fCraft {
         }
 
 
-        internal static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
+        static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
             if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
                                                 Color.IRCBold,

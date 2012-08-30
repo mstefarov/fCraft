@@ -2155,7 +2155,7 @@ namespace fCraft {
                                     "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
                                     player.Name, worldName, fileName );
                         WorldManager.SaveWorldList();
-                        player.MessageNow( "Access is {0}+&S, and building is {1}+ on {2}",
+                        player.MessageNow( "Access is {0}+&S, and building is {1}+&S on {2}",
                                            newWorld.AccessSecurity.MinRank.ClassyName,
                                            newWorld.BuildSecurity.MinRank.ClassyName,
                                            newWorld.ClassyName );

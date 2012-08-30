@@ -10,7 +10,11 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Represents a map file (associated with a world or not).
+    /// Maps can be created blank (using Map constructor), generated terrain (using MapGenerator),
+    /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
     public unsafe sealed class Map {
+        /// <summary> Current default map format for saving. </summary>
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
@@ -350,10 +354,12 @@ namespace fCraft {
 
         #region Draw Operations
 
+        /// <summary> Number of active draw operations. </summary>
         public int DrawQueueLength {
             get { return drawOps.Count; }
         }
 
+        /// <summary> Total estimated number of blocks left to process, from all draw operations combined. </summary>
         public long DrawQueueBlockCount {
             get {
                 lock( drawOpLock ) {
@@ -424,7 +430,8 @@ namespace fCraft {
         }
 
 
-        public void StopAllDrawOps() {
+        /// <summary> Cancels and stops all active draw operations. </summary>
+        public void CancelAllDrawOps() {
             lock( drawOpLock ) {
                 for( int i = 0; i < drawOps.Count; i++ ) {
                     drawOps[i].Cancel();
@@ -758,25 +765,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Writes a copy of the current map to a given stream, compressed with GZipStream. </summary>
-        /// <param name="stream"> Stream to write the compressed data to. </param>
-        /// <param name="prependBlockCount"> If true, prepends block data with signed, 32bit, big-endian block count. </param>
-        public void GetCompressedCopy( [NotNull] Stream stream, bool prependBlockCount ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            using( GZipStream compressor = new GZipStream( stream, CompressionMode.Compress ) ) {
-                if( prependBlockCount ) {
-                    // convert block count to big-endian
-                    int convertedBlockCount = IPAddress.HostToNetworkOrder( Blocks.Length );
-                    // write block count to gzip stream
-                    compressor.Write( BitConverter.GetBytes( convertedBlockCount ), 0, 4 );
-                }
-                compressor.Write( Blocks, 0, Blocks.Length );
-            }
-        }
-
-
-        volatile byte[] compressedCopyCache;
-
+        /// <summary> Gets a compressed (GZip) copy of the map (raw block data with signed, 32bit, big-endian block count prepended).
+        /// If the map has not been modified since last GetCompressedCopy call, returns a cached copy. </summary>
         public byte[] GetCompressedCopy() {
             byte[] currentCopy = compressedCopyCache;
             if( currentCopy == null ) {
@@ -790,18 +780,31 @@ namespace fCraft {
                     }
                     currentCopy = ms.ToArray();
                     compressedCopyCache = currentCopy;
-                    Logger.Log( LogType.Debug, "Recompressing map {0} ({1:N0})", World.Name, currentCopy.Length );
                 }
             }
             return currentCopy;
         }
+        volatile byte[] compressedCopyCache;
 
 
+        /// <summary> Searches the map, from top to bottom, for the first appearance of a given block. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="id"> Block type to search for. </param>
+        /// <returns> Height (Z coordinate; Notch's X) of the blocktype's first appearance.
+        /// -1 if given blocktype was not found. </returns>
         public int SearchColumn( int x, int y, Block id ) {
             return SearchColumn( x, y, id, Height - 1 );
         }
 
 
+        /// <summary> Searches the map, from top to bottom, for the first appearance of a given block. </summary>
+        /// <param name="x"> X coordinate (width). </param>
+        /// <param name="y"> Y coordinate (length, Notch's Z). </param>
+        /// <param name="id"> Block type to search for. </param>
+        /// <param name="zStart"> Starting height. No blocks above this point will be checked. </param>
+        /// <returns> Height (Z coordinate; Notch's X) of the blocktype's first appearance.
+        /// -1 if given blocktype was not found. </returns>
         public int SearchColumn( int x, int y, Block id, int zStart ) {
             for( int z = zStart; z > 0; z-- ) {
                 if( GetBlock( x, y, z ) == id ) {
