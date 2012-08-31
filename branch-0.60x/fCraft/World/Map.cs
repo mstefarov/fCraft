@@ -44,9 +44,9 @@ namespace fCraft {
                 return spawn;
             }
             set {
-                if( value.X > Width * 32 || value.Y > Length * 32 || value.Z > Height * 32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
-                    throw new ArgumentOutOfRangeException( "value",
-                                                           "Spawn coordinates are outside the map." );
+                if( value.X > Width * 32 || value.Y > Length * 32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
+                    Logger.Log( LogType.Warning, "Map.Spawn: Coordinates are outside the map!" );
+                    return;
                 }
                 spawn = value;
                 HasChangedSinceSave = true;
