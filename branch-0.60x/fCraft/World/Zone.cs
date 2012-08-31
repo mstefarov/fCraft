@@ -4,7 +4,8 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
+    /// <summary> A bounding box selection that is designated as a sub area within a world.
+    /// Zones can have restriction just like worlds on access, and block modification. </summary>
     public sealed class Zone : IClassy, INotifiesOnChange {
 
         /// <summary> Zone boundaries. </summary>
@@ -34,6 +35,8 @@ namespace fCraft {
         [CanBeNull]
         public string CreatedBy { get; private set; }
 
+        /// <summary> Classy name of the player who created this zone.
+        /// Returns "?" if CreatedBy name is unknown, unrecognized, or null. </summary>
         public string CreatedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( CreatedBy );
@@ -44,6 +47,8 @@ namespace fCraft {
         [CanBeNull]
         public string EditedBy { get; private set; }
 
+        /// <summary> Decorated name of the player who was the last to edit this zone.
+        /// Returns "?" if EditedBy name is unknown, unrecognized, or null. </summary>
         public string EditedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( EditedBy );

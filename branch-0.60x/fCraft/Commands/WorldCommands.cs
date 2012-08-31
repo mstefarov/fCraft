@@ -2017,8 +2017,15 @@ namespace fCraft {
                 World world = player.World;
 
                 // Loading to current world
-                world.MapChangedBy = player.Name;
-                world.ChangeMap( map );
+                try {
+                    world.MapChangedBy = player.Name;
+                    world.ChangeMap( map );
+                } catch( WorldOpException ex ) {
+                    Logger.Log( LogType.Error,
+                                "Could not complete WorldLoad operation: {0}", ex.Message );
+                    player.Message( "&WWLoad: {0}", ex.Message );
+                    return;
+                }
 
                 world.Players.Message( player, "{0}&S loaded a new map for this world.",
                                               player.ClassyName );
