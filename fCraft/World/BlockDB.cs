@@ -500,18 +500,22 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max ) {
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
-                           entry => true );
-        }
-
-
+        /// <summary> Returns list of all changes done to the map at the given coordinate, newest to oldest. </summary>
+        /// <param name="max"> Maximum number of changes to return. </param>
+        /// <param name="coords"> Coordinate to search at. </param>
+        /// <exception cref="ArgumentOutOfRangeException"> If coords are outside the map. </exception>
         public BlockDBEntry[] Lookup( int max, Vector3I coords ) {
             if( !World.LoadMap().InBounds( coords ) ) {
                 throw new ArgumentOutOfRangeException( "coords" );
             }
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
+            return Lookup( max, BlockDBSearchType.ReturnAll,
                            entry => ( entry.X == coords.X && entry.Y == coords.Y && entry.Z == coords.Z ) );
+        }
+
+
+        public BlockDBEntry[] Lookup( int max ) {
+            return Lookup( max, BlockDBSearchType.ReturnOldest,
+                           entry => true );
         }
 
 
@@ -687,7 +691,7 @@ namespace fCraft {
 
             switch( searchType ) {
                 case BlockDBSearchType.ReturnAll: {
-                        List<BlockDBEntry> results = new List<BlockDBEntry>();
+                    List<BlockDBEntry> results = new List<BlockDBEntry>();
                     if( isPreloaded ) {
                         lock( SyncRoot ) {
                             fixed( BlockDBEntry* entries = cacheStore ) {
@@ -717,30 +721,13 @@ namespace fCraft {
                     }
                     return results.ToArray();
                 }
+
                 case BlockDBSearchType.ReturnNewest: {
-                        Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-                        if( isPreloaded ) {
-                            lock( SyncRoot ) {
-                                fixed( BlockDBEntry* entries = cacheStore ) {
-                                    for( int i = CacheSize - 1; i >= 0; i-- ) {
-                                        if( selector( entries[i] ) ) {
-                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                            if( !results.ContainsKey( index ) ) {
-                                                results[index] = entries[i];
-                                                count++;
-                                                if( count >= max ) break;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        } else {
-                            Flush();
-                            byte[] bytes = Load();
-                            int entryCount = bytes.Length / BlockDBEntry.Size;
-                            fixed( byte* parr = bytes ) {
-                                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                                for( int i = entryCount - 1; i >= 0; i-- ) {
+                    Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+                    if( isPreloaded ) {
+                        lock( SyncRoot ) {
+                            fixed( BlockDBEntry* entries = cacheStore ) {
+                                for( int i = CacheSize - 1; i >= 0; i-- ) {
                                     if( selector( entries[i] ) ) {
                                         int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                         if( !results.ContainsKey( index ) ) {
@@ -752,30 +739,33 @@ namespace fCraft {
                                 }
                             }
                         }
-                        return results.Values.ToArray();
-                    }
-                case BlockDBSearchType.ReturnOldest: {
-                        Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-                        if( isPreloaded ) {
-                            lock( SyncRoot ) {
-                                fixed( BlockDBEntry* entries = cacheStore ) {
-                                    for( int i = CacheSize - 1; i >= 0; i-- ) {
-                                        if( selector( entries[i] ) ) {
-                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                            results[index] = entries[i];
-                                            count++;
-                                            if( count >= max ) break;
-                                        }
+                    } else {
+                        Flush();
+                        byte[] bytes = Load();
+                        int entryCount = bytes.Length / BlockDBEntry.Size;
+                        fixed( byte* parr = bytes ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            for( int i = entryCount - 1; i >= 0; i-- ) {
+                                if( selector( entries[i] ) ) {
+                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                    if( !results.ContainsKey( index ) ) {
+                                        results[index] = entries[i];
+                                        count++;
+                                        if( count >= max ) break;
                                     }
                                 }
                             }
-                        } else {
-                            Flush();
-                            byte[] bytes = Load();
-                            int entryCount = bytes.Length / BlockDBEntry.Size;
-                            fixed( byte* parr = bytes ) {
-                                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                                for( int i = entryCount - 1; i >= 0; i-- ) {
+                        }
+                    }
+                    return results.Values.ToArray();
+                }
+
+                case BlockDBSearchType.ReturnOldest: {
+                    Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
+                    if( isPreloaded ) {
+                        lock( SyncRoot ) {
+                            fixed( BlockDBEntry* entries = cacheStore ) {
+                                for( int i = CacheSize - 1; i >= 0; i-- ) {
                                     if( selector( entries[i] ) ) {
                                         int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
                                         results[index] = entries[i];
@@ -785,8 +775,24 @@ namespace fCraft {
                                 }
                             }
                         }
-                        return results.Values.ToArray();
+                    } else {
+                        Flush();
+                        byte[] bytes = Load();
+                        int entryCount = bytes.Length / BlockDBEntry.Size;
+                        fixed( byte* parr = bytes ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            for( int i = entryCount - 1; i >= 0; i-- ) {
+                                if( selector( entries[i] ) ) {
+                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                    results[index] = entries[i];
+                                    count++;
+                                    if( count >= max ) break;
+                                }
+                            }
+                        }
                     }
+                    return results.Values.ToArray();
+                }
                 default:
                     throw new ArgumentOutOfRangeException( "searchType" );
             }
