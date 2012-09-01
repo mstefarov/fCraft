@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Linq;
@@ -21,75 +22,79 @@ namespace fCraft {
         public static bool IsLoaded { get; private set; }
 
         internal static void Load() {
-            if( File.Exists( Paths.IPBanListFileName ) ) {
-                using( StreamReader reader = File.OpenText( Paths.IPBanListFileName ) ) {
+            lock( BanListLock ) {
+                if( IsLoaded ) throw new InvalidOperationException( "IPBanList is already loaded!" );
+                if( File.Exists( Paths.IPBanListFileName ) ) {
+                    using( StreamReader reader = File.OpenText( Paths.IPBanListFileName ) ) {
 
-                    string headerText = reader.ReadLine();
-                    if( headerText == null ) {
-                        Logger.Log( LogType.Warning, "IPBanList.Load: IP ban file is empty." );
-                        return;
-                    }
+                        string headerText = reader.ReadLine();
+                        if( headerText == null ) {
+                            Logger.Log( LogType.Warning, "IPBanList.Load: IP ban file is empty." );
+                            IsLoaded = true;
+                            return;
+                        }
 
-                    int version = ParseHeader( headerText );
-                    if( version > FormatVersion ) {
-                        Logger.Log( LogType.Warning,
-                                    "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.",
-                                    version );
-                    } else if( version < FormatVersion ) {
-                        Logger.Log( LogType.Warning,
-                                    "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).",
-                                    version, FormatVersion );
-                    }
+                        int version = ParseHeader( headerText );
+                        if( version > FormatVersion ) {
+                            Logger.Log( LogType.Warning,
+                                        "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.",
+                                        version );
+                        } else if( version < FormatVersion ) {
+                            Logger.Log( LogType.Warning,
+                                        "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).",
+                                        version, FormatVersion );
+                        }
 
-                    while( !reader.EndOfStream ) {
-                        string line = reader.ReadLine();
-                        if( line == null ) break;
-                        string[] fields = line.Split( ',' );
-                        if( fields.Length == IPBanInfo.FieldCount ) {
-                            try {
-                                IPBanInfo ban;
-                                switch( version ) {
-                                    case 0:
-                                        ban = IPBanInfo.LoadFormat0( fields, true );
-                                        break;
-                                    case 1:
-                                        ban = IPBanInfo.LoadFormat1( fields );
-                                        break;
-                                    case 2:
-                                        ban = IPBanInfo.LoadFormat2( fields );
-                                        break;
-                                    default:
-                                        return;
+                        while( !reader.EndOfStream ) {
+                            string line = reader.ReadLine();
+                            if( line == null ) break;
+                            string[] fields = line.Split( ',' );
+                            if( fields.Length == IPBanInfo.FieldCount ) {
+                                try {
+                                    IPBanInfo ban;
+                                    switch( version ) {
+                                        case 0:
+                                            ban = IPBanInfo.LoadFormat0( fields, true );
+                                            break;
+                                        case 1:
+                                            ban = IPBanInfo.LoadFormat1( fields );
+                                            break;
+                                        case 2:
+                                            ban = IPBanInfo.LoadFormat2( fields );
+                                            break;
+                                        default:
+                                            return;
+                                    }
+
+                                    if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
+                                        Logger.Log( LogType.Warning,
+                                                    "IPBanList.Load: Invalid IP address skipped." );
+                                    } else {
+                                        Bans.Add( ban.Address.ToString(), ban );
+                                    }
+                                } catch( IOException ex ) {
+                                    Logger.Log( LogType.Error,
+                                                "IPBanList.Load: Error while trying to read from file: {0}", ex.Message );
+                                } catch( Exception ex ) {
+                                    Logger.Log( LogType.Error,
+                                                "IPBanList.Load: Could not parse a record: {0}", ex.Message );
                                 }
-
-                                if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
-                                    Logger.Log( LogType.Warning,
-                                                "IPBanList.Load: Invalid IP address skipped." );
-                                } else {
-                                    Bans.Add( ban.Address.ToString(), ban );
-                                }
-                            } catch( IOException ex ) {
+                            } else {
                                 Logger.Log( LogType.Error,
-                                            "IPBanList.Load: Error while trying to read from file: {0}", ex.Message );
-                            } catch( Exception ex ) {
-                                Logger.Log( LogType.Error,
-                                            "IPBanList.Load: Could not parse a record: {0}", ex.Message );
+                                            "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}",
+                                            fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                             }
-                        } else {
-                            Logger.Log( LogType.Error,
-                                        "IPBanList.Load: Corrupt record skipped ({0} fields instead of {1}): {2}",
-                                        fields.Length, IPBanInfo.FieldCount, String.Join( ",", fields ) );
                         }
                     }
-                }
 
-                Logger.Log( LogType.Debug,
-                            "IPBanList.Load: Done loading IP ban list ({0} records).", Bans.Count );
-            } else {
-                Logger.Log( LogType.Warning,
-                            "IPBanList.Load: No IP ban file found." );
+                    Logger.Log( LogType.Debug,
+                                "IPBanList.Load: Done loading IP ban list ({0} records).", Bans.Count );
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "IPBanList.Load: No IP ban file found." );
+                }
+                IsLoaded = true;
             }
-            IsLoaded = true;
         }
 
 
@@ -110,28 +115,35 @@ namespace fCraft {
 
 
         internal static void Save() {
-            if( !IsLoaded ) return;
-            Logger.Log( LogType.Debug,
-                        "IPBanList.Save: Saving IP ban list ({0} records).", Bans.Count );
-            const string tempFile = Paths.IPBanListFileName + ".temp";
-
             lock( BanListLock ) {
+                CheckIfLoaded();
+                const string tempFile = Paths.IPBanListFileName + ".temp";
+                Stopwatch sw = Stopwatch.StartNew();
                 using( StreamWriter writer = File.CreateText( tempFile ) ) {
                     writer.WriteLine( "{0} {1}", FormatVersion, Header );
                     foreach( IPBanInfo entry in Bans.Values ) {
                         writer.WriteLine( entry.Serialize() );
                     }
                 }
-            }
-            try {
-                Paths.MoveOrReplace( tempFile, Paths.IPBanListFileName );
-            } catch( Exception ex ) {
-                Logger.Log( LogType.Error,
-                            "IPBanList.Save: An error occured while trying to save ban list file: {0}", ex );
+                try {
+                    Paths.MoveOrReplace( tempFile, Paths.IPBanListFileName );
+                    sw.Stop();
+                    Logger.Log( LogType.Debug,
+                                "IPBanList.Save: Saved IP-ban database ({0} records) in {1}ms",
+                                Count, sw.ElapsedMilliseconds );
+                } catch( Exception ex ) {
+                    Logger.Log( LogType.Error,
+                                "IPBanList.Save: An error occured while trying to save ban list file: {0}", ex );
+                }
             }
         }
 
         #endregion
+
+
+        static void CheckIfLoaded() {
+            if( !IsLoaded ) throw new InvalidOperationException( "IPBanList is not loaded." );
+        }
 
 
         /// <summary> Adds a new IP Ban. </summary>
@@ -141,6 +153,7 @@ namespace fCraft {
         public static bool Add( [NotNull] IPBanInfo ban, bool raiseEvent ) {
             if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
+                CheckIfLoaded();
                 if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
                 if( raiseEvent ) {
                     if( RaiseAddingIPBanEvent( ban ) ) return false;
@@ -162,6 +175,7 @@ namespace fCraft {
         public static IPBanInfo Get( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
+                CheckIfLoaded();
                 IPBanInfo info;
                 if( Bans.TryGetValue( address.ToString(), out info ) ) {
                     return info;
@@ -177,6 +191,7 @@ namespace fCraft {
         public static bool Contains( [NotNull] IPAddress address ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
+                CheckIfLoaded();
                 return Bans.ContainsKey( address.ToString() );
             }
         }
@@ -190,6 +205,7 @@ namespace fCraft {
         public static bool Remove( [NotNull] IPAddress address, bool raiseEvents ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
+                CheckIfLoaded();
                 if( !Bans.ContainsKey( address.ToString() ) ) {
                     return false;
                 }
@@ -246,70 +262,73 @@ namespace fCraft {
                 PlayerOpException.ThrowCannotTargetSelf( player, null, "IP-ban" );
             }
 
-            // Check if target is already banned
-            IPBanInfo existingBan = Get( targetAddress );
-            if( existingBan != null ) {
-                string msg;
-                if( player.Can( Permission.ViewPlayerIPs ) ) {
-                    msg = String.Format( "IP address {0} is already banned.", targetAddress );
-                } else {
-                    msg = String.Format( "Given IP address is already banned." );
-                }
-                string colorMsg = "&S" + msg;
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
-            }
-
-            // Check if any high-ranked players use this address
-            PlayerInfo infoWhomPlayerCantBan = PlayerDB.FindPlayers( targetAddress )
-                                                       .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
-            if( infoWhomPlayerCantBan != null ) {
-                PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
-            }
-
-            PlayerOpException.CheckBanReason( reason, player, null, false );
-
-            // Actually ban
-            IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
-            bool result = Add( banInfo, raiseEvents );
-
-            if( result ) {
-                Logger.Log( LogType.UserActivity,
-                            "{0} banned {1} (BanIP {1}). Reason: {2}",
-                            player.Name, targetAddress, reason ?? "" );
-                if( announce ) {
-                    // Announce ban on the server
-                    var can = Server.Players.Can( Permission.ViewPlayerIPs );
-                    can.Message( "&W{0} was banned by {1}", targetAddress, player.ClassyName );
-                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
-                    cant.Message( "&WAn IP was banned by {0}", player.ClassyName );
-                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
-                        Server.Message( "&WBanIP reason: {0}", reason );
+            lock( BanListLock ) {
+                CheckIfLoaded();
+                // Check if target is already banned
+                IPBanInfo existingBan = Get( targetAddress );
+                if( existingBan != null ) {
+                    string msg;
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        msg = String.Format( "IP address {0} is already banned.", targetAddress );
+                    } else {
+                        msg = String.Format( "Given IP address is already banned." );
                     }
+                    string colorMsg = "&S" + msg;
+                    throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
                 }
 
-                // Kick all players connected from address
-                string kickReason;
-                if( reason != null ) {
-                    kickReason = String.Format( "IP-Banned by {0}: {1}", player.Name, reason );
-                } else {
-                    kickReason = String.Format( "IP-Banned by {0}", player.Name );
+                // Check if any high-ranked players use this address
+                PlayerInfo infoWhomPlayerCantBan = PlayerDB.FindPlayers( targetAddress )
+                    .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+                if( infoWhomPlayerCantBan != null ) {
+                    PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
                 }
-                foreach( Player other in Server.Players.FromIP( targetAddress ) ) {
-                    if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
-                        other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
+
+                PlayerOpException.CheckBanReason( reason, player, null, false );
+
+                // Actually ban
+                IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
+                bool result = Add( banInfo, raiseEvents );
+
+                if( result ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0} banned {1} (BanIP {1}). Reason: {2}",
+                                player.Name, targetAddress, reason ?? "" );
+                    if( announce ) {
+                        // Announce ban on the server
+                        var can = Server.Players.Can( Permission.ViewPlayerIPs );
+                        can.Message( "&W{0} was banned by {1}", targetAddress, player.ClassyName );
+                        var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
+                        cant.Message( "&WAn IP was banned by {0}", player.ClassyName );
+                        if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
+                            Server.Message( "&WBanIP reason: {0}", reason );
+                        }
                     }
-                }
 
-            } else {
-                // address is already banned
-                string msg;
-                if( player.Can( Permission.ViewPlayerIPs ) ) {
-                    msg = String.Format( "{0} is already banned.", targetAddress );
+                    // Kick all players connected from address
+                    string kickReason;
+                    if( reason != null ) {
+                        kickReason = String.Format( "IP-Banned by {0}: {1}", player.Name, reason );
+                    } else {
+                        kickReason = String.Format( "IP-Banned by {0}", player.Name );
+                    }
+                    foreach( Player other in Server.Players.FromIP( targetAddress ) ) {
+                        if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
+                            other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
+                        }
+                    }
+
                 } else {
-                    msg = "Given IP address is already banned.";
+                    // address is already banned
+                    string msg;
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        msg = String.Format( "{0} is already banned.", targetAddress );
+                    } else {
+                        msg = "Given IP address is already banned.";
+                    }
+                    string colorMsg = "&S" + msg;
+                    throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
                 }
-                string colorMsg = "&S" + msg;
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
             }
         }
 
@@ -346,31 +365,34 @@ namespace fCraft {
 
             PlayerOpException.CheckBanReason( reason, player, null, true );
 
-            // Actually unban
-            bool result = Remove( targetAddress, raiseEvents );
+            lock( BanListLock ) {
+                CheckIfLoaded();
+                // Actually unban
+                bool result = Remove( targetAddress, raiseEvents );
 
-            if( result ) {
-                Logger.Log( LogType.UserActivity,
-                            "{0} unbanned {1} (UnbanIP {1}). Reason: {2}",
-                            player.Name, targetAddress, reason ?? "" );
-                if( announce ) {
-                    var can = Server.Players.Can( Permission.ViewPlayerIPs );
-                    can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
-                    var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
-                    cant.Message( "&WAn IP was unbanned by {0}", player.ClassyName );
-                    if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
-                        Server.Message( "&WUnbanIP reason: {0}", reason );
+                if( result ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0} unbanned {1} (UnbanIP {1}). Reason: {2}",
+                                player.Name, targetAddress, reason ?? "" );
+                    if( announce ) {
+                        var can = Server.Players.Can( Permission.ViewPlayerIPs );
+                        can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
+                        var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
+                        cant.Message( "&WAn IP was unbanned by {0}", player.ClassyName );
+                        if( ConfigKey.AnnounceKickAndBanReasons.Enabled() && reason != null ) {
+                            Server.Message( "&WUnbanIP reason: {0}", reason );
+                        }
                     }
-                }
-            } else {
-                string msg;
-                if( player.Can( Permission.ViewPlayerIPs ) ) {
-                    msg = String.Format( "IP address {0} is not currently banned.", targetAddress );
                 } else {
-                    msg = String.Format( "Given IP address is not currently banned." );
+                    string msg;
+                    if( player.Can( Permission.ViewPlayerIPs ) ) {
+                        msg = String.Format( "IP address {0} is not currently banned.", targetAddress );
+                    } else {
+                        msg = String.Format( "Given IP address is not currently banned." );
+                    }
+                    string colorMsg = "&S" + msg;
+                    throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
                 }
-                string colorMsg = "&S" + msg;
-                throw new PlayerOpException( player, null, PlayerOpExceptionCode.NoActionNeeded, msg, colorMsg );
             }
         }
 
@@ -392,7 +414,7 @@ namespace fCraft {
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "ban-all",
-                                                     Permission.Ban, Permission.BanIP, Permission.BanAll );
+                                                          Permission.Ban, Permission.BanIP, Permission.BanAll );
             }
 
             // Check if player is trying to ban self
@@ -407,7 +429,8 @@ namespace fCraft {
 
             // Check if any high-ranked players use this address
             PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
-            PlayerInfo infoWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+            PlayerInfo infoWhomPlayerCantBan =
+                allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infoWhomPlayerCantBan != null ) {
                 PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
             }
@@ -415,52 +438,56 @@ namespace fCraft {
             PlayerOpException.CheckBanReason( reason, player, null, false );
             bool somethingGotBanned = false;
 
-            // Ban the IP
-            if( !Contains( targetAddress ) ) {
-                IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
-                if( Add( banInfo, raiseEvents ) ) {
-                    Logger.Log( LogType.UserActivity,
-                                "{0} banned {1} (BanAll {1}). Reason: {2}",
-                                player.Name, targetAddress, reason ?? "" );
+            lock( BanListLock ) {
+                CheckIfLoaded();
+                // Ban the IP
+                if( !Contains( targetAddress ) ) {
+                    IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
+                    if( Add( banInfo, raiseEvents ) ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} banned {1} (BanAll {1}). Reason: {2}",
+                                    player.Name, targetAddress, reason ?? "" );
 
-                    // Announce ban on the server
-                    if( announce ) {
-                        var can = Server.Players.Can( Permission.ViewPlayerIPs );
-                        can.Message( "&W{0} was banned by {1}", targetAddress, player.ClassyName );
-                        var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
-                        cant.Message( "&WAn IP was banned by {0}", player.ClassyName );
+                        // Announce ban on the server
+                        if( announce ) {
+                            var can = Server.Players.Can( Permission.ViewPlayerIPs );
+                            can.Message( "&W{0} was banned by {1}", targetAddress, player.ClassyName );
+                            var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
+                            cant.Message( "&WAn IP was banned by {0}", player.ClassyName );
+                        }
+                        somethingGotBanned = true;
                     }
-                    somethingGotBanned = true;
-                }
-            }
-
-            // Ban individual players
-            foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
-                if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
-
-                // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false, reason, announce );
-                if( raiseEvents ) {
-                    PlayerInfo.RaiseBanChangingEvent( e );
-                    if( e.Cancel ) continue;
-                    reason = e.Reason;
                 }
 
-                // Do the ban
-                if( targetAlt.ProcessBan( player, player.Name, reason ) ) {
+                // Ban individual players
+                foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
+                    if( targetAlt.BanStatus != BanStatus.NotBanned ) continue;
+
+                    // Raise PlayerInfo.BanChanging event
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, false,
+                                                                                           reason, announce );
                     if( raiseEvents ) {
-                        PlayerInfo.RaiseBanChangedEvent( e );
+                        PlayerInfo.RaiseBanChangingEvent( e );
+                        if( e.Cancel ) continue;
+                        reason = e.Reason;
                     }
 
-                    // Log and announce ban
-                    Logger.Log( LogType.UserActivity,
-                                "{0} banned {1} (BanAll {2}). Reason: {3}",
-                                player.Name, targetAlt.Name, targetAddress, reason ?? "" );
-                    if( announce ) {
-                        Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
-                                        targetAlt.ClassyName, player.ClassyName );
+                    // Do the ban
+                    if( targetAlt.ProcessBan( player, player.Name, reason ) ) {
+                        if( raiseEvents ) {
+                            PlayerInfo.RaiseBanChangedEvent( e );
+                        }
+
+                        // Log and announce ban
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} banned {1} (BanAll {2}). Reason: {3}",
+                                    player.Name, targetAlt.Name, targetAddress, reason ?? "" );
+                        if( announce ) {
+                            Server.Message( "&WPlayer {0}&W was banned by {1}&W (BanAll)",
+                                            targetAlt.ClassyName, player.ClassyName );
+                        }
+                        somethingGotBanned = true;
                     }
-                    somethingGotBanned = true;
                 }
             }
 
@@ -508,7 +535,7 @@ namespace fCraft {
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "unban-all",
-                                                     Permission.Ban, Permission.BanIP, Permission.BanAll );
+                                                          Permission.Ban, Permission.BanIP, Permission.BanAll );
             }
 
             // Check if player is trying to unban self
@@ -524,53 +551,57 @@ namespace fCraft {
             PlayerOpException.CheckBanReason( reason, player, null, true );
             bool somethingGotUnbanned = false;
 
-            // Unban the IP
-            if( Contains( targetAddress ) ) {
-                if( Remove( targetAddress, raiseEvents ) ) {
-                    Logger.Log( LogType.UserActivity,
-                                "{0} unbanned {1} (UnbanAll {1}). Reason: {2}",
-                                player.Name, targetAddress, reason ?? "" );
+            lock( BanListLock ) {
+                CheckIfLoaded();
+                // Unban the IP
+                if( Contains( targetAddress ) ) {
+                    if( Remove( targetAddress, raiseEvents ) ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} unbanned {1} (UnbanAll {1}). Reason: {2}",
+                                    player.Name, targetAddress, reason ?? "" );
 
-                    // Announce unban on the server
-                    if( announce ) {
-                        var can = Server.Players.Can( Permission.ViewPlayerIPs );
-                        can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
-                        var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
-                        cant.Message( "&WAn IP was unbanned by {0}", player.ClassyName );
+                        // Announce unban on the server
+                        if( announce ) {
+                            var can = Server.Players.Can( Permission.ViewPlayerIPs );
+                            can.Message( "&W{0} was unbanned by {1}", targetAddress, player.ClassyName );
+                            var cant = Server.Players.Cant( Permission.ViewPlayerIPs );
+                            cant.Message( "&WAn IP was unbanned by {0}", player.ClassyName );
+                        }
+
+                        somethingGotUnbanned = true;
                     }
-
-                    somethingGotUnbanned = true;
-                }
-            }
-
-            // Unban individual players
-            PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
-            foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
-                if( targetAlt.BanStatus != BanStatus.Banned ) continue;
-
-                // Raise PlayerInfo.BanChanging event
-                PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true, reason, announce );
-                if( raiseEvents ) {
-                    PlayerInfo.RaiseBanChangingEvent( e );
-                    if( e.Cancel ) continue;
-                    reason = e.Reason;
                 }
 
-                // Do the ban
-                if( targetAlt.ProcessUnban( player.Name, reason ) ) {
+                // Unban individual players
+                PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
+                foreach( PlayerInfo targetAlt in allPlayersOnIP ) {
+                    if( targetAlt.BanStatus != BanStatus.Banned ) continue;
+
+                    // Raise PlayerInfo.BanChanging event
+                    PlayerInfoBanChangingEventArgs e = new PlayerInfoBanChangingEventArgs( targetAlt, player, true,
+                                                                                           reason, announce );
                     if( raiseEvents ) {
-                        PlayerInfo.RaiseBanChangedEvent( e );
+                        PlayerInfo.RaiseBanChangingEvent( e );
+                        if( e.Cancel ) continue;
+                        reason = e.Reason;
                     }
 
-                    // Log and announce ban
-                    Logger.Log( LogType.UserActivity,
-                                "{0} unbanned {1} (UnbanAll {2}). Reason: {3}",
-                                player.Name, targetAlt.Name, targetAddress, reason ?? "" );
-                    if( announce ) {
-                        Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
-                                        targetAlt.ClassyName, player.ClassyName );
+                    // Do the ban
+                    if( targetAlt.ProcessUnban( player.Name, reason ) ) {
+                        if( raiseEvents ) {
+                            PlayerInfo.RaiseBanChangedEvent( e );
+                        }
+
+                        // Log and announce ban
+                        Logger.Log( LogType.UserActivity,
+                                    "{0} unbanned {1} (UnbanAll {2}). Reason: {3}",
+                                    player.Name, targetAlt.Name, targetAddress, reason ?? "" );
+                        if( announce ) {
+                            Server.Message( "&WPlayer {0}&W was unbanned by {1}&W (UnbanAll)",
+                                            targetAlt.ClassyName, player.ClassyName );
+                        }
+                        somethingGotUnbanned = true;
                     }
-                    somethingGotUnbanned = true;
                 }
             }
 
