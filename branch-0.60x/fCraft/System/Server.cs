@@ -503,7 +503,9 @@ namespace fCraft {
                     lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.Worlds ) {
-                            if( world.BlockDB.IsEnabled ) world.BlockDB.Flush();
+                            if( BlockDB.IsEnabledGlobally && world.BlockDB.IsEnabled ) {
+                                world.BlockDB.Flush();
+                            }
                             world.SaveMap();
                         }
                     }
@@ -520,6 +522,7 @@ namespace fCraft {
 
                 Environment.ExitCode = (int)shutdownParams.Reason;
 
+                Logger.Log( LogType.SystemActivity, "Shutdown: Complete" );
                 RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG
             } catch( Exception ex ) {
