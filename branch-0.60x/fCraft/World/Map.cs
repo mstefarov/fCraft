@@ -704,6 +704,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Calculates a 2D heightmap, based on the highest solid block for each column of blocks. 
+        /// Air, Brown/Red mushrooms, Glass, Leaves, Red/Yellow flowers, and Saplings are considered non-solid. </summary>
+        /// <returns> A 2D array of same Width/Length as the map.
+        /// Value at each coordinate corresponds to the highest solid point on the map. </returns>
         public short[,] ComputeHeightmap() {
             short[,] shadows = new short[Width, Length];
             for( int x = 0; x < Width; x++ ) {
@@ -716,6 +720,7 @@ namespace fCraft {
                             case Block.Leaves:
                             case Block.RedFlower:
                             case Block.RedMushroom:
+                            case Block.Sapling:
                             case Block.YellowFlower:
                                 continue;
                             default:
