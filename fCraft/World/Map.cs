@@ -501,7 +501,7 @@ namespace fCraft {
             // alternative names for blocks
             BlockNames["skip"] = Block.None;
 
-            BlockNames["a"] = Block.Air; // common typo
+            BlockNames["a"] = Block.Air;
             BlockNames["nothing"] = Block.Air;
             BlockNames["empty"] = Block.Air;
             BlockNames["delete"] = Block.Air;
@@ -522,8 +522,8 @@ namespace fCraft {
             BlockNames["planks"] = Block.Wood;
             BlockNames["board"] = Block.Wood;
             BlockNames["boards"] = Block.Wood;
-            BlockNames["tree"] = Block.Plant;
-            BlockNames["sappling"] = Block.Plant;
+            BlockNames["tree"] = Block.Sapling;
+            BlockNames["plant"] = Block.Sapling;
             BlockNames["adminium"] = Block.Admincrete;
             BlockNames["adminite"] = Block.Admincrete;
             BlockNames["opcrete"] = Block.Admincrete;
@@ -535,7 +535,6 @@ namespace fCraft {
             BlockNames["magma"] = Block.Lava;
             BlockNames["gold_ore"] = Block.GoldOre;
             BlockNames["iron_ore"] = Block.IronOre;
-            BlockNames["copper"] = Block.IronOre;
             BlockNames["copperore"] = Block.IronOre;
             BlockNames["copper_ore"] = Block.IronOre;
             BlockNames["ore"] = Block.IronOre;
@@ -593,16 +592,17 @@ namespace fCraft {
             BlockNames["darkpink"] = Block.Pink;
             BlockNames["pinkwool"] = Block.Pink;
             BlockNames["pinkcloth"] = Block.Pink;
-            BlockNames["cloth"] = Block.White;
-            BlockNames["cotton"] = Block.White;
+            BlockNames["darkgray"] = Block.Black;
+            BlockNames["darkgrey"] = Block.Black;
             BlockNames["grey"] = Block.Gray;
             BlockNames["lightgray"] = Block.Gray;
             BlockNames["lightgrey"] = Block.Gray;
-            BlockNames["darkgray"] = Block.Black;
-            BlockNames["darkgrey"] = Block.Black;
+            BlockNames["cloth"] = Block.White;
+            BlockNames["cotton"] = Block.White;
 
             BlockNames["yellow_flower"] = Block.YellowFlower;
             BlockNames["flower"] = Block.YellowFlower;
+            BlockNames["dandelion"] = Block.YellowFlower;
             BlockNames["rose"] = Block.RedFlower;
             BlockNames["redrose"] = Block.RedFlower;
             BlockNames["red_flower"] = Block.RedFlower;
@@ -623,11 +623,6 @@ namespace fCraft {
             BlockNames["metal"] = Block.Iron;
             BlockNames["silver"] = Block.Iron;
 
-            BlockNames["step"] = Block.Slab;
-            BlockNames["stair"] = Block.Slab;
-            BlockNames["halfstep"] = Block.Slab;
-            BlockNames["halfblock"] = Block.Slab;
-            BlockNames["staircasestep"] = Block.Slab;
             BlockNames["stairs"] = Block.DoubleSlab;
             BlockNames["steps"] = Block.DoubleSlab;
             BlockNames["slabs"] = Block.DoubleSlab;
@@ -637,6 +632,11 @@ namespace fCraft {
             BlockNames["double_stair"] = Block.DoubleSlab;
             BlockNames["double_slab"] = Block.DoubleSlab;
             BlockNames["staircasefull"] = Block.DoubleSlab;
+            BlockNames["step"] = Block.Slab;
+            BlockNames["stair"] = Block.Slab;
+            BlockNames["halfstep"] = Block.Slab;
+            BlockNames["halfblock"] = Block.Slab;
+            BlockNames["staircasestep"] = Block.Slab;
 
             BlockNames["brick"] = Block.Bricks;
             BlockNames["explosive"] = Block.TNT;
@@ -649,16 +649,17 @@ namespace fCraft {
             BlockNames["bookshelf"] = Block.Books;
             BlockNames["bookshelves"] = Block.Books;
 
-            BlockNames["moss"] = Block.MossyRocks;
-            BlockNames["mossy"] = Block.MossyRocks;
-            BlockNames["stonevine"] = Block.MossyRocks;
-            BlockNames["mossyrock"] = Block.MossyRocks;
-            BlockNames["mossystone"] = Block.MossyRocks;
-            BlockNames["mossystones"] = Block.MossyRocks;
-            BlockNames["greencobblestone"] = Block.MossyRocks;
-            BlockNames["mossycobblestone"] = Block.MossyRocks;
-            BlockNames["mossy_cobblestone"] = Block.MossyRocks;
-            BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyRocks;
+            BlockNames["moss"] = Block.MossyCobble;
+            BlockNames["mossy"] = Block.MossyCobble;
+            BlockNames["stonevine"] = Block.MossyCobble;
+            BlockNames["mossyrock"] = Block.MossyCobble;
+            BlockNames["mossyrocks"] = Block.MossyCobble;
+            BlockNames["mossystone"] = Block.MossyCobble;
+            BlockNames["mossystones"] = Block.MossyCobble;
+            BlockNames["greencobblestone"] = Block.MossyCobble;
+            BlockNames["mossycobblestone"] = Block.MossyCobble;
+            BlockNames["mossy_cobblestone"] = Block.MossyCobble;
+            BlockNames["blockthathasgreypixelsonitmostlybutsomeareactuallygreen"] = Block.MossyCobble;
 
             BlockNames["onyx"] = Block.Obsidian;
 
@@ -683,7 +684,7 @@ namespace fCraft {
             BlockEdgeTextures[Block.Lime] = "b6e1831c9b30d4e6f7012dd8b2f39e1150ef67fb";
             BlockEdgeTextures[Block.Log] = "f3a13b17c5d906d165581c019b2a44eddd0ad5b7";
             BlockEdgeTextures[Block.Magenta] = "578abc6d183d8a33b548ea92b0982cfb8201498b";
-            BlockEdgeTextures[Block.MossyRocks] = "182bf0fe9cf4476a573df4f470ac1b7e55936543";
+            BlockEdgeTextures[Block.MossyCobble] = "182bf0fe9cf4476a573df4f470ac1b7e55936543";
             BlockEdgeTextures[Block.Obsidian] = "73963ffce5d7d845eb3216a6766655fc405b473c";
             BlockEdgeTextures[Block.Orange] = "cfd84200707e41556d1bb0ace3ca37c69b51cc54";
             BlockEdgeTextures[Block.Pink] = "19fcc81e8204de91fdbfdc2b59cffe0bfb2ba823";
