@@ -474,23 +474,32 @@ namespace fCraft {
                     listener = null;
                 }
 
+                // kill IRC bot
+                IRC.Disconnect();
+
                 // kick all players
+                Player[] sessions = null;
                 lock( SessionLock ) {
                     if( Sessions.Count > 0 ) {
+                        Logger.Log( LogType.SystemActivity, "Shutdown: Kicking players..." );
                         foreach( Player p in Sessions ) {
                             // NOTE: kick packet delivery here is not currently guaranteed
                             p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
                                     LeaveReason.ServerShutdown );
                         }
-                        // increase the chances of kick packets being delivered
-                        Thread.Sleep( 1000 );
+                        sessions = Sessions.ToArray();
                     }
                 }
 
-                // kill IRC bot
-                IRC.Disconnect();
+                if( sessions != null ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Waiting for players to disconnect..." );
+                    foreach( Player p in sessions ) {
+                        p.WaitForDisconnect();
+                    }
+                }
 
                 if( WorldManager.Worlds != null ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
                     lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.Worlds ) {
@@ -503,6 +512,7 @@ namespace fCraft {
                 Scheduler.EndShutdown();
 
                 if( IsRunning ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases..." );
                     if( PlayerDB.IsLoaded ) PlayerDB.Save();
                     if( IPBanList.IsLoaded ) IPBanList.Save();
                 }
