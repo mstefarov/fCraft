@@ -264,7 +264,7 @@ namespace fCraft.MapConversion {
 
             Mapping[230] = (byte)Block.Aqua;        // train
             Mapping[231] = (byte)Block.TNT;         // creeper
-            Mapping[232] = (byte)Block.MossyRocks;  // zombiebody
+            Mapping[232] = (byte)Block.MossyCobble;  // zombiebody
             Mapping[233] = (byte)Block.Lime;        // zombiehead
 
             // 234 unused
