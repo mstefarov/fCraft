@@ -279,7 +279,7 @@ namespace fCraft {
 
                 // Check if any high-ranked players use this address
                 PlayerInfo infoWhomPlayerCantBan = PlayerDB.FindPlayers( targetAddress )
-                    .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+                                                           .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
                 if( infoWhomPlayerCantBan != null ) {
                     PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
                 }
@@ -429,8 +429,7 @@ namespace fCraft {
 
             // Check if any high-ranked players use this address
             PlayerInfo[] allPlayersOnIP = PlayerDB.FindPlayers( targetAddress );
-            PlayerInfo infoWhomPlayerCantBan =
-                allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+            PlayerInfo infoWhomPlayerCantBan = allPlayersOnIP.FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
             if( infoWhomPlayerCantBan != null ) {
                 PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, targetAddress );
             }

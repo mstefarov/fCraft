@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Net;
 using System.Text;
 using JetBrains.Annotations;
@@ -599,6 +600,20 @@ namespace fCraft {
                 if( offset + i >= data.Length || data[offset + i] != value[i] ) return false;
             }
             return true;
+        }
+
+
+        public static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
+            if( source == null ) throw new ArgumentNullException( "source" );
+            if( destination == null ) throw new ArgumentNullException( "destination" );
+            int bytesRead = 0;
+            int bytesLeft = destination.Length;
+            while( bytesLeft > 0 ) {
+                int readPass = source.Read( destination, bytesRead, bytesLeft );
+                if( readPass == 0 ) throw new EndOfStreamException();
+                bytesRead += readPass;
+                bytesLeft -= readPass;
+            }
         }
     }
 

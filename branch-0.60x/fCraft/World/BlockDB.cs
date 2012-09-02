@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -21,7 +22,6 @@ namespace fCraft {
         public World World { get; internal set; }
 
 
-        YesNoAuto enabledState;
         public YesNoAuto EnabledState {
             get { return enabledState; }
             set {
@@ -51,6 +51,7 @@ namespace fCraft {
                 }
             }
         }
+        YesNoAuto enabledState;
 
 
         public bool AutoToggleIfNeeded() {
@@ -314,7 +315,6 @@ namespace fCraft {
         internal int LastFlushedIndex;
 
 
-        int limit;
         public int Limit {
             get { return limit; }
             set {
@@ -334,6 +334,7 @@ namespace fCraft {
                 }
             }
         }
+        int limit;
 
         public bool HasLimit {
             get { return limit > 0; }
@@ -359,7 +360,6 @@ namespace fCraft {
         }
 
 
-        TimeSpan timeLimit;
         public TimeSpan TimeLimit {
             get { return timeLimit; }
             set {
@@ -381,6 +381,7 @@ namespace fCraft {
                 }
             }
         }
+        TimeSpan timeLimit;
 
         public bool HasTimeLimit {
             get { return timeLimit > TimeSpan.Zero; }
@@ -706,17 +707,8 @@ namespace fCraft {
                         }
                     } else {
                         Flush();
-                        byte[] bytes = Load();
-                        int entryCount = bytes.Length / BlockDBEntry.Size;
-                        fixed( byte* parr = bytes ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            for( int i = entryCount - 1; i >= 0; i-- ) {
-                                if( selector( entries[i] ) ) {
-                                    results.Add( entries[i] );
-                                    count++;
-                                    if( count >= max ) break;
-                                }
-                            }
+                        lock( SyncRoot ) {
+                            return Search( max, selector );
                         }
                     }
                     return results.ToArray();
@@ -797,6 +789,58 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "searchType" );
             }
         }
+
+
+        public BlockDBEntry[] Search( int max, Func<BlockDBEntry, bool> selector ) {
+            List<BlockDBEntry> results = new List<BlockDBEntry>();
+            int count = 0;
+            using( searchLock.ReadLock() ) {
+                using( FileStream fs = OpenRead() ) {
+                    long length = fs.Length;
+                    long bytesReadTotal = 0;
+                    int bufferSize = (int)Math.Min( SearchBufferSize, length );
+                    byte[] buffer = new byte[bufferSize];
+                    //Logger.Log( LogType.Debug, "BlockDB.Search: length={0}  bufferSize={1}", length, bufferSize );
+
+                    while( bytesReadTotal < length ) {
+                        long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
+                        fs.Seek( offset, SeekOrigin.Begin );
+
+                        int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
+                        //Logger.Log( LogType.Debug, "BlockDB.Search->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
+                        int bytesLeft = bytesToRead;
+                        int bytesRead = 0;
+                        while( bytesLeft > 0 ) {
+                            int readPass = fs.Read( buffer, bytesRead, bytesLeft );
+                            if( readPass == 0 ) throw new EndOfStreamException();
+                            bytesRead += readPass;
+                            bytesLeft -= readPass;
+                            //Logger.Log( LogType.Debug, "BlockDB.Search->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
+                        }
+                        bytesReadTotal += bytesRead;
+
+                        fixed( byte* parr = buffer ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            int entryCount = bytesRead / sizeof( BlockDBEntry );
+                            if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
+                            for( int i = entryCount - 1; i >= 0; i-- ) {
+                                if( selector( entries[i] ) ) {
+                                    results.Add( entries[i] );
+                                    count++;
+                                    if( count >= max ) break;
+                                }
+                            }
+                        }
+                        if( count >= max ) break;
+                    }
+                }
+            }
+            return results.ToArray();
+        }
+
+
+        readonly ReaderWriterLockSlim searchLock = new ReaderWriterLockSlim();
+        const int SearchBufferSize = 1000000; // in bytes
 
 
         #region Serialization

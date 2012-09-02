@@ -257,20 +257,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        internal static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( destination == null ) throw new ArgumentNullException( "destination" );
-            int bytesRead = 0;
-            int bytesLeft = destination.Length;
-            while( bytesLeft > 0 ) {
-                int readPass = source.Read( destination, bytesRead, bytesLeft );
-                if( readPass == 0 ) throw new EndOfStreamException();
-                bytesRead += readPass;
-                bytesLeft -= readPass;
-            }
-        }
-
-
         [CanBeNull]
         public static IMapImporter GetImporter( MapFormat format ) {
             IMapImporter result;
@@ -280,6 +266,7 @@ namespace fCraft.MapConversion {
                 return null;
             }
         }
+
 
         [CanBeNull]
         public static IMapExporter GetExporter( MapFormat format ) {
@@ -295,6 +282,7 @@ namespace fCraft.MapConversion {
         public static IMapImporter[] GetImporters() {
             return Importers.Values.ToArray();
         }
+
 
         public static IMapExporter[] GetExporters() {
             return Exporters.Values.ToArray();

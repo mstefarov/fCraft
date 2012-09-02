@@ -169,10 +169,10 @@ namespace fCraft {
                 }
 
                 // Check if any high-ranked players use this address
-                PlayerInfo unbannable = PlayerDB.FindPlayers( address )
-                                                .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
-                if( unbannable != null ) {
-                    PlayerOpException.ThrowPermissionLimitIP( player, unbannable, address );
+                PlayerInfo infoWhomPlayerCantBan = PlayerDB.FindPlayers( address )
+                                                           .FirstOrDefault( info => !player.Can( Permission.Ban, info.Rank ) );
+                if( infoWhomPlayerCantBan != null ) {
+                    PlayerOpException.ThrowPermissionLimitIP( player, infoWhomPlayerCantBan, address );
                 }
 
                 // Check existing ban statuses

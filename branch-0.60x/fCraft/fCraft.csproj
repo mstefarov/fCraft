@@ -254,6 +254,7 @@
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="System\ShutdownReason.cs" />
     <Compile Include="Utils\Mono.Options.cs" />
+    <Compile Include="Utils\RWLSExtension.cs" />
     <Compile Include="Utils\Vector3I.cs" />
     <Compile Include="World\BlockChangeContext.cs" />
     <Compile Include="World\BlockDB.cs" />
