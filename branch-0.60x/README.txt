@@ -172,8 +172,8 @@ a list of available commands. For detailed information, please visit:
 To request features, report bugs, or receive support, please visit:
     http://forums.fcraft.net
 
-For quick help/support, join #fCraft channel on Esper.net IRC:
-    irc://irc.esper.net:5555/fCraft
+For quick help/support, join #fCraft.dev channel on Esper.net IRC:
+    irc://irc.esper.net:5555/fCraft.dev
 
 See CHANGELOG.txt or visit http://www.fcraft.net/wiki/Version_history for
 complete information about changes in this release compared to previous
