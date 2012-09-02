@@ -687,155 +687,108 @@ namespace fCraft {
             if( max == 0 ) return new BlockDBEntry[0];
             if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
             if( selector == null ) throw new ArgumentNullException( "selector" );
+
+            List<BlockDBEntry> resultList = new List<BlockDBEntry>();
+            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
             Map map = World.LoadMap();
             int count = 0;
 
-            switch( searchType ) {
-                case BlockDBSearchType.ReturnAll: {
-                    List<BlockDBEntry> results = new List<BlockDBEntry>();
-                    if( isPreloaded ) {
-                        lock( SyncRoot ) {
-                            fixed( BlockDBEntry* entries = cacheStore ) {
-                                for( int i = CacheSize - 1; i >= 0; i-- ) {
-                                    if( selector( entries[i] ) ) {
-                                        results.Add( entries[i] );
-                                        count++;
-                                        if( count >= max ) break;
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Flush();
-                        lock( SyncRoot ) {
-                            return Search( max, selector );
-                        }
-                    }
-                    return results.ToArray();
-                }
-
-                case BlockDBSearchType.ReturnNewest: {
-                    Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-                    if( isPreloaded ) {
-                        lock( SyncRoot ) {
-                            fixed( BlockDBEntry* entries = cacheStore ) {
-                                for( int i = CacheSize - 1; i >= 0; i-- ) {
-                                    if( selector( entries[i] ) ) {
-                                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                        if( !results.ContainsKey( index ) ) {
-                                            results[index] = entries[i];
-                                            count++;
-                                            if( count >= max ) break;
+            if( isPreloaded ) {
+                using( searchLock.ReadLock() ) {
+                    fixed( BlockDBEntry* entries = cacheStore ) {
+                        for( int i = CacheSize - 1; i >= 0; i-- ) {
+                            if( selector( entries[i] ) ) {
+                                switch( searchType ) {
+                                    case BlockDBSearchType.ReturnAll: {
+                                            resultList.Add( entries[i] );
+                                            break;
                                         }
-                                    }
+                                    case BlockDBSearchType.ReturnNewest: {
+                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                            if( !resultDict.ContainsKey( index ) ) {
+                                                resultDict.Add( index, entries[i] );
+                                            }
+                                            break;
+                                        }
+                                    case BlockDBSearchType.ReturnOldest: {
+                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                            resultDict[index] = entries[i];
+                                            break;
+                                        }
                                 }
-                            }
-                        }
-                    } else {
-                        Flush();
-                        byte[] bytes = Load();
-                        int entryCount = bytes.Length / BlockDBEntry.Size;
-                        fixed( byte* parr = bytes ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            for( int i = entryCount - 1; i >= 0; i-- ) {
-                                if( selector( entries[i] ) ) {
-                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                    if( !results.ContainsKey( index ) ) {
-                                        results[index] = entries[i];
-                                        count++;
-                                        if( count >= max ) break;
-                                    }
-                                }
+                                count++;
+                                if( count >= max ) break;
                             }
                         }
                     }
-                    return results.Values.ToArray();
                 }
+            } else {
+                Flush();
+                using( searchLock.ReadLock() ) {
+                    using( FileStream fs = OpenRead() ) {
+                        long length = fs.Length;
+                        long bytesReadTotal = 0;
+                        int bufferSize = (int)Math.Min( SearchBufferSize, length );
+                        byte[] buffer = new byte[bufferSize];
+                        //Logger.Log( LogType.Debug, "BlockDB.Search: length={0}  bufferSize={1}", length, bufferSize );
 
-                case BlockDBSearchType.ReturnOldest: {
-                    Dictionary<int, BlockDBEntry> results = new Dictionary<int, BlockDBEntry>();
-                    if( isPreloaded ) {
-                        lock( SyncRoot ) {
-                            fixed( BlockDBEntry* entries = cacheStore ) {
-                                for( int i = CacheSize - 1; i >= 0; i-- ) {
+                        while( bytesReadTotal < length ) {
+                            long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
+                            fs.Seek( offset, SeekOrigin.Begin );
+
+                            int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
+                            //Logger.Log( LogType.Debug, "BlockDB.Search->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
+                            int bytesLeft = bytesToRead;
+                            int bytesRead = 0;
+                            while( bytesLeft > 0 ) {
+                                int readPass = fs.Read( buffer, bytesRead, bytesLeft );
+                                if( readPass == 0 ) throw new EndOfStreamException();
+                                bytesRead += readPass;
+                                bytesLeft -= readPass;
+                                //Logger.Log( LogType.Debug, "BlockDB.Search->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
+                            }
+                            bytesReadTotal += bytesRead;
+
+                            fixed( byte* parr = buffer ) {
+                                BlockDBEntry* entries = (BlockDBEntry*)parr;
+                                int entryCount = bytesRead / sizeof( BlockDBEntry );
+                                if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
+                                for( int i = entryCount - 1; i >= 0; i-- ) {
                                     if( selector( entries[i] ) ) {
-                                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                        results[index] = entries[i];
+                                        switch( searchType ) {
+                                            case BlockDBSearchType.ReturnAll: {
+                                                resultList.Add( entries[i] );
+                                                break;
+                                            }
+                                            case BlockDBSearchType.ReturnNewest: {
+                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                                if( !resultDict.ContainsKey( index ) ) {
+                                                    resultDict.Add( index, entries[i] );
+                                                }
+                                                break;
+                                            }
+                                            case BlockDBSearchType.ReturnOldest: {
+                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                                resultDict[index] = entries[i];
+                                                break;
+                                            }
+                                        }
                                         count++;
                                         if( count >= max ) break;
                                     }
                                 }
                             }
+                            if( count >= max ) break;
                         }
-                    } else {
-                        Flush();
-                        byte[] bytes = Load();
-                        int entryCount = bytes.Length / BlockDBEntry.Size;
-                        fixed( byte* parr = bytes ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            for( int i = entryCount - 1; i >= 0; i-- ) {
-                                if( selector( entries[i] ) ) {
-                                    int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                    results[index] = entries[i];
-                                    count++;
-                                    if( count >= max ) break;
-                                }
-                            }
-                        }
-                    }
-                    return results.Values.ToArray();
-                }
-                default:
-                    throw new ArgumentOutOfRangeException( "searchType" );
-            }
-        }
-
-
-        public BlockDBEntry[] Search( int max, Func<BlockDBEntry, bool> selector ) {
-            List<BlockDBEntry> results = new List<BlockDBEntry>();
-            int count = 0;
-            using( searchLock.ReadLock() ) {
-                using( FileStream fs = OpenRead() ) {
-                    long length = fs.Length;
-                    long bytesReadTotal = 0;
-                    int bufferSize = (int)Math.Min( SearchBufferSize, length );
-                    byte[] buffer = new byte[bufferSize];
-                    //Logger.Log( LogType.Debug, "BlockDB.Search: length={0}  bufferSize={1}", length, bufferSize );
-
-                    while( bytesReadTotal < length ) {
-                        long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
-                        fs.Seek( offset, SeekOrigin.Begin );
-
-                        int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
-                        //Logger.Log( LogType.Debug, "BlockDB.Search->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
-                        int bytesLeft = bytesToRead;
-                        int bytesRead = 0;
-                        while( bytesLeft > 0 ) {
-                            int readPass = fs.Read( buffer, bytesRead, bytesLeft );
-                            if( readPass == 0 ) throw new EndOfStreamException();
-                            bytesRead += readPass;
-                            bytesLeft -= readPass;
-                            //Logger.Log( LogType.Debug, "BlockDB.Search->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
-                        }
-                        bytesReadTotal += bytesRead;
-
-                        fixed( byte* parr = buffer ) {
-                            BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            int entryCount = bytesRead / sizeof( BlockDBEntry );
-                            if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
-                            for( int i = entryCount - 1; i >= 0; i-- ) {
-                                if( selector( entries[i] ) ) {
-                                    results.Add( entries[i] );
-                                    count++;
-                                    if( count >= max ) break;
-                                }
-                            }
-                        }
-                        if( count >= max ) break;
                     }
                 }
             }
-            return results.ToArray();
+
+            if( searchType == BlockDBSearchType.ReturnAll ) {
+                return resultList.ToArray();
+            } else {
+                return resultDict.Values.ToArray();
+            }
         }
 
 
@@ -953,19 +906,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-
-
-    /// <summary> Describes what kind of results should BlockDB.Lookup return. </summary>
-    public enum BlockDBSearchType {
-        /// <summary> All BlockDB Entries (even those that have been overriden) are returned,
-        /// possibly multiple entries per coordinate. </summary>
-        ReturnAll,
-
-        /// <summary> Only one newest entry is returned for each coordinate. </summary>
-        ReturnNewest,
-
-        /// <summary> Only one oldest entry is returned for each coordinate. </summary>
-        ReturnOldest
     }
 }
