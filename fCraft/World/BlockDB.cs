@@ -589,10 +589,6 @@ namespace fCraft {
             if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
             if( selector == null ) throw new ArgumentNullException( "selector" );
 
-            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
-            List<BlockDBEntry> resultList = new List<BlockDBEntry>();
-            Map map = World.LoadMap();
-
             int count = 0;
             using( searchLock.ReadLock() ) {
                 if( isPreloaded ) {
@@ -603,19 +599,29 @@ namespace fCraft {
                             return SearchCacheNewest( max, selector, 0, ref count ).Values.ToArray();
                         case BlockDBSearchType.ReturnOldest:
                             return SearchCacheOldest( max, selector, 0, ref count ).Values.ToArray();
+                        default:
+                            throw new ArgumentOutOfRangeException( "searchType" );
                     }
                 } else {
+                    Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
+                    List<BlockDBEntry> resultList = new List<BlockDBEntry>();
+                    Map map = World.LoadMap();
+
                     // Search unflushed cache for matches
-                    switch( searchType ) {
-                        case BlockDBSearchType.ReturnAll:
-                            resultList = SearchCacheAll( max, selector, LastFlushedIndex, ref count );
-                            break;
-                        case BlockDBSearchType.ReturnNewest:
-                            resultDict = SearchCacheNewest( max, selector, LastFlushedIndex, ref count );
-                            break;
-                        case BlockDBSearchType.ReturnOldest:
-                            resultDict = SearchCacheOldest( max, selector, LastFlushedIndex, ref count );
-                            break;
+                    if( LastFlushedIndex < CacheSize ) {
+                        switch( searchType ) {
+                            case BlockDBSearchType.ReturnAll:
+                                resultList = SearchCacheAll( max, selector, LastFlushedIndex, ref count );
+                                break;
+                            case BlockDBSearchType.ReturnNewest:
+                                resultDict = SearchCacheNewest( max, selector, LastFlushedIndex, ref count );
+                                break;
+                            case BlockDBSearchType.ReturnOldest:
+                                resultDict = SearchCacheOldest( max, selector, LastFlushedIndex, ref count );
+                                break;
+                            default:
+                                throw new ArgumentOutOfRangeException( "searchType" );
+                        }
                     }
 
                     // If we've already reached the limit, break out early
@@ -684,13 +690,12 @@ namespace fCraft {
                             if( count >= max ) break;
                         }
                     }
+                    if( searchType == BlockDBSearchType.ReturnAll ) {
+                        return resultList.ToArray();
+                    } else {
+                        return resultDict.Values.ToArray();
+                    }
                 }
-            }
-
-            if( searchType == BlockDBSearchType.ReturnAll ) {
-                return resultList.ToArray();
-            } else {
-                return resultDict.Values.ToArray();
             }
         }
 
@@ -873,8 +878,7 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude,
-                                      TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
@@ -911,13 +915,12 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude,
-                                      TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            if( infos.Length == 1 ) return Lookup( max, infos[0], exclude, span );
+            if( infos.Length == 1 ) return Lookup( max, area, infos[0], exclude, span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             if( exclude ) {
                 return Lookup( max, BlockDBSearchType.ReturnOldest,
