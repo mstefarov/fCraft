@@ -16,6 +16,7 @@ namespace fCraft {
             World = world;
         }
 
+
         [NotNull]
         public World World { get; internal set; }
 
@@ -23,7 +24,13 @@ namespace fCraft {
         public YesNoAuto EnabledState {
             get { return enabledState; }
             set {
-                using(searchLock.WriteLock()) {
+                IDisposable writeLockHandle = null;
+                try {
+                    // make sure we dont acquire the write lock twice
+                    if( !searchLock.IsWriteLockHeld ) {
+                        writeLockHandle = searchLock.WriteLock();
+                    }
+
                     if( IsEnabledGlobally ) {
 #if DEBUG_BLOCKDB
                         if( value != enabledState ) {
@@ -36,8 +43,7 @@ namespace fCraft {
                             CacheClear();
                             IsEnabled = false;
 
-                        } else if( !IsEnabled &&
-                                   ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
+                        } else if( !IsEnabled && ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
                             // going from disabled to enabled/auto-enabled
                             cacheStore = new BlockDBEntry[MinCacheSize];
                             if( isPreloaded ) {
@@ -47,6 +53,12 @@ namespace fCraft {
                         }
                     }
                     enabledState = value;
+
+                } finally {
+                    // release write lock, if we were holding it
+                    if( writeLockHandle != null ) {
+                        writeLockHandle.Dispose();
+                    }
                 }
             }
         }
@@ -92,7 +104,7 @@ namespace fCraft {
 
 
         void AddEntry( BlockDBEntry item ) {
-            using( var locker = searchLock.UpgradableReadLock() ) {
+            using( searchLock.UpgradableReadLock() ) {
                 if( CacheSize == cacheStore.Length ) {
                     if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
                         // Avoid bloating the cacheStore if we are not preloaded.
@@ -196,7 +208,12 @@ namespace fCraft {
         public bool IsPreloaded {
             get { return isPreloaded; }
             set {
-                using( searchLock.WriteLock() ) {
+                IDisposable writeLockHandle = null;
+                try {
+                    if( !searchLock.IsWriteLockHeld ) {
+                        writeLockHandle = searchLock.WriteLock();
+                    }
+
                     if( IsEnabledGlobally ) {
                         if( value == isPreloaded ) return;
                         Flush();
@@ -210,6 +227,10 @@ namespace fCraft {
 #endif
                     }
                     isPreloaded = value;
+                } finally {
+                    if( writeLockHandle != null ) {
+                        writeLockHandle.Dispose();
+                    }
                 }
             }
         }
@@ -343,7 +364,13 @@ namespace fCraft {
                 if( value < 0 ) {
                     throw new ArgumentOutOfRangeException( "value", "Limit may not be negative." );
                 }
-                using( searchLock.WriteLock() ) {
+
+                IDisposable writeLockHandle = null;
+                try {
+                    if( !searchLock.IsWriteLockHeld ) {
+                        writeLockHandle = searchLock.WriteLock();
+                    }
+
                     int oldLimit = limit;
                     limit = value;
                     if( oldLimit == 0 && value != 0 ||
@@ -353,6 +380,11 @@ namespace fCraft {
 #if DEBUG_BLOCKDB
                     Logger.Log( LogType.Debug, "BlockDB({0}): Limit={1}", World.Name, value );
 #endif
+
+                } finally {
+                    if( writeLockHandle != null ) {
+                        writeLockHandle.Dispose();
+                    }
                 }
             }
         }
@@ -390,7 +422,13 @@ namespace fCraft {
                 if( value < TimeSpan.Zero ) {
                     throw new ArgumentOutOfRangeException( "value", "TimeLimit may not be negative." );
                 }
-                using( searchLock.WriteLock() ) {
+
+                IDisposable writeLockHandle = null;
+                try {
+                    if( !searchLock.IsWriteLockHeld ) {
+                        writeLockHandle = searchLock.WriteLock();
+                    }
+
                     TimeSpan oldTimeLimit = timeLimit;
                     timeLimit = value;
                     if( oldTimeLimit == TimeSpan.Zero && value != TimeSpan.Zero ||
@@ -402,6 +440,10 @@ namespace fCraft {
                                 "BlockDB({0}): TimeLimit={1}",
                                 World.Name, value );
 #endif
+                } finally {
+                    if( writeLockHandle != null ) {
+                        writeLockHandle.Dispose();
+                    }
                 }
             }
         }
@@ -445,10 +487,20 @@ namespace fCraft {
 
         /// <summary> Clears cache and deletes the BlockDB file. </summary>
         public void Clear() {
-            using( searchLock.WriteLock() ) {
+            IDisposable writeLockHandle = null;
+            try {
+                if( !searchLock.IsWriteLockHeld ) {
+                    writeLockHandle = searchLock.WriteLock();
+                }
+
                 CacheClear();
                 if( File.Exists( FileName ) ) {
                     File.Delete( FileName );
+                }
+
+            } finally {
+                if( writeLockHandle != null ) {
+                    writeLockHandle.Dispose();
                 }
             }
         }
@@ -460,7 +512,12 @@ namespace fCraft {
 
 
         internal void Flush() {
-            using( searchLock.WriteLock() ) {
+            IDisposable writeLockHandle = null;
+            try {
+                if( !searchLock.IsWriteLockHeld ) {
+                    writeLockHandle = searchLock.WriteLock();
+                }
+
                 if( LastFlushedIndex < CacheSize ) {
 #if DEBUG_BLOCKDB
                     Logger.Log( LogType.Debug,
@@ -484,7 +541,7 @@ namespace fCraft {
                                 World.Name, count, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                 }
-                
+
                 // enforce size limit, if needed
                 if( limit > 0 ) {
                     bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > MinLimitDelay ||
@@ -502,6 +559,10 @@ namespace fCraft {
                         EnforceTimeLimit();
                         LimitCapacity( CacheSize );
                     }
+                }
+            } finally {
+                if( writeLockHandle != null ) {
+                    writeLockHandle.Dispose();
                 }
             }
         }
@@ -634,7 +695,8 @@ namespace fCraft {
         }
 
 
-        Dictionary<int, BlockDBEntry> SearchCacheOldest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
+        Dictionary<int, BlockDBEntry> SearchCacheOldest( int max, Func<BlockDBEntry, bool> selector, int endIndex,
+                                                         ref int count ) {
             Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
             Map map = World.LoadMap();
             fixed( BlockDBEntry* entries = cacheStore ) {
@@ -651,7 +713,8 @@ namespace fCraft {
         }
 
 
-        Dictionary<int, BlockDBEntry> SearchCacheNewest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
+        Dictionary<int, BlockDBEntry> SearchCacheNewest( int max, Func<BlockDBEntry, bool> selector, int endIndex,
+                                                         ref int count ) {
             Map map = World.LoadMap();
             Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
             fixed( BlockDBEntry* entries = cacheStore ) {
