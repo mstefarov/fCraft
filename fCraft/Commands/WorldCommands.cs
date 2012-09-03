@@ -125,7 +125,7 @@ namespace fCraft {
             if( world == null ) return;
             BlockDB db = world.BlockDB;
 
-            lock( db.SyncRoot ) {
+            using( db.GetWriteLock() ) {
                 string op = cmd.Next();
                 if( op == null ) {
                     if( !db.IsEnabled ) {
