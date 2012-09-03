@@ -267,6 +267,14 @@ namespace fCraft {
 
         #region Limiting
 
+        static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
+                                 MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
+        internal int LastFlushedIndex;
+        int changesSinceLimitEnforcement;
+        const double LimitEnforcementThreshold = 1.15; // 15%
+        DateTime lastLimit, lastTimeLimit;
+
+
         void TrimFile( int maxCapacity ) {
             if( maxCapacity == 0 ) {
                 using( File.Create( FileName ) ) {}
@@ -355,7 +363,6 @@ namespace fCraft {
         }
 
 
-        internal int LastFlushedIndex;
 
 
         public int Limit {
@@ -388,7 +395,6 @@ namespace fCraft {
                 }
             }
         }
-
         int limit;
 
         public bool HasLimit {
@@ -447,7 +453,6 @@ namespace fCraft {
                 }
             }
         }
-
         TimeSpan timeLimit;
 
         public bool HasTimeLimit {
@@ -477,11 +482,6 @@ namespace fCraft {
             }
         }
 
-
-        int changesSinceLimitEnforcement;
-        const double LimitEnforcementThreshold = 1.15; // 15%
-        DateTime lastLimit, lastTimeLimit;
-
         #endregion
 
 
@@ -504,11 +504,6 @@ namespace fCraft {
                 }
             }
         }
-
-
-        static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
-                                 MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
-
 
 
         internal void Flush() {
@@ -590,7 +585,13 @@ namespace fCraft {
             if( selector == null ) throw new ArgumentNullException( "selector" );
 
             int count = 0;
-            using( searchLock.ReadLock() ) {
+
+            IDisposable readLockHandle = null;
+            try {
+                if( !searchLock.IsReadLockHeld ) {
+                    readLockHandle = searchLock.WriteLock();
+                }
+
                 if( isPreloaded ) {
                     switch( searchType ) {
                         case BlockDBSearchType.ReturnAll:
@@ -696,12 +697,15 @@ namespace fCraft {
                         return resultDict.Values.ToArray();
                     }
                 }
+            } finally {
+                if( readLockHandle != null ) {
+                    readLockHandle.Dispose();
+                }
             }
         }
 
 
-        Dictionary<int, BlockDBEntry> SearchCacheOldest( int max, Func<BlockDBEntry, bool> selector, int endIndex,
-                                                         ref int count ) {
+        Dictionary<int, BlockDBEntry> SearchCacheOldest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
             Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
             Map map = World.LoadMap();
             fixed( BlockDBEntry* entries = cacheStore ) {
@@ -718,8 +722,7 @@ namespace fCraft {
         }
 
 
-        Dictionary<int, BlockDBEntry> SearchCacheNewest( int max, Func<BlockDBEntry, bool> selector, int endIndex,
-                                                         ref int count ) {
+        Dictionary<int, BlockDBEntry> SearchCacheNewest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
             Map map = World.LoadMap();
             Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
             fixed( BlockDBEntry* entries = cacheStore ) {
@@ -940,6 +943,10 @@ namespace fCraft {
 
         public IDisposable GetWriteLock() {
             return searchLock.WriteLock();
+        }
+
+        public IDisposable GetReadLock() {
+            return searchLock.ReadLock();
         }
 
 
