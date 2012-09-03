@@ -10,6 +10,8 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Database of block changes. Each BlockDB object is associated with a world.
+    /// Provides controls for storage/retention, and methods to look up data. </summary>
     public sealed unsafe class BlockDB {
         internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
@@ -27,8 +29,8 @@ namespace fCraft {
                 IDisposable writeLockHandle = null;
                 try {
                     // make sure we dont acquire the write lock twice
-                    if( !searchLock.IsWriteLockHeld ) {
-                        writeLockHandle = searchLock.WriteLock();
+                    if( !locker.IsWriteLockHeld ) {
+                        writeLockHandle = locker.WriteLock();
                     }
 
                     if( IsEnabledGlobally ) {
@@ -91,9 +93,9 @@ namespace fCraft {
 
 
         void AddEntry( BlockDBEntry item ) {
-            using( searchLock.UpgradableReadLock() ) {
+            using( locker.UpgradableReadLock() ) {
                 if( CacheSize == cacheStore.Length ) {
-                    using( searchLock.WriteLock() ) {
+                    using( locker.WriteLock() ) {
                         if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
                             // Avoid bloating the cacheStore if we are not preloaded.
                             // This might cause lag spikes, since it's ran from main scheduler thread.
@@ -212,8 +214,8 @@ namespace fCraft {
             set {
                 IDisposable writeLockHandle = null;
                 try {
-                    if( !searchLock.IsWriteLockHeld ) {
-                        writeLockHandle = searchLock.WriteLock();
+                    if( !locker.IsWriteLockHeld ) {
+                        writeLockHandle = locker.WriteLock();
                     }
 
                     if( IsEnabledGlobally ) {
@@ -376,8 +378,8 @@ namespace fCraft {
 
                 IDisposable writeLockHandle = null;
                 try {
-                    if( !searchLock.IsWriteLockHeld ) {
-                        writeLockHandle = searchLock.WriteLock();
+                    if( !locker.IsWriteLockHeld ) {
+                        writeLockHandle = locker.WriteLock();
                     }
 
                     int oldLimit = limit;
@@ -433,8 +435,8 @@ namespace fCraft {
 
                 IDisposable writeLockHandle = null;
                 try {
-                    if( !searchLock.IsWriteLockHeld ) {
-                        writeLockHandle = searchLock.WriteLock();
+                    if( !locker.IsWriteLockHeld ) {
+                        writeLockHandle = locker.WriteLock();
                     }
 
                     TimeSpan oldTimeLimit = timeLimit;
@@ -491,8 +493,8 @@ namespace fCraft {
         public void Clear() {
             IDisposable writeLockHandle = null;
             try {
-                if( !searchLock.IsWriteLockHeld ) {
-                    writeLockHandle = searchLock.WriteLock();
+                if( !locker.IsWriteLockHeld ) {
+                    writeLockHandle = locker.WriteLock();
                 }
 
                 CacheClear();
@@ -511,8 +513,8 @@ namespace fCraft {
         internal void Flush() {
             IDisposable writeLockHandle = null;
             try {
-                if( !searchLock.IsWriteLockHeld ) {
-                    writeLockHandle = searchLock.WriteLock();
+                if( !locker.IsWriteLockHeld ) {
+                    writeLockHandle = locker.WriteLock();
                 }
 
                 if( LastFlushedIndex < CacheSize ) {
@@ -578,6 +580,18 @@ namespace fCraft {
 
         #region Lookup
 
+        /// <summary> Searches the database for BlockDBEntries, based on given criteria. </summary>
+        /// <param name="max"> Maximum number of entries to check. </param>
+        /// <param name="searchType"> Type of search (ReturnAll, ReturnOldest, or ReturnNewest). See BlockDBSearchType enum. </param>
+        /// <param name="selector"> Function used to select BlockDBEntries to be returned. </param>
+        /// <returns> Array of BlockDBEntry structs. </returns>
+        /// <exception cref="InvalidOperationException"> If BlockDB is disabled. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If max is less than 0. </exception>
+        /// <exception cref="ArgumentNullException"> If selector is null. </exception>
+        /// <exception cref="EndOfStreamException"> If the end of .fbdb file was reached prematurely (corrupted file, or outside interference). </exception>
+        /// <exception cref="DataMisalignedException"> If .fbdb file is not aligned to 20 bytes (likely corrupted). </exception>
+        /// <exception cref="IOException"> If an I/O error occured while trying to read .fbdb file from disk. </exception>
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, Func<BlockDBEntry, bool> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
@@ -590,8 +604,8 @@ namespace fCraft {
 
             IDisposable readLockHandle = null;
             try {
-                if( !searchLock.IsReadLockHeld ) {
-                    readLockHandle = searchLock.WriteLock();
+                if( !locker.IsReadLockHeld ) {
+                    readLockHandle = locker.WriteLock();
                 }
 
                 if( isPreloaded ) {
@@ -628,7 +642,7 @@ namespace fCraft {
                     }
 
                     // If we've already reached the limit, break out early
-                    if( count >= max ) {
+                    if( count >= max || !File.Exists( FileName ) ) {
                         if( searchType == BlockDBSearchType.ReturnAll ) {
                             return resultList.ToArray();
                         } else {
@@ -944,15 +958,15 @@ namespace fCraft {
 
 
         public IDisposable GetWriteLock() {
-            return searchLock.WriteLock();
+            return locker.WriteLock();
         }
 
         public IDisposable GetReadLock() {
-            return searchLock.ReadLock();
+            return locker.ReadLock();
         }
 
 
-        readonly ReaderWriterLockSlim searchLock = new ReaderWriterLockSlim();
+        readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
         const int SearchBufferSize = 1000000; // in bytes
 
 
