@@ -198,7 +198,7 @@ namespace fCraft {
                 newWorld.Map = newMap;
                 newWorld.Preload = preload;
                 WorldManager.ReplaceWorld( this, newWorld );
-                lock( BlockDB.SyncRoot ) {
+                using( BlockDB.GetWriteLock() ) {
                     BlockDB.Clear();
                     BlockDB.World = newWorld;
                 }

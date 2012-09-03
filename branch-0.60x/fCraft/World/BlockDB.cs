@@ -10,13 +10,11 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    public unsafe sealed class BlockDB {
+    public sealed unsafe class BlockDB {
         internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             World = world;
         }
-
-        public readonly object SyncRoot = new object();
 
         [NotNull]
         public World World { get; internal set; }
@@ -25,7 +23,7 @@ namespace fCraft {
         public YesNoAuto EnabledState {
             get { return enabledState; }
             set {
-                lock( SyncRoot ) {
+                using(searchLock.WriteLock()) {
                     if( IsEnabledGlobally ) {
 #if DEBUG_BLOCKDB
                         if( value != enabledState ) {
@@ -38,7 +36,8 @@ namespace fCraft {
                             CacheClear();
                             IsEnabled = false;
 
-                        } else if( !IsEnabled && (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
+                        } else if( !IsEnabled &&
+                                   ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
                             // going from disabled to enabled/auto-enabled
                             cacheStore = new BlockDBEntry[MinCacheSize];
                             if( isPreloaded ) {
@@ -51,20 +50,19 @@ namespace fCraft {
                 }
             }
         }
+
         YesNoAuto enabledState;
 
 
         public bool AutoToggleIfNeeded() {
             bool oldEnabled = IsEnabled;
             EnabledState = enabledState;
-            return (oldEnabled != IsEnabled);
+            return ( oldEnabled != IsEnabled );
         }
 
 
         public bool ShouldBeAutoEnabled {
-            get {
-                return (World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank);
-            }
+            get { return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank ); }
         }
 
 
@@ -76,9 +74,7 @@ namespace fCraft {
         /// <summary> Full path to the file where BlockDB data is stored. </summary>
         [NotNull]
         public string FileName {
-            get {
-                return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
-            }
+            get { return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" ); }
         }
 
 
@@ -89,11 +85,14 @@ namespace fCraft {
 
         BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
         internal int CacheSize;
-        const int MinCacheSize = 2 * 1024, // 32 KB (at 16 bytes/entry)
+
+        const int MinCacheSize = 2 * 1024,
+                  // 32 KB (at 16 bytes/entry)
                   CacheLinearResizeThreshold = 64 * 1024; // 1 MB (at 16 bytes/entry)
 
+
         void AddEntry( BlockDBEntry item ) {
-            lock( SyncRoot ) {
+            using( var locker = searchLock.UpgradableReadLock() ) {
                 if( CacheSize == cacheStore.Length ) {
                     if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
                         // Avoid bloating the cacheStore if we are not preloaded.
@@ -144,17 +143,17 @@ namespace fCraft {
 
                 } else if( newCapacity < CacheLinearResizeThreshold ) {
                     // exponential resizing (x2 each time)
-                    newCapacity = 1 << (int)(1 + Math.Floor( Math.Log( newCapacity, 2 ) ));
+                    newCapacity = 1 << (int)( 1 + Math.Floor( Math.Log( newCapacity, 2 ) ) );
 
                 } else {
                     // linear resizing (in 1 MB increments)
-                    newCapacity = (newCapacity / CacheLinearResizeThreshold + 1) * CacheLinearResizeThreshold;
+                    newCapacity = ( newCapacity / CacheLinearResizeThreshold + 1 ) * CacheLinearResizeThreshold;
                 }
 
                 CacheCapacity = newCapacity;
                 if( max < CacheSize ) {
                     Array.Copy( cacheStore, CacheSize - max, cacheStore, 0, max );
-                    LastFlushedIndex -= (CacheSize - max);
+                    LastFlushedIndex -= ( CacheSize - max );
                     CacheSize = max;
                 }
             }
@@ -162,9 +161,7 @@ namespace fCraft {
 
 
         internal int CacheCapacity {
-            get {
-                return cacheStore.Length;
-            }
+            get { return cacheStore.Length; }
             set {
                 if( value < MinCacheSize ) {
                     throw new ArgumentOutOfRangeException( "value", "MinCacheSize may not be negative" );
@@ -174,7 +171,7 @@ namespace fCraft {
                     if( value < CacheSize ) {
                         // downsizing the cache
                         Array.Copy( cacheStore, CacheSize - value, destinationArray, 0, value );
-                        LastFlushedIndex -= (CacheSize - value);
+                        LastFlushedIndex -= ( CacheSize - value );
                         CacheSize = value;
 
                     } else {
@@ -195,12 +192,11 @@ namespace fCraft {
         #region Preload
 
         bool isPreloaded;
+
         public bool IsPreloaded {
-            get {
-                return isPreloaded;
-            }
+            get { return isPreloaded; }
             set {
-                lock( SyncRoot ) {
+                using( searchLock.WriteLock() ) {
                     if( IsEnabledGlobally ) {
                         if( value == isPreloaded ) return;
                         Flush();
@@ -221,7 +217,7 @@ namespace fCraft {
 
         void Preload() {
             using( FileStream fs = OpenRead() ) {
-                CacheSize = (int)(fs.Length / BlockDBEntry.Size);
+                CacheSize = (int)( fs.Length / sizeof( BlockDBEntry ) );
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
@@ -231,7 +227,7 @@ namespace fCraft {
                     fixed( byte* pBuffer = ioBuffer ) {
                         byte* pCache = (byte*)pCacheStart;
                         while( fs.Position < fs.Length ) {
-                            int bytesToRead = Math.Min( BufferSize, (int)(fs.Length - fs.Position) );
+                            int bytesToRead = Math.Min( BufferSize, (int)( fs.Length - fs.Position ) );
                             int bytesInBuffer = 0;
                             do {
                                 int bytesRead = fs.Read( ioBuffer, bytesInBuffer, BufferSize - bytesInBuffer );
@@ -252,16 +248,16 @@ namespace fCraft {
 
         void TrimFile( int maxCapacity ) {
             if( maxCapacity == 0 ) {
-                using( File.Create( FileName ) ) { }
+                using( File.Create( FileName ) ) {}
                 return;
             }
             string tempFileName = FileName + ".tmp";
             using( FileStream source = File.OpenRead( FileName ) ) {
-                int entries = (int)(source.Length / BlockDBEntry.Size);
+                int entries = (int)( source.Length / sizeof( BlockDBEntry ) );
                 if( entries <= maxCapacity ) return;
 
                 // skip beginning of the file (that's where old entries are)
-                source.Seek( (entries - maxCapacity) * BlockDBEntry.Size, SeekOrigin.Begin );
+                source.Seek( ( entries - maxCapacity ) * sizeof( BlockDBEntry ), SeekOrigin.Begin );
 
                 // copy end of the existing file to a new one
                 using( FileStream destination = File.Create( tempFileName ) ) {
@@ -275,7 +271,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Counts entries that are newer tha the given age. </summary>
+        /// <summary> Counts entries that are newer than the given age. </summary>
         /// <param name="age"> Maximum age of entry </param>
         /// <returns> Number of entries newer than given age.
         /// 0 if all entries are older than given age.
@@ -294,21 +290,47 @@ namespace fCraft {
                         }
                     }
                 }
-                return -1;
 
             } else {
-                byte[] bytes = Load();
-                int entryCount = bytes.Length / BlockDBEntry.Size;
-                fixed( byte* parr = bytes ) {
-                    BlockDBEntry* entries = (BlockDBEntry*)parr;
-                    for( int i = entryCount - 1; i >= 0; i-- ) {
-                        if( entries[i].Timestamp < minTimestamp ) {
-                            return entryCount - i;
+                // If we still have some searching to do, read the file
+                using( FileStream fs = OpenRead() ) {
+                    long length = fs.Length;
+                    long bytesReadTotal = 0;
+                    int bufferSize = (int)Math.Min( SearchBufferSize, length );
+                    byte[] buffer = new byte[bufferSize];
+                    //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries: length={0}  bufferSize={1}", length, bufferSize );
+
+                    while( bytesReadTotal < length ) {
+                        long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
+                        fs.Seek( offset, SeekOrigin.Begin );
+
+                        int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
+                        //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
+                        int bytesLeft = bytesToRead;
+                        int bytesRead = 0;
+                        while( bytesLeft > 0 ) {
+                            int readPass = fs.Read( buffer, bytesRead, bytesLeft );
+                            if( readPass == 0 ) throw new EndOfStreamException();
+                            bytesRead += readPass;
+                            bytesLeft -= readPass;
+                            //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
+                        }
+                        bytesReadTotal += bytesRead;
+
+                        fixed( byte* parr = buffer ) {
+                            BlockDBEntry* entries = (BlockDBEntry*)parr;
+                            int entryCount = bytesRead / sizeof( BlockDBEntry );
+                            if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
+                            for( int i = entryCount - 1; i >= 0; i-- ) {
+                                if( entries[i].Timestamp < minTimestamp ) {
+                                    return entryCount - i;
+                                }
+                            }
                         }
                     }
                 }
-                return -1;
             }
+            return -1;
         }
 
 
@@ -321,7 +343,7 @@ namespace fCraft {
                 if( value < 0 ) {
                     throw new ArgumentOutOfRangeException( "value", "Limit may not be negative." );
                 }
-                lock( SyncRoot ) {
+                using( searchLock.WriteLock() ) {
                     int oldLimit = limit;
                     limit = value;
                     if( oldLimit == 0 && value != 0 ||
@@ -334,11 +356,13 @@ namespace fCraft {
                 }
             }
         }
+
         int limit;
 
         public bool HasLimit {
             get { return limit > 0; }
         }
+
 
         void EnforceLimit() {
             if( IsEnabled && limit > 0 ) {
@@ -366,7 +390,7 @@ namespace fCraft {
                 if( value < TimeSpan.Zero ) {
                     throw new ArgumentOutOfRangeException( "value", "TimeLimit may not be negative." );
                 }
-                lock( SyncRoot ) {
+                using( searchLock.WriteLock() ) {
                     TimeSpan oldTimeLimit = timeLimit;
                     timeLimit = value;
                     if( oldTimeLimit == TimeSpan.Zero && value != TimeSpan.Zero ||
@@ -381,11 +405,13 @@ namespace fCraft {
                 }
             }
         }
+
         TimeSpan timeLimit;
 
         public bool HasTimeLimit {
             get { return timeLimit > TimeSpan.Zero; }
         }
+
 
         void EnforceTimeLimit() {
             if( IsEnabled && timeLimit > TimeSpan.Zero ) {
@@ -414,31 +440,12 @@ namespace fCraft {
         const double LimitEnforcementThreshold = 1.15; // 15%
         DateTime lastLimit, lastTimeLimit;
 
-        void EnforceLimitsIfNeeded() {
-            if( limit > 0 ) {
-                bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > MinLimitDelay ||
-                                       (CacheSize - limit) > CacheLinearResizeThreshold;
-                if( changesSinceLimitEnforcement > limit * LimitEnforcementThreshold && limitingAllowed ) {
-                    changesSinceLimitEnforcement = 0;
-                    EnforceLimit();
-                    LimitCapacity( CacheSize );
-                }
-            }
-
-            if( timeLimit > TimeSpan.Zero ) {
-                if( DateTime.UtcNow.Subtract( lastTimeLimit ) > MinTimeLimitDelay ) {
-                    EnforceTimeLimit();
-                    LimitCapacity( CacheSize );
-                }
-            }
-        }
-
         #endregion
 
 
         /// <summary> Clears cache and deletes the BlockDB file. </summary>
         public void Clear() {
-            lock( SyncRoot ) {
+            using( searchLock.WriteLock() ) {
                 CacheClear();
                 if( File.Exists( FileName ) ) {
                     File.Delete( FileName );
@@ -450,8 +457,10 @@ namespace fCraft {
         static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
 
-        public void Flush() {
-            lock( SyncRoot ) {
+
+
+        internal void Flush() {
+            using( searchLock.WriteLock() ) {
                 if( LastFlushedIndex < CacheSize ) {
 #if DEBUG_BLOCKDB
                     Logger.Log( LogType.Debug,
@@ -475,31 +484,210 @@ namespace fCraft {
                                 World.Name, count, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                 }
-                EnforceLimitsIfNeeded();
+                
+                // enforce size limit, if needed
+                if( limit > 0 ) {
+                    bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > MinLimitDelay ||
+                                           ( CacheSize - limit ) > CacheLinearResizeThreshold;
+                    if( changesSinceLimitEnforcement > limit * LimitEnforcementThreshold && limitingAllowed ) {
+                        changesSinceLimitEnforcement = 0;
+                        EnforceLimit();
+                        LimitCapacity( CacheSize );
+                    }
+                }
+
+                // enforce time limit, if needed
+                if( timeLimit > TimeSpan.Zero ) {
+                    if( DateTime.UtcNow.Subtract( lastTimeLimit ) > MinTimeLimitDelay ) {
+                        EnforceTimeLimit();
+                        LimitCapacity( CacheSize );
+                    }
+                }
             }
         }
 
 
         FileStream OpenRead() {
-            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.SequentialScan );
+            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize,
+                                   FileOptions.SequentialScan );
         }
 
 
         FileStream OpenAppend() {
-            return new FileStream( FileName, FileMode.Append, FileAccess.Write, FileShare.None, BufferSize );
+            return new FileStream( FileName, FileMode.Append, FileAccess.Write, FileShare.Read, BufferSize );
         }
 
 
-        byte[] Load() {
-            lock( SyncRoot ) {
-                if( File.Exists( FileName ) ) {
-                    return File.ReadAllBytes( FileName );
+        #region Lookup
+
+        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, Func<BlockDBEntry, bool> selector ) {
+            if( !IsEnabled || !IsEnabledGlobally ) {
+                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
+            }
+            if( max == 0 ) return new BlockDBEntry[0];
+            if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
+            if( selector == null ) throw new ArgumentNullException( "selector" );
+
+            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
+            List<BlockDBEntry> resultList = new List<BlockDBEntry>();
+            Map map = World.LoadMap();
+
+            int count = 0;
+            using( searchLock.ReadLock() ) {
+                if( isPreloaded ) {
+                    switch( searchType ) {
+                        case BlockDBSearchType.ReturnAll:
+                            return SearchCacheAll( max, selector, 0, ref count ).ToArray();
+                        case BlockDBSearchType.ReturnNewest:
+                            return SearchCacheNewest( max, selector, 0, ref count ).Values.ToArray();
+                        case BlockDBSearchType.ReturnOldest:
+                            return SearchCacheOldest( max, selector, 0, ref count ).Values.ToArray();
+                    }
                 } else {
-                    return new byte[0];
+                    // Search unflushed cache for matches
+                    switch( searchType ) {
+                        case BlockDBSearchType.ReturnAll:
+                            resultList = SearchCacheAll( max, selector, LastFlushedIndex, ref count );
+                            break;
+                        case BlockDBSearchType.ReturnNewest:
+                            resultDict = SearchCacheNewest( max, selector, LastFlushedIndex, ref count );
+                            break;
+                        case BlockDBSearchType.ReturnOldest:
+                            resultDict = SearchCacheOldest( max, selector, LastFlushedIndex, ref count );
+                            break;
+                    }
+
+                    // If we've already reached the limit, break out early
+                    if( count >= max ) {
+                        if( searchType == BlockDBSearchType.ReturnAll ) {
+                            return resultList.ToArray();
+                        } else {
+                            return resultDict.Values.ToArray();
+                        }
+                    }
+
+                    // If we still have some searching to do, read the file
+                    using( FileStream fs = OpenRead() ) {
+                        long length = fs.Length;
+                        long bytesReadTotal = 0;
+                        int bufferSize = (int)Math.Min( SearchBufferSize, length );
+                        byte[] buffer = new byte[bufferSize];
+                        //Logger.Log( LogType.Debug, "BlockDB.Search: length={0}  bufferSize={1}", length, bufferSize );
+
+                        while( bytesReadTotal < length ) {
+                            long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
+                            fs.Seek( offset, SeekOrigin.Begin );
+
+                            int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
+                            //Logger.Log( LogType.Debug, "BlockDB.Search->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
+                            int bytesLeft = bytesToRead;
+                            int bytesRead = 0;
+                            while( bytesLeft > 0 ) {
+                                int readPass = fs.Read( buffer, bytesRead, bytesLeft );
+                                if( readPass == 0 ) throw new EndOfStreamException();
+                                bytesRead += readPass;
+                                bytesLeft -= readPass;
+                                //Logger.Log( LogType.Debug, "BlockDB.Search->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
+                            }
+                            bytesReadTotal += bytesRead;
+
+                            fixed( byte* parr = buffer ) {
+                                BlockDBEntry* entries = (BlockDBEntry*)parr;
+                                int entryCount = bytesRead / sizeof( BlockDBEntry );
+                                if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
+                                for( int i = entryCount - 1; i >= 0; i-- ) {
+                                    if( selector( entries[i] ) ) {
+                                        switch( searchType ) {
+                                            case BlockDBSearchType.ReturnAll: {
+                                                resultList.Add( entries[i] );
+                                                break;
+                                            }
+                                            case BlockDBSearchType.ReturnNewest: {
+                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                                if( !resultDict.ContainsKey( index ) ) {
+                                                    resultDict.Add( index, entries[i] );
+                                                }
+                                                break;
+                                            }
+                                            case BlockDBSearchType.ReturnOldest: {
+                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                                                resultDict[index] = entries[i];
+                                                break;
+                                            }
+                                        }
+                                        count++;
+                                        if( count >= max ) break;
+                                    }
+                                }
+                            }
+                            if( count >= max ) break;
+                        }
+                    }
                 }
+            }
+
+            if( searchType == BlockDBSearchType.ReturnAll ) {
+                return resultList.ToArray();
+            } else {
+                return resultDict.Values.ToArray();
             }
         }
 
+
+        Dictionary<int, BlockDBEntry> SearchCacheOldest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
+            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
+            Map map = World.LoadMap();
+            fixed( BlockDBEntry* entries = cacheStore ) {
+                for( int i = CacheSize - 1; i >= endIndex; i-- ) {
+                    if( selector( entries[i] ) ) {
+                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        resultDict[index] = entries[i];
+                    }
+                    count++;
+                    if( count >= max ) break;
+                }
+            }
+            return resultDict;
+        }
+
+
+        Dictionary<int, BlockDBEntry> SearchCacheNewest( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
+            Map map = World.LoadMap();
+            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
+            fixed( BlockDBEntry* entries = cacheStore ) {
+                for( int i = CacheSize - 1; i >= endIndex; i-- ) {
+                    if( selector( entries[i] ) ) {
+                        int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
+                        if( !resultDict.ContainsKey( index ) ) {
+                            resultDict.Add( index, entries[i] );
+                        }
+                        count++;
+                        if( count >= max ) break;
+                    }
+                }
+            }
+            return resultDict;
+        }
+
+
+        List<BlockDBEntry> SearchCacheAll( int max, Func<BlockDBEntry, bool> selector, int endIndex, ref int count ) {
+            List<BlockDBEntry> resultList = new List<BlockDBEntry>();
+            fixed( BlockDBEntry* entries = cacheStore ) {
+                for( int i = CacheSize - 1; i >= endIndex; i-- ) {
+                    if( selector( entries[i] ) ) {
+                        resultList.Add( entries[i] );
+                        count++;
+                        if( count >= max ) break;
+                    }
+                }
+            }
+            return resultList;
+        }
+
+        #endregion
+
+
+        #region Lookup shortcuts
 
         /// <summary> Returns list of all changes done to the map at the given coordinate, newest to oldest. </summary>
         /// <param name="max"> Maximum number of changes to return. </param>
@@ -622,7 +810,8 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude,
+                                      TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
@@ -659,7 +848,8 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude,
+                                      TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
@@ -679,116 +869,11 @@ namespace fCraft {
             }
         }
 
+        #endregion
 
-        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, Func<BlockDBEntry, bool> selector ) {
-            if( !IsEnabled || !IsEnabledGlobally ) {
-                throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
-            }
-            if( max == 0 ) return new BlockDBEntry[0];
-            if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
-            if( selector == null ) throw new ArgumentNullException( "selector" );
 
-            List<BlockDBEntry> resultList = new List<BlockDBEntry>();
-            Dictionary<int, BlockDBEntry> resultDict = new Dictionary<int, BlockDBEntry>();
-            Map map = World.LoadMap();
-            int count = 0;
-
-            if( isPreloaded ) {
-                using( searchLock.ReadLock() ) {
-                    fixed( BlockDBEntry* entries = cacheStore ) {
-                        for( int i = CacheSize - 1; i >= 0; i-- ) {
-                            if( selector( entries[i] ) ) {
-                                switch( searchType ) {
-                                    case BlockDBSearchType.ReturnAll: {
-                                            resultList.Add( entries[i] );
-                                            break;
-                                        }
-                                    case BlockDBSearchType.ReturnNewest: {
-                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                            if( !resultDict.ContainsKey( index ) ) {
-                                                resultDict.Add( index, entries[i] );
-                                            }
-                                            break;
-                                        }
-                                    case BlockDBSearchType.ReturnOldest: {
-                                            int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                            resultDict[index] = entries[i];
-                                            break;
-                                        }
-                                }
-                                count++;
-                                if( count >= max ) break;
-                            }
-                        }
-                    }
-                }
-            } else {
-                Flush();
-                using( searchLock.ReadLock() ) {
-                    using( FileStream fs = OpenRead() ) {
-                        long length = fs.Length;
-                        long bytesReadTotal = 0;
-                        int bufferSize = (int)Math.Min( SearchBufferSize, length );
-                        byte[] buffer = new byte[bufferSize];
-                        //Logger.Log( LogType.Debug, "BlockDB.Search: length={0}  bufferSize={1}", length, bufferSize );
-
-                        while( bytesReadTotal < length ) {
-                            long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
-                            fs.Seek( offset, SeekOrigin.Begin );
-
-                            int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
-                            //Logger.Log( LogType.Debug, "BlockDB.Search->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
-                            int bytesLeft = bytesToRead;
-                            int bytesRead = 0;
-                            while( bytesLeft > 0 ) {
-                                int readPass = fs.Read( buffer, bytesRead, bytesLeft );
-                                if( readPass == 0 ) throw new EndOfStreamException();
-                                bytesRead += readPass;
-                                bytesLeft -= readPass;
-                                //Logger.Log( LogType.Debug, "BlockDB.Search->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
-                            }
-                            bytesReadTotal += bytesRead;
-
-                            fixed( byte* parr = buffer ) {
-                                BlockDBEntry* entries = (BlockDBEntry*)parr;
-                                int entryCount = bytesRead / sizeof( BlockDBEntry );
-                                if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
-                                for( int i = entryCount - 1; i >= 0; i-- ) {
-                                    if( selector( entries[i] ) ) {
-                                        switch( searchType ) {
-                                            case BlockDBSearchType.ReturnAll: {
-                                                resultList.Add( entries[i] );
-                                                break;
-                                            }
-                                            case BlockDBSearchType.ReturnNewest: {
-                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                                if( !resultDict.ContainsKey( index ) ) {
-                                                    resultDict.Add( index, entries[i] );
-                                                }
-                                                break;
-                                            }
-                                            case BlockDBSearchType.ReturnOldest: {
-                                                int index = map.Index( entries[i].X, entries[i].Y, entries[i].Z );
-                                                resultDict[index] = entries[i];
-                                                break;
-                                            }
-                                        }
-                                        count++;
-                                        if( count >= max ) break;
-                                    }
-                                }
-                            }
-                            if( count >= max ) break;
-                        }
-                    }
-                }
-            }
-
-            if( searchType == BlockDBSearchType.ReturnAll ) {
-                return resultList.ToArray();
-            } else {
-                return resultDict.Values.ToArray();
-            }
+        public IDisposable GetWriteLock() {
+            return searchLock.WriteLock();
         }
 
 
@@ -800,9 +885,11 @@ namespace fCraft {
 
         public const string XmlRootName = "BlockDB";
 
+
         public XElement SaveSettings() {
             return SaveSettings( XmlRootName );
         }
+
 
         public XElement SaveSettings( string rootName ) {
             XElement root = new XElement( rootName );
@@ -817,9 +904,10 @@ namespace fCraft {
             return root;
         }
 
+
         public void LoadSettings( XElement el ) {
             XAttribute temp;
-            if( (temp = el.Attribute( "enabled" )) != null ) {
+            if( ( temp = el.Attribute( "enabled" ) ) != null ) {
                 YesNoAuto enabledStateTemp;
                 if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                     EnabledState = enabledStateTemp;
@@ -831,7 +919,7 @@ namespace fCraft {
                 }
             }
 
-            if( (temp = el.Attribute( "preload" )) != null ) {
+            if( ( temp = el.Attribute( "preload" ) ) != null ) {
                 bool isPreloadedTemp;
                 if( Boolean.TryParse( temp.Value, out isPreloadedTemp ) ) {
                     IsPreloaded = isPreloadedTemp;
@@ -841,7 +929,7 @@ namespace fCraft {
                                 World.Name );
                 }
             }
-            if( (temp = el.Attribute( "limit" )) != null ) {
+            if( ( temp = el.Attribute( "limit" ) ) != null ) {
                 int limitTemp;
                 if( Int32.TryParse( temp.Value, out limitTemp ) ) {
                     Limit = limitTemp;
@@ -851,7 +939,7 @@ namespace fCraft {
                                 World.Name );
                 }
             }
-            if( (temp = el.Attribute( "timeLimit" )) != null ) {
+            if( ( temp = el.Attribute( "timeLimit" ) ) != null ) {
                 int timeLimitSeconds;
                 if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                     TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
@@ -873,6 +961,7 @@ namespace fCraft {
         /// <summary> Whether BlockDB was enabled at startup.
         /// Changing this setting currently requires a server restart. </summary>
         public static bool IsEnabledGlobally { get; private set; }
+
 
         internal static void Init() {
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
