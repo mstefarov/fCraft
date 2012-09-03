@@ -91,8 +91,6 @@ namespace fCraft {
             CdUndoAreaNot.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdStatic );
-
-            //CommandManager.RegisterCommand( CdTree );
         }
 
 

@@ -14,10 +14,9 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
-
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             630,
-            1711,
+            1718,
             new DateTime( 2012, 9, 1, 22, 30, 0, DateTimeKind.Utc ),
             "", "",
             ReleaseFlags.Dev | ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.Optimized
