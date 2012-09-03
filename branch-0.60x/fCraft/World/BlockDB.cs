@@ -90,6 +90,25 @@ namespace fCraft {
         }
 
 
+        void AddEntry( BlockDBEntry item ) {
+            using( searchLock.UpgradableReadLock() ) {
+                if( CacheSize == cacheStore.Length ) {
+                    using( searchLock.WriteLock() ) {
+                        if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
+                            // Avoid bloating the cacheStore if we are not preloaded.
+                            // This might cause lag spikes, since it's ran from main scheduler thread.
+                            Flush();
+                        } else {
+                            // resize cache to fit
+                            EnsureCapacity( CacheSize + 1 );
+                        }
+                    }
+                }
+                cacheStore[CacheSize++] = item;
+            }
+        }
+
+
         #region Cache
 
         const int BufferSize = 64 * 1024; // 64 KB (at 16 bytes/entry)
@@ -101,23 +120,6 @@ namespace fCraft {
         const int MinCacheSize = 2 * 1024,
                   // 32 KB (at 16 bytes/entry)
                   CacheLinearResizeThreshold = 64 * 1024; // 1 MB (at 16 bytes/entry)
-
-
-        void AddEntry( BlockDBEntry item ) {
-            using( searchLock.UpgradableReadLock() ) {
-                if( CacheSize == cacheStore.Length ) {
-                    if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
-                        // Avoid bloating the cacheStore if we are not preloaded.
-                        // This might cause lag spikes, since it's ran from main scheduler thread.
-                        Flush();
-                    } else {
-                        // resize cache to fit
-                        EnsureCapacity( CacheSize + 1 );
-                    }
-                }
-                cacheStore[CacheSize++] = item;
-            }
-        }
 
 
         void CacheClear() {
