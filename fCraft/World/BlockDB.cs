@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-#define DEBUG_BLOCKDB
+//#define DEBUG_BLOCKDB
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -97,7 +97,8 @@ namespace fCraft {
 
 
         void AddEntry( BlockDBEntry item ) {
-            using( locker.UpgradableReadLock() ) {
+            try {
+                locker.EnterUpgradeableReadLock();
                 if( CacheSize == cacheStore.Length ) {
                     using( locker.WriteLock() ) {
                         if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
@@ -111,6 +112,8 @@ namespace fCraft {
                     }
                 }
                 cacheStore[CacheSize++] = item;
+            } finally {
+                locker.ExitUpgradeableReadLock();
             }
         }
 

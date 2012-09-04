@@ -228,9 +228,8 @@ namespace Mono.Options
     }
 
     public class OptionValueCollection : IList, IList<string> {
-
-        List<string> values = new List<string>();
-        OptionContext c;
+        readonly List<string> values = new List<string>();
+        readonly OptionContext c;
 
         internal OptionValueCollection( OptionContext c ) {
             this.c = c;
@@ -316,8 +315,8 @@ namespace Mono.Options
         private Option option;
         private string name;
         private int index;
-        private OptionSet set;
-        private OptionValueCollection c;
+        private readonly OptionSet set;
+        private readonly OptionValueCollection c;
 
         public OptionContext( OptionSet set ) {
             this.set = set;
@@ -355,10 +354,11 @@ namespace Mono.Options
     }
 
     public abstract class Option {
-        string prototype, description;
-        string[] names;
-        OptionValueType type;
-        int count;
+        readonly string prototype;
+        readonly string description;
+        readonly string[] names;
+        readonly OptionValueType type;
+        readonly int count;
         string[] separators;
 
         protected Option( string prototype, string description )
@@ -607,7 +607,7 @@ namespace Mono.Options
 
     [Serializable]
     public class OptionException : Exception {
-        private string option;
+        private readonly string option;
 
         public OptionException() {
         }
@@ -650,14 +650,15 @@ namespace Mono.Options
             roSources = new ReadOnlyCollection<ArgumentSource>( sources );
         }
 
-        Converter<string, string> localizer;
+
+        readonly Converter<string, string> localizer;
 
         public Converter<string, string> MessageLocalizer {
             get { return localizer; }
         }
 
-        List<ArgumentSource> sources = new List<ArgumentSource>();
-        ReadOnlyCollection<ArgumentSource> roSources;
+        readonly List<ArgumentSource> sources = new List<ArgumentSource>();
+        readonly ReadOnlyCollection<ArgumentSource> roSources;
 
         public ReadOnlyCollection<ArgumentSource> ArgumentSources {
             get { return roSources; }
@@ -749,7 +750,7 @@ namespace Mono.Options
         }
 
         sealed class ActionOption : Option {
-            Action<OptionValueCollection> action;
+            readonly Action<OptionValueCollection> action;
 
             public ActionOption( string prototype, string description, int count, Action<OptionValueCollection> action )
                 : base( prototype, description, count ) {
@@ -790,7 +791,7 @@ namespace Mono.Options
         }
 
         sealed class ActionOption<T> : Option {
-            Action<T> action;
+            readonly Action<T> action;
 
             public ActionOption( string prototype, string description, Action<T> action )
                 : base( prototype, description, 1 ) {
@@ -805,7 +806,7 @@ namespace Mono.Options
         }
 
         sealed class ActionOption<TKey, TValue> : Option {
-            OptionAction<TKey, TValue> action;
+            readonly OptionAction<TKey, TValue> action;
 
             public ActionOption( string prototype, string description, OptionAction<TKey, TValue> action )
                 : base( prototype, description, 2 ) {
@@ -878,7 +879,7 @@ namespace Mono.Options
         }
 
         class ArgumentEnumerator : IEnumerable<string> {
-            List<IEnumerator<string>> sources = new List<IEnumerator<string>>();
+            readonly List<IEnumerator<string>> sources = new List<IEnumerator<string>>();
 
             public ArgumentEnumerator( IEnumerable<string> arguments ) {
                 sources.Add( arguments.GetEnumerator() );
@@ -958,9 +959,8 @@ namespace Mono.Options
             if( !GetOptionParts( argument, out f, out n, out s, out v ) )
                 return false;
 
-            Option p;
             if( Contains( n ) ) {
-                p = this[n];
+                Option p = this[n];
                 c.OptionName = f + n;
                 c.Option = p;
                 switch( p.OptionValueType ) {
@@ -1004,11 +1004,10 @@ namespace Mono.Options
         }
 
         private bool ParseBool( string option, string n, OptionContext c ) {
-            Option p;
             string rn;
             if( n.Length >= 1 && ( n[n.Length - 1] == '+' || n[n.Length - 1] == '-' ) &&
                     Contains( ( rn = n.Substring( 0, n.Length - 1 ) ) ) ) {
-                p = this[rn];
+                Option p = this[rn];
                 string v = n[n.Length - 1] == '+' ? option : null;
                 c.OptionName = option;
                 c.Option = p;
@@ -1023,7 +1022,6 @@ namespace Mono.Options
             if( f != "-" )
                 return false;
             for( int i = 0; i < n.Length; ++i ) {
-                Option p;
                 string opt = f + n[i].ToString( CultureInfo.InvariantCulture );
                 string rn = n[i].ToString( CultureInfo.InvariantCulture );
                 if( !Contains( rn ) ) {
@@ -1032,7 +1030,7 @@ namespace Mono.Options
                     throw new OptionException( string.Format( localizer(
                                     "Cannot bundle unregistered option '{0}'." ), opt ), opt );
                 }
-                p = this[rn];
+                Option p = this[rn];
                 switch( p.OptionValueType ) {
                     case OptionValueType.None:
                         Invoke( c, opt, n, p );

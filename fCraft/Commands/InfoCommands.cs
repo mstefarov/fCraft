@@ -199,7 +199,9 @@ namespace fCraft {
             }
 
             if( info.LastIP.Equals( IPAddress.None ) ) {
-                player.Message( "About {0}&S: Never seen before.", info.ClassyName );
+                player.Message( "About {0}&S: Never seen before ({1} acct).",
+                                info.ClassyName,
+                                info.AccountType );
 
             } else {
                 StringBuilder firstLine = new StringBuilder();
@@ -233,13 +235,11 @@ namespace fCraft {
                         firstLine.AppendFormat( " ({0})", info.LeaveReason );
                     }
                 }
-                if( info.AccountType == AccountType.Paid ) {
-                    firstLine.Append( " &a$" );
-                }
                 player.Message( firstLine.ToString() );
 
                 // Show login information
-                player.Message( "  Logged in {0} time(s) since {1:d MMM yyyy}.",
+                player.Message( "  {0} account, {1} logins since {2:d MMM yyyy}.",
+                                info.AccountType,
                                 info.TimesVisited,
                                 info.FirstLoginDate );
             }
