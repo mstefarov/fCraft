@@ -44,7 +44,7 @@ namespace fCraft {
 #endif
                         if( value == YesNoAuto.No && IsEnabled ) {
                             // going from enabled/auto-enabled to disabled
-                            Flush();
+                            Flush( true );
                             CacheClear();
                             IsEnabled = false;
 
@@ -103,7 +103,7 @@ namespace fCraft {
                         if( !isPreloaded && CacheSize >= CacheLinearResizeThreshold ) {
                             // Avoid bloating the cacheStore if we are not preloaded.
                             // This might cause lag spikes, since it's ran from main scheduler thread.
-                            Flush();
+                            Flush( false );
                         } else {
                             // resize cache to fit
                             EnsureCapacity( CacheSize + 1 );
@@ -224,7 +224,7 @@ namespace fCraft {
 
                     if( IsEnabledGlobally ) {
                         if( value == isPreloaded ) return;
-                        Flush();
+                        Flush( true );
                         if( value && File.Exists( FileName ) ) {
                             Preload();
                         } else if( value == false ) {
@@ -289,6 +289,8 @@ namespace fCraft {
                 using( File.Create( FileName ) ) {}
                 return;
             }
+            if( !File.Exists( FileName ) ) return;
+
             string tempFileName = FileName + ".tmp";
             using( FileStream source = File.OpenRead( FileName ) ) {
                 int entries = (int)( source.Length / sizeof( BlockDBEntry ) );
@@ -330,20 +332,20 @@ namespace fCraft {
                 }
 
             } else {
-                // If we still have some searching to do, read the file
+                Flush( false );
+                if( !File.Exists( FileName ) ) return -1;
+
                 using( FileStream fs = OpenRead() ) {
                     long length = fs.Length;
                     long bytesReadTotal = 0;
                     int bufferSize = (int)Math.Min( SearchBufferSize, length );
                     byte[] buffer = new byte[bufferSize];
-                    //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries: length={0}  bufferSize={1}", length, bufferSize );
 
                     while( bytesReadTotal < length ) {
                         long offset = Math.Max( 0, length - bytesReadTotal - SearchBufferSize );
                         fs.Seek( offset, SeekOrigin.Begin );
 
                         int bytesToRead = (int)Math.Min( length - bytesReadTotal, SearchBufferSize );
-                        //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries->pass: offset={0}  bytesToRead={1}", offset, bytesToRead );
                         int bytesLeft = bytesToRead;
                         int bytesRead = 0;
                         while( bytesLeft > 0 ) {
@@ -351,7 +353,6 @@ namespace fCraft {
                             if( readPass == 0 ) throw new EndOfStreamException();
                             bytesRead += readPass;
                             bytesLeft -= readPass;
-                            //Logger.Log( LogType.Debug, "BlockDB.CountNewerEntries->intrapass: bytesRead={0}  readPass={1}  bytesLeft={2}", bytesRead, readPass, bytesLeft );
                         }
                         bytesReadTotal += bytesRead;
 
@@ -416,6 +417,7 @@ namespace fCraft {
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
 #endif
+                Flush( false );
                 if( isPreloaded ) {
                     LimitCapacity( limit );
                 }
@@ -475,6 +477,7 @@ namespace fCraft {
                 int oldCap = CacheCapacity;
                 int oldSize = CacheSize;
 #endif
+                Flush( false );
                 int newCapacity = CountNewerEntries( timeLimit );
                 if( newCapacity != -1 ) {
                     if( isPreloaded ) {
@@ -515,7 +518,7 @@ namespace fCraft {
         }
 
 
-        internal void Flush() {
+        internal void Flush( bool enforceLimits ) {
             IDisposable writeLockHandle = null;
             try {
                 if( !locker.IsWriteLockHeld ) {
@@ -545,6 +548,8 @@ namespace fCraft {
                                 World.Name, count, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                 }
+
+                if( !enforceLimits ) return;
 
                 // enforce size limit, if needed
                 if( limit > 0 ) {
@@ -919,7 +924,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => true,
-                                                                entry => entry.PlayerID != pid );
+                                                                entry => entry.PlayerID == pid );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.PlayerID == pid );
@@ -940,7 +945,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks,
-                                                                entry => entry.PlayerID != pid );
+                                                                entry => entry.PlayerID == pid );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
@@ -960,7 +965,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => true,
-                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => infos.Any( t => entry.PlayerID == t.ID ) );
@@ -982,7 +987,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks,
-                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&
@@ -1003,7 +1008,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => entry.PlayerID != pid );
+                                                                entry => entry.PlayerID == pid );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
@@ -1027,7 +1032,7 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => entry.PlayerID != pid );
+                                                                entry => entry.PlayerID == pid );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&
@@ -1050,7 +1055,7 @@ namespace fCraft {
             if( exclude ) {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
@@ -1075,7 +1080,7 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&
@@ -1178,8 +1183,6 @@ namespace fCraft {
 
         #region Static
 
-        static readonly TimeSpan FlushInterval = TimeSpan.FromSeconds( 90 );
-
         /// <summary> Whether BlockDB was enabled at startup.
         /// Changing this setting currently requires a server restart. </summary>
         public static bool IsEnabledGlobally { get; private set; }
@@ -1188,7 +1191,6 @@ namespace fCraft {
         internal static void Init() {
             Paths.TestDirectory( "BlockDB", Paths.BlockDBPath, true );
             Player.PlacedBlock += OnPlayerPlacedBlock;
-            Scheduler.NewBackgroundTask( FlushAll ).RunForever( FlushInterval, FlushInterval );
             IsEnabledGlobally = true;
         }
 
@@ -1204,15 +1206,6 @@ namespace fCraft {
                                                           e.NewBlock,
                                                           e.Context );
                 world.BlockDB.AddEntry( newEntry );
-            }
-        }
-
-
-        static void FlushAll( SchedulerTask task ) {
-            lock( WorldManager.SyncRoot ) {
-                foreach( World w in WorldManager.Worlds.Where( w => w.BlockDB.IsEnabled ) ) {
-                    w.BlockDB.Flush();
-                }
             }
         }
 

@@ -594,7 +594,7 @@ namespace fCraft {
                 lock( BackupLock ) {
                     if( BackupsEnabled &&
                         DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
-                        (HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
+                        ( HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
 
                         string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
                         SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
@@ -604,6 +604,10 @@ namespace fCraft {
 
                 if( Map.HasChangedSinceSave ) {
                     SaveMap();
+                }
+
+                if( BlockDB.IsEnabledGlobally && BlockDB.IsEnabled ) {
+                    BlockDB.Flush( true );
                 }
             }
         }

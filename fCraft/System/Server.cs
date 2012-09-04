@@ -504,7 +504,7 @@ namespace fCraft {
                         // unload all worlds (includes saving)
                         foreach( World world in WorldManager.Worlds ) {
                             if( BlockDB.IsEnabledGlobally && world.BlockDB.IsEnabled ) {
-                                world.BlockDB.Flush();
+                                world.BlockDB.Flush( false );
                             }
                             world.SaveMap();
                         }
