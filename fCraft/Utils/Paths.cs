@@ -31,6 +31,8 @@ namespace fCraft {
                 "ServerCLI.exe",
                 "ServerGUI.exe",
                 "ServerWinService.exe",
+                "MapConverter.exe",
+                "MapRenderer.exe",
                 UpdaterFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
