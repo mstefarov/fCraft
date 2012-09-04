@@ -277,11 +277,11 @@ namespace fCraft {
 
         static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
-
+        const double LimitEnforcementThreshold = 1.15; // 15%
         internal int LastFlushedIndex;
         int changesSinceLimitEnforcement;
-        const double LimitEnforcementThreshold = 1.15; // 15%
-        DateTime lastLimit, lastTimeLimit;
+        DateTime lastLimit,
+                 lastTimeLimit;
 
 
         void TrimFile( int maxCapacity ) {
@@ -370,8 +370,6 @@ namespace fCraft {
             }
             return -1;
         }
-
-
 
 
         public int Limit {
@@ -607,25 +605,24 @@ namespace fCraft {
             if( max < 0 ) throw new ArgumentOutOfRangeException( "max" );
             if( selector == null ) throw new ArgumentNullException( "selector" );
 
+            IBlockDBQueryProcessor processor;
+
             switch( searchType ) {
-                case BlockDBSearchType.ReturnAll: {
-                    var proc = new ReturnAllProcessor( max, selector );
-                    Traverse( proc );
-                    return proc.Result.ToArray();
-                }
-                case BlockDBSearchType.ReturnNewest: {
-                    var proc = new ReturnNewestProcessor( World.LoadMap(), max, selector );
-                    Traverse( proc );
-                    return proc.Result.Values.ToArray();
-                }
-                case BlockDBSearchType.ReturnOldest: {
-                    var proc = new ReturnOldestProcessor( World.LoadMap(), max, selector );
-                    Traverse( proc );
-                    return proc.Result.Values.ToArray();
-                }
+                case BlockDBSearchType.ReturnAll:
+                    processor = new ReturnAllProcessor( max, selector );
+                    break;
+                case BlockDBSearchType.ReturnNewest:
+                    processor = new ReturnNewestProcessor( World.LoadMap(), max, selector );
+                    break;
+                case BlockDBSearchType.ReturnOldest:
+                    processor = new ReturnOldestProcessor( World.LoadMap(), max, selector );
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException( "searchType" );
             }
+
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -724,87 +721,144 @@ namespace fCraft {
         #region Lookup processors
 
         class ReturnAllProcessor : IBlockDBQueryProcessor {
-            public int Count;
-            public readonly int Max;
-            public readonly Func<BlockDBEntry, bool> Selector;
-            public readonly List<BlockDBEntry> Result = new List<BlockDBEntry>();
+            int count;
+            readonly int max;
+            readonly Func<BlockDBEntry, bool> selector;
+            readonly List<BlockDBEntry> result = new List<BlockDBEntry>();
 
 
             public ReturnAllProcessor( int max, Func<BlockDBEntry, bool> selector ) {
-                Max = max;
-                Selector = selector;
+                this.max = max;
+                this.selector = selector;
             }
 
 
             public bool ProcessEntry( BlockDBEntry entry ) {
-                if( Selector( entry ) ) {
-                    Result.Add( entry );
-                    Count++;
-                    if( Count >= Max ) {
+                if( selector( entry ) ) {
+                    result.Add( entry );
+                    count++;
+                    if( count >= max ) {
                         return false;
                     }
                 }
                 return true;
+            }
+
+
+            public BlockDBEntry[] GetResults() {
+                return result.ToArray();
             }
         }
 
 
         class ReturnOldestProcessor : IBlockDBQueryProcessor {
-            public readonly Map Map;
-            public int Count;
-            public readonly int Max;
-            public readonly Func<BlockDBEntry, bool> Selector;
-            public readonly Dictionary<int, BlockDBEntry> Result = new Dictionary<int, BlockDBEntry>();
+            readonly Map map;
+            int count;
+            readonly int max;
+            readonly Func<BlockDBEntry, bool> selector;
+            readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
             public ReturnOldestProcessor( Map map, int max, Func<BlockDBEntry, bool> selector ) {
-                Max = max;
-                Selector = selector;
-                Map = map;
+                this.max = max;
+                this.selector = selector;
+                this.map = map;
             }
 
 
             public bool ProcessEntry( BlockDBEntry entry ) {
-                if( Selector( entry ) ) {
-                    int index = Map.Index( entry.X, entry.Y, entry.Z );
-                    Result[index] = entry;
-                    Count++;
-                    if( Count >= Max ) {
+                if( selector( entry ) ) {
+                    int index = map.Index( entry.X, entry.Y, entry.Z );
+                    result[index] = entry;
+                    count++;
+                    if( count >= max ) {
                         return false;
                     }
                 }
                 return true;
+            }
+
+            public BlockDBEntry[] GetResults() {
+                return result.Values.ToArray();
             }
         }
 
 
         class ReturnNewestProcessor : IBlockDBQueryProcessor {
-            public readonly Map Map;
-            public int Count;
-            public readonly int Max;
-            public readonly Func<BlockDBEntry, bool> Selector;
-            public readonly Dictionary<int, BlockDBEntry> Result = new Dictionary<int, BlockDBEntry>();
+            readonly Map map;
+            int count;
+            readonly int max;
+            readonly Func<BlockDBEntry, bool> selector;
+            readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
             public ReturnNewestProcessor( Map map, int max, Func<BlockDBEntry, bool> selector ) {
-                Max = max;
-                Selector = selector;
-                Map = map;
+                this.max = max;
+                this.selector = selector;
+                this.map = map;
             }
 
 
             public bool ProcessEntry( BlockDBEntry entry ) {
-                if( Selector( entry ) ) {
-                    int index = Map.Index( entry.X, entry.Y, entry.Z );
-                    if( !Result.ContainsKey( index ) ) {
-                        Result.Add( index, entry );
+                if( selector( entry ) ) {
+                    int index = map.Index( entry.X, entry.Y, entry.Z );
+                    if( !result.ContainsKey( index ) ) {
+                        result.Add( index, entry );
                     }
-                    Count++;
-                    if( Count >= Max ) {
+                    count++;
+                    if( count >= max ) {
                         return false;
                     }
                 }
                 return true;
+            }
+            public BlockDBEntry[] GetResults() {
+                return result.Values.ToArray();
+            }
+        }
+
+
+        class ExcludingReturnOldestProcessor : IBlockDBQueryProcessor {
+            readonly Map map;
+            int count;
+            readonly int max;
+            readonly Func<BlockDBEntry, bool> inclusionSelector;
+            readonly Func<BlockDBEntry, bool> exclusionSelector;
+            readonly HashSet<int> excluded = new HashSet<int>();
+            readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
+
+
+            public ExcludingReturnOldestProcessor( Map map, int max,
+                                                   Func<BlockDBEntry, bool> inclusionSelector,
+                                                   Func<BlockDBEntry, bool> exclusionSelector ) {
+                this.max = max;
+                this.inclusionSelector = inclusionSelector;
+                this.exclusionSelector = exclusionSelector;
+                this.map = map;
+            }
+
+
+            public bool ProcessEntry( BlockDBEntry entry ) {
+                if( inclusionSelector( entry ) ) {
+                    int index = map.Index( entry.X, entry.Y, entry.Z );
+                    if( !excluded.Contains( index ) ) {
+                        if( exclusionSelector( entry ) ) {
+                            excluded.Add( index );
+                        } else {
+                            result[index] = entry;
+                        }
+                        count++;
+                        if( count >= max ) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+
+            public BlockDBEntry[] GetResults() {
+                return result.Values.ToArray();
             }
         }
 
@@ -859,13 +913,19 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.PlayerID != pid );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => true,
+                                                                entry => entry.PlayerID != pid );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.PlayerID == pid );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => entry.PlayerID == pid );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -874,15 +934,19 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             int pid = info.ID;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        entry.PlayerID != pid );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => entry.Timestamp >= ticks,
+                                                                entry => entry.PlayerID != pid );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        entry.PlayerID == pid );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -890,13 +954,19 @@ namespace fCraft {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( max, infos[0], exclude );
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => infos.All( t => entry.PlayerID != t.ID ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => true,
+                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => infos.Any( t => entry.PlayerID == t.ID ) );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -906,15 +976,20 @@ namespace fCraft {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             if( infos.Length == 1 ) return Lookup( max, infos[0], exclude, span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        infos.All( t => entry.PlayerID != t.ID ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => entry.Timestamp >= ticks,
+                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        infos.Any( t => entry.PlayerID == t.ID ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => entry.Timestamp >= ticks &&
+                                                                infos.Any( t => entry.PlayerID == t.ID ) );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -922,36 +997,45 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.PlayerID != pid &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => area.Contains( entry.X, entry.Y, entry.Z ),
+                                                                entry => entry.PlayerID != pid );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.PlayerID == pid &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                                                entry.PlayerID == pid );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude,
-                                      TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             int pid = info.ID;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        entry.PlayerID != pid &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => entry.Timestamp >= ticks &&
+                                                                         area.Contains( entry.X, entry.Y, entry.Z ),
+                                                                entry => entry.PlayerID != pid );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        entry.PlayerID == pid &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => entry.Timestamp >= ticks &&
+                                                                entry.PlayerID == pid &&
+                                                                area.Contains( entry.X, entry.Y, entry.Z ) );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
@@ -960,37 +1044,46 @@ namespace fCraft {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( infos.Length == 1 ) return Lookup( max, area, infos[0], exclude );
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                        infos.All( t => entry.PlayerID != t.ID ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => area.Contains( entry.X, entry.Y, entry.Z ),
+                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                        infos.Any( t => entry.PlayerID == t.ID ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                                                infos.Any( t => entry.PlayerID == t.ID ) );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude,
-                                      TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             if( infos.Length == 1 ) return Lookup( max, area, infos[0], exclude, span );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
+            Map map = World.LoadMap();
+
+            IBlockDBQueryProcessor processor;
             if( exclude ) {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                        infos.All( t => entry.PlayerID != t.ID ) );
+                processor = new ExcludingReturnOldestProcessor( map, max,
+                                                                entry => entry.Timestamp >= ticks &&
+                                                                         area.Contains( entry.X, entry.Y, entry.Z ),
+                                                                entry => infos.All( t => entry.PlayerID != t.ID ) );
             } else {
-                return Lookup( max, BlockDBSearchType.ReturnOldest,
-                               entry => entry.Timestamp >= ticks &&
-                                        area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                        infos.Any( t => entry.PlayerID == t.ID ) );
+                processor = new ReturnOldestProcessor( map, max,
+                                                       entry => entry.Timestamp >= ticks &&
+                                                                area.Contains( entry.X, entry.Y, entry.Z ) &&
+                                                                infos.Any( t => entry.PlayerID == t.ID ) );
             }
+            Traverse( processor );
+            return processor.GetResults();
         }
 
         #endregion
@@ -1133,5 +1226,7 @@ namespace fCraft {
         /// <param name="entry"> Current entry. </param>
         /// <returns> True if traversal should continue. False if traversal should end. </returns>
         bool ProcessEntry( BlockDBEntry entry );
+        /// <summary> Returns the gathered results, as an array of BlockDBEntry structs. </summary>
+        BlockDBEntry[] GetResults();
     }
 }
