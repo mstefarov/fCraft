@@ -26,6 +26,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdMark );
+            CommandManager.RegisterCommand( CdDoNotMark );
             CommandManager.RegisterCommand( CdUndo );
             CommandManager.RegisterCommand( CdRedo );
 
@@ -1391,6 +1392,24 @@ namespace fCraft {
             }
         }
 
+
+        static readonly CommandDescriptor CdDoNotMark = new CommandDescriptor {
+            Name = "DoNotMark",
+            Aliases = new[] { "dontmark", "dm" },
+            Category = CommandCategory.Building,
+            Usage = "/DoNotMark",
+            Help = "Toggles whether clicking blocks adds to a selection.",
+            Handler = DoNotMarkHandler
+        };
+
+        static void DoNotMarkHandler( Player player, CommandReader cmd ) {
+            player.DisableClickToMark = !player.DisableClickToMark;
+            if( player.DisableClickToMark ) {
+                player.Message( "Click-to-mark enabled." );
+            } else {
+                player.Message( "Click-to-mark disabled." );
+            }
+        }
 
 
         static readonly CommandDescriptor CdCancel = new CommandDescriptor {

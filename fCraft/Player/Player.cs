@@ -900,7 +900,7 @@ namespace fCraft {
             type = bindings[(byte)type];
 
             // selection handling
-            if( SelectionMarksExpected > 0 ) {
+            if( SelectionMarksExpected > 0 && !DisableClickToMark ) {
                 RevertBlockNow( coord );
                 SelectionAddMark( coord, true );
                 return false;
@@ -1306,6 +1306,8 @@ namespace fCraft {
         [CanBeNull]
         public DrawOperation LastDrawOp { get; set; }
 
+        /// <summary> Whether clicks should be registered towards selection marks. </summary>
+        public bool DisableClickToMark { get; set; }
 
         /// <summary> Whether player is currently making a selection. </summary>
         public bool IsMakingSelection {
@@ -1385,6 +1387,9 @@ namespace fCraft {
             selectionMarks.Clear();
             selectionCallback = callback;
             selectionPermissions = requiredPermissions;
+            if( DisableClickToMark ) {
+                Message( "&8Reminder: Click-to-mark is disabled." );
+            }
         }
 
 
