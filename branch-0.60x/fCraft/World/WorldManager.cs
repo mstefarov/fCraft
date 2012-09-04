@@ -457,7 +457,7 @@ namespace fCraft {
 
                 doc.Add( root );
                 doc.Save( worldListTempFileName );
-                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
+                Paths.MoveOrReplaceFile( worldListTempFileName, Paths.WorldListFileName );
             }
         }
 

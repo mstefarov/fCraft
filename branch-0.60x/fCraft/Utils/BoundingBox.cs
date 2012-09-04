@@ -4,11 +4,9 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
-    /// <summary>
-    /// Defines a 3D bounding box, in integer cartesian coordinates
-    /// </summary>
+    /// <summary> Defines a 3D bounding box, in integer cartesian coordinates. </summary>
     public sealed class BoundingBox : IEquatable<BoundingBox> {
+        /// <summary> Empty BoundingBox (0x0x0). </summary>
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;

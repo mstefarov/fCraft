@@ -27,18 +27,42 @@ namespace fCraft {
                             White = "&f";
 
         // User-defined color assignments. Set by Config.ApplyConfig.
-        public static string Sys, Help, Say, Announcement, PM, IRC, Me, Warning;
+        /// <summary> Color of system messages, nickserv, chanserv. </summary>
+        public static string Sys;
+        /// <summary> Color of help messages, /help. </summary>
+        public static string Help;
+        /// <summary> Color of say messages, /say. </summary>
+        public static string Say;
+        /// <summary> Color of announcements, server announcements. </summary>
+        public static string Announcement;
+        /// <summary> Color of personal messages. </summary>
+        public static string PM;
+        /// <summary> Color of IRC chat. </summary>
+        public static string IRC;
+        /// <summary> Color of /me command. </summary>
+        public static string Me;
+        /// <summary> Color of warning messages. </summary>
+        public static string Warning;
 
         // Defaults for user-defined colors.
-        public const string SysDefault = Yellow,
-                            HelpDefault = Lime,
-                            SayDefault = Green,
-                            AnnouncementDefault = Green,
-                            PMDefault = Aqua,
-                            IRCDefault = Purple,
-                            MeDefault = Purple,
-                            WarningDefault = Red;
+        /// <summary> Default color of system messages, nickserv, chanserv. </summary>
+        public const string SysDefault = Yellow;
+        /// <summary> Default color of help messages, /help.</summary>
+        public const string HelpDefault = Lime;
+        /// <summary> Default color of say messages, /say. </summary>
+        public const string SayDefault = Green;
+        /// <summary> Default color of announcements, server announcements.</summary>
+        public const string AnnouncementDefault = Green;
+        /// <summary> Default color of personal messages.</summary>
+        public const string PMDefault = Aqua;
+        /// <summary> Default color of IRC chat. </summary>
+        public const string IRCDefault = Purple;
+        /// <summary> Default color of /me command.</summary>
+        public const string MeDefault = Purple;
+        /// <summary> Default color of warning messages.</summary>
+        public const string WarningDefault = Red;
 
+        /// <summary> List of color names indexed by their id. </summary>
         public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
             { '0', "black" },
             { '1', "navy" },
@@ -111,7 +135,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Parses a string to a format readable by Minecraft clients. 
         /// an accept color names and color codes (with or without the ampersand). </summary>
         /// <param name="code"> Color code character. </param>
@@ -135,20 +158,6 @@ namespace fCraft {
                     default:
                         return null;
                 }
-            }
-        }
-
-
-        /// <summary> Parses a numeric color code to a string readable by Minecraft clients </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15). </param>
-        /// <returns> Two-character color string, readable by Minecraft client.
-        /// If input cannot be parsed, returns null. </returns>
-        [CanBeNull]
-        public static string Parse( int index ) {
-            if( index >= 0 && index <= 15 ) {
-                return "&" + ColorNames.Keys[index];
-            } else {
-                return null;
             }
         }
 
@@ -186,42 +195,14 @@ namespace fCraft {
         }
 
 
-        public static int ParseToIndex( [NotNull] string color ) {
-            if( color == null ) throw new ArgumentNullException( "color" );
-            color = color.ToLower();
-            if( color.Length == 2 && color[0] == '&' ) {
-                if( ColorNames.ContainsKey( color[1] ) ) {
-                    return ColorNames.IndexOfKey( color[1] );
-                } else {
-                    switch( color ) {
-                        case "&s": return ColorNames.IndexOfKey( Sys[1] );
-                        case "&y": return ColorNames.IndexOfKey( Say[1] );
-                        case "&p": return ColorNames.IndexOfKey( PM[1] );
-                        case "&r": return ColorNames.IndexOfKey( Announcement[1] );
-                        case "&h": return ColorNames.IndexOfKey( Help[1] );
-                        case "&w": return ColorNames.IndexOfKey( Warning[1] );
-                        case "&m": return ColorNames.IndexOfKey( Me[1] );
-                        case "&i": return ColorNames.IndexOfKey( IRC[1] );
-                        default: return 15;
-                    }
-                }
-            } else if( ColorNames.ContainsValue( color ) ) {
-                return ColorNames.IndexOfValue( color );
-            } else {
-                return 15; // white
-            }
-        }
-
-
-
-        /// <summary>
-        /// Checks whether a color code is valid (checks if it's hexadecimal char).
-        /// </summary>
+        /// <summary> Checks whether a color code is valid (checks if it's hexadecimal char). </summary>
         /// <returns>True is char is valid, otherwise false</returns>
         public static bool IsValidColorCode( char code ) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
+
+        /// <summary> Substitutes percent color codes with equivalent ampersand color codes. </summary>
         public static void ReplacePercentCodes( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             sb.Replace( "%0", "&0" );
@@ -250,6 +231,9 @@ namespace fCraft {
             sb.Replace( "%N", "\n" );
         }
 
+
+        /// <summary> Substitutes percent color codes with equivalent ampersand color codes. </summary>
+        [NotNull]
         public static string ReplacePercentCodes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             StringBuilder sb = new StringBuilder( message );
@@ -258,9 +242,10 @@ namespace fCraft {
         }
 
 
-        public static string SubstituteSpecialColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
+        /// <summary> Substitutes all special ampersand color codes (like Color.Sys)
+        /// with the assigned Minecraft colors (like Color.Yellow). </summary>
+        public static void SubstituteSpecialColors( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
                     switch( Char.ToLower( sb[i] ) ) {
@@ -280,6 +265,15 @@ namespace fCraft {
                     }
                 }
             }
+        }
+
+        /// <summary> Substitutes all special ampersand color codes (like Color.Sys)
+        /// with the assigned Minecraft colors (like Color.Yellow). </summary>
+        [NotNull]
+        public static string SubstituteSpecialColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            SubstituteSpecialColors( sb );
             return sb.ToString();
         }
 
@@ -297,6 +291,9 @@ namespace fCraft {
                             break;
                         }
                         i++;
+                        if( input[i] == 'n' || input[i] == 'N' ) {
+                            output.Append( '\n' );
+                        }
                     } else {
                         output.Append( input[i] );
                     }
@@ -308,7 +305,10 @@ namespace fCraft {
 
         #region IRC Colors
 
+        /// <summary> String that resets formatting for following part of an IRC message. </summary>
         public const string IRCReset = "\u0003\u000f";
+
+        /// <summary> String that toggles bold text on/off in IRC messages. </summary>
         public const string IRCBold = "\u0002";
 
         static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
@@ -331,13 +331,20 @@ namespace fCraft {
         };
 
 
+        public static void ToIRCColorCodes( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
+            SubstituteSpecialColors( sb );
+            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
+                string replacement = '\u0003' + ( (int)code.Value ).ToStringInvariant().PadLeft( 2, '0' );
+                sb.Replace( code.Key, replacement );
+            }
+        }
+
+
         public static string ToIRCColorCodes( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( SubstituteSpecialColors( input ) );
-
-            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                sb.Replace( code.Key, '\u0003' + ((int)code.Value).ToString( "00" ) );
-            }
+            StringBuilder sb = new StringBuilder( input );
+            ToIRCColorCodes( sb );
             return sb.ToString();
         }
 

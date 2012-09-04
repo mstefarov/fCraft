@@ -725,7 +725,7 @@ namespace fCraft {
                 // write out the changes
                 string tempFileName = Paths.ConfigFileName + ".temp";
                 file.Save( tempFileName );
-                Paths.MoveOrReplace( tempFileName, Paths.ConfigFileName );
+                Paths.MoveOrReplaceFile( tempFileName, Paths.ConfigFileName );
                 return true;
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );

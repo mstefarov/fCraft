@@ -122,7 +122,7 @@ namespace fCraft.AutoRank {
     #region Enums
 
     /// <summary>  Operators used to compare PlayerInfo fields. </summary>
-    public enum ComparisonOp {
+    enum ComparisonOp {
 
         /// <summary> EQuals to </summary>
         Eq,
@@ -145,7 +145,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Enumeration of quantifiable PlayerInfo fields (or field combinations) that may be used with AutoRank conditions. </summary>
-    public enum ConditionField {
+    enum ConditionField {
         /// <summary> Time since first login (first time the player connected), in seconds.
         /// For players who have been entered into PlayerDB but have never logged in, this is a huge value. </summary>
         TimeSinceFirstLogin,

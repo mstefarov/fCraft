@@ -126,7 +126,7 @@ namespace fCraft {
                     }
                 }
                 try {
-                    Paths.MoveOrReplace( tempFile, Paths.IPBanListFileName );
+                    Paths.MoveOrReplaceFile( tempFile, Paths.IPBanListFileName );
                     sw.Stop();
                     Logger.Log( LogType.Debug,
                                 "IPBanList.Save: Saved IP-ban database ({0} records) in {1}ms",

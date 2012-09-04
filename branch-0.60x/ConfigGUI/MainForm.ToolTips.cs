@@ -1,5 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
+using JetBrains.Annotations;
+
 namespace fCraft.ConfigGUI {
     partial class MainForm {
 
