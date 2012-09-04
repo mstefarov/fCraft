@@ -1557,6 +1557,7 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Teleports player to a given coordinate within this map. </summary>
         public void TeleportTo( Position pos ) {
             StopSpectating();
             Send( PacketWriter.MakeSelfTeleport( pos ) );

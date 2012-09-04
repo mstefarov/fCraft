@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-//#define DEBUG_BLOCKDB
+#define DEBUG_BLOCKDB
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -225,9 +225,9 @@ namespace fCraft {
                     if( IsEnabledGlobally ) {
                         if( value == isPreloaded ) return;
                         Flush( true );
-                        if( value && File.Exists( FileName ) ) {
+                        if( value ) {
                             Preload();
-                        } else if( value == false ) {
+                        } else {
                             CacheClear();
                         }
 #if DEBUG_BLOCKDB
@@ -245,6 +245,7 @@ namespace fCraft {
 
 
         void Preload() {
+            if( !File.Exists( FileName ) ) return;
             using( FileStream fs = OpenRead() ) {
                 CacheSize = (int)( fs.Length / sizeof( BlockDBEntry ) );
                 EnsureCapacity( CacheSize );
@@ -528,8 +529,8 @@ namespace fCraft {
                 if( LastFlushedIndex < CacheSize ) {
 #if DEBUG_BLOCKDB
                     Logger.Log( LogType.Debug,
-                                "BlockDB({0}): Flushing. CC={1} CS={2} LFI={3}",
-                                World.Name, CacheCapacity, CacheSize, LastFlushedIndex );
+                                "BlockDB({0}): Flushing({1}) CC={2} CS={3} LFI={4}",
+                                World.Name, enforceLimits, CacheCapacity, CacheSize, LastFlushedIndex );
 #endif
                     int count = 0;
                     using( FileStream stream = OpenAppend() ) {
@@ -673,6 +674,7 @@ namespace fCraft {
                     }
 
                     // If we still have some searching to do, read the file
+                    if( !File.Exists( FileName ) ) return;
                     using( FileStream fs = OpenRead() ) {
                         long length = fs.Length;
                         long bytesReadTotal = 0;
