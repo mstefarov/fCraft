@@ -19,7 +19,7 @@
  Fix: Fixed SaveInterval and BackupInterval being limited to just 100 seconds/minutes in ConfigGUI (thanks Hellenion)
  Fix: Improved reliability of pre-startup assembly version checks in ServerCLI and ServerGUI.
  Fix: Improved consistency of timestamp format in logs (thanks Hellenion)
- Fix: Improved performance of /Gen, /UndoArea, /UndoPlayer, and world loading.
+ Fix: Improved performance of /Gen, /UndoArea, /UndoPlayer, world loading, and all BlockDB-related commands.
  Fix: Fixed being unable to remove world greetings via /WSet.
  Change: Adjustments to block names and aliases, as well as command aliases.
  Change: Merged /Cancel and /Nvm commands.
