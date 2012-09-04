@@ -586,7 +586,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             selectedRank = rank;
             tRankName.Text = rank.Name;
 
-            ApplyColor( bColorRank, Color.ParseToIndex( rank.Color ) );
+            ApplyColor( bColorRank, ParseToIndex( rank.Color ) );
 
             tPrefix.Text = rank.Prefix;
 
@@ -1324,7 +1324,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorSys = picker.ColorIndex;
             ApplyColor( bColorSys, colorSys );
-            Color.Sys = Color.Parse( colorSys );
+            Color.Sys = Parse( colorSys );
         }
 
         private void bColorHelp_Click( object sender, EventArgs e ) {
@@ -1332,7 +1332,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorHelp = picker.ColorIndex;
             ApplyColor( bColorHelp, colorHelp );
-            Color.Help = Color.Parse( colorHelp );
+            Color.Help = Parse( colorHelp );
         }
 
         private void bColorSay_Click( object sender, EventArgs e ) {
@@ -1340,7 +1340,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorSay = picker.ColorIndex;
             ApplyColor( bColorSay, colorSay );
-            Color.Say = Color.Parse( colorSay );
+            Color.Say = Parse( colorSay );
         }
 
         private void bColorAnnouncement_Click( object sender, EventArgs e ) {
@@ -1348,7 +1348,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorAnnouncement = picker.ColorIndex;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            Color.Announcement = Color.Parse( colorAnnouncement );
+            Color.Announcement = Parse( colorAnnouncement );
         }
 
         private void bColorPM_Click( object sender, EventArgs e ) {
@@ -1356,7 +1356,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorPM = picker.ColorIndex;
             ApplyColor( bColorPM, colorPM );
-            Color.PM = Color.Parse( colorPM );
+            Color.PM = Parse( colorPM );
         }
 
         private void bColorWarning_Click( object sender, EventArgs e ) {
@@ -1364,7 +1364,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorWarning = picker.ColorIndex;
             ApplyColor( bColorWarning, colorWarning );
-            Color.Warning = Color.Parse( colorWarning );
+            Color.Warning = Parse( colorWarning );
         }
 
         private void bColorMe_Click( object sender, EventArgs e ) {
@@ -1372,7 +1372,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorMe = picker.ColorIndex;
             ApplyColor( bColorMe, colorMe );
-            Color.Me = Color.Parse( colorMe );
+            Color.Me = Parse( colorMe );
         }
 
         private void bColorIRC_Click( object sender, EventArgs e ) {
@@ -1380,14 +1380,14 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorIRC = picker.ColorIndex;
             ApplyColor( bColorIRC, colorIRC );
-            Color.IRC = Color.Parse( colorIRC );
+            Color.IRC = Parse( colorIRC );
         }
 
         private void bColorRank_Click( object sender, EventArgs e ) {
-            ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", Color.ParseToIndex( selectedRank.Color ) );
+            ColorPicker picker = new ColorPicker( "Rank color for \"" + selectedRank.Name + "\"", ParseToIndex( selectedRank.Color ) );
             picker.ShowDialog();
             ApplyColor( bColorRank, picker.ColorIndex );
-            selectedRank.Color = Color.Parse( picker.ColorIndex );
+            selectedRank.Color = Parse( picker.ColorIndex );
         }
 
 
@@ -1472,7 +1472,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } else {
                 string mainWorldName = instance.cMainWorld.SelectedItem.ToString();
                 instance.FillWorldList();
-                if( mainWorldName == from ) {
+                if( mainWorldName == @from ) {
                     instance.cMainWorld.SelectedItem = to;
                 } else {
                     instance.cMainWorld.SelectedItem = mainWorldName;
@@ -1605,6 +1605,43 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         private void xAntispamMuteDuration_CheckedChanged( object sender, EventArgs e ) {
             nAntispamMuteDuration.Enabled = xAntispamMuteDuration.Checked;
             lAntispamMuteDurationUnits.Enabled = xAntispamMuteDuration.Checked;
+        }
+
+
+        public static int ParseToIndex( [NotNull] string color ) {
+            if( color == null ) throw new ArgumentNullException( "color" );
+            color = color.ToLower();
+            if( color.Length == 2 && color[0] == '&' ) {
+                if( Color.ColorNames.ContainsKey( color[1] ) ) {
+                    return Color.ColorNames.IndexOfKey( color[1] );
+                } else {
+                    switch( color ) {
+                        case "&s": return Color.ColorNames.IndexOfKey( Color.Sys[1] );
+                        case "&y": return Color.ColorNames.IndexOfKey( Color.Say[1] );
+                        case "&p": return Color.ColorNames.IndexOfKey( Color.PM[1] );
+                        case "&r": return Color.ColorNames.IndexOfKey( Color.Announcement[1] );
+                        case "&h": return Color.ColorNames.IndexOfKey( Color.Help[1] );
+                        case "&w": return Color.ColorNames.IndexOfKey( Color.Warning[1] );
+                        case "&m": return Color.ColorNames.IndexOfKey( Color.Me[1] );
+                        case "&i": return Color.ColorNames.IndexOfKey( Color.IRC[1] );
+                        default: return 15;
+                    }
+                }
+            } else if( Color.ColorNames.ContainsValue( color ) ) {
+                return Color.ColorNames.IndexOfValue( color );
+            } else {
+                return 15; // white
+            }
+        }
+
+
+        [CanBeNull]
+        public static string Parse( int index ) {
+            if( index >= 0 && index <= 15 ) {
+                return "&" + Color.ColorNames.Keys[index];
+            } else {
+                return null;
+            }
         }
     }
 }

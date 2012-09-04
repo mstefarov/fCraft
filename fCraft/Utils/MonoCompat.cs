@@ -107,9 +107,7 @@ namespace fCraft {
         }
 
 
-        /// <summary>Prepends the correct Mono name to the .NET executable, if needed.</summary>
-        /// <param name="dotNetExecutable"></param>
-        /// <returns></returns>
+        /// <summary> Prepends the correct Mono name to the .NET executable, if needed. </summary>
         public static string PrependMono( [NotNull] string dotNetExecutable ) {
             if( dotNetExecutable == null ) throw new ArgumentNullException( "dotNetExecutable" );
             if( IsMono ) {

@@ -162,33 +162,33 @@ namespace fCraft.ConfigGUI {
             xShowJoinedWorldMessages.Checked = ConfigKey.ShowJoinedWorldMessages.Enabled();
             xShowConnectionMessages.Checked = ConfigKey.ShowConnectionMessages.Enabled();
 
-            colorSys = Color.ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
+            colorSys = ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
-            Color.Sys = Color.Parse( colorSys );
+            Color.Sys = Parse( colorSys );
 
-            colorHelp = Color.ParseToIndex( ConfigKey.HelpColor.GetString() );
+            colorHelp = ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
-            Color.Help = Color.Parse( colorHelp );
+            Color.Help = Parse( colorHelp );
 
-            colorSay = Color.ParseToIndex( ConfigKey.SayColor.GetString() );
+            colorSay = ParseToIndex( ConfigKey.SayColor.GetString() );
             ApplyColor( bColorSay, colorSay );
-            Color.Say = Color.Parse( colorSay );
+            Color.Say = Parse( colorSay );
 
-            colorAnnouncement = Color.ParseToIndex( ConfigKey.AnnouncementColor.GetString() );
+            colorAnnouncement = ParseToIndex( ConfigKey.AnnouncementColor.GetString() );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            Color.Announcement = Color.Parse( colorAnnouncement );
+            Color.Announcement = Parse( colorAnnouncement );
 
-            colorPM = Color.ParseToIndex( ConfigKey.PrivateMessageColor.GetString() );
+            colorPM = ParseToIndex( ConfigKey.PrivateMessageColor.GetString() );
             ApplyColor( bColorPM, colorPM );
-            Color.PM = Color.Parse( colorPM );
+            Color.PM = Parse( colorPM );
 
-            colorWarning = Color.ParseToIndex( ConfigKey.WarningColor.GetString() );
+            colorWarning = ParseToIndex( ConfigKey.WarningColor.GetString() );
             ApplyColor( bColorWarning, colorWarning );
-            Color.Warning = Color.Parse( colorWarning );
+            Color.Warning = Parse( colorWarning );
 
-            colorMe = Color.ParseToIndex( ConfigKey.MeColor.GetString() );
+            colorMe = ParseToIndex( ConfigKey.MeColor.GetString() );
             ApplyColor( bColorMe, colorMe );
-            Color.Me = Color.Parse( colorMe );
+            Color.Me = Parse( colorMe );
 
             UpdateChatPreview();
         }
@@ -231,7 +231,7 @@ namespace fCraft.ConfigGUI {
                 cDefaultBuildRank.SelectedIndex = RankManager.GetIndex( RankManager.DefaultBuildRank );
             }
 
-            if( Paths.IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
+            if( IsDefaultMapPath( ConfigKey.MapPath.GetString() ) ) {
                 tMapPath.Text = Paths.MapPathDefault;
                 xMapPath.Checked = false;
             } else {
@@ -240,6 +240,11 @@ namespace fCraft.ConfigGUI {
             }
 
             xWoMEnableEnvExtensions.Checked = ConfigKey.WoMEnableEnvExtensions.Enabled();
+        }
+
+
+        static bool IsDefaultMapPath( [CanBeNull] string path ) {
+            return String.IsNullOrEmpty( path ) || Paths.Compare( Paths.MapPathDefault, path );
         }
 
 
@@ -363,9 +368,9 @@ namespace fCraft.ConfigGUI {
             xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
             xIRCStripMinecraftColors.Checked = ConfigKey.IRCStripMinecraftColors.Enabled();
 
-            colorIRC = Color.ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
+            colorIRC = ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
-            Color.IRC = Color.Parse( colorIRC );
+            Color.IRC = Parse( colorIRC );
 
             xIRCUseColor.Checked = ConfigKey.IRCUseColor.Enabled();
             xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.Enabled();
@@ -654,7 +659,7 @@ namespace fCraft.ConfigGUI {
                 }
                 doc.Add( root );
                 doc.Save( worldListTempFileName );
-                Paths.MoveOrReplace( worldListTempFileName, Paths.WorldListFileName );
+                Paths.MoveOrReplaceFile( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "An error occured while trying to save world list ({0}): {1}{2}",
                                                 Paths.WorldListFileName,

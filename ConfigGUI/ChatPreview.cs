@@ -83,12 +83,12 @@ namespace fCraft.ConfigGUI {
                         int x = 5;
                         string[] plainTextSegments = SplitByColorRegex.Split( lines[i] );
 
-                        int color = Color.ParseToIndex( Color.White );
+                        int color = MainForm.ParseToIndex( Color.White );
 
                         for( int j = 0; j < plainTextSegments.Length; j++ ) {
                             if( plainTextSegments[j].Length == 0 ) continue;
                             if( plainTextSegments[j][0] == '&' ) {
-                                color = Color.ParseToIndex( plainTextSegments[j] );
+                                color = MainForm.ParseToIndex( plainTextSegments[j] );
                             } else {
                                 newSegments.Add( new TextSegment {
                                     Color = ColorPairs[color],

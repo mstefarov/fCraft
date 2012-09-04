@@ -15,11 +15,11 @@ namespace fCraft {
     /// <summary> Checks for updates, and keeps track of current version/revision. </summary>
     public static class Updater {
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            630,
-            1726,
-            new DateTime( 2012, 9, 4, 8, 30, 0, DateTimeKind.Utc ),
+            631,
+            1729,
+            new DateTime( 2012, 9, 4, 11, 20, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.PlayerDBFormatChange | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.Optimized
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
