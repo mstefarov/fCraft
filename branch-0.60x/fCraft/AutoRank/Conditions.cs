@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace fCraft.AutoRank {
 
     /// <summary> Base class for all AutoRank conditions. </summary>
-    public abstract class Condition {
+    abstract class Condition {
         public abstract bool Eval( PlayerInfo info );
 
         public static Condition Parse( XElement el ) {
@@ -37,7 +37,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Class for checking ranges of countable PlayerInfo fields (see ConditionField enum). </summary>
-    public sealed class ConditionIntRange : Condition {
+    sealed class ConditionIntRange : Condition {
         public ConditionField Field { get; set; }
         public ComparisonOp Comparison { get; set; }
         public int Value { get; set; }
@@ -146,7 +146,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Checks what caused player's last rank change (see RankChangeType enum). </summary>
-    public sealed class ConditionRankChangeType : Condition {
+    sealed class ConditionRankChangeType : Condition {
         public RankChangeType Type { get; set; }
 
         public ConditionRankChangeType( RankChangeType type ) {
@@ -172,7 +172,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Checks what rank the player held previously. </summary>
-    public sealed class ConditionPreviousRank : Condition {
+    sealed class ConditionPreviousRank : Condition {
         public Rank Rank { get; set; }
         public ComparisonOp Comparison { get; set; }
 
@@ -224,7 +224,7 @@ namespace fCraft.AutoRank {
     #region Condition Sets
 
     /// <summary> Base class for condition sets/combinations. </summary>
-    public class ConditionSet : Condition {
+    class ConditionSet : Condition {
         protected ConditionSet() {
             Conditions = new List<Condition>();
         }
@@ -260,7 +260,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Logical AND - true if ALL conditions are true. </summary>
-    public sealed class ConditionAND : ConditionSet {
+    sealed class ConditionAND : ConditionSet {
         public ConditionAND() { }
         public ConditionAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
         public ConditionAND( XContainer el ) : base( el ) { }
@@ -281,7 +281,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Logical AND - true if NOT ALL of the conditions are true. </summary>
-    public sealed class ConditionNAND : ConditionSet {
+    sealed class ConditionNAND : ConditionSet {
         public ConditionNAND() { }
         public ConditionNAND( IEnumerable<Condition> conditions ) : base( conditions ) { }
         public ConditionNAND( XContainer el ) : base( el ) { }
@@ -303,7 +303,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Logical AND - true if ANY of the conditions are true. </summary>
-    public sealed class ConditionOR : ConditionSet {
+    sealed class ConditionOR : ConditionSet {
         public ConditionOR() { }
         public ConditionOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
         public ConditionOR( XContainer el ) : base( el ) { }
@@ -325,7 +325,7 @@ namespace fCraft.AutoRank {
 
 
     /// <summary> Logical AND - true if NONE of the conditions are true. </summary>
-    public sealed class ConditionNOR : ConditionSet {
+    sealed class ConditionNOR : ConditionSet {
         public ConditionNOR() { }
         public ConditionNOR( IEnumerable<Condition> conditions ) : base( conditions ) { }
         public ConditionNOR( XContainer el ) : base( el ) { }

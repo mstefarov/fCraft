@@ -94,8 +94,8 @@ namespace fCraft {
         public bool Remove( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
-            Dictionary<string, TValue> pair;
             lock( syncRoot ) {
+                Dictionary<string, TValue> pair;
                 if( !store.TryGetValue( group, out pair ) ) return false;
                 if( pair.Remove( key ) ) {
                     RaiseChangedEvent();
@@ -258,8 +258,8 @@ namespace fCraft {
         public bool TryGetValue( [NotNull] string group, [NotNull] string key, out TValue value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
-            Dictionary<string, TValue> pair;
             lock( syncRoot ) {
+                Dictionary<string, TValue> pair;
                 if( !store.TryGetValue( group, out pair ) ) {
                     value = null;
                     return false;

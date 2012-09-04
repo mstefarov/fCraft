@@ -5,7 +5,7 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.AutoRank {
-    public sealed class Criterion : ICloneable {
+    sealed class Criterion : ICloneable {
         public Rank FromRank { get; set; }
         public Rank ToRank { get; set; }
         public ConditionSet Condition { get; set; }

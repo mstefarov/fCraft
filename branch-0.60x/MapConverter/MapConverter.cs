@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;

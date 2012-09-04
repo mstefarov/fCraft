@@ -146,10 +146,9 @@ namespace fCraft.Drawing {
         IEnumerable<Vector3I> BlockEnumeratorX() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
-            Vector3I coords;
 
             while( stack.Count > 0 ) {
-                coords = stack.Pop();
+                Vector3I coords = stack.Pop();
                 while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
                 coords.Y++;
                 bool spanLeft = false;
@@ -185,10 +184,9 @@ namespace fCraft.Drawing {
         IEnumerable<Vector3I> BlockEnumeratorY() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
-            Vector3I coords;
 
             while( stack.Count > 0 ) {
-                coords = stack.Pop();
+                Vector3I coords = stack.Pop();
                 while( coords.Z >= Bounds.ZMin && CanPlace( coords ) ) coords.Z--;
                 coords.Z++;
                 bool spanLeft = false;
@@ -224,10 +222,9 @@ namespace fCraft.Drawing {
         IEnumerable<Vector3I> BlockEnumeratorZ() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
-            Vector3I coords;
 
             while( stack.Count > 0 ) {
-                coords = stack.Pop();
+                Vector3I coords = stack.Pop();
                 while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
                 coords.Y++;
                 bool spanLeft = false;

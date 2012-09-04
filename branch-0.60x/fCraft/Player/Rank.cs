@@ -293,9 +293,9 @@ namespace fCraft {
             }
 
             // Permissions
-            XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 string permission = ( (Permission)i ).ToString();
+                XElement temp;
                 if( ( temp = el.Element( permission ) ) != null ) {
                     Permissions[i] = true;
                     if( ( attr = temp.Attribute( "max" ) ) != null ) {
@@ -359,10 +359,9 @@ namespace fCraft {
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
-            XElement temp;
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 if( Permissions[i] ) {
-                    temp = new XElement( ( (Permission)i ).ToString() );
+                    XElement temp = new XElement( ( (Permission)i ).ToString() );
 
                     if( PermissionLimits[i] != null ) {
                         temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );
