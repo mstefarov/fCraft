@@ -4,10 +4,10 @@
  Feature: /Info now shows whether minecraft.net accounts are free or paid.
  Feature: Added special "skip"/"none" blocktype, usable with brushes and draw commands.
  Feature: Added ability to clear world/zone whitelists and blacklists. Use "-*" in place of player name to clear whitelist, and "+*" to clear blacklist.
- Feature: Added a way to remove all zones in a world, "/ZRemove *"
+ Feature: Added a way to remove all zones in a world, "/ZRemove *".
  Feature: Added /UndoAreaNot (/uan) and /UndoPlayerNot (/upn), which reverse changes made by everyone EXCEPT the given player(s).
  Feature: Added MapConverter and MapRenderer utilities.
- Feature: /CuboidW now supports optionally filling sides and center of the cuboid with different blocktypes, e.g. "/cw white blue red"
+ Feature: /CuboidW now supports optionally filling sides and center with different blocktypes, e.g. "/cw white blue red".
  Fix: Fixed ServerCLI launching the wrong fCraft binary after running the updater.
  Fix: Fixed a missing warning in /Gen when map height is not a multiple of 16.
  Fix: Fixed a rare case of players receiving desynchronized copies of maps where draw commands are in progress.
@@ -15,12 +15,11 @@
  Fix: Fixed potential crashes when working with files in root directories (e.g. C:/)
  Fix: Improved /BanEx logging.
  Fix: Improved support for Myne/MyneCraft/HyveBuild/iCraft maps.
- Fix: Fixed "Add World" dialog in ConfigGUI defaulting to 20 minutes, instead of "(default)"
- Fix: Fixed SaveInterval and BackupInterval being limited to just 100 seconds/minutes in ConfigGUI (thanks Hellenion)
- Fix: Improved reliability of pre-startup assembly version checks in ServerCLI and ServerGUI.
- Fix: Improved consistency of timestamp format in logs (thanks Hellenion)
- Fix: Improved performance of /Gen, /WLoad, world loading, and all BlockDB-related commands.
- Fix: Fixed being unable to remove world greetings via /WSet.
+ Fix: Fixed "Add World" dialog in ConfigGUI defaulting to 20 minutes, instead of "(default)".
+ Fix: Fixed SaveInterval and BackupInterval being limited to just 100 seconds/minutes in ConfigGUI (thanks Hellenion).
+ Fix: Improved consistency of timestamp format in logs (thanks Hellenion).
+ Fix: Fixed being unable to remove world greetings via /WSet (thanks Hellenion).
+ Change: Improved performance of /Gen, /WLoad, world loading, and all BlockDB-related commands.
  Change: Adjustments to block names and aliases, as well as command aliases.
  Change: Merged /Cancel and /Nvm commands.
  Change: "&N" is now usable as a "newline" constant in all configurable strings (rules, announcements, greetings, etc), and "%N" is usable by players with UseColorCode permissions.
@@ -32,7 +31,8 @@
  Change: /Mute, /Unmute, /Freeze, and /Unfreeze are now also usable on offline players.
  Change: Session threads are no longer marked as "background", to prevent unexpected side effects from session threads being aborted on shutdown. This might slow down shutdown a bit, but there is less to go wrong.
  Change: World greetings can now support constants.
- Change: Improved fCraft shutdown/restart handling: Added Ctrl+C/Ctrl+Break interception code to ConfigCLI; expanded ShutdownReason enumeration to cover all possibilities; made sure runtime is aborted gracefully via Environment.Exit instead of Process.Kill, even in case of faults; made sure to set Environment.ExitCode to the ShutdownReason.
+ Change: Ctrl+C/Ctrl+Break are intercepted in ConfigCLI, and result in a graceful shutdown.
+ Change: Process exit code is now set to match ShutdownReason.
  API: Added ChatTimer.Started and ChatTimer.Stopped events, rewrote BlockDB, MapConversion, and IsoCat APIs.
  API: Many documentation improvements.
 
