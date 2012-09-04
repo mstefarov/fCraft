@@ -3,7 +3,7 @@ using System;
 
 namespace fCraft.Drawing {
     public sealed class UndoDrawOperation : DrawOpWithBrush {
-        const BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
+        readonly BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
 
         public UndoState State { get; private set; }
 
@@ -32,6 +32,9 @@ namespace fCraft.Drawing {
             : base( player ) {
             State = state;
             Redo = redo;
+            if( Redo ) {
+                UndoContext |= BlockChangeContext.Redone;
+            }
         }
 
 
