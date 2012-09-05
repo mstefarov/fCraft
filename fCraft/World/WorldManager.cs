@@ -777,7 +777,7 @@ namespace fCraft {
         /// Prints any errors/warnings directly to the player. </summary>
         /// <param name="player"> Player who is doing the search. </param>
         /// <param name="fileName"> FileName of the map to be searched for. </param>
-        /// <returns> Full source filename.
+        /// <returns> Full source file name.
         /// Null if file could not be found, or an error occured. </returns>
         /// <exception cref="ArgumentNullException"> If player or fileName is null. </exception>
         [CanBeNull]
@@ -786,7 +786,7 @@ namespace fCraft {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             // Check if path contains missing drives or invalid characters
             if( !Paths.IsValidPath( fileName ) ) {
-                player.Message( "Invalid filename or path." );
+                player.Message( "Invalid file name or path." );
                 return null;
             }
 
@@ -810,10 +810,10 @@ namespace fCraft {
                             player.Message( "File/directory not found: {0}", fileName );
 
                         } else if( candidates.Length == 1 ) {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+                            player.Message( "File names are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
 
                         } else {
-                            player.Message( "Filenames are case-sensitive! Did you mean to load one of these: {0}",
+                            player.Message( "File names are case-sensitive! Did you mean to load one of these: {0}",
                                             String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
                         }
                     } catch( DirectoryNotFoundException ex ) {

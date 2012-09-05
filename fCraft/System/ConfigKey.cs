@@ -287,7 +287,7 @@ A higher setting (120+ seconds) is recommended for busy servers with many maps."
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
 @"Create backups any time a player joins a map.
-Both a timestamp and player's name are included in the filename." )]
+Both a timestamp and player's name are included in the file name." )]
         BackupOnJoin,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,

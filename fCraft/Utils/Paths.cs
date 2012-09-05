@@ -132,7 +132,7 @@ namespace fCraft {
         /// <summary> Moves file from source to destination, overwriting destination if it exists, as safely as possible. 
         /// File.Replace, File.Copy/File.Delete, or File.Move is used depending on circumstances. </summary>
         /// <param name="source"> File to be moved. </param>
-        /// <param name="destination"> Destination filename. If this file exists, it will be replaced. </param>
+        /// <param name="destination"> Destination file name. If this file exists, it will be replaced. </param>
         /// <exception cref="ArgumentNullException"> If source or destination is used. </exception>
         public static void MoveOrReplaceFile( [NotNull] string source, [NotNull] string destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
@@ -200,19 +200,19 @@ namespace fCraft {
 
         /// <summary> Makes sure that the path format is valid, and optionally whether it is readable/writeable. </summary>
         /// <param name="fileLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
-        /// <param name="filename"> Full or partial path of the file. </param>
+        /// <param name="fileName"> Full or partial path of the file. </param>
         /// <param name="createIfDoesNotExist"> If target file is missing and this option is OFF, TestFile returns true.
         /// If target file is missing and this option is ON, TestFile tries to create
         /// a file and returns whether it succeeded. </param>
         /// <param name="neededAccess"> If file is present, type of access to test. </param>
         /// <returns> Whether target file passed all tests. </returns>
-        /// <exception cref="ArgumentNullException"> If fileLabel or filename is null. </exception>
-        public static bool TestFile( [NotNull] string fileLabel, [NotNull] string filename,
+        /// <exception cref="ArgumentNullException"> If fileLabel or fileName is null. </exception>
+        public static bool TestFile( [NotNull] string fileLabel, [NotNull] string fileName,
                                      bool createIfDoesNotExist, FileAccess neededAccess ) {
             if( fileLabel == null ) throw new ArgumentNullException( "fileLabel" );
-            if( filename == null ) throw new ArgumentNullException( "filename" );
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
-                FileInfo fi = new FileInfo( filename );
+                FileInfo fi = new FileInfo( fileName );
                 if( fi.Exists ) {
                     if( ( neededAccess & FileAccess.Read ) == FileAccess.Read ) {
                         using( fi.OpenRead() ) {}
@@ -251,7 +251,7 @@ namespace fCraft {
 
 
 
-        /// <summary> Checks whether two paths/filenames reference the exact same filesystem location. Accounts for filesystem quirks. </summary>
+        /// <summary> Checks whether two paths/file names reference the exact same filesystem location. Accounts for filesystem quirks. </summary>
         /// <returns> True if given paths are referencing the same file. False if they're not. </returns>
         /// <exception cref="ArgumentNullException"> If path1 or path2 is null. </exception>
         public static bool Compare( [NotNull] string path1, [NotNull] string path2 ) {
@@ -261,7 +261,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks whether two paths/filenames reference the exact same filesystem location.
+        /// <summary> Checks whether two paths/file names reference the exact same filesystem location.
         /// Allows specifying whether comparison should be case-sensitive or not. </summary>
         /// <returns> True if given paths are referencing the same file. False if they're not. </returns>
         /// <exception cref="ArgumentNullException"> If path1 or path2 is null. </exception>
@@ -368,8 +368,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Allows making changes to filename capitalization on case-insensitive filesystems. </summary>
-        /// <param name="originalFullFileName"> Full path to the original filename </param>
+        /// <summary> Allows making changes to file name capitalization on case-insensitive filesystems. </summary>
+        /// <param name="originalFullFileName"> Full path to the original file name </param>
         /// <param name="newFileName"> New file name (do not include the full path) </param>
         /// <exception cref="ArgumentNullException"> If originalFullFileName or newFileName is null. </exception>
         public static void ForceRename( [NotNull] string originalFullFileName, [NotNull] string newFileName ) {
@@ -385,7 +385,7 @@ namespace fCraft {
 
 
         /// <summary> Find files that match the name in a case-insensitive way. </summary>
-        /// <param name="fullFileName"> Case-insensitive filename to look for. </param>
+        /// <param name="fullFileName"> Case-insensitive file name to look for. </param>
         /// <returns> Array of matches. Empty array if no files matches. </returns>
         /// <exception cref="ArgumentNullException"> If fullFileName is null. </exception>
         public static FileInfo[] FindFiles( [NotNull] string fullFileName ) {
@@ -398,10 +398,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Checks whether the given file is on a list of protected filenames.
-        /// Protected filenames include all fCraft binaries, configuration files, and data files. </summary>
+        /// <summary> Checks whether the given file is on a list of protected file names.
+        /// Protected file names include all fCraft binaries, configuration files, and data files. </summary>
         /// <param name="fileName"> File name/path to check. </param>
-        /// <returns> True if given filename is considered protected; otherwise false. </returns>
+        /// <returns> True if given file name is considered protected; otherwise false. </returns>
         /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
         public static bool IsProtectedFileName( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
