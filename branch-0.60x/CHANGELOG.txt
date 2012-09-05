@@ -1,11 +1,12 @@
 0.631
  Feature: Added a way to restrict commands to match online players' names only, by prefixing the name with an exclaimation mark (!).
  Feature: Added /DoNotMark command. When toggled on, clicking on blocks does not cause marks to be added to a selection.
- Fix: Fixed ConfigGUI not loading permission limits properly (thanks recon_)
  Fix: Included MapConverter.exe and MapRenderer.exe in list of protected filenames.
- Fix: Fixed a potential crash in Paths.FileExists when working in case-sensitive mode in a root directory (e.g. C:\)
+ Fix: Fixed a potential crash in Paths.FileExists when working in case-sensitive mode in a root directory.
+ Fix: Fixed ConfigGUI not loading permission limits properly (thanks recon_).
+ Fix: Added missing fake connection message when using non-silent /Unhide (thanks Wundsalz).
  Change: Improvements to fCraft's built-in crash reporter.
- Change: Blocks redone with /Redo are now flagged marked in BlockDB, and show up as "UndoneSelf, Redone" in /BlockInfo
+ Change: Blocks redone with /Redo are now flagged marked in BlockDB, and show up as "UndoneSelf, Redone" in /BlockInfo.
  API: Many more documentation improvements.
 
 0.630
