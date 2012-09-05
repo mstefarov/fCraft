@@ -6,31 +6,39 @@ using System.Threading;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Provides a way to create and manage publicly-announced countdowns.
+    /// Long timers announce once an hour (e.g. "7h left").
+    /// During the last hour, timer announces more often: every 10 minutes, then every minute,
+    /// then every 10 seconds, and finally every second - until the timer is up. </summary>
     public sealed class ChatTimer {
-        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
-        static readonly TimeSpan Hour = TimeSpan.FromHours( 1 );
+        /// <summary> Timer's unique numeric ID. </summary>
+        public readonly int ID;
 
-        public readonly int Id;
-
+        /// <summary> Whether or not the timer is currently running. </summary>
         public bool IsRunning { get; private set; }
 
+        /// <summary> Whether this timer has been aborted. </summary>
         public bool Aborted { get; private set; }
 
+        /// <summary> Message to be displayed once the timer reaches zero. </summary>
         [CanBeNull]
         public string Message { get; private set; }
 
+        /// <summary> Date/Time (UTC) at which this timer was started. </summary>
         public DateTime StartTime { get; private set; }
 
+        /// <summary> Date/Time (UTC) at which this timer will end. </summary>
         public DateTime EndTime { get; private set; }
 
+        /// <summary> The amount of time between when this timer was started and when it will end. </summary>
         public TimeSpan Duration { get; private set; }
 
+        /// <summary> The amount of time remaining in this timer. </summary>
         public TimeSpan TimeLeft {
-            get {
-                return EndTime.Subtract( DateTime.UtcNow );
-            }
+            get { return EndTime.Subtract( DateTime.UtcNow ); }
         }
 
+        /// <summary> Name of the player (or entity) who started this timer </summary>
         [NotNull]
         public string StartedBy { get; private set; }
 
@@ -59,7 +67,7 @@ namespace fCraft {
                 }
             }
             task = Scheduler.NewTask( TimerCallback, this );
-            Id = Interlocked.Increment( ref timerCounter );
+            ID = Interlocked.Increment( ref timerCounter );
             AddTimerToList( this );
             IsRunning = true;
             task.RunRepeating( TimeSpan.Zero,
@@ -104,6 +112,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Stops this timer, and removes it from the list of timers. </summary>
         public void Abort() {
             Stop( true );
         }
@@ -120,6 +129,19 @@ namespace fCraft {
 
         #region Static
 
+        /// <summary> Minimum allowed timer duration (one second). </summary>
+        public static readonly TimeSpan MinDuration = TimeSpan.FromSeconds( 1 );
+
+        static readonly TimeSpan Hour = TimeSpan.FromHours( 1 );
+
+
+        /// <summary> Starts this timer with the specified duration, and end message. </summary>
+        /// <param name="duration"> Amount of time the timer should run before completion. </param>
+        /// <param name="message"> Message to display when timer reaches zero. May be null. </param>
+        /// <param name="startedBy"> Name of player who started timer. May not be null. </param>
+        /// <returns> Newly-created, and already-started timer. </returns>
+        /// <exception cref="ArgumentNullException"> If startedBy is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If duration is less than one second. </exception>
         public static ChatTimer Start( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {
@@ -130,37 +152,39 @@ namespace fCraft {
             return newTimer;
         }
 
+
         static readonly TimeSpan[] AnnounceIntervals = new[] {
-            TimeSpan.FromSeconds(1),
-            TimeSpan.FromSeconds(2),
-            TimeSpan.FromSeconds(3),
-            TimeSpan.FromSeconds(4),
-            TimeSpan.FromSeconds(5),
-            TimeSpan.FromSeconds(10),
-            TimeSpan.FromSeconds(20),
-            TimeSpan.FromSeconds(30),
-            TimeSpan.FromSeconds(40),
-            TimeSpan.FromSeconds(50),
-            TimeSpan.FromMinutes(1),
-            TimeSpan.FromMinutes(2),
-            TimeSpan.FromMinutes(3),
-            TimeSpan.FromMinutes(4),
-            TimeSpan.FromMinutes(5),
-            TimeSpan.FromMinutes(10),
-            TimeSpan.FromMinutes(20),
-            TimeSpan.FromMinutes(30),
-            TimeSpan.FromMinutes(40),
-            TimeSpan.FromMinutes(50)
+            TimeSpan.FromSeconds( 1 ),
+            TimeSpan.FromSeconds( 2 ),
+            TimeSpan.FromSeconds( 3 ),
+            TimeSpan.FromSeconds( 4 ),
+            TimeSpan.FromSeconds( 5 ),
+            TimeSpan.FromSeconds( 10 ),
+            TimeSpan.FromSeconds( 20 ),
+            TimeSpan.FromSeconds( 30 ),
+            TimeSpan.FromSeconds( 40 ),
+            TimeSpan.FromSeconds( 50 ),
+            TimeSpan.FromMinutes( 1 ),
+            TimeSpan.FromMinutes( 2 ),
+            TimeSpan.FromMinutes( 3 ),
+            TimeSpan.FromMinutes( 4 ),
+            TimeSpan.FromMinutes( 5 ),
+            TimeSpan.FromMinutes( 10 ),
+            TimeSpan.FromMinutes( 20 ),
+            TimeSpan.FromMinutes( 30 ),
+            TimeSpan.FromMinutes( 40 ),
+            TimeSpan.FromMinutes( 50 )
         };
 
         static int timerCounter;
         static readonly object TimerListLock = new object();
         static readonly Dictionary<int, ChatTimer> Timers = new Dictionary<int, ChatTimer>();
 
+
         static void AddTimerToList( [NotNull] ChatTimer timer ) {
             if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
-                Timers.Add( timer.Id, timer );
+                Timers.Add( timer.ID, timer );
             }
         }
 
@@ -168,11 +192,12 @@ namespace fCraft {
         static void RemoveTimerFromList( [NotNull] ChatTimer timer ) {
             if( timer == null ) throw new ArgumentNullException( "timer" );
             lock( TimerListLock ) {
-                Timers.Remove( timer.Id );
+                Timers.Remove( timer.ID );
             }
         }
 
 
+        /// <summary> Returns a list of all active timers. </summary>
         public static ChatTimer[] TimerList {
             get {
                 lock( TimerListLock ) {
@@ -181,6 +206,10 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Searches for a timer by its numeric ID. </summary>
+        /// <param name="id"> ID to search for. </param>
+        /// <returns> ChatTimer object if found; null if not found. </returns>
         [CanBeNull]
         public static ChatTimer FindTimerById( int id ) {
             lock( TimerListLock ) {

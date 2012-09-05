@@ -4,7 +4,7 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
+    /// <summary> Contains parameters for advanced map generation. </summary>
     public sealed class MapGeneratorArgs {
         const int FormatVersion = 2;
 

@@ -227,6 +227,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Contains data that's sent to heartbeat servers. </summary>
     public sealed class HeartbeatData {
         internal HeartbeatData( [NotNull] Uri heartbeatUri ) {
             if( heartbeatUri == null ) throw new ArgumentNullException( "heartbeatUri" );

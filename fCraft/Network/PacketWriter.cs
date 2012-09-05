@@ -6,7 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    // Protocol encoder for outgoing packets
+    /// <summary> Protocol encoder for outgoing Minecraft packets. </summary>
     public sealed class PacketWriter : BinaryWriter {
 
         public PacketWriter( Stream stream ) : base( stream ) { }

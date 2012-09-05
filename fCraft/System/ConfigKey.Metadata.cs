@@ -291,7 +291,7 @@ namespace fCraft {
             if( NotNone && test.Equals( IPAddress.None ) ) {
                 throw new FormatException( String.Format( "Value cannot be {0}", IPAddress.None ) );
             }
-            if( NotLAN && test.IsLAN() ) {
+            if( NotLAN && test.IsLocal() ) {
                 throw new FormatException( "Value cannot be a LAN address." );
             }
             if( NotLoopback && IPAddress.IsLoopback( test ) ) {

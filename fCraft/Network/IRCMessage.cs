@@ -26,6 +26,7 @@
  */
 
 namespace fCraft {
+    /// <summary> Represents a parsed incoming IRC message. </summary>
     public sealed class IRCMessage {
         public string From { get; private set; }
         public string Nick { get; private set; }

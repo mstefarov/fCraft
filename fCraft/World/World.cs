@@ -8,6 +8,7 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> World instance. Manages the player list, manages access/build security, stores metadata. </summary>
     public sealed class World : IClassy {
         /// <summary> World name (no formatting).
         /// Use WorldManager.RenameWorld() method to change this. </summary>
@@ -25,16 +26,20 @@ namespace fCraft {
         public bool IsPendingMapUnload { get; private set; }
 
 
+        /// <summary> Controls which players may access this world. </summary>
         [NotNull]
         public SecurityController AccessSecurity { get; internal set; }
 
+        /// <summary> Controls which players may build in this world. </summary>
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
 
 
 
+        /// <summary> Date (UTC) that this world was created on. </summary>
         public DateTime LoadedOn { get; internal set; }
 
+        /// <summary> Name of the player/entity who created this world, null if the player is unknown. </summary>
         [CanBeNull]
         public string LoadedBy { get; internal set; }
 
@@ -46,8 +51,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Date (UTC) of the most recent map change. </summary>
         public DateTime MapChangedOn { get; internal set; }
 
+        /// <summary> Name of the player/entity who last loaded this map,
+        /// Null if the player is unknown or if map has never been changed. </summary>
         [CanBeNull]
         public string MapChangedBy { get; internal set; }
 
@@ -58,14 +66,18 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Message shown to players who join this map.
+        /// Null if no message is set. </summary>
         [CanBeNull]
         public string Greeting { get; set; }
 
         // used to synchronize player joining/parting with map loading/saving
         internal readonly object SyncRoot = new object();
 
-
+        /// <summary> BlockDB instance used to store/lookup block changes for this world. </summary>
         public BlockDB BlockDB { get; private set; }
+
 
         internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -155,6 +167,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Forces the map to be saved to file. Acquires SyncRoot. </summary>
         public void SaveMap() {
             lock( SyncRoot ) {
                 if( Map != null ) {
@@ -234,9 +247,12 @@ namespace fCraft {
 
         #region Flush
 
+        /// <summary> Whether this world is currently being flushed. </summary>
         public bool IsFlushing { get; private set; }
 
 
+        /// <summary> Intiates a map flush, in which all block drawings are completed.
+        /// All users are held in limbo until completion, and then resent the map.  </summary>
         public void Flush() {
             lock( SyncRoot ) {
                 if( Map == null ) return;
@@ -424,6 +440,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Whether the current world is full, determined by ConfigKey.MaxPlayersPerWorld </summary>
         public bool IsFull {
             get {
                 return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
@@ -438,12 +455,24 @@ namespace fCraft {
         /// <summary> Whether the world is currently locked (in read-only mode). </summary>
         public bool IsLocked { get; internal set; }
 
-        public string LockedBy, UnlockedBy;
-        public DateTime LockedOn, UnlockedOn;
+        /// <summary> The name of player/entity who last locked this world. </summary>
+        public string LockedBy { get; internal set; }
+
+        /// <summary> The name of player/entity who last unlocked this world. </summary>
+        public string UnlockedBy { get; internal set; }
+
+        /// <summary> Date (UTC) when this world was last locked. </summary>
+        public DateTime LockedOn { get; internal set; }
+
+        /// <summary> Date (UTC) when this world was last locked. </summary>
+        public DateTime UnlockedOn { get; internal set; }
 
         readonly object lockLock = new object();
 
 
+        /// <summary> Locks the current world, which prevents blocks in the world from being updated. </summary>
+        /// <param name="player"> Player who is issueing the lock. </param>
+        /// <returns> True if the world was locked, or false if the world was already locked. </returns>
         public bool Lock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
@@ -469,6 +498,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Unlocks the current world, which allows blocks in the world to be changed once more. </summary>
+        /// <param name="player"> Player who is issueing the unlock. </param>
+        /// <returns> True if the world was unlocked, or false if the world was already unlocked. </returns>
         public bool Unlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( lockLock ) {
@@ -496,6 +528,11 @@ namespace fCraft {
         readonly object patrolLock = new object();
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
+        /// <summary> Selects the next player to teleport to while patroling.
+        /// Sets target's LastPatrolTime automatically. </summary>
+        /// <param name="observer"> Player who is patrolling </param>
+        /// <returns> Player who has been selected to be patrolled </returns>
+        /// <exception cref="ArgumentNullException"> If observer is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
@@ -513,6 +550,14 @@ namespace fCraft {
             }
         }
 
+        /// <summary> Selects the next player to teleport to while patroling.
+        /// Includes additional inclusion check (predicate). </summary>
+        /// <param name="observer"> Player who is patrolling </param>
+        /// <param name="predicate"> Additional inclusion check for patrol targets.
+        /// Applied after the standard checks. Allows filtering out unwanted players. </param>
+        /// <param name="setLastPatrolTime"> Whether to set target's LastPatrolTime. </param>
+        /// <returns> Player who has been selected to be patrolled </returns>
+        /// <exception cref="ArgumentNullException"> If observer or predicate is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer,
                                            [NotNull] Predicate<Player> predicate,
                                            bool setLastPatrolTime ) {
@@ -805,13 +850,24 @@ namespace fCraft {
 
         #region WoM Extensions
 
-        public int CloudColor = -1,
-                   FogColor = -1,
-                   SkyColor = -1,
-                   EdgeLevel = -1;
+        /// <summary> Color of the clouds (RGB packed into an int). Set to -1 to use client defaults. </summary>
+        public int CloudColor = -1;
 
+        /// <summary> Color of the fog (RGB packed into an int). Set to -1 to use client defaults. </summary>
+        public int FogColor = -1;
+
+        /// <summary> Color of the sky (RGB packed into an int). Set to -1 to use client defaults. </summary>
+        public int SkyColor = -1;
+
+        /// <summary> Elevation of the "ocean" that surrounds maps. Set to -1 to use client default (halfway up the map). </summary>
+        public int EdgeLevel = -1;
+
+        /// <summary> The block which will be displayed in the background for the client. </summary>
         public Block EdgeBlock = Block.Water;
 
+        /// <summary> Creates a WOM configuration string. </summary>
+        /// <param name="sendMotd"> Determines if the motd is sent with the configuration string. </param>
+        /// <returns> Configuration settings string to send to client. </returns>
         public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );

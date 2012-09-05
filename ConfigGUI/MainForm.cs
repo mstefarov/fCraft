@@ -164,7 +164,7 @@ namespace fCraft.ConfigGUI {
 
         private void tIP_Validating( object sender, CancelEventArgs e ) {
             IPAddress IP;
-            if( Server.IsIP( tIP.Text ) && IPAddress.TryParse( tIP.Text, out IP ) ) {
+            if( IPAddressUtil.IsIP( tIP.Text ) && IPAddress.TryParse( tIP.Text, out IP ) ) {
                 tIP.ForeColor = SystemColors.ControlText;
             } else {
                 tIP.ForeColor = System.Drawing.Color.Red;

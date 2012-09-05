@@ -28,6 +28,7 @@
 using System;
 
 namespace fCraft {
+    /// <summary> Provides methods for constructing IRC command messages. </summary>
     public static class IRCCommands {
         public static string Pass( string password ) {
             return "PASS " + password;

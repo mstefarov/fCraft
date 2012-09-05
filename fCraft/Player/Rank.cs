@@ -6,12 +6,15 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Rank of a player. Ranks are arranged in a linear hierarchy.
+    /// One instance of a Rank object should be shared by players of the same rank.
+    /// Rank objects are comparable - you can use comparison operators or CompareTo. </summary>
     public sealed class Rank : IClassy, IComparable<Rank> {
-
         /// <summary> Rank color code. Should not be left blank. </summary>
         [NotNull]
         public string Color { get; set; }
 
+        /// <summary> String that prefixes the username of all members of this rank. </summary>
         [NotNull]
         public string Prefix { get; set; }
 
@@ -85,6 +88,10 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sets the name and ID of this Rank. </summary>
+        /// <param name="name"> Name to assign to this Rank. </param>
+        /// <param name="id"> Unique ID to assing to this Rank. Use RankManager.GenerateID to generate. </param>
+        /// <exception cref="ArgumentNullException"> If name or id is null. </exception>
         public Rank( [NotNull] string name, [NotNull] string id )
             : this() {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -611,6 +618,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Exception that is thrown when parsing a rank definition has failed. </summary>
     public sealed class RankDefinitionException : Exception {
         public RankDefinitionException( string rankName, string message )
             : base( message ) {
