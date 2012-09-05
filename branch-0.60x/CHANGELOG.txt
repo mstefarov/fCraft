@@ -6,7 +6,7 @@
  Fix: Fixed ConfigGUI not loading permission limits properly (thanks recon_).
  Fix: Added missing fake connection message when using non-silent /Unhide (thanks Wundsalz).
  Change: Improvements to fCraft's built-in crash reporter.
- Change: Blocks redone with /Redo are now flagged marked in BlockDB, and show up as "UndoneSelf, Redone" in /BlockInfo.
+ Change: Blocks redone with /Redo are now flagged as "Redone" in /BlockInfo (instead of "UndoneSelf"), painted blocks as "Painted" (instead of "Manual, Replaced").
  API: Many more documentation improvements.
 
 0.630
