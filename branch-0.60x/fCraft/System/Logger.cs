@@ -150,9 +150,9 @@ namespace fCraft {
 
         public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly,
                                               [CanBeNull] Exception exception, bool shutdownImminent ) {
-            if( message == null ) message = "(null)";
-            if( assembly == null ) assembly = "(null)";
-            if( exception == null ) exception = new Exception( "(null)" );
+            if( message == null ) message = "(none)";
+            if( assembly == null ) assembly = "(none)";
+            if( exception == null ) exception = new Exception( "(none)" );
 
             Log( LogType.SeriousError, "{0}: {1}", message, exception );
 
@@ -175,21 +175,20 @@ namespace fCraft {
             }
 
             lock( CrashReportLock ) {
+                if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
+                    Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
+                    return;
+                }
+                lastCrashReport = DateTime.UtcNow;
                 LogAndReportCrashInner( message, assembly, exception );
             }
         }
 
 
         static void LogAndReportCrashInner( string message, string assembly, Exception exception ) {
-            if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
-                Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
-                return;
-            }
-
             if( exception.InnerException != null ) {
                 LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );
             }
-            lastCrashReport = DateTime.UtcNow;
 
             try {
                 StringBuilder sb = new StringBuilder();
@@ -204,14 +203,13 @@ namespace fCraft {
                 }
                 sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
 
-                if( exception is TargetInvocationException ) {
-                    exception = ( exception ).InnerException;
-                } else if( exception is TypeInitializationException ) {
-                    exception = ( exception ).InnerException;
-                }
                 sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
                 sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
-                sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
+                if( exception.StackTrace != null ) {
+                    sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
+                } else {
+                    sb.Append( "&exceptionstacktrace=" ).Append( "(none)" );
+                }
 
                 if( File.Exists( Paths.ConfigFileName ) ) {
                     sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
@@ -263,7 +261,7 @@ namespace fCraft {
 
 
             } catch( Exception ex ) {
-                Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex.Message );
+                Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex );
             }
         }
 
