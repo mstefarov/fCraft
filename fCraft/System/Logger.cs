@@ -175,86 +175,95 @@ namespace fCraft {
             }
 
             lock( CrashReportLock ) {
-                if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
-                    Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
-                    return;
+                LogAndReportCrashInner( message, assembly, exception );
+            }
+        }
+
+
+        static void LogAndReportCrashInner( string message, string assembly, Exception exception ) {
+            if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
+                Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
+                return;
+            }
+
+            if( exception.InnerException != null ) {
+                LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );
+            }
+            lastCrashReport = DateTime.UtcNow;
+
+            try {
+                StringBuilder sb = new StringBuilder();
+                sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.CurrentRelease.VersionString ) );
+                sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
+                sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
+                sb.Append( "&runtime=" );
+                if( MonoCompat.IsMono ) {
+                    sb.Append( Uri.EscapeDataString( "Mono " + MonoCompat.MonoVersionString ) );
+                } else {
+                    sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
                 }
-                lastCrashReport = DateTime.UtcNow;
+                sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
 
-                try {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.CurrentRelease.VersionString ) );
-                    sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
-                    sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
-                    sb.Append( "&runtime=" );
-                    if( MonoCompat.IsMono ) {
-                        sb.Append( Uri.EscapeDataString( "Mono " + MonoCompat.MonoVersionString ) );
-                    } else {
-                        sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
-                    }
-                    sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
+                if( exception is TargetInvocationException ) {
+                    exception = ( exception ).InnerException;
+                } else if( exception is TypeInitializationException ) {
+                    exception = ( exception ).InnerException;
+                }
+                sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
+                sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
+                sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
 
-                    if( exception is TargetInvocationException ) {
-                        exception = (exception).InnerException;
-                    } else if( exception is TypeInitializationException ) {
-                        exception = (exception).InnerException;
-                    }
-                    sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
-                    sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
-                    sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
+                if( File.Exists( Paths.ConfigFileName ) ) {
+                    sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
+                } else {
+                    sb.Append( "&config=" );
+                }
 
-                    if( File.Exists( Paths.ConfigFileName ) ) {
-                        sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
-                    } else {
-                        sb.Append( "&config=" );
-                    }
+                string[] lastFewLines;
+                lock( LogLock ) {
+                    lastFewLines = RecentMessages.ToArray();
+                }
+                sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
 
-                    string[] lastFewLines;
-                    lock( LogLock ) {
-                        lastFewLines = RecentMessages.ToArray();
-                    }
-                    sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
+                byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
-                    byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
+                request.Method = "POST";
+                request.Timeout = 15000; // 15s timeout
+                request.ContentType = "application/x-www-form-urlencoded";
+                request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+                request.ContentLength = formData.Length;
+                request.UserAgent = Updater.UserAgent;
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
-                    request.Method = "POST";
-                    request.Timeout = 15000; // 15s timeout
-                    request.ContentType = "application/x-www-form-urlencoded";
-                    request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-                    request.ContentLength = formData.Length;
-                    request.UserAgent = Updater.UserAgent;
+                using( Stream requestStream = request.GetRequestStream() ) {
+                    requestStream.Write( formData, 0, formData.Length );
+                    requestStream.Flush();
+                }
 
-                    using( Stream requestStream = request.GetRequestStream() ) {
-                        requestStream.Write( formData, 0, formData.Length );
-                        requestStream.Flush();
-                    }
-
-                    string responseString;
-                    using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
-                        using( Stream responseStream = response.GetResponseStream() ) {
-                            using( StreamReader reader = new StreamReader( responseStream ) ) {
-                                responseString = reader.ReadLine();
-                            }
+                string responseString;
+                using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
+                    using( Stream responseStream = response.GetResponseStream() ) {
+                        using( StreamReader reader = new StreamReader( responseStream ) ) {
+                            responseString = reader.ReadLine();
                         }
                     }
-                    request.Abort();
-
-                    if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
-                        Log( LogType.Error, "Crash report could not be processed by fCraft.net." );
-                    } else {
-                        int referenceNumber;
-                        if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
-                            Log( LogType.SystemActivity, "Crash report submitted (Reference #{0})", referenceNumber );
-                        } else {
-                            Log( LogType.SystemActivity, "Crash report submitted." );
-                        }
-                    }
-
-
-                } catch( Exception ex ) {
-                    Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex.Message );
                 }
+                request.Abort();
+
+                if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
+                    Log( LogType.Error, "Crash report could not be processed by fCraft.net." );
+                } else {
+                    int referenceNumber;
+                    if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
+                        Log( LogType.SystemActivity, "Crash report submitted (Reference #{0})", referenceNumber );
+                    } else {
+                        Log( LogType.SystemActivity, "Crash report submitted." );
+                    }
+                }
+
+
+            } catch( Exception ex ) {
+                Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex.Message );
             }
         }
 
