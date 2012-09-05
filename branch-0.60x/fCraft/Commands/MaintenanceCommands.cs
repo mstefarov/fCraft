@@ -104,7 +104,7 @@ namespace fCraft {
 
             string extension = Path.GetExtension( fileName );
             if( extension == null || !extension.Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
-                player.Message( "Stats filename must end with .txt" );
+                player.Message( "Stats file name must end with .txt" );
                 return;
             }
 

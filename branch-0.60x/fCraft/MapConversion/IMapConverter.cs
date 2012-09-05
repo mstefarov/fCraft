@@ -27,7 +27,7 @@ namespace fCraft.MapConversion {
 
 
     public interface IMapImporter : IMapConverter {
-        /// <summary> Returns true if the filename (or directory name) matches this format's expectations. </summary>
+        /// <summary> Returns true if the file name (or directory name) matches this format's expectations. </summary>
         bool ClaimsName( [NotNull] string path );
 
         /// <summary> Allows validating the map format while using minimal resources. </summary>

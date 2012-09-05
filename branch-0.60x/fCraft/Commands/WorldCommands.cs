@@ -18,7 +18,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdEnv );
 
             CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
-                              "If no filename is given, loads generated world into current world.\n" +
+                              "If no file name is given, loads generated world into current world.\n" +
                               "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
                               "Available terrain types: Empty, Ocean, " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
                               "Note: You do not need to specify a theme with \"Empty\" and \"Ocean\" templates.";
@@ -921,7 +921,7 @@ namespace fCraft {
                     fileName += ".fcm";
                 }
                 if( !Paths.IsValidPath( fileName ) ) {
-                    player.Message( "Invalid filename." );
+                    player.Message( "Invalid file name." );
                     return;
                 }
                 fullFileName = Path.Combine( Paths.MapPath, fileName );
@@ -2442,7 +2442,7 @@ namespace fCraft {
                 fileName += ".fcm";
             }
             if( !Paths.IsValidPath( fileName ) ) {
-                player.Message( "Invalid filename." );
+                player.Message( "Invalid file name." );
                 return;
             }
             string fullFileName = Path.Combine( Paths.MapPath, fileName );

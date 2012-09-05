@@ -124,7 +124,7 @@ namespace fCraft.UpdateInstaller {
             using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
 
-                    var allFiles = zs.ReadCentralDir().Select( entry => entry.FilenameInZip ).Union( LegacyFiles );
+                    var allFiles = zs.ReadCentralDir().Select( entry => entry.FileNameInZip ).Union( LegacyFiles );
 
                     // ensure that fcraft files are writable
                     bool allPassed;
@@ -162,9 +162,9 @@ namespace fCraft.UpdateInstaller {
 
                     // extract files
                     foreach( var entry in zs.ReadCentralDir() ) {
-                        Console.WriteLine( "Extracting {0}", entry.FilenameInZip );
+                        Console.WriteLine( "Extracting {0}", entry.FileNameInZip );
                         try {
-                            using( FileStream fs = File.Create( entry.FilenameInZip ) ) {
+                            using( FileStream fs = File.Create( entry.FileNameInZip ) ) {
                                 zs.ExtractFile( entry, fs );
                             }
                         } catch( Exception ex ) {
