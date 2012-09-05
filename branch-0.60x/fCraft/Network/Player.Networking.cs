@@ -674,16 +674,19 @@ namespace fCraft {
 
             // Figure out what the starting world should be
             World startingWorld = Info.Rank.MainWorld ?? WorldManager.MainWorld;
-            startingWorld = RaisePlayerConnectedEvent( this, startingWorld, false );
+            startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
 
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();
             string motd;
             if( ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
                 if( IP.Equals( IPAddress.Loopback ) ) {
-                    motd = "&0cfg=localhost:" + Server.Port + "/" + startingWorld.Name + "~motd";
+                    motd = String.Format( "&0cfg=localhost:{0}/{1}~motd",
+                                          Server.Port,
+                                          startingWorld.Name );
                 } else {
-                    motd = "&0cfg=" + Server.ExternalIP + ":" + Server.Port + "/" + startingWorld.Name + "~motd";
+                    motd = String.Format( "&0cfg={0}:{1}/{2}~motd",
+                                          Server.ExternalIP, Server.Port, startingWorld.Name );
                 }
             } else {
                 motd = ConfigKey.MOTD.GetString();

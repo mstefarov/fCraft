@@ -551,15 +551,12 @@ namespace fCraft {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
                 }
-                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
-                    IRC.PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( player, LeaveReason.ClientQuit, true ) );
-                }
             }
 
             // for aware players: notify
             Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.ClassyName );
 
-            Player.RaisePlayerHideChangedEvent( player );
+            Player.RaisePlayerHideChangedEvent( player, true, silent );
         }
 
 
@@ -595,10 +592,9 @@ namespace fCraft {
                     string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
                     Server.Players.CantSee( player ).Message( msg );
                 }
-                Player.RaisePlayerConnectedEvent( player, player.World, true );
             }
 
-            Player.RaisePlayerHideChangedEvent( player );
+            Player.RaisePlayerHideChangedEvent( player, false, silent );
         }
 
         #endregion
