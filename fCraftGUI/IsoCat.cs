@@ -202,7 +202,7 @@ namespace fCraft.GUI {
                             z++;
                             y = 0;
                             if( z % 8 == 0 ) {
-                                if( isCanceled ) return CanceledResult;
+                                if( isCancelled ) return CancelledResult;
                                 ReportProgress( z / (float)map.Height );
                             }
                         }
@@ -226,7 +226,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( isCanceled ) return CanceledResult;
+                if( isCancelled ) return CancelledResult;
 
                 // find top bound (yMin)
                 cont = true;
@@ -242,7 +242,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( isCanceled ) return CanceledResult;
+                if( isCancelled ) return CancelledResult;
 
                 // find right bound (xMax)
                 cont = true;
@@ -258,7 +258,7 @@ namespace fCraft.GUI {
                     }
                 }
 
-                if( isCanceled ) return CanceledResult;
+                if( isCancelled ) return CancelledResult;
 
                 // find bottom bound (yMax)
                 cont = true;
@@ -281,7 +281,7 @@ namespace fCraft.GUI {
                 return new IsoCatResult( false, imageBmp, cropRectangle );
             } finally {
                 imageBmp.UnlockBits( imageData );
-                if( isCanceled && imageBmp != null ) {
+                if( isCancelled && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
                     } catch( ObjectDisposedException ) { }
@@ -420,11 +420,11 @@ namespace fCraft.GUI {
         }
 
         public void CancelAsync() {
-            isCanceled = true;
+            isCancelled = true;
         }
 
-        volatile bool isCanceled;
+        volatile bool isCancelled;
 
-        static readonly IsoCatResult CanceledResult = new IsoCatResult( true, null, default( Rectangle ) );
+        static readonly IsoCatResult CancelledResult = new IsoCatResult( true, null, default( Rectangle ) );
     }
 }

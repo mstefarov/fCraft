@@ -56,7 +56,7 @@ namespace fCraft {
 
         #region Session-related
 
-        /// <summary> Occurs any time the server receives an incoming connection (cancellable). </summary>
+        /// <summary> Occurs any time the server receives an incoming connection (cancelable). </summary>
         public static event EventHandler<SessionConnectingEventArgs> SessionConnecting;
 
 

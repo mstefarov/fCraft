@@ -238,13 +238,13 @@ namespace fCraft {
 
         #region Events
 
-        /// <summary> Occurs when a command is being registered (cancellable). </summary>
+        /// <summary> Occurs when a command is being registered (cancelable). </summary>
         public static event EventHandler<CommandRegistringEventArgs> CommandRegistering;
 
         /// <summary> Occurs when a command has been registered. </summary>
         public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
 
-        /// <summary> Occurs when a command is being called by a player or the console (cancellable). </summary>
+        /// <summary> Occurs when a command is being called by a player or the console (cancelable). </summary>
         public static event EventHandler<CommandCallingEventArgs> CommandCalling;
 
         /// <summary> Occurs when the command has been called by a player or the console. </summary>
@@ -321,7 +321,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for CommandManager.CommandRegistering event. Cancellable. </summary>
+    /// <summary> Provides data for CommandManager.CommandRegistering event. Cancelable. </summary>
     public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
         internal CommandRegistringEventArgs( CommandDescriptor descriptor )
             : base( descriptor ) {
@@ -345,7 +345,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for CommandManager.CommandCalling event. Cancellable. </summary>
+    /// <summary> Provides data for CommandManager.CommandCalling event. Cancelable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
         internal CommandCallingEventArgs( CommandReader command, CommandDescriptor descriptor, Player player ) :
             base( command, descriptor, player ) {

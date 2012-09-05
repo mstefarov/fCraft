@@ -618,7 +618,7 @@ namespace fCraft {
 
         #region Events
 
-        /// <summary> Occurs when a new IP ban is about to be added (cancellable). </summary>
+        /// <summary> Occurs when a new IP ban is about to be added (cancelable). </summary>
         public static event EventHandler<IPBanCancelableEventArgs> AddingIPBan;
 
 
@@ -626,7 +626,7 @@ namespace fCraft {
         public static event EventHandler<IPBanEventArgs> AddedIPBan;
 
 
-        /// <summary> Occurs when an existing IP ban is about to be removed (cancellable). </summary>
+        /// <summary> Occurs when an existing IP ban is about to be removed (cancelable). </summary>
         public static event EventHandler<IPBanCancelableEventArgs> RemovingIPBan;
 
 
@@ -682,7 +682,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for IPBanList.AddingIPBan and RemovingIPBan events. Cancellable. </summary>
+    /// <summary> Provides data for IPBanList.AddingIPBan and RemovingIPBan events. Cancelable. </summary>
     public sealed class IPBanCancelableEventArgs : IPBanEventArgs, ICancelableEvent {
         internal IPBanCancelableEventArgs( IPBanInfo info ) :
             base( info ) {

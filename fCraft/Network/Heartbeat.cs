@@ -176,7 +176,7 @@ namespace fCraft {
 
         #region Events
 
-        /// <summary> Occurs when a heartbeat is about to be sent (cancellable). </summary>
+        /// <summary> Occurs when a heartbeat is about to be sent (cancelable). </summary>
         public static event EventHandler<HeartbeatSendingEventArgs> Sending;
 
         /// <summary> Occurs when a heartbeat has been sent. </summary>
@@ -298,7 +298,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    /// <summary> Provides data for Heartbeat.Sending event. Cancellable. 
+    /// <summary> Provides data for Heartbeat.Sending event. Cancelable. 
     /// HeartbeatData may be modified, Uri and GetSercerUri may be changed. </summary>
     public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
         internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {

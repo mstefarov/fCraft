@@ -1206,7 +1206,7 @@ namespace fCraft {
         public static event EventHandler Reloaded;
 
 
-        /// <summary> Occurs when a config key is about to be changed (cancellable).
+        /// <summary> Occurs when a config key is about to be changed (cancelable).
         /// The new value may be replaced by the callback. </summary>
         public static event EventHandler<ConfigKeyChangingEventArgs> KeyChanging;
 

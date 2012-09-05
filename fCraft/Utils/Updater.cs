@@ -100,7 +100,7 @@ namespace fCraft {
 
         #region Events
 
-        /// <summary> Occurs when fCraft is about to check for updates (cancellable).
+        /// <summary> Occurs when fCraft is about to check for updates (cancelable).
         /// The update Url may be overridden. </summary>
         public static event EventHandler<CheckingForUpdatesEventArgs> CheckingForUpdates;
 
