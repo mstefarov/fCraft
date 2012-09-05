@@ -772,7 +772,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Searches for a map using the specified fileName. 
         /// Prints any errors/warnings directly to the player. </summary>
         /// <param name="player"> Player who is doing the search. </param>
