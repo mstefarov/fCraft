@@ -2,10 +2,14 @@
 using System;
 
 namespace fCraft {
+    /// <summary> Exception that is thrown when an invalid operation is attempted on a world. </summary>
     public sealed class WorldOpException : Exception {
-
+        /// <summary> Error code associated with the error. </summary>
         public WorldOpExceptionCode ErrorCode { get; private set; }
 
+        /// <summary> Creates a new instance of fCraft.WorldOpException, with the specified world and error code. </summary>
+        /// <param name="worldName"> World where exception took place. May be null if no relevant world exists. </param>
+        /// <param name="errorCode"> Error that took place. </param>
         public WorldOpException( string worldName, WorldOpExceptionCode errorCode )
             : base( GetMessage( worldName, errorCode ) ) {
             ErrorCode = errorCode;
@@ -126,6 +130,7 @@ namespace fCraft {
 
     /// <summary> List of common world operation issues. Used by WorldOpException. </summary>
     public enum WorldOpExceptionCode {
+        /// <summary> Something new, exciting and dangerous happened! We don't know what it was though. </summary>
         Unexpected,
 
         /// <summary> No changes were needed or made (e.g. renaming a world to the same name). </summary>

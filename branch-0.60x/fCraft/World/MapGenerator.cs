@@ -36,6 +36,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Provides functionality for generating map files. </summary>
     public sealed class MapGenerator {
         readonly MapGeneratorArgs args;
         readonly Random rand;

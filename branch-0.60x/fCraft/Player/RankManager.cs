@@ -5,18 +5,40 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Manages all the ranks on a server. Controlls what ranks are avaliable and in what order they exist in. </summary>
     public static class RankManager {
+        internal static Dictionary<string, string> LegacyRankMapping { get; private set; }
+
+        /// <summary> List of Ranks, indexed by their name. </summary>
         public static Dictionary<string, Rank> RanksByName { get; private set; }
+
+        /// <summary> List of Ranks, indexed by their fully qualified name. </summary>
         public static Dictionary<string, Rank> RanksByFullName { get; private set; }
+
+        /// <summary> List of Ranks, indexed by their ID. </summary>
         public static Dictionary<string, Rank> RanksByID { get; private set; }
-        public static Dictionary<string, string> LegacyRankMapping { get; private set; }
+
+        /// <summary> List of all Ranks, in no particular order. </summary>
         public static List<Rank> Ranks { get; private set; }
-        public static Rank DefaultRank,
-                           LowestRank,
-                           HighestRank,
-                           PatrolledRank,
-                           DefaultBuildRank,
-                           BlockDBAutoEnableRank;
+
+        /// <summary> Default Rank of a new user. </summary>
+        public static Rank DefaultRank { get; set; }
+
+        /// <summary> Lowest Rank available in the server. </summary>
+        public static Rank LowestRank { get; set; }
+
+        /// <summary> Highest Rank available in the server. </summary>
+        public static Rank HighestRank { get; set; }
+
+        /// <summary> Highest Rank that Patrol will consider when selecting canditates. </summary>
+        public static Rank PatrolledRank { get; set; }
+
+        /// <summary> The default minimum Rank required to build in newly created worlds. </summary>
+        public static Rank DefaultBuildRank { get; set; }
+
+        /// <summary> Rank used by BlockDB to determine whether it should be auto-enabled on a world or not.
+        /// Worlds where BuildSecurity.MinRank is equal or lower than this rank WILL have BlockDB auto-enabled. </summary>
+        public static Rank BlockDBAutoEnableRank { get; set; }
 
 
         static RankManager() {
@@ -69,8 +91,9 @@ namespace fCraft {
 
 
         /// <summary> Parses rank name (without the ID) using autocompletion. </summary>
-        /// <param name="name"> Full or partial rank name. </param>
-        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        /// <param name="name"> Full or partial rank name. May be null. </param>
+        /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. 
+        /// If null was given instead of rank name, returns null. </returns>
         [CanBeNull]
         public static Rank FindRank( string name ) {
             if( name == null ) return null;
@@ -108,6 +131,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Removes the specified rank from the list of available ranks </summary>
+        /// <param name="deletedRank"> Rank to be deleted. </param>
+        /// <param name="replacementRank"> Rank that will replace the deleted rank. </param>
+        /// <returns> Whether or not the rank was succesfully deleted/replaced. </returns>
+        /// <exception cref="ArgumentNullException"> If deletedRank or replacementRank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool DeleteRank( [NotNull] Rank deletedRank, [NotNull] Rank replacementRank ) {
             if( deletedRank == null ) throw new ArgumentNullException( "deletedRank" );
             if( replacementRank == null ) throw new ArgumentNullException( "replacementRank" );
@@ -183,6 +212,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Raises the index value of the specified Rank, and then lowers the rank that was previously in that position. </summary>
+        /// <param name="rank"> Rank to raise. </param>
+        /// <returns> True if the Rank index was raised; false if it is already the highest rank. </returns>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool RaiseRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.First() ) {
@@ -196,6 +230,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Lowers the index value of the specified Rank, and then raises the rank that was previously in that position. </summary>
+        /// <param name="rank"> Rank to lower. </param>
+        /// <returns> True if the Rank index was lowered; false if it is already the lowest rank. </returns>
+        /// <exception cref="ArgumentNullException"> If rank is null. </exception>
+        /// <exception cref="InvalidOperationException"> If PlayerDB is already loaded. </exception>
         public static bool LowerRank( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             if( rank == Ranks.Last() ) {
@@ -216,6 +255,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates a 16 character unique rank ID, via Server.GetRandomString(). </summary>
+        /// <returns> 16 character unique rank ID. </returns>
         public static string GenerateID() {
             return Server.GetRandomString( 16 );
         }

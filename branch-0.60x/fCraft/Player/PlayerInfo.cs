@@ -1108,6 +1108,9 @@ namespace fCraft {
     }
 
 
+    /// <summary> Sorts PlayerInfo objects by relevance.
+    /// Orders players by online/offline state first, then by rank, then by time-since-last-seen.
+    /// Hidden players are listed with the offline players. </summary>
     public sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
         readonly Player observer;
 

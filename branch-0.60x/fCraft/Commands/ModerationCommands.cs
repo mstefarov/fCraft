@@ -115,7 +115,7 @@ namespace fCraft {
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
-            if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                 try {
                     targetAddress.BanIP( player, reason, true, true );
                 } catch( PlayerOpException ex ) {
@@ -163,7 +163,7 @@ namespace fCraft {
             string reason = cmd.NextAll();
 
             IPAddress targetAddress;
-            if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+            if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                 try {
                     targetAddress.BanAll( player, reason, true, true );
                 } catch( PlayerOpException ex ) {
@@ -240,7 +240,7 @@ namespace fCraft {
 
             try {
                 IPAddress targetAddress;
-                if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanIP( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
@@ -280,7 +280,7 @@ namespace fCraft {
 
             try {
                 IPAddress targetAddress;
-                if( Server.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
+                if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanAll( player, reason, true, true );
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );

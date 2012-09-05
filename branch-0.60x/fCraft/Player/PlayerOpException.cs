@@ -4,7 +4,14 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Exception that is thrown when a player's action or command could not be completed. </summary>
     public sealed class PlayerOpException : Exception {
+        /// <summary> Initialises a new instance of fCraft.PlayerOpException, using the specified information. </summary>
+        /// <param name="player"> The player executing the command. </param>
+        /// <param name="target"> The target of the command, null if no target. </param>
+        /// <param name="errorCode"> Specific error code. </param>
+        /// <param name="message"> Message to display. </param>
+        /// <param name="messageColored"> Message to display with colour codes applied. </param>
         public PlayerOpException( [NotNull] Player player, PlayerInfo target,
                                   PlayerOpExceptionCode errorCode,
                                   [NotNull] string message, [NotNull] string messageColored )
@@ -18,9 +25,19 @@ namespace fCraft {
             MessageColored = messageColored;
         }
 
+        /// <summary> Player who caused the error. </summary>
+        [NotNull]
         public Player Player { get; private set; }
+
+        /// <summary> Target of the command that caused the error. </summary>
+        [CanBeNull]
         public PlayerInfo Target { get; private set; }
+
+        /// <summary> Error code associated with the error. </summary>
         public PlayerOpExceptionCode ErrorCode { get; private set; }
+
+        /// <summary> Message to display to player, via Minecraft chat. Optionally enhanced with colorcodes. </summary>
+        [NotNull]
         public string MessageColored { get; private set; }
 
 
@@ -266,6 +283,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Possible player operation exception codes. </summary>
     public enum PlayerOpExceptionCode {
         /// <summary> Other/unknown/unexpected error. </summary>
         Other,

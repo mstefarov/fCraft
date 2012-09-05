@@ -128,6 +128,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Result of an update check. </summary>
     public sealed class UpdaterResult {
         public static UpdaterResult NoUpdate {
             get {
@@ -147,6 +148,7 @@ namespace fCraft {
     }
 
 
+    /// <summary> Used to describe a particular release version of fCraft. Includes date released, version </summary>
     public sealed class ReleaseInfo {
         internal ReleaseInfo( int version, int revision, DateTime releaseDate,
                               string summary, string changeLog, ReleaseFlags releaseType ) {

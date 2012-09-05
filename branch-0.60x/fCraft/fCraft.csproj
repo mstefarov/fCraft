@@ -253,6 +253,7 @@
     <Compile Include="System\ConfigSection.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="System\ShutdownReason.cs" />
+    <Compile Include="Utils\DateTimeUtil.cs" />
     <Compile Include="Utils\Mono.Options.cs" />
     <Compile Include="Utils\RWLSExtension.cs" />
     <Compile Include="Utils\Vector3I.cs" />

@@ -831,15 +831,7 @@ namespace fCraft {
         }
 
 
-        static readonly Regex RegexIP =
-            new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
-                       RegexOptions.Compiled );
 
-
-        public static bool IsIP( [NotNull] string ipString ) {
-            if( ipString == null ) throw new ArgumentNullException( "ipString" );
-            return RegexIP.IsMatch( ipString );
-        }
 
 
 

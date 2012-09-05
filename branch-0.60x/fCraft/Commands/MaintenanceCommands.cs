@@ -1187,7 +1187,7 @@ namespace fCraft {
                     foreach( string name in names ) {
                         try {
                             IPAddress ip;
-                            if( Server.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+                            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                                 ip.BanIP( player, reason, true, true );
                             } else if( Player.IsValidName( name ) ) {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
