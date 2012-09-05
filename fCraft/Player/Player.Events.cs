@@ -66,7 +66,7 @@ namespace fCraft {
 
 
         /// <summary> Happens after a player has hidden or unhidden. </summary>
-        public static event EventHandler<PlayerEventArgs> HideChanged;
+        public static event EventHandler<PlayerHideChangedEventArgs> HideChanged;
 
 
         /// <summary> Occurs when a player disconnects. </summary>
@@ -91,11 +91,11 @@ namespace fCraft {
         }
 
 
-        internal static World RaisePlayerConnectedEvent( [NotNull] Player player, World world, bool isFake ) {
+        internal static World RaisePlayerConnectedEvent( [NotNull] Player player, World world ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var h = Connected;
             if( h == null ) return world;
-            var e = new PlayerConnectedEventArgs( player, world, isFake );
+            var e = new PlayerConnectedEventArgs( player, world );
             h( null, e );
             return e.StartingWorld;
         }
@@ -166,10 +166,10 @@ namespace fCraft {
         }
 
 
-        internal static void RaisePlayerHideChangedEvent( [NotNull] Player player ) {
+        internal static void RaisePlayerHideChangedEvent( [NotNull] Player player, bool isNowHidden, bool silent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var h = HideChanged;
-            if( h != null ) h( null, new PlayerEventArgs( player ) );
+            if( h != null ) h( null, new PlayerHideChangedEventArgs( player, isNowHidden, silent ) );
         }
 
 
@@ -271,11 +271,10 @@ namespace fCraft.Events {
     /// <summary> Provides data for Player.Connected event. StartingWorld property may be changed.
     /// Make sure to check IsFake property. </summary>
     public sealed class PlayerConnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld, bool isFake ) {
+        internal PlayerConnectedEventArgs( [NotNull] Player player, World startingWorld ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             StartingWorld = startingWorld;
-            IsFake = isFake;
         }
 
         /// <summary> Player who just connected, and is about to join main. </summary>
@@ -285,9 +284,6 @@ namespace fCraft.Events {
         /// <summary> Player's main world.
         /// May be WorldManager.MainWorld or rank-specific main. Can be changed. </summary>
         public World StartingWorld { get; set; }
-
-        /// <summary> Whether the player has *actually* connected, or if this connect is faked by /Hide. </summary>
-        public bool IsFake { get; private set; }
     }
 
 
@@ -555,7 +551,6 @@ namespace fCraft.Events {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;
-            IsFake = isFake;
         }
 
         /// <summary> Player who has just disconnected. </summary>
@@ -564,9 +559,6 @@ namespace fCraft.Events {
 
         /// <summary> Reason for leaving the server. </summary>
         public LeaveReason LeaveReason { get; private set; }
-
-        /// <summary> Whether the player has *actually* disconnected, or if this disconnect is faked by /Hide. </summary>
-        public bool IsFake { get; private set; }
     }
 
 
@@ -638,5 +630,25 @@ namespace fCraft.Events {
 
         /// <summary> Context of the world change. </summary>
         public WorldChangeReason Context { get; private set; }
+    }
+
+
+    /// <summary> Provides data for Player.HideChanged event. Immutable. </summary>
+    public sealed class PlayerHideChangedEventArgs : EventArgs, IPlayerEvent {
+        internal PlayerHideChangedEventArgs( Player player, bool isNowHidden, bool silent ) {
+            Player = player;
+            IsNowHidden = isNowHidden;
+            Silent = silent;
+        }
+
+        /// <summary> Player who has just hid or unhid. </summary>
+        [NotNull]
+        public Player Player { get; private set; }
+
+        /// <summary> Whether player was just hidden (true) or unhidden (false). </summary>
+        public bool IsNowHidden { get; private set; }
+
+        /// <summary> Whether hiding/unhiding is supposed to be silent. </summary>
+        public bool Silent { get; private set; }
     }
 }

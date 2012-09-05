@@ -565,10 +565,23 @@ namespace fCraft {
         static void HookUpHandlers() {
             Chat.Sent += ChatSentHandler;
             Player.Ready += PlayerReadyHandler;
+            Player.HideChanged += OnPlayerHideChanged;
             Player.Disconnected += PlayerDisconnectedHandler;
             Player.Kicked += PlayerKickedHandler;
             PlayerInfo.BanChanged += PlayerInfoBanChangedHandler;
             PlayerInfo.RankChanged += PlayerInfoRankChangedHandler;
+        }
+
+        static void OnPlayerHideChanged( object sender, PlayerHideChangedEventArgs e ) {
+            if( !ConfigKey.IRCBotAnnounceServerJoins.Enabled() || e.Silent ) {
+                return;
+            }
+            if( e.IsNowHidden ) {
+                PlayerDisconnectedHandler( null,
+                                           new PlayerDisconnectedEventArgs( e.Player, LeaveReason.ClientQuit, true ) );
+            } else {
+                PlayerReadyHandler( null, new PlayerEventArgs( e.Player ) );
+            }
         }
 
 
@@ -601,8 +614,8 @@ namespace fCraft {
         }
 
 
-        internal static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
-            if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && (e.IsFake || !e.Player.Info.IsHidden) ) {
+        static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
+            if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S left the server ({2})",
                                  Color.IRCBold,
                                  e.Player.ClassyName,
