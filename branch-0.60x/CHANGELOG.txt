@@ -1,3 +1,12 @@
+0.631
+ Feature: Added a way to restrict commands to match online players' names only, by prefixing the name with an exclaimation mark (!).
+ Feature: Added /DoNotMark command. When toggled on, clicking on blocks does not cause marks to be added to a selection.
+ Fix: Fixed ConfigGUI not loading permission limits properly (thanks recon_)
+ Fix: Included MapConverter.exe and MapRenderer.exe in list of protected filenames.
+ Fix: Fixed a potential crash in Paths.FileExists when working in case-sensitive mode in a root directory (e.g. C:\)
+ Change: Improvements to fCraft's built-in crash reporter.
+ API: Many more documentation improvements.
+
 0.630
  Feature: New permissions! FlushWorlds (previously part of ManageWorlds), UseTimers (previously part of Say), and UndoAll.
  Feature: Added ability to undo multiple players' actions at once, or EVERYONE's actions at once, using /UndoPlayer and /UndoArea. Command syntax changed, see wiki.

@@ -131,6 +131,13 @@ namespace fCraft {
                                     .ToArray();
                 }
 
+            } else if( name.StartsWith( "!" ) ) {
+                // find online players by partial matches
+                name = name.Substring( 1 );
+                infos = Server.FindPlayers( name, true )
+                              .Select( p => p.Info )
+                              .ToArray();
+
             } else {
                 // find players by partial matching
                 PlayerInfo tempInfo;

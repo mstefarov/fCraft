@@ -463,16 +463,15 @@ namespace fCraft {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
             lock( AddLocker ) {
-                //return Trie.ValuesStartingWith( namePart ).Take( limit ).ToArray(); // <- works, but is slightly slower
                 return Trie.GetList( namePart, limit ).ToArray();
             }
         }
 
 
-        /// <summary>Searches for player names starting with namePart, returning just one or none of the matches.</summary>
-        /// <param name="namePart">Partial or full player name</param>
-        /// <param name="info">PlayerInfo to output (will be set to null if no single match was found)</param>
-        /// <returns>true if one or zero matches were found, false if multiple matches were found</returns>
+        /// <summary> Searches for player names starting with namePart, returning just one or none of the matches. </summary>
+        /// <param name="namePart"> Partial or full player name. </param>
+        /// <param name="info"> PlayerInfo to output (will be set to null if no single match was found) </param>
+        /// <returns> true if one or zero matches were found, false if multiple matches were found </returns>
         internal static bool FindPlayerInfo( [NotNull] string namePart, out PlayerInfo info ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
@@ -482,46 +481,82 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds player by exact name. </summary>
+        /// <param name="fullName"> Full, case-insensitive name of the player. </param>
+        /// <returns> PlayerInfo object if the player was found. Null if not found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoExact( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static PlayerInfo FindPlayerInfoExact( [NotNull] string fullName ) {
+            if( fullName == null ) throw new ArgumentNullException( "fullName" );
             CheckIfLoaded();
             lock( AddLocker ) {
-                return Trie.Get( name );
+                return Trie.Get( fullName );
             }
         }
 
+
+        /// <summary> Searches for player names starting with namePart.
+        /// If exactly one player matched, returns the corresponding PlayerInfo object.
+        /// If name format is incorrect, or if no matches were found, an appropriate message is printed to the player.
+        /// If multiple players were found matching the partialName, first 25 matches are printed. </summary>
+        /// <param name="player"> Player to print feedback to. </param>
+        /// <param name="partialName"> Partial or full player name. </param>
+        /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string name ) {
+        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string partialName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( name == null ) throw new ArgumentNullException( "name" );
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
-            if( name == "-" ) {
+
+            // If name starts with '!', return matches for online players only
+            if( partialName.Length > 1 && partialName[0] == '!' ) {
+                partialName = partialName.Substring( 1 );
+                Player targetPlayer = Server.FindPlayerOrPrintMatches( player, partialName, false, true );
+                if( targetPlayer != null ) {
+                    return targetPlayer.Info;
+                } else {
+                    player.Message( "No online players found matching \"{0}\"", partialName );
+                    return null;
+                }
+            }
+
+            // Repeat last-used player name
+            if( partialName == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
-                    name = player.LastUsedPlayerName;
+                    partialName = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
                 }
             }
-            if( !Player.ContainsValidCharacters( name ) ) {
-                player.MessageInvalidPlayerName( name );
+
+            // Make sure player name is valid
+            if( !Player.ContainsValidCharacters( partialName ) ) {
+                player.MessageInvalidPlayerName( partialName );
                 return null;
             }
-            PlayerInfo target = FindPlayerInfoExact( name );
+
+            // Search for exact matches first
+            PlayerInfo target = FindPlayerInfoExact( partialName );
+
+            // If no exact match was found, look for partial matches
             if( target == null ) {
-                PlayerInfo[] targets = FindPlayers( name );
+                PlayerInfo[] targets = FindPlayers( partialName );
                 if( targets.Length == 0 ) {
-                    player.MessageNoPlayer( name );
+                    // No matches
+                    player.MessageNoPlayer( partialName );
                     return null;
 
                 } else if( targets.Length > 1 ) {
+                    // More than one match
                     Array.Sort( targets, new PlayerInfoComparer( player ) );
                     player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
                     return null;
-                }
+
+                } // else: one match!
                 target = targets[0];
             }
+
+            // If a single name has been found, set it as LastUsedPlayerName
             player.LastUsedPlayerName = target.Name;
             return target;
         }

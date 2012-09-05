@@ -455,7 +455,6 @@ namespace fCraft {
                 return;
             }
 
-            // Parse player name
             if( name == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
@@ -464,8 +463,22 @@ namespace fCraft {
                     return;
                 }
             }
-            PlayerInfo targetInfo = PlayerDB.FindPlayerInfoExact( name );
+            PlayerInfo targetInfo;
 
+            // Find player by name
+            if( name.StartsWith( "!" ) ) {
+                name = name.Substring( 1 );
+                Player target = Server.FindPlayerExact( player, name, false );
+                if( target == null ) {
+                    player.MessageNoPlayer( name );
+                    return;
+                }
+                targetInfo = target.Info;
+            } else {
+                targetInfo = PlayerDB.FindPlayerInfoExact( name );
+            }
+
+            // Handle non-existent players
             if( targetInfo == null ) {
                 if( !player.Can( Permission.EditPlayerDB ) ) {
                     player.MessageNoPlayer( name );

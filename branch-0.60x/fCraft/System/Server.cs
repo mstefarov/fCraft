@@ -1156,6 +1156,16 @@ namespace fCraft {
         }
 
 
+        public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, bool includeHidden ) {
+            Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
+            if( target != null && includeHidden && !player.CanSee( target ) ) {
+                // hide players whom player cant see
+                target = null;
+            }
+            return target;
+        }
+
+
         /// <summary> Find player by name using autocompletion.
         /// Returns null and prints message if none or multiple players matched.
         /// Raises Player.SearchingForPlayer event, which may modify search results. </summary>
