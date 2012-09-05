@@ -474,9 +474,15 @@ namespace fCraft {
                     string contextString;
                     if( entry.Context == BlockChangeContext.Manual ) {
                         contextString = "";
-                    } else if( (entry.Context & BlockChangeContext.Drawn) == BlockChangeContext.Drawn &&
+                    }else if( entry.Context == (BlockChangeContext.Manual | BlockChangeContext.Replaced)){
+                        contextString = "(Painted)";
+                    } else if( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
                         entry.Context != BlockChangeContext.Drawn ) {
-                        contextString = " (" + (entry.Context & ~BlockChangeContext.Drawn) + ")";
+                        if( entry.Context == ( BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf | BlockChangeContext.Redone ) ) {
+                            contextString = " (Redone)";
+                        } else {
+                            contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
+                        }
                     } else {
                         contextString = " (" + entry.Context + ")";
                     }
