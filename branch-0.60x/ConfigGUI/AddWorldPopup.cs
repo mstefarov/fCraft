@@ -283,7 +283,7 @@ namespace fCraft.ConfigGUI {
                 ( progressSender, progressArgs ) =>
                 bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
             IsoCatResult result = renderer.Draw( map );
-            if( result.Canceled || bwRenderer.CancellationPending ) return;
+            if( result.Cancelled || bwRenderer.CancellationPending ) return;
 
             Bitmap rawImage = result.Bitmap;
             if( rawImage != null ) {

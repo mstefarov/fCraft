@@ -561,7 +561,7 @@ namespace fCraft {
         /// <returns> Newly-created world. </returns>
         /// <exception cref="ArgumentNullException"> If name is null. </exception>
         /// <exception cref="WorldOpException"> If world name was invalid, a world with this name already exists,
-        /// or if an event callback canceled the addition. </exception>
+        /// or if an event callback cancelled the addition. </exception>
         [NotNull]
         public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -840,7 +840,7 @@ namespace fCraft {
 
         #region Events
 
-        /// <summary> Occurs when the main world is being changed (cancellable). </summary>
+        /// <summary> Occurs when the main world is being changed (cancelable). </summary>
         public static event EventHandler<MainWorldChangingEventArgs> MainWorldChanging;
 
 
@@ -853,7 +853,7 @@ namespace fCraft {
         public static event EventHandler<SearchingForWorldEventArgs> SearchingForWorld;
 
 
-        /// <summary> Occurs before a new world is created/added (cancellable). </summary>
+        /// <summary> Occurs before a new world is created/added (cancelable). </summary>
         public static event EventHandler<WorldCreatingEventArgs> WorldCreating;
 
 

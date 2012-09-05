@@ -3,13 +3,13 @@ using System.Drawing;
 
 namespace fCraft.GUI {
     public sealed class IsoCatResult {
-        internal IsoCatResult( bool canceled, Bitmap bitmap, Rectangle cropRectangle ) {
-            Canceled = canceled;
+        internal IsoCatResult( bool cancelled, Bitmap bitmap, Rectangle cropRectangle ) {
+            Cancelled = cancelled;
             Bitmap = bitmap;
             CropRectangle = cropRectangle;
         }
 
-        public bool Canceled { get; private set; }
+        public bool Cancelled { get; private set; }
         public Bitmap Bitmap { get; private set; }
         public Rectangle CropRectangle { get; set; }
     }

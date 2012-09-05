@@ -1417,7 +1417,7 @@ namespace fCraft {
             Aliases = new[] { "Nvm" },
             Category = CommandCategory.Building | CommandCategory.Chat,
             NotRepeatable = true,
-            Help = "If you are writing a partial/multiline message, it's canceled. " +
+            Help = "If you are writing a partial/multiline message, it's cancelled. " +
                    "Otherwise, cancels current selection (for drawing or zoning). " +
                    "If you wish to stop a drawing in-progress, use &H/Undo&S instead. ",
             Handler = CancelHandler

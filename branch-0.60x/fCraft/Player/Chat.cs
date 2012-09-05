@@ -273,7 +273,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Occurs when a chat message is about to be sent. Cancellable. </summary>
+        /// <summary> Occurs when a chat message is about to be sent. Cancelable. </summary>
         public static event EventHandler<ChatSendingEventArgs> Sending;
 
         /// <summary> Occurs after a chat message has been sent. </summary>
@@ -344,7 +344,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-    /// <summary> Provides data for Chat.Sending event. Cancellable.
+    /// <summary> Provides data for Chat.Sending event. Cancelable.
     /// FormattedMessage and recipientList properties may be changed. </summary>
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal ChatSendingEventArgs( Player player, string message, string formattedMessage,

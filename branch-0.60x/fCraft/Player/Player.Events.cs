@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     partial class Player {
-        /// <summary> Occurs when a player is connecting (cancellable).
+        /// <summary> Occurs when a player is connecting (cancelable).
         /// Player name is verified and bans are checked before this event is raised,
         /// but before the player is registered with the server.
         /// Player's state at this point is SessionState.Connecting. </summary>
@@ -24,7 +24,7 @@ namespace fCraft {
         public static event EventHandler<PlayerEventArgs> Ready;
 
 
-        /// <summary> Occurs when player is about to move (cancellable). </summary>
+        /// <summary> Occurs when player is about to move (cancelable). </summary>
         public static event EventHandler<PlayerMovingEventArgs> Moving;
 
 
@@ -32,7 +32,7 @@ namespace fCraft {
         public static event EventHandler<PlayerMovedEventArgs> Moved;
 
 
-        /// <summary> Occurs when player clicked a block (cancellable).
+        /// <summary> Occurs when player clicked a block (cancelable).
         /// Note that a click will not necessarily result in a block being placed or deleted. </summary>
         public static event EventHandler<PlayerClickingEventArgs> Clicking;
 
@@ -52,7 +52,7 @@ namespace fCraft {
         public static event EventHandler<PlayerPlacedBlockEventArgs> PlacedBlock;
 
 
-        /// <summary> Occurs before a player is kicked (cancellable). 
+        /// <summary> Occurs before a player is kicked (cancelable). 
         /// Kick may be caused by /Kick, /Ban, /BanIP, or /BanAll commands, or by idling.
         /// Callbacks may override whether the kick will be announced or recorded in PlayerDB. </summary>
         public static event EventHandler<PlayerBeingKickedEventArgs> BeingKicked;
@@ -73,7 +73,7 @@ namespace fCraft {
         public static event EventHandler<PlayerDisconnectedEventArgs> Disconnected;
 
 
-        /// <summary> Occurs when a player intends to join a world (cancellable). </summary>
+        /// <summary> Occurs when a player intends to join a world (cancelable). </summary>
         public static event EventHandler<PlayerJoiningWorldEventArgs> JoiningWorld;
 
 
@@ -218,7 +218,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Server.SessionConnecting event. Cancellable. </summary>
+    /// <summary> Provides data for Server.SessionConnecting event. Cancelable. </summary>
     public sealed class SessionConnectingEventArgs : EventArgs, ICancelableEvent {
         internal SessionConnectingEventArgs( [NotNull] IPAddress ip ) {
             if( ip == null ) throw new ArgumentNullException( "ip" );
@@ -251,7 +251,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.Connecting event. Cancellable. </summary>
+    /// <summary> Provides data for Player.Connecting event. Cancelable. </summary>
     public sealed class PlayerConnectingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerConnectingEventArgs( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -291,7 +291,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.Moving event. Cancellable. </summary>
+    /// <summary> Provides data for Player.Moving event. Cancelable. </summary>
     public sealed class PlayerMovingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerMovingEventArgs( [NotNull] Player player, Position newPos ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -337,7 +337,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.Clicking event. Cancellable.
+    /// <summary> Provides data for Player.Clicking event. Cancelable.
     /// Coords, Block, and Action properties may be changed. </summary>
     public sealed class PlayerClickingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerClickingEventArgs( [NotNull] Player player, Vector3I coords,
@@ -472,7 +472,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.BeingKicked event. Cancellable. </summary>
+    /// <summary> Provides data for Player.BeingKicked event. Cancelable. </summary>
     public sealed class PlayerBeingKickedEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
                                               bool announce, bool recordToPlayerDB, LeaveReason context ) {
@@ -570,7 +570,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for Player.JoiningWorld event. Cancellable.
+    /// <summary> Provides data for Player.JoiningWorld event. Cancelable.
     /// Allows overriding the text that is shown on connection screen. </summary>
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,

@@ -8,7 +8,7 @@ namespace fCraft {
     sealed partial class PlayerInfo {
 
         /// <summary> Occurs when a new PlayerDB entry is being created.
-        /// Allows editing the starting rank. Cancellable (kicks the player). </summary>
+        /// Allows editing the starting rank. Cancelable (kicks the player). </summary>
         public static event EventHandler<PlayerInfoBeingCreatedEventArgs> BeingCreated;
 
         /// <summary> Occurs after a new PlayerDB entry has been created. </summary>
@@ -20,7 +20,7 @@ namespace fCraft {
         /// <summary> Occurs after a player's rank was changed (automatically or manually). </summary>
         public static event EventHandler<PlayerInfoRankChangedEventArgs> RankChanged;
 
-        /// <summary> Occurs when a player is about to be banned or unbanned. Cancellable. </summary>
+        /// <summary> Occurs when a player is about to be banned or unbanned. Cancelable. </summary>
         public static event EventHandler<PlayerInfoBanChangingEventArgs> BanChanging;
 
         /// <summary> Occurs after a player has been banned or unbanned. </summary>
@@ -124,7 +124,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for PlayerInfo.BeingCreated event. Cancellable.
+    /// <summary> Provides data for PlayerInfo.BeingCreated event. Cancelable.
     /// Allows changing StartingRank. </summary>
     public sealed class PlayerInfoBeingCreatedEventArgs : EventArgs, ICancelableEvent {
         internal PlayerInfoBeingCreatedEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
@@ -177,7 +177,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for PlayerInfo.RankChanging event. Cancellable. </summary>
+    /// <summary> Provides data for PlayerInfo.RankChanging event. Cancelable. </summary>
     public sealed class PlayerInfoRankChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoRankChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player rankChanger,
                                                   [NotNull] Rank newRank, [CanBeNull] string reason,
@@ -270,7 +270,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for PlayerInfo.BanChanging event. Cancellable.
+    /// <summary> Provides data for PlayerInfo.BanChanging event. Cancelable.
     /// Reason and Announce properties may be changed. </summary>
     public sealed class PlayerInfoBanChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoBanChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player banner,
@@ -340,7 +340,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for PlayerInfo.FrozenChanging event. Cancellable. 
+    /// <summary> Provides data for PlayerInfo.FrozenChanging event. Cancelable. 
     /// Announce property may be changed. </summary>
     public sealed class PlayerInfoFrozenChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer,
@@ -399,7 +399,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides data for PlayerInfo.MuteChanging event. Cancellable. 
+    /// <summary> Provides data for PlayerInfo.MuteChanging event. Cancelable. 
     /// Duration and Announce properties may be changed. </summary>
     public sealed class PlayerInfoMuteChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoMuteChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player muter,
