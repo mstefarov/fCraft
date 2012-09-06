@@ -926,7 +926,7 @@ namespace fCraft {
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Slab, Block.DoubleSlab, context );
                         RevertBlockNow( coord );
-                        SendNow( PacketWriter.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
+                        SendNow( Packet.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
 
                     } else {
                         // handle normal blocks
@@ -936,7 +936,7 @@ namespace fCraft {
                         map.QueueUpdate( blockUpdate );
                         RaisePlayerPlacedBlockEvent( this, World.Map, coord, old, type, context );
                         if( requiresUpdate || RelayAllUpdates ) {
-                            SendNow( PacketWriter.MakeSetBlock( coord, type ) );
+                            SendNow( Packet.MakeSetBlock( coord, type ) );
                         }
                     }
                     break;
@@ -990,7 +990,7 @@ namespace fCraft {
         /// <param name="block"> Block type to send. </param>
         public void SendBlock( Vector3I coords, Block block ) {
             if( !WorldMap.InBounds( coords ) ) throw new ArgumentOutOfRangeException( "coords" );
-            SendLowPriority( PacketWriter.MakeSetBlock( coords, block ) );
+            SendLowPriority( Packet.MakeSetBlock( coords, block ) );
         }
 
 
@@ -998,7 +998,7 @@ namespace fCraft {
         /// and sends it (async) to the player.
         /// Used to undo player's attempted block placement/deletion. </summary>
         public void RevertBlock( Vector3I coords ) {
-            SendLowPriority( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
+            SendLowPriority( Packet.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }
 
 
@@ -1006,7 +1006,7 @@ namespace fCraft {
         // Used to undo player's attempted block placement/deletion.
         // To avoid threading issues, only use this from this player's IoThread.
         void RevertBlockNow( Vector3I coords ) {
-            SendNow( PacketWriter.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
+            SendNow( Packet.MakeSetBlock( coords, WorldMap.GetBlock( coords ) ) );
         }
 
 
@@ -1564,7 +1564,7 @@ namespace fCraft {
         /// <summary> Teleports player to a given coordinate within this map. </summary>
         public void TeleportTo( Position pos ) {
             StopSpectating();
-            Send( PacketWriter.MakeSelfTeleport( pos ) );
+            Send( Packet.MakeSelfTeleport( pos ) );
             Position = pos;
         }
 
