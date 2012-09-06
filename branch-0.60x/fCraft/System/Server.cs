@@ -478,22 +478,22 @@ namespace fCraft {
                 IRC.Disconnect();
 
                 // kick all players
-                Player[] sessions = null;
-                lock( SessionLock ) {
-                    if( Sessions.Count > 0 ) {
+                Player[] kickedPlayers = null;
+                lock( PlayerListLock ) {
+                    if( PlayerIndex.Count > 0 ) {
                         Logger.Log( LogType.SystemActivity, "Shutdown: Kicking players..." );
-                        foreach( Player p in Sessions ) {
+                        foreach( Player p in PlayerIndex ) {
                             // NOTE: kick packet delivery here is not currently guaranteed
                             p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
                                     LeaveReason.ServerShutdown );
                         }
-                        sessions = Sessions.ToArray();
+                        kickedPlayers = PlayerIndex.ToArray();
                     }
                 }
 
-                if( sessions != null ) {
+                if( kickedPlayers != null ) {
                     Logger.Log( LogType.SystemActivity, "Shutdown: Waiting for players to disconnect..." );
-                    foreach( Player p in sessions ) {
+                    foreach( Player p in kickedPlayers ) {
                         p.WaitForDisconnect();
                     }
                 }
@@ -687,6 +687,7 @@ namespace fCraft {
         static SchedulerTask checkIdlesTask;
         static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
 
+        /// <summary> Interval at which Server checks for idle players (to kick idlers). </summary>
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
@@ -715,10 +716,10 @@ namespace fCraft {
         }
 
 
-        // collects garbage (forced collection is necessary under Mono)
         static SchedulerTask gcTask;
         static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
 
+        /// <summary> Interval at which Server checks whether forced garbage collection is needed. </summary>
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
@@ -952,38 +953,9 @@ namespace fCraft {
         #region Player and Session Management
 
         // list of registered players
-        static readonly SortedDictionary<string, Player> PlayerIndex = new SortedDictionary<string, Player>();
+        static readonly List<Player> PlayerIndex = new List<Player>();
         public static Player[] Players { get; private set; }
         static readonly object PlayerListLock = new object();
-
-        // list of all connected sessions
-        static readonly List<Player> Sessions = new List<Player>();
-        static readonly object SessionLock = new object();
-
-
-        // Registers a new session, and checks the number of connections from this IP.
-        // Returns true if the session was registered succesfully.
-        // Returns false if the max number of connections was reached.
-        internal static bool RegisterSession( [NotNull] Player session ) {
-            if( session == null ) throw new ArgumentNullException( "session" );
-            int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
-            lock( SessionLock ) {
-                if( !session.IP.Equals( IPAddress.Loopback ) && maxSessions > 0 ) {
-                    int sessionCount = 0;
-                    for( int i = 0; i < Sessions.Count; i++ ) {
-                        Player p = Sessions[i];
-                        if( p.IP.Equals( session.IP ) ) {
-                            sessionCount++;
-                            if( sessionCount >= maxSessions ) {
-                                return false;
-                            }
-                        }
-                    }
-                }
-                Sessions.Add( session );
-            }
-            return true;
-        }
 
 
         // Registers a player and checks if the server is full.
@@ -992,36 +964,40 @@ namespace fCraft {
         // Returns false if the server was full.
         internal static bool RegisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+            lock( PlayerListLock ) {
+                // Kick other sessions with same player name
+                Player ghost = PlayerIndex.FirstOrDefault( p => p.Name.Equals( player.Name,
+                                                                               StringComparison.OrdinalIgnoreCase ) );
+                if( ghost != null ) {
+                    // Wait for other session to exit/unregister
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.",
+                                ghost.Name, ghost.IP );
+                    ghost.KickSynchronously( "Connected from elsewhere!", LeaveReason.ClientReconnect );
+                }
 
-            // Kick other sessions with same player name
-            List<Player> sessionsToKick = new List<Player>();
-            lock( SessionLock ) {
-                foreach( Player s in Sessions ) {
-                    if( s == player ) continue;
-                    if( s.Name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
-                        sessionsToKick.Add( s );
+                int maxSessions = ConfigKey.MaxConnectionsPerIP.GetInt();
+                // check the number of connections from this IP.
+                if( !player.IP.Equals( IPAddress.Loopback ) && maxSessions > 0 ) {
+                    int connections = PlayerIndex.Count( p => p.IP.Equals( player.IP ) );
+                    if( connections >= maxSessions ) {
                         Logger.Log( LogType.SuspiciousActivity,
-                                    "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.",
-                                    s.Name, s.IP );
-                        s.Kick( "Connected from elsewhere!", LeaveReason.ClientReconnect );
+                                    "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
+                                    player.Name, player.IP );
+                        player.Kick( "Max connections reached for " + player.IP, LeaveReason.LoginFailed );
+                        return false;
                     }
                 }
-            }
 
-            // Wait for other sessions to exit/unregister (if any)
-            foreach( Player ses in sessionsToKick ) {
-                ses.WaitForDisconnect();
-            }
-
-            // Add player to the list
-            lock( PlayerListLock ) {
-                if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.ReservedSlot ) {
-                    return false;
+                // check if server is full
+                if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.HasReservedSlot ) {
+                    player.Kick( "Server is full!", LeaveReason.ServerFull );
                 }
-                PlayerIndex.Add( player.Name, player );
+                PlayerIndex.Add( player );
                 player.HasRegistered = true;
+                UpdatePlayerList();
+                return true;
             }
-            return true;
         }
 
 
@@ -1058,26 +1034,17 @@ namespace fCraft {
                 if( player.World != null ) {
                     player.World.ReleasePlayer( player );
                 }
-                PlayerIndex.Remove( player.Name );
+                PlayerIndex.Remove( player );
                 UpdatePlayerList();
-            }
-        }
-
-
-        // Removes a session from the list
-        internal static void UnregisterSession( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            lock( SessionLock ) {
-                Sessions.Remove( player );
             }
         }
 
 
         internal static void UpdatePlayerList() {
             lock( PlayerListLock ) {
-                Players = PlayerIndex.Values.Where( p => p.IsOnline )
-                    .OrderBy( player => player.Name )
-                    .ToArray();
+                Players = PlayerIndex.Where( p => p.IsOnline )
+                                     .OrderBy( player => player.Name )
+                                     .ToArray();
                 RaiseEvent( PlayerListChanged );
             }
         }

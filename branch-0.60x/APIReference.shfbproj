@@ -15,14 +15,14 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>C:\fCraftHelp\0.630\</OutputPath>
+    <OutputPath>C:\fCraftHelp\0.631\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <HelpFileFormat>Website</HelpFileFormat>
     <DocumentationSources>
       <DocumentationSource sourceFile="fCraft\fCraft.csproj" />
     </DocumentationSources>
-    <HelpTitle>fCraft 0.630 API Reference</HelpTitle>
+    <HelpTitle>fCraft 0.631 API Reference</HelpTitle>
     <NamingMethod>MemberName</NamingMethod>
     <PresentationStyle>hana</PresentationStyle>
     <SyntaxFilters>CSharp</SyntaxFilters>
@@ -38,6 +38,8 @@
       <NamespaceSummaryItem name="JetBrains.Annotations" isDocumented="True" xmlns="">ReSharper annotations.</NamespaceSummaryItem>
     </NamespaceSummaries>
     <FrameworkVersion>.NET 3.5</FrameworkVersion>
+    <MissingTags>Summary, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
+    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected, SealedProtected</VisibleItems>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in
        order for Visual Studio to perform the build.  The others are optional
