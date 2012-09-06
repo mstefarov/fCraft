@@ -594,7 +594,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 box.SelectRank( rank );
             }
 
-            xReserveSlot.Checked = rank.ReservedSlot;
+            xReserveSlot.Checked = rank.HasReservedSlot;
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
@@ -830,7 +830,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         private void xReserveSlot_CheckedChanged( object sender, EventArgs e ) {
             if( selectedRank == null ) return;
-            selectedRank.ReservedSlot = xReserveSlot.Checked;
+            selectedRank.HasReservedSlot = xReserveSlot.Checked;
         }
 
         private void nKickIdle_ValueChanged( object sender, EventArgs e ) {

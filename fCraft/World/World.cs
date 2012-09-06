@@ -286,7 +286,7 @@ namespace fCraft {
 
             lock( SyncRoot ) {
                 if( IsFull ) {
-                    if( player.Info.Rank.ReservedSlot ) {
+                    if( player.Info.Rank.HasReservedSlot ) {
                         Player idlestPlayer = Players.Where( p => p.Info.Rank.IdleKickTimer != 0 )
                                                      .OrderBy( p => p.LastActiveTime )
                                                      .FirstOrDefault();
