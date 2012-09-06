@@ -214,6 +214,7 @@
     <Compile Include="MapConversion\MyneMetaFile.cs" />
     <Compile Include="MapConversion\MapRaw.cs" />
     <Compile Include="Network\IPBanInfo.cs" />
+    <Compile Include="Network\PacketReader.cs" />
     <Compile Include="Player\ChatTimer.cs" />
     <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
