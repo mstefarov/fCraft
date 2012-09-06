@@ -6,28 +6,31 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
-using System.Reflection;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
 #if DEBUG_EVENTS
+using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
 namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
-        static readonly object LogLock = new object();
+        /// <summary> Whether logging is globally enabled/disabled.
+        /// If "--nolog" command-line argument is given, logging is disabled. </summary>
         public static bool Enabled { get; set; }
+
         public static readonly bool[] ConsoleOptions;
         public static readonly bool[] LogFileOptions;
 
+        static readonly object LogLock = new object();
         const string DefaultLogFileName = "fCraft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd",
                      TimeFormat = "HH':'mm':'ss";
         static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
-        public static LogSplittingType SplittingType = LogSplittingType.OneFile;
+        public static LogSplittingType SplittingType { get; set; }
 
         static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
         static readonly Queue<string> RecentMessages = new Queue<string>();
@@ -48,6 +51,8 @@ namespace fCraft {
 
 
         static Logger() {
+            // initialize defaults
+            SplittingType = LogSplittingType.OneFile;
             Enabled = true;
             int typeCount = Enum.GetNames( typeof( LogType ) ).Length;
             ConsoleOptions = new bool[typeCount];
@@ -133,7 +138,7 @@ namespace fCraft {
                     return "ERROR: ";
                 case LogType.Warning:
                     return "Warning: ";
-                case LogType.IRC:
+                case LogType.IRCStatus:
                     return "IRC: ";
                 default:
                     return String.Empty;
@@ -533,9 +538,11 @@ namespace fCraft {
         /// <summary> Messages printed to the console (typically as the result of commands called from console). </summary>
         ConsoleOutput,
 
-        /// <summary> Messages related to IRC activity.
-        /// Does not include all messages relayed to/from IRC channels. </summary>
-        IRC,
+        /// <summary> Information related to IRC activity. </summary>
+        IRCStatus,
+
+        /// <summary> IRC chatter and join/part messages. </summary>
+        IRCChat,
 
         /// <summary> Information useful for debugging (error details, routine events, system information). </summary>
         Debug,
@@ -562,6 +569,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
+    /// <summary> Provides data for Logger.Logged event. Immutable. </summary>
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
         internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
@@ -579,6 +587,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides for Logger.Crashed event. Crash reporting can be canceled. </summary>
     public sealed class CrashedEventArgs : EventArgs {
         internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
             Message = message;
