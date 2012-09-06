@@ -177,6 +177,8 @@ namespace fCraft {
      * 
      * 159 - r1650 - Added UndoAll permission
      * 
+     * 160 - r1744 - Renamed "IRC" LogType to "IRCStatus", and added "IRCChat" LogType.
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,

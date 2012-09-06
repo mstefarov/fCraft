@@ -119,7 +119,7 @@ namespace fCraft {
                     try {
                         ActualBotNick = desiredBotNick;
                         reconnect = false;
-                        Logger.Log( LogType.IRC,
+                        Logger.Log( LogType.IRCStatus,
                                     "Connecting to {0}:{1} as {2}",
                                     hostName, port, ActualBotNick );
                         Connect();
@@ -229,13 +229,19 @@ namespace fCraft {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
                                         Server.Message( "&i(IRC) * {0} {1}",
                                                         msg.Nick, processedMessage );
+                                        Logger.Log( LogType.IRCChat,
+                                                    "(IRC) {0}: * {1} {2}", msg.Channel, msg.Nick, processedMessage );
                                     } else {
                                         Server.Message( "&i(IRC) {0}{1}: {2}",
                                                         msg.Nick, Color.White, processedMessage );
+                                        Logger.Log( LogType.IRCChat,
+                                                    "(IRC) {0}: {1}: {2}", msg.Channel, msg.Nick, processedMessage );
                                     }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
                                                     msg.Nick, Color.White, processedMessage.Substring( 1 ) );
+                                    Logger.Log( LogType.IRCChat,
+                                                "(IRC) {0}: {1}: {2}", msg.Channel, msg.Nick, processedMessage );
                                 }
                             }
                         }
@@ -247,6 +253,8 @@ namespace fCraft {
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "&i(IRC) {0} joined {1}",
                                             msg.Nick, msg.Channel );
+                            Logger.Log( LogType.IRCChat,
+                                        "(IRC) {0} joined {1}", msg.Nick, msg.Channel );
                         }
                         return;
 
@@ -254,8 +262,8 @@ namespace fCraft {
                     case IRCMessageType.Kick:
                         string kicked = msg.RawMessageArray[3];
                         if( kicked == ActualBotNick ) {
-                            Logger.Log( LogType.IRC,
-                                        "Bot was kicked from {0} by {1} ({2}), rejoining.",
+                            Logger.Log( LogType.IRCStatus,
+                                        "IRC Bot was kicked from {0} by {1} ({2}), rejoining.",
                                         msg.Channel, msg.Nick, msg.Message );
                             Thread.Sleep( ReconnectDelay );
                             Send( IRCCommands.Join( msg.Channel ) );
@@ -267,6 +275,9 @@ namespace fCraft {
                             }
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
                                             msg.Nick, kicked, msg.Channel, kickMessage );
+                            Logger.Log( LogType.IRCChat,
+                                        "(IRC) {0} kicked {1} from {2} ({3})",
+                                        msg.Nick, kicked, msg.Channel, kickMessage );
                         }
                         return;
 
@@ -276,6 +287,9 @@ namespace fCraft {
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "&i(IRC) {0} left {1}",
+                                            msg.Nick, msg.Channel );
+                            Logger.Log( LogType.IRCChat,
+                                        "(IRC) {0} left {1}",
                                             msg.Nick, msg.Channel );
                         }
                         return;
@@ -294,7 +308,7 @@ namespace fCraft {
                         switch( msg.ReplyCode ) {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log( LogType.IRCStatus,
                                             "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"",
                                             ActualBotNick );
                                 ActualBotNick += "_";
@@ -303,28 +317,28 @@ namespace fCraft {
 
                             case IRCReplyCode.ErrorBannedFromChannel:
                             case IRCReplyCode.ErrorNoSuchChannel:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log( LogType.IRCStatus,
                                             "Error: {0} ({1})",
                                             msg.ReplyCode, msg.Channel );
                                 die = true;
                                 break;
 
                             case IRCReplyCode.ErrorBadChannelKey:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log( LogType.IRCStatus,
                                             "Error: Channel password required for {0}. fCraft does not currently support passworded channels.",
                                             msg.Channel );
                                 die = true;
                                 break;
 
                             default:
-                                Logger.Log( LogType.IRC,
+                                Logger.Log( LogType.IRCStatus,
                                             "Error ({0}): {1}",
                                             msg.ReplyCode, msg.RawMessage );
                                 break;
                         }
 
                         if( die ) {
-                            Logger.Log( LogType.IRC, "Error: Disconnecting." );
+                            Logger.Log( LogType.IRCStatus, "Error: Disconnecting." );
                             reconnect = false;
                             DisconnectThread();
                         }
@@ -334,13 +348,13 @@ namespace fCraft {
 
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
-                        Logger.Log( LogType.IRC,
+                        Logger.Log( LogType.IRCStatus,
                                     "Query: {0}", msg.RawMessage );
                         break;
 
 
                     case IRCMessageType.Kill:
-                        Logger.Log( LogType.IRC,
+                        Logger.Log( LogType.IRCStatus,
                                     "Bot was killed from {0} by {1} ({2}), reconnecting.",
                                     hostName, msg.Nick, msg.Message );
                         reconnect = true;
@@ -420,13 +434,13 @@ namespace fCraft {
                 for( int i = 0; i < threads.Length; i++ ) {
                     if( threads[i].IsReady ) {
                         threads[i].ResponsibleForInputParsing = true;
-                        Logger.Log( LogType.IRC,
+                        Logger.Log( LogType.IRCStatus,
                                     "Bot \"{0}\" is now responsible for parsing input.",
                                     threads[i].ActualBotNick );
                         return;
                     }
                 }
-                Logger.Log( LogType.IRC, "All IRC bots have disconnected." );
+                Logger.Log( LogType.IRCStatus, "All IRC bots have disconnected." );
             }
         }
 
@@ -473,7 +487,7 @@ namespace fCraft {
                 HookUpHandlers();
                 return true;
             } else {
-                Logger.Log( LogType.IRC, "IRC functionality disabled." );
+                Logger.Log( LogType.IRCStatus, "IRC functionality disabled." );
                 return false;
             }
         }
