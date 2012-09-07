@@ -17,38 +17,41 @@ namespace fCraft.ServerGUI {
 
         public MainForm() {
             InitializeComponent();
-            console.OnCommand += console_Enter;
-
-            logBox.ContextMenu = new ContextMenu( new[] {
-                new MenuItem( "Copy", CopyMenuOnClickHandler )
-            } );
-            logBox.ContextMenu.Popup += CopyMenuPopupHandler;
+            Shown += BeginStartup;
         }
 
 
         #region Startup
         Thread startupThread;
 
-        protected override void OnShown( EventArgs e ) {
+        void BeginStartup( object sender, EventArgs e ) {
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 MessageBox.Show( "fCraft.dll version does not match ServerGUI.exe version." );
                 Application.Exit();
                 return;
             }
 
+            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
-            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
+            console.OnCommand += console_Enter;
+
+            logBox.ContextMenu = new ContextMenu( new[] {
+                new MenuItem( "Copy", CopyMenuOnClickHandler )
+            } );
+            logBox.ContextMenu.Popup += CopyMenuPopupHandler;
+
+            // force form handle to be created to make sure that InvokeRequire returns correct results.
+            CreateHandle();
 
             startupThread = new Thread( StartupThread ) {
                 Name = "fCraft.ServerGUI.Startup",
                 CurrentCulture = new CultureInfo( "en-US" )
             };
             startupThread.Start();
-
-            base.OnShown( e );
         }
 
 
@@ -183,7 +186,7 @@ namespace fCraft.ServerGUI {
             if( !e.WriteToConsole ) return;
             try {
                 if( shutdownComplete ) return;
-                if( logBox.InvokeRequired ) {
+                if( InvokeRequired ) {
                     BeginInvoke( (EventHandler<LogEventArgs>)OnLogged, sender, e );
                 } else {
                     // store user's selection
