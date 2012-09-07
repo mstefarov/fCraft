@@ -61,8 +61,8 @@ namespace fCraft {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
 
                 request.Method = "GET";
-                request.Timeout = UpdateCheckTimeout.Milliseconds;
-                request.ReadWriteTimeout = UpdateCheckTimeout.Milliseconds;
+                request.Timeout = (int)UpdateCheckTimeout.TotalMilliseconds;
+                request.ReadWriteTimeout = (int)UpdateCheckTimeout.TotalMilliseconds;
                 request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
                 request.UserAgent = UserAgent;
 
