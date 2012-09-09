@@ -1021,7 +1021,7 @@ namespace fCraft {
                 if( map.Save( fullFileName ) ) {
                     player.Message( "Generation done. Saved to {0}", fileName );
                 } else {
-                    player.Message( "&WAn error occured while saving generated map to {0}", fileName );
+                    player.Message( "&WAn error occurred while saving generated map to {0}", fileName );
                 }
             } else {
                 player.MessageNow( "Generation done. Changing map..." );
@@ -2530,7 +2530,7 @@ namespace fCraft {
                         File.Copy( world.MapFileName, fullFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
-                                    "WorldCommands.WorldSave: Error occured while trying to copy an unloaded map: {0}", ex );
+                                    "WorldCommands.WorldSave: Error occurred while trying to copy an unloaded map: {0}", ex );
                         player.Message( mapSavingErrorMessage );
                     }
                 } else {
@@ -2763,7 +2763,7 @@ namespace fCraft {
                                            world.ClassyName );
                         return;
                     default:
-                        player.MessageNow( "&WUnexpected error occured while unloading world {0}&W: {1}",
+                        player.MessageNow( "&WUnexpected error occurred while unloading world {0}&W: {1}",
                                            world.ClassyName, ex.GetType().Name );
                         Logger.Log( LogType.Error,
                                     "WorldCommands.WorldUnload: Unexpected error while unloading world {0}: {1}",

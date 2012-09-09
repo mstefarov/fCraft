@@ -697,9 +697,9 @@ namespace fCraft {
             if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
                             "Could not load main world ({0}) for connecting player {1} (from {2}): " +
-                            "Either main world is full, or an error occured.",
+                            "Either main world is full, or an error occurred.",
                             startingWorld.Name, Name, IP );
-                KickNow( "Either main world is full, or an error occured.", LeaveReason.WorldFull );
+                KickNow( "Either main world is full, or an error occurred.", LeaveReason.WorldFull );
                 return false;
             }
 

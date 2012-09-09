@@ -294,7 +294,7 @@ namespace fCraft {
                     Paths.MoveOrReplaceFile( tempFileName, Paths.PlayerDBFileName );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "PlayerDB.Save: An error occured while trying to save PlayerDB: {0}", ex );
+                                "PlayerDB.Save: An error occurred while trying to save PlayerDB: {0}", ex );
                 }
             }
         }

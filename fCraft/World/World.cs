@@ -313,7 +313,7 @@ namespace fCraft {
                 if( playerIndex.ContainsKey( player.Name.ToLower() ) ) {
                     Logger.Log( LogType.Error,
                                 "This world already contains the player by name ({0}). " +
-                                "Some sort of state corruption must have occured.",
+                                "Some sort of state corruption must have occurred.",
                                 player.Name );
                     playerIndex.Remove( player.Name.ToLower() );
                 }
@@ -771,7 +771,7 @@ namespace fCraft {
                         directory.Create();
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
-                                    "Map.SaveBackup: Error occured while trying to create backup directory: {0}", ex );
+                                    "Map.SaveBackup: Error occurred while trying to create backup directory: {0}", ex );
                         return;
                     }
                 }
@@ -782,7 +782,7 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     HasChangedSinceBackup = true;
                     Logger.Log( LogType.Error,
-                                "Map.SaveBackup: Error occured while trying to save backup to \"{0}\": {1}",
+                                "Map.SaveBackup: Error occurred while trying to save backup to \"{0}\": {1}",
                                 targetName, ex );
                     return;
                 }
@@ -810,7 +810,7 @@ namespace fCraft {
                         File.Delete( info.FullName );
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
-                                    "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
+                                    "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
                                     info.FullName, ex );
                         break;
                     }
@@ -833,7 +833,7 @@ namespace fCraft {
                             File.Delete( info.FullName );
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error,
-                                        "Map.SaveBackup: Error occured while trying delete old backup \"{0}\": {1}",
+                                        "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
                                         info.Name, ex );
                             break;
                         }

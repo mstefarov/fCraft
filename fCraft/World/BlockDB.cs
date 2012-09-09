@@ -604,7 +604,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> If selector is null. </exception>
         /// <exception cref="EndOfStreamException"> If the end of .fbdb file was reached prematurely (corrupted file, or outside interference). </exception>
         /// <exception cref="DataMisalignedException"> If .fbdb file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> If an I/O error occured while trying to read .fbdb file from disk. </exception>
+        /// <exception cref="IOException"> If an I/O error occurred while trying to read .fbdb file from disk. </exception>
         [NotNull]
         public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, [NotNull] Func<BlockDBEntry, bool> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
@@ -641,7 +641,7 @@ namespace fCraft {
         /// <exception cref="InvalidOperationException"> If BlockDB is disabled. </exception>
         /// <exception cref="EndOfStreamException"> If the end of .fbdb file was reached prematurely (corrupted file, or outside interference). </exception>
         /// <exception cref="DataMisalignedException"> If .fbdb file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> If an I/O error occured while trying to read .fbdb file from disk. </exception>
+        /// <exception cref="IOException"> If an I/O error occurred while trying to read .fbdb file from disk. </exception>
         public void Traverse( [NotNull] IBlockDBQueryProcessor processor ) {
             if( processor == null ) throw new ArgumentNullException( "processor" );
             if( !IsEnabled || !IsEnabledGlobally ) {
