@@ -591,7 +591,9 @@ namespace fCraft {
                 return;
             }
             if( e.IsNowHidden ) {
-                PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( e.Player, LeaveReason.ClientQuit ) );
+                if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() ) {
+                    ShowPlayerDisconnectedMsg( e.Player, LeaveReason.ClientQuit );
+                }
             } else {
                 PlayerReadyHandler( null, new PlayerEventArgs( e.Player ) );
             }
@@ -629,12 +631,17 @@ namespace fCraft {
 
         static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
             if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
-                string message = String.Format( "{0}&S* {1}&S left the server ({2})",
-                                 Color.IRCBold,
-                                 e.Player.ClassyName,
-                                 e.LeaveReason );
-                SendAction( message );
+                ShowPlayerDisconnectedMsg( e.Player, e.LeaveReason );
             }
+        }
+
+
+        static void ShowPlayerDisconnectedMsg( Player player, LeaveReason leaveReason ) {
+            string message = String.Format( "{0}&S* {1}&S left the server ({2})",
+                             Color.IRCBold,
+                             player.ClassyName,
+                             leaveReason );
+            SendAction( message );
         }
 
 

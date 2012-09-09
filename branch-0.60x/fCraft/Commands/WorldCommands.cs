@@ -2358,7 +2358,7 @@ namespace fCraft {
                 return;
             }
 
-            if( !cmd.IsConfirmed && File.Exists( Path.Combine( Paths.MapPath, newName + ".fcm" ) ) ) {
+            if( !cmd.IsConfirmed && Paths.FileExists( Path.Combine( Paths.MapPath, newName + ".fcm" ), true ) ) {
                 player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
                 return;
             }
