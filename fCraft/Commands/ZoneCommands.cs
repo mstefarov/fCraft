@@ -516,6 +516,9 @@ namespace fCraft {
 
             if( zoneName == "*" ) {
                 if( !cmd.IsConfirmed ) {
+                    Logger.Log( LogType.UserActivity,
+                                "ZRemove: Asked {0} to confirm removing all zones on world {1}",
+                                player.Name, player.World.Name );
                     player.Confirm( cmd,
                                     "&WRemove ALL zones on this world ({0}&W)? This cannot be undone.&S",
                                     player.World.ClassyName );
@@ -544,11 +547,17 @@ namespace fCraft {
                     }
                 }
                 if( !cmd.IsConfirmed ) {
+                    Logger.Log( LogType.UserActivity,
+                                "ZRemove: Asked {0} to confirm removing zone {1} from world {2}",
+                                player.Name, zone.Name, player.World.Name );
                     player.Confirm( cmd, "Remove zone {0}&S?", zone.ClassyName );
                     return;
                 }
 
                 if( zones.Remove( zone.Name ) ) {
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} removed zone {1} from world {2}",
+                                player.Name, zone.Name, player.World.Name );
                     player.Message( "Zone \"{0}\" removed.", zone.Name );
                 }
 

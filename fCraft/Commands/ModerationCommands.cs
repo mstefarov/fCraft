@@ -493,6 +493,9 @@ namespace fCraft {
                         targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
                     }
                 } else {
+                    Logger.Log( LogType.UserActivity,
+                                "Rank: Asked {0} to confirm adding unrecognized name \"{1}\" to the database.",
+                                player.Name, name );
                     player.Confirm( cmd,
                                     "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
                                     name );
@@ -886,6 +889,9 @@ namespace fCraft {
                         if( cmd.IsConfirmed ) {
                             BringPlayerToWorld( player, target, world, true, true );
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "Bring: Asked {0} to confirm overriding world permissions to bring player {1} to world {2}",
+                                        player.Name, target.Name, world.Name );
                             player.Confirm( cmd,
                                             "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                             target.ClassyName,
@@ -951,6 +957,9 @@ namespace fCraft {
                     if( cmd.IsConfirmed ) {
                         BringPlayerToWorld( player, target, world, true, false );
                     } else {
+                        Logger.Log( LogType.UserActivity,
+                                    "WBring: Asked {0} to confirm overriding world permissions to bring player {1} to world {2}",
+                                    player.Name, target.Name, world.Name );
                         player.Confirm( cmd,
                                         "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                         target.ClassyName,

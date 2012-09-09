@@ -362,12 +362,13 @@ namespace fCraft {
                     return false;
                 }
 
-                // clear undo & selection
+                // clear undo, selection, and confirmations
                 player.LastDrawOp = null;
                 player.UndoClear();
                 player.RedoClear();
                 player.IsRepeatingSelection = false;
                 player.SelectionCancel();
+                player.ConfirmCancel();
 
                 // update player list
                 UpdatePlayerList();
