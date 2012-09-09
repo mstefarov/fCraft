@@ -167,6 +167,9 @@ namespace fCraft {
                             player.Message( "BlockDB was auto-enabled, and is now manually enabled on world {0}", world.ClassyName );
 
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} enabled BlockDB on world {1} (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.Yes;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB is now manually enabled on world {0}", world.ClassyName );
@@ -185,11 +188,17 @@ namespace fCraft {
                                 player.Message( "BlockDB is now manually disabled on world {0}&S. Use &H/BlockDB {1} clear&S to delete all the data.",
                                                 world.ClassyName, world.Name );
                             } else {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm disabling BlockDB on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd,
                                                 "Disable BlockDB on world {0}&S? Block changes will stop being recorded.",
                                                 world.ClassyName );
                             }
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} disabled BlockDB on world {1} (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.No;
                             WorldManager.SaveWorldList();
                             player.Message( "BlockDB was auto-disabled, and is now manually disabled on world {0}&S.",
@@ -201,6 +210,9 @@ namespace fCraft {
                         if( db.EnabledState == YesNoAuto.Auto ) {
                             player.Message( "BlockDB is already set to automatically enable/disable itself on world {0}", world.ClassyName );
                         } else {
+                            Logger.Log( LogType.UserActivity,
+                                        "BlockDB: Player {0} set BlockDB state on world {1} to Auto (was {2})",
+                                        player.Name, world.Name, db.EnabledState );
                             db.EnabledState = YesNoAuto.Auto;
                             WorldManager.SaveWorldList();
                             if( db.IsEnabled ) {
@@ -244,6 +256,9 @@ namespace fCraft {
                                                world.ClassyName, limitDisplayString );
 
                             } else if( !cmd.IsConfirmed && limitNumber != 0 ) {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm changing BlockDB limit on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
@@ -297,6 +312,9 @@ namespace fCraft {
                                 }
 
                             } else if( !cmd.IsConfirmed && limit != TimeSpan.Zero ) {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm changing BlockDB time limit on world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "BlockDB: Change time limit? Some old data for world {0}&S may be discarded.", world.ClassyName );
 
                             } else {
@@ -322,8 +340,14 @@ namespace fCraft {
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
                                 db.Clear();
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Player {0} cleared BlockDB data world {1}",
+                                            player.Name, world.Name );
                                 player.Message( "BlockDB: Cleared all data for {0}", world.ClassyName );
                             } else {
+                                Logger.Log( LogType.UserActivity,
+                                            "BlockDB: Asked {0} to confirm clearing BlockDB data world {1}",
+                                            player.Name, world.Name );
                                 player.Confirm( cmd, "Clear BlockDB data for world {0}&S? This cannot be undone.",
                                                 world.ClassyName );
                             }
@@ -583,9 +607,15 @@ namespace fCraft {
                     world.SkyColor = -1;
                     world.EdgeLevel = -1;
                     world.EdgeBlock = Block.Water;
+                    Logger.Log( LogType.UserActivity,
+                                "Env: Player {0} reset environment settings for world {1}",
+                                player.Name, world.Name );
                     player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
+                    Logger.Log( LogType.UserActivity,
+                                "Env: Asked {0} to confirm resetting enviroment settings for world {1}",
+                                player.Name, world.Name );
                     player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
                 }
                 return;
@@ -913,6 +943,9 @@ namespace fCraft {
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
+                    Logger.Log( LogType.UserActivity,
+                                "Gen: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
+                                player.Name, playerWorld.Name );
                     player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName );
                     return;
                 }
@@ -941,6 +974,9 @@ namespace fCraft {
                     Directory.CreateDirectory( dirName );
                 }
                 if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
+                    Logger.Log( LogType.UserActivity,
+                                "Gen: Asked {0} to confirm overwriting map file \"{1}\"",
+                                player.Name, fileName );
                     player.Confirm( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
                     return;
                 }
@@ -2007,6 +2043,9 @@ namespace fCraft {
             // Loading map into current world
             if( worldName == null ) {
                 if( !cmd.IsConfirmed ) {
+                    Logger.Log( LogType.UserActivity,
+                                "WLoad: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
+                                player.Name, player.World.Name );
                     player.Confirm( cmd, "Replace THIS MAP with \"{0}\"?", fileName );
                     return;
                 }
@@ -2081,6 +2120,9 @@ namespace fCraft {
                         player.LastUsedWorldName = world.Name;
                         // Replacing existing world's map
                         if( !cmd.IsConfirmed ) {
+                            Logger.Log( LogType.UserActivity,
+                                        "WLoad: Asked {0} to confirm replacing the map of world {1}",
+                                        player.Name, world.Name );
                             player.Confirm( cmd, "Replace map for {0}&S with \"{1}\"?",
                                             world.ClassyName, fileName );
                             return;
@@ -2118,9 +2160,12 @@ namespace fCraft {
                             File.Exists( targetFullFileName ) && // target file already exists
                             !Paths.Compare( targetFullFileName, fullFileName ) ) {
                             // and is different from sourceFile
+                            Logger.Log( LogType.UserActivity,
+                                        "WLoad: Asked {0} to confirm replacing map file \"{1}\"",
+                                        player.Name, fullFileName );
                             player.Confirm( cmd,
                                             "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                            Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
+                                            Path.GetFileName( fullFileName ), Path.GetFileName( fullFileName ) );
                             return;
                         }
 
@@ -2349,11 +2394,17 @@ namespace fCraft {
 
             World newWorld = WorldManager.FindWorldExact( newName );
             if( !cmd.IsConfirmed && newWorld != null && newWorld != oldWorld ) {
+                Logger.Log( LogType.UserActivity,
+                            "WRename: Asked {0} to confirm replacing world \"{1}\"",
+                            player.Name, newWorld.Name );
                 player.Confirm( cmd, "A world named {0}&S already exists. Replace it?", newWorld.ClassyName );
                 return;
             }
 
             if( !cmd.IsConfirmed && Paths.FileExists( Path.Combine( Paths.MapPath, newName + ".fcm" ), true ) ) {
+                Logger.Log( LogType.UserActivity,
+                            "WRename: Asked {0} to confirm overwriting map file \"{1}.fcm\"",
+                            player.Name, newName );
                 player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
                 return;
             }
@@ -2454,6 +2505,9 @@ namespace fCraft {
                 FileInfo sourceFile = new FileInfo( world.MapFileName );
                 if( !targetFile.FullName.Equals( sourceFile.FullName, StringComparison.OrdinalIgnoreCase ) ) {
                     if( !cmd.IsConfirmed ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "WSave: Asked {0} to confirm overwriting map file \"{1}\"",
+                                    player.Name, targetFile.FullName );
                         player.Confirm( cmd, "Target file \"{0}\" already exists, and will be overwritten.", targetFile.Name );
                         return;
                     }

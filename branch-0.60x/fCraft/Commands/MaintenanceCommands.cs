@@ -109,6 +109,9 @@ namespace fCraft {
             }
 
             if( File.Exists( fileName ) && !cmd.IsConfirmed ) {
+                Logger.Log( LogType.UserActivity,
+                            "DumpStats: Asked {0} for confirmation to overwrite \"{1}\"",
+                            player.Name, fileName );
                 player.Confirm( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
                 return;
             }
@@ -571,6 +574,9 @@ namespace fCraft {
             string verb = (fromRank > toRank ? "demot" : "promot");
 
             if( !cmd.IsConfirmed ) {
+                Logger.Log( LogType.UserActivity,
+                            "MassRank: Asked {0} to confirm {1}ion of {2} players.",
+                            player.Name, verb, playerCount );
                 player.Confirm( cmd, "{0}e {1} players?", verb.UppercaseFirst(), playerCount );
                 return;
             }
@@ -1081,6 +1087,9 @@ namespace fCraft {
                 if( inactivePlayers == 0 ) {
                     player.Message( "PruneDB: No inactive players found." );
                 } else {
+                    Logger.Log( LogType.UserActivity,
+                                "PruneDB: Asked {0} to confirm erasing {1} records.",
+                                player.Name, inactivePlayers );
                     player.Confirm( cmd, "PruneDB: Erase {0} records of inactive players?",
                                     inactivePlayers );
                 }
@@ -1180,7 +1189,10 @@ namespace fCraft {
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
-                        player.Confirm( cmd, "ImportBans: Import {0} records?", names.Length );
+                        Logger.Log( LogType.UserActivity,
+                                    "Import: Asked {0} to confirm importing {1} bans from \"{2}\"",
+                                    player.Name, names.Length, fileName );
+                        player.Confirm( cmd, "Import: Import {0} bans?", names.Length );
                         return;
                     }
 
@@ -1230,7 +1242,10 @@ namespace fCraft {
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
-                        player.Confirm( cmd, "ImportBans: Import {0} records?", lines.Length );
+                        Logger.Log( LogType.UserActivity,
+                                    "Import: Asked {0} to confirm importing {1} bans from \"{2}\"",
+                                    player.Name, lines.Length, fileName );
+                        player.Confirm( cmd, "Import: Import {0} bans?", lines.Length );
                         return;
                     }
                     for( int i = 0; i < lines.Length; i++ ) {
@@ -1376,6 +1391,9 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
+                Logger.Log( LogType.UserActivity,
+                            "Import: Asked {0} to confirm importing {1} ranks from {2}",
+                            player.Name, names.Length, fileName );
                 player.Confirm( cmd, "Import {0} player ranks?", names.Length );
                 return;
             }
@@ -1437,9 +1455,15 @@ namespace fCraft {
             }
 
             if( !cmd.IsConfirmed ) {
+                Logger.Log( LogType.UserActivity,
+                            "InfoSwap: Asked {0} to confirm swapping stats of players {1} and {2}",
+                            player.Name, p1.Name, p2.Name );
                 player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} swapped stats of players {1} and {2}",
+                            player.Name, p1.Name, p2.Name );
                 player.Message( "InfoSwap: Stats of {0}&S and {1}&S have been swapped.",
                                 p1.ClassyName, p2.ClassyName );
             }

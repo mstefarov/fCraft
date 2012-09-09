@@ -340,6 +340,9 @@ namespace fCraft {
             DrawOperation op = (DrawOperation)tag;
             if( !op.Prepare( marks ) ) return;
             if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
+                Logger.Log( LogType.UserActivity,
+                            "Fill2D: Asked {0} to confirm replacing air on world {1}",
+                            player.Name, player.World.Name );
                 player.Confirm( Fill2DConfirmCallback, op, "{0}: Replace air?", op.Description );
             } else {
                 Fill2DConfirmCallback( player, op, false );
@@ -1684,6 +1687,7 @@ namespace fCraft {
         static void UndoAreaLookup( SchedulerTask task ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
             bool allPlayers = (args.Targets.Length == 0);
+            string cmdName = ( args.Not ? "UndoAreaNot" : "UndoArea" );
 
             // prepare to look up
             string targetList;
@@ -1704,6 +1708,9 @@ namespace fCraft {
                     changes = args.World.BlockDB.Lookup( args.CountLimit, args.Area, args.Targets, args.Not );
                 }
                 if( changes.Length > 0 ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0}: Asked {1} to confirm undo on world {2}",
+                                cmdName, args.Player.Name, args.World.Name );
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
                                          "Undo last {0} changes made here by {1}&S?",
                                          changes.Length, targetList );
@@ -1717,6 +1724,9 @@ namespace fCraft {
                     changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.Targets, args.Not, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0}: Asked {1} to confirm undo on world {2}",
+                                cmdName, args.Player.Name, args.World.Name );
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
                                          "Undo changes ({0}) made here by {1}&S in the last {2}?",
                                          changes.Length, targetList, args.AgeLimit.ToMiniString() );
@@ -1725,7 +1735,7 @@ namespace fCraft {
 
             // stop if there's nothing to undo
             if( changes.Length == 0 ) {
-                args.Player.Message( "UndoArea: Found nothing to undo." );
+                args.Player.Message( "{0}: Found nothing to undo.", cmdName );
             } else {
                 args.Entries = changes;
             }
@@ -1778,7 +1788,8 @@ namespace fCraft {
         // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
         static void UndoPlayerLookup( SchedulerTask task ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
-            bool allPlayers = (args.Targets.Length == 0);
+            bool allPlayers = ( args.Targets.Length == 0 );
+            string cmdName = ( args.Not ? "UndoPlayerNot" : "UndoPlayer" );
 
             // prepare to look up
             string targetList;
@@ -1799,6 +1810,9 @@ namespace fCraft {
                     changes = args.World.BlockDB.Lookup( args.CountLimit, args.Targets, args.Not );
                 }
                 if( changes.Length > 0 ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0}: Asked {1} to confirm undo on world {2}",
+                                cmdName, args.Player.Name, args.World.Name );
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
                                          "Undo last {0} changes made by {1}&S?",
                                          changes.Length, targetList );
@@ -1812,6 +1826,9 @@ namespace fCraft {
                     changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Targets, args.Not, args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
+                    Logger.Log( LogType.UserActivity,
+                                "{0}: Asked {1} to confirm undo on world {2}",
+                                cmdName, args.Player.Name, args.World.Name );
                     args.Player.Confirm( BlockDBUndoConfirmCallback, args,
                                          "Undo changes ({0}) made by {1}&S in the last {2}?",
                                          changes.Length, targetList, args.AgeLimit.ToMiniString() );
@@ -1820,7 +1837,7 @@ namespace fCraft {
 
             // stop if there's nothing to undo
             if( changes.Length == 0 ) {
-                args.Player.Message( "UndoPlayer: Found nothing to undo." );
+                args.Player.Message( "{0}: Found nothing to undo.", cmdName );
             } else {
                 args.Entries = changes;
             }

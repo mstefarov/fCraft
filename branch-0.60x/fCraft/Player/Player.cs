@@ -398,10 +398,10 @@ namespace fCraft {
                         }
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
+                                Logger.Log( LogType.UserCommand, "/ok" );
                                 SendToSpectators( "/ok" );
                                 ConfirmCallback( this, ConfirmParameter, fromConsole );
-                                ConfirmCallback = null;
-                                ConfirmParameter = null;
+                                ConfirmCancel();
                             } else {
                                 MessageNow( "Confirmation timed out. Enter the command again." );
                             }
@@ -796,6 +796,17 @@ namespace fCraft {
             ConfirmParameter = callbackParameter;
             ConfirmRequestTime = DateTime.UtcNow;
             Message( "{0} Type &H/ok&S to continue.", String.Format( message, args ) );
+        }
+
+
+        public bool ConfirmCancel() {
+            if( ConfirmCallback != null ) {
+                ConfirmCallback = null;
+                ConfirmParameter = null;
+                return true;
+            } else {
+                return false;
+            }
         }
 
         #endregion
