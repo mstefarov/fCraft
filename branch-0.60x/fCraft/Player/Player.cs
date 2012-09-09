@@ -955,7 +955,6 @@ namespace fCraft {
                 case CanPlaceResult.WorldDenied:
                     switch( World.BuildSecurity.CheckDetailed( Info ) ) {
                         case SecurityCheckResult.RankTooLow:
-                        case SecurityCheckResult.RankTooHigh:
                             Message( "&WYour rank is not allowed to build in this world." );
                             break;
                         case SecurityCheckResult.BlackListed:
