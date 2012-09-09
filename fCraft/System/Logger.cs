@@ -206,17 +206,22 @@ namespace fCraft {
 
                 sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
                 sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
+                sb.Append( "&exceptionstacktrace=" );
                 if( exception.StackTrace != null ) {
-                    sb.Append( "&exceptionstacktrace=" ).Append( Uri.EscapeDataString( exception.StackTrace ) );
+                    sb.Append( Uri.EscapeDataString( exception.StackTrace ) );
                 } else {
-                    sb.Append( "&exceptionstacktrace=" ).Append( "(none)" );
+                    sb.Append( "(none)" );
                 }
 
+                sb.Append( "&config=" );
                 if( File.Exists( Paths.ConfigFileName ) ) {
-                    sb.Append( "&config=" ).Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
-                } else {
-                    sb.Append( "&config=" );
+                    sb.Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
                 }
+
+                string assemblies = AppDomain.CurrentDomain
+                                             .GetAssemblies()
+                                             .JoinToString( asm => asm.FullName + Environment.NewLine );
+                sb.Append( "&asm=" ).Append( Uri.EscapeDataString( assemblies ) );
 
                 string[] lastFewLines;
                 lock( LogLock ) {

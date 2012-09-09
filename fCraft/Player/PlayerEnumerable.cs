@@ -395,7 +395,7 @@ namespace fCraft {
         #region Personal Inclusion / Exclusion
 
         /// <summary> Adds players to the given set.
-        /// ]If the given sequence of players already contains player, no duplicate is added.
+        /// If the given sequence of players already contains player, no duplicate is added.
         /// Precisely speaking, produces the set union of a given collection of players and a given player. </summary>
         /// <param name="source"> Original set of players. Will not get modified. </param>
         /// <param name="includedPlayer"> Player to add to the set. </param>
