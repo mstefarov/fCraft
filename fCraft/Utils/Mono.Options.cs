@@ -136,6 +136,7 @@ using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 #if LINQ
 using System.Linq;
@@ -200,7 +201,7 @@ namespace Mono.Options
                 // '.' is any character, - is for a continuation
                 const string minWidth = ".-";
                 if( curWidth < minWidth.Length )
-                    throw new ArgumentOutOfRangeException( "widths",
+                    throw new ArgumentOutOfRangeException( "ewidths",
                             string.Format( "Element must be >= {0}, was {1}.", minWidth.Length, curWidth ) );
                 return curWidth;
             }
@@ -451,7 +452,7 @@ namespace Mono.Options
             for( int i = 0; i < names.Length; ++i ) {
                 string name = names[i];
                 if( name.Length == 0 )
-                    throw new ArgumentException( "Empty option names are not supported.", "prototype" );
+                    throw new ArgumentException( "Empty option names are not supported." );
 
                 int end = name.IndexOfAny( NameTerminator );
                 if( end == -1 )
@@ -461,8 +462,7 @@ namespace Mono.Options
                     type = name[end];
                 else
                     throw new ArgumentException(
-                            string.Format( "Conflicting option types: '{0}' vs. '{1}'.", type, name[end] ),
-                            "prototype" );
+                            string.Format( "Conflicting option types: '{0}' vs. '{1}'.", type, name[end] ) );
                 AddSeparators( name, end, seps );
             }
 
@@ -471,8 +471,7 @@ namespace Mono.Options
 
             if( count <= 1 && seps.Count != 0 )
                 throw new ArgumentException(
-                        string.Format( "Cannot provide key/value separators for Options taking {0} value(s).", count ),
-                        "prototype" );
+                        string.Format( "Cannot provide key/value separators for Options taking {0} value(s).", count ) );
             if( count > 1 ) {
                 if( seps.Count == 0 )
                     separators = new[] { ":", "=" };
@@ -492,15 +491,13 @@ namespace Mono.Options
                     case '{':
                         if( start != -1 )
                             throw new ArgumentException(
-                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ),
-                                    "prototype" );
+                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
                         start = i + 1;
                         break;
                     case '}':
                         if( start == -1 )
                             throw new ArgumentException(
-                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ),
-                                    "prototype" );
+                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
                         seps.Add( name.Substring( start, i - start ) );
                         start = -1;
                         break;
@@ -512,8 +509,7 @@ namespace Mono.Options
             }
             if( start != -1 )
                 throw new ArgumentException(
-                        string.Format( "Ill-formed name/value separator found in \"{0}\".", name ),
-                        "prototype" );
+                        string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
         }
 
         public void Invoke( OptionContext c ) {
@@ -642,7 +638,7 @@ namespace Mono.Options
 
     public class OptionSet : KeyedCollection<string, Option> {
         public OptionSet()
-            : this( delegate( string f ) { return f; } ) {
+            : this( f => f ) {
         }
 
         public OptionSet( Converter<string, string> localizer ) {
@@ -665,9 +661,9 @@ namespace Mono.Options
         }
 
 
-        protected override string GetKeyForItem( Option item ) {
+        protected override string GetKeyForItem( [NotNull] Option item ) {
             if( item == null )
-                throw new ArgumentNullException( "option" );
+                throw new ArgumentNullException( "item" );
             if( item.Names != null && item.Names.Length > 0 )
                 return item.Names[0];
             // This should never happen, as it's invalid for Option to be
@@ -771,8 +767,7 @@ namespace Mono.Options
         public OptionSet Add( string prototype, string description, Action<string> action ) {
             if( action == null )
                 throw new ArgumentNullException( "action" );
-            Option p = new ActionOption( prototype, description, 1,
-                    delegate( OptionValueCollection v ) { action( v[0] ); } );
+            Option p = new ActionOption( prototype, description, 1, v => action( v[0] ) );
             base.Add( p );
             return this;
         }
@@ -784,8 +779,7 @@ namespace Mono.Options
         public OptionSet Add( string prototype, string description, OptionAction<string, string> action ) {
             if( action == null )
                 throw new ArgumentNullException( "action" );
-            Option p = new ActionOption( prototype, description, 2,
-                    delegate( OptionValueCollection v ) { action( v[0], v[1] ); } );
+            Option p = new ActionOption( prototype, description, 2, v => action( v[0], v[1] ) );
             base.Add( p );
             return this;
         }
@@ -917,18 +911,17 @@ namespace Mono.Options
             return false;
         }
 
-        private static bool Unprocessed( ICollection<string> extra, Option def, OptionContext c, string argument ) {
+        private static void Unprocessed( ICollection<string> extra, Option def, OptionContext c, string argument ) {
             if( def == null ) {
                 extra.Add( argument );
-                return false;
+                return;
             }
             c.OptionValues.Add( argument );
             c.Option = def;
             c.Option.Invoke( c );
-            return false;
         }
 
-        private readonly Regex ValueOption = new Regex(
+        private readonly Regex valueOption = new Regex(
             @"^(?<flag>--|-|/)(?<name>[^:=]+)((?<sep>[:=])(?<value>.*))?$" );
 
         protected bool GetOptionParts( string argument, out string flag, out string name, out string sep, out string value ) {
@@ -936,7 +929,7 @@ namespace Mono.Options
                 throw new ArgumentNullException( "argument" );
 
             flag = name = sep = value = null;
-            Match m = ValueOption.Match( argument );
+            Match m = valueOption.Match( argument );
             if( !m.Success ) {
                 return false;
             }
@@ -979,7 +972,7 @@ namespace Mono.Options
             if( ParseBool( argument, n, c ) )
                 return true;
             // is it a bundled option?
-            if( ParseBundledValue( f, string.Concat( n + s + v ), c ) )
+            if( ParseBundledValue( f, n + s + v, c ) )
                 return true;
 
             return false;
@@ -1058,8 +1051,8 @@ namespace Mono.Options
         }
 
         private const int OptionWidth = 29;
-        private const int Description_FirstWidth = 79 - OptionWidth;
-        private const int Description_RemWidth = 79 - OptionWidth - 2;
+        private const int DescriptionFirstWidth = 79 - OptionWidth;
+        private const int DescriptionRemWidth = 79 - OptionWidth - 2;
 
         public void WriteOptionDescriptions( TextWriter o ) {
             foreach( Option p in this ) {
@@ -1082,7 +1075,7 @@ namespace Mono.Options
                 }
 
                 WriteDescription( o, p.Description, new string( ' ', OptionWidth + 2 ),
-                        Description_FirstWidth, Description_RemWidth );
+                        DescriptionFirstWidth, DescriptionRemWidth );
             }
 
             foreach( ArgumentSource s in sources ) {
@@ -1107,7 +1100,7 @@ namespace Mono.Options
                 }
 
                 WriteDescription( o, s.Description, new string( ' ', OptionWidth + 2 ),
-                        Description_FirstWidth, Description_RemWidth );
+                        DescriptionFirstWidth, DescriptionRemWidth );
             }
         }
 

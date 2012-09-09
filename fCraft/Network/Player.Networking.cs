@@ -1221,10 +1221,16 @@ namespace fCraft {
                     if( spectateWorld != World ) {
                         if( CanJoin( spectateWorld ) ) {
                             postJoinPosition = spectatePos;
-                            Message( "Joined {0}&S to continue spectating {1}",
-                                     spectateWorld.ClassyName,
-                                     spectatedPlayer.ClassyName );
-                            JoinWorldNow( spectateWorld, false, WorldChangeReason.SpectateTargetJoined );
+                            if( JoinWorldNow( spectateWorld, false, WorldChangeReason.SpectateTargetJoined ) ) {
+                                Message( "Joined {0}&S to continue spectating {1}",
+                                         spectateWorld.ClassyName,
+                                         spectatedPlayer.ClassyName );
+                            } else {
+                                Message( "Stopped spectating {0}&S (cannot join {1}&S)",
+                                         spectatedPlayer.ClassyName,
+                                         spectateWorld.ClassyName );
+                                spectatedPlayer = null;
+                            }
                         } else {
                             Message( "Stopped spectating {0}&S (cannot join {1}&S)",
                                      spectatedPlayer.ClassyName,

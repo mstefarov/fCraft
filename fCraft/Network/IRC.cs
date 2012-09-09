@@ -591,8 +591,7 @@ namespace fCraft {
                 return;
             }
             if( e.IsNowHidden ) {
-                PlayerDisconnectedHandler( null,
-                                           new PlayerDisconnectedEventArgs( e.Player, LeaveReason.ClientQuit, true ) );
+                PlayerDisconnectedHandler( null, new PlayerDisconnectedEventArgs( e.Player, LeaveReason.ClientQuit ) );
             } else {
                 PlayerReadyHandler( null, new PlayerEventArgs( e.Player ) );
             }

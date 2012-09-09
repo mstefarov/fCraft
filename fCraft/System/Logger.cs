@@ -93,13 +93,9 @@ namespace fCraft {
         public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] values ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( values == null ) throw new ArgumentNullException( "values" );
-            Log( type, String.Format( message, values ) );
-        }
-
-
-        [DebuggerStepThrough]
-        public static void Log( LogType type, [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
+            if( values.Length > 0 ) {
+                message = String.Format( message, values );
+            }
             if( !Enabled ) return;
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
 

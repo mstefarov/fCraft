@@ -11,6 +11,11 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Provides utility methods for working with IP addresses and ranges. </summary>
     public static class IPAddressUtil {
+        static readonly Regex RegexIP =
+            new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
+                       RegexOptions.Compiled );
+
+
         /// <summary> Checks whether an IP address may belong to LAN or localhost (192.168.0.0/16, 10.0.0.0/24, or 127.0.0.0/24). </summary>
         /// <param name="addr"> IPv4 address to check. </param>
         /// <returns> True if given IP is local; otherwise false. </returns>
@@ -40,11 +45,6 @@ namespace fCraft {
         }
 
 
-        static readonly Regex RegexIP =
-            new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
-                       RegexOptions.Compiled );
-
-
         /// <summary> Checks to see if the specified string is a valid IPv4 address. </summary>
         /// <param name="ipString"> String representation of the IPv4 address. </param>
         /// <returns> Whether or not the string is a valid IPv4 address. </returns>
@@ -61,6 +61,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static IPAddress RangeMin( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -70,6 +71,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static IPAddress RangeMax( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
@@ -95,6 +97,7 @@ namespace fCraft {
     public static class EnumerableUtil {
         /// <summary> Joins all items in a collection into one comma-separated string.
         /// If the items are not strings, .ToString() is called on them. </summary>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
@@ -110,6 +113,7 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// If the items are not strings, .ToString() is called on them. </summary>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -126,6 +130,7 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
@@ -142,6 +147,7 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
+        [NotNull]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator, [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -158,6 +164,7 @@ namespace fCraft {
 
 
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
+        [NotNull]
         public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             return items.JoinToString( "  ", p => p.ClassyName );
@@ -166,8 +173,9 @@ namespace fCraft {
 
 
     // Helper methods for working with strings and for serialization/parsing
-    unsafe static class FormatUtil {
+    static unsafe class FormatUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
+        [NotNull]
         public static StringBuilder Digits( [NotNull] this StringBuilder builder, int number ) {
             if( builder == null ) throw new ArgumentNullException( "builder" );
             if( number >= 100000000 || number < 0 ) {
@@ -181,51 +189,52 @@ namespace fCraft {
                 // 8.
                 copy = number % 100000000;
                 digit = copy / 10000000;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 1000000 ) {
                 // 7.
                 copy = number % 10000000;
                 digit = copy / 1000000;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 100000 ) {
                 // 6.
                 copy = number % 1000000;
                 digit = copy / 100000;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 10000 ) {
                 // 5.
                 copy = number % 100000;
                 digit = copy / 10000;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 1000 ) {
                 // 4.
                 copy = number % 10000;
                 digit = copy / 1000;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 100 ) {
                 // 3.
                 copy = number % 1000;
                 digit = copy / 100;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 10 ) {
                 // 2.
                 copy = number % 100;
                 digit = copy / 10;
-                builder.Append( (char)(digit + 48) );
+                builder.Append( (char)( digit + 48 ) );
             }
             if( number >= 0 ) {
                 // 1.
                 copy = number % 10;
-                builder.Append( (char)(copy + 48) );
+                builder.Append( (char)( copy + 48 ) );
             }
             return builder;
         }
+
 
         // Quicker Int32.Parse(string) by Karl Seguin
         public static int Parse( [NotNull] string stringToConvert ) {
@@ -234,13 +243,15 @@ namespace fCraft {
             int length = stringToConvert.Length;
             fixed( char* characters = stringToConvert ) {
                 for( int i = 0; i < length; ++i ) {
-                    value = 10 * value + (characters[i] - 48);
+                    value = 10 * value + ( characters[i] - 48 );
                 }
             }
             return value;
         }
 
+
         // UppercaseFirst by Sam Allen of http://www.dotnetperls.com
+        [NotNull]
         public static string UppercaseFirst( this string s ) {
             if( string.IsNullOrEmpty( s ) ) {
                 return string.Empty;
@@ -250,18 +261,25 @@ namespace fCraft {
             return new string( a );
         }
 
+
+        [NotNull]
         public static string ToStringInvariant( this int i ) {
             return i.ToString( CultureInfo.InvariantCulture );
         }
 
-        public static int IndexOfOrdinal( this string haystack, string needle ) {
+
+        public static int IndexOfOrdinal( [NotNull] this string haystack, [NotNull] string needle ) {
             return haystack.IndexOf( needle, StringComparison.Ordinal );
         }
     }
 
 
     /// <summary> Provides utility methods for working with byte arrays and pointers. </summary>
-    public unsafe static class BufferUtil {
+    public static unsafe class BufferUtil {
+        /// <summary> Fills the entire given byte array with a specified byte value, as efficiently as possible. </summary>
+        /// <param name="array"> Array to work with. </param>
+        /// <param name="value"> Value to assign to each byte of the array. </param>
+        /// <exception cref="ArgumentNullException"> If array is null. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
@@ -284,6 +302,14 @@ namespace fCraft {
         }
 
 
+        /// <summary> Fills a section of the given byte array with a specified byte value, as efficiently as possible. </summary>
+        /// <param name="array"> Array to work with. </param>
+        /// <param name="value"> Value to assign to each byte of the array. </param>
+        /// <param name="startIndex"> Index of the first byte that should be set. </param>
+        /// <param name="length"> Number of bytes of the array to set. </param>
+        /// <exception cref="ArgumentNullException"> If array is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> If length is negative, if startIndex is negative,
+        /// or if (length+startIndex) is greater than array length. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             if( length < 0 || length > array.Length ) {
@@ -312,38 +338,41 @@ namespace fCraft {
         }
 
 
+        /// <summary> Copies contents of src buffer to dest buffer, as efficiently as possible. </summary>
+        /// <param name="src"> Source array/pointer. </param>
+        /// <param name="dest"> Destination array/pointer. </param>
+        /// <param name="len"> Number of bytes to copy. </param>
         public static void MemCpy( [NotNull] byte* src, [NotNull] byte* dest, int len ) {
             if( src == null ) throw new ArgumentNullException( "src" );
             if( dest == null ) throw new ArgumentNullException( "dest" );
             if( len >= 0x10 ) {
                 do {
-                    *((int*)dest) = *((int*)src);
-                    *((int*)(dest + 4)) = *((int*)(src + 4));
-                    *((int*)(dest + 8)) = *((int*)(src + 8));
-                    *((int*)(dest + 12)) = *((int*)(src + 12));
+                    *( (int*)dest ) = *( (int*)src );
+                    *( (int*)( dest + 4 ) ) = *( (int*)( src + 4 ) );
+                    *( (int*)( dest + 8 ) ) = *( (int*)( src + 8 ) );
+                    *( (int*)( dest + 12 ) ) = *( (int*)( src + 12 ) );
                     dest += 0x10;
                     src += 0x10;
-                }
-                while( (len -= 0x10) >= 0x10 );
+                } while( ( len -= 0x10 ) >= 0x10 );
             }
             if( len > 0 ) {
-                if( (len & 8) != 0 ) {
-                    *((int*)dest) = *((int*)src);
-                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                if( ( len & 8 ) != 0 ) {
+                    *( (int*)dest ) = *( (int*)src );
+                    *( (int*)( dest + 4 ) ) = *( (int*)( src + 4 ) );
                     dest += 8;
                     src += 8;
                 }
-                if( (len & 4) != 0 ) {
-                    *((int*)dest) = *((int*)src);
+                if( ( len & 4 ) != 0 ) {
+                    *( (int*)dest ) = *( (int*)src );
                     dest += 4;
                     src += 4;
                 }
-                if( (len & 2) != 0 ) {
-                    *((short*)dest) = *((short*)src);
+                if( ( len & 2 ) != 0 ) {
+                    *( (short*)dest ) = *( (short*)src );
                     dest += 2;
                     src += 2;
                 }
-                if( (len & 1) != 0 ) {
+                if( ( len & 1 ) != 0 ) {
                     dest++;
                     src++;
                     dest[0] = src[0];
@@ -372,6 +401,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Reads a number of bytes from source that matches the length of destination byte array. </summary>
+        /// <param name="source"> Stream to read from. </param>
+        /// <param name="destination"> Byte array to write to. Length of this array is used. </param>
+        /// <exception cref="ArgumentNullException"> If source or destination is null. </exception>
+        /// <exception cref="EndOfStreamException"> If the end of stream was reached before destination array was filled. </exception>
         public static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
@@ -387,7 +421,16 @@ namespace fCraft {
     }
 
 
+    /// <summary> Provides TryParse method, for parsing enumerations. </summary>
     public static class EnumUtil {
+        /// <summary> Tries to parse a given value as an enumeration.
+        /// Even if value is numeric, this method still ensures that given number is among the enumerated constants.
+        /// This differs in behavior from Enum.Parse, which accepts any valid numeric string (that fits into enumeration's base type). </summary>
+        /// <typeparam name="TEnum"> Enumeration type. </typeparam>
+        /// <param name="value"> Raw string value to parse. </param>
+        /// <param name="output"> Parsed enumeration to output. Set to default(TEnum) on failure. </param>
+        /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
+        /// <returns> Whether parsing succeeded. </returns>
         public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {

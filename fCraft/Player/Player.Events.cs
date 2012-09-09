@@ -176,7 +176,7 @@ namespace fCraft {
         static void RaisePlayerDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             var h = Disconnected;
-            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason, false ) );
+            if( h != null ) h( null, new PlayerDisconnectedEventArgs( player, leaveReason ) );
         }
 
 
@@ -547,7 +547,7 @@ namespace fCraft.Events {
     /// <summary> Provides data for Player.Disconnected event. Immutable.
     /// Make sure to check IsFake property. </summary>
     public sealed class PlayerDisconnectedEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason, bool isFake ) {
+        internal PlayerDisconnectedEventArgs( [NotNull] Player player, LeaveReason leaveReason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             LeaveReason = leaveReason;

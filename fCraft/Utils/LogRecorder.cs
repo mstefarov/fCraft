@@ -58,13 +58,13 @@ namespace fCraft {
         }
 
 
-        /// <summary> Whether any messages have been recorded. </summary>
+        /// <summary> Whether any messages at all have been recorded. </summary>
         public bool HasMessages { get; private set; }
 
         /// <summary> Whether any errors have been recorded. </summary>
         public bool HasErrors { get; private set; }
 
-        /// <summary> Whether any errors have been recorded. </summary>
+        /// <summary> Whether any warnings have been recorded. </summary>
         public bool HasWarnings { get; private set; }
 
 
@@ -90,7 +90,7 @@ namespace fCraft {
 
         /// <summary> Stops recording the messages (cannot be resumed).
         /// This method should be called when you are done with the object.
-        /// If LogRecorder is in a using() block, this will be done for you. </summary>
+        /// If LogRecorder is in a using() block, this will be done for you (recommended). </summary>
         public void Dispose() {
             lock( locker ) {
                 if( !disposed ) {

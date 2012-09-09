@@ -3,7 +3,7 @@ using System;
 
 namespace fCraft.Drawing {
     public sealed class UndoDrawOperation : DrawOpWithBrush {
-        readonly BlockChangeContext UndoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
+        readonly BlockChangeContext undoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
 
         public UndoState State { get; private set; }
 
@@ -33,7 +33,7 @@ namespace fCraft.Drawing {
             State = state;
             Redo = redo;
             if( Redo ) {
-                UndoContext |= BlockChangeContext.Redone;
+                undoContext |= BlockChangeContext.Redone;
             }
         }
 
@@ -42,7 +42,7 @@ namespace fCraft.Drawing {
             Brush = this;
             if( !base.Prepare( marks ) ) return false;
             BlocksTotalEstimate = State.Buffer.Count;
-            Context = UndoContext;
+            Context = undoContext;
             Bounds = State.GetBounds();
             return true;
         }

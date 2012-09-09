@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
-    [DebuggerDisplay( "Count = {Count}" )]
     public struct MetadataEntry<TValue> where TValue : class {
         string group;
         [NotNull]
@@ -46,6 +45,7 @@ namespace fCraft {
     /// <summary> A collection of metadata entries, addressable by pairs of string group/key names.
     /// Group names, key names, and values may not be null. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
+    [DebuggerDisplay( "Count = {Count}" )]
     public sealed class MetadataCollection<TValue> : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable, INotifiesOnChange where TValue : class {
 
         readonly Dictionary<string, Dictionary<string, TValue>> store = new Dictionary<string, Dictionary<string, TValue>>();

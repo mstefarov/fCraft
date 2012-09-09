@@ -12,7 +12,6 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.AutoRank;
 using fCraft.Drawing;
@@ -24,7 +23,6 @@ namespace fCraft {
     /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
     /// sessions, and global events and scheduled tasks. </summary>
     public static partial class Server {
-
         /// <summary> Time when the server started (UTC). Used to check uptime. </summary>
         public static DateTime StartTime { get; private set; }
 
@@ -617,27 +615,11 @@ namespace fCraft {
 
         /// <summary> Broadcasts a message to all online players.
         /// Shorthand for Server.Players.Message </summary>
-        public static void Message( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            Players.Message( message );
-        }
-
-
-        /// <summary> Broadcasts a message to all online players.
-        /// Shorthand for Server.Players.Message </summary>
         [StringFormatMethod( "message" )]
         public static void Message( [NotNull] string message, [NotNull] params object[] formatArgs ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
             Players.Message( message, formatArgs );
-        }
-
-
-        /// <summary> Broadcasts a message to all online players except one.
-        /// Shorthand for Server.Players.Except(except).Message </summary>
-        public static void Message( [CanBeNull] Player except, [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            Players.Except( except ).Message( message );
         }
 
 
