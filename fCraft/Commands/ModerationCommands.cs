@@ -804,7 +804,6 @@ namespace fCraft {
                                                 targetWorld.ClassyName,
                                                 targetWorld.AccessSecurity.MinRank.ClassyName );
                                 break;
-                            // TODO: case PermissionType.RankTooHigh:
                         }
                     }
 
@@ -882,7 +881,7 @@ namespace fCraft {
             } else {
                 // teleport to a different world
                 SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
-                if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+                if( check == SecurityCheckResult.RankTooLow ) {
                     if( player.CanJoin( world ) ) {
                         if( cmd.IsConfirmed ) {
                             BringPlayerToWorld( player, target, world, true, true );
@@ -947,7 +946,7 @@ namespace fCraft {
             }
 
             SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
-            if( check == SecurityCheckResult.RankTooHigh || check == SecurityCheckResult.RankTooLow ) {
+            if( check == SecurityCheckResult.RankTooLow ) {
                 if( player.CanJoin( world ) ) {
                     if( cmd.IsConfirmed ) {
                         BringPlayerToWorld( player, target, world, true, false );
@@ -992,7 +991,7 @@ namespace fCraft {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.FindRank( arg.Substring( 1 ) );
                     if( rank == null ) {
-                        player.Message( "Unknown rank: {0}", arg.Substring( 1 ) );
+                        player.MessageNoRank( arg.Substring( 1 ) );
                         return;
                     } else {
                         if( player.Can( Permission.Bring, rank ) ) {
@@ -1125,7 +1124,6 @@ namespace fCraft {
                                         world.AccessSecurity.MinRank.ClassyName );
                     }
                     break;
-                // TODO: case PermissionType.RankTooHigh:
             }
         }
 

@@ -136,7 +136,7 @@ namespace fCraft {
                 }
             }
 
-            if( info.Rank >= MinRank ) return true; // TODO: implement maxrank
+            if( info.Rank >= MinRank ) return true;
 
             for( int i = 0; i < listCache.Included.Length; i++ ) {
                 if( listCache.Included[i] == info ) {
@@ -257,7 +257,6 @@ namespace fCraft {
             if( HasRankRestriction ) {
                 root.Add( new XElement( "minRank", MinRank.FullName ) );
             }
-            //root.Add( new XElement( "maxRank", maxRank ) );
 
             lock( locker ) {
                 foreach( string playerName in includedPlayers.Keys ) {
@@ -378,9 +377,6 @@ namespace fCraft {
 
         /// <summary> Denied, rank too low. </summary>
         RankTooLow,
-
-        /// <summary> Denied, rank too high (not yet implemented). </summary>
-        RankTooHigh,
 
         /// <summary> Allowed, this entity was explicitly allowed / whitelisted. </summary>
         WhiteListed,

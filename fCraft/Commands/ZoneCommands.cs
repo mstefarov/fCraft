@@ -53,7 +53,6 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
                         return;
-                    //case SecurityCheckResult.RankTooHigh:
                 }
             }
 
@@ -100,34 +99,36 @@ namespace fCraft {
                     player.Message( "No rank was specified. See &H/Help zone" );
                     return;
                 }
+
                 Rank minRank = RankManager.FindRank( rankName );
-
-                if( minRank != null ) {
-                    string name;
-                    while( (name = cmd.Next()) != null ) {
-
-                        if( name.Length == 0 ) continue;
-
-                        PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
-                        if( info == null ) return;
-
-                        if( name.StartsWith( "+" ) ) {
-                            newZone.Controller.Include( info );
-                        } else if( name.StartsWith( "-" ) ) {
-                            newZone.Controller.Exclude( info );
-                        }
-                    }
-
-                    newZone.Controller.MinRank = minRank;
-                    player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
-                    player.Message( "ZoneAdd: Creating zone {0}&S. Click or &H/Mark&S 2 blocks.",
-                                    newZone.ClassyName );
-
-                } else {
+                if( minRank == null ) {
                     player.MessageNoRank( rankName );
+                    return;
                 }
+
+                string name;
+                while( ( name = cmd.Next() ) != null ) {
+                    if( name.Length < 1 ) {
+                        CdZoneAdd.PrintUsage( player );
+                        return;
+                    }
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ) );
+                    if( info == null ) return;
+
+                    if( name.StartsWith( "+" ) ) {
+                        newZone.Controller.Include( info );
+                    } else if( name.StartsWith( "-" ) ) {
+                        newZone.Controller.Exclude( info );
+                    }
+                }
+
+                newZone.Controller.MinRank = minRank;
+                player.SelectionStart( 2, ZoneAddCallback, newZone, CdZoneAdd.Permissions );
+                player.Message( "ZoneAdd: Creating zone {0}&S. Click or &H/Mark&S 2 blocks.",
+                                newZone.ClassyName );
             }
         }
+
 
         static void ZoneAddCallback( Player player, Vector3I[] marks, object tag ) {
             World playerWorld = player.World;
@@ -144,7 +145,6 @@ namespace fCraft {
                         player.Message( "Cannot add zones to world {0}&S: You are not allowed to build here.",
                                         playerWorld.ClassyName );
                         return;
-                    //case SecurityCheckResult.RankTooHigh:
                 }
             }
 

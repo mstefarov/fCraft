@@ -123,7 +123,7 @@ namespace fCraft {
                 string rankName = name.Substring( 1 );
                 Rank rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "Unknown rank: {0}", rankName );
+                    player.MessageNoRank( rankName );
                     return;
                 } else {
                     infos = PlayerDB.PlayerInfoList
@@ -623,7 +623,7 @@ namespace fCraft {
             } else {
                 rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "No such rank: \"{0}\". See &H/Ranks", rankName );
+                    player.MessageNoRank( rankName );
                     return;
                 }
             }
@@ -1207,7 +1207,7 @@ namespace fCraft {
                 string rankName = param.Substring( 1 );
                 Rank rank = RankManager.FindRank( rankName );
                 if( rank == null ) {
-                    player.Message( "Unknown rank: {0}", rankName );
+                    player.MessageNoRank( rankName );
                     return;
                 } else {
                     prefix = String.Format( "Commands available to {0}&S", rank.ClassyName );
