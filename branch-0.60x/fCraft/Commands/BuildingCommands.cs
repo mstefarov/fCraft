@@ -776,6 +776,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "CopySlot",
+            Aliases = new[] { "cs" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.CopyAndPaste },
             Usage = "/CopySlot [#]",
