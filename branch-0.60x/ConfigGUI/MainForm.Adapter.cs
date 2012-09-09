@@ -37,7 +37,7 @@ namespace fCraft.ConfigGUI {
                         MessageBox.Show( loadLogger.MessageString, "Config loading warnings" );
                     }
                 } else {
-                    MessageBox.Show( loadLogger.MessageString, "Error occured while trying to load config" );
+                    MessageBox.Show( loadLogger.MessageString, "Error occurred while trying to load config" );
                 }
             }
 
@@ -89,7 +89,7 @@ namespace fCraft.ConfigGUI {
                     }
                 }
                 if( errorLog.Length > 0 ) {
-                    MessageBox.Show( "Some errors occured while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
+                    MessageBox.Show( "Some errors occurred while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
                 }
 
                 FillWorldList();
@@ -661,7 +661,7 @@ namespace fCraft.ConfigGUI {
                 doc.Save( worldListTempFileName );
                 Paths.MoveOrReplaceFile( worldListTempFileName, Paths.WorldListFileName );
             } catch( Exception ex ) {
-                MessageBox.Show( String.Format( "An error occured while trying to save world list ({0}): {1}{2}",
+                MessageBox.Show( String.Format( "An error occurred while trying to save world list ({0}): {1}{2}",
                                                 Paths.WorldListFileName,
                                                 Environment.NewLine,
                                                 ex ) );

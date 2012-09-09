@@ -73,7 +73,7 @@ namespace fCraft {
                             try {
                                 LoadWorldListEntry( el );
                             } catch( Exception ex ) {
-                                Logger.LogAndReportCrash( "An error occured while trying to parse one of the entries on the world list",
+                                Logger.LogAndReportCrash( "An error occurred while trying to parse one of the entries on the world list",
                                                           "fCraft", ex, false );
                             }
 #endif
@@ -102,7 +102,7 @@ namespace fCraft {
                     }
 #if !DEBUG
                 } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Error occured while trying to load the world list.", "fCraft", ex, true );
+                    Logger.LogAndReportCrash( "Error occurred while trying to load the world list.", "fCraft", ex, true );
                     return false;
                 }
 #endif
@@ -777,7 +777,7 @@ namespace fCraft {
         /// <param name="player"> Player who is doing the search. </param>
         /// <param name="fileName"> FileName of the map to be searched for. </param>
         /// <returns> Full source file name.
-        /// Null if file could not be found, or an error occured. </returns>
+        /// Null if file could not be found, or an error occurred. </returns>
         /// <exception cref="ArgumentNullException"> If player or fileName is null. </exception>
         [CanBeNull]
         public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {

@@ -927,7 +927,7 @@ namespace fCraft {
                 if( success ) {
                     player.Message( "Reload: reloaded {0}.", whatToReload );
                 } else {
-                    player.Message( "&WReload: Error(s) occured while reloading {0}.", whatToReload );
+                    player.Message( "&WReload: Error(s) occurred while reloading {0}.", whatToReload );
                 }
             }
         }

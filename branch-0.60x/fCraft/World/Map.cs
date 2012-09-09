@@ -406,7 +406,7 @@ namespace fCraft {
                     blocksDrawn = op.DrawBatch( blocksToDraw );
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "DrawOp error", "fCraft", ex, false );
-                    op.Player.Message( "&WError occured in your draw command: {0}: {1}",
+                    op.Player.Message( "&WError occurred in your draw command: {0}: {1}",
                                        ex.GetType().Name, ex.Message );
                     drawOps.RemoveAt( i );
                     op.End();

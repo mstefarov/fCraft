@@ -234,7 +234,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
                 MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
             } else {
-                MessageBox.Show( e.Exception.ToString(), "An error occured in the world list" );
+                MessageBox.Show( e.Exception.ToString(), "An error occurred in the world list" );
             }
         }
 
@@ -290,7 +290,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                             File.Delete( world.FullFileName );
                         } catch( Exception ex ) {
                             MessageBox.Show( "You have to delete the file (" + world.FileName + ") manually. " +
-                                             "An error occured while trying to delete it automatically:" + Environment.NewLine + ex,
+                                             "An error occurred while trying to delete it automatically:" + Environment.NewLine + ex,
                                              "Could not delete map file" );
                         }
                     }

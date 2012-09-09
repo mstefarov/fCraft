@@ -69,13 +69,13 @@ namespace fCraft {
                         return "You are not allowed to do this operation to world \"" + worldName + "\".";
 
                     case WorldOpExceptionCode.Unexpected:
-                        return "Unexpected problem occured with world \"" + worldName + "\".";
+                        return "Unexpected problem occurred with world \"" + worldName + "\".";
 
                     case WorldOpExceptionCode.WorldNotFound:
                         return "No world found with the name \"" + worldName + "\".";
 
                     default:
-                        return "Unexpected error occured while working on world \"" + worldName + "\"";
+                        return "Unexpected error occurred while working on world \"" + worldName + "\"";
                 }
             } else {
                 switch( code ) {
@@ -114,14 +114,11 @@ namespace fCraft {
                     case WorldOpExceptionCode.SecurityError:
                         return "You are not allowed to do this operation.";
 
-                    case WorldOpExceptionCode.Unexpected:
-                        return "Unexpected problem occured.";
-
                     case WorldOpExceptionCode.WorldNotFound:
                         return "Specified world was not found.";
 
                     default:
-                        return "Unexpected error occured.";
+                        return "Unexpected error occurred.";
                 }
             }
         }
