@@ -160,8 +160,10 @@ namespace fCraft {
                         }
 
                         if( info.ID > maxID ) {
+                            Logger.Log( LogType.Warning,
+                                        "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
+                                        maxID, info.ID );
                             maxID = info.ID;
-                            Logger.Log( LogType.Warning, "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1})." );
                         }
 
                         // A record is considered "empty" if the player has never logged in.

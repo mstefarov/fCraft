@@ -321,7 +321,9 @@ namespace JetBrains.Annotations {
     [MeansImplicitUse]
     public sealed class PublicAPIAttribute : Attribute {
         public PublicAPIAttribute() { }
+        // ReSharper disable UnusedParameter.Local
         public PublicAPIAttribute( string comment ) { }
+        // ReSharper restore UnusedParameter.Local
     }
 
     /// <summary>

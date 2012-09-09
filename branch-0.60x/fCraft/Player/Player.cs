@@ -172,6 +172,7 @@ namespace fCraft {
 
         /// <summary> Parses a message on behalf of this player. </summary>
         /// <param name="rawMessage"> Message to parse. </param>
+        /// <param name="fromConsole"> Whether the message originates from console. </param>
         /// <exception cref="ArgumentNullException"> If rawMessage is null. </exception>
         public void ParseMessage( [NotNull] string rawMessage, bool fromConsole ) {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
@@ -439,7 +440,7 @@ namespace fCraft {
         /// <summary> Sends a message as a WoM alert.
         /// Players who use World of Minecraft client will see this message on the left side of the screen.
         /// Other players will receive it as a normal message. </summary>
-        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code will be prepended. </param>
         /// <param name="args"> An object array that contains zero or more objects to format. </param>
         /// <exception cref="ArgumentNullException"> If message is null. </exception>
         /// <exception cref="FormatException"> If message format is invalid. </exception>
@@ -466,7 +467,7 @@ namespace fCraft {
 
         /// <summary> Sends a text message to this player.
         /// If the message does not fit on one line, prefix ">" is prepended to wrapped line. </summary>
-        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code will be prepended. </param>
         /// <param name="args"> An object array that contains zero or more objects to format. </param>
         /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
         /// <exception cref="FormatException"> If message format is invalid. </exception>
@@ -489,7 +490,7 @@ namespace fCraft {
 
         /// <summary> Sends a text message to this player, prefixing each line. </summary>
         /// <param name="prefix"> Prefix to prepend to each wrapped line. Not prepended to the first line. </param>
-        /// <param name="message"> A composite format string for the message. "System color" code ("&S") will be prepended. </param>
+        /// <param name="message"> A composite format string for the message. "System color" code will be prepended. </param>
         /// <param name="args"> An object array that contains zero or more objects to format. </param>
         /// <exception cref="ArgumentNullException"> If any of the method parameters are null. </exception>
         /// <exception cref="FormatException"> If message format is invalid. </exception>

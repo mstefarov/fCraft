@@ -455,8 +455,8 @@ namespace fCraft {
             }
             BlockDBEntry[] results = args.World.BlockDB.Lookup( MaxBlockChangesToList, args.Coordinate );
             if( results.Length > 0 ) {
-                for( int i = 0; i < results.Length; i++ ) {
-                    BlockDBEntry entry = results[i];
+                Array.Reverse( results );
+                foreach( BlockDBEntry entry in results ) {
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
@@ -474,11 +474,12 @@ namespace fCraft {
                     string contextString;
                     if( entry.Context == BlockChangeContext.Manual ) {
                         contextString = "";
-                    }else if( entry.Context == (BlockChangeContext.Manual | BlockChangeContext.Replaced)){
+                    } else if( entry.Context == ( BlockChangeContext.Manual | BlockChangeContext.Replaced ) ) {
                         contextString = "(Painted)";
                     } else if( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
-                        entry.Context != BlockChangeContext.Drawn ) {
-                        if( entry.Context == ( BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf | BlockChangeContext.Redone ) ) {
+                               entry.Context != BlockChangeContext.Drawn ) {
+                        if( entry.Context ==
+                            ( BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf | BlockChangeContext.Redone ) ) {
                             contextString = " (Redone)";
                         } else {
                             contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
@@ -2141,11 +2142,6 @@ namespace fCraft {
                             newWorld = WorldManager.AddWorld( player, worldName, map, false );
                         } catch( WorldOpException ex ) {
                             player.Message( "WLoad: {0}", ex.Message );
-                            return;
-                        }
-
-                        if( newWorld == null ) {
-                            player.MessageNow( "Failed to create a new world." );
                             return;
                         }
 

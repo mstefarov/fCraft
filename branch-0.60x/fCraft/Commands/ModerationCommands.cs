@@ -3,13 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary>
-    /// Most commands for server moderation - kick, ban, rank change, etc - are here.
-    /// </summary>
+    /// <summary> Most commands for server moderation - kick, ban, rank change, etc - are here. </summary>
     static class ModerationCommands {
         const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 

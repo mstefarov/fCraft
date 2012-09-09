@@ -29,41 +29,55 @@ namespace fCraft {
         // User-defined color assignments. Set by Config.ApplyConfig.
         /// <summary> Color of system messages, nickserv, chanserv. </summary>
         public static string Sys;
+
         /// <summary> Color of help messages, /help. </summary>
         public static string Help;
-        /// <summary> Color of say messages, /say. </summary>
+
+        /// <summary> Color of say messages (/say) and timer announcements. </summary>
         public static string Say;
+
         /// <summary> Color of announcements, server announcements. </summary>
         public static string Announcement;
+
         /// <summary> Color of personal messages. </summary>
         public static string PM;
+
         /// <summary> Color of IRC chat. </summary>
         public static string IRC;
+
         /// <summary> Color of /me command. </summary>
         public static string Me;
+
         /// <summary> Color of warning messages. </summary>
         public static string Warning;
 
         // Defaults for user-defined colors.
         /// <summary> Default color of system messages, nickserv, chanserv. </summary>
         public const string SysDefault = Yellow;
+
         /// <summary> Default color of help messages, /help.</summary>
         public const string HelpDefault = Lime;
-        /// <summary> Default color of say messages, /say. </summary>
+
+        /// <summary> Default color of say messages (/say) and timer announcements. </summary>
         public const string SayDefault = Green;
+
         /// <summary> Default color of announcements, server announcements.</summary>
         public const string AnnouncementDefault = Green;
+
         /// <summary> Default color of personal messages.</summary>
         public const string PMDefault = Aqua;
+
         /// <summary> Default color of IRC chat. </summary>
         public const string IRCDefault = Purple;
+
         /// <summary> Default color of /me command.</summary>
         public const string MeDefault = Purple;
+
         /// <summary> Default color of warning messages.</summary>
         public const string WarningDefault = Red;
 
         /// <summary> List of color names indexed by their id. </summary>
-        public static readonly SortedList<char, string> ColorNames = new SortedList<char, string>{
+        public static readonly SortedList<char, string> ColorNames = new SortedList<char, string> {
             { '0', "black" },
             { '1', "navy" },
             { '2', "green" },
@@ -147,14 +161,22 @@ namespace fCraft {
                 return "&" + code;
             } else {
                 switch( code ) {
-                    case 's': return Sys;
-                    case 'y': return Say;
-                    case 'p': return PM;
-                    case 'r': return Announcement;
-                    case 'h': return Help;
-                    case 'w': return Warning;
-                    case 'm': return Me;
-                    case 'i': return IRC;
+                    case 's':
+                        return Sys;
+                    case 'y':
+                        return Say;
+                    case 'p':
+                        return PM;
+                    case 'r':
+                        return Announcement;
+                    case 'h':
+                        return Help;
+                    case 'w':
+                        return Warning;
+                    case 'm':
+                        return Me;
+                    case 'i':
+                        return IRC;
                     default:
                         return null;
                 }
@@ -198,7 +220,7 @@ namespace fCraft {
         /// <summary> Checks whether a color code is valid (checks if it's hexadecimal char). </summary>
         /// <returns>True is char is valid, otherwise false</returns>
         public static bool IsValidColorCode( char code ) {
-            return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
+            return ( code >= '0' && code <= '9' ) || ( code >= 'a' && code <= 'f' ) || ( code >= 'A' && code <= 'F' );
         }
 
 
@@ -249,14 +271,30 @@ namespace fCraft {
             for( int i = sb.Length - 1; i > 0; i-- ) {
                 if( sb[i - 1] == '&' ) {
                     switch( Char.ToLower( sb[i] ) ) {
-                        case 's': sb[i] = Sys[1]; break;
-                        case 'y': sb[i] = Say[1]; break;
-                        case 'p': sb[i] = PM[1]; break;
-                        case 'r': sb[i] = Announcement[1]; break;
-                        case 'h': sb[i] = Help[1]; break;
-                        case 'w': sb[i] = Warning[1]; break;
-                        case 'm': sb[i] = Me[1]; break;
-                        case 'i': sb[i] = IRC[1]; break;
+                        case 's':
+                            sb[i] = Sys[1];
+                            break;
+                        case 'y':
+                            sb[i] = Say[1];
+                            break;
+                        case 'p':
+                            sb[i] = PM[1];
+                            break;
+                        case 'r':
+                            sb[i] = Announcement[1];
+                            break;
+                        case 'h':
+                            sb[i] = Help[1];
+                            break;
+                        case 'w':
+                            sb[i] = Warning[1];
+                            break;
+                        case 'm':
+                            sb[i] = Me[1];
+                            break;
+                        case 'i':
+                            sb[i] = IRC[1];
+                            break;
                         default:
                             if( !IsValidColorCode( sb[i] ) ) {
                                 sb.Remove( i - 1, 1 );
@@ -266,6 +304,7 @@ namespace fCraft {
                 }
             }
         }
+
 
         /// <summary> Substitutes all special ampersand color codes (like Color.Sys)
         /// with the assigned Minecraft colors (like Color.Yellow). </summary>

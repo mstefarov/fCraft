@@ -34,6 +34,7 @@ namespace fCraft {
 
         /// <summary> Converts a DateTime to a string containing the UTC Unix Timestamp.
         /// If the date equals DateTime.MinValue, returns an empty string. </summary>
+        [NotNull]
         public static string ToUnixTimeString( this DateTime date ) {
             if( date == DateTime.MinValue ) {
                 return "";
@@ -45,7 +46,8 @@ namespace fCraft {
 
         /// <summary> Appends a UTC Unix Timestamp to the given StringBuilder.
         /// If the date equals DateTime.MinValue, nothing is appended. </summary>
-        public static StringBuilder ToUnixTimeString( this DateTime date, StringBuilder sb ) {
+        [NotNull]
+        public static StringBuilder ToUnixTimeString( this DateTime date, [NotNull] StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
                 sb.Append( date.ToUnixTime() );
             }
@@ -80,7 +82,8 @@ namespace fCraft {
         }
 
 
-        public static bool ToDateTimeLegacy( this string str, ref DateTime result ) {
+        public static bool ToDateTimeLegacy( [NotNull] this string str, ref DateTime result ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length <= 1 ) {
                 return false;
             }
@@ -93,6 +96,7 @@ namespace fCraft {
 
         /// <summary> Converts a TimeSpan to a string containing the number of seconds.
         /// If the timestamp is zero seconds, returns an empty string. </summary>
+        [NotNull]
         public static string ToTickString( this TimeSpan time ) {
             if( time == TimeSpan.Zero ) {
                 return "";
@@ -127,7 +131,8 @@ namespace fCraft {
         }
 
 
-        public static bool ToTimeSpanLegacy( this string str, ref TimeSpan result ) {
+        public static bool ToTimeSpanLegacy( [NotNull] this string str, ref TimeSpan result ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > 1 ) {
                 result = new TimeSpan( Int64.Parse( str ) * TicksPerMillisecond );
                 return true;
@@ -139,7 +144,9 @@ namespace fCraft {
 
         #region MiniString
 
-        public static StringBuilder ToTickString( this TimeSpan time, StringBuilder sb ) {
+        [NotNull]
+        public static StringBuilder ToTickString( this TimeSpan time, [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             if( time != TimeSpan.Zero ) {
                 sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
             }
@@ -147,6 +154,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static string ToMiniString( this TimeSpan span ) {
             if( span.TotalSeconds < 60 ) {
                 return String.Format( "{0}s", span.Seconds );
@@ -162,7 +170,8 @@ namespace fCraft {
         }
 
 
-        public static bool TryParseMiniTimespan( this string text, out TimeSpan result ) {
+        public static bool TryParseMiniTimespan( [NotNull] this string text, out TimeSpan result ) {
+            if( text == null ) throw new ArgumentNullException( "text" );
             try {
                 result = ParseMiniTimespan( text );
                 return true;
@@ -225,11 +234,13 @@ namespace fCraft {
 
         #region CompactString
 
+        [NotNull]
         public static string ToCompactString( this DateTime date ) {
             return date.ToString( "yyyy'-'MM'-'dd'T'HH':'mm':'ssK" );
         }
 
 
+        [NotNull]
         public static string ToCompactString( this TimeSpan span ) {
             return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
                                   span.Days, span.Hours, span.Minutes, span.Seconds );

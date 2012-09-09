@@ -1072,7 +1072,7 @@ namespace fCraft {
 
             if( target.World == null ) {
                 // Chances of this happening are miniscule
-                player.Message( "Player {0}&S is not in any world." );
+                player.Message( "Player {0}&S is not in any world.", target.Name );
                 return;
             } else {
                 player.Message( "Player {0}&S is on world {1}&S:",

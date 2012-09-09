@@ -1146,17 +1146,17 @@ namespace fCraft {
 
         static void ImportBans( Player player, CommandReader cmd ) {
             string serverName = cmd.Next();
-            string file = cmd.Next();
+            string fileName = cmd.Next();
 
             // Make sure all parameters are specified
-            if( serverName == null || file == null ) {
+            if( serverName == null || fileName == null ) {
                 CdImport.PrintUsage( player );
                 return;
             }
 
             // Check if file exists
-            if( !File.Exists( file ) ) {
-                player.Message( "File not found: {0}", file );
+            if( !File.Exists( fileName ) ) {
+                player.Message( "File not found: {0}", fileName );
                 return;
             }
 
@@ -1170,12 +1170,13 @@ namespace fCraft {
                 case "mcforge":
                     string[] names;
                     try {
-                        names = File.ReadAllLines( file );
+                        names = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
-                        player.Message( "Import: Could not open \"{0}\" to import bans." );
+                        player.Message( "Import: Could not open \"{0}\" to import bans.",
+                                        fileName );
                         Logger.Log( LogType.Error,
                                     "ImportBans: Could not open \"{0}\": {1}",
-                                    file, ex );
+                                    fileName, ex );
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
@@ -1212,19 +1213,20 @@ namespace fCraft {
                     break;
 
                 case "commandbook":
-                    if( !file.EndsWith( ".csv", StringComparison.OrdinalIgnoreCase ) ) {
+                    if( !fileName.EndsWith( ".csv", StringComparison.OrdinalIgnoreCase ) ) {
                         player.Message( "Import: Please provide bans.csv file for CommandBook" );
                         return;
                     }
 
                     string[] lines;
                     try {
-                        lines = File.ReadAllLines( file );
+                        lines = File.ReadAllLines( fileName );
                     } catch( Exception ex ) {
-                        player.Message( "Import: Could not open \"{0}\" to import bans." );
+                        player.Message( "Import: Could not open \"{0}\" to import bans.",
+                                        fileName );
                         Logger.Log( LogType.Error,
                                     "ImportBans: Could not open \"{0}\": {1}",
-                                    file, ex );
+                                    fileName, ex );
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
