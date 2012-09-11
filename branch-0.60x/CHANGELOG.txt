@@ -1,3 +1,19 @@
+0.632
+ Feature: Renamed "IRC" LogType to "IRCStatus", and added "IRCChat" LogType. Check your configs.
+ Fix: Fixed the updater. You'll have to update from version 0.631 manually (thanks nope__avi).
+ Fix: Fixed a bug related to multiple players trying to join an almost-full server at the same time.
+ Fix: Fixed a rare InvalidOperationException crash in ConfigGUI.
+ Fix: Fixed reversed order in /BlockInfo (thanks recon_).
+ Fix: Fixed a few formatting errors in feedback messages.
+ Fix: Fixed a rare disconnect related to a spectator trying to follow a spectatee to a full world.
+ Fix: Fixed /Hide not showing a fake disconnect message when needed.
+ Fix: Fixed /WRename prompting for file overwrite when changing capitalization in a world name.
+ Fix: Fixed UndoArea/UndoAreaNot and UndoPlayer/UndoPlayerNot messages occasionally getting mixed up.
+ Change: Crash reporter now submits list of names and versions of all loaded assemblies, to help identify mismatched or missing dependencies.
+ Change: Added logging to every confirmation prompt, "/ok", BlockDB enabling/disabling/clearing, /ZRemove, /InfoSwap, and /Env.
+ Change: Any pending confirmations are now reset on world change.
+ Change: Added /I as an alias for /Info, and /CS as an alias for /CopySlot.
+
 0.631
  Feature: Added a way to restrict commands to match online players' names only, by prefixing the name with an exclaimation mark (!).
  Feature: Added /DoNotMark command. When toggled on, clicking on blocks does not cause marks to be added to a selection.

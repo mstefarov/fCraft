@@ -176,6 +176,9 @@ namespace fCraft {
             }
 
             lock( CrashReportLock ) {
+                // For compatibility with lighttpd server (that received crash reports)
+                ServicePointManager.Expect100Continue = false;
+
                 if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
                     Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
                     return;

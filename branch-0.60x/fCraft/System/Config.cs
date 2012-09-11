@@ -515,6 +515,11 @@ namespace fCraft {
                     list[i] = false;
                 }
             }
+
+            // for compatibility with fCraft 0.631 and earlier
+            if( el.Element( "IRC" ) != null ) { // LEGACY
+                list[(int)LogType.IRCStatus] = true;
+            }
         }
 
 
