@@ -223,7 +223,9 @@ namespace fCraft {
         }
 
 
-        /// <summary> Controls if the map should be loaded before players enter </summary>
+        /// <summary> Controls if the map should be loaded before players enter.
+        /// Map is immediately loaded when Preload is set to true.
+        /// Map is unloaded if Preloaded is set to false, and there are no players on this world. </summary>
         public bool Preload {
             get {
                 return preload;
@@ -612,6 +614,7 @@ namespace fCraft {
 
                 if( ConfigKey.SaveInterval.GetInt() > 0 ) {
                     saveTask = Scheduler.NewBackgroundTask( SaveTask );
+                    saveTask.IsCritical = true;
                     saveTask.RunForever( this,
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );

@@ -190,6 +190,7 @@ namespace fCraft.ServerGUI {
         #endregion
 
 
+        [DebuggerStepThrough]
         void OnLogged( object sender, LogEventArgs e ) {
             if( !e.WriteToConsole ) return;
             try {

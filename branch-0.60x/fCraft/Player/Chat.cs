@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
 
@@ -185,15 +186,16 @@ namespace fCraft {
             if( e == null ) throw new ArgumentNullException( "e" );
             if( RaiseSendingEvent( e ) ) return false;
 
-            int recepients = e.RecepientList.Message( e.FormattedMessage );
+            Player[] players = e.RecepientList.ToArray();
+            int packets = players.Message( e.FormattedMessage );
 
             // Only increment the MessagesWritten count if someone other than
             // the player was on the recepient list.
-            if( recepients > 1 || (recepients == 1 && e.RecepientList.First() != e.Player) ) {
+            if( players.Length > 1 || ( players.Length == 1 && players[0] != e.Player ) ) {
                 e.Player.Info.ProcessMessageWritten();
             }
 
-            RaiseSentEvent( e, recepients );
+            RaiseSentEvent( e, packets );
             return true;
         }
 
@@ -253,6 +255,34 @@ namespace fCraft {
                     return RawMessageType.Invalid;
             }
             return RawMessageType.Chat;
+        }
+
+
+        /// <summary> Replaces keywords with appropriate values.
+        /// See http://www.fcraft.net/wiki/Constants </summary>
+        [NotNull]
+        public static string ReplaceTextKeywords( [NotNull] Player player, [NotNull] string input ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
+            sb.Replace( "{RANK}", player.Info.Rank.ClassyName );
+            sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
+            if( player.World == null ) {
+                sb.Replace( "{WORLD}", "(No World)" );
+            } else {
+                sb.Replace( "{WORLD}", player.World.ClassyName );
+            }
+            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToStringInvariant() );
+            sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
+            sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
+            if( input.IndexOfOrdinal( "{PLAYER" ) != -1 ) {
+                Player[] playerList = Server.Players.CanBeSeen( player ).Union( player ).ToArray();
+                sb.Replace( "{PLAYER_NAME}", player.ClassyName );
+                sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );
+                sb.Replace( "{PLAYERS}", playerList.Length.ToStringInvariant() );
+            }
+            return sb.ToString();
         }
 
 
@@ -356,11 +386,21 @@ namespace fCraft.Events {
             FormattedMessage = formattedMessage;
         }
 
+        /// <summary> Player who is sending the message. </summary>
         public Player Player { get; private set; }
+
+        /// <summary> Raw text of the message. </summary>
         public string Message { get; private set; }
+
+        /// <summary> Formatted message, as it will appear to the recepients. </summary>
         public string FormattedMessage { get; set; }
+
+        /// <summary> Type of the message that's being sent. </summary>
         public ChatMessageType MessageType { get; private set; }
+
+        /// <summary> List of intended recepients. </summary>
         public readonly IEnumerable<Player> RecepientList;
+
         public bool Cancel { get; set; }
     }
 
@@ -368,20 +408,31 @@ namespace fCraft.Events {
     /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
-                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {
+                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int packetCount ) {
             Player = player;
             Message = message;
             MessageType = messageType;
             RecepientList = recepientList;
             FormattedMessage = formattedMessage;
-            RecepientCount = recepientCount;
+            PacketCount = packetCount;
         }
 
+        /// <summary> Player who sent the message. </summary>
         public Player Player { get; private set; }
+
+        /// <summary> Raw text of the message. </summary>
         public string Message { get; private set; }
+
+        /// <summary> Formatted message, as it appeared to the recepients. </summary>
         public string FormattedMessage { get; private set; }
+
+        /// <summary> Type of message that was sent. </summary>
         public ChatMessageType MessageType { get; private set; }
+
+        /// <summary> List of players who received the message. </summary>
         public IEnumerable<Player> RecepientList { get; private set; }
-        public int RecepientCount { get; private set; }
+
+        /// <summary> Number of message packets that were sent out. </summary>
+        public int PacketCount { get; private set; }
     }
 }

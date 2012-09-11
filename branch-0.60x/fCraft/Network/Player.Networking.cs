@@ -34,8 +34,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Reason that this player is about to leave / has left the server. Set by Kick. 
+        /// This value is undefined until the player is about to disconnect. </summary>
         public LeaveReason LeaveReason { get; private set; }
 
+        /// <summary> Remote IP address of this player. </summary>
         public IPAddress IP { get; private set; }
 
 
@@ -43,11 +46,11 @@ namespace fCraft {
              canSend = true,
              canQueue = true;
 
-        Thread ioThread;
-        TcpClient client;
+        readonly Thread ioThread;
+        readonly TcpClient client;
         readonly NetworkStream stream;
-        PacketReader reader;
-        PacketWriter writer;
+        readonly PacketReader reader;
+        readonly PacketWriter writer;
 
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
@@ -107,7 +110,9 @@ namespace fCraft {
                 Server.RaiseSessionConnectedEvent( this );
 
                 // try to log the player in, otherwise die.
-                if( !LoginSequence() ) return;
+                if( !LoginSequence() ) {
+                    return;
+                }
 
                 BandwidthUseMode = Info.BandwidthUseMode;
 
@@ -495,7 +500,6 @@ namespace fCraft {
             reader.ReadByte(); // unused
             BytesReceived += 131;
 
-            Position = WorldManager.MainWorld.Map.Spawn;
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             ResetAllBinds();
 
@@ -659,8 +663,9 @@ namespace fCraft {
 
 
             // Figure out what the starting world should be
-            World startingWorld = Info.Rank.MainWorld ?? WorldManager.MainWorld;
+            World startingWorld = WorldManager.FindMainWorld( Info );
             startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
+            Position = startingWorld.LoadMap().Spawn;
 
             // Send server information
             string serverName = ConfigKey.ServerName.GetString();
@@ -728,8 +733,8 @@ namespace fCraft {
 
             // Check if other banned players logged in from this IP
             PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 )
-                .Where( playerFromSameIP => playerFromSameIP.IsBanned )
-                .ToArray();
+                                                     .Where( playerFromSameIP => playerFromSameIP.IsBanned )
+                                                     .ToArray();
             if( bannedPlayerNames.Length > 0 ) {
                 canSee.Message( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
                                 ClassyName, bannedPlayerNames.JoinToClassyString() );
@@ -768,7 +773,7 @@ namespace fCraft {
             if( File.Exists( Paths.GreetingFileName ) ) {
                 string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
                 foreach( string greetingLine in greetingText ) {
-                    MessageNow( Server.ReplaceTextKeywords( this, greetingLine ) );
+                    MessageNow( Chat.ReplaceTextKeywords( this, greetingLine ) );
                 }
             } else {
                 if( firstTime ) {
@@ -791,9 +796,15 @@ namespace fCraft {
 
             HasFullyConnected = true;
             State = SessionState.Online;
-            Server.UpdatePlayerList();
-            RaisePlayerReadyEvent( this );
 
+            // Add player to the userlist
+            lock( syncKickWaiter ) {
+                if( !useSyncKick ) {
+                    Server.UpdatePlayerList();
+                }
+            }
+
+            RaisePlayerReadyEvent( this );
             return true;
         }
 
@@ -1031,7 +1042,7 @@ namespace fCraft {
                 Message( "Joined world {0}", newWorld.ClassyName );
                 string greeting = newWorld.Greeting;
                 if( greeting != null ) {
-                    greeting = Server.ReplaceTextKeywords( this, greeting );
+                    greeting = Chat.ReplaceTextKeywords( this, greeting );
                     Message( "&R* {0}: {1}", newWorld.Name, greeting );
                 }
             }
@@ -1117,14 +1128,11 @@ namespace fCraft {
         internal void KickSynchronously( [NotNull] string message, LeaveReason reason ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             lock( kickSyncLock ) {
-                if( useSyncKick ) {
-                    return;
-                }
                 useSyncKick = true;
                 Kick( message, reason );
-                syncKickWaiter.WaitOne();
-                Server.UnregisterPlayer( this );
             }
+            syncKickWaiter.WaitOne();
+            Server.UnregisterPlayer( this );
         }
 
 
@@ -1154,7 +1162,8 @@ namespace fCraft {
             if( ioThread != null && ioThread.IsAlive ) {
                 try {
                     ioThread.Join();
-                } catch( NullReferenceException ) {} catch( ThreadStateException ) {}
+                } catch( NullReferenceException ) {
+                } catch( ThreadStateException ) {}
             }
         }
 
