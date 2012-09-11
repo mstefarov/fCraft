@@ -53,8 +53,13 @@ namespace fCraft {
         static World mainWorld;
 
 
-        public static World FindMainWorld( PlayerInfo player ) {
-            return player.Rank.MainWorld ?? MainWorld;
+        public static World FindMainWorld( Player player ) {
+            World rankMain = player.Info.Rank.MainWorld;
+            if( rankMain != null && player.CanJoin( rankMain ) ) {
+                return rankMain;
+            } else {
+                return MainWorld;
+            }
         }
 
 
@@ -730,7 +735,7 @@ namespace fCraft {
                 Player[] worldPlayerList = worldToDelete.Players;
                 worldToDelete.Players.Message( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
-                    player.JoinWorld( FindMainWorld( player.Info ), WorldChangeReason.WorldRemoved );
+                    player.JoinWorld( FindMainWorld( player ), WorldChangeReason.WorldRemoved );
                 }
 
                 try {

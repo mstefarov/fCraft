@@ -1374,10 +1374,6 @@ namespace fCraft {
                 player.Message( "The main world cannot have access restrictions." );
                 return;
             }
-            if( RankManager.Ranks.Any( r => r.MainWorld == world ) ) {
-                player.Message( "Rank mains cannot have access restrictions." );
-                return;
-            }
 
             bool changesWereMade = false;
             do {
@@ -1588,7 +1584,7 @@ namespace fCraft {
                 var playersWhoCantStay = world.Players.Where( p => !p.CanJoin( world ) );
                 foreach( Player p in playersWhoCantStay ) {
                     p.Message( "&WYou are no longer allowed to join world {0}", world.ClassyName );
-                    p.JoinWorld( WorldManager.FindMainWorld( p.Info ), WorldChangeReason.PermissionChanged );
+                    p.JoinWorld( WorldManager.FindMainWorld( p ), WorldChangeReason.PermissionChanged );
                 }
                 WorldManager.SaveWorldList();
             }
