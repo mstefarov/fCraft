@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using fCraft.Events;
@@ -25,28 +26,35 @@ namespace fCraft.ServerGUI {
         Thread startupThread;
 
         void BeginStartup( object sender, EventArgs e ) {
+            // check for assembly mismatch
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 MessageBox.Show( "fCraft.dll version does not match ServerGUI.exe version." );
                 Application.Exit();
                 return;
             }
 
+            // force form handle to be created to make sure that InvokeRequire returns correct results.
+#pragma warning disable 168
+            var forcedHandle = Handle;
+#pragma warning restore 168
+
+            // put fCraft version into the title
             Text = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
+            // set up event hooks
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
             Server.PlayerListChanged += OnPlayerListChanged;
             Server.ShutdownEnded += OnServerShutdownEnded;
             console.OnCommand += console_Enter;
 
+            // set up a context menu for logBox (thanks Jonty)
             logBox.ContextMenu = new ContextMenu( new[] {
                 new MenuItem( "Copy", CopyMenuOnClickHandler )
             } );
             logBox.ContextMenu.Popup += CopyMenuPopupHandler;
 
-            // force form handle to be created to make sure that InvokeRequire returns correct results.
-            CreateHandle();
-
+            // start fCraft from a separate thread (to keep UI responsive)
             startupThread = new Thread( StartupThread ) {
                 Name = "fCraft.ServerGUI.Startup",
                 CurrentCulture = new CultureInfo( "en-US" )
