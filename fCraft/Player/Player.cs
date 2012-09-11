@@ -1520,6 +1520,7 @@ namespace fCraft {
         /// <returns> True if the account is paid. False if it is not paid, or if information is unavailable. </returns>
         public static AccountType CheckPaidStatus( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
             request.Timeout = PaidCheckTimeout;

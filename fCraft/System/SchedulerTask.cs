@@ -67,6 +67,9 @@ namespace fCraft {
         /// <summary> Maximum number of repeats for RunRepeating tasks.
         /// Set to -1 to run forever. </summary>
         public int MaxRepeats { get; set; }
+        
+        /// <summary> Whether this task should be allowed to finish after server shutdown. </summary>
+        public bool IsCritical { get; set; }
 
         /// <summary> Method to call to execute the task. </summary>
         [NotNull]

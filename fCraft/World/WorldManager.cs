@@ -23,7 +23,6 @@ namespace fCraft {
         internal static readonly object SyncRoot = new object();
 
 
-        static World mainWorld;
         /// <summary> Gets or sets the default main world.
         /// That's the world that players first join upon connecting.
         /// The map of the new main world is preloaded, and old one is unloaded, if needed. </summary>
@@ -50,6 +49,12 @@ namespace fCraft {
                 RaiseMainWorldChangedEvent( oldWorld, value );
                 SaveWorldList();
             }
+        }
+        static World mainWorld;
+
+
+        public static World FindMainWorld( PlayerInfo player ) {
+            return player.Rank.MainWorld ?? MainWorld;
         }
 
 
@@ -713,10 +718,19 @@ namespace fCraft {
                     throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
 
+                foreach( Rank rank in RankManager.Ranks){
+                    if( rank.MainWorld == worldToDelete ) {
+                        Logger.Log( LogType.Warning,
+                                    "Main world for rank {0} was reset because world {1} was deleted.",
+                                    rank.Name, worldToDelete.Name );
+                        rank.MainWorld = null;
+                    }
+                }
+
                 Player[] worldPlayerList = worldToDelete.Players;
                 worldToDelete.Players.Message( "&SYou have been moved to the main world." );
                 foreach( Player player in worldPlayerList ) {
-                    player.JoinWorld( MainWorld, WorldChangeReason.WorldRemoved );
+                    player.JoinWorld( FindMainWorld( player.Info ), WorldChangeReason.WorldRemoved );
                 }
 
                 try {

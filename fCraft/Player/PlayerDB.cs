@@ -326,8 +326,9 @@ namespace fCraft {
         }
 
         internal static void StartSaveTask() {
-            saveTask = Scheduler.NewBackgroundTask( SaveTask )
-                                .RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
+            saveTask = Scheduler.NewBackgroundTask( SaveTask );
+            saveTask.IsCritical = true;
+            saveTask.RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
         }
 
         static void SaveTask( SchedulerTask task ) {

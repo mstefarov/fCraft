@@ -22,7 +22,7 @@ namespace fCraft {
 
         /// <summary> Secret string used to verify players' names.
         /// Randomly generated at startup.
-        /// Known only to this server and to heartbeat servers. </summary>
+        /// Known only to this server and to heartbeat server(s). </summary>
         public static string Salt { get; internal set; }
 
 
@@ -116,12 +116,13 @@ namespace fCraft {
         }
 
 
-        // Creates an asynchrnous HTTP request to the given URL
+        // Creates an asynchronous HTTP request to the given URL
         static HttpWebRequest CreateRequest( Uri uri ) {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
             request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
             request.Method = "GET";
             request.Timeout = (int)Timeout.TotalMilliseconds;
+            request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
             request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
             request.UserAgent = Updater.UserAgent;
             return request;
@@ -161,6 +162,7 @@ namespace fCraft {
                         }
                     }
                 }
+
             } catch( Exception ex ) {
                 if( ex is WebException || ex is IOException ) {
                     Logger.Log( LogType.Warning,

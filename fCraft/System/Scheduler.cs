@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
 
@@ -12,10 +13,19 @@ namespace fCraft {
         static SchedulerTask[] taskCache;
         static readonly Queue<SchedulerTask> BackgroundTasks = new Queue<SchedulerTask>();
         static readonly object TaskListLock = new object(),
-                               BackgroundTaskListLock = new object();
+                               BackgroundTaskQueueLock = new object();
 
         static Thread schedulerThread,
                       backgroundThread;
+
+
+        public static int CriticalTaskCount {
+            get {
+                lock( BackgroundTaskQueueLock ) {
+                    return BackgroundTasks.Count( t => t.IsCritical );
+                }
+            }
+        }
 
 
         internal static void Start() {
@@ -49,12 +59,11 @@ namespace fCraft {
                     }
 
                     if( task.IsBackground ) {
-                        lock( BackgroundTaskListLock ) {
+                        lock( BackgroundTaskQueueLock ) {
                             BackgroundTasks.Enqueue( task );
                         }
                     } else {
                         task.IsExecuting = true;
-
 #if DEBUG_SCHEDULER
                         FireEvent( TaskExecuting, task );
 #endif
@@ -98,16 +107,34 @@ namespace fCraft {
             while( !Server.IsShuttingDown ) {
                 if( BackgroundTasks.Count > 0 ) {
                     SchedulerTask task;
-                    lock( BackgroundTaskListLock ) {
+                    lock( BackgroundTaskQueueLock ) {
                         task = BackgroundTasks.Dequeue();
                     }
-                    task.IsExecuting = true;
+                    ExecuteBackgroundTask( task );
+                }
+                Thread.Sleep( 10 );
+            }
+
+            while( BackgroundTasks.Count > 0 ) {
+                SchedulerTask task;
+                lock( BackgroundTaskQueueLock ) {
+                    task = BackgroundTasks.Dequeue();
+                }
+                if( task.IsCritical ) {
+                    ExecuteBackgroundTask( task );
+                }
+            }
+        }
+
+
+        static void ExecuteBackgroundTask( SchedulerTask task ) {
+            task.IsExecuting = true;
 #if DEBUG_SCHEDULER
                     FireEvent( TaskExecuting, task );
 #endif
 
 #if DEBUG
-                    task.Callback( task );
+            task.Callback( task );
 #else
                     try {
                         task.Callback( task );
@@ -121,9 +148,6 @@ namespace fCraft {
 #if DEBUG_SCHEDULER
                     FireEvent( TaskExecuted, task );
 #endif
-                }
-                Thread.Sleep( 10 );
-            }
         }
 
 
@@ -192,7 +216,7 @@ namespace fCraft {
 
 
         // Removes stopped tasks from the list
-        internal static void UpdateCache() {
+        static void UpdateCache() {
             List<SchedulerTask> newList = new List<SchedulerTask>();
             List<SchedulerTask> deletionList = new List<SchedulerTask>();
             lock( TaskListLock ) {

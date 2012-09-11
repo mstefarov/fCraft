@@ -472,12 +472,11 @@ namespace fCraft {
 
         #region Messaging
 
-
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="message"> String/message to send. </param>
         /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of players who received the message. </returns>
+        /// <returns> Number of message packets that were sent out. </returns>
         [StringFormatMethod( "message" )]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [NotNull] string message,
@@ -505,7 +504,7 @@ namespace fCraft {
         /// <param name="except"> Player to exclude from the recepient list. </param>
         /// <param name="message"> String/message to send. </param>
         /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of players who received the message. </returns>
+        /// <returns> Number of message packets that were sent out. </returns>
         [StringFormatMethod( "message" )]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [CanBeNull] Player except,
@@ -536,7 +535,7 @@ namespace fCraft {
         /// if any line-wrapping occurs. Does NOT get prepended to first line. </param>
         /// <param name="message"> String/message to send. </param>
         /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of players who received the message. </returns>
+        /// <returns> Number of message packets that were sent out. </returns>
         [StringFormatMethod( "message" )]
         public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix,
                                            [NotNull] string message, params object[] formatArgs ) {

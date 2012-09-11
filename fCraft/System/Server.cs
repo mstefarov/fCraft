@@ -21,30 +21,31 @@ using ThreadState = System.Threading.ThreadState;
 
 namespace fCraft {
     /// <summary> Core of an fCraft server. Manages startup/shutdown, online player
-    /// sessions, and global events and scheduled tasks. </summary>
+    /// sessions, global events and scheduled tasks. </summary>
     public static partial class Server {
         /// <summary> Time when the server started (UTC). Used to check uptime. </summary>
         public static DateTime StartTime { get; private set; }
 
-        internal static int MaxUploadSpeed,
-                            // set by Config.ApplyConfig
-                            BlockUpdateThrottling; // used when there are no players in a world
-
-        internal const int MaxSessionPacketsPerTick = 128,
-                           // used when there are no players in a world
-                           MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
-
-        internal static float TicksPerSecond;
-
-
-        // networking
-        static TcpListener listener;
+        /// <summary> Internal IP address that the server's bound to (0.0.0.0 if not explicitly specified by the user). </summary>
         public static IPAddress InternalIP { get; private set; }
+
+        /// <summary> External IP address of this machine, as reported by checkip.dyndns.org </summary>
         public static IPAddress ExternalIP { get; private set; }
 
+        /// <summary> Number of the local listening port. </summary>
         public static int Port { get; private set; }
 
+        /// <summary> Minecraft.net connection URL. </summary>
         public static Uri Uri { get; internal set; }
+
+
+        internal static int MaxUploadSpeed, // set by Config.ApplyConfig
+                            BlockUpdateThrottling; // used when there are no players in a world
+        internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
+                           MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
+        internal static float TicksPerSecond;
+
+        static TcpListener listener;
 
 
         #region Command-line args
@@ -334,12 +335,16 @@ namespace fCraft {
             Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
             Player.AutoRank = new Player( "(AutoRank)" );
 
-            if( ConfigKey.BlockDBEnabled.Enabled() ) BlockDB.Init();
+            // Back up server data (PlayerDB, worlds, bans, config)
+            if( ConfigKey.BlockDBEnabled.Enabled() ) {
+                BlockDB.Init();
+            }
 
-            // try to load the world list
+            // Load the world list
             if( !WorldManager.LoadWorldList() ) return false;
             WorldManager.SaveWorldList();
 
+            // Back up all worlds (if needed)
             if( ConfigKey.BackupOnStartup.Enabled() ) {
                 foreach( World world in WorldManager.Worlds ) {
                     string backupFileName = String.Format( World.TimedBackupFormat,
@@ -357,7 +362,7 @@ namespace fCraft {
                 listener.Start();
 
             } catch( Exception ex ) {
-                // if the port is unavailable, try next one
+                // if the port is unavailable
                 Logger.Log( LogType.Error,
                             "Could not start listening on port {0}, stopping. ({1})",
                             Port, ex.Message );
@@ -368,6 +373,7 @@ namespace fCraft {
                 return false;
             }
 
+            // Resolve internal and external IP addresses
             InternalIP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
             ExternalIP = CheckExternalIP();
 
@@ -379,7 +385,6 @@ namespace fCraft {
                             "Server.Run: now accepting connections at {0}:{1}",
                             ExternalIP, Port );
             }
-
 
             // list loaded worlds
             WorldManager.UpdateWorldList();
@@ -407,7 +412,7 @@ namespace fCraft {
                             "Server.StartServer: Could not start monitoring CPU use: {0}", ex );
             }
 
-
+            // PlayerDB saving (every 90s)
             PlayerDB.StartSaveTask();
 
             // Announcements
@@ -416,20 +421,24 @@ namespace fCraft {
                 Scheduler.NewTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
             }
 
-            // garbage collection
+            // garbage collection (every 60s)
             gcTask = Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             Heartbeat.Start();
+
+            if( ConfigKey.IRCBotEnabled.Enabled() ) {
+                IRC.Start();
+            }
+
+            if( ConfigKey.AutoRankEnabled.Enabled() ) {
+                Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
+            }
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
                 Shutdown( new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true ), false );
                 ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
             }
-
-            if( ConfigKey.IRCBotEnabled.Enabled() ) IRC.Start();
-
-            Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
 
             // start the main loop - server is now connectible
             Scheduler.Start();
@@ -444,8 +453,10 @@ namespace fCraft {
 
         #region Shutdown
 
-        static readonly object ShutdownLock = new object();
+        /// <summary> Whether the server is currently being shut down. </summary>
         public static volatile bool IsShuttingDown;
+
+        static readonly object ShutdownLock = new object();
         static readonly AutoResetEvent ShutdownWaiter = new AutoResetEvent( false );
         static Thread shutdownThread;
         static ChatTimer shutdownTimer;
@@ -509,6 +520,11 @@ namespace fCraft {
                     }
                 }
 
+                if( Scheduler.CriticalTaskCount > 0 ) {
+                    Logger.Log( LogType.SystemActivity,
+                                "Shutdown: Waiting for {0} background tasks to finish...",
+                                Scheduler.CriticalTaskCount );
+                }
                 Scheduler.EndShutdown();
 
                 if( IsRunning ) {
@@ -739,7 +755,7 @@ namespace fCraft {
             string line = lines[new Random().Next( 0, lines.Length )].Trim();
             if( line.Length == 0 ) return;
             foreach( Player player in Players.Where( player => player.World != null ) ) {
-                player.Message( "&R" + ReplaceTextKeywords( player, line ) );
+                player.Message( "&R" + Chat.ReplaceTextKeywords( player, line ) );
             }
         }
 
@@ -773,7 +789,8 @@ namespace fCraft {
 
         static bool gcRequested;
 
-
+        /// <summary> Informs the server that garbage collection should be performed.
+        /// Actual collection is done on the background task thread, asynchronously, as needed. </summary>
         public static void RequestGC() {
             gcRequested = true;
         }
@@ -795,7 +812,7 @@ namespace fCraft {
         }
 
 
-        public static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
+        internal static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             int packetsPerTick = (int)( BlockUpdateThrottling / TicksPerSecond );
             int maxPacketsPerUpdate = (int)( MaxUploadSpeed / TicksPerSecond * 128 );
@@ -812,10 +829,6 @@ namespace fCraft {
 
             return maxPacketsPerUpdate;
         }
-
-
-
-
 
 
         public static void BackupData() {
@@ -846,32 +859,8 @@ namespace fCraft {
         }
 
 
-        public static string ReplaceTextKeywords( [NotNull] Player player, [NotNull] string input ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
-            sb.Replace( "{SERVER_NAME}", ConfigKey.ServerName.GetString() );
-            sb.Replace( "{RANK}", player.Info.Rank.ClassyName );
-            sb.Replace( "{TIME}", DateTime.Now.ToShortTimeString() ); // localized
-            if( player.World == null ) {
-                sb.Replace( "{WORLD}", "(No World)" );
-            } else {
-                sb.Replace( "{WORLD}", player.World.ClassyName );
-            }
-            sb.Replace( "{WORLDS}", WorldManager.Worlds.Length.ToStringInvariant() );
-            sb.Replace( "{MOTD}", ConfigKey.MOTD.GetString() );
-            sb.Replace( "{VERSION}", Updater.CurrentRelease.VersionString );
-            if( input.IndexOfOrdinal( "{PLAYER" ) != -1 ) {
-                Player[] playerList = Players.CanBeSeen( player ).Union( player ).ToArray();
-                sb.Replace( "{PLAYER_NAME}", player.ClassyName );
-                sb.Replace( "{PLAYER_LIST}", playerList.JoinToClassyString() );
-                sb.Replace( "{PLAYERS}", playerList.Length.ToStringInvariant() );
-            }
-            return sb.ToString();
-        }
-
-
-
+        /// <summary> Returns a cryptographically secure random string of given length. </summary>
+        [NotNull]
         public static string GetRandomString( int chars ) {
             RandomNumberGenerator prng = RandomNumberGenerator.Create();
             StringBuilder sb = new StringBuilder();
@@ -934,9 +923,16 @@ namespace fCraft {
 
         #region Player and Session Management
 
-        // list of registered players
-        static readonly List<Player> PlayerIndex = new List<Player>();
+        /// <summary> List of online players.
+        /// This property is volatile and can change when players connect/disconnect,
+        /// so cache a reference if you need to refer to the same snapshot of the
+        /// playerlist more than once. </summary>
         public static Player[] Players { get; private set; }
+
+        // list of all player sessions currently registered with the server
+        static readonly List<Player> PlayerIndex = new List<Player>();
+
+        // lock shared by RegisterPlayer/UnregisterPlayer/UpdatePlayerList
         static readonly object PlayerListLock = new object();
 
 
@@ -946,6 +942,7 @@ namespace fCraft {
         // Returns false if the server was full.
         internal static bool RegisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+
             lock( PlayerListLock ) {
                 // Kick other sessions with same player name
                 Player ghost = PlayerIndex.FirstOrDefault( p => p.Name.Equals( player.Name,
@@ -978,7 +975,6 @@ namespace fCraft {
                 }
                 PlayerIndex.Add( player );
                 player.HasRegistered = true;
-                UpdatePlayerList();
                 return true;
             }
         }
@@ -1004,7 +1000,9 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
-                if( !player.HasRegistered ) return;
+                if( !player.HasRegistered ) {
+                    return;
+                }
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( LogType.UserActivity,

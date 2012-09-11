@@ -1094,7 +1094,9 @@ namespace fCraft {
                                     inactivePlayers );
                 }
             } else {
-                Scheduler.NewBackgroundTask( PruneDBTask, player ).RunOnce();
+                var task = Scheduler.NewBackgroundTask( PruneDBTask, player );
+                task.IsCritical = true;
+                task.RunOnce();
             }
         }
 
