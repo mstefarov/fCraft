@@ -663,7 +663,7 @@ namespace fCraft {
 
 
             // Figure out what the starting world should be
-            World startingWorld = WorldManager.FindMainWorld( Info );
+            World startingWorld = WorldManager.FindMainWorld( this );
             startingWorld = RaisePlayerConnectedEvent( this, startingWorld );
             Position = startingWorld.LoadMap().Spawn;
 
