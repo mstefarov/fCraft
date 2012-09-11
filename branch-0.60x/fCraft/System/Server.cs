@@ -974,6 +974,7 @@ namespace fCraft {
                 // check if server is full
                 if( PlayerIndex.Count >= ConfigKey.MaxPlayers.GetInt() && !player.Info.Rank.HasReservedSlot ) {
                     player.Kick( "Server is full!", LeaveReason.ServerFull );
+                    return false;
                 }
                 PlayerIndex.Add( player );
                 player.HasRegistered = true;
@@ -999,7 +1000,7 @@ namespace fCraft {
 
 
         // Removes player from the list, and announced them leaving
-        public static void UnregisterPlayer( [NotNull] Player player ) {
+        internal static void UnregisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( PlayerListLock ) {
@@ -1008,7 +1009,7 @@ namespace fCraft {
 
                 Logger.Log( LogType.UserActivity,
                             "{0} left the server ({1}).", player.Name, player.LeaveReason );
-                if( player.HasRegistered && ConfigKey.ShowConnectionMessages.Enabled() ) {
+                if( player.HasFullyConnected && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
                                                       player.ClassyName );
                 }
