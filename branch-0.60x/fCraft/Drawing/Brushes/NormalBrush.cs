@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Constructs NormalBrush. </summary>
     public sealed class NormalBrushFactory : IBrushFactory, IBrush {
         public static readonly NormalBrushFactory Instance = new NormalBrushFactory();
 
@@ -65,6 +66,7 @@ namespace fCraft.Drawing {
     }
 
 
+    /// <summary> Brush that creates a solid, single-block fill. </summary>
     public sealed class NormalBrush : IBrushInstance {
         public Block[] Blocks { get; set; }
 

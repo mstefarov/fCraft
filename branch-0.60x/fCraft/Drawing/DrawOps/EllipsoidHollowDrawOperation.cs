@@ -2,6 +2,9 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a hollow ellipsoid,
+    /// or an ellipsoid filled differently on inside and outside.
+    /// The "shell" of the ellipsoid is always 1 block wide. </summary>
     public class EllipsoidHollowDrawOperation : DrawOperation {
         public override string Name {
             get { return "EllipsoidH"; }

@@ -144,6 +144,14 @@ namespace fCraft.Drawing {
         }
 
 
+        /// <summary> Prepares DrawOperation to start. Called after the player made a selection,
+        /// usually on player's I/O thread. Brush property must be set before calling Prepare. </summary>
+        /// <param name="marks"> Array of marks given by the player. </param>
+        /// <returns> True if both DrawOperation and Brush have been prepared succesfully.
+        /// False if either of them failed. </returns>
+        /// <exception cref="ArgumentNullException"> If marks is null. </exception>
+        /// <exception cref="ArgumentException"> If wrong number of marks was given. </exception>
+        /// <exception cref="NullReferenceException"> If Brush property was not set before calling Prepare. </exception>
         public virtual bool Prepare( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length != ExpectedMarks ) {
@@ -162,6 +170,10 @@ namespace fCraft.Drawing {
         }
 
 
+        /// <summary> Begins the execution of this DrawOperation.
+        /// Raises DrawOperation.Beginning (cancelable) and DrawOperation.Began events. </summary>
+        /// <returns> True if operation started succesfully.
+        /// False if operation was canceled by an event callback. </returns>
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
@@ -176,6 +188,7 @@ namespace fCraft.Drawing {
         public abstract int DrawBatch( int maxBlocksToDraw );
 
 
+        /// <summary> Asynchronously cancels this draw operation. </summary>
         public void Cancel() {
             IsCancelled = true;
         }

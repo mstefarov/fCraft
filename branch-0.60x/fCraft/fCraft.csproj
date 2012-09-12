@@ -216,7 +216,6 @@
     <Compile Include="Network\IPBanInfo.cs" />
     <Compile Include="Network\PacketReader.cs" />
     <Compile Include="Player\ChatTimer.cs" />
-    <Compile Include="Drawing\Brushes\AbstractPerlinNoiseBrush.cs" />
     <Compile Include="Drawing\Brushes\CheckeredBrush.cs" />
     <Compile Include="Drawing\Brushes\ReplaceNotBrush.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrush.cs" />
@@ -230,7 +229,6 @@
     <Compile Include="Drawing\DrawOps\EllipsoidDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CuboidHollowDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\CuboidWireframeDrawOperation.cs" />
-    <Compile Include="Drawing\Brushes\MarbledBrush.cs" />
     <Compile Include="Drawing\Brushes\RainbowBrush.cs" />
     <Compile Include="Drawing\Brushes\RandomBrush.cs" />
     <Compile Include="Drawing\DrawOps\CuboidDrawOperation.cs" />
@@ -242,7 +240,6 @@
     <Compile Include="Commands\CommandCategory.cs" />
     <Compile Include="MapConversion\MapFormatException.cs" />
     <Compile Include="MapConversion\MapOpticraft.cs" />
-    <Compile Include="MapConversion\MapFCMv4.cs" />
     <Compile Include="Network\LineWrapper.cs" />
     <Compile Include="Network\OpCode.cs" />
     <Compile Include="Player\PlayerInfo.Actions.cs" />

@@ -3,12 +3,14 @@ using System;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Constructs ReplaceBrushBrush. </summary>
     public sealed class ReplaceBrushBrushFactory : IBrushFactory {
         public static readonly ReplaceBrushBrushFactory Instance = new ReplaceBrushBrushFactory();
 
         ReplaceBrushBrushFactory() {
-            Aliases=new[] { "rb" };
+            Aliases = new[] { "rb" };
         }
+
 
         public string Name {
             get { return "ReplaceBrush"; }
@@ -18,9 +20,11 @@ namespace fCraft.Drawing {
 
         const string HelpString = "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
                                   "Usage: &H/Brush rb <Block> <BrushName>";
+
         public string Help {
             get { return HelpString; }
         }
+
 
         [CanBeNull]
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
@@ -57,15 +61,18 @@ namespace fCraft.Drawing {
     }
 
 
+    /// <summary> Brush that replaces all blocks of the given type with output of a brush. </summary>
     public sealed class ReplaceBrushBrush : IBrushInstance, IBrush {
         public Block Block { get; private set; }
         public IBrush Replacement { get; private set; }
         public IBrushInstance ReplacementInstance { get; private set; }
 
+
         public ReplaceBrushBrush( Block block, [NotNull] IBrush replacement ) {
-            Block=block;
-            Replacement=replacement;
+            Block = block;
+            Replacement = replacement;
         }
+
 
         public ReplaceBrushBrush( [NotNull] ReplaceBrushBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );

@@ -12,9 +12,6 @@ namespace fCraft.MapConversion {
         /// <summary> Obsolete map format previously used by fCraft 0.500-0.6xx </summary>
         FCMv3,
 
-        /// <summary> Current map format used by fCraft branch 0.700+ , unsupported until branch 0.7xx is released. </summary>
-        FCMv4,
-
         /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler (TkTech). </summary>
         MCSharp,
 

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle( "fCraft" )]
-[assembly: AssemblyDescription( "A better Minecraft server." )]
+[assembly: AssemblyTitle( "fCraft core" )]
+[assembly: AssemblyDescription( "Core components of fCraft, a better Minecraft Classic server." )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
-[assembly: AssemblyProduct( "fCraft" )]
+[assembly: AssemblyCompany( "fCraft.net" )]
+[assembly: AssemblyProduct( "fCraft core" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]

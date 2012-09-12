@@ -10,11 +10,35 @@ namespace fCraft {
     /// <summary> Object representing persistent state ("record") of a player, online or offline.
     /// There is exactly one PlayerInfo object for each known Minecraft account. All data is stored in the PlayerDB. </summary>
     public sealed partial class PlayerInfo : IClassy {
-        public const int MinFieldCount = 24;
+        internal const int MinFieldCount = 24;
+
 
         /// <summary> Player's Minecraft account name. </summary>
         [NotNull]
         public string Name { get; internal set; }
+
+        public string ClassyName {
+            get {
+                StringBuilder sb = new StringBuilder();
+                if( ConfigKey.RankColorsInChat.Enabled() ) {
+                    sb.Append( Rank.Color );
+                }
+                if( DisplayedName != null ) {
+                    sb.Append( DisplayedName );
+                } else {
+                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
+                        sb.Append( Rank.Prefix );
+                    }
+                    sb.Append( Name );
+                }
+                if( IsBanned ) {
+                    sb.Append( Color.Red ).Append( '*' );
+                } else if( IsFrozen ) {
+                    sb.Append( Color.Blue ).Append( '*' );
+                }
+                return sb.ToString();
+            }
+        }
 
         /// <summary> If set, replaces Name when printing name in chat. </summary>
         [CanBeNull]
@@ -356,14 +380,14 @@ namespace fCraft {
 
             // ban information
             if( fields[6].ToDateTime( ref info.BanDate ) ) {
-                if( fields[7].Length > 0 ) info.BannedBy = Unescape( fields[7] );
-                if( fields[10].Length > 0 ) info.BanReason = Unescape( fields[10] );
+                if( fields[7].Length > 0 ) info.BannedBy = PlayerDB.Unescape( fields[7] );
+                if( fields[10].Length > 0 ) info.BanReason = PlayerDB.Unescape( fields[10] );
             }
 
             // unban information
             if( fields[8].ToDateTime( ref info.UnbanDate ) ) {
-                if( fields[9].Length > 0 ) info.UnbannedBy = Unescape( fields[9] );
-                if( fields[11].Length > 0 ) info.UnbanReason = Unescape( fields[11] );
+                if( fields[9].Length > 0 ) info.UnbannedBy = PlayerDB.Unescape( fields[9] );
+                if( fields[11].Length > 0 ) info.UnbanReason = PlayerDB.Unescape( fields[11] );
             }
 
             // failed logins
@@ -388,7 +412,7 @@ namespace fCraft {
             // fields 22-23 are no longer in use
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
-            if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+            if( fields[25].Length > 0 ) info.RankChangeReason = PlayerDB.Unescape( fields[25] );
             Int32.TryParse( fields[26], out info.TimesKicked );
             Int32.TryParse( fields[27], out info.TimesKickedOthers );
             Int32.TryParse( fields[28], out info.TimesBannedOthers );
@@ -413,16 +437,16 @@ namespace fCraft {
             }
             Int64.TryParse( fields[33], out info.BlocksDrawn );
 
-            if( fields[34].Length > 0 ) info.LastKickBy = Unescape( fields[34] );
-            if( fields[35].Length > 0 ) info.LastKickReason = Unescape( fields[35] );
+            if( fields[34].Length > 0 ) info.LastKickBy = PlayerDB.Unescape( fields[34] );
+            if( fields[35].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
 
             fields[36].ToDateTime( ref info.BannedUntil );
             info.IsFrozen = (fields[37] == "f");
-            if( fields[38].Length > 0 ) info.FrozenBy = Unescape( fields[38] );
+            if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.Unescape( fields[38] );
             fields[39].ToDateTime( ref info.FrozenOn );
             fields[40].ToDateTime( ref info.MutedUntil );
-            if( fields[41].Length > 0 ) info.MutedBy = Unescape( fields[41] );
-            info.Password = Unescape( fields[42] );
+            if( fields[41].Length > 0 ) info.MutedBy = PlayerDB.Unescape( fields[41] );
+            info.Password = PlayerDB.Unescape( fields[42] );
             // fields[43] is "online", and is ignored
 
             byte bandwidthUseModeCode;
@@ -446,7 +470,7 @@ namespace fCraft {
                 fields[46].ToDateTime( ref info.LastModified );
             }
             if( fields.Length > 47 && fields[47].Length > 0 ) {
-                info.DisplayedName = Unescape( fields[47] );
+                info.DisplayedName = PlayerDB.Unescape( fields[47] );
             }
             if( fields.Length > 48 ) {
                 byte accountTypeCode;
@@ -494,14 +518,14 @@ namespace fCraft {
 
             // ban information
             if( fields[6].ToDateTimeLegacy( ref info.BanDate ) ) {
-                if( fields[7].Length > 0 ) info.BannedBy = Unescape( fields[7] );
-                if( fields[10].Length > 0 ) info.BanReason = Unescape( fields[10] );
+                if( fields[7].Length > 0 ) info.BannedBy = PlayerDB.Unescape( fields[7] );
+                if( fields[10].Length > 0 ) info.BanReason = PlayerDB.Unescape( fields[10] );
             }
 
             // unban information
             if( fields[8].ToDateTimeLegacy( ref info.UnbanDate ) ) {
-                if( fields[9].Length > 0 ) info.UnbannedBy = Unescape( fields[9] );
-                if( fields[11].Length > 0 ) info.UnbanReason = Unescape( fields[11] );
+                if( fields[9].Length > 0 ) info.UnbannedBy = PlayerDB.Unescape( fields[9] );
+                if( fields[11].Length > 0 ) info.UnbanReason = PlayerDB.Unescape( fields[11] );
             }
 
             // failed logins
@@ -525,7 +549,7 @@ namespace fCraft {
             // fields 22-23 are no longer in use
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
-            if( fields[25].Length > 0 ) info.RankChangeReason = Unescape( fields[25] );
+            if( fields[25].Length > 0 ) info.RankChangeReason = PlayerDB.Unescape( fields[25] );
             Int32.TryParse( fields[26], out info.TimesKicked );
             Int32.TryParse( fields[27], out info.TimesKickedOthers );
             Int32.TryParse( fields[28], out info.TimesBannedOthers );
@@ -550,16 +574,16 @@ namespace fCraft {
             }
             Int64.TryParse( fields[33], out info.BlocksDrawn );
 
-            if( fields[34].Length > 0 ) info.LastKickBy = Unescape( fields[34] );
-            if( fields[34].Length > 0 ) info.LastKickReason = Unescape( fields[35] );
+            if( fields[34].Length > 0 ) info.LastKickBy = PlayerDB.Unescape( fields[34] );
+            if( fields[34].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
 
             fields[36].ToDateTimeLegacy( ref info.BannedUntil );
             info.IsFrozen = (fields[37] == "f");
-            if( fields[38].Length > 0 ) info.FrozenBy = Unescape( fields[38] );
+            if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.Unescape( fields[38] );
             fields[39].ToDateTimeLegacy( ref info.FrozenOn );
             fields[40].ToDateTimeLegacy( ref info.MutedUntil );
-            if( fields[41].Length > 0 ) info.MutedBy = Unescape( fields[41] );
-            info.Password = Unescape( fields[42] );
+            if( fields[41].Length > 0 ) info.MutedBy = PlayerDB.Unescape( fields[41] );
+            info.Password = PlayerDB.Unescape( fields[42] );
             // fields[43] is "online", and is ignored
 
             byte bandwidthUseModeCode;
@@ -621,7 +645,7 @@ namespace fCraft {
             if( DateTimeUtil.TryParseLocalDate( fields[6], out info.BanDate ) ) {
                 if( fields[7].Length > 0 ) info.BannedBy = fields[7];
                 if( fields[10].Length > 0 ) {
-                    info.BanReason = UnescapeOldFormat( fields[10] );
+                    info.BanReason = PlayerDB.UnescapeOldFormat( fields[10] );
                     if( info.BanReason == "-" ) info.BanReason = null;
                 }
             }
@@ -630,7 +654,7 @@ namespace fCraft {
             if( DateTimeUtil.TryParseLocalDate( fields[8], out info.UnbanDate ) ) {
                 if( fields[9].Length > 0 ) info.UnbannedBy = fields[9];
                 if( fields[11].Length > 0 ) {
-                    info.UnbanReason = UnescapeOldFormat( fields[11] );
+                    info.UnbanReason = PlayerDB.UnescapeOldFormat( fields[11] );
                     if( info.UnbanReason == "-" ) info.UnbanReason = null;
                 }
             }
@@ -658,7 +682,7 @@ namespace fCraft {
 
             if( fields.Length > MinFieldCount ) {
                 if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
-                if( fields[25].Length > 0 ) info.RankChangeReason = UnescapeOldFormat( fields[25] );
+                if( fields[25].Length > 0 ) info.RankChangeReason = PlayerDB.UnescapeOldFormat( fields[25] );
                 Int32.TryParse( fields[26], out info.TimesKicked );
                 Int32.TryParse( fields[27], out info.TimesKickedOthers );
                 Int32.TryParse( fields[28], out info.TimesBannedOthers );
@@ -681,8 +705,8 @@ namespace fCraft {
                     }
                     Int64.TryParse( fields[33], out info.BlocksDrawn );
 
-                    if( fields[34].Length > 0 ) info.LastKickBy = UnescapeOldFormat( fields[34] );
-                    if( fields[35].Length > 0 ) info.LastKickReason = UnescapeOldFormat( fields[35] );
+                    if( fields[34].Length > 0 ) info.LastKickBy = PlayerDB.UnescapeOldFormat( fields[34] );
+                    if( fields[35].Length > 0 ) info.LastKickReason = PlayerDB.UnescapeOldFormat( fields[35] );
 
                 } else {
                     info.ID = PlayerDB.GetNextID();
@@ -693,11 +717,11 @@ namespace fCraft {
                 if( fields.Length > 36 ) {
                     DateTimeUtil.TryParseLocalDate( fields[36], out info.BannedUntil );
                     info.IsFrozen = (fields[37] == "f");
-                    if( fields[38].Length > 0 ) info.FrozenBy = UnescapeOldFormat( fields[38] );
+                    if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.UnescapeOldFormat( fields[38] );
                     DateTimeUtil.TryParseLocalDate( fields[39], out info.FrozenOn );
                     DateTimeUtil.TryParseLocalDate( fields[40], out info.MutedUntil );
-                    if( fields[41].Length > 0 ) info.MutedBy = UnescapeOldFormat( fields[41] );
-                    info.Password = UnescapeOldFormat( fields[42] );
+                    if( fields[41].Length > 0 ) info.MutedBy = PlayerDB.UnescapeOldFormat( fields[41] );
+                    info.Password = PlayerDB.UnescapeOldFormat( fields[42] );
                     // fields[43] is "online", and is ignored
                 }
 
@@ -973,65 +997,6 @@ namespace fCraft {
                     }
                 }
                 LastModified = DateTime.UtcNow;
-            }
-        }
-
-        #endregion
-
-
-        #region Utilities
-
-        [NotNull]
-        public static string Escape( [CanBeNull] string str ) {
-            if( String.IsNullOrEmpty( str ) ) {
-                return "";
-            } else if( str.IndexOf( ',' ) > -1 ) {
-                return str.Replace( ',', '\xFF' );
-            } else {
-                return str;
-            }
-        }
-
-
-        [NotNull]
-        public static string UnescapeOldFormat( [NotNull] string str ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
-        }
-
-
-        [NotNull]
-        public static string Unescape( [NotNull] string str ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            if( str.IndexOf( '\xFF' ) > -1 ) {
-                return str.Replace( '\xFF', ',' );
-            } else {
-                return str;
-            }
-        }
-
-
-        // implements IClassy interface
-        public string ClassyName {
-            get {
-                StringBuilder sb = new StringBuilder();
-                if( ConfigKey.RankColorsInChat.Enabled() ) {
-                    sb.Append( Rank.Color );
-                }
-                if( DisplayedName != null ) {
-                    sb.Append( DisplayedName );
-                } else {
-                    if( ConfigKey.RankPrefixesInChat.Enabled() ) {
-                        sb.Append( Rank.Prefix );
-                    }
-                    sb.Append( Name );
-                }
-                if( IsBanned ) {
-                    sb.Append( Color.Red ).Append( '*' );
-                } else if( IsFrozen ) {
-                    sb.Append( Color.Blue ).Append( '*' );
-                }
-                return sb.ToString();
             }
         }
 

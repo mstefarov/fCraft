@@ -6,9 +6,15 @@ using fCraft.Drawing;
 namespace fCraft {
     /// <summary> Integer 3D vector. </summary>
     public struct Vector3I : IEquatable<Vector3I>, IComparable<Vector3I>, IComparable<Vector3F> {
+        /// <summary> Zero-length vector (0,0,0) </summary>
         public static readonly Vector3I Zero = new Vector3I( 0, 0, 0 );
+
+        /// <summary> Upwards-facing unit vector (0,0,1) </summary>
         public static readonly Vector3I Up = new Vector3I( 0, 0, 1 );
+
+        /// <summary> Downwards-facing unit vector (0,0,-1) </summary>
         public static readonly Vector3I Down = new Vector3I( 0, 0, -1 );
+
 
         public int X, Y, Z;
 

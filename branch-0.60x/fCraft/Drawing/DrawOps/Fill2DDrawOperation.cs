@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that performs a 2D flood fill. 
+    /// Uses player's position to determine plane of filling. </summary>
     public sealed class Fill2DDrawOperation : DrawOpWithBrush {
         int maxFillExtent;
 

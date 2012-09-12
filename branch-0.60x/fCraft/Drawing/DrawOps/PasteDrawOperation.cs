@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that handles aligned (two-mark) pasting for
+    /// /PasteX and /PasteNotX commands. Also used internally by /Paste and /PasteNot. </summary>
     public class PasteDrawOperation : DrawOpWithBrush {
         public override string Name {
             get {

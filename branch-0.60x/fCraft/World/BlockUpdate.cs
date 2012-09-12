@@ -1,11 +1,17 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
+using JetBrains.Annotations;
+
 namespace fCraft {
     /// <summary> Structure representing a pending update to the map's block array.
     /// Contains information about the block coordinates, type, and change's origin. </summary>
     public struct BlockUpdate {
-        public readonly Player Origin; // Used for stat tracking. Can be null (to avoid crediting any stats at all).
+        /// <summary> Player who initiated the block change. Can be null. </summary>
+        [CanBeNull] public readonly Player Origin;
+
         public readonly short X, Y, Z;
+
+        /// <summary> Type of block to set at the given coordinates. </summary>
         public readonly Block BlockType;
 
         public BlockUpdate( Player origin, short x, short y, short z, Block blockType ) {

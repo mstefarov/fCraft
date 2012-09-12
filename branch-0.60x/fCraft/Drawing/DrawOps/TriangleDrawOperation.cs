@@ -3,6 +3,8 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a filled triangle, 1 block thick,
+    /// using three given coordinates as vertices. </summary>
     public sealed class TriangleDrawOperation : DrawOperation {
         public override string Name {
             get { return "Triangle"; }

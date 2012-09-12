@@ -1256,7 +1256,7 @@ namespace fCraft {
 
 
 namespace fCraft.Events {
-
+    /// <summary> Provides data for Config.KeyChanging event. Allows modification of the value. Cancelable. </summary>
     public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancelableEvent {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }
@@ -1272,6 +1272,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for Config.keyChanged event. Immutable. </summary>
     public sealed class ConfigKeyChangedEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
         public string OldValue { get; private set; }

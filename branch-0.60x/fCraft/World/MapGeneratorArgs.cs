@@ -3,6 +3,7 @@ using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
+// ReSharper disable PossibleNullReferenceException
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
     public sealed class MapGeneratorArgs {
@@ -237,3 +238,4 @@ namespace fCraft {
         }
     }
 }
+// ReSharper restore PossibleNullReferenceException

@@ -317,11 +317,11 @@ namespace System.IO.Compression {
         /// Copy the contents of a stored file into a physical file
         /// </summary>
         /// <param name="zfe">Entry information of file to extract</param>
-        /// <param name="fileName">Name of file to store uncompressed data</param>
+        /// <param name="targetFileName">Name of file to store uncompressed data</param>
         /// <returns>True if success, false if not.</returns>
         /// <remarks>Unique compression methods are Store and Deflate</remarks>
-        public bool ExtractFile( ZipFileEntry zfe, [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public bool ExtractFile( ZipFileEntry zfe, [NotNull] string targetFileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "targetFileName" );
             // Make sure the parent directory exist
             string path = Path.GetDirectoryName( fileName );
             if( path == null ) throw new NotImplementedException();

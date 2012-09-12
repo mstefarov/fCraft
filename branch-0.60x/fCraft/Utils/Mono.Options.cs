@@ -360,7 +360,7 @@ namespace Mono.Options
         readonly string[] names;
         readonly OptionValueType type;
         readonly int count;
-        string[] separators;
+
 
         protected Option( string prototype, string description )
             : this( prototype, description, 1 ) {
@@ -415,9 +415,9 @@ namespace Mono.Options
         }
 
         public string[] GetValueSeparators() {
-            if( separators == null )
+            if( ValueSeparators == null )
                 return new string[0];
-            return (string[])separators.Clone();
+            return (string[])ValueSeparators.Clone();
         }
 
         protected static T Parse<T>( string value, OptionContext c ) {
@@ -442,12 +442,12 @@ namespace Mono.Options
         }
 
         internal string[] Names { get { return names; } }
-        internal string[] ValueSeparators { get { return separators; } }
+        internal string[] ValueSeparators { get; private set; }
 
         static readonly char[] NameTerminator = new[] { '=', ':' };
 
         private OptionValueType ParsePrototype() {
-            char type = '\0';
+            char typeChar = '\0';
             List<string> seps = new List<string>();
             for( int i = 0; i < names.Length; ++i ) {
                 string name = names[i];
@@ -458,15 +458,15 @@ namespace Mono.Options
                 if( end == -1 )
                     continue;
                 names[i] = name.Substring( 0, end );
-                if( type == '\0' || type == name[end] )
-                    type = name[end];
+                if( typeChar == '\0' || typeChar == name[end] )
+                    typeChar = name[end];
                 else
                     throw new ArgumentException(
-                            string.Format( "Conflicting option types: '{0}' vs. '{1}'.", type, name[end] ) );
+                            string.Format( "Conflicting option types: '{0}' vs. '{1}'.", typeChar, name[end] ) );
                 AddSeparators( name, end, seps );
             }
 
-            if( type == '\0' )
+            if( typeChar == '\0' )
                 return OptionValueType.None;
 
             if( count <= 1 && seps.Count != 0 )
@@ -474,14 +474,14 @@ namespace Mono.Options
                         string.Format( "Cannot provide key/value separators for Options taking {0} value(s).", count ) );
             if( count > 1 ) {
                 if( seps.Count == 0 )
-                    separators = new[] { ":", "=" };
+                    ValueSeparators = new[] { ":", "=" };
                 else if( seps.Count == 1 && seps[0].Length == 0 )
-                    separators = null;
+                    ValueSeparators = null;
                 else
-                    separators = seps.ToArray();
+                    ValueSeparators = seps.ToArray();
             }
 
-            return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
+            return typeChar == '=' ? OptionValueType.Required : OptionValueType.Optional;
         }
 
         private static void AddSeparators( string name, int end, ICollection<string> seps ) {
@@ -602,7 +602,7 @@ namespace Mono.Options
     }
 
     [Serializable]
-    public class OptionException : Exception {
+    public sealed class OptionException : Exception {
         private readonly string option;
 
         public OptionException() {
@@ -618,7 +618,7 @@ namespace Mono.Options
             option = optionName;
         }
 
-        protected OptionException( SerializationInfo info, StreamingContext context )
+        OptionException( SerializationInfo info, StreamingContext context )
             : base( info, context ) {
             option = info.GetString( "OptionName" );
         }
@@ -636,7 +636,7 @@ namespace Mono.Options
 
     public delegate void OptionAction<TKey, TValue>( TKey key, TValue value );
 
-    public class OptionSet : KeyedCollection<string, Option> {
+    public sealed class OptionSet : KeyedCollection<string, Option> {
         public OptionSet()
             : this( f => f ) {
         }
@@ -672,7 +672,7 @@ namespace Mono.Options
         }
 
         [Obsolete( "Use KeyedCollection.this[string]" )]
-        protected Option GetOptionForName( string option ) {
+        Option GetOptionForName( string option ) {
             if( option == null )
                 throw new ArgumentNullException( "option" );
             try {
@@ -839,7 +839,8 @@ namespace Mono.Options
             return this;
         }
 
-        protected virtual OptionContext CreateOptionContext() {
+
+        OptionContext CreateOptionContext() {
             return new OptionContext( this );
         }
 
@@ -872,7 +873,8 @@ namespace Mono.Options
             return unprocessed;
         }
 
-        class ArgumentEnumerator : IEnumerable<string> {
+
+        sealed class ArgumentEnumerator : IEnumerable<string> {
             readonly List<IEnumerator<string>> sources = new List<IEnumerator<string>>();
 
             public ArgumentEnumerator( IEnumerable<string> arguments ) {
@@ -924,7 +926,8 @@ namespace Mono.Options
         private readonly Regex valueOption = new Regex(
             @"^(?<flag>--|-|/)(?<name>[^:=]+)((?<sep>[:=])(?<value>.*))?$" );
 
-        protected bool GetOptionParts( string argument, out string flag, out string name, out string sep, out string value ) {
+
+        bool GetOptionParts( string argument, out string flag, out string name, out string sep, out string value ) {
             if( argument == null )
                 throw new ArgumentNullException( "argument" );
 
@@ -942,7 +945,8 @@ namespace Mono.Options
             return true;
         }
 
-        protected virtual bool Parse( string argument, OptionContext c ) {
+
+        bool Parse( string argument, OptionContext c ) {
             if( c.Option != null ) {
                 ParseValue( argument, c );
                 return true;

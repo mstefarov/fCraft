@@ -2,6 +2,9 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that handles /Cut command.
+    /// Copies everything into currently-selected copy slot as soon as Begin() is called,
+    /// then gradually fills the area. </summary>
     public sealed class CutDrawOperation : DrawOperation {
         public override string Name {
             get { return "Cut"; }

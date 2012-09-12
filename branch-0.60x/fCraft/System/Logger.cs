@@ -17,7 +17,7 @@ using System.Reflection.Emit;
 namespace fCraft {
     /// <summary> Central logging class. Logs to file, relays messages to the frontend, submits crash reports. </summary>
     public static class Logger {
-        /// <summary> Whether logging is globally enabled/disabled.
+        /// <summary> Gets or sets whether logging is globally enabled/disabled.
         /// If "--nolog" command-line argument is given, logging is disabled. </summary>
         public static bool Enabled { get; set; }
 
@@ -30,12 +30,13 @@ namespace fCraft {
                      ShortDateFormat = "yyyy'-'MM'-'dd",
                      TimeFormat = "HH':'mm':'ss";
         static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
-        public static LogSplittingType SplittingType { get; set; }
 
         static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
         static readonly Queue<string> RecentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
+        /// <summary> Name of the file that log messages are currently being written to.
+        /// Does not include path to the log folder (see Paths.LogPath for that). </summary>
         public static string CurrentLogFileName {
             get {
                 switch( SplittingType ) {
@@ -48,6 +49,9 @@ namespace fCraft {
                 }
             }
         }
+
+
+        public static LogSplittingType SplittingType { get; set; }
 
 
         static Logger() {
@@ -88,13 +92,20 @@ namespace fCraft {
         }
 
 
+        /// <summary> Adds a message to the server log.
+        /// Depending on server configuration and log category, message can be shown in console, logged to file, both, or neither. </summary>
+        /// <param name="type"> Type of message. </param>
+        /// <param name="message"> Format string for the message. Uses same syntax as String.Format. </param>
+        /// <param name="args"> An System.Object array containing zero or more objects to format. </param>
+        /// <exception cref="ArgumentNullException"> Message or args is null. </exception>
+        /// <exception cref="FormatException"> String.Format rejected formatting. </exception>
         [DebuggerStepThrough]
         [StringFormatMethod( "message" )]
-        public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] values ) {
+        public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( values == null ) throw new ArgumentNullException( "values" );
-            if( values.Length > 0 ) {
-                message = String.Format( message, values );
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( args.Length > 0 ) {
+                message = String.Format( message, args );
             }
             if( !Enabled ) return;
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
@@ -127,7 +138,7 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        public static string GetPrefix( LogType level ) {
+        static string GetPrefix( LogType level ) {
             switch( level ) {
                 case LogType.SeriousError:
                 case LogType.Error:
@@ -149,6 +160,15 @@ namespace fCraft {
         const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
 
 
+        /// <summary> Logs and reports a crash or an unhandled exception.
+        /// Details are logged, and a crash report may be submitted to fCraft.net.
+        /// Note that this method may take several seconds to finish,
+        /// since it gathers system information and possibly communicates to fCraft.net. </summary>
+        /// <param name="message"> Description/context of the crash. May be null if unknown. </param>
+        /// <param name="assembly"> Assembly or component where the crash/exception was caught. May be null if unknown. </param>
+        /// <param name="exception"> Exception. May be null. </param>
+        /// <param name="shutdownImminent"> Whether this crash will likely report in a server shutdown.
+        /// Used for Logger.Crashed event. </param>
         public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly,
                                               [CanBeNull] Exception exception, bool shutdownImminent ) {
             if( message == null ) message = "(none)";

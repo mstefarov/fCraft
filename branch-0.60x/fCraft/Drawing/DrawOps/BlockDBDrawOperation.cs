@@ -2,6 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that applies changes from a given BlockDBEntry array. </summary>
     public sealed class BlockDBDrawOperation : DrawOpWithBrush {
         BlockDBEntry[] changes;
         int entryIndex;

@@ -14,7 +14,7 @@ namespace fCraft {
         static readonly Uri MinecraftNetUri;
         static readonly Uri WoMDirectUri;
 
-        /// <summary> Delay between sending heartbeats. Default: 25s </summary>
+        /// <summary> Delay between sending heartbeats. Default: 20s </summary>
         public static TimeSpan Delay { get; set; }
 
         /// <summary> Request timeout for heartbeats. Default: 10s </summary>
@@ -29,7 +29,7 @@ namespace fCraft {
         static Heartbeat() {
             MinecraftNetUri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
             WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
-            Delay = TimeSpan.FromSeconds( 25 );
+            Delay = TimeSpan.FromSeconds( 20 );
             Timeout = TimeSpan.FromSeconds( 10 );
             Salt = Server.GetRandomString( 32 );
             Server.ShutdownBegan += OnServerShutdown;
@@ -74,7 +74,9 @@ namespace fCraft {
                     Server.CountPlayers( false ).ToStringInvariant(),
                     ConfigKey.MaxPlayers.GetString(),
                     ConfigKey.ServerName.GetString(),
-                    ConfigKey.IsPublic.GetString()
+                    ConfigKey.IsPublic.GetString(),
+                    ConfigKey.WoMDirectDescription.GetString(),
+                    ConfigKey.WoMDirectFlags.GetString()
                 };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );

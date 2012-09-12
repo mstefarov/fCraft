@@ -11,6 +11,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for WorldManager.MainWorldChanged event. Immutable. </summary>
     public class MainWorldChangedEventArgs : EventArgs {
         internal MainWorldChangedEventArgs( [CanBeNull] World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
@@ -27,6 +28,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for WorldManager.MainWorldChanging event. Cancelable. </summary>
     public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancelableEvent {
         internal MainWorldChangingEventArgs( World oldWorld, [NotNull] World newWorld )
             : base( oldWorld, newWorld ) { }
@@ -35,12 +37,13 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for WorldManager.SearchingForWorld event. Allows changing the results. </summary>
     public sealed class SearchingForWorldEventArgs : EventArgs, IPlayerEvent {
-        internal SearchingForWorldEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm, [NotNull] List<World> matches ) {
-            if( searchTerm == null ) throw new ArgumentNullException( "searchTerm" );
+        internal SearchingForWorldEventArgs( [CanBeNull] Player player, [NotNull] string searchQuery, [NotNull] List<World> matches ) {
+            if( searchQuery == null ) throw new ArgumentNullException( "searchQuery" );
             if( matches == null ) throw new ArgumentNullException( "matches" );
             Player = player;
-            SearchTerm = searchTerm;
+            SearchQuery = searchQuery;
             Matches = matches;
         }
 
@@ -48,13 +51,14 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
 
         [NotNull]
-        public string SearchTerm { get; private set; }
+        public string SearchQuery { get; private set; }
 
         [NotNull]
         public List<World> Matches { get; set; }
     }
 
 
+    /// <summary> Provides data for WorldManager.WorldCreating event. Allows renaming. Cancelable. </summary>
     public sealed class WorldCreatingEventArgs : EventArgs, ICancelableEvent {
         internal WorldCreatingEventArgs( [CanBeNull] Player player, [NotNull] string worldName, [CanBeNull] Map map ) {
             if( worldName == null ) throw new ArgumentNullException( "worldName" );
@@ -76,6 +80,7 @@ namespace fCraft.Events {
     }
 
 
+    /// <summary> Provides data for WorldManager.WorldCreated event. Immutable. </summary>
     public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
         internal WorldCreatedEventArgs( [CanBeNull] Player player, [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );

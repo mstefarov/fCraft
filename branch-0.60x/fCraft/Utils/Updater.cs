@@ -82,8 +82,8 @@ namespace fCraft {
                                         el.Element( "Summary" ).Value,
                                         el.Element( "ChangeLog" ).Value,
                                         ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
-                                        )
-                                    );
+                                    )
+                                );
                             }
                             UpdaterResult result = new UpdaterResult( ( releases.Count > 0 ), new Uri( downloadUrl ),
                                                                       releases.ToArray() );

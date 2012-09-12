@@ -20,7 +20,7 @@ namespace fCraft {
     }
 
 
-    /// <summary> Class for generating and filtering 2D noise, extensively used by MapGenerator. </summary>
+    /// <summary> Class for generating and filtering 2D and 3D noise, extensively used by MapGenerator and Cloudy brush. </summary>
     public sealed class Noise {
         public readonly int Seed;
         public readonly NoiseInterpolationMode InterpolationMode;
@@ -47,6 +47,7 @@ namespace fCraft {
             double f = (1 - Math.Cos( x * Math.PI )) * .5;
             return (float)(v0 * (1 - f) + v1 * f);
         }
+
 
         public static float InterpolateCosine( float v00, float v01, float v10, float v11, float x, float y ) {
             return InterpolateCosine( InterpolateCosine( v00, v10, x ),
@@ -82,6 +83,7 @@ namespace fCraft {
             n = (n << 13) ^ n;
             return (float)(1.0 - ((n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF) / 1073741824d);
         }
+
 
         public float StaticNoise( int x, int y, int z ) {
             int n = Seed + x + y * 1625 + z * 2642245;
@@ -231,6 +233,7 @@ namespace fCraft {
             return total;
         }
 
+
         public float PerlinNoise( float x, float y, float z, int startOctave, int endOctave, float decay ) {
             float total = 0;
 
@@ -273,7 +276,7 @@ namespace fCraft {
         }
 
 
-        #region Normalize
+        #region Normalization
 
         public static void Normalize( float[,] map ) {
             Normalize( map, 0, 1 );
@@ -285,23 +288,9 @@ namespace fCraft {
         }
 
 
-        public static void Normalize( float[, ,] map, out float multiplier, out float constant ) {
-            CalculateNormalizationParams( map, out multiplier, out constant, 0f, 1f );
-        }
-
-        public unsafe static void CalculateNormalizationParams( float[, ,] map, out float multiplier, out float constant, float low, float high ) {
+        public unsafe static void Normalize( float[, ,] map, out float multiplier, out float constant ) {
             fixed( float* ptr = map ) {
-                float min = float.MaxValue,
-                      max = float.MinValue;
-
-                for( int i = 0; i < map.Length; i++ ) {
-                    min = Math.Min( min, ptr[i] );
-                    max = Math.Max( max, ptr[i] );
-                }
-
-                multiplier = (high - low) / (max - min);
-                constant = -min * (high - low) / (max - min) + low;
-
+                CalculateNormalizationParams( ptr, map.Length, 0f, 1f, out multiplier, out constant );
                 for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = ptr[i] * multiplier + constant;
                 }
@@ -309,37 +298,53 @@ namespace fCraft {
         }
 
 
-        public unsafe static void Normalize( float[,] map, float low, float high ) {
-            int length = map.GetLength( 0 ) * map.GetLength( 1 );
+        public unsafe static void CalculateNormalizationParams( float[,,] map, float low, float high, out float multiplier, out float constant ) {
             fixed( float* ptr = map ) {
-                Normalize( ptr, length, low, high );
+                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
+            }
+        }
+
+
+        public unsafe static void CalculateNormalizationParams( float[,] map, float low, float high, out float multiplier, out float constant ) {
+            fixed( float* ptr = map ) {
+                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
+            }
+        }
+
+
+        public unsafe static void CalculateNormalizationParams( float* ptr, int length, float low, float high, out float multiplier, out float constant ) {
+            float min = float.MaxValue,
+                  max = float.MinValue;
+
+            for( int i = 0; i < length; i++ ) {
+                min = Math.Min( min, ptr[i] );
+                max = Math.Max( max, ptr[i] );
+            }
+
+            multiplier = ( high - low ) / ( max - min );
+            constant = -min * ( high - low ) / ( max - min ) + low;
+        }
+
+
+        public unsafe static void Normalize( float[,] map, float low, float high ) {
+            fixed( float* ptr = map ) {
+                float multiplier, constant;
+                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
+                for( int i = 0; i < map.Length; i++ ) {
+                    ptr[i] = ptr[i] * multiplier + constant;
+                }
             }
         }
 
 
         public unsafe static void Normalize( float[,,] map, float low, float high ) {
-            int length = map.GetLength( 0 ) * map.GetLength( 1 ) * map.GetLength( 2 );
             fixed( float* ptr = map ) {
-                Normalize( ptr, length, low, high );
-            }
-        }
-
-
-        unsafe static void Normalize( float* ptr, int length, float low, float high ) {
-            float min = float.MaxValue,
-                  max = float.MinValue;
-
-                for( int i = 0; i < length; i++ ) {
-                    min = Math.Min( min, ptr[i] );
-                    max = Math.Max( max, ptr[i] );
-                }
-
-                float multiplier = (high - low) / (max - min);
-                float constant = -min * (high - low) / (max - min) + low;
-
-                for( int i = 0; i < length; i++ ) {
+                float multiplier, constant;
+                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
+                for( int i = 0; i < map.Length; i++ ) {
                     ptr[i] = ptr[i] * multiplier + constant;
                 }
+            }
         }
 
         #endregion
@@ -496,7 +501,6 @@ namespace fCraft {
 
             return output;
         }
-
 
 
         const int ThresholdSearchPasses = 10;

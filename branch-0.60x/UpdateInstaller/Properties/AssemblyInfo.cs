@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle( "fCraft UpdateInstaller" )]
 [assembly: AssemblyDescription( "fCraft self-extracting updater" )]
 [assembly: AssemblyConfiguration( "" )]
-[assembly: AssemblyCompany( "matvei.org" )]
+[assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft UpdateInstaller" )]
 [assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
