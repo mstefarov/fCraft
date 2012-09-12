@@ -128,7 +128,6 @@ namespace fCraft.Drawing {
     /// <summary> Brush that uses 3D perlin noise to create "cloudy" patterns. </summary>
     public sealed class CloudyBrush : IBrush, IBrushInstance {
         public int Seed { get; set; }
-        public float Coverage { get; set; }
         public float Frequency { get; set; }
         public int Octaves { get; set; }
         public float Persistence { get; set; }
@@ -150,13 +149,15 @@ namespace fCraft.Drawing {
                          MaxScale = Int32.MaxValue;
 
 
+        public const float PersistenceDefault = 0.75f,
+                           FrequencyDefault = 0.08f;
+
         public CloudyBrush() {
             Seed = NextSeed();
             Blocks = new Block[0];
             BlockRatios = new int[0];
-            Coverage = 0.5f;
-            Persistence = 0.75f;
-            Frequency = 0.08f;
+            Persistence = PersistenceDefault;
+            Frequency = FrequencyDefault;
             Octaves = 3;
         }
 
@@ -179,7 +180,6 @@ namespace fCraft.Drawing {
             Blocks = other.Blocks;
             BlockRatios = other.BlockRatios;
             Seed = other.Seed;
-            Coverage = other.Coverage;
             Frequency = other.Frequency;
             Octaves = other.Octaves;
             Persistence = other.Persistence;
@@ -270,14 +270,15 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
+                StringBuilder sb = new StringBuilder( Factory.Name );
                 if( Blocks.Length == 0 ) {
-                    return Factory.Name;
-                } else if( Blocks.Length == 1 || ( Blocks.Length == 2 && Blocks[1] == Block.None ) ) {
-                    return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
+                    return sb.ToString();
+                }
+                sb.Append( '(' );
+
+                if( BlockRatios[0]==1 && (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None ) ) {
+                    sb.Append( Blocks[0] );
                 } else {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append( Factory.Name );
-                    sb.Append( '(' );
                     for( int i = 0; i < Blocks.Length; i++ ) {
                         if( i != 0 ) sb.Append( ',' ).Append( ' ' );
                         sb.Append( Blocks[i] );
@@ -286,9 +287,23 @@ namespace fCraft.Drawing {
                             sb.Digits( BlockRatios[i] );
                         }
                     }
-                    sb.Append( ')' );
-                    return sb.ToString();
                 }
+
+                sb.Append( " |" );
+
+                if( Math.Abs( Frequency - FrequencyDefault ) > 0.00001f ) {
+                    int scale = (int)Math.Round( ( FrequencyDefault * 100 ) / Frequency );
+                    sb.AppendFormat( " {0:0}%", scale );
+                }
+
+                if( Math.Abs( Persistence - PersistenceDefault ) > 0.00001f ) {
+                    int turbulence = (int)Math.Round( ( Persistence * 100 ) / PersistenceDefault );
+                    sb.AppendFormat( " {0:0}T", turbulence );
+                }
+
+                sb.AppendFormat( " {0}S", Seed );
+                sb.Append( ')' );
+                return sb.ToString();
             }
         }
 
@@ -336,7 +351,6 @@ namespace fCraft.Drawing {
         public int AlternateBlocks {
             get { return 1; }
         }
-
 
 
         public IBrush Brush {
