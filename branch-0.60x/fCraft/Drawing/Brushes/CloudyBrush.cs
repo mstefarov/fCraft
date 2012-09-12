@@ -49,48 +49,65 @@ namespace fCraft.Drawing {
 
                 if( rawNextParam.EndsWith( "%" ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
-                    if( !Int32.TryParse( numPart, out scale ) ) {
-                        player.Message(
-                            "Cloudy brush: To specify scale, write a number followed by a percentage (e.g. 100%)." );
+                    int tempScale;
+                    if( !Int32.TryParse( numPart, out tempScale ) ) {
+                        player.Message( "Cloudy brush: To specify scale, write a number followed by a percentage (e.g. 100%)." );
                         return null;
                     }
                     if( scaleSpecified ) {
                         player.Message( "Cloudy brush: Scale has been specified twice." );
                         return null;
                     }
-                    scaleSpecified = true;
-                    if( scale < 1 || scale > CloudyBrush.MaxScale ) {
+                    if( scale < 1 || tempScale > CloudyBrush.MaxScale ) {
                         player.Message( "Cloudy brush: Invalid scale ({0}). Must be between 1 and {1}",
                                         scale, CloudyBrush.MaxScale );
                         return null;
                     }
+                    scale = tempScale;
+                    scaleSpecified = true;
                     continue;
 
                 } else if( rawNextParam.EndsWith( "T", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
-                    if( Int32.TryParse( numPart, out turbulence ) ) {
+                    int tempTurbulence;
+                    if( Int32.TryParse( numPart, out tempTurbulence ) ) {
                         if( turbulenceSpecified ) {
                             player.Message( "Cloudy brush: Turbulence has been specified twice." );
                             return null;
                         }
-                        turbulenceSpecified = true;
-                        if( turbulence < 1 || turbulence > CloudyBrush.MaxScale ) {
+                        if( turbulence < 1 || tempTurbulence > CloudyBrush.MaxScale ) {
                             player.Message( "Cloudy brush: Invalid turbulence ({0}). Must be between 1 and {1}",
                                             turbulence, CloudyBrush.MaxScale );
                             return null;
                         }
+                        turbulence = tempTurbulence;
+                        turbulenceSpecified = true;
                         continue;
                     }
 
                 } else if( rawNextParam.EndsWith( "S", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
-                    if( Int32.TryParse( numPart, out seed ) ) {
+                    int tempSeed;
+                    if( Int32.TryParse( numPart, out tempSeed ) ) {
                         if( seedSpecified ) {
                             player.Message( "Cloudy brush: Seed has been specified twice." );
                             return null;
                         }
+                        seed = tempSeed;
                         seedSpecified = true;
                         continue;
+                    } else {
+                        try {
+                            seed = (int)UInt32.Parse( numPart, System.Globalization.NumberStyles.HexNumber );
+                            if( seedSpecified ) {
+                                player.Message( "Cloudy brush: Seed has been specified twice." );
+                                return null;
+                            }
+                            seed = tempSeed;
+                            seedSpecified = true;
+                            continue;
+                        } catch {
+                        }
                     }
                 }
 
@@ -301,7 +318,7 @@ namespace fCraft.Drawing {
                     sb.AppendFormat( " {0:0}T", turbulence );
                 }
 
-                sb.AppendFormat( " {0}S", Seed );
+                sb.AppendFormat( " {0:X}S", Seed );
                 sb.Append( ')' );
                 return sb.ToString();
             }
