@@ -14,6 +14,7 @@
  Fix: Fixed players being unable to join the server if access restrictions prevent them from joining the rank-specific main world.
  Fix: /WRemove now correctly handles removing rank-main worlds.
  Fix: Fixed a case where newlines in PlayerInfo or IPBanInfo fields would cause record corruption.
+ Fix: Fixed reversed messages in /DoNotMark (thanks Hellenion).
  Change: Sped up "cloudy" brush when working with large draw commands.
  Change: Crash reporter now submits list of names and versions of all loaded assemblies, to help identify mismatched or missing dependencies.
  Change: Added logging to every confirmation prompt, "/ok", BlockDB enabling/disabling/clearing, /ZRemove, /InfoSwap, and /Env.
