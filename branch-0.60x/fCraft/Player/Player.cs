@@ -398,7 +398,7 @@ namespace fCraft {
                         }
                         if( ConfirmCallback != null ) {
                             if( DateTime.UtcNow.Subtract( ConfirmRequestTime ) < ConfirmationTimeout ) {
-                                Logger.Log( LogType.UserCommand, "/ok" );
+                                Logger.Log( LogType.UserCommand, "{0}: /ok", Name );
                                 SendToSpectators( "/ok" );
                                 ConfirmCallback( this, ConfirmParameter, fromConsole );
                                 ConfirmCancel();

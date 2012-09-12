@@ -76,7 +76,8 @@ namespace fCraft {
                     ConfigKey.ServerName.GetString(),
                     ConfigKey.IsPublic.GetString(),
                     ConfigKey.WoMDirectDescription.GetString(),
-                    ConfigKey.WoMDirectFlags.GetString()
+                    ConfigKey.WoMDirectFlags.GetString(),
+                    ConfigKey.HeartbeatToWoMDirect.Enabled().ToString()
                 };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
