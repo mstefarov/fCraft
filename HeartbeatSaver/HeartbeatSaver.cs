@@ -20,6 +20,7 @@ namespace fCraft.HeartbeatSaver {
 
         static string heartbeatDataFileName;
         static HeartbeatData data;
+        static volatile bool beatToWoM;
 
 
         static void Main( string[] args ) {
@@ -57,6 +58,7 @@ namespace fCraft.HeartbeatSaver {
                     WoMDescription = rawData[7],
                     WoMFlags = rawData[8]
                 };
+                beatToWoM = Boolean.Parse( rawData[9] );
                 data = newData;
             } catch( Exception ex ) {
                 if( ex is UnauthorizedAccessException || ex is IOException ) {
@@ -73,9 +75,10 @@ namespace fCraft.HeartbeatSaver {
 
 
         static void BeatThreadMinecraftNet() {
-            for( ; ; Thread.Sleep( Delay ) ) {
+            while(true){
                 try {
                     CreateRequest( data.CreateUri( MinecraftNetUri, false ), true );
+                    Thread.Sleep( Delay );
 
                 } catch( Exception ex ) {
                     if( ex is WebException ) {
@@ -90,9 +93,12 @@ namespace fCraft.HeartbeatSaver {
 
 
         static void BeatThreadWoM() {
-            for( ; ; Thread.Sleep( Delay ) ) {
+            while( true ) {
                 try {
-                    CreateRequest( data.CreateUri( WoMDirectUri, true ), false );
+                    if( beatToWoM ) {
+                        CreateRequest( data.CreateUri( WoMDirectUri, true ), false );
+                    }
+                    Thread.Sleep( Delay );
 
                 } catch( Exception ex ) {
                     if( ex is WebException ) {
