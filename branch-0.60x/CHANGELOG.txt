@@ -1,4 +1,6 @@
 0.632
+ Feature: Added standalone HeartbeatSaver utility, a heartbeat-sending daemon.
+ Feature: Added a way to specify scale/turbulence/seed for cloudy brush.
  Feature: Renamed "IRC" LogType to "IRCStatus", and added "IRCChat" LogType. Check your configs.
  Fix: Fixed the updater. You'll have to update from version 0.631 manually (thanks nope__avi).
  Fix: Fixed a bug related to multiple players trying to join an almost-full server at the same time.
@@ -9,10 +11,17 @@
  Fix: Fixed /Hide not showing a fake disconnect message when needed.
  Fix: Fixed /WRename prompting for file overwrite when changing capitalization in a world name.
  Fix: Fixed UndoArea/UndoAreaNot and UndoPlayer/UndoPlayerNot messages occasionally getting mixed up.
+ Fix: Fixed players being unable to join the server if access restrictions prevent them from joining the rank-specific main world.
+ Fix: /WRemove now correctly handles removing rank-main worlds.
+ Fix: Fixed a case where newlines in PlayerInfo or IPBanInfo fields would cause record corruption.
+ Change: Sped up "cloudy" brush when working with large draw commands.
  Change: Crash reporter now submits list of names and versions of all loaded assemblies, to help identify mismatched or missing dependencies.
  Change: Added logging to every confirmation prompt, "/ok", BlockDB enabling/disabling/clearing, /ZRemove, /InfoSwap, and /Env.
  Change: Any pending confirmations are now reset on world change.
  Change: Added /I as an alias for /Info, and /CS as an alias for /CopySlot.
+ Change: Removed "marbled" brush ("cloudy" works just as well) and FCMv4 map format support (development canceled).
+ Change: /Where command now only requires ViewOthersInfo permission to see other players' whereabouts. It can be used by anyone on self.
+ API: Many more documentation improvements.
 
 0.631
  Feature: Added a way to restrict commands to match online players' names only, by prefixing the name with an exclaimation mark (!).
