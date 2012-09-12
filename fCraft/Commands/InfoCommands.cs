@@ -1045,7 +1045,6 @@ namespace fCraft {
             Name = "Where",
             Aliases = new[] { "compass", "whereis", "whereami" },
             Category = CommandCategory.Info,
-            Permissions = new[] { Permission.ViewOthersInfo },
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/Where [PlayerName]",
@@ -1063,6 +1062,10 @@ namespace fCraft {
             Player target = player;
 
             if( name != null ) {
+                if( !player.Can( Permission.ViewOthersInfo ) ) {
+                    player.MessageNoAccess( Permission.ViewOthersInfo );
+                    return;
+                }
                 target = Server.FindPlayerOrPrintMatches( player, name, false, true );
                 if( target == null ) return;
             } else if( target.World == null ) {
