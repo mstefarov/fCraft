@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a filled ellipsoid. </summary>
     public class EllipsoidDrawOperation : DrawOperation {
         Vector3F radius, center;
 

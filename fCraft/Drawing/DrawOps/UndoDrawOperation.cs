@@ -2,6 +2,8 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that handles /Undo and /Redo commands.
+    /// Applies changes stored in a given UndoState object. </summary>
     public sealed class UndoDrawOperation : DrawOpWithBrush {
         readonly BlockChangeContext undoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
 

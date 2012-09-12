@@ -6,6 +6,7 @@ using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Constructs RandomBrush. </summary>
     public sealed class RandomBrushFactory : IBrushFactory {
         public static readonly RandomBrushFactory Instance = new RandomBrushFactory();
 
@@ -57,6 +58,8 @@ namespace fCraft.Drawing {
     }
 
 
+    /// <summary> Brush that creates a random pattern,
+    /// with individually adjustable probabilities for each blocktype. </summary>
     public sealed class RandomBrush : IBrushInstance, IBrush {
         public const int MaxRatio = 10000;
 

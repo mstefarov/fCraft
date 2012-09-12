@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a hollow cuboid, optionally filling the center. </summary>
     public sealed class CuboidHollowDrawOperation : DrawOperation {
         bool fillInner;
 

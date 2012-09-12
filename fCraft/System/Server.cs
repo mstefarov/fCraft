@@ -796,7 +796,7 @@ namespace fCraft {
         }
 
 
-        public static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
+        internal static bool VerifyName( [NotNull] string name, [NotNull] string hash, [NotNull] string salt ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( hash == null ) throw new ArgumentNullException( "hash" );
             if( salt == null ) throw new ArgumentNullException( "salt" );

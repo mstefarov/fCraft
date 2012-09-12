@@ -799,6 +799,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Cancels any pending confirmation (/ok) prompt. </summary>
+        /// <returns> True if a confirmation prompt was pending. </returns>
         public bool ConfirmCancel() {
             if( ConfirmCallback != null ) {
                 ConfirmCallback = null;
@@ -1467,19 +1469,31 @@ namespace fCraft {
             get { return spectatedPlayer; }
         }
 
+        /// <summary> While spectating, currently-specated player.
+        /// When not spectating, most-recently-spectated player. </summary>
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }
 
         readonly object spectateLock = new object();
 
+        /// <summary> Whether this player is currently spectating someone. </summary>
         public bool IsSpectating {
             get { return (spectatedPlayer != null); }
         }
 
 
+        /// <summary> Starts spectating the given player. </summary>
+        /// <param name="target"> Player to spectate. </param>
+        /// <returns> True if this player is now spectating the target.
+        /// False if this player has already been spectating the target. </returns>
+        /// <exception cref="ArgumentNullException"> If target is null. </exception>
+        /// <exception cref="PlayerOpException"> If this player does not have sufficient permissions,
+        /// or if trying to spectate self. </exception>
         public bool Spectate( [NotNull] Player target ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             lock( spectateLock ) {
+                if( spectatedPlayer == target ) return false;
+
                 if( target == this ) {
                     PlayerOpException.ThrowCannotTargetSelf( this, Info, "spectate" );
                 }
@@ -1487,8 +1501,6 @@ namespace fCraft {
                 if( !Can( Permission.Spectate, target.Info.Rank ) ) {
                     PlayerOpException.ThrowPermissionLimit( this, target.Info, "spectate", Permission.Spectate );
                 }
-
-                if( spectatedPlayer == target ) return false;
 
                 spectatedPlayer = target;
                 LastSpectatedPlayer = target.Info;
@@ -1498,6 +1510,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Stops spectating. </summary>
+        /// <returns> True if this player was spectating someone (and now stopped).
+        /// False if this player was not spectating anyone. </returns>
         public bool StopSpectating() {
             lock( spectateLock ) {
                 if( spectatedPlayer == null ) return false;

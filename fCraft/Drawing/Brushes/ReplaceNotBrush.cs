@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Constructs ReplaceNotBrush. </summary>
     public sealed class ReplaceNotBrushFactory : IBrushFactory {
         public static readonly ReplaceNotBrushFactory Instance = new ReplaceNotBrushFactory();
 
@@ -47,6 +48,7 @@ namespace fCraft.Drawing {
     }
 
 
+    /// <summary> Brush that replaces all blocks EXCEPT those of given type(s) with a replacement blocktype. </summary>
     public sealed class ReplaceNotBrush : IBrushInstance, IBrush {
         public Block[] Blocks { get; private set; }
         public Block Replacement { get; private set; }

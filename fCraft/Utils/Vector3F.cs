@@ -6,8 +6,13 @@ using fCraft.Drawing;
 namespace fCraft {
     /// <summary> Floating-point (single precision) 3D vector. </summary>
     public struct Vector3F : IEquatable<Vector3F>, IComparable<Vector3I>, IComparable<Vector3F> {
+        /// <summary> Zero-length vector (0,0,0) </summary>
         public static readonly Vector3F Zero = new Vector3F( 0, 0, 0 );
+
+        /// <summary> Upwards-facing unit vector (0,0,1) </summary>
         public static readonly Vector3F Up = new Vector3F( 0, 0, 1 );
+
+        /// <summary> Downwards-facing unit vector (0,0,-1) </summary>
         public static readonly Vector3F Down = new Vector3F( 0, 0, -1 );
 
         public float X, Y, Z;

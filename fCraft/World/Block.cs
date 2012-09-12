@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
+#pragma warning disable 1591
 namespace fCraft {
     /// <summary> Enumeration of all standard Minecraft Classic block types. </summary>
     public enum Block : byte {
@@ -60,3 +61,4 @@ namespace fCraft {
         Obsidian = 49
     }
 }
+#pragma warning restore 1591

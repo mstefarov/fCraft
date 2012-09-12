@@ -3,6 +3,7 @@ using System;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Constructs CheckeredBrush. </summary>
     public sealed class CheckeredBrushFactory : IBrushFactory {
         public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
 
@@ -34,6 +35,7 @@ namespace fCraft.Drawing {
     }
 
 
+    /// <summary> Brush that alternates between two block types, in a checkered pattern. </summary>
     public sealed class CheckeredBrush : IBrushInstance, IBrush {
         public Block Block1 { get; private set; }
         public Block Block2 { get; private set; }

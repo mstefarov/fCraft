@@ -315,7 +315,8 @@ namespace fCraft {
         #region Scheduled Saving
 
         static SchedulerTask saveTask;
-        static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
+
+        /// <summary> Interval at which PlayerDB should be saved. Default is 90s. </summary>
         public static TimeSpan SaveInterval {
             get { return saveInterval; }
             set {
@@ -324,6 +325,7 @@ namespace fCraft {
                 if( saveTask != null ) saveTask.Interval = value;
             }
         }
+        static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void StartSaveTask() {
             saveTask = Scheduler.NewBackgroundTask( SaveTask );
@@ -672,11 +674,7 @@ namespace fCraft {
                     playersByIP[playerInfoListCache[i].LastIP].Add( PlayerInfoList[i] );
                 }
 
-                int count = 0;
-                for( int i = 0; i < playerInfoListCache.Length; i++ ) {
-                    if( PlayerIsInactive( playersByIP, playerInfoListCache[i], true ) ) count++;
-                }
-                return count;
+                return playerInfoListCache.Count( t => PlayerIsInactive( playersByIP, t, true ) );
             }
         }
 
@@ -820,6 +818,8 @@ namespace fCraft {
         }
 
 
+        #region Escaping
+
         public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             if( !String.IsNullOrEmpty( str ) ) {
@@ -833,5 +833,45 @@ namespace fCraft {
             }
             return sb;
         }
+
+        static readonly char[] EscapableChars = new[] { ',', '\n', '\r' };
+        static readonly char[] EscapedChars = new[] { '\xFF', '\xFE', '\xFD' };
+
+        /// <summary> Escapes characters not suitable for PlayerDB serialization
+        /// (commas, newlines \n, and carriage-returns \r). </summary>
+        [NotNull]
+        public static string Escape( [CanBeNull] string str ) {
+            if( String.IsNullOrEmpty( str ) ) {
+                return "";
+            } else if( str.IndexOfAny( EscapableChars ) > -1 ) {
+                str = str.Replace( ',', '\xFF' );
+                str = str.Replace( '\n', '\xFE' );
+                return str.Replace( '\r', '\xFD' );
+            } else {
+                return str;
+            }
+        }
+
+
+        [NotNull]
+        internal static string UnescapeOldFormat( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
+        }
+
+
+        [NotNull]
+        public static string Unescape( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.IndexOfAny( EscapedChars ) > -1 ) {
+                str = str.Replace( '\xFF', ',' );
+                str = str.Replace( '\xFE', '\n' );
+                return str.Replace( '\xFD', '\r' );
+            } else {
+                return str;
+            }
+        }
+
+        #endregion
     }
 }

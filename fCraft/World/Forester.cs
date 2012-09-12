@@ -50,17 +50,17 @@ namespace fCraft {
                 }
             }
 
-            if( args.Operation != ForesterOperation.ClearCut ) {
-                ProcessTrees( args, treeList );
-                if( args.Foliage ) {
-                    foreach( Tree tree in treeList ) {
-                        tree.MakeFoliage();
-                    }
+            if( args.Operation == ForesterOperation.ClearCut ) return;
+
+            ProcessTrees( args, treeList );
+            if( args.Foliage ) {
+                foreach( Tree tree in treeList ) {
+                    tree.MakeFoliage();
                 }
-                if( args.Wood ) {
-                    foreach( Tree tree in treeList ) {
-                        tree.MakeTrunk();
-                    }
+            }
+            if( args.Wood ) {
+                foreach( Tree tree in treeList ) {
+                    tree.MakeTrunk();
                 }
             }
         }

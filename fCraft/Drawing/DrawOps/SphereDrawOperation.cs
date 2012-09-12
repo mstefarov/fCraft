@@ -2,6 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a solid sphere. </summary>
     public sealed class SphereDrawOperation : EllipsoidDrawOperation {
         public override string Name {
             get { return "Sphere"; }

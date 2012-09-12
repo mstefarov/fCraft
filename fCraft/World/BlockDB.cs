@@ -410,6 +410,7 @@ namespace fCraft {
 
         int limit;
 
+        /// <summary> Whether this BlockDB instance has a limit on the number of entries. </summary>
         public bool HasLimit {
             get { return limit > 0; }
         }
@@ -730,7 +731,7 @@ namespace fCraft {
 
         #region Lookup processors
 
-        class ReturnAllProcessor : IBlockDBQueryProcessor {
+        sealed class ReturnAllProcessor : IBlockDBQueryProcessor {
             int count;
             readonly int max;
             readonly Func<BlockDBEntry, bool> selector;
@@ -761,7 +762,7 @@ namespace fCraft {
         }
 
 
-        class ReturnOldestProcessor : IBlockDBQueryProcessor {
+        sealed class ReturnOldestProcessor : IBlockDBQueryProcessor {
             readonly Map map;
             int count;
             readonly int max;
@@ -794,7 +795,7 @@ namespace fCraft {
         }
 
 
-        class ReturnNewestProcessor : IBlockDBQueryProcessor {
+        sealed class ReturnNewestProcessor : IBlockDBQueryProcessor {
             readonly Map map;
             int count;
             readonly int max;
@@ -828,7 +829,7 @@ namespace fCraft {
         }
 
 
-        class ExcludingReturnOldestProcessor : IBlockDBQueryProcessor {
+        sealed class ExcludingReturnOldestProcessor : IBlockDBQueryProcessor {
             readonly Map map;
             int count;
             readonly int max;
@@ -990,9 +991,11 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
+                // ReSharper disable ImplicitlyCapturedClosure
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks,
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&
@@ -1011,9 +1014,11 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
+                // ReSharper disable ImplicitlyCapturedClosure
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => entry.PlayerID == pid );
+                // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
@@ -1034,10 +1039,12 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
+                // ReSharper disable ImplicitlyCapturedClosure
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => entry.PlayerID == pid );
+                // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&
@@ -1058,9 +1065,11 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
+                // ReSharper disable ImplicitlyCapturedClosure
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
@@ -1082,10 +1091,12 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
+                // ReSharper disable ImplicitlyCapturedClosure
                 processor = new ExcludingReturnOldestProcessor( map, max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map, max,
                                                        entry => entry.Timestamp >= ticks &&

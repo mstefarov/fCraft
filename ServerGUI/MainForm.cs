@@ -3,7 +3,6 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Windows.Forms;
 using fCraft.Events;
@@ -12,7 +11,7 @@ using fCraft.GUI;
 namespace fCraft.ServerGUI {
 
     public sealed partial class MainForm : Form {
-        volatile bool shutdownPending, startupComplete, shutdownComplete, shutdownIsPlayerInitiated;
+        volatile bool shutdownPending, startupComplete, shutdownComplete;
         const int MaxLinesInLog = 2000,
                   LinesToTrimWhenExceeded = 50;
 

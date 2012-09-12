@@ -1,9 +1,13 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Indexes available brushes.
+    /// Provides /Brush command, a way to register new brushes,
+    /// a way to look up existing brushes by name. </summary>
     public static class BrushManager {
         static readonly Dictionary<string, IBrushFactory> BrushFactories = new Dictionary<string, IBrushFactory>();
         static readonly Dictionary<string, IBrushFactory> BrushAliases = new Dictionary<string, IBrushFactory>();
@@ -44,13 +48,16 @@ namespace fCraft.Drawing {
             RegisterBrush( RandomBrushFactory.Instance );
             RegisterBrush( RainbowBrush.Instance );
             RegisterBrush( CloudyBrushFactory.Instance );
-            RegisterBrush( MarbledBrushFactory.Instance );
             RegisterBrush( ReplaceBrushFactory.Instance );
             RegisterBrush( ReplaceNotBrushFactory.Instance );
             RegisterBrush( ReplaceBrushBrushFactory.Instance );
         }
 
 
+        /// <summary> Registers a new brush. </summary>
+        /// <param name="factory"> IBrushFactory that will be used to create new instances of the brush. </param>
+        /// <exception cref="ArgumentNullException"> If factory is null. </exception>
+        /// <exception cref="ArgumentException"> If brush with the same name or alias already exists. </exception>
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             string helpString = String.Format( "{0} brush: {1}",
@@ -68,6 +75,11 @@ namespace fCraft.Drawing {
         }
 
 
+        /// <summary> Finds IBrushFactory for given brush name.
+        /// Case-insensitive. Does not autocomplete names. </summary>
+        /// <param name="brushName"> Brush name. </param>
+        /// <returns> IBrushFactory if brush was found; otherwise null. </returns>
+        /// <exception cref="ArgumentNullException"> If brushName is null. </exception>
         [CanBeNull]
         public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
             if( brushName == null ) throw new ArgumentNullException( "brushName" );
@@ -79,6 +91,12 @@ namespace fCraft.Drawing {
             } else {
                 return null;
             }
+        }
+
+
+        /// <summary> Provides a list of all registered IBrushFactories. </summary>
+        public static IBrushFactory[] RegisteredFactories {
+            get { return BrushFactories.Values.ToArray(); }
         }
     }
 }

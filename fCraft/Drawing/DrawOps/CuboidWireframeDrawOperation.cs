@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a wireframe cuboid, optionally filling sides and center. </summary>
     public sealed class CuboidWireframeDrawOperation : DrawOperation {
         public override string Name {
             get { return "CuboidW"; }

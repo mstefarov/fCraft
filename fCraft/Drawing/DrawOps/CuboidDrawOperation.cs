@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a simple cuboid. </summary>
     public sealed class CuboidDrawOperation : DrawOperation {
         public override string Name {
             get { return "Cuboid"; }

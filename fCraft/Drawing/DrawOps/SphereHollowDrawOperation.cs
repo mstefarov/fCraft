@@ -2,6 +2,9 @@
 using System;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a hollow sphere,
+    /// or a sphere filled differently on inside and outside.
+    /// The "shell" of the sphere is always 1 block wide. </summary>
     public sealed class SphereHollowDrawOperation : EllipsoidHollowDrawOperation {
         public override string Name {
             get { return "SphereH"; }

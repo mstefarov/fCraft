@@ -1,6 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -181,62 +180,6 @@ namespace fCraft {
                 return Controller.MinRank.Color + Name;
             }
         }
-
-
-        #region Xml Serialization
-
-        const string XmlRootElementName = "Zone";
-
-        public Zone( [NotNull] XContainer root ) {
-            if( root == null ) throw new ArgumentNullException( "root" );
-            Name = root.Element( "name" ).Value;
-
-            if( root.Element( "created" ) != null ) {
-                XElement created = root.Element( "created" );
-                CreatedBy = created.Attribute( "by" ).Value;
-                CreatedDate = DateTime.Parse( created.Attribute( "on" ).Value );
-            }
-
-            if( root.Element( "edited" ) != null ) {
-                XElement edited = root.Element( "edited" );
-                EditedBy = edited.Attribute( "by" ).Value;
-                EditedDate = DateTime.Parse( edited.Attribute( "on" ).Value );
-            }
-
-            XElement temp = root.Element( BoundingBox.XmlRootElementName );
-            if( temp == null ) throw new FormatException( "No BoundingBox specified for zone." );
-            Bounds = new BoundingBox( temp );
-
-            temp = root.Element( SecurityController.XmlRootElementName );
-            if( temp == null ) throw new FormatException( "No SecurityController specified for zone." );
-            Controller = new SecurityController( temp, true );
-        }
-
-
-        public XElement Serialize() {
-            XElement root = new XElement( XmlRootElementName );
-            root.Add( new XElement( "name", Name ) );
-
-            if( CreatedBy != null ) {
-                XElement created = new XElement( "created" );
-                created.Add( new XAttribute( "by", CreatedBy ) );
-                created.Add( new XAttribute( "on", CreatedDate.ToCompactString() ) );
-                root.Add( created );
-            }
-
-            if( EditedBy != null ) {
-                XElement edited = new XElement( "edited" );
-                edited.Add( new XAttribute( "by", EditedBy ) );
-                edited.Add( new XAttribute( "on", EditedDate.ToCompactString() ) );
-                root.Add( edited );
-            }
-
-            root.Add( Bounds.Serialize() );
-            root.Add( Controller.Serialize() );
-            return root;
-        }
-
-        #endregion
 
 
         public event EventHandler Changed;

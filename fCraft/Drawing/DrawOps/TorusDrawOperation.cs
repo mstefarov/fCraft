@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
+    /// <summary> Draw operation that creates a horizontal torus. </summary>
     public sealed class TorusDrawOperation : DrawOperation {
         const float Bias = 0.5f;
         Vector3I center;
