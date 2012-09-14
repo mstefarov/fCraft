@@ -1411,7 +1411,7 @@ namespace fCraft {
             if( player.DisableClickToMark ) {
                 player.Message( "Click-to-mark disabled." );
             } else {
-                player.Message( "Click-to-mark enabled  ." );
+                player.Message( "Click-to-mark re-enabled." );
             }
         }
 

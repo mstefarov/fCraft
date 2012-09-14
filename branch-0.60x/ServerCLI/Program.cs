@@ -31,7 +31,8 @@ using fCraft.Events;
 
 namespace fCraft.ServerCLI {
     static class Program {
-        static bool useColor = true;
+        static bool useColor = true,
+                    exitOnShutdown = true;
 
 
         static void Main( string[] args ) {
@@ -46,6 +47,7 @@ namespace fCraft.ServerCLI {
 
             Logger.Logged += OnLogged;
             Heartbeat.UriChanged += OnHeartbeatUriChanged;
+            Server.ShutdownEnded += OnShutdownEnded;
 
 #if !DEBUG
             try {
@@ -100,16 +102,23 @@ namespace fCraft.ServerCLI {
                     }
 
                 } else {
-                    ReportFailure( ShutdownReason.FailedToStart, true );
+                    ReportFailure( ShutdownReason.FailedToStart );
                 }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
-                ReportFailure( ShutdownReason.Crashed, true );
+                ReportFailure( ShutdownReason.Crashed );
             } finally {
                 Console.ResetColor();
             }
 #endif
+        }
+
+
+        static void OnShutdownEnded( object sender, ShutdownEventArgs e ) {
+            if( exitOnShutdown ) {
+                Environment.Exit( Environment.ExitCode );
+            }
         }
 
 
@@ -136,13 +145,15 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void ReportFailure( ShutdownReason reason, bool shutdown ) {
+        static void ReportFailure( ShutdownReason reason ) {
             Console.Title = String.Format( "fCraft {0} {1}", Updater.CurrentRelease.VersionString, reason );
             if( useColor ) Console.ForegroundColor = ConsoleColor.Red;
             Console.Error.WriteLine( "** {0} **", reason );
             if( useColor ) Console.ResetColor();
-            if( shutdown ) Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), true );
-            if( !Server.HasArg( ArgKey.ExitOnCrash ) ) {
+
+            exitOnShutdown = Server.HasArg( ArgKey.ExitOnCrash );
+            Server.Shutdown( new ShutdownParams( reason, TimeSpan.Zero, false ), false );
+            if( !exitOnShutdown ) {
                 Console.ReadLine();
             }
         }

@@ -537,7 +537,6 @@ namespace fCraft {
                 Environment.ExitCode = (int)shutdownParams.Reason;
 
                 Logger.Log( LogType.SystemActivity, "Shutdown: Complete" );
-                RaiseShutdownEndedEvent( shutdownParams );
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex, true );
@@ -622,6 +621,8 @@ namespace fCraft {
             } else if( doRestart ) {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
             }
+
+            RaiseShutdownEndedEvent( param );
         }
 
         #endregion

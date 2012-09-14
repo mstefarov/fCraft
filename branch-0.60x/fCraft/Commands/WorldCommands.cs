@@ -2074,7 +2074,7 @@ namespace fCraft {
                 player.MessageNow( "New map loaded for the world {0}", world.ClassyName );
 
                 Logger.Log( LogType.UserActivity,
-                            "{0} loaded new map for world \"{1}\" from {2}",
+                            "Player {0} loaded new map for world \"{1}\" from \"{2}\"",
                             player.Name, world.Name, fileName );
 
 
@@ -2150,7 +2150,7 @@ namespace fCraft {
                                                player.ClassyName, world.ClassyName );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.ClassyName );
                         Logger.Log( LogType.UserActivity,
-                                    "{0} loaded new map for world \"{1}\" from {2}",
+                                    "Player {0} loaded new map for world \"{1}\" from \"{2}\"",
                                     player.Name, world.Name, fullFileName );
 
                     } else {
@@ -2202,7 +2202,7 @@ namespace fCraft {
                         Server.Message( "{0}&S created a new world named {1}",
                                         player.ClassyName, newWorld.ClassyName );
                         Logger.Log( LogType.UserActivity,
-                                    "{0} created a new world named \"{1}\" (loaded from \"{2}\")",
+                                    "Player {0} created a new world named \"{1}\" (loaded from \"{2}\")",
                                     player.Name, worldName, fileName );
                         WorldManager.SaveWorldList();
                         player.MessageNow( "Access is {0}+&S, and building is {1}+&S on {2}",
