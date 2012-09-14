@@ -899,7 +899,13 @@ namespace fCraft {
 
                 switch( whatToReload ) {
                     case "config":
-                        success = Config.Load( true, true );
+                        try {
+                            Config.Load( true, true );
+                            success = true;
+                        } catch( Exception ex ) {
+                            Logger.LogAndReportCrash( "Config failed to reload", "ConfigGUI", ex, false );
+                            success = false;
+                        }
                         break;
 
                     case "autorank":
