@@ -17,20 +17,21 @@ namespace fCraft {
         /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             632,
-            1761,
+            1764,
             new DateTime( 2012, 9, 5, 21, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Dev | ReleaseFlags.Bugfix
+            ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
             );
 
-        /// <summary> User-agent value used for HTTP requests (heartbeat, updater, external IP check, etc). </summary>
+        /// <summary> User-agent value used for HTTP requests (heartbeat, updater, external IP check, etc). 
+        /// Defaults to "fCraft" + VersionString of the current release. </summary>
         public static string UserAgent { get; set; }
 
         /// <summary> The latest stable branch/version of fCraft. </summary>
-        public const string LatestStable = "0.631_r1740";
+        public const string LatestStable = "0.632_r1764";
 
         /// <summary> Url to update fCraft from. Use "{0}" as a placeholder for CurrentRelease.Version.Revision </summary>
         public static string UpdateUri { get; set; }

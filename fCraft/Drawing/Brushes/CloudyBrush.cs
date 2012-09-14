@@ -39,8 +39,8 @@ namespace fCraft.Drawing {
                  turbulenceSpecified = false,
                  seedSpecified = false;
             int scale = 100,
-                turbulence = 100,
-                seed = CloudyBrush.NextSeed();
+                turbulence = 100;
+            UInt16 seed = CloudyBrush.NextSeed();
 
             while( true ) {
                 int offset = cmd.Offset;
@@ -87,27 +87,16 @@ namespace fCraft.Drawing {
 
                 } else if( rawNextParam.EndsWith( "S", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
-                    int tempSeed;
-                    if( Int32.TryParse( numPart, out tempSeed ) ) {
+                    try {
+                        seed = UInt16.Parse( numPart, System.Globalization.NumberStyles.HexNumber );
                         if( seedSpecified ) {
                             player.Message( "Cloudy brush: Seed has been specified twice." );
                             return null;
                         }
-                        seed = tempSeed;
                         seedSpecified = true;
                         continue;
-                    } else {
-                        try {
-                            seed = (int)UInt32.Parse( numPart, System.Globalization.NumberStyles.HexNumber );
-                            if( seedSpecified ) {
-                                player.Message( "Cloudy brush: Seed has been specified twice." );
-                                return null;
-                            }
-                            seed = tempSeed;
-                            seedSpecified = true;
-                            continue;
-                        } catch {
-                        }
+                    } catch {
+                        seed = CloudyBrush.NextSeed();
                     }
                 }
 
@@ -144,7 +133,7 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that uses 3D perlin noise to create "cloudy" patterns. </summary>
     public sealed class CloudyBrush : IBrush, IBrushInstance {
-        public int Seed { get; set; }
+        public UInt16 Seed { get; set; }
         public float Frequency { get; set; }
         public int Octaves { get; set; }
         public float Persistence { get; set; }
@@ -271,9 +260,9 @@ namespace fCraft.Drawing {
         }
 
 
-        public static int NextSeed() {
+        public static UInt16 NextSeed() {
             lock( SeedGenLock ) {
-                return SeedGenerator.Next();
+                return (UInt16)SeedGenerator.Next( UInt16.MaxValue );
             }
         }
 
@@ -293,7 +282,7 @@ namespace fCraft.Drawing {
                 }
                 sb.Append( '(' );
 
-                if( BlockRatios[0]==1 && (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None ) ) {
+                if( BlockRatios.All( r => r == 1 ) && ( Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None ) ) {
                     sb.Append( Blocks[0] );
                 } else {
                     for( int i = 0; i < Blocks.Length; i++ ) {
@@ -306,7 +295,7 @@ namespace fCraft.Drawing {
                     }
                 }
 
-                sb.Append( " |" );
+                sb.Append( " -" );
 
                 if( Math.Abs( Frequency - FrequencyDefault ) > 0.00001f ) {
                     int scale = (int)Math.Round( ( FrequencyDefault * 100 ) / Frequency );
@@ -318,8 +307,7 @@ namespace fCraft.Drawing {
                     sb.AppendFormat( " {0:0}T", turbulence );
                 }
 
-                sb.AppendFormat( " {0:X}S", Seed );
-                sb.Append( ')' );
+                sb.AppendFormat( " {0:X})", Seed );
                 return sb.ToString();
             }
         }
