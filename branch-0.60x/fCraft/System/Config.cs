@@ -321,30 +321,24 @@ namespace fCraft {
         /// <summary> Loads configuration from file. </summary>
         /// <param name="skipRankList"> If true, skips over rank definitions. </param>
         /// <param name="raiseReloadedEvent"> Whether ConfigReloaded event should be raised. </param>
-        /// <returns> True if loading succeeded. </returns>
-        public static bool Load( bool skipRankList, bool raiseReloadedEvent ) {
+        public static void Load( bool skipRankList, bool raiseReloadedEvent ) {
             bool fromFile = false;
 
             // try to load config file (XML)
             XDocument file;
             if( File.Exists( Paths.ConfigFileName ) ) {
-                try {
-                    file = XDocument.Load( Paths.ConfigFileName );
-                    if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
-                        Logger.Log( LogType.Warning,
-                                    "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
-                                    Paths.ConfigFileName );
-                        file = new XDocument();
-                        file.Add( new XElement( ConfigXmlRootName ) );
-                    } else {
-                        Logger.Log( LogType.Debug,
-                                    "Config.Load: Config file {0} loaded succesfully.",
-                                    Paths.ConfigFileName );
-                        fromFile = true;
-                    }
-                } catch( Exception ex ) {
-                    Logger.LogAndReportCrash( "Config failed to load", "fCraft", ex, true );
-                    return false;
+                file = XDocument.Load( Paths.ConfigFileName );
+                if( file.Root == null || file.Root.Name != ConfigXmlRootName ) {
+                    Logger.Log( LogType.Warning,
+                                "Config.Load: Malformed or incompatible config file {0}. Loading defaults.",
+                                Paths.ConfigFileName );
+                    file = new XDocument();
+                    file.Add( new XElement( ConfigXmlRootName ) );
+                } else {
+                    Logger.Log( LogType.Debug,
+                                "Config.Load: Config file {0} loaded succesfully.",
+                                Paths.ConfigFileName );
+                    fromFile = true;
                 }
             } else {
                 // create a new one (with defaults) if no file exists
@@ -446,8 +440,6 @@ namespace fCraft {
             }
 
             if( raiseReloadedEvent ) RaiseReloadedEvent();
-
-            return true;
         }
 
 
@@ -693,7 +685,7 @@ namespace fCraft {
             XElement consoleOptions = new XElement( "ConsoleOptions" );
             for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
                 if( Logger.ConsoleOptions[i] ) {
-                    consoleOptions.Add( new XElement( ((LogType)i).ToString() ) );
+                    consoleOptions.Add( new XElement( ( (LogType)i ).ToString() ) );
                 }
             }
             config.Add( consoleOptions );
@@ -702,7 +694,7 @@ namespace fCraft {
             XElement logFileOptions = new XElement( "LogFileOptions" );
             for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
                 if( Logger.LogFileOptions[i] ) {
-                    logFileOptions.Add( new XElement( ((LogType)i).ToString() ) );
+                    logFileOptions.Add( new XElement( ( (LogType)i ).ToString() ) );
                 }
             }
             config.Add( logFileOptions );
@@ -717,7 +709,9 @@ namespace fCraft {
             if( RankManager.LegacyRankMapping.Count > 0 ) {
                 // save legacy rank mapping
                 XElement legacyRankMappingTag = new XElement( "LegacyRankMapping" );
-                legacyRankMappingTag.Add( new XComment( "Legacy rank mapping is used for compatibility if cases when ranks are renamed or deleted." ) );
+                legacyRankMappingTag.Add(
+                    new XComment(
+                        "Legacy rank mapping is used for compatibility if cases when ranks are renamed or deleted." ) );
                 foreach( KeyValuePair<string, string> pair in RankManager.LegacyRankMapping ) {
                     XElement rankPair = new XElement( "LegacyRankPair" );
                     rankPair.Add( new XAttribute( "from", pair.Key ), new XAttribute( "to", pair.Value ) );
@@ -728,16 +722,11 @@ namespace fCraft {
 
 
             file.Add( config );
-            try {
-                // write out the changes
-                string tempFileName = Paths.ConfigFileName + ".temp";
-                file.Save( tempFileName );
-                Paths.MoveOrReplaceFile( tempFileName, Paths.ConfigFileName );
-                return true;
-            } catch( Exception ex ) {
-                Logger.LogAndReportCrash( "Config failed to save", "fCraft", ex, true );
-                return false;
-            }
+            // write out the changes
+            string tempFileName = Paths.ConfigFileName + ".temp";
+            file.Save( tempFileName );
+            Paths.MoveOrReplaceFile( tempFileName, Paths.ConfigFileName );
+            return true;
         }
 
         #endregion

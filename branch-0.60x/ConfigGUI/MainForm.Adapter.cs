@@ -32,11 +32,13 @@ namespace fCraft.ConfigGUI {
             }
 
             using( LogRecorder loadLogger = new LogRecorder() ) {
-                if( Config.Load( false, false ) ) {
+                try {
+                    Config.Load( false, false );
                     if( loadLogger.HasMessages ) {
                         MessageBox.Show( loadLogger.MessageString, "Config loading warnings" );
                     }
-                } else {
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "Config failed to reload", "ConfigGUI", ex, false );
                     MessageBox.Show( loadLogger.MessageString, "Error occurred while trying to load config" );
                 }
             }
