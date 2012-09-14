@@ -243,7 +243,7 @@ namespace fCraft {
 
                 string assemblies = AppDomain.CurrentDomain
                                              .GetAssemblies()
-                                             .JoinToString( asm => asm.FullName + Environment.NewLine );
+                                             .JoinToString( Environment.NewLine, asm => asm.FullName );
                 sb.Append( "&asm=" ).Append( Uri.EscapeDataString( assemblies ) );
 
                 string[] lastFewLines;
