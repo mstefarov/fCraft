@@ -154,15 +154,11 @@ namespace fCraft {
         /// Does not modify the offset. </summary>
         public int CountRemaining {
             get {
-                if( HasNext ) {
-                    int startOffset = Offset;
-                    int i = 1;
-                    while( Next() != null ) i++;
-                    Offset = startOffset;
-                    return i;
-                } else {
-                    return 0;
-                }
+                int startOffset = Offset;
+                int i = 0;
+                while( Next() != null ) i++;
+                Offset = startOffset;
+                return i;
             }
         }
 
