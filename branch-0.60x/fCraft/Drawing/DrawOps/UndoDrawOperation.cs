@@ -45,7 +45,7 @@ namespace fCraft.Drawing {
             if( !base.Prepare( marks ) ) return false;
             BlocksTotalEstimate = State.Buffer.Count;
             Context = undoContext;
-            Bounds = State.GetBounds();
+            Bounds = State.CalculateBounds();
             return true;
         }
 

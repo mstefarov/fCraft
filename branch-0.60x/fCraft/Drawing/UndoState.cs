@@ -1,18 +1,21 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
+    /// <summary> Object used to store </summary>
     public sealed class UndoState {
-        public UndoState( DrawOperation op ) {
+        public UndoState( [CanBeNull] DrawOperation op ) {
             Op = op;
-            Buffer = new List<UndoBlock>();
         }
 
-        public readonly DrawOperation Op;
-        public readonly List<UndoBlock> Buffer;
+
+        [CanBeNull] public readonly DrawOperation Op;
+        [NotNull] public readonly List<UndoBlock> Buffer = new List<UndoBlock>();
         public bool IsTooLargeToUndo;
-        public readonly object SyncRoot = new object();
+        [NotNull] public readonly object SyncRoot = new object();
+
 
         public bool Add( Vector3I coord, Block block ) {
             lock( SyncRoot ) {
@@ -27,13 +30,16 @@ namespace fCraft.Drawing {
             }
         }
 
+
         public UndoBlock Get( int index ) {
             lock( SyncRoot ) {
                 return Buffer[index];
             }
         }
 
-        public BoundingBox GetBounds() {
+
+        [NotNull]
+        public BoundingBox CalculateBounds() {
             lock( SyncRoot ) {
                 if( Buffer.Count == 0 ) return BoundingBox.Empty;
                 Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
@@ -51,6 +57,8 @@ namespace fCraft.Drawing {
         }
     }
 
+
+    /// <summary> Stores state of a block at a particular coordinate, used by UndoState. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 2 )]
     public struct UndoBlock {
         public UndoBlock( Vector3I coord, Block block ) {

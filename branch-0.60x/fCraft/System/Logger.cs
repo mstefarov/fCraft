@@ -270,7 +270,9 @@ namespace fCraft {
                 string responseString;
                 using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
                     using( Stream responseStream = response.GetResponseStream() ) {
+                        // ReSharper disable AssignNullToNotNullAttribute
                         using( StreamReader reader = new StreamReader( responseStream ) ) {
+                            // ReSharper restore AssignNullToNotNullAttribute
                             responseString = reader.ReadLine();
                         }
                     }

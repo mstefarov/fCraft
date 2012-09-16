@@ -181,6 +181,7 @@ namespace fCraft {
         /// Use this if your task is time-sensitive or frequent, and your callback won't take too long to execute. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
+        [NotNull]
         public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, false );
         }
@@ -190,6 +191,7 @@ namespace fCraft {
         /// Use this if your task is not very time-sensitive or frequent, or if your callback is resource-intensive. </summary>
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
+        [NotNull]
         public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback ) {
             return new SchedulerTask( callback, true );
         }
@@ -200,6 +202,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
+        [NotNull]
         public static SchedulerTask NewTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, false, userState );
         }
@@ -210,6 +213,7 @@ namespace fCraft {
         /// <param name="callback"> Method to call when the task is triggered. </param>
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
+        [NotNull]
         public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
             return new SchedulerTask( callback, true, userState );
         }

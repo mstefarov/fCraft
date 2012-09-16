@@ -891,7 +891,9 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         string responseString = responseReader.ReadToEnd();
                         int startIndex = responseString.IndexOf( ':' ) + 2;
                         int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;

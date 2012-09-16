@@ -1261,7 +1261,7 @@ namespace fCraft {
 
 
         [NotNull]
-        internal UndoState RedoBegin( DrawOperation op ) {
+        internal UndoState RedoBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
@@ -1270,7 +1270,7 @@ namespace fCraft {
 
 
         [NotNull]
-        internal UndoState UndoBegin( DrawOperation op ) {
+        internal UndoState UndoBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             redoStack.AddLast( newState );
@@ -1289,7 +1289,9 @@ namespace fCraft {
             }
         }
 
-        public UndoState DrawBegin( DrawOperation op ) {
+
+        [NotNull]
+        public UndoState DrawBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
             UndoState newState = new UndoState( op );
             undoStack.AddLast( newState );
@@ -1424,35 +1426,84 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        CopyState[] copyInformation;
-        public CopyState[] CopyInformation {
-            get { return copyInformation; }
+        /// <summary> Returns a list of all CopyStates, indexed by slot. </summary>
+        public CopyState[] CopyStates {
+            get { return copyStates; }
         }
+        CopyState[] copyStates;
 
-        int copySlot;
+        /// <summary> Gets or sets the currently selected copy slot number. Should be between 0 and (MaxCopySlots-1).
+        /// Note that fCraft adds 1 to CopySlot number when presenting it to players.
+        /// So 0th slot is shown as "1st" by /CopySlot and related commands; 1st is shown as "2nd", etc. </summary>
         public int CopySlot {
             get { return copySlot; }
             set {
-                if( value < 0 || value > Info.Rank.CopySlots ) {
+                if( value < 0 || value >= MaxCopySlots) {
                     throw new ArgumentOutOfRangeException( "value" );
                 }
                 copySlot = value;
             }
         }
+        int copySlot;
 
-        internal void InitCopySlots() {
-            Array.Resize( ref copyInformation, Info.Rank.CopySlots );
-            CopySlot = Math.Min( CopySlot, Info.Rank.CopySlots - 1 );
+
+        /// <summary> Gets or sets the maximum number of copy slots allocated to this player.
+        /// Should be nonnegative. CopyStates are preserved when increasing the maximum.
+        /// When decreasing the value, any CopyStates in slots that fall outside the new maximum are lost. </summary>
+        public int MaxCopySlots {
+            get { return copyStates.Length; }
+            set {
+                if( value < 0 ) throw new ArgumentOutOfRangeException( "value" );
+                Array.Resize( ref copyStates, value );
+                CopySlot = Math.Min( CopySlot, value - 1 );
+            }
         }
 
+
+        /// <summary> Gets CopyState for currently-selected slot. May be null. </summary>
+        /// <returns> CopyState or null, depending on whether anything has been copied into the currently-selected slot. </returns>
         [CanBeNull]
-        public CopyState GetCopyInformation() {
-            return CopyInformation[copySlot];
+        public CopyState GetCopyState() {
+            return GetCopyState( copySlot );
         }
 
-        public void SetCopyInformation( [CanBeNull] CopyState info ) {
-            if( info != null ) info.Slot = copySlot;
-            CopyInformation[copySlot] = info;
+
+        /// <summary> Gets CopyState for the given slot. May be null. </summary>
+        /// <param name="slot"> Slot number. Should be between 0 and (MaxCopySlots-1). </param>
+        /// <returns> CopyState or null, depending on whether anything has been copied into the given slot. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> If slot is not between 0 and (MaxCopySlots-1). </exception>
+        [CanBeNull]
+        public CopyState GetCopyState( int slot ) {
+            if( slot < 0 || slot >= MaxCopySlots ) {
+                throw new ArgumentOutOfRangeException( "slot" );
+            }
+            return copyStates[slot];
+        }
+
+
+        /// <summary> Stores given CopyState at the currently-selected slot. </summary>
+        /// <param name="state"> New content for the current slot. May be a CopyState object, or null. </param>
+        /// <returns> Previous contents of the current slot. May be null. </returns>
+        [CanBeNull]
+        public CopyState SetCopyState( [CanBeNull] CopyState state ) {
+            return SetCopyState( state, copySlot );
+        }
+
+
+        /// <summary> Stores given CopyState at the given slot. </summary>
+        /// <param name="state"> New content for the given slot. May be a CopyState object, or null. </param>
+        /// <param name="slot"> Slot number. Should be between 0 and (MaxCopySlots-1). </param>
+        /// <returns> Previous contents of the current slot. May be null. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> If slot is not between 0 and (MaxCopySlots-1). </exception>
+        [CanBeNull]
+        public CopyState SetCopyState( [CanBeNull] CopyState state, int slot ) {
+            if( slot < 0 || slot >= MaxCopySlots ) {
+                throw new ArgumentOutOfRangeException( "slot" );
+            }
+            if( state != null ) state.Slot = slot;
+            CopyState old = copyStates[slot];
+            copyStates[slot] = state;
+            return old;
         }
 
         #endregion
@@ -1543,7 +1594,9 @@ namespace fCraft {
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         string paidStatusString = responseReader.ReadToEnd();
                         bool isPaid;
                         if( Boolean.TryParse( paidStatusString, out isPaid ) ) {

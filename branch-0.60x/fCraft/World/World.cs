@@ -76,6 +76,7 @@ namespace fCraft {
         internal readonly object SyncRoot = new object();
 
         /// <summary> BlockDB instance used to store/lookup block changes for this world. </summary>
+        [NotNull]
         public BlockDB BlockDB { get; private set; }
 
 
@@ -88,7 +89,7 @@ namespace fCraft {
             AccessSecurity = new SecurityController();
             BuildSecurity = new SecurityController();
             Name = name;
-            UpdatePlayerList();
+            Players = new Player[0];
         }
 
 
@@ -160,6 +161,7 @@ namespace fCraft {
 
 
         /// <summary> Returns the map file name, including MapPath. </summary>
+        [NotNull]
         public string MapFileName {
             get {
                 return Path.Combine( Paths.MapPath, Name + ".fcm" );
@@ -280,6 +282,9 @@ namespace fCraft {
         #region PlayerList
 
         readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
+
+
+        [NotNull]
         public Player[] Players { get; private set; }
 
         [CanBeNull]
@@ -384,6 +389,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public Player[] FindPlayers( [NotNull] Player player, [NotNull] string playerName ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
@@ -418,8 +424,8 @@ namespace fCraft {
         }
 
 
-        /// <summary> Caches the player list to an array (Players -> PlayerList) </summary>
-        public void UpdatePlayerList() {
+        // Caches the player list to an array (playerIndex -> Players)
+        void UpdatePlayerList() {
             lock( SyncRoot ) {
                 Players = playerIndex.Values.ToArray();
             }
@@ -587,7 +593,8 @@ namespace fCraft {
 
         #region Scheduled Tasks
 
-        SchedulerTask updateTask, saveTask;
+        [CanBeNull] SchedulerTask updateTask;
+        [CanBeNull] SchedulerTask saveTask;
         readonly object taskLock = new object();
 
 
@@ -761,11 +768,15 @@ namespace fCraft {
         }
 
 
-
-        public void SaveBackup( [NotNull] string targetName ) {
+        /// <summary> Makes a copy of the current map file associated with this world.
+        /// This does NOT save map to disk, and does NOT guarantee that the most up-to-date copy of the map was backed up. </summary>
+        /// <param name="targetName"> Target file name. </param>
+        /// <returns> Whether a backup was created or not. </returns>
+        /// <exception cref="ArgumentNullException"> If targetName is null. </exception>
+        public bool SaveBackup( [NotNull] string targetName ) {
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
 
-            if( !File.Exists( MapFileName ) ) return;
+            if( !File.Exists( MapFileName ) ) return false;
             lock( BackupLock ) {
                 DirectoryInfo directory = new DirectoryInfo( Paths.BackupPath );
 
@@ -775,7 +786,7 @@ namespace fCraft {
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "Map.SaveBackup: Error occurred while trying to create backup directory: {0}", ex );
-                        return;
+                        return false;
                     }
                 }
 
@@ -787,7 +798,7 @@ namespace fCraft {
                     Logger.Log( LogType.Error,
                                 "Map.SaveBackup: Error occurred while trying to save backup to \"{0}\": {1}",
                                 targetName, ex );
-                    return;
+                    return false;
                 }
 
                 if( ConfigKey.MaxBackups.GetInt() > 0 || ConfigKey.MaxBackupSize.GetInt() > 0 ) {
@@ -795,7 +806,9 @@ namespace fCraft {
                 }
             }
 
-            Logger.Log( LogType.SystemActivity, "AutoBackup: {0}", targetName );
+            Logger.Log( LogType.SystemActivity,
+                        "Saved a backup of world {0} to \"{1}\"", Name, targetName );
+            return true;
         }
 
 
@@ -872,6 +885,7 @@ namespace fCraft {
         /// <summary> Creates a WOM configuration string. </summary>
         /// <param name="sendMotd"> Determines if the motd is sent with the configuration string. </param>
         /// <returns> Configuration settings string to send to client. </returns>
+        [NotNull]
         public string GenerateWoMConfig( bool sendMotd ) {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine( "server.name = " + ConfigKey.ServerName.GetString() );

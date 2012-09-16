@@ -16,11 +16,11 @@ namespace fCraft {
     public static class Updater {
         /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
-            632,
-            1764,
-            new DateTime( 2012, 9, 5, 21, 0, 0, DateTimeKind.Utc ),
+            633,
+            1769,
+            new DateTime( 2012, 9, 16, 21, 0, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Feature | ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange
+            ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -68,9 +68,12 @@ namespace fCraft {
                 request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( XmlTextReader reader = new XmlTextReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         XDocument doc = XDocument.Load( reader );
                         XElement root = doc.Root;
+                        // ReSharper disable PossibleNullReferenceException
                         if( root.Attribute( "result" ).Value == "update" ) {
                             string downloadUrl = root.Attribute( "url" ).Value;
                             var releases = new List<ReleaseInfo>();
@@ -86,6 +89,7 @@ namespace fCraft {
                                     )
                                 );
                             }
+                            // ReSharper restore PossibleNullReferenceException
                             UpdaterResult result = new UpdaterResult( ( releases.Count > 0 ), new Uri( downloadUrl ),
                                                                       releases.ToArray() );
                             RaiseCheckedForUpdatesEvent( UpdateUri, result );

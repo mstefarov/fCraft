@@ -8,6 +8,7 @@ using System.Text;
 using JetBrains.Annotations;
 
 
+// ReSharper disable MemberCanBePrivate.Local
 namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
