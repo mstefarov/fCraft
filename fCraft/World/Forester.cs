@@ -404,12 +404,12 @@ namespace fCraft {
 
 
         class ProceduralTree : Tree {
-            public float TrunkRadius { get; set; }
-            public float BranchSlope { get; set; }
-            public float TrunkHeight { get; set; }
-            public float BranchDensity { get; set; }
-            public float[] FoliageShape { get; set; }
-            public Vector3I[] FoliageCoords { get; set; }
+            protected float TrunkRadius { get; set; }
+            protected float BranchSlope { get; set; }
+            protected float TrunkHeight { get; set; }
+            float BranchDensity { get; set; }
+            protected float[] FoliageShape { get; set; }
+            Vector3I[] FoliageCoords { get; set; }
 
             void CrossSection( Vector3I center, float radius, int diraxis, Block matidx ) {
                 int rad = (int)(radius + .618);

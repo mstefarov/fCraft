@@ -139,7 +139,9 @@ namespace fCraft {
             try {
                 string responseText;
                 using( HttpWebResponse response = (HttpWebResponse)state.Request.EndGetResponse( result ) ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                        // ReSharper restore AssignNullToNotNullAttribute
                         responseText = responseReader.ReadToEnd();
                     }
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );

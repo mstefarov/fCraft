@@ -477,8 +477,11 @@ namespace fCraft {
         static void ParseKeyElement( [NotNull] XElement element ) {
             if( element == null ) throw new ArgumentNullException( "element" );
 
+            // ReSharper disable PossibleNullReferenceException
             string keyName = element.Attribute( "key" ).Value;
             string value = element.Attribute( "value" ).Value;
+            // ReSharper restore PossibleNullReferenceException
+
             ConfigKey key;
             if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key

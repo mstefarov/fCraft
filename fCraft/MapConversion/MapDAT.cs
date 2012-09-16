@@ -182,6 +182,10 @@ namespace fCraft.MapConversion {
                     }
                     break;
                 }
+
+                if( map == null ) {
+                    throw new MapFormatException( "MapDAT: No data." );
+                }
                 return map;
             }
         }

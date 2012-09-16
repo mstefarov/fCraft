@@ -54,13 +54,13 @@ namespace fCraft.Drawing {
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
                     for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-                        copyInfo.Buffer[x - Bounds.XMin, y - Bounds.YMin, z - Bounds.ZMin] = Map.GetBlock( x, y, z );
+                        copyInfo.Blocks[x - Bounds.XMin, y - Bounds.YMin, z - Bounds.ZMin] = Map.GetBlock( x, y, z );
                     }
                 }
             }
             copyInfo.OriginWorld = Player.World.Name;
             copyInfo.CopyTime = DateTime.UtcNow;
-            Player.SetCopyInformation( copyInfo );
+            Player.SetCopyState( copyInfo );
 
             Player.Message( "{0} blocks cut into slot #{1}. You can now &H/Paste",
                             Bounds.Volume, Player.CopySlot + 1 );

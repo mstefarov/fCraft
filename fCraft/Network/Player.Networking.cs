@@ -792,7 +792,7 @@ namespace fCraft {
                          Name, RankManager.HighestRank.Name );
             }
 
-            InitCopySlots();
+            MaxCopySlots = Info.Rank.CopySlots;
 
             HasFullyConnected = true;
             State = SessionState.Online;

@@ -795,23 +795,23 @@ namespace fCraft {
                     player.Message( "CopySlot: Select a number between 1 and {0}", player.Info.Rank.CopySlots );
                 } else {
                     player.CopySlot = slotNumber - 1;
-                    CopyState info = player.GetCopyInformation();
+                    CopyState info = player.GetCopyState();
                     if( info == null ) {
                         player.Message( "Selected copy slot {0} (unused).", slotNumber );
                     } else {
                         player.Message( "Selected copy slot {0}: {1} blocks from {2}, {3} old.",
-                                        slotNumber, info.Buffer.Length,
+                                        slotNumber, info.Blocks.Length,
                                         info.OriginWorld, DateTime.UtcNow.Subtract( info.CopyTime ).ToMiniString() );
                     }
                 }
             } else {
-                CopyState[] slots = player.CopyInformation;
+                CopyState[] slots = player.CopyStates;
                 player.Message( "Using {0} of {1} slots. Selected slot: {2}",
                                 slots.Count( info => info != null ), player.Info.Rank.CopySlots, player.CopySlot + 1 );
                 for( int i = 0; i < slots.Length; i++ ) {
                     if( slots[i] != null ) {
                         player.Message( "  {0}: {1} blocks from {2}, {3} old",
-                                        i + 1, slots[i].Buffer.Length,
+                                        i + 1, slots[i].Blocks.Length,
                                         slots[i].OriginWorld,
                                         DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
                     }
@@ -867,14 +867,14 @@ namespace fCraft {
             for( int x = sx; x <= ex; x++ ) {
                 for( int y = sy; y <= ey; y++ ) {
                     for( int z = sz; z <= ez; z++ ) {
-                        copyInfo.Buffer[x - sx, y - sy, z - sz] = map.GetBlock( x, y, z );
+                        copyInfo.Blocks[x - sx, y - sy, z - sz] = map.GetBlock( x, y, z );
                     }
                 }
             }
 
             copyInfo.OriginWorld = playerWorld.Name;
             copyInfo.CopyTime = DateTime.UtcNow;
-            player.SetCopyInformation( copyInfo );
+            player.SetCopyState( copyInfo );
 
             player.MessageNow( "{0} blocks copied into slot #{1}, origin at {2} corner. You can now &H/Paste",
                                volume,
@@ -934,7 +934,7 @@ namespace fCraft {
         };
 
         static void MirrorHandler( Player player, CommandReader cmd ) {
-            CopyState originalInfo = player.GetCopyInformation();
+            CopyState originalInfo = player.GetCopyState();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
                 return;
@@ -962,13 +962,13 @@ namespace fCraft {
 
             if( flipX ) {
                 int left = 0;
-                int right = info.Dimensions.X - 1;
+                int right = info.Bounds.Width - 1;
                 while( left < right ) {
-                    for( int y = info.Dimensions.Y - 1; y >= 0; y-- ) {
-                        for( int z = info.Dimensions.Z - 1; z >= 0; z-- ) {
-                            block = info.Buffer[left, y, z];
-                            info.Buffer[left, y, z] = info.Buffer[right, y, z];
-                            info.Buffer[right, y, z] = block;
+                    for( int y = info.Bounds.Length - 1; y >= 0; y-- ) {
+                        for( int z = info.Bounds.Height - 1; z >= 0; z-- ) {
+                            block = info.Blocks[left, y, z];
+                            info.Blocks[left, y, z] = info.Blocks[right, y, z];
+                            info.Blocks[right, y, z] = block;
                         }
                     }
                     left++;
@@ -978,13 +978,13 @@ namespace fCraft {
 
             if( flipY ) {
                 int left = 0;
-                int right = info.Dimensions.Y - 1;
+                int right = info.Bounds.Length - 1;
                 while( left < right ) {
-                    for( int x = info.Dimensions.X - 1; x >= 0; x-- ) {
-                        for( int z = info.Dimensions.Z - 1; z >= 0; z-- ) {
-                            block = info.Buffer[x, left, z];
-                            info.Buffer[x, left, z] = info.Buffer[x, right, z];
-                            info.Buffer[x, right, z] = block;
+                    for( int x = info.Bounds.Width - 1; x >= 0; x-- ) {
+                        for( int z = info.Bounds.Height - 1; z >= 0; z-- ) {
+                            block = info.Blocks[x, left, z];
+                            info.Blocks[x, left, z] = info.Blocks[x, right, z];
+                            info.Blocks[x, right, z] = block;
                         }
                     }
                     left++;
@@ -994,13 +994,13 @@ namespace fCraft {
 
             if( flipH ) {
                 int left = 0;
-                int right = info.Dimensions.Z - 1;
+                int right = info.Bounds.Height - 1;
                 while( left < right ) {
-                    for( int x = info.Dimensions.X - 1; x >= 0; x-- ) {
-                        for( int y = info.Dimensions.Y - 1; y >= 0; y-- ) {
-                            block = info.Buffer[x, y, left];
-                            info.Buffer[x, y, left] = info.Buffer[x, y, right];
-                            info.Buffer[x, y, right] = block;
+                    for( int x = info.Bounds.Width - 1; x >= 0; x-- ) {
+                        for( int y = info.Bounds.Length - 1; y >= 0; y-- ) {
+                            block = info.Blocks[x, y, left];
+                            info.Blocks[x, y, left] = info.Blocks[x, y, right];
+                            info.Blocks[x, y, right] = block;
                         }
                     }
                     left++;
@@ -1034,7 +1034,7 @@ namespace fCraft {
                 }
             }
 
-            player.SetCopyInformation( info );
+            player.SetCopyState( info );
         }
 
 
@@ -1050,7 +1050,7 @@ namespace fCraft {
         };
 
         static void RotateHandler( Player player, CommandReader cmd ) {
-            CopyState originalInfo = player.GetCopyInformation();
+            CopyState originalInfo = player.GetCopyState();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
                 return;
@@ -1083,7 +1083,7 @@ namespace fCraft {
             }
 
             // allocate the new buffer
-            Block[, ,] oldBuffer = originalInfo.Buffer;
+            Block[, ,] oldBuffer = originalInfo.Blocks;
             Block[, ,] newBuffer;
 
             if( degrees == 180 ) {
@@ -1165,7 +1165,7 @@ namespace fCraft {
 
             player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
                             info.Slot + 1, degrees, axis );
-            player.SetCopyInformation( info );
+            player.SetCopyState( info );
         }
 
 
@@ -1247,7 +1247,7 @@ namespace fCraft {
         static void PasteOpHandler( Player player, CommandReader cmd, int expectedMarks, DrawOpWithBrush op ) {
             if( !op.ReadParams( cmd ) ) return;
             player.SelectionStart( expectedMarks, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
-            CopyState copyInfo = player.GetCopyInformation();
+            CopyState copyInfo = player.GetCopyState();
             if( copyInfo != null ) {
                 player.MessageNow( "{0}: Click or &H/Mark&S the {1} corner.",
                                    op.Description, copyInfo.OriginCorner );

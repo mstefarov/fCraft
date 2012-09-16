@@ -380,7 +380,7 @@ namespace Mono.Options
             names = ( this is OptionSet.Category )
                 // append GetHashCode() so that "duplicate" categories have distinct
                 // names, e.g. adding multiple "" categories should be valid.
-                ? new[] { prototype + GetHashCode() }
+                ? new[] { prototype + base.GetHashCode() }
                 : prototype.Split( '|' );
 
             if( this is OptionSet.Category )
@@ -503,7 +503,7 @@ namespace Mono.Options
                         break;
                     default:
                         if( start == -1 )
-                            seps.Add( name[i].ToString() );
+                            seps.Add( name[i].ToString( CultureInfo.InvariantCulture ) );
                         break;
                 }
             }
@@ -671,16 +671,6 @@ namespace Mono.Options
             throw new InvalidOperationException( "Option has no names!" );
         }
 
-        [Obsolete( "Use KeyedCollection.this[string]" )]
-        Option GetOptionForName( string option ) {
-            if( option == null )
-                throw new ArgumentNullException( "option" );
-            try {
-                return base[option];
-            } catch( KeyNotFoundException ) {
-                return null;
-            }
-        }
 
         protected override void InsertItem( int index, Option item ) {
             base.InsertItem( index, item );
@@ -1182,11 +1172,11 @@ namespace Mono.Options
             for( int i = 0; i < nameStart.Length; ++i ) {
                 int start, j = 0;
                 do {
-                    start = description.IndexOf( nameStart[i], j );
-                } while( start >= 0 && j != 0 ? description[j++ - 1] == '{' : false );
+                    start = description.IndexOf(nameStart[i], j, StringComparison.Ordinal);
+                } while( start >= 0 && j != 0 && description[j++ - 1] == '{' );
                 if( start == -1 )
                     continue;
-                int end = description.IndexOf( "}", start );
+                int end = description.IndexOf("}", start, StringComparison.Ordinal);
                 if( end == -1 )
                     continue;
                 return description.Substring( start + nameStart[i].Length, end - start - nameStart[i].Length );
