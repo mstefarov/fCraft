@@ -50,7 +50,7 @@ namespace fCraft.AutoRank {
         internal static void TaskCallback( SchedulerTask schedulerTask ) {
             if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
             PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
-            DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "~AutoRank" );
+            DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "(AutoRanked)" );
         }
 
 
