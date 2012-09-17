@@ -12,12 +12,14 @@ namespace fCraft.Drawing {
                                         mark1.Y <= mark2.Y ? 1 : -1,
                                         mark1.Z <= mark2.Z ? 1 : -1 );
             Blocks = new Block[Bounds.Width, Bounds.Length, Bounds.Height];
+            CopyTime = DateTime.UtcNow;
         }
 
 
         public CopyState( [NotNull] CopyState original ) {
             if( original == null ) throw new ArgumentNullException();
             Blocks = (Block[, ,])original.Blocks.Clone();
+            Bounds = new BoundingBox( original.Bounds );
             Orientation = original.Orientation;
             Slot = original.Slot;
             OriginWorld = original.OriginWorld;
@@ -28,6 +30,10 @@ namespace fCraft.Drawing {
         public CopyState( [NotNull] CopyState original, [NotNull] Block[, ,] buffer ) {
             if( original == null ) throw new ArgumentNullException();
             Blocks = buffer;
+            Bounds = new BoundingBox( original.Bounds.MinVertex,
+                                      buffer.GetLength( 0 ),
+                                      buffer.GetLength( 1 ),
+                                      buffer.GetLength( 2 ) );
             Orientation = original.Orientation;
             Slot = original.Slot;
             OriginWorld = original.OriginWorld;
@@ -49,15 +55,19 @@ namespace fCraft.Drawing {
         public Vector3I Orientation { get; private set; }
 
 
-        /// <summary> Index of the copyslot into which this was copied. </summary>
+        /// <summary> Index of the copyslot into which this was copied.
+        /// Defaults to 0. </summary>
         public int Slot { get; set; }
 
 
-        /// <summary> Name of the world where this was copied from. </summary>
+        /// <summary> Name of the world where this was copied from.
+        /// Defaults to null. </summary>
+        [CanBeNull]
         public string OriginWorld { get; set; }
 
 
-        /// <summary> Time (UTC) at which the blocks were copied. </summary>
+        /// <summary> Time (UTC) at which the blocks were copied. 
+        /// Defaults to DateTime.UtcNow. </summary>
         public DateTime CopyTime { get; set; }
 
 
