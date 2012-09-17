@@ -7,7 +7,7 @@ namespace fCraft {
     /// <summary> Defines a 3D bounding box, in integer cartesian coordinates.
     /// Coordinates are always inclusive, so note that even a bounding box with coinciding vertices is a 1x1x1 cube,
     /// and has non-zero volume and non-zero dimensions. </summary>
-    public sealed class BoundingBox : IEquatable<BoundingBox> {
+    public sealed class BoundingBox : IEquatable<BoundingBox>, ICloneable {
         /// <summary> Empty BoundingBox (1x1x1). </summary>
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
@@ -17,6 +17,11 @@ namespace fCraft {
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
         public BoundingBox( Vector3I p1, Vector3I p2 ) :
             this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {}
+
+
+        /// <summary> Creates a copy of the given BoundingBox. </summary>
+        public BoundingBox( BoundingBox other ) :
+            this( other.XMin, other.YMin, other.ZMin, other.XMax, other.YMax, other.ZMax ) {}
 
 
         /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
@@ -134,15 +139,33 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns the vertex closest to the coordinate origin, opposite MaxVertex. </summary>
+        /// <summary> Gets or sets the vertex closest to the coordinate origin, opposite MaxVertex.
+        /// When setting, MaxVertex may be adjusted as well, to keep minimums/maximums consistent. </summary>
         public Vector3I MinVertex {
             get { return new Vector3I( XMin, YMin, ZMin ); }
+            set {
+                XMin = value.X;
+                YMin = value.Y;
+                ZMin = value.Z;
+                XMax = Math.Max( value.X, XMax );
+                YMax = Math.Max( value.Y, YMax );
+                ZMax = Math.Max( value.Z, ZMax );
+            }
         }
 
 
-        /// <summary> Returns the vertex farthest from the origin, opposite MinVertex. </summary>
+        /// <summary> Gets or sets the vertex farthest from the origin, opposite MinVertex.
+        /// When setting, MaxVertex may be adjusted as well, to keep minimums/maximums consistent. </summary>
         public Vector3I MaxVertex {
             get { return new Vector3I( XMax, YMax, ZMax ); }
+            set {
+                XMin = Math.Min( value.X, XMin );
+                YMin = Math.Min( value.Y, YMin );
+                ZMin = Math.Min( value.Z, ZMin );
+                XMax = value.X;
+                YMax = value.Y;
+                ZMax = value.Z;
+            }
         }
 
 
@@ -193,6 +216,11 @@ namespace fCraft {
 
         public override string ToString() {
             return "BoundingBox" + Dimensions;
+        }
+
+
+        public object Clone() {
+            return new BoundingBox( XMin, YMin, ZMin, XMax, YMax, ZMax );
         }
     }
 }
