@@ -910,6 +910,7 @@ namespace fCraft {
 
                     case "autorank":
                         success = AutoRankManager.Init();
+                        AutoRankManager.DoAutoRankAll( player, PlayerDB.PlayerInfoList, false, "(AutoRanked)" );
                         break;
 
                     case "salt":
