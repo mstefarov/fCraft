@@ -1,3 +1,10 @@
+0.633
+ Fix: Fixed VisualStudio designer being unable to load ConfigGUI.MainForm.
+ Fix: Fixed /ZMark being spammy (thanks ruggedbear).
+ Fix: Binding "air" block to something now works as expected (deleted blocks are replaced with the binding) (thanks Hellenion).
+ Fix: Added missing tooltips to "Data Backup" checkbox in ConfigGUI (thanks PhoneBook_).
+ Change: "/Reload Autorank" now triggers a re-scan of the whole PlayerDB.
+
 0.632
  Feature: Added standalone HeartbeatSaver utility, a heartbeat-sending daemon.
  Feature: Added a way to specify scale/turbulence/seed for cloudy brush.

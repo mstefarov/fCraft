@@ -30,7 +30,7 @@ namespace fCraft.ConfigGUI {
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.components = new Container();
+            this.components = new System.ComponentModel.Container();
             DataGridViewCellStyle dataGridViewCellStyle4 = new DataGridViewCellStyle();
             DataGridViewCellStyle dataGridViewCellStyle3 = new DataGridViewCellStyle();
             ComponentResourceManager resources = new ComponentResourceManager( typeof( MainForm ) );
@@ -3458,7 +3458,7 @@ namespace fCraft.ConfigGUI {
             // bCancel
             // 
             this.bCancel.Anchor = ( (AnchorStyles)( ( AnchorStyles.Bottom | AnchorStyles.Right ) ) );
-            this.bCancel.DialogResult = DialogResult.Cancel;
+            this.bCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.bCancel.Font = new Font( "Microsoft Sans Serif", 9F, FontStyle.Regular, GraphicsUnit.Point, ( (byte)( 0 ) ) );
             this.bCancel.Location = new Point( 466, 528 );
             this.bCancel.Name = "bCancel";
@@ -3512,7 +3512,7 @@ namespace fCraft.ConfigGUI {
             // MainForm
             // 
             this.AutoScaleDimensions = new SizeF( 6F, 13F );
-            this.AutoScaleMode = AutoScaleMode.Font;
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new Size( 684, 568 );
             this.Controls.Add( this.bApply );
             this.Controls.Add( this.bResetAll );

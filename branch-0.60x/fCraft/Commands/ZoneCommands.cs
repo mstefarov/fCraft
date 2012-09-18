@@ -483,10 +483,10 @@ namespace fCraft {
                 }
 
                 player.SelectionResetMarks();
-                player.SelectionAddMark( zone.Bounds.MinVertex, false );
-                player.SelectionAddMark( zone.Bounds.MaxVertex, true );
+                player.SelectionAddMark( zone.Bounds.MinVertex, false, false );
+                player.SelectionAddMark( zone.Bounds.MaxVertex, false, true );
             } else {
-                player.MessageNow( "ZMark can only be used for 2-block selection." );
+                player.MessageNow( "ZMark can only be used with 2-block/2-click selections." );
             }
         }
 
