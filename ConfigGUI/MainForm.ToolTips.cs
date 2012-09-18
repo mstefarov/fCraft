@@ -620,6 +620,8 @@ Affected commands:
             toolTip.SetToolTip( xMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
             toolTip.SetToolTip( nMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
             toolTip.SetToolTip( lMaxBackupSize, ConfigKey.MaxBackupSize.GetDescription() );
+
+            toolTip.SetToolTip( xBackupDataOnStartup, ConfigKey.BackupDataOnStartup.GetDescription() );
         }
 
 

@@ -315,7 +315,8 @@ If exceeded, oldest backups will be deleted first.",
         MaxBackupSize,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
-@"Create backups of server data (PlayerDB and IPBanList) on startup." )]
+@"Create backups of server data (PlayerDB, IPBanList, config.xml, and worlds.xml) on startup.
+Backups are zipped and placed into ""databackups"" directory." )]
         BackupDataOnStartup,
 
         #endregion
