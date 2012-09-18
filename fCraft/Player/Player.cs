@@ -906,17 +906,17 @@ namespace fCraft {
                 context |= BlockChangeContext.Replaced;
             }
 
-            // bindings
-            bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
+            // binding and painting
             if( action == ClickAction.Delete && !IsPainting ) {
                 type = Block.Air;
             }
-            type = bindings[(byte)type];
+            bool requiresUpdate = ( type != GetBind( type ) || IsPainting );
+            type = GetBind( type );
 
             // selection handling
             if( SelectionMarksExpected > 0 && !DisableClickToMark ) {
                 RevertBlockNow( coord );
-                SelectionAddMark( coord, true );
+                SelectionAddMark( coord, true, true );
                 return false;
             }
 
@@ -1355,16 +1355,16 @@ namespace fCraft {
         Permission[] selectionPermissions;
 
 
-        public void SelectionAddMark( Vector3I pos, bool executeCallbackIfNeeded ) {
+        public void SelectionAddMark( Vector3I pos, bool announce, bool executeCallbackIfNeeded ) {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
             selectionMarks.Enqueue( pos );
             if( SelectionMarkCount >= SelectionMarksExpected ) {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
-                } else {
+                } else if( announce ) {
                     Message( "Last block marked at {0}. Type &H/Mark&S or click any block to continue.", pos );
                 }
-            } else {
+            } else if( announce ) {
                 Message( "Block #{0} marked at {1}. Place mark #{2}.",
                          SelectionMarkCount, pos, SelectionMarkCount + 1 );
             }
