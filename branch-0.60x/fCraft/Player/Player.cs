@@ -906,12 +906,12 @@ namespace fCraft {
                 context |= BlockChangeContext.Replaced;
             }
 
-            // bindings
-            bool requiresUpdate = (type != bindings[(byte)type] || IsPainting);
+            // binding and painting
             if( action == ClickAction.Delete && !IsPainting ) {
                 type = Block.Air;
             }
-            type = bindings[(byte)type];
+            bool requiresUpdate = ( type != GetBind( type ) || IsPainting );
+            type = GetBind( type );
 
             // selection handling
             if( SelectionMarksExpected > 0 && !DisableClickToMark ) {
