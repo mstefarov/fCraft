@@ -57,6 +57,7 @@
  Fix: Fixed SaveInterval and BackupInterval being limited to just 100 seconds/minutes in ConfigGUI (thanks Hellenion).
  Fix: Improved consistency of timestamp format in logs (thanks Hellenion).
  Fix: Fixed being unable to remove world greetings via /WSet (thanks Hellenion).
+ Fix: Fixed IRC bot cutting off long messages (thanks Hellenion).
  Change: Improved performance of /Gen, /WLoad, world loading, and all BlockDB-related commands.
  Change: Adjustments to block names and aliases, as well as command aliases.
  Change: Merged /Cancel and /Nvm commands.
