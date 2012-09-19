@@ -51,6 +51,7 @@ namespace fCraft {
                         } else if( !IsEnabled &&
                                    ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
                             // going from disabled to enabled/auto-enabled
+                            CheckAlignment();
                             cacheStore = new BlockDBEntry[MinCacheSize];
                             if( isPreloaded ) {
                                 Preload();
@@ -70,6 +71,23 @@ namespace fCraft {
         }
 
         YesNoAuto enabledState;
+
+
+        // BlockDB files are supposed to be aligned to 20 bytes.
+        // Misalignment might happen if writing didnt finish properly - e.g. power outage, or ungraceful shutdown.
+        // If that's not the case, the last few bytes are trimmed off the BlockDB file.
+        void CheckAlignment() {
+            FileInfo fi = new FileInfo( FileName );
+            if( fi.Exists ) {
+                long length = fi.Length;
+                if( length % sizeof( BlockDBEntry ) != 0 ) {
+                    Logger.Log( LogType.Warning, "BlockDB: Misaligned data detected in \"{0}\". Attempting recovery.", fi.Name );
+                    using( FileStream fs = File.OpenWrite( fi.FullName ) ) {
+                        fs.SetLength( length - ( length % sizeof( BlockDBEntry ) ) );
+                    }
+                }
+            }
+        }
 
 
         public bool AutoToggleIfNeeded() {
