@@ -12,6 +12,7 @@ namespace fCraft.UpdateBuilder {
             "ServerGUI.exe",
             "MapConverter.exe",
             "MapRenderer.exe",
+            "HeartbeatSaver.exe",
             "../../CHANGELOG.txt",
             "../../README.txt"
         };

@@ -33,6 +33,7 @@ namespace fCraft {
                 "ServerWinService.exe",
                 "MapConverter.exe",
                 "MapRenderer.exe",
+                "HeartbeatSaver.exe",
                 UpdaterFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
