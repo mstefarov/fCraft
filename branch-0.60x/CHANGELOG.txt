@@ -1,9 +1,13 @@
 0.633
+ Feature: Added checkbox for HeartbeatEnabled config key to ConfigGUI, on the advanced tab.
  Fix: Fixed VisualStudio designer being unable to load ConfigGUI.MainForm.
  Fix: Fixed /ZMark being spammy (thanks ruggedbear).
  Fix: Binding "air" block to something now works as expected (deleted blocks are replaced with the binding) (thanks Hellenion).
  Fix: Added missing tooltips to "Data Backup" checkbox in ConfigGUI (thanks PhoneBook_).
+ Fix: Added HeartbeatSaver to UpdateInstaller and list of protected filenames.
  Change: "/Reload Autorank" now triggers a re-scan of the whole PlayerDB.
+ Change: Added code to BlockDB to recover misaligned .fbdb files. BlockDB files are supposed to be aligned to 20 bytes. Misalignment might happen if writing didn't finish properly - e.g. power outage, or ungraceful shutdown.
+ Change: HeartbeatSaver now returns non-zero exit codes if it failed on startup. 1 = incorrect usage/missing arguments, 2 = could not read heartbeat data from the given file.
 
 0.632
  Feature: Added standalone HeartbeatSaver utility, a heartbeat-sending daemon.

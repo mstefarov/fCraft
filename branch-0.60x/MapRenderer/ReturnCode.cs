@@ -5,8 +5,8 @@ namespace fCraft.MapRenderer {
         Success = 0,
         ArgumentError = 1,
         UnrecognizedImporter = 2,
-        InputDirNotFound = 3,
-        PathError = 4,
-        UnsupportedSaveFormat = 5
+        InputDirNotFound = 4,
+        PathError = 5,
+        UnsupportedSaveFormat = 7
     }
 }
