@@ -23,28 +23,31 @@ namespace fCraft.HeartbeatSaver {
         static volatile bool beatToWoM;
 
 
-        static void Main( string[] args ) {
+        static int Main( string[] args ) {
             if( args.Length == 0 ) {
                 heartbeatDataFileName = "heartbeatdata.txt";
             } else if( args.Length == 1 && File.Exists( args[1] ) ) {
                 heartbeatDataFileName = args[1];
             } else {
                 Console.WriteLine( "Usage: fHeartbeat \"path/to/datafile\"" );
-                return;
+                return (int)ReturnCode.UsageError;
             }
 
-            RefreshData();
+            if( !RefreshData() ) {
+                return (int)ReturnCode.HeartbeatDataReadingError;
+            }
 
             new Thread( BeatThreadMinecraftNet ) { IsBackground = true }.Start();
             new Thread( BeatThreadWoM ) { IsBackground = true }.Start();
 
-            for( Thread.Sleep( RefreshDataDelay ); ; Thread.Sleep( RefreshDataDelay ) ) {
+            while( true ) {
+                Thread.Sleep( RefreshDataDelay );
                 RefreshData();
             }
         }
 
 
-        static void RefreshData() {
+        static bool RefreshData() {
             try {
                 string[] rawData = File.ReadAllLines( heartbeatDataFileName, Encoding.ASCII );
                 HeartbeatData newData = new HeartbeatData {
@@ -60,6 +63,8 @@ namespace fCraft.HeartbeatSaver {
                 };
                 beatToWoM = Boolean.Parse( rawData[9] );
                 data = newData;
+                return true;
+
             } catch( Exception ex ) {
                 if( ex is UnauthorizedAccessException || ex is IOException ) {
                     Console.Error.WriteLine( "{0} > Error reading {1}: {2} {3}",
@@ -70,12 +75,13 @@ namespace fCraft.HeartbeatSaver {
                                              Timestamp(),
                                              heartbeatDataFileName, ex.GetType().Name, ex.Message );
                 }
+                return false;
             }
         }
 
 
         static void BeatThreadMinecraftNet() {
-            while(true){
+            while( true ) {
                 try {
                     CreateRequest( data.CreateUri( MinecraftNetUri, false ), true );
                     Thread.Sleep( Delay );
@@ -155,6 +161,7 @@ namespace fCraft.HeartbeatSaver {
             const int ProtocolVersion = 7;
             public string WoMFlags { get; set; }
             public string WoMDescription { get; set; }
+
 
             public Uri CreateUri( Uri heartbeatUri, bool includeWoM ) {
                 UriBuilder ub = new UriBuilder( heartbeatUri );
