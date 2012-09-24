@@ -51,6 +51,7 @@ namespace fCraft {
                         } else if( !IsEnabled &&
                                    ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
                             // going from disabled to enabled/auto-enabled
+                            CheckAlignment();
                             cacheStore = new BlockDBEntry[MinCacheSize];
                             if( isPreloaded ) {
                                 Preload();
@@ -72,6 +73,34 @@ namespace fCraft {
         YesNoAuto enabledState;
 
 
+        /// <summary> Checks whether this BlockDB is enabled (either automatically or manually).
+        /// Set EnabledState to enable/disable. </summary>
+        public bool IsEnabled { get; private set; }
+
+
+        // BlockDB files are supposed to be aligned to 20 bytes.
+        // Misalignment might happen if writing didnt finish properly - e.g. power outage, or ungraceful shutdown.
+        // If that's not the case, the last few bytes are trimmed off the BlockDB file.
+        void CheckAlignment() {
+            FileInfo fi = new FileInfo( FileName );
+            if( fi.Exists ) {
+                long length = fi.Length;
+                if( length % sizeof( BlockDBEntry ) != 0 ) {
+                    Logger.Log( LogType.Error,
+                                "BlockDB: Misaligned data detected in \"{0}\". " +
+                                "This might have been caused by a power outage or ungraceful shutdown. Attempting recovery.",
+                                fi.Name );
+                    using( FileStream fs = File.OpenWrite( fi.FullName ) ) {
+                        fs.SetLength( length - ( length % sizeof( BlockDBEntry ) ) );
+                    }
+                }
+            }
+        }
+
+
+        /// <summary> If EnabledState is set to Auto, calling this auto-enables / auto-disables
+        /// BlockDB depending on world's BuildSecurity.MinRank and BlockDBAutoEnableRank config key. </summary>
+        /// <returns> True if call resulted in IsEnabled being changed; otherwise false. </returns>
         public bool AutoToggleIfNeeded() {
             bool oldEnabled = IsEnabled;
             EnabledState = enabledState;
@@ -79,14 +108,9 @@ namespace fCraft {
         }
 
 
-        public bool ShouldBeAutoEnabled {
+        bool ShouldBeAutoEnabled {
             get { return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank ); }
         }
-
-
-        /// <summary> Checks whether this BlockDB is enabled (either automatically or manually).
-        /// Set EnabledState to enable/disable. </summary>
-        public bool IsEnabled { get; private set; }
 
 
         /// <summary> Full path to the file where BlockDB data is stored. </summary>
@@ -126,8 +150,7 @@ namespace fCraft {
         BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
         internal int CacheSize;
 
-        const int MinCacheSize = 2 * 1024,
-                  // 32 KB (at 16 bytes/entry)
+        const int MinCacheSize = 2 * 1024, // 32 KB (at 16 bytes/entry)
                   CacheLinearResizeThreshold = 64 * 1024; // 1 MB (at 16 bytes/entry)
 
 
@@ -1110,11 +1133,15 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Acquires and returns an exclusive (write) lock for this BlockDB.
+        /// Disposing the object returned by this method releases the lock. </summary>
         public IDisposable GetWriteLock() {
             return locker.WriteLock();
         }
 
 
+        /// <summary> Acquires and returns a shared (read) lock for this BlockDB.
+        /// Disposing the object returned by this method releases the lock. </summary>
         public IDisposable GetReadLock() {
             return locker.ReadLock();
         }

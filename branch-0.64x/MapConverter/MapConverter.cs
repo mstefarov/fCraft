@@ -30,21 +30,32 @@ namespace fCraft.MapConverter {
             // parse importer name
             if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
                 MapFormat importFormat;
-                if( !EnumUtil.TryParse( importerName, out importFormat, true ) ||
-                    ( importer = MapUtility.GetImporter( importFormat ) ) == null ) {
+                if( !EnumUtil.TryParse( importerName, out importFormat, true )  ) {
                     Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
                     return (int)ReturnCode.UnrecognizedImporter;
+                }
+                importer = MapUtility.GetImporter( importFormat );
+                if( importer == null ) {
+                    Console.Error.WriteLine( "Loading from \"{0}\" is not supported", importFormat );
+                    PrintUsage();
+                    return (int)ReturnCode.UnsupportedLoadFormat;
                 }
             }
 
             // parse exporter format
             MapFormat exportFormat;
-            if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ||
-                ( exporter = MapUtility.GetExporter( exportFormat ) ) == null ) {
-                Console.Error.WriteLine( "Unsupported exporter \"{0}\"", exporterName );
+            if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ) {
+                Console.Error.WriteLine( "Unrecognized exporter \"{0}\"", exporterName );
                 PrintUsage();
                 return (int)ReturnCode.UnrecognizedExporter;
+            }
+
+            exporter = MapUtility.GetExporter( exportFormat );
+            if( exporter == null ) {
+                Console.Error.WriteLine( "Saving to \"{0}\" is not supported", exportFormat );
+                PrintUsage();
+                return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
             // check if input path exists, and if it's a file or directory

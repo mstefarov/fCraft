@@ -7,7 +7,6 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-
 namespace fCraft.ConfigGUI {
     // This section handles transfer of settings from Config to the specific UI controls, and vice versa.
     // Effectively, it's an adapter between Config's and ConfigUI's representations of the settings
@@ -426,6 +425,8 @@ namespace fCraft.ConfigGUI {
                 tIP.Enabled = true;
                 xIP.Checked = true;
             }
+
+            xHeartbeatEnabled.Checked = ConfigKey.HeartbeatEnabled.Enabled();
         }
 
 
@@ -643,6 +644,8 @@ namespace fCraft.ConfigGUI {
             ConfigKey.MaxUndoStates.TrySetValue( Convert.ToInt32( nMaxUndoStates.Value ) );
 
             ConfigKey.ConsoleName.TrySetValue( tConsoleName.Text );
+
+            ConfigKey.HeartbeatEnabled.TrySetValue( xHeartbeatEnabled.Checked );
 
             SaveWorldList();
         }
