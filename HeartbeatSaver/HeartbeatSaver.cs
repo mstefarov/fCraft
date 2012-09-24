@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace fCraft.HeartbeatSaver {
     static class HeartbeatSaver {
-        static readonly Uri MinecraftNetUri = new Uri( "http://www.minecraft.net/heartbeat.jsp" );
+        static readonly Uri MinecraftNetUri = new Uri( "http://minecraft.net/heartbeat.jsp" );
         static readonly Uri WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
 
         static readonly TimeSpan Delay = TimeSpan.FromSeconds( 20 );
