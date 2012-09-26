@@ -101,6 +101,9 @@ Other players cannot connect from the same LAN/network as me:
    3. Connect to http://www.minecraft.net/play.jsp?ip=____&port=____
         (fill in the blanks with your server's IP address and port number)
 
+Other problems:
+    See http://fcraft.net/wiki/Troubleshooting
+
 
 
 === List of Files =============================================================
@@ -117,8 +120,12 @@ Other players cannot connect from the same LAN/network as me:
           fCraft.dll - Core of the server, used by all other applications.
        fCraftGUI.dll - Provides shared functionality for Config and Server GUI.
 
-       ServerCLI.exe - Command-line interface for the server.
-       ServerGUI.exe - Graphical interface for the server.
+       ServerCLI.exe - Command-line interface (CLI) for the server.
+       ServerGUI.exe - Graphical interface (GUI) for the server.
+
+  HeartbeatSaver.exe - Standalone heartbeat sender (CLI).
+    MapConverter.exe - Batch map format converter (CLI).
+     MapRenderer.exe - Creates images of map files (CLI).
 
 
 
@@ -170,14 +177,14 @@ a list of available commands. For detailed information, please visit:
     http://fcraft.net/wiki
 
 To request features, report bugs, or receive support, please visit:
-    http://forums.fcraft.net
+    http://forum.fcraft.net
 
 For quick help/support, join #fCraft.dev channel on Esper.net IRC:
     irc://irc.esper.net:5555/fCraft.dev
 
-See CHANGELOG.txt or visit http://www.fcraft.net/wiki/Version_history for
-complete information about changes in this release compared to previous
-versions of fCraft.
+See CHANGELOG.txt or visit http://fcraft.net/wiki/Version_history for complete
+information about changes in this release compared to previous versions of
+fCraft.
 
 
 
