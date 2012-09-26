@@ -26,8 +26,8 @@ namespace fCraft.HeartbeatSaver {
         static int Main( string[] args ) {
             if( args.Length == 0 ) {
                 heartbeatDataFileName = "heartbeatdata.txt";
-            } else if( args.Length == 1 && File.Exists( args[1] ) ) {
-                heartbeatDataFileName = args[1];
+            } else if( args.Length == 1 && File.Exists( args[0] ) ) {
+                heartbeatDataFileName = args[0];
             } else {
                 Console.WriteLine( "Usage: fHeartbeat \"path/to/datafile\"" );
                 return (int)ReturnCode.UsageError;
