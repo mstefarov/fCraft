@@ -1,6 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
-#pragma warning disable 1591
 namespace fCraft {
     /// <summary> Minecraft protocol's opcodes. </summary>
     public enum OpCode {
@@ -22,4 +21,3 @@ namespace fCraft {
         SetPermission = 15
     }
 }
-#pragma warning restore 1591
