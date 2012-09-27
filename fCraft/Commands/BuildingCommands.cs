@@ -1773,7 +1773,8 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
             Usage = "/UndoPlayerNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",
-            Help = "Reverses changes made by a given player in the current world. " +
+            Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
+                   "Applies to the whole world. " +
                    "More than one player name can be given at a time.",
             Handler = UndoPlayerNotHandler
         };
