@@ -9,8 +9,8 @@ using System.Threading;
 
 namespace fCraft.HeartbeatSaver {
     static class HeartbeatSaver {
-        static readonly Uri MinecraftNetUri = new Uri( "http://minecraft.net/heartbeat.jsp" ),
-                            WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
+        const int ProtocolVersion = 7;
+        static readonly Uri MinecraftNetUri = new Uri( "https://minecraft.net/heartbeat.jsp" );
 
         static readonly TimeSpan Delay = TimeSpan.FromSeconds( 20 ),
                                  Timeout = TimeSpan.FromSeconds( 10 ),
@@ -25,7 +25,6 @@ namespace fCraft.HeartbeatSaver {
 
         static string heartbeatDataFileName;
         static HeartbeatData data;
-        static volatile bool beatToWoM;
 
 
         static int Main( string[] args ) {
@@ -43,7 +42,6 @@ namespace fCraft.HeartbeatSaver {
             }
 
             new Thread( BeatThreadMinecraftNet ) { IsBackground = true }.Start();
-            new Thread( BeatThreadWoM ) { IsBackground = true }.Start();
 
             while( true ) {
                 Thread.Sleep( RefreshDataDelay );
@@ -63,11 +61,8 @@ namespace fCraft.HeartbeatSaver {
                     PlayerCount = Int32.Parse( rawData[3] ),
                     MaxPlayers = Int32.Parse( rawData[4] ),
                     ServerName = rawData[5],
-                    IsPublic = Boolean.Parse( rawData[6] ),
-                    WoMDescription = rawData[7],
-                    WoMFlags = rawData[8]
+                    IsPublic = Boolean.Parse( rawData[6] )
                 };
-                beatToWoM = Boolean.Parse( rawData[9] );
                 data = newData;
                 return true;
 
@@ -92,9 +87,19 @@ namespace fCraft.HeartbeatSaver {
 
         // Sends a heartbeat to Minecraft.net, and saves response. Runs in its own background thread.
         static void BeatThreadMinecraftNet() {
+            UriBuilder ub = new UriBuilder( MinecraftNetUri );
             while( true ) {
                 try {
-                    CreateRequest( data.CreateUri( MinecraftNetUri, false ), true );
+                    HeartbeatData freshData = data;
+                    ub.Query = String.Format( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
+                                              freshData.IsPublic,
+                                              freshData.MaxPlayers,
+                                              freshData.PlayerCount,
+                                              freshData.Port,
+                                              ProtocolVersion,
+                                              Uri.EscapeDataString( freshData.Salt ),
+                                              Uri.EscapeDataString( freshData.ServerName ) );
+                    CreateRequest( ub.Uri );
                     Thread.Sleep( Delay );
 
                 } catch( Exception ex ) {
@@ -108,31 +113,9 @@ namespace fCraft.HeartbeatSaver {
             }
         }
 
-
-        // Sends a heartbeat to WoM. If SendHeartbeatToWoMDirect is disabled, just idles. Runs in its own background thread.
-        static void BeatThreadWoM() {
-            while( true ) {
-                try {
-                    if( beatToWoM ) {
-                        CreateRequest( data.CreateUri( WoMDirectUri, true ), false );
-                    }
-                    Thread.Sleep( Delay );
-
-                } catch( Exception ex ) {
-                    if( ex is WebException ) {
-                        Console.Error.WriteLine( "{0} > WoM is probably down ({1})", Timestamp(), ex.Message );
-                    } else {
-                        Console.Error.WriteLine( "{0} > {1}", Timestamp(), ex );
-                    }
-                    Thread.Sleep( ErrorDelay );
-                }
-            }
-        }
-
-
         // Creates an HTTP GET request to the given Uri. Optionally saves the response, to UrlFileName.
         // Throws all kinds of exceptions on failure
-        static void CreateRequest( Uri uri, bool saveResponse ) {
+        static void CreateRequest( Uri uri ) {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
             request.ServicePoint.BindIPEndPointDelegate = BindIPEndPointCallback;
             request.Method = "GET";
@@ -142,14 +125,10 @@ namespace fCraft.HeartbeatSaver {
             request.UserAgent = UserAgent;
 
             using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
-                if( saveResponse ) {
-                    using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
-                        string responseText = responseReader.ReadToEnd();
-                        File.WriteAllText( UrlFileName, responseText.Trim(), Encoding.ASCII );
-                        Console.WriteLine( "{0} > {1} OK: {2}", Timestamp(), uri.Host, responseText );
-                    }
-                } else {
-                    Console.WriteLine( "{0} > {1} OK", Timestamp(), uri.Host );
+                using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
+                    string responseText = responseReader.ReadToEnd();
+                    File.WriteAllText( UrlFileName, responseText.Trim(), Encoding.ASCII );
+                    Console.WriteLine( "{0} > {1} OK: {2}", Timestamp(), uri.Host, responseText );
                 }
             }
         }
@@ -169,7 +148,6 @@ namespace fCraft.HeartbeatSaver {
 
         // container class for all the heartbeat data
         sealed class HeartbeatData {
-            const int ProtocolVersion = 7;
             public string Salt { get; set; }
             public IPAddress ServerIP { get; set; }
             public int Port { get; set; }
@@ -177,29 +155,6 @@ namespace fCraft.HeartbeatSaver {
             public int MaxPlayers { get; set; }
             public string ServerName { get; set; }
             public bool IsPublic { get; set; }
-            public string WoMFlags { get; set; }
-            public string WoMDescription { get; set; }
-
-            // creates a GET request URI, using UriBuilder
-            public Uri CreateUri( Uri heartbeatUri, bool includeWoM ) {
-                UriBuilder ub = new UriBuilder( heartbeatUri );
-                StringBuilder sb = new StringBuilder();
-                sb.AppendFormat( "public={0}&max={1}&users={2}&port={3}&version={4}&salt={5}&name={6}",
-                                 IsPublic,
-                                 MaxPlayers,
-                                 PlayerCount,
-                                 Port,
-                                 ProtocolVersion,
-                                 Uri.EscapeDataString( Salt ),
-                                 Uri.EscapeDataString( ServerName ) );
-                if( includeWoM ) {
-                    sb.AppendFormat( "&noforward=1&desc={0}&flags={1}",
-                                     Uri.EscapeDataString( WoMDescription ),
-                                     Uri.EscapeDataString( WoMFlags ) );
-                }
-                ub.Query = sb.ToString();
-                return ub.Uri;
-            }
         }
     }
 }
