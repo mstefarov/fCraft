@@ -17,13 +17,15 @@ namespace fCraft.HeartbeatSaver {
                                  ErrorDelay = TimeSpan.FromSeconds( 5 ),
                                  RefreshDataDelay = TimeSpan.FromSeconds( 60 );
 
+        static readonly RequestCachePolicy CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+
         const string UrlFileName = "externalurl.txt",
-                     DefaultDataFileName = "heartbeatdata.txt";
+                     DefaultDataFileName = "heartbeatdata.txt",
+                     UserAgent = "fCraft HeartbeatSaver";
 
         static string heartbeatDataFileName;
         static HeartbeatData data;
         static volatile bool beatToWoM;
-        static readonly HttpRequestCachePolicy CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
 
         static int Main( string[] args ) {
@@ -32,7 +34,7 @@ namespace fCraft.HeartbeatSaver {
             } else if( args.Length == 1 && File.Exists( args[0] ) ) {
                 heartbeatDataFileName = args[0];
             } else {
-                Console.WriteLine( "Usage: fHeartbeat \"path/to/datafile\"" );
+                Console.WriteLine( @"Usage: fHeartbeat ""path/to/datafile""" );
                 return (int)ReturnCode.UsageError;
             }
 
@@ -50,6 +52,7 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
+        // fetches fresh data from the given file. Should not throw any exceptions. Runs in the main thread.
         static bool RefreshData() {
             try {
                 string[] rawData = File.ReadAllLines( heartbeatDataFileName, Encoding.ASCII );
@@ -87,6 +90,7 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
+        // Sends a heartbeat to Minecraft.net, and saves response. Runs in its own background thread.
         static void BeatThreadMinecraftNet() {
             while( true ) {
                 try {
@@ -97,7 +101,7 @@ namespace fCraft.HeartbeatSaver {
                     if( ex is WebException ) {
                         Console.Error.WriteLine( "{0} > Minecraft.net probably down ({1})", Timestamp(), ex.Message );
                     } else {
-                        Console.Error.WriteLine( ex );
+                        Console.Error.WriteLine( "{0} > {1}", Timestamp(), ex );
                     }
                     Thread.Sleep( ErrorDelay );
                 }
@@ -105,6 +109,7 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
+        // Sends a heartbeat to WoM. If SendHeartbeatToWoMDirect is disabled, just idles. Runs in its own background thread.
         static void BeatThreadWoM() {
             while( true ) {
                 try {
@@ -117,7 +122,7 @@ namespace fCraft.HeartbeatSaver {
                     if( ex is WebException ) {
                         Console.Error.WriteLine( "{0} > WoM is probably down ({1})", Timestamp(), ex.Message );
                     } else {
-                        Console.Error.WriteLine( ex );
+                        Console.Error.WriteLine( "{0} > {1}", Timestamp(), ex );
                     }
                     Thread.Sleep( ErrorDelay );
                 }
@@ -125,17 +130,19 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
-        static void CreateRequest( Uri uri, bool getUri ) {
+        // Creates an HTTP GET request to the given Uri. Optionally saves the response, to UrlFileName.
+        // Throws all kinds of exceptions on failure
+        static void CreateRequest( Uri uri, bool saveResponse ) {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
             request.ServicePoint.BindIPEndPointDelegate = BindIPEndPointCallback;
             request.Method = "GET";
             request.Timeout = (int)Timeout.TotalMilliseconds;
             request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
             request.CachePolicy = CachePolicy;
-            request.UserAgent = "fCraft HeartbeatSaver";
+            request.UserAgent = UserAgent;
 
             using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
-                if( getUri ) {
+                if( saveResponse ) {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         string responseText = responseReader.ReadToEnd();
                         File.WriteAllText( UrlFileName, responseText.Trim(), Encoding.ASCII );
@@ -160,6 +167,7 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
+        // container class for all the heartbeat data
         sealed class HeartbeatData {
             const int ProtocolVersion = 7;
             public string Salt { get; set; }
@@ -172,7 +180,7 @@ namespace fCraft.HeartbeatSaver {
             public string WoMFlags { get; set; }
             public string WoMDescription { get; set; }
 
-
+            // creates a GET request URI, using UriBuilder
             public Uri CreateUri( Uri heartbeatUri, bool includeWoM ) {
                 UriBuilder ub = new UriBuilder( heartbeatUri );
                 StringBuilder sb = new StringBuilder();
