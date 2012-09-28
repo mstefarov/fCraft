@@ -12,7 +12,6 @@ namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
         static readonly Uri MinecraftNetUri;
-        static readonly Uri WoMDirectUri;
 
         /// <summary> Delay between sending heartbeats. Default: 20s </summary>
         public static TimeSpan Delay { get; set; }
@@ -27,8 +26,7 @@ namespace fCraft {
 
 
         static Heartbeat() {
-            MinecraftNetUri = new Uri( "http://minecraft.net/heartbeat.jsp" );
-            WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
+            MinecraftNetUri = new Uri( "https://minecraft.net/heartbeat.jsp" );
             Delay = TimeSpan.FromSeconds( 20 );
             Timeout = TimeSpan.FromSeconds( 10 );
             Salt = Server.GetRandomString( 32 );
@@ -40,18 +38,11 @@ namespace fCraft {
             if( minecraftNetRequest != null ) {
                 minecraftNetRequest.Abort();
             }
-            if( womDirectRequest != null ) {
-                womDirectRequest.Abort();
-            }
         }
 
 
         internal static void Start() {
             Scheduler.NewBackgroundTask( Beat ).RunForever( Delay );
-            if( ConfigKey.HeartbeatToWoMDirect.Enabled() && ConfigKey.IsPublic.Enabled() ) {
-                Logger.Log( LogType.SystemActivity,
-                            "WoM Direct heartbeat is enabled. Your server will be listed on http://direct.worldofminecraft.com" );
-            }
         }
 
 
@@ -60,9 +51,6 @@ namespace fCraft {
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 SendMinecraftNetBeat();
-                if( ConfigKey.IsPublic.Enabled() && ConfigKey.HeartbeatToWoMDirect.Enabled() ) {
-                    SendWoMDirectBeat();
-                }
 
             } else {
                 // If heartbeats are disabled, the server data is written
@@ -74,10 +62,7 @@ namespace fCraft {
                     Server.CountPlayers( false ).ToStringInvariant(),
                     ConfigKey.MaxPlayers.GetString(),
                     ConfigKey.ServerName.GetString(),
-                    ConfigKey.IsPublic.GetString(),
-                    ConfigKey.WoMDirectDescription.GetString(),
-                    ConfigKey.WoMDirectFlags.GetString(),
-                    ConfigKey.HeartbeatToWoMDirect.Enabled().ToString()
+                    ConfigKey.IsPublic.GetString()
                 };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );
@@ -86,8 +71,7 @@ namespace fCraft {
         }
 
 
-        static HttpWebRequest minecraftNetRequest,
-                              womDirectRequest;
+        static HttpWebRequest minecraftNetRequest;
 
         static void SendMinecraftNetBeat() {
             HeartbeatData data = new HeartbeatData( MinecraftNetUri );
@@ -95,27 +79,8 @@ namespace fCraft {
                 return;
             }
             minecraftNetRequest = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( minecraftNetRequest, data, true );
+            var state = new HeartbeatRequestState( minecraftNetRequest, data );
             minecraftNetRequest.BeginGetResponse( ResponseCallback, state );
-        }
-
-
-        static void SendWoMDirectBeat() {
-            HeartbeatData data = new HeartbeatData( WoMDirectUri );
-
-            // we dont want WoM redirecting back to minecraft.net
-            data.CustomData["noforward"] = "1";
-
-            // wom description and flags
-            data.CustomData["desc"] = ConfigKey.WoMDirectDescription.GetString();
-            data.CustomData["flags"] = ConfigKey.WoMDirectFlags.GetString();
-
-            if( !RaiseHeartbeatSendingEvent( data, WoMDirectUri, false ) ) {
-                return;
-            }
-            womDirectRequest = CreateRequest( data.CreateUri() );
-            var state = new HeartbeatRequestState( womDirectRequest, data, false );
-            womDirectRequest.BeginGetResponse( ResponseCallback, state );
         }
 
 
@@ -148,23 +113,21 @@ namespace fCraft {
                 }
 
                 // try parse response as server Uri, if needed
-                if( state.GetServerUri ) {
-                    string replyString = responseText.Trim();
-                    if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
-                        Logger.Log( LogType.Error, "Heartbeat: {0}", replyString );
-                    } else {
-                        try {
-                            Uri newUri = new Uri( replyString );
-                            Uri oldUri = Server.Uri;
-                            if( newUri != oldUri ) {
-                                Server.Uri = newUri;
-                                RaiseUriChangedEvent( oldUri, newUri );
-                            }
-                        } catch( UriFormatException ) {
-                            Logger.Log( LogType.Error,
-                                        "Heartbeat: Server replied with: {0}",
-                                        replyString );
+                string replyString = responseText.Trim();
+                if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
+                    Logger.Log( LogType.Error, "Heartbeat: {0}", replyString );
+                } else {
+                    try {
+                        Uri newUri = new Uri( replyString );
+                        Uri oldUri = Server.Uri;
+                        if( newUri != oldUri ) {
+                            Server.Uri = newUri;
+                            RaiseUriChangedEvent( oldUri, newUri );
                         }
+                    } catch( UriFormatException ) {
+                        Logger.Log( LogType.Error,
+                                    "Heartbeat: Server replied with: {0}",
+                                    replyString );
                     }
                 }
 
@@ -222,14 +185,12 @@ namespace fCraft {
 
 
         sealed class HeartbeatRequestState {
-            public HeartbeatRequestState( HttpWebRequest request, HeartbeatData data, bool getServerUri ) {
+            public HeartbeatRequestState( HttpWebRequest request, HeartbeatData data ) {
                 Request = request;
                 Data = data;
-                GetServerUri = getServerUri;
             }
             public readonly HttpWebRequest Request;
             public readonly HeartbeatData Data;
-            public readonly bool GetServerUri;
         }
     }
 
@@ -280,6 +241,7 @@ namespace fCraft {
 
         /// <summary> Any other custom data that needs to be sent. </summary>
         public Dictionary<string, string> CustomData { get; private set; }
+
 
         internal Uri CreateUri() {
             UriBuilder ub = new UriBuilder( HeartbeatUri );

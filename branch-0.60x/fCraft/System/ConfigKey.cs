@@ -69,21 +69,6 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
-
-        [BoolKey( ConfigSection.General, true,
-@"If enabled, sends heartbeats to WoM Direct service, http://direct.worldofminecraft.com/" )]
-        HeartbeatToWoMDirect,
-
-        [StringKey( ConfigSection.General, "",
-@"If HeartbeatToWoMDirect is enabled, this description will be shown in the server list.",
-            MaxLength = 64 )]
-        WoMDirectDescription,
-
-        [StringKey( ConfigSection.General, "[fCraft]",
-@"If HeartbeatToWoMDirect is enabled, this string will be shown in the server list under ""flags""",
-            MaxLength = 16 )]
-        WoMDirectFlags,
-
         #endregion
 
 

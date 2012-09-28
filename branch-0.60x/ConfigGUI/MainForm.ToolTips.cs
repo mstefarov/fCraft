@@ -66,14 +66,6 @@ You can also edit announcements.txt with any text editor." );
 You can use any color codes, and these special variables:
     {SERVER_NAME} = server name (as defined in config)
     {RANK} = connecting player's rank" );
-
-            toolTip.SetToolTip( xHeartbeatToWoMDirect, ConfigKey.HeartbeatToWoMDirect.GetDescription() );
-
-            toolTip.SetToolTip( tWoMDirectDescription, ConfigKey.WoMDirectDescription.GetDescription() );
-            toolTip.SetToolTip( lWoMDirectDescription, ConfigKey.WoMDirectDescription.GetDescription() );
-            toolTip.SetToolTip( tWoMDirectFlags, ConfigKey.WoMDirectFlags.GetDescription() );
-            toolTip.SetToolTip( lWoMDirectFlags, ConfigKey.WoMDirectFlags.GetDescription() );
-
         }
 
 

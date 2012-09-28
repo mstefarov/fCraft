@@ -179,6 +179,8 @@ namespace fCraft {
      * 
      * 160 - r1744 - Renamed "IRC" LogType to "IRCStatus", and added "IRCChat" LogType.
      * 
+     * 161 - r1792 - Removed HeartbeatToWoMDirect, WoMDirectDescription, and WoMDirectFlags keys
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,

@@ -31,17 +31,11 @@ namespace fCraft.ConfigGUI {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( MainForm ) );
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
-            this.gWoMDirect = new System.Windows.Forms.GroupBox();
-            this.lWoMDirectFlags = new System.Windows.Forms.Label();
-            this.tWoMDirectFlags = new System.Windows.Forms.TextBox();
-            this.lWoMDirectDescription = new System.Windows.Forms.Label();
-            this.tWoMDirectDescription = new System.Windows.Forms.TextBox();
-            this.xHeartbeatToWoMDirect = new System.Windows.Forms.CheckBox();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
             this.bShowAdvancedUpdaterSettings = new System.Windows.Forms.Button();
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
@@ -282,6 +276,7 @@ namespace fCraft.ConfigGUI {
             this.lThrottling = new System.Windows.Forms.Label();
             this.lThrottlingUnits = new System.Windows.Forms.Label();
             this.gAdvancedMisc = new System.Windows.Forms.GroupBox();
+            this.xHeartbeatEnabled = new System.Windows.Forms.CheckBox();
             this.nMaxUndoStates = new System.Windows.Forms.NumericUpDown();
             this.lMaxUndoStates = new System.Windows.Forms.Label();
             this.lIPWarning = new System.Windows.Forms.Label();
@@ -300,10 +295,8 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xHeartbeatEnabled = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
-            this.gWoMDirect.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
@@ -389,7 +382,6 @@ namespace fCraft.ConfigGUI {
             // 
             // tabGeneral
             // 
-            this.tabGeneral.Controls.Add( this.gWoMDirect );
             this.tabGeneral.Controls.Add( this.gUpdaterSettings );
             this.tabGeneral.Controls.Add( this.groupBox2 );
             this.tabGeneral.Controls.Add( this.gHelpAndSupport );
@@ -402,65 +394,6 @@ namespace fCraft.ConfigGUI {
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
-            // 
-            // gWoMDirect
-            // 
-            this.gWoMDirect.Controls.Add( this.lWoMDirectFlags );
-            this.gWoMDirect.Controls.Add( this.tWoMDirectFlags );
-            this.gWoMDirect.Controls.Add( this.lWoMDirectDescription );
-            this.gWoMDirect.Controls.Add( this.tWoMDirectDescription );
-            this.gWoMDirect.Controls.Add( this.xHeartbeatToWoMDirect );
-            this.gWoMDirect.Location = new System.Drawing.Point( 8, 307 );
-            this.gWoMDirect.Name = "gWoMDirect";
-            this.gWoMDirect.Size = new System.Drawing.Size( 636, 80 );
-            this.gWoMDirect.TabIndex = 6;
-            this.gWoMDirect.TabStop = false;
-            this.gWoMDirect.Text = "WoM Direct";
-            // 
-            // lWoMDirectFlags
-            // 
-            this.lWoMDirectFlags.AutoSize = true;
-            this.lWoMDirectFlags.Location = new System.Drawing.Point( 386, 51 );
-            this.lWoMDirectFlags.Name = "lWoMDirectFlags";
-            this.lWoMDirectFlags.Size = new System.Drawing.Size( 37, 15 );
-            this.lWoMDirectFlags.TabIndex = 24;
-            this.lWoMDirectFlags.Text = "Flags";
-            // 
-            // tWoMDirectFlags
-            // 
-            this.tWoMDirectFlags.Location = new System.Drawing.Point( 429, 48 );
-            this.tWoMDirectFlags.MaxLength = 16;
-            this.tWoMDirectFlags.Name = "tWoMDirectFlags";
-            this.tWoMDirectFlags.Size = new System.Drawing.Size( 144, 21 );
-            this.tWoMDirectFlags.TabIndex = 25;
-            // 
-            // lWoMDirectDescription
-            // 
-            this.lWoMDirectDescription.AutoSize = true;
-            this.lWoMDirectDescription.Location = new System.Drawing.Point( 40, 51 );
-            this.lWoMDirectDescription.Name = "lWoMDirectDescription";
-            this.lWoMDirectDescription.Size = new System.Drawing.Size( 69, 15 );
-            this.lWoMDirectDescription.TabIndex = 22;
-            this.lWoMDirectDescription.Text = "Description";
-            // 
-            // tWoMDirectDescription
-            // 
-            this.tWoMDirectDescription.Location = new System.Drawing.Point( 115, 48 );
-            this.tWoMDirectDescription.MaxLength = 64;
-            this.tWoMDirectDescription.Name = "tWoMDirectDescription";
-            this.tWoMDirectDescription.Size = new System.Drawing.Size( 228, 21 );
-            this.tWoMDirectDescription.TabIndex = 23;
-            // 
-            // xHeartbeatToWoMDirect
-            // 
-            this.xHeartbeatToWoMDirect.AutoSize = true;
-            this.xHeartbeatToWoMDirect.Location = new System.Drawing.Point( 16, 20 );
-            this.xHeartbeatToWoMDirect.Name = "xHeartbeatToWoMDirect";
-            this.xHeartbeatToWoMDirect.Size = new System.Drawing.Size( 354, 19 );
-            this.xHeartbeatToWoMDirect.TabIndex = 21;
-            this.xHeartbeatToWoMDirect.Text = "Send heartbeats to WoM Direct (direct.worldofminecraft.net).";
-            this.xHeartbeatToWoMDirect.UseVisualStyleBackColor = true;
-            this.xHeartbeatToWoMDirect.CheckedChanged += new System.EventHandler( this.xHeartbeatToWoMDirect_CheckedChanged );
             // 
             // gUpdaterSettings
             // 
@@ -1362,8 +1295,8 @@ namespace fCraft.ConfigGUI {
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding( 0, 1, 0, 1 );
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size( 636, 325 );
             this.dgvWorlds.TabIndex = 0;
@@ -1421,8 +1354,8 @@ namespace fCraft.ConfigGUI {
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -3306,6 +3239,17 @@ namespace fCraft.ConfigGUI {
             this.gAdvancedMisc.TabStop = false;
             this.gAdvancedMisc.Text = "Miscellaneous";
             // 
+            // xHeartbeatEnabled
+            // 
+            this.xHeartbeatEnabled.AutoSize = true;
+            this.xHeartbeatEnabled.Location = new System.Drawing.Point( 6, 20 );
+            this.xHeartbeatEnabled.Name = "xHeartbeatEnabled";
+            this.xHeartbeatEnabled.Size = new System.Drawing.Size( 561, 19 );
+            this.xHeartbeatEnabled.TabIndex = 24;
+            this.xHeartbeatEnabled.Text = "Enable built-in heartbeat sender (when disabled, status data is written to heartb" +
+                "eatdata.txt instead).";
+            this.xHeartbeatEnabled.UseVisualStyleBackColor = true;
+            // 
             // nMaxUndoStates
             // 
             this.nMaxUndoStates.Location = new System.Drawing.Point( 115, 95 );
@@ -3511,17 +3455,6 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xHeartbeatEnabled
-            // 
-            this.xHeartbeatEnabled.AutoSize = true;
-            this.xHeartbeatEnabled.Location = new System.Drawing.Point( 6, 20 );
-            this.xHeartbeatEnabled.Name = "xHeartbeatEnabled";
-            this.xHeartbeatEnabled.Size = new System.Drawing.Size( 561, 19 );
-            this.xHeartbeatEnabled.TabIndex = 24;
-            this.xHeartbeatEnabled.Text = "Enable built-in heartbeat sender (when disabled, status data is written to heartb" +
-                "eatdata.txt instead).";
-            this.xHeartbeatEnabled.UseVisualStyleBackColor = true;
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3540,8 +3473,6 @@ namespace fCraft.ConfigGUI {
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.ConfigUI_FormClosing );
             this.tabs.ResumeLayout( false );
             this.tabGeneral.ResumeLayout( false );
-            this.gWoMDirect.ResumeLayout( false );
-            this.gWoMDirect.PerformLayout();
             this.gUpdaterSettings.ResumeLayout( false );
             this.gUpdaterSettings.PerformLayout();
             this.groupBox2.ResumeLayout( false );
@@ -3887,12 +3818,6 @@ namespace fCraft.ConfigGUI {
         private Button bChangelog;
         private GroupBox gIRCColors;
         private CheckBox xIRCStripMinecraftColors;
-        private GroupBox gWoMDirect;
-        private Label lWoMDirectFlags;
-        private TextBox tWoMDirectFlags;
-        private Label lWoMDirectDescription;
-        private TextBox tWoMDirectDescription;
-        private CheckBox xHeartbeatToWoMDirect;
         private GroupBox gCrashReport;
         private Label lCrashReportDisclaimer;
         private CheckBox xSubmitCrashReports;
