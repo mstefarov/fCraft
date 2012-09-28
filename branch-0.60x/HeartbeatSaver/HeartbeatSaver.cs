@@ -5,27 +5,30 @@ using System.Net;
 using System.Net.Cache;
 using System.Text;
 using System.Threading;
-using System.Collections.Generic;
 
 
 namespace fCraft.HeartbeatSaver {
     static class HeartbeatSaver {
-        static readonly Uri MinecraftNetUri = new Uri( "http://minecraft.net/heartbeat.jsp" );
-        static readonly Uri WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
+        static readonly Uri MinecraftNetUri = new Uri( "http://minecraft.net/heartbeat.jsp" ),
+                            WoMDirectUri = new Uri( "http://direct.worldofminecraft.com/hb.php" );
 
-        static readonly TimeSpan Delay = TimeSpan.FromSeconds( 20 );
-        static readonly TimeSpan Timeout = TimeSpan.FromSeconds( 10 );
-        static readonly TimeSpan ErrorDelay = TimeSpan.FromSeconds( 5 );
-        static readonly TimeSpan RefreshDataDelay = TimeSpan.FromSeconds( 60 );
+        static readonly TimeSpan Delay = TimeSpan.FromSeconds( 20 ),
+                                 Timeout = TimeSpan.FromSeconds( 10 ),
+                                 ErrorDelay = TimeSpan.FromSeconds( 5 ),
+                                 RefreshDataDelay = TimeSpan.FromSeconds( 60 );
+
+        const string UrlFileName = "externalurl.txt",
+                     DefaultDataFileName = "heartbeatdata.txt";
 
         static string heartbeatDataFileName;
         static HeartbeatData data;
         static volatile bool beatToWoM;
+        static readonly HttpRequestCachePolicy CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
 
 
         static int Main( string[] args ) {
             if( args.Length == 0 ) {
-                heartbeatDataFileName = "heartbeatdata.txt";
+                heartbeatDataFileName = DefaultDataFileName;
             } else if( args.Length == 1 && File.Exists( args[0] ) ) {
                 heartbeatDataFileName = args[0];
             } else {
@@ -74,6 +77,10 @@ namespace fCraft.HeartbeatSaver {
                     Console.Error.WriteLine( "{0} > Cannot parse one of the data fields of {1}: {2} {3}",
                                              Timestamp(),
                                              heartbeatDataFileName, ex.GetType().Name, ex.Message );
+                } else {
+                    Console.Error.WriteLine( "{0} > Unexpected error: {1} {2}",
+                                             Timestamp(),
+                                             ex.GetType().Name, ex.Message );
                 }
                 return false;
             }
@@ -123,14 +130,15 @@ namespace fCraft.HeartbeatSaver {
             request.ServicePoint.BindIPEndPointDelegate = BindIPEndPointCallback;
             request.Method = "GET";
             request.Timeout = (int)Timeout.TotalMilliseconds;
-            request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
-            request.UserAgent = "fCraft";
+            request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
+            request.CachePolicy = CachePolicy;
+            request.UserAgent = "fCraft HeartbeatSaver";
 
             using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
                 if( getUri ) {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         string responseText = responseReader.ReadToEnd();
-                        File.WriteAllText( "externalurl.txt", responseText.Trim(), Encoding.ASCII );
+                        File.WriteAllText( UrlFileName, responseText.Trim(), Encoding.ASCII );
                         Console.WriteLine( "{0} > {1} OK: {2}", Timestamp(), uri.Host, responseText );
                     }
                 } else {
@@ -140,17 +148,20 @@ namespace fCraft.HeartbeatSaver {
         }
 
 
+        // Timestamp, used for logging
         static string Timestamp() {
             return DateTime.Now.ToLongTimeString();
         }
 
 
+        // delegate used to ensure that heartbeats get sent from the correct NIC/IP
         static IPEndPoint BindIPEndPointCallback( ServicePoint servicePoint, IPEndPoint remoteEndPoint, int retryCount ) {
             return new IPEndPoint( data.ServerIP, 0 );
         }
 
 
         sealed class HeartbeatData {
+            const int ProtocolVersion = 7;
             public string Salt { get; set; }
             public IPAddress ServerIP { get; set; }
             public int Port { get; set; }
@@ -158,7 +169,6 @@ namespace fCraft.HeartbeatSaver {
             public int MaxPlayers { get; set; }
             public string ServerName { get; set; }
             public bool IsPublic { get; set; }
-            const int ProtocolVersion = 7;
             public string WoMFlags { get; set; }
             public string WoMDescription { get; set; }
 
@@ -175,9 +185,9 @@ namespace fCraft.HeartbeatSaver {
                                  Uri.EscapeDataString( Salt ),
                                  Uri.EscapeDataString( ServerName ) );
                 if( includeWoM ) {
-                    sb.AppendFormat( "&noforward=1" );
-                    sb.AppendFormat( "&desc={0}", Uri.EscapeDataString( WoMDescription ) );
-                    sb.AppendFormat( "&flags={0}", Uri.EscapeDataString( WoMFlags ) );
+                    sb.AppendFormat( "&noforward=1&desc={0}&flags={1}",
+                                     Uri.EscapeDataString( WoMDescription ),
+                                     Uri.EscapeDataString( WoMFlags ) );
                 }
                 ub.Query = sb.ToString();
                 return ub.Uri;
