@@ -94,21 +94,25 @@ namespace fCraft {
             Bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
                                       Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
 
-            Rank buildRank = Rank.Parse( header[7] );
-            // if all else fails, fall back to lowest class
-            if( buildRank == null ) {
-                if( world != null ) {
-                    Controller.MinRank = world.BuildSecurity.MinRank;
+            // If no ranks are loaded (e.g. MapConverter/MapRenderer)(
+            if( RankManager.Ranks.Count > 0 ) {
+                Rank buildRank = Rank.Parse( header[7] );
+                // if all else fails, fall back to lowest class
+                if( buildRank == null ) {
+                    if( world != null ) {
+                        Controller.MinRank = world.BuildSecurity.MinRank;
+                    } else {
+                        Controller.ResetMinRank();
+                    }
+                    Logger.Log( LogType.Error,
+                                "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).",
+                                header[7], Controller.MinRank.Name );
                 } else {
-                    Controller.ResetMinRank();
+                    Controller.MinRank = buildRank;
                 }
-                Logger.Log( LogType.Error,
-                            "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).",
-                            header[7], Controller.MinRank.Name );
-            } else {
-                Controller.MinRank = buildRank;
             }
 
+            // If PlayerDB is not loaded (e.g. ConfigGUI)
             if( PlayerDB.IsLoaded ) {
                 // Part 2:
                 if( parts[1].Length > 0 ) {

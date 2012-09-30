@@ -153,6 +153,14 @@ namespace fCraft {
         }
 
 
+        /// <summary> Disables all file logging (sets all LogFileOptions to false). </summary>
+        public static void DisableFileLogging() {
+            for( int i = 0; i < LogFileOptions.Length; i++ ) {
+                LogFileOptions[i] = false;
+            }
+        }
+
+
         #region Crash Handling
 
         static readonly object CrashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
