@@ -39,6 +39,7 @@ namespace fCraft.MapRenderer {
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
+            Logger.DisableFileLogging();
 
             ReturnCode optionParsingResult = ParseOptions( args );
             if( optionParsingResult != ReturnCode.Success ) {
@@ -228,7 +229,7 @@ namespace fCraft.MapRenderer {
                 case LogType.Error:
                 case LogType.SeriousError:
                 case LogType.Warning:
-                    Console.Error.WriteLine( e.MessageType );
+                    Console.Error.WriteLine( e.Message );
                     return;
                 default:
                     Console.WriteLine( e.Message );

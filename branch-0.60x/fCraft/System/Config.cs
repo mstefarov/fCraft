@@ -497,7 +497,7 @@ namespace fCraft {
                 // unknown key
                 Logger.Log( LogType.Warning,
                             "Config: Unrecognized entry ignored: {0} = {1}",
-                            element.Name, element.Value );
+                            keyName, value );
             }
         }
 

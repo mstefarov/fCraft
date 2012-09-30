@@ -21,6 +21,7 @@ namespace fCraft.MapConverter {
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
+            Logger.DisableFileLogging();
 
             ReturnCode optionParsingResult = ParseOptions( args );
             if( optionParsingResult != ReturnCode.Success ) {
