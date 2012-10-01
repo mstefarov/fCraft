@@ -772,8 +772,10 @@ namespace fCraft {
         /// Note the parsing is done in a case-insensitive way. </summary>
         /// <typeparam name="TEnum"> Enum to use for parsing.
         /// An ArgumentException will be thrown if this is not an enum. </typeparam>
+        /// <exception cref="ArgumentException"> TEnum is not an System.Enum.
+        /// -or- key value is either an empty string ("") or only contains white space.
+        /// -or- value is a name, but not one of the named constants defined for the enumeration. </exception>
         public static TEnum GetEnum<TEnum>( this ConfigKey key ) where TEnum : struct {
-            if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
             return (TEnum)Enum.Parse( typeof( TEnum ), GetString( key ), true );
         }
 
