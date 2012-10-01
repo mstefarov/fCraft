@@ -827,7 +827,7 @@ namespace fCraft {
             info.LastModified = DateTime.UtcNow;
         }
 
-        static bool SetPlayerInfoField( [NotNull] Player player, [NotNull] string fieldName, [NotNull] IClassy info,
+        static bool SetPlayerInfoField( [NotNull] Player player, [NotNull] string fieldName, [NotNull] PlayerInfo info,
                                         [CanBeNull] string oldValue, [CanBeNull] string newValue ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( fieldName == null ) throw new ArgumentNullException( "fieldName" );
