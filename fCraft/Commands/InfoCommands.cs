@@ -381,6 +381,9 @@ namespace fCraft {
                 if( info.RankChangedBy == null ) {
                     player.Message( "  Rank is {0}&S (default).",
                                     info.Rank.ClassyName );
+                    if( info.RankChangeReason != null ) {
+                        player.Message( "  Rank note: {0}", info.RankChangeReason );
+                    }
                 } else {
                     player.Message( "  Promoted to {0}&S by {1}&S {2} ago.",
                                     info.Rank.ClassyName,
