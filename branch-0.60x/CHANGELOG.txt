@@ -1,3 +1,13 @@
+0.634
+ Fix: Fixed an occasional InvalidOperationException when auto-updating in ServerGUI.
+ Fix: Fixed ConfigGUI showing misleading information in "unrecognized entry ignore" errors.
+ Fix: Fixed Logger trying to write to file in MapConverter and MapRenderer.
+ Fix: Fixed MapRenderer and MapConverter spamming zone-related errors (thanks Hellenion and AndrewPH)
+ Fix: Fixed /UndoPlayerNot help entry (thanks ruggedbear)
+ Change: Heartbeat code now uses HTTPS, as mandated by Mojang. If you use Mono, see http://www.mono-project.com/FAQ:_Security
+ Change: Removed support for the malfunctioning WoM Direct heartbeat service.
+ Change: RankChangeReason is now shown as a "Rank note" in /Info, even if no other data (PreviousRank/RankChangedBy/RankChangeDate) exists (thanks Wundsalz) 
+
 0.633
  Feature: Added checkbox for HeartbeatEnabled config key to ConfigGUI, on the advanced tab.
  Fix: Fixed heartbeat/verification issues caused by "no-www" changes made by Mojang at minecraft.net
