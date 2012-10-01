@@ -87,7 +87,11 @@ namespace fCraft.ServerGUI {
                                                               update.LatestRelease.VersionString );
                             Logger.LogToConsole( updateMsg );
                         } else {
-                            new UpdateWindow( update ).ShowDialog();
+                            DialogResult result = new UpdateWindow( update ).ShowDialog();
+                            if( result == DialogResult.Cancel ) {
+                                // startup aborted (restart for update)
+                                return;
+                            }
                         }
                     }
                 }

@@ -25,6 +25,7 @@ namespace fCraft.ServerGUI {
                                            updateResult.LatestRelease.VersionString,
                                            updateResult.LatestRelease.Age.TotalDays );
             Shown += Download;
+            DialogResult = DialogResult.OK;
         }
 
 
@@ -70,6 +71,7 @@ namespace fCraft.ServerGUI {
                           String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "ServerGUI.exe" ) );
             MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
             Server.Shutdown( new ShutdownParams( ShutdownReason.RestartForUpdate, TimeSpan.Zero, false ), false );
+            DialogResult = DialogResult.Cancel;
         }
 
 
