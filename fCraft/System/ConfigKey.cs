@@ -399,6 +399,10 @@ or requires identification/authentication." )]
 @"Whether Minecraft colorcodes entered on IRC should be removed before showing message in-game." )]
         IRCStripMinecraftColors,
 
+        [BoolKey( ConfigSection.IRC, false,
+@"Whether Minecraft emote macros entered on IRC should be converted to in-game emotes." )]
+        IRCAllowMinecraftEmotes,
+
         [IntKey( ConfigSection.IRC, 750,
 @"Minimum delay (in milliseconds) between IRC messages. Many networks
 have strict message rate limits, so a delay of at least 500ms is recommended.",

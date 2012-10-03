@@ -32,6 +32,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
@@ -220,10 +221,9 @@ namespace fCraft {
                                     return;
                                 }
                             }
-                            processedMessage = NonPrintableChars.Replace( processedMessage, "" );
-                            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
-                                processedMessage = Color.StripColors( processedMessage );
-                            }
+
+                            processedMessage = ProcessMessageFromIRC( processedMessage );
+
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
@@ -269,10 +269,7 @@ namespace fCraft {
                             Send( IRCCommands.Join( msg.Channel ) );
                         } else {
                             if( !ResponsibleForInputParsing ) return;
-                            string kickMessage = NonPrintableChars.Replace( msg.Message, "" );
-                            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
-                                kickMessage = Color.StripColors( kickMessage );
-                            }
+                            string kickMessage = ProcessMessageFromIRC( msg.Message );
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
                                             msg.Nick, kicked, msg.Channel, kickMessage );
                             Logger.Log( LogType.IRCChat,
@@ -444,9 +441,6 @@ namespace fCraft {
             }
         }
 
-        // includes IRC color codes and non-printable ASCII
-        static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F]", RegexOptions.Compiled );
-
         public static void Init() {
             if( !ConfigKey.IRCBotEnabled.Enabled() ) return;
 
@@ -496,11 +490,7 @@ namespace fCraft {
         public static void SendChannelMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.Enabled() ) {
-                line = Color.ToIRCColorCodes( line );
-            } else {
-                line = NonPrintableChars.Replace( line, "" ).Trim();
-            }
+            line = ProcessMessageToIRC( line );
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
             }
@@ -516,11 +506,7 @@ namespace fCraft {
         public static void SendNotice( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
-            if( ConfigKey.IRCUseColor.Enabled() ) {
-                line = Color.ToIRCColorCodes( line );
-            } else {
-                line = NonPrintableChars.Replace( line, "" ).Trim();
-            }
+            line = ProcessMessageToIRC( line );
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Notice( channelNames[i], line ) );
             }
@@ -571,6 +557,41 @@ namespace fCraft {
                     thread.DisconnectThread();
                 }
             }
+        }
+
+
+
+        // includes IRC color codes and non-printable ASCII
+        static readonly Regex
+            IRCAndMinecraftColors = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|&." ),
+            IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\0x7E]" ),
+            IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\0x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]" );
+
+        static string ProcessMessageFromIRC( string message ) {
+            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
+                message = IRCAndMinecraftColors.Replace( message, "" );
+            } else {
+                message = Color.IrcToMinecraftColors( message );
+            }
+            if( ConfigKey.IRCAllowMinecraftEmotes.Enabled() ) {
+                message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
+                message = Chat.ReplaceEmoteMacros( message );
+                message = Chat.ReplaceUncodeWithEmotes( message );
+            } else {
+                message = IRCColorsAndNonStandardChars.Replace( message, "" );
+            }
+            return message.Trim();
+        }
+
+
+        static string ProcessMessageToIRC( string message ) {
+            if( ConfigKey.IRCUseColor.Enabled() ) {
+                message = Color.MinecraftToIrcColors( message );
+                message = Chat.ReplaceEmotesWithUncode( message );
+            } else {
+                message = IRCColorsAndNonStandardChars.Replace( message, "" );
+            }
+            return message.Trim();
         }
 
 

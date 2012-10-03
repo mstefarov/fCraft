@@ -359,7 +359,7 @@ namespace fCraft.ConfigGUI {
             xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.Enabled();
             xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.Enabled();
             xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
-            xIRCStripMinecraftColors.Checked = ConfigKey.IRCStripMinecraftColors.Enabled();
+            xIRCStripMinecraftColors.Checked = !ConfigKey.IRCStripMinecraftColors.Enabled();
 
             colorIRC = ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
@@ -599,7 +599,7 @@ namespace fCraft.ConfigGUI {
 
             ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
             ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
-            ConfigKey.IRCStripMinecraftColors.TrySetValue( xIRCStripMinecraftColors.Checked );
+            ConfigKey.IRCStripMinecraftColors.TrySetValue( !xIRCStripMinecraftColors.Checked );
 
             // advanced
             ConfigKey.SubmitCrashReports.TrySetValue( xSubmitCrashReports.Checked );

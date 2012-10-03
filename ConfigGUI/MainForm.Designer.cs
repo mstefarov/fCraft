@@ -295,6 +295,7 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
+            this.xIRCAllowMinecraftEmotes = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -2619,13 +2620,14 @@ namespace fCraft.ConfigGUI {
             // 
             // gIRCColors
             // 
+            this.gIRCColors.Controls.Add( this.xIRCAllowMinecraftEmotes );
             this.gIRCColors.Controls.Add( this.xIRCStripMinecraftColors );
             this.gIRCColors.Controls.Add( this.bColorIRC );
             this.gIRCColors.Controls.Add( this.xIRCUseColor );
             this.gIRCColors.Controls.Add( this.lColorIRC );
             this.gIRCColors.Location = new System.Drawing.Point( 8, 206 );
             this.gIRCColors.Name = "gIRCColors";
-            this.gIRCColors.Size = new System.Drawing.Size( 635, 77 );
+            this.gIRCColors.Size = new System.Drawing.Size( 635, 82 );
             this.gIRCColors.TabIndex = 6;
             this.gIRCColors.TabStop = false;
             this.gIRCColors.Text = "Colors";
@@ -2635,9 +2637,9 @@ namespace fCraft.ConfigGUI {
             this.xIRCStripMinecraftColors.AutoSize = true;
             this.xIRCStripMinecraftColors.Location = new System.Drawing.Point( 38, 49 );
             this.xIRCStripMinecraftColors.Name = "xIRCStripMinecraftColors";
-            this.xIRCStripMinecraftColors.Size = new System.Drawing.Size( 395, 19 );
+            this.xIRCStripMinecraftColors.Size = new System.Drawing.Size( 246, 19 );
             this.xIRCStripMinecraftColors.TabIndex = 3;
-            this.xIRCStripMinecraftColors.Text = "Strip Minecraft color codes (&&-codes) from incoming IRC messages.";
+            this.xIRCStripMinecraftColors.Text = "Show colors in incoming IRC messages.";
             this.xIRCStripMinecraftColors.UseVisualStyleBackColor = true;
             // 
             // bColorIRC
@@ -2653,7 +2655,7 @@ namespace fCraft.ConfigGUI {
             // xIRCUseColor
             // 
             this.xIRCUseColor.AutoSize = true;
-            this.xIRCUseColor.Location = new System.Drawing.Point( 325, 20 );
+            this.xIRCUseColor.Location = new System.Drawing.Point( 325, 23 );
             this.xIRCUseColor.Name = "xIRCUseColor";
             this.xIRCUseColor.Size = new System.Drawing.Size( 304, 19 );
             this.xIRCUseColor.TabIndex = 2;
@@ -2689,7 +2691,7 @@ namespace fCraft.ConfigGUI {
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromIRC );
             this.gIRCOptions.Controls.Add( this.xIRCBotAnnounceServerJoins );
             this.gIRCOptions.Controls.Add( this.xIRCBotForwardFromServer );
-            this.gIRCOptions.Location = new System.Drawing.Point( 8, 289 );
+            this.gIRCOptions.Location = new System.Drawing.Point( 8, 294 );
             this.gIRCOptions.Name = "gIRCOptions";
             this.gIRCOptions.Size = new System.Drawing.Size( 636, 136 );
             this.gIRCOptions.TabIndex = 5;
@@ -3455,6 +3457,16 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xIRCAllowMinecraftEmotes
+            // 
+            this.xIRCAllowMinecraftEmotes.AutoSize = true;
+            this.xIRCAllowMinecraftEmotes.Location = new System.Drawing.Point( 325, 49 );
+            this.xIRCAllowMinecraftEmotes.Name = "xIRCAllowMinecraftEmotes";
+            this.xIRCAllowMinecraftEmotes.Size = new System.Drawing.Size( 254, 19 );
+            this.xIRCAllowMinecraftEmotes.TabIndex = 4;
+            this.xIRCAllowMinecraftEmotes.Text = "Show emotes in incoming IRC messages.";
+            this.xIRCAllowMinecraftEmotes.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF( 6F, 13F );
@@ -3824,5 +3836,6 @@ namespace fCraft.ConfigGUI {
         private CheckBox xAntispamMessageCount;
         private CheckBox xAntispamMuteDuration;
         private CheckBox xHeartbeatEnabled;
+        private CheckBox xIRCAllowMinecraftEmotes;
     }
 }

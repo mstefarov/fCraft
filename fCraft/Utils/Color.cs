@@ -372,7 +372,7 @@ namespace fCraft {
         };
 
 
-        public static void ToIRCColorCodes( [NotNull] StringBuilder sb ) {
+        public static void MinecraftToIrcColors( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             SubstituteSpecialColors( sb );
             foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
@@ -382,10 +382,28 @@ namespace fCraft {
         }
 
 
-        public static string ToIRCColorCodes( [NotNull] string input ) {
+        public static string MinecraftToIrcColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
-            ToIRCColorCodes( sb );
+            MinecraftToIrcColors( sb );
+            return sb.ToString();
+        }
+
+
+        public static void IrcToMinecraftColors( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
+            SubstituteSpecialColors( sb );
+            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
+                string replacement = '\u0003' + ( (int)code.Value ).ToStringInvariant().PadLeft( 2, '0' );
+                sb.Replace( replacement, code.Key );
+            }
+        }
+
+
+        public static string IrcToMinecraftColors( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            IrcToMinecraftColors( sb );
             return sb.ToString();
         }
 
