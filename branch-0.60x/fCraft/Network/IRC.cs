@@ -445,7 +445,7 @@ namespace fCraft {
         }
 
         // includes IRC color codes and non-printable ASCII
-        static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F\x7E-\xFF]", RegexOptions.Compiled );
+        static readonly Regex NonPrintableChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[\x00-\x1F]", RegexOptions.Compiled );
 
         public static void Init() {
             if( !ConfigKey.IRCBotEnabled.Enabled() ) return;

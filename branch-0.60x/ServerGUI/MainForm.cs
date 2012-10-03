@@ -297,7 +297,7 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
                 try {
 #endif
-                    if( line.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
+                    if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
                         logBox.Clear();
                     } else if( line.Equals( "/credits", StringComparison.OrdinalIgnoreCase ) ) {
                         new AboutWindow().Show();
