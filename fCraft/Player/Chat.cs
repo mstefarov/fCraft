@@ -285,6 +285,31 @@ namespace fCraft {
             return sb.ToString();
         }
 
+        static readonly char[] UnicodeReplacements = "☺☻♥♦♣♠•◘○◙\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
+
+        /// <summary> Replaces UTF-8 symbol characters with ASCII control characters, matching Code Page 437. </summary>
+        /// <param name="input"> String to process. </param>
+        /// <returns> Processed string, with its UTF-8 symbol characters replaced. </returns>
+        /// <exception cref="ArgumentNullException"> If input is null. </exception>
+        [NotNull]
+        public static string ReplaceUncodeWithEmotes( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
+                sb.Replace( UnicodeReplacements[i-1], (char)i );
+            }
+            return sb.ToString();
+        }
+
+        public static string ReplaceEmotesWithUncode( [NotNull] string input ) {
+            if( input == null ) throw new ArgumentNullException( "input" );
+            StringBuilder sb = new StringBuilder( input );
+            for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
+                sb.Replace( (char)i, UnicodeReplacements[i-1] );
+            }
+            return sb.ToString();
+        }
+
 
         #region Events
 

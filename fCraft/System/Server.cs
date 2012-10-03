@@ -373,14 +373,17 @@ namespace fCraft {
 
             // Resolve internal and external IP addresses
             InternalIP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
-            ExternalIP = CheckExternalIP();
+            for( int i = 0; i < 3 && ExternalIP == null; i++ ) {
+                Logger.Log( LogType.SystemActivity, "Resolving external IP address... (try {0})", i + 1 );
+                ExternalIP = CheckExternalIP();
+            }
 
             if( ExternalIP == null ) {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: now accepting connections on port {0}", Port );
+                            "Server.StartServer: now accepting connections on port {0}", Port );
             } else {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.Run: now accepting connections at {0}:{1}",
+                            "Server.StartServer: now accepting connections at {0}:{1}",
                             ExternalIP, Port );
             }
 
