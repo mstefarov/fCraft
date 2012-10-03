@@ -61,6 +61,9 @@ namespace fCraft {
         /// <summary> Ability to use color codes in chat messages. </summary>
         UseColorCodes,
 
+        /// <summary> Ability to use color codes in chat messages. </summary>
+        UseEmotes,
+
         /// <summary> Ability to move at a faster-than-normal rate (using hacks). </summary>
         UseSpeedHack,
 

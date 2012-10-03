@@ -942,16 +942,17 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                         vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.GrayText;
                         vPermissions.Items[(int)Permission.UseColorCodes].Checked = false;
                         vPermissions.Items[(int)Permission.UseColorCodes].ForeColor = SystemColors.GrayText;
+                        vPermissions.Items[(int)Permission.UseEmotes].Checked = false;
+                        vPermissions.Items[(int)Permission.UseEmotes].ForeColor = SystemColors.GrayText;
                     } else {
                         vPermissions.Items[(int)Permission.Say].ForeColor = SystemColors.ControlText;
                         vPermissions.Items[(int)Permission.UseColorCodes].ForeColor = SystemColors.ControlText;
+                        vPermissions.Items[(int)Permission.UseEmotes].ForeColor = SystemColors.ControlText;
                     }
                     break;
 
                 case Permission.Say:
-                    if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
-                    break;
-
+                case Permission.UseEmotes:
                 case Permission.UseColorCodes:
                     if( check ) vPermissions.Items[(int)Permission.Chat].Checked = true;
                     break;

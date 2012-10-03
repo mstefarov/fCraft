@@ -524,6 +524,9 @@ Affected commands:
             vPermissions.Items[(int)Permission.UseColorCodes].ToolTipText =
 @"Ability to use color codes in chat messages.";
 
+            vPermissions.Items[(int)Permission.UseEmotes].ToolTipText =
+@"Ability to use emotes/symbols in chat messages.";
+
             vPermissions.Items[(int)Permission.UseSpeedHack].ToolTipText =
 @"Ability to move at a faster-than-normal rate (using hacks).
 WARNING: Speedhack detection is often inaccurate, and may produce many
