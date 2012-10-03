@@ -201,6 +201,9 @@ namespace fCraft {
             if( Can( Permission.UseColorCodes ) ) {
                 rawMessage = Color.ReplacePercentCodes( rawMessage );
             }
+            if( Can( Permission.UseEmotes ) ) {
+                rawMessage = Chat.ReplaceEmoteMacros( rawMessage );
+            }
 
             switch( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {

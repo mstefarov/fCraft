@@ -181,6 +181,8 @@ namespace fCraft {
      * 
      * 161 - r1792 - Removed HeartbeatToWoMDirect, WoMDirectDescription, and WoMDirectFlags keys
      * 
+     * 162 - r1800 - Added UseEmotes permission
+     * 
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -191,7 +193,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 159;
+        public const int CurrentVersion = 162;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -1004,6 +1006,7 @@ namespace fCraft {
             owner.Add( new XElement( Permission.Delete.ToString() ) );
             owner.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
             owner.Add( new XElement( Permission.UseColorCodes.ToString() ) );
+            owner.Add( new XElement( Permission.UseEmotes.ToString() ) );
 
             owner.Add( new XElement( Permission.PlaceGrass.ToString() ) );
             owner.Add( new XElement( Permission.PlaceWater.ToString() ) );
@@ -1085,6 +1088,7 @@ namespace fCraft {
             op.Add( new XElement( Permission.Delete.ToString() ) );
             op.Add( new XElement( Permission.UseSpeedHack.ToString() ) );
             op.Add( new XElement( Permission.UseColorCodes.ToString() ) );
+            op.Add( new XElement( Permission.UseEmotes.ToString() ) );
 
             op.Add( new XElement( Permission.PlaceGrass.ToString() ) );
             op.Add( new XElement( Permission.PlaceWater.ToString() ) );
