@@ -226,6 +226,9 @@ namespace fCraft {
                     }
                 }
             }
+            if( !expectingDigit ) {
+                throw new FormatException();
+            }
             return result;
         }
 
