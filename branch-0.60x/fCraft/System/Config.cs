@@ -181,7 +181,7 @@ namespace fCraft {
      * 
      * 161 - r1792 - Removed HeartbeatToWoMDirect, WoMDirectDescription, and WoMDirectFlags keys
      * 
-     * 162 - r1800 - Added UseEmotes permission
+     * 162 - r1800 - Added UseEmotes permission and IRCAllowMinecraftEmotes key
      * 
      */
 

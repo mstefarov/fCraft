@@ -698,6 +698,7 @@ or type in address/port manually below.";
 
             toolTip.SetToolTip( xIRCUseColor, ConfigKey.IRCUseColor.GetDescription() );
             toolTip.SetToolTip( xIRCStripMinecraftColors, ConfigKey.IRCStripMinecraftColors.GetDescription() );
+            toolTip.SetToolTip( xIRCAllowMinecraftEmotes, ConfigKey.IRCAllowMinecraftEmotes.GetDescription() );
         }
 
 
