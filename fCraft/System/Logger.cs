@@ -184,23 +184,29 @@ namespace fCraft {
             if( exception == null ) exception = new Exception( "(none)" );
 
             Log( LogType.SeriousError, "{0}: {1}", message, exception );
-
-            bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
-            bool isCommon = CheckForCommonErrors( exception );
-
+            bool submitCrashReport;
             try {
-                var eventArgs = new CrashedEventArgs( message,
-                                                      assembly,
-                                                      exception,
-                                                      submitCrashReport && !isCommon,
-                                                      isCommon,
-                                                      shutdownImminent );
-                RaiseCrashedEvent( eventArgs );
-                isCommon = eventArgs.IsCommonProblem;
-            } catch { }
+                submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
+                bool isCommon = CheckForCommonErrors( exception );
 
-            if( !submitCrashReport || isCommon ) {
-                return;
+                try {
+                    var eventArgs = new CrashedEventArgs( message,
+                                                          assembly,
+                                                          exception,
+                                                          submitCrashReport && !isCommon,
+                                                          isCommon,
+                                                          shutdownImminent );
+                    RaiseCrashedEvent( eventArgs );
+                    isCommon = eventArgs.IsCommonProblem;
+                } catch( Exception ex ) {
+                    Log( LogType.Error, "Crash reporter callback failure: {0}", ex );
+                }
+
+                if( !submitCrashReport || isCommon ) {
+                    return;
+                }
+            } catch( Exception ex ) {
+                Log( LogType.Error, "Crash reporter failure: {0}", ex );
             }
 
             lock( CrashReportLock ) {
