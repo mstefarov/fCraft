@@ -58,9 +58,6 @@ namespace fCraft {
 
         LineWrapper( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            for( int i = 1; i < 32; i++ ) {
-                message = message.Replace( "<" + i + ">", "" + (char)i );
-            }
             input = Encoding.ASCII.GetBytes( message );
             prefix = DefaultPrefix;
             Reset();
