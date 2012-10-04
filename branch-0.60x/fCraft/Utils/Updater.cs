@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -61,10 +60,11 @@ namespace fCraft {
             try {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( url );
 
+                request.CachePolicy = Server.CachePolicy;
                 request.Method = "GET";
-                request.Timeout = (int)UpdateCheckTimeout.TotalMilliseconds;
                 request.ReadWriteTimeout = (int)UpdateCheckTimeout.TotalMilliseconds;
-                request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+                request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
+                request.Timeout = (int)UpdateCheckTimeout.TotalMilliseconds;
                 request.UserAgent = UserAgent;
 
                 using( WebResponse response = request.GetResponse() ) {
@@ -82,7 +82,7 @@ namespace fCraft {
                                     new ReleaseInfo(
                                         Int32.Parse( el.Attribute( "v" ).Value ),
                                         Int32.Parse( el.Attribute( "r" ).Value ),
-                                        Int64.Parse( el.Attribute( "date" ).Value ).ToDateTime(),
+                                        DateTimeUtil.TryParseDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
                                         el.Element( "Summary" ).Value,
                                         el.Element( "ChangeLog" ).Value,
                                         ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )

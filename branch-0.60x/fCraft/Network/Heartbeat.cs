@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Cache;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -87,11 +86,11 @@ namespace fCraft {
         // Creates an asynchronous HTTP request to the given URL
         static HttpWebRequest CreateRequest( Uri uri ) {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
-            request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
+            request.CachePolicy = Server.CachePolicy;
             request.Method = "GET";
-            request.Timeout = (int)Timeout.TotalMilliseconds;
             request.ReadWriteTimeout = (int)Timeout.TotalMilliseconds;
-            request.CachePolicy = new HttpRequestCachePolicy( HttpRequestCacheLevel.BypassCache );
+            request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
+            request.Timeout = (int)Timeout.TotalMilliseconds;
             request.UserAgent = Updater.UserAgent;
             return request;
         }

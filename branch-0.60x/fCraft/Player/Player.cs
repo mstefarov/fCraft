@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
@@ -1582,7 +1581,7 @@ namespace fCraft {
         #region Static Utilities
 
         static readonly Uri PaidCheckUri = new Uri( "http://minecraft.net/haspaid.jsp?user=" );
-        const int PaidCheckTimeout = 5000;
+        static readonly TimeSpan PaidCheckTimeout = TimeSpan.FromSeconds( 6 );
 
 
         /// <summary> Checks whether a given player has a paid minecraft.net account. </summary>
@@ -1592,8 +1591,9 @@ namespace fCraft {
 
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( PaidCheckUri + Uri.EscapeDataString( name ) );
             request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
-            request.Timeout = PaidCheckTimeout;
-            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+            request.Timeout = (int)PaidCheckTimeout.TotalMilliseconds;
+            request.ReadWriteTimeout = (int)PaidCheckTimeout.TotalMilliseconds;
+            request.CachePolicy = Server.CachePolicy;
 
             try {
                 using( WebResponse response = request.GetResponse() ) {

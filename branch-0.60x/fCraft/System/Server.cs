@@ -27,15 +27,20 @@ namespace fCraft {
         public static DateTime StartTime { get; private set; }
 
         /// <summary> Internal IP address that the server's bound to (0.0.0.0 if not explicitly specified by the user). </summary>
+        [NotNull]
         public static IPAddress InternalIP { get; private set; }
 
-        /// <summary> External IP address of this machine, as reported by checkip.dyndns.org </summary>
+        /// <summary> External IP address of this machine, as reported by checkip.dyndns.org
+        /// Same as InternalIP, if dyndns check was not carried out or has failed. </summary>
+        [NotNull]
         public static IPAddress ExternalIP { get; private set; }
 
         /// <summary> Number of the local listening port. </summary>
         public static int Port { get; private set; }
 
-        /// <summary> Minecraft.net connection URL. </summary>
+        /// <summary> Minecraft.net connection URL. 
+        /// May be null (if heartbeat is disabled, or first heartbeat has not been sent yet). </summary>
+        [CanBeNull]
         public static Uri Uri { get; internal set; }
 
 
@@ -108,6 +113,12 @@ namespace fCraft {
         public static bool IsRunning { get; private set; }
 
 
+        static Server() {
+            InternalIP = IPAddress.None;
+            ExternalIP = IPAddress.None;
+        }
+
+
         /// <summary> Reads command-line switches and sets up paths and logging.
         /// This should be called before any other library function.
         /// Note to frontend devs: Subscribe to log-related events before calling this.
@@ -134,7 +145,6 @@ namespace fCraft {
                         if( argValue.StartsWith( "\"" ) && argValue.EndsWith( "\"" ) ) {
                             argValue = argValue.Substring( 1, argValue.Length - 2 );
                         }
-
                     } else {
                         argKeyName = arg.Substring( 2 );
                         argValue = null;
@@ -373,18 +383,20 @@ namespace fCraft {
 
             // Resolve internal and external IP addresses
             InternalIP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
-            for( int i = 0; i < 3 && ExternalIP == null; i++ ) {
+            IPAddress foundExternalIP = null;
+            for( int i = 0; i < 3 && foundExternalIP == null; i++ ) {
                 Logger.Log( LogType.SystemActivity, "Resolving external IP address... (try {0})", i + 1 );
-                ExternalIP = CheckExternalIP();
+                foundExternalIP = CheckExternalIP();
             }
 
-            if( ExternalIP == null ) {
-                Logger.Log( LogType.SystemActivity,
-                            "Server.StartServer: now accepting connections on port {0}", Port );
-            } else {
+            if( foundExternalIP != null ) {
+                ExternalIP = foundExternalIP;
                 Logger.Log( LogType.SystemActivity,
                             "Server.StartServer: now accepting connections at {0}:{1}",
                             ExternalIP, Port );
+            } else {
+                Logger.Log( LogType.SystemActivity,
+                            "Server.StartServer: External IP could not be looked up. Now accepting connections on port {0}", Port );
             }
 
             // list loaded worlds
@@ -888,9 +900,11 @@ namespace fCraft {
         [CanBeNull]
         static IPAddress CheckExternalIP() {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
+            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.BypassCache );
+            request.ReadWriteTimeout = IPCheckTimeout;
             request.ServicePoint.BindIPEndPointDelegate = BindIPEndPointCallback;
             request.Timeout = IPCheckTimeout;
-            request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
+            request.UserAgent = Updater.UserAgent;
 
             try {
                 using( WebResponse response = request.GetResponse() ) {
@@ -921,6 +935,8 @@ namespace fCraft {
                                                          int retryCount ) {
             return new IPEndPoint( InternalIP, 0 );
         }
+
+        internal static readonly RequestCachePolicy CachePolicy = new RequestCachePolicy( RequestCacheLevel.BypassCache );
 
         #endregion
 

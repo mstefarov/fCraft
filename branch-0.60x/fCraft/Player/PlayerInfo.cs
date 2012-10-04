@@ -363,7 +363,7 @@ namespace fCraft {
             }
 
             info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
-            fields[3].ToDateTime( ref info.RankChangeDate );
+            DateTimeUtil.TryParseDateTime( fields[3], ref info.RankChangeDate );
             if( fields[4].Length > 0 ) info.RankChangedBy = fields[4];
 
             switch( fields[5] ) {
@@ -379,30 +379,31 @@ namespace fCraft {
             }
 
             // ban information
-            if( fields[6].ToDateTime( ref info.BanDate ) ) {
+            if( DateTimeUtil.TryParseDateTime( fields[6], ref info.BanDate ) ) {
                 if( fields[7].Length > 0 ) info.BannedBy = PlayerDB.Unescape( fields[7] );
                 if( fields[10].Length > 0 ) info.BanReason = PlayerDB.Unescape( fields[10] );
             }
 
             // unban information
-            if( fields[8].ToDateTime( ref info.UnbanDate ) ) {
+            if( DateTimeUtil.TryParseDateTime( fields[8], ref info.UnbanDate ) ) {
                 if( fields[9].Length > 0 ) info.UnbannedBy = PlayerDB.Unescape( fields[9] );
                 if( fields[11].Length > 0 ) info.UnbanReason = PlayerDB.Unescape( fields[11] );
             }
 
             // failed logins
-            fields[12].ToDateTime( ref info.LastFailedLoginDate );
+            DateTimeUtil.TryParseDateTime( fields[12], ref info.LastFailedLoginDate );
 
-            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
+            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) {
+                // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
             // skip 14
 
-            fields[15].ToDateTime( ref info.FirstLoginDate );
+            DateTimeUtil.TryParseDateTime( fields[15], ref info.FirstLoginDate );
 
             // login/logout times
-            fields[16].ToDateTime( ref info.LastLoginDate );
-            fields[17].ToTimeSpan( out info.TotalTime );
+            DateTimeUtil.TryParseDateTime( fields[16], ref info.LastLoginDate );
+            DateTimeUtil.TryParseTimeSpan( fields[17], out info.TotalTime );
 
             // stats
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
@@ -431,8 +432,8 @@ namespace fCraft {
                 info.GuessRankChangeType();
             }
 
-            fields[31].ToDateTime( ref info.LastKickDate );
-            if( !fields[32].ToDateTime( ref info.LastSeen ) || info.LastSeen < info.LastLoginDate ) {
+            DateTimeUtil.TryParseDateTime( fields[31], ref info.LastKickDate );
+            if( !DateTimeUtil.TryParseDateTime( fields[32], ref info.LastSeen ) || info.LastSeen < info.LastLoginDate ) {
                 info.LastSeen = info.LastLoginDate;
             }
             Int64.TryParse( fields[33], out info.BlocksDrawn );
@@ -440,11 +441,11 @@ namespace fCraft {
             if( fields[34].Length > 0 ) info.LastKickBy = PlayerDB.Unescape( fields[34] );
             if( fields[35].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
 
-            fields[36].ToDateTime( ref info.BannedUntil );
-            info.IsFrozen = (fields[37] == "f");
+            DateTimeUtil.TryParseDateTime( fields[36], ref info.BannedUntil );
+            info.IsFrozen = ( fields[37] == "f" );
             if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.Unescape( fields[38] );
-            fields[39].ToDateTime( ref info.FrozenOn );
-            fields[40].ToDateTime( ref info.MutedUntil );
+            DateTimeUtil.TryParseDateTime( fields[39], ref info.FrozenOn );
+            DateTimeUtil.TryParseDateTime( fields[40], ref info.MutedUntil );
             if( fields[41].Length > 0 ) info.MutedBy = PlayerDB.Unescape( fields[41] );
             info.Password = PlayerDB.Unescape( fields[42] );
             // fields[43] is "online", and is ignored
@@ -467,7 +468,7 @@ namespace fCraft {
                 }
             }
             if( fields.Length > 46 ) {
-                fields[46].ToDateTime( ref info.LastModified );
+                DateTimeUtil.TryParseDateTime( fields[46], ref info.LastModified );
             }
             if( fields.Length > 47 && fields[47].Length > 0 ) {
                 info.DisplayedName = PlayerDB.Unescape( fields[47] );
@@ -819,10 +820,11 @@ namespace fCraft {
 
             Player pObject = PlayerObject;
             if( pObject != null ) {
-                (TotalTime.Add( TimeSinceLastLogin )).ToTickString( sb ).Append( ',' ); // 17
+                (TotalTime.Add( TimeSinceLastLogin )).ToSecondsString( sb ); // 17
             } else {
-                TotalTime.ToTickString( sb ).Append( ',' ); // 17
+                TotalTime.ToSecondsString( sb ); // 17
             }
+            sb.Append( ',' );
 
             if( BlocksBuilt > 0 ) sb.Digits( BlocksBuilt ); // 18
             sb.Append( ',' );

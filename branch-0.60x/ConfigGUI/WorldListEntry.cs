@@ -72,7 +72,7 @@ namespace fCraft.ConfigGUI {
 
             if( ( temp = el.Attribute( "backup" ) ) != null ) {
                 TimeSpan realBackupTimer;
-                if( temp.Value.ToTimeSpan( out realBackupTimer ) ) {
+                if( DateTimeUtil.TryParseTimeSpan( temp.Value, out realBackupTimer ) ) {
                     Backup = BackupNameFromValue( realBackupTimer );
                 } else {
                     Logger.Log( LogType.Error,
@@ -150,12 +150,12 @@ namespace fCraft.ConfigGUI {
             }
 
             if( ( tempEl = el.Element( "LoadedOn" ) ) != null ) {
-                if( !tempEl.Value.ToDateTime( ref LoadedOn ) ) {
+                if( !DateTimeUtil.TryParseDateTime( tempEl.Value, ref LoadedOn ) ) {
                     LoadedOn = DateTime.MinValue;
                 }
             }
             if( ( tempEl = el.Element( "MapChangedOn" ) ) != null ) {
-                if( !tempEl.Value.ToDateTime( ref MapChangedOn ) ) {
+                if( !DateTimeUtil.TryParseDateTime( tempEl.Value, ref MapChangedOn ) ) {
                     MapChangedOn = DateTime.MinValue;
                 }
             }
@@ -292,7 +292,7 @@ namespace fCraft.ConfigGUI {
             element.Add( new XAttribute( "name", Name ) );
             element.Add( new XAttribute( "hidden", Hidden ) );
             if( Backup != BackupEnumNames[0] ) {
-                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToTickString() ) );
+                element.Add( new XAttribute( "backup", BackupValueFromName( Backup ).ToSecondsString() ) );
             }
             element.Add( accessSecurity.Serialize( WorldManager.AccessSecurityXmlTagName ) );
             element.Add( buildSecurity.Serialize( WorldManager.BuildSecurityXmlTagName ) );

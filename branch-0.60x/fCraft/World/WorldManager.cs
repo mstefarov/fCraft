@@ -197,7 +197,7 @@ namespace fCraft {
             // load backup settings
             if( (tempAttr = el.Attribute( "backup" )) != null ) {
                 TimeSpan backupInterval;
-                if( tempAttr.Value.ToTimeSpan( out backupInterval ) ) {
+                if( DateTimeUtil.TryParseTimeSpan( tempAttr.Value, out backupInterval ) ) {
                     if( backupInterval <= TimeSpan.Zero ) {
                         world.BackupEnabledState = YesNoAuto.No;
                     } else {
@@ -281,13 +281,13 @@ namespace fCraft {
             if( tempEl != null ) world.LoadedBy = tempEl.Value;
             tempEl = el.Element( "LoadedOn" );
             if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                world.LoadedOn = timestamp.ToDateTime();
+                world.LoadedOn = DateTimeUtil.TryParseDateTime( timestamp );
             }
             tempEl = el.Element( "MapChangedBy" );
             if( tempEl != null ) world.MapChangedBy = tempEl.Value;
             tempEl = el.Element( "MapChangedOn" );
             if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                world.MapChangedOn = timestamp.ToDateTime();
+                world.MapChangedOn = DateTimeUtil.TryParseDateTime( timestamp );
             }
 
             // load lock information
@@ -300,14 +300,14 @@ namespace fCraft {
                 if( tempEl != null ) world.LockedBy = tempEl.Value;
                 tempEl = el.Element( "LockedOn" );
                 if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                    world.LockedOn = timestamp.ToDateTime();
+                    world.LockedOn = DateTimeUtil.TryParseDateTime( timestamp );
                 }
             } else {
                 tempEl = el.Element( "UnlockedBy" );
                 if( tempEl != null ) world.UnlockedBy = tempEl.Value;
                 tempEl = el.Element( "UnlockedOn" );
                 if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                    world.UnlockedOn = timestamp.ToDateTime();
+                    world.UnlockedOn = DateTimeUtil.TryParseDateTime( timestamp );
                 }
             }
 
@@ -398,7 +398,7 @@ namespace fCraft {
                     // save backup settings
                     switch( world.BackupEnabledState ) {
                         case YesNoAuto.Yes:
-                            temp.Add( new XAttribute( "backup", world.BackupInterval.ToTickString() ) );
+                            temp.Add( new XAttribute( "backup", world.BackupInterval.ToSecondsString() ) );
                             break;
                         case YesNoAuto.No:
                             temp.Add( new XAttribute( "backup", 0 ) );
