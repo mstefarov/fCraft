@@ -346,12 +346,6 @@ namespace fCraft {
 
         #region IRC Colors
 
-        /// <summary> String that resets formatting for following part of an IRC message. </summary>
-        public const string IRCReset = "\u0003\u000f";
-
-        /// <summary> String that toggles bold text on/off in IRC messages. </summary>
-        public const string IRCBold = "\u0002";
-
         static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
             { White, IRCColor.White },
             { Black, IRCColor.Black },

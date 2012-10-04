@@ -42,6 +42,11 @@ namespace fCraft {
 
     /// <summary> IRC control class. </summary>
     public static class IRC {
+        /// <summary> String that resets formatting for following part of an IRC message. </summary>
+        const string ResetReplacement = "\u0003\u000F",
+                     BoldReplacement = "\u0002";
+        public const string ResetCode = "\u211C",
+                            BoldCode = "\u212C";
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
@@ -499,7 +504,12 @@ namespace fCraft {
 
         public static void SendAction( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
-            SendChannelMessage( String.Format( "\u0001ACTION {0}\u0001", line ) );
+            if( channelNames == null ) return; // in case IRC bot is disabled.
+            line = ProcessMessageToIRC( line );
+            line = String.Format( "\u0001ACTION {0}\u0001", line );
+            for( int i = 0; i < channelNames.Length; i++ ) {
+                SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
+            }
         }
 
 
@@ -560,12 +570,11 @@ namespace fCraft {
         }
 
 
-
         // includes IRC color codes and non-printable ASCII
         static readonly Regex
             IRCAndMinecraftColors = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|&." ),
-            IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\0x7E]" ),
-            IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\0x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]" );
+            IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7E]" ),
+            IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]" );
 
         static string ProcessMessageFromIRC( string message ) {
             if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
@@ -586,11 +595,13 @@ namespace fCraft {
 
         static string ProcessMessageToIRC( string message ) {
             if( ConfigKey.IRCUseColor.Enabled() ) {
-                message = Color.MinecraftToIrcColors( message );
                 message = Chat.ReplaceEmotesWithUncode( message );
+                message = Color.MinecraftToIrcColors( message );
             } else {
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
             }
+            message = message.Replace( BoldCode, BoldReplacement );
+            message = message.Replace( ResetCode, ResetReplacement );
             return message.Trim();
         }
 
@@ -606,6 +617,7 @@ namespace fCraft {
             PlayerInfo.BanChanged += PlayerInfoBanChangedHandler;
             PlayerInfo.RankChanged += PlayerInfoRankChangedHandler;
         }
+
 
         static void OnPlayerHideChanged( object sender, PlayerHideChangedEventArgs e ) {
             if( !ConfigKey.IRCBotAnnounceServerJoins.Enabled() || e.Silent ) {
@@ -626,15 +638,25 @@ namespace fCraft {
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
                     if( enabled ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message );
+                        string formattedMessage = String.Format( "{0}{1}: {2}",
+                                                        args.Player.ClassyName, 
+                                                        ResetCode,
+                                                        args.Message );
+                        SendChannelMessage( formattedMessage );
                     } else if( args.Message.StartsWith( "#" ) ) {
-                        SendChannelMessage( args.Player.ClassyName + Color.IRCReset + ": " + args.Message.Substring( 1 ) );
+                        string formattedMessage = String.Format( "{0}{1}: {2}",
+                                                        args.Player.ClassyName,
+                                                        ResetCode,
+                                                        args.Message.Substring( 1 ) );
+                        SendChannelMessage( formattedMessage );
                     }
                     break;
 
                 case ChatMessageType.Me:
                 case ChatMessageType.Say:
-                    if( enabled ) SendAction( args.FormattedMessage );
+                    if( enabled ) {
+                        SendAction( args.FormattedMessage );
+                    }
                     break;
             }
         }
@@ -642,10 +664,9 @@ namespace fCraft {
 
         static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
             if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
-                string message = String.Format( "\u0001ACTION {0}&S* {1}&S connected.\u0001",
-                                                Color.IRCBold,
-                                                e.Player.ClassyName );
-                SendChannelMessage( message );
+                string message = String.Format( "{0}&S* {1}&S connected.",
+                                                BoldCode, e.Player.ClassyName );
+                SendAction(message );
             }
         }
 
@@ -659,9 +680,9 @@ namespace fCraft {
 
         static void ShowPlayerDisconnectedMsg( Player player, LeaveReason leaveReason ) {
             string message = String.Format( "{0}&S* {1}&S left the server ({2})",
-                             Color.IRCBold,
-                             player.ClassyName,
-                             leaveReason );
+                                            BoldCode,
+                                            player.ClassyName,
+                                            leaveReason );
             SendAction( message );
         }
 
@@ -699,17 +720,16 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( target == null ) throw new ArgumentNullException( "target" );
+            if( !ConfigKey.IRCBotAnnounceServerEvents.Enabled() ) return;
             string message = String.Format( "{0}&W* {1}&W was {2} by {3}&W",
-                    Color.IRCBold,
-                    target.ClassyName,
-                    action,
-                    player.ClassyName );
+                                            BoldCode,
+                                            target.ClassyName,
+                                            action,
+                                            player.ClassyName );
             if( !String.IsNullOrEmpty( reason ) ) {
                 message += " Reason: " + reason;
             }
-            if( ConfigKey.IRCBotAnnounceServerEvents.Enabled() ) {
-                SendAction( message );
-            }
+            SendAction( message );
         }
 
         #endregion

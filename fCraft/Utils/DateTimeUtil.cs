@@ -193,6 +193,7 @@ namespace fCraft {
             bool expectingDigit = true;
             TimeSpan result = TimeSpan.Zero;
             int digitOffset = 0;
+            bool hadUnit = false;
             for( int i = 0; i < text.Length; i++ ) {
                 if( expectingDigit ) {
                     if( text[i] < '0' || text[i] > '9' ) {
@@ -201,6 +202,7 @@ namespace fCraft {
                     expectingDigit = false;
                 } else {
                     if( text[i] < '0' || text[i] > '9' ) {
+                        hadUnit = true;
                         string numberString = text.Substring( digitOffset, i - digitOffset );
                         digitOffset = i + 1;
                         int number = Int32.Parse( numberString );
@@ -226,7 +228,7 @@ namespace fCraft {
                     }
                 }
             }
-            if( !expectingDigit ) {
+            if( !hadUnit ) {
                 throw new FormatException();
             }
             return result;
