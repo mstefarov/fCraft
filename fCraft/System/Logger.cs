@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Cache;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -223,6 +222,7 @@ namespace fCraft {
         }
 
 
+        static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds( 15 );
         static void LogAndReportCrashInner( string message, string assembly, Exception exception ) {
             if( exception.InnerException != null ) {
                 LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );
@@ -269,12 +269,15 @@ namespace fCraft {
                 byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
 
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
-                request.Method = "POST";
-                request.Timeout = 15000; // 15s timeout
+                request.CachePolicy = Server.CachePolicy;
                 request.ContentType = "application/x-www-form-urlencoded";
-                request.CachePolicy = new RequestCachePolicy( RequestCacheLevel.NoCacheNoStore );
-                request.ContentLength = formData.Length;
+                request.Method = "POST";
+                request.ReadWriteTimeout = (int)CrashReporterTimeout.TotalMilliseconds;
+                request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
+                request.Timeout = (int)CrashReporterTimeout.TotalMilliseconds;
                 request.UserAgent = Updater.UserAgent;
+
+                request.ContentLength = formData.Length;
 
                 using( Stream requestStream = request.GetRequestStream() ) {
                     requestStream.Write( formData, 0, formData.Length );

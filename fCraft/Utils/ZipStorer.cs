@@ -157,10 +157,8 @@ namespace System.IO.Compression {
 
             ZipStorer zip = new ZipStorer { zipFileStream = stream, access = fileFileAccess };
 
-            if( zip.ReadFileInfo() )
-                return zip;
-
-            throw new InvalidDataException();
+            zip.ReadFileInfo();
+            return zip;
         }
 
         /// <summary>
@@ -674,12 +672,13 @@ namespace System.IO.Compression {
 
             return normalizedFileName.Trim( '/' );
         }
-        // Reads the end-of-central-directory record
-        private bool ReadFileInfo() {
-            if( zipFileStream.Length < 22 )
-                return false;
 
+        // Reads the end-of-central-directory record
+        private void ReadFileInfo() {
             try {
+                if( zipFileStream.Length < 22 ) {
+                    throw new InvalidDataException( "Incomplete stream (length less than 22 bytes)" );
+                }
                 zipFileStream.Seek( -17, SeekOrigin.End );
                 BinaryReader br = new BinaryReader( zipFileStream );
                 do {
@@ -695,8 +694,9 @@ namespace System.IO.Compression {
                     UInt16 commentSize = br.ReadUInt16();
 
                     // check if comment field is the very last data in file
-                    if( zipFileStream.Position + commentSize != zipFileStream.Length )
-                        return false;
+                    if( zipFileStream.Position + commentSize != zipFileStream.Length ) {
+                        throw new InvalidDataException( "Comment field was not the very last data in file" );
+                    }
 
                     // Copy entire central directory to a memory buffer
                     existingFiles = entries;
@@ -706,11 +706,11 @@ namespace System.IO.Compression {
 
                     // Leave the pointer at the begining of central dir, to append new files
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
-                    return true;
-                } while( zipFileStream.Position > 0 );
-            } catch { }
 
-            return false;
+                } while( zipFileStream.Position > 0 );
+            } catch( Exception ex ) {
+                throw new InvalidDataException( "Reading end-of-central-directory record of a zip file failed.", ex );
+            }
         }
         #endregion
 

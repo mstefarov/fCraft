@@ -50,6 +50,7 @@ namespace fCraft {
         #region Collision Detection
 
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
+        /// <exception cref="ArgumentNullException"> other is null. </exception>
         public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return !( XMax < other.XMin || XMin > other.XMax ||
@@ -59,6 +60,7 @@ namespace fCraft {
 
 
         /// <summary> Checks if another bounding box is wholly contained inside this one. </summary>
+        /// <exception cref="ArgumentNullException"> other is null. </exception>
         public bool Contains( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return XMin <= other.XMin && XMax >= other.XMax &&
@@ -85,6 +87,7 @@ namespace fCraft {
 
         /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
+        /// <exception cref="ArgumentNullException"> other is null. </exception>
         public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( Contains( other ) ) {

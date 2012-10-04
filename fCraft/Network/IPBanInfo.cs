@@ -63,7 +63,7 @@ namespace fCraft {
                 BannedBy = PlayerDB.Unescape( fields[1] )
             };
 
-            fields[2].ToDateTime( ref info.BanDate );
+            DateTimeUtil.TryParseDateTime( fields[2], ref info.BanDate );
             if( fields[3].Length > 0 ) {
                 info.BanReason = PlayerDB.Unescape( fields[3] );
             }
@@ -74,7 +74,7 @@ namespace fCraft {
             Int32.TryParse( fields[5], out info.Attempts );
             info.LastAttemptName = PlayerDB.Unescape( fields[6] );
             if( info.LastAttemptName.Length == 0 ) info.LastAttemptName = null;
-            fields[7].ToDateTime( ref info.LastAttemptDate );
+            DateTimeUtil.TryParseDateTime( fields[7], ref info.LastAttemptDate );
 
             return info;
         }

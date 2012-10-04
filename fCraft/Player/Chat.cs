@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 using fCraft.Events;
@@ -324,7 +323,6 @@ namespace fCraft {
 
             { "{circle}", "\u0009" }, // ○
             { "{o}", "\u0009" },
-            { "{0}", "\u0009" },
 
             { "{male}", "\u000B" }, // ♂
             { "{mars}", "\u000B" },
@@ -350,7 +348,6 @@ namespace fCraft {
             
             { "{updown}", "\u0012" }, // ↕
             { "{^v}", "\u0012" },
-            { "{v^}", "\u0012" },
 
             { "{!!}", "\u0013" }, // ‼
 
@@ -370,7 +367,6 @@ namespace fCraft {
 
             { "{updown2}", "\u0017" }, // ↨
             { "{^v_}", "\u0017" },
-            { "{v^_}", "\u0017" },
 
             { "{^}", "\u0018" }, // ↑
             { "{up}", "\u0018" },
@@ -397,7 +393,6 @@ namespace fCraft {
             { "{<>}", "\u001D" }, // ↔
             { "{<->}", "\u001D" },
             { "{leftright}", "\u001D" },
-            { "{rightleft}", "\u001D" },
             { "{harrow}", "\u001D" },
             
             { "{^^}", "\u001E" }, // ▲

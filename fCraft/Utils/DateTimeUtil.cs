@@ -19,7 +19,7 @@ namespace fCraft {
         }
 
 
-        #region To Unix Time
+        #region Conversion to/from Unix timestamps
 
         /// <summary> Converts a DateTime to UTC Unix Timestamp. </summary>
         public static long ToUnixTime( this DateTime date ) {
@@ -27,7 +27,8 @@ namespace fCraft {
         }
 
 
-        public static long ToUnixTimeLegacy( this DateTime date ) {
+        // Converts a DateTime to UTC Unix Timestamp, with millisecond precision. Used in FCMv3 saving.
+        internal static long ToUnixTimeLegacy( this DateTime date ) {
             return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
         }
 
@@ -60,14 +61,15 @@ namespace fCraft {
         #region To Date Time
 
         /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
-        public static DateTime ToDateTime( this long timestamp ) {
+        public static DateTime TryParseDateTime( long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
 
         /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
         /// If the string was empty, returns false and does not affect result. </summary>
-        public static bool ToDateTime( this string str, ref DateTime result ) {
+        public static bool TryParseDateTime( [NotNull] string str, ref DateTime result ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             long t;
             if( str.Length > 1 && Int64.TryParse( str, out t ) ) {
                 result = UnixEpoch.AddSeconds( t );
@@ -77,12 +79,16 @@ namespace fCraft {
         }
 
 
-        public static DateTime ToDateTimeLegacy( long timestamp ) {
+        // Tries to parse the given DateTime representation (stingified integer, number of milliseconds since Unix Epoch).
+        // Used to load old versions of PlayerDB, and creation/modification dates in FCMv3
+        internal static DateTime ToDateTimeLegacy( long timestamp ) {
             return new DateTime( timestamp * TicksPerMillisecond + TicksToUnixEpoch, DateTimeKind.Utc );
         }
 
 
-        public static bool ToDateTimeLegacy( [NotNull] this string str, ref DateTime result ) {
+        // Tries to parse the given DateTime representation (stingified integer, number of milliseconds since Unix Epoch).
+        // Used to load old versions of PlayerDB, and creation/modification dates in FCMv3
+        internal static bool ToDateTimeLegacy( [NotNull] this string str, ref DateTime result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length <= 1 ) {
                 return false;
@@ -97,7 +103,7 @@ namespace fCraft {
         /// <summary> Converts a TimeSpan to a string containing the number of seconds.
         /// If the timestamp is zero seconds, returns an empty string. </summary>
         [NotNull]
-        public static string ToTickString( this TimeSpan time ) {
+        public static string ToSecondsString( this TimeSpan time ) {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {
@@ -106,15 +112,22 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns the number of seconds in a TimeSpan, rounded down. </summary>
-        public static long ToSeconds( this TimeSpan time ) {
-            return (time.Ticks / TimeSpan.TicksPerSecond);
+        /// <summary> Serializes the given TimeSpan to the given StringBuilder, as the number of seconds. </summary>
+        /// <param name="time"> TimeSpan to serialize. </param>
+        /// <param name="sb"> StringBuilder to which time will be saved. </param>
+        /// <exception cref="ArgumentNullException"> sb is null. </exception>
+        public static void ToSecondsString( this TimeSpan time, [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
+            if( time != TimeSpan.Zero ) {
+                sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
+            }
         }
 
 
         /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
         /// If the string was empty, returns false and sets result to TimeSpan.Zero </summary>
-        public static bool ToTimeSpan( [NotNull] this string str, out TimeSpan result ) {
+        /// <exception cref="ArgumentNullException"> str is null </exception>
+        public static bool TryParseTimeSpan( [NotNull] string str, out TimeSpan result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length == 0 ) {
                 result = TimeSpan.Zero;
@@ -131,7 +144,9 @@ namespace fCraft {
         }
 
 
-        public static bool ToTimeSpanLegacy( [NotNull] this string str, ref TimeSpan result ) {
+        // Tries to convert the given TimeSpan representation (stingified integer, number of milliseconds).
+        // Used to load old versions of PlayerDB.
+        internal static bool ToTimeSpanLegacy( [NotNull] this string str, ref TimeSpan result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             if( str.Length > 1 ) {
                 result = new TimeSpan( Int64.Parse( str ) * TicksPerMillisecond );
@@ -144,19 +159,15 @@ namespace fCraft {
 
         #region MiniString
 
-        [NotNull]
-        public static StringBuilder ToTickString( this TimeSpan time, [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            if( time != TimeSpan.Zero ) {
-                sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
-            }
-            return sb;
-        }
-
-
+        /// <summary> Converts given TimeSpan to compact string representation. </summary>
+        /// <param name="span"> Time span to present. May not be negative. </param>
+        /// <returns> A string representation of the given time span. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> span is negative. </exception>
         [NotNull]
         public static string ToMiniString( this TimeSpan span ) {
-            if( span.TotalSeconds < 60 ) {
+            if( span.Ticks < 0 ) {
+                throw new ArgumentOutOfRangeException( "span", "ToMiniString cannot be used on negative time spans." );
+            }else if( span.TotalSeconds < 60 ) {
                 return String.Format( "{0}s", span.Seconds );
             } else if( span.TotalMinutes < 60 ) {
                 return String.Format( "{0}m{1}s", span.Minutes, span.Seconds );
@@ -170,6 +181,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Attempts to parse the given string as a TimeSpan in compact representation. 
+        /// No exception is thrown if parsing failed. </summary>
+        /// <param name="text"> String to parse. May not be null. </param>
+        /// <param name="result"> Parsed TimeSpan. Set to TimeSpan.Zero if parsing failed. </param>
+        /// <returns> True if parsing succeeded; otherwise false. </returns>
+        /// <exception cref="ArgumentNullException"> text is null. </exception>
         public static bool TryParseMiniTimespan( [NotNull] this string text, out TimeSpan result ) {
             if( text == null ) throw new ArgumentNullException( "text" );
             try {
@@ -183,9 +200,16 @@ namespace fCraft {
         }
 
 
+        /// <summary> Longest reasonable value that fCraft will allow to be entered for time spans (9999 days). </summary>
         public static readonly TimeSpan MaxTimeSpan = TimeSpan.FromDays( 9999 );
 
 
+        /// <summary> Parses the given string as a TimeSpan in compact representation. Throws exceptions on failure. </summary>
+        /// <param name="text"> String to parse. May not be null. </param>
+        /// <returns> Parsed TimeSpan. </returns>
+        /// <exception cref="ArgumentNullException"> text is null. </exception>
+        /// <exception cref="OverflowException"> The resulting TimeSpan is greater than TimeSpan.MaxValue. </exception>
+        /// <exception cref="FormatException"> input has an invalid format. </exception>
         public static TimeSpan ParseMiniTimespan( [NotNull] this string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
 
@@ -256,14 +280,12 @@ namespace fCraft {
 
         static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
 
-        /// <summary> Tries to parse a data in a culture-specific ways.
-        /// This method is, unfortunately, necessary because in versions 0.520-0.522,
-        /// fCraft saved dates in a culture-specific format. This means that if the
-        /// server's culture settings were changed, or if the PlayerDB and IPBanList
-        /// files were moved between machines, all dates became unparseable. </summary>
-        /// <param name="dateString"> String to parse. </param>
-        /// <param name="date"> Date to output. </param>
-        /// <returns> True if date string could be parsed and was not empty/MinValue. </returns>
+        // Tries to parse a data in a culture-specific ways.
+        // This method is, unfortunately, necessary because in versions 0.520-0.522,
+        // fCraft saved dates in a culture-specific format. This means that if the
+        // server's culture settings were changed, or if the PlayerDB and IPBanList
+        // files were moved between machines, all dates became unparseable.
+        // Returns true if date string could be parsed and was not empty/MinValue.
         internal static bool TryParseLocalDate( [NotNull] string dateString, out DateTime date ) {
             if( dateString == null ) throw new ArgumentNullException( "dateString" );
             if( dateString.Length <= 1 ) {

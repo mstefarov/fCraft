@@ -32,7 +32,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
@@ -561,7 +560,7 @@ namespace fCraft {
         }
 
 
-        public static void Disconnect() {
+        internal static void Disconnect() {
             if( threads != null && threads.Length > 0 ) {
                 foreach( IRCThread thread in threads ) {
                     thread.DisconnectThread();
