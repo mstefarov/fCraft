@@ -287,9 +287,11 @@ namespace fCraft {
         }
 
 
-        static readonly char[] UnicodeReplacements = "☺☻♥♦♣♠•◘○◙\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
+        #region Emotes
 
-        static Dictionary<string, string> EmoteMacros = new Dictionary<string, string> {
+        static readonly char[] UnicodeReplacements = " ☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
+
+        static readonly Dictionary<string, string> EmoteMacros = new Dictionary<string, string> {
             { "{:)}", "\u0001" }, // ☺
             { "{smile}", "\u0001" },
 
@@ -426,8 +428,8 @@ namespace fCraft {
         public static string ReplaceUncodeWithEmotes( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
-            for( int i = 0; i < UnicodeReplacements.Length; i++ ) {
-                sb.Replace( UnicodeReplacements[i], (char)( i + 1 ) );
+            for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
+                sb.Replace( UnicodeReplacements[i], (char)i );
             }
             return sb.ToString();
         }
@@ -442,11 +444,13 @@ namespace fCraft {
         public static string ReplaceEmotesWithUncode( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
-            for( int i = 0; i < UnicodeReplacements.Length; i++ ) {
-                sb.Replace( (char)( i + 1 ), UnicodeReplacements[i] );
+            for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
+                sb.Replace( (char)i, UnicodeReplacements[i] );
             }
             return sb.ToString();
         }
+
+        #endregion
 
 
         #region Events
