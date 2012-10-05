@@ -86,7 +86,7 @@ namespace fCraft {
                 return;
             }
 
-            message = "# " + Color.StripColors( message );
+            message = "# " + message;
             Log( LogType.ConsoleOutput, message );
         }
 
@@ -106,6 +106,7 @@ namespace fCraft {
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
+            message = Color.StripColors( Chat.ReplaceEmotesWithUncode( message ) );
             if( !Enabled ) return;
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
 

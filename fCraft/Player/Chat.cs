@@ -290,127 +290,158 @@ namespace fCraft {
 
         static readonly char[] UnicodeReplacements = " ☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
 
-        static readonly Dictionary<string, string> EmoteMacros = new Dictionary<string, string> {
-            { "{:)}", "\u0001" }, // ☺
-            { "{smile}", "\u0001" },
+        static readonly Dictionary<string, char> EmoteMacros = new Dictionary<string, char> {
+            { ":)", '\u0001' }, // ☺
+            { "smile", '\u0001' },
 
-            { "{smile2}", "\u0002" }, // ☻
+            { "smile2", '\u0002' }, // ☻
 
-            { "{heart}", "\u0003" }, // ♥
-            { "{hearts}", "\u0003" },
-            { "{<3}", "\u0003" },
+            { "heart", '\u0003' }, // ♥
+            { "hearts", '\u0003' },
+            { "<3", '\u0003' },
 
-            { "{diamond}", "\u0004" }, // ♦
-            { "{diamonds}", "\u0004" },
-            { "{diams}", "\u0004" },
-            { "{rhombus}", "\u0004" },
+            { "diamond", '\u0004' }, // ♦
+            { "diamonds", '\u0004' },
+            { "rhombus", '\u0004' },
 
-            { "{club}", "\u0005" }, // ♣
-            { "{clubs}", "\u0005" },
-            { "{clover}", "\u0005" },
-            { "{shamrock}", "\u0005" },
+            { "club", '\u0005' }, // ♣
+            { "clubs", '\u0005' },
+            { "clover", '\u0005' },
+            { "shamrock", '\u0005' },
 
-            { "{spade}", "\u0006" }, // ♠
-            { "{spades}", "\u0006" },
+            { "spade", '\u0006' }, // ♠
+            { "spades", '\u0006' },
 
-            { "{*}", "\u0007" }, // •
-            { "{bull}", "\u0007" },
-            { "{bullet}", "\u0007" },
-            { "{dot}", "\u0007" },
-            { "{point}", "\u0007" },
+            { "*", '\u0007' }, // •
+            { "bull", '\u0007' },
+            { "bullet", '\u0007' },
+            { "dot", '\u0007' },
+            { "point", '\u0007' },
 
-            { "{hole}", "\u0008" }, // ◘
+            { "hole", '\u0008' }, // ◘
 
-            { "{circle}", "\u0009" }, // ○
-            { "{o}", "\u0009" },
+            { "circle", '\u0009' }, // ○
+            { "o", '\u0009' },
 
-            { "{male}", "\u000B" }, // ♂
-            { "{mars}", "\u000B" },
+            { "male", '\u000B' }, // ♂
+            { "mars", '\u000B' },
 
-            { "{female}", "\u000C" }, // ♀
-            { "{venus}", "\u000C" },
+            { "female", '\u000C' }, // ♀
+            { "venus", '\u000C' },
 
-            { "{8}", "\u000D" }, // ♪
-            { "{note}", "\u000D" },
-            { "{quaver}", "\u000D" },
+            { "8", '\u000D' }, // ♪
+            { "note", '\u000D' },
+            { "quaver", '\u000D' },
 
-            { "{notes}", "\u000E" }, // ♫
-            { "{music}", "\u000E" },
+            { "notes", '\u000E' }, // ♫
+            { "music", '\u000E' },
 
-            { "{sun}", "\u000F" }, // ☼
-            { "{celestia}", "\u000F" },
+            { "sun", '\u000F' }, // ☼
+            { "celestia", '\u000F' },
             
-            { "{>>}", "\u0010" }, // ►
-            { "{right2}", "\u0010" },
+            { ">>", '\u0010' }, // ►
+            { "right2", '\u0010' },
 
-            { "{<<}", "\u0011" }, // ◄
-            { "{left2}", "\u0011" },
+            { "<<", '\u0011' }, // ◄
+            { "left2", '\u0011' },
             
-            { "{updown}", "\u0012" }, // ↕
-            { "{^v}", "\u0012" },
+            { "updown", '\u0012' }, // ↕
+            { "^v", '\u0012' },
 
-            { "{!!}", "\u0013" }, // ‼
+            { "!!", '\u0013' }, // ‼
 
-            { "{P}", "\u0014" }, // ¶
-            { "{para}", "\u0014" },
-            { "{pilcrow}", "\u0014" },
-            { "{paragraph}", "\u0014" },
+            { "P", '\u0014' }, // ¶
+            { "para", '\u0014' },
+            { "pilcrow", '\u0014' },
+            { "paragraph", '\u0014' },
 
-            { "{S}", "\u0015" }, // §
-            { "{sect}", "\u0015" },
-            { "{section}", "\u0015" },
+            { "S", '\u0015' }, // §
+            { "sect", '\u0015' },
+            { "section", '\u0015' },
 
-            { "{-}", "\u0016" }, // ▬
-            { "{_}", "\u0016" },
-            { "{bar}", "\u0016" },
-            { "{half}", "\u0016" },
+            { "-", '\u0016' }, // ▬
+            { "_", '\u0016' },
+            { "bar", '\u0016' },
+            { "half", '\u0016' },
 
-            { "{updown2}", "\u0017" }, // ↨
-            { "{^v_}", "\u0017" },
+            { "updown2", '\u0017' }, // ↨
+            { "^v_", '\u0017' },
 
-            { "{^}", "\u0018" }, // ↑
-            { "{up}", "\u0018" },
-            { "{uarr}", "\u0018" },
+            { "^", '\u0018' }, // ↑
+            { "up", '\u0018' },
 
-            { "{v}", "\u0019" }, // ↓
-            { "{down}", "\u0019" },
-            { "{darr}", "\u0019" },
+            { "v", '\u0019' }, // ↓
+            { "down", '\u0019' },
             
-            { "{>}", "\u001A" }, // →
-            { "{->}", "\u001A" },
-            { "{right}", "\u001A" },
-            { "{rarr}", "\u001A" },
+            { ">", '\u001A' }, // →
+            { "->", '\u001A' },
+            { "right", '\u001A' },
             
-            { "{<}", "\u001B" }, // ←
-            { "{<-}", "\u001B" },
-            { "{left}", "\u001B" },
-            { "{larr}", "\u001B" },
+            { "<", '\u001B' }, // ←
+            { "<-", '\u001B' },
+            { "left", '\u001B' },
 
-            { "{L}", "\u001C" }, // ∟
-            { "{angle}", "\u001C" },
-            { "{corner}", "\u001C" },
+            { "L", '\u001C' }, // ∟
+            { "angle", '\u001C' },
+            { "corner", '\u001C' },
 
-            { "{<>}", "\u001D" }, // ↔
-            { "{<->}", "\u001D" },
-            { "{leftright}", "\u001D" },
-            { "{harrow}", "\u001D" },
+            { "<>", '\u001D' }, // ↔
+            { "<->", '\u001D' },
+            { "leftright", '\u001D' },
             
-            { "{^^}", "\u001E" }, // ▲
-            { "{up2}", "\u001E" },
+            { "^^", '\u001E' }, // ▲
+            { "up2", '\u001E' },
 
-            { "{vv}", "\u001F" }, // ▼
-            { "{down2}", "\u001F" },
+            { "vv", '\u001F' }, // ▼
+            { "down2", '\u001F' },
         };
 
 
         [NotNull]
         public static string ReplaceEmoteMacros( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
-            foreach( var pair in EmoteMacros ) {
-                sb.Replace( pair.Key, pair.Value );
+            int startIndex = input.IndexOf( '{' );
+            if( startIndex == -1 ) {
+                return input; // break out early if there are no opening braces
             }
-            return sb.ToString();
+
+            StringBuilder output = new StringBuilder( input.Length );
+            int lastAppendedIndex = 0;
+            while( startIndex != -1 ) {
+                int endIndex = input.IndexOf( '}', startIndex + 1 );
+                if( endIndex == -1 ) {
+                    break; // abort if there are no more closing braces
+                }
+
+                // see if symbol was escaped (if odd number of % precede it)
+                bool escaped = false;
+                for( int i = startIndex - 1; i >= 0 && input[i] == '%'; i-- ) {
+                    escaped = !escaped;
+                }
+                // extract the keyword
+                string keyword = input.Substring( startIndex + 1, endIndex - startIndex - 1 );
+                char substitute;
+                if( EmoteMacros.TryGetValue( keyword.ToLowerInvariant(), out substitute ) ) {
+                    if( escaped ) {
+                        // it was escaped; remove escaping character
+                        startIndex++;
+                        output.Append( input, lastAppendedIndex, startIndex - lastAppendedIndex - 2 );
+                        lastAppendedIndex = startIndex - 1;
+                    } else {
+                        // it was not escaped; insert substitute character
+                        output.Append( input, lastAppendedIndex, startIndex - lastAppendedIndex );
+                        output.Append( substitute );
+                        startIndex = endIndex + 1;
+                        lastAppendedIndex = startIndex;
+                    }
+                } else {
+                    startIndex++; // unrecognized macro, keep going
+                }
+                startIndex = input.IndexOf( '{', startIndex );
+            }
+            // append the leftovers
+            output.Append( input, lastAppendedIndex, input.Length - lastAppendedIndex );
+            return output.ToString();
         }
 
 
