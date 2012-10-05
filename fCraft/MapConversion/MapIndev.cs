@@ -88,12 +88,5 @@ namespace fCraft.MapConversion {
                 return map;
             }
         }
-
-
-        public bool Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            throw new NotImplementedException();
-        }
     }
 }

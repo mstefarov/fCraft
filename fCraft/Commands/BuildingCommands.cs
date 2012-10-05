@@ -342,7 +342,10 @@ namespace fCraft {
             if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
                 Logger.Log( LogType.UserActivity,
                             "Fill2D: Asked {0} to confirm replacing air on world {1}",
-                            player.Name, player.World.Name );
+                            player.Name,
+                            // ReSharper disable PossibleNullReferenceException
+                            player.World.Name );
+                            // ReSharper restore PossibleNullReferenceException
                 player.Confirm( Fill2DConfirmCallback, op, "{0}: Replace air?", op.Description );
             } else {
                 Fill2DConfirmCallback( player, op, false );

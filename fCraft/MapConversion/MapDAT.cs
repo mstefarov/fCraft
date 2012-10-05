@@ -75,12 +75,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        public static byte MapBlock( byte block ) {
+        internal static byte MapSurvivalTestBlock( byte block ) {
             return Mapping[block];
-        }
-
-        public static Block MapBlock( Block block ) {
-            return (Block)Mapping[(byte)block];
         }
 
 

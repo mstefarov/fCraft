@@ -74,6 +74,15 @@ namespace fCraft {
 
 
         const int FlatgrassDirtLevel = 5;
+
+        /// <summary> Generates a new "flatgrass" map: 1 layer of grass in the middle of the map,
+        /// 4 layers of dirt underneath, then stone all the way down. </summary>
+        /// <param name="width"> Map width (horizontal, Notch's X). </param>
+        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
+        /// <param name="height"> Map height (vertical, Notch's Y). </param>
+        /// <returns> Generated flatgrass map. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
+        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
         [NotNull]
         public static Map GenerateFlatgrass( int width, int length, int height ) {
             Map map = new Map( null, width, length, height, true );
@@ -83,11 +92,29 @@ namespace fCraft {
             return map;
         }
 
+
+        /// <summary> Generates a new empty map, filled entirely with air. </summary>
+        /// <param name="width"> Map width (horizontal, Notch's X). </param>
+        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
+        /// <param name="height"> Map height (vertical, Notch's Y). </param>
+        /// <returns> Generated empty map. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
+        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
         [NotNull]
         public static Map GenerateEmpty( int width, int length, int height ) {
             return new Map( null, width, length, height, true );
         }
 
+
+
+        /// <summary> Generates a new "ocean" map: 1 layer of sand at the bottom the map,
+        /// then solid water up to the middle of the map. </summary>
+        /// <param name="width"> Map width (horizontal, Notch's X). </param>
+        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
+        /// <param name="height"> Map height (vertical, Notch's Y). </param>
+        /// <returns> Generated "ocean" map. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
+        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
         [NotNull]
         public static Map GenerateOcean( int width, int length, int height ) {
             Map map = new Map( null, width, length, height, true );
@@ -95,6 +122,7 @@ namespace fCraft {
             map.Blocks.MemSet( (byte)Block.Water, width * length, width * length * (height / 2 - 1) );
             return map;
         }
+
 
         /// <summary> Makes an admincrete barrier, 1 block thick, around the lower half of the map. </summary>
         public static void MakeFloodBarrier( Map map ) {

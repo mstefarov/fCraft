@@ -119,7 +119,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Reduce the depth of the tree. </summary>
-            public void Reduce() {
+            void Reduce() {
                 int index;
 
                 // Find the deepest level containing at least one reducible node
@@ -139,7 +139,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Get/Set the number of leaves in the tree. </summary>
-            public int Leaves {
+            int Leaves {
                 get { return leafCount; }
                 set { leafCount = value; }
             }

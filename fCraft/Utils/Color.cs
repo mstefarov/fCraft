@@ -104,7 +104,7 @@ namespace fCraft {
         /// Assigned (standard) colors are substituted for fCraft-specific color codes. </summary>
         /// <param name="code"> Color code character. </param>
         /// <returns> Lowercase color name if input code was recognized; otherwise null. </returns>
-        [CanBeNull]
+        [CanBeNull, Pure]
         public static string GetName( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -122,7 +122,7 @@ namespace fCraft {
         /// <param name="index"> Ordinal numeric color code (between 0 and 15),
         /// corresponding to Minecraft color code's hex value. </param>
         /// <returns> Lowercase color name if input code was in range; otherwise null. </returns>
-        [CanBeNull]
+        [CanBeNull, Pure]
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return ColorNames.Values[index];
@@ -138,7 +138,7 @@ namespace fCraft {
         /// <returns> Lowercase color name.
         /// If input is an empty string, returns an empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
-        [CanBeNull]
+        [CanBeNull, Pure]
         public static string GetName( [CanBeNull] string color ) {
             if( color == null ) {
                 return null;
@@ -161,7 +161,7 @@ namespace fCraft {
         /// Assigned (standard) colors are substituted for fCraft-specific color codes. </summary>
         /// <param name="code"> Color code character. </param>
         /// <returns> Standard Minecraft ampersand-color-code if input code was recognized; otherwise null. </returns>
-        [CanBeNull]
+        [CanBeNull, Pure]
         public static string Parse( char code ) {
             code = Char.ToLower( code );
             if( IsValidColorCode( code ) ) {
@@ -200,7 +200,7 @@ namespace fCraft {
         /// <returns> If input could be parsed, returns a standard Minecraft ampersand-color-code.
         /// If input is an empty string, returns an empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
-        [CanBeNull]
+        [CanBeNull, Pure]
         public static string Parse( [CanBeNull] string color ) {
             if( color == null ) {
                 return null;
@@ -231,6 +231,7 @@ namespace fCraft {
         /// Standard color codes are hexadecimal digits. Both uppercase and lowercase digits are accepted.
         /// Does not recognize fCraft-specific color codes. </summary>
         /// <returns> True is char is a recognized standard color code; otherwise false. </returns>
+        [Pure]
         public static bool IsValidColorCode( char code ) {
             return ( code >= '0' && code <= '9' ) || ( code >= 'a' && code <= 'f' ) || ( code >= 'A' && code <= 'F' );
         }
@@ -268,10 +269,10 @@ namespace fCraft {
 
         /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
         /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
-        /// <param name="message"> Message to process. May not be null. </param>
+        /// <param name="message"> Message to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull]
+        [NotNull, Pure]
         public static string ReplacePercentCodes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             StringBuilder sb = new StringBuilder( message );
@@ -285,7 +286,7 @@ namespace fCraft {
         /// with the assigned Minecraft colors (like &amp;E/Color.Yellow).
         /// Strips any unrecognized sequences. Does not replace percent-codes.
         /// Note that LineWrapper itself does this substitution internally. </summary>
-        /// <param name="sb"> StringBuilder, contents of which will be processed. May not be null. </param>
+        /// <param name="sb"> StringBuilder, contents of which will be processed. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> sb is null. </exception>
         public static void SubstituteSpecialColors( [NotNull] StringBuilder sb ) {
@@ -332,10 +333,10 @@ namespace fCraft {
         /// with the assigned Minecraft colors (like &amp;E/Color.Yellow).
         /// Strips any unrecognized sequences. Does not replace percent-codes.
         /// Note that LineWrapper itself does this substitution internally. </summary>
-        /// <param name="input"> String to process. May not be null. </param>
+        /// <param name="input"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
-        [NotNull]
+        [NotNull, Pure]
         public static string SubstituteSpecialColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
@@ -347,7 +348,7 @@ namespace fCraft {
         /// <summary> Strips Minecraft color codes.
         /// Removes all ampersand-character sequences, including standard and fCraft-specific color codes.
         /// Removes any leftover ampersands. Replaces newline codes (&amp;N) with actual newlines. </summary>
-        /// <param name="input"> String to process. May not be null. </param>
+        /// <param name="input"> String to process. </param>
         /// <returns> A processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
@@ -416,7 +417,7 @@ namespace fCraft {
         /// <param name="input"> String to process. </param>
         /// <returns> A processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
-        [NotNull]
+        [NotNull, Pure]
         public static string MinecraftToIrcColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );
@@ -444,7 +445,7 @@ namespace fCraft {
         /// <param name="input"> String to process. </param>
         /// <returns> A processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
-        [NotNull]
+        [NotNull, Pure]
         public static string IrcToMinecraftColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             StringBuilder sb = new StringBuilder( input );

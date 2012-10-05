@@ -347,7 +347,7 @@ namespace fCraft {
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "ban-all",
-                                                         Permission.Ban, Permission.BanIP, Permission.BanAll );
+                                                              Permission.Ban, Permission.BanIP, Permission.BanAll );
                 }
 
                 IPAddress address = LastIP;
@@ -471,7 +471,7 @@ namespace fCraft {
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "unban-all",
-                                                         Permission.Ban, Permission.BanIP, Permission.BanAll );
+                                                              Permission.Ban, Permission.BanIP, Permission.BanAll );
                 }
 
                 IPAddress address = LastIP;

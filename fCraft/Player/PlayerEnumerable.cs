@@ -473,11 +473,13 @@ namespace fCraft {
 
         #region Messaging
 
-        /// <summary> Formats and broadcasts a message. </summary>
+        /// <summary> Formats and broadcasts a message. Same semantics as Player.Message(). </summary>
         /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="message"> String/message to send. </param>
-        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of message packets that were sent out. </returns>
+        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
+        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
+        /// <returns> Number of players who received the message. </returns>
+        /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
+        /// <exception cref="FormatException"> Message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [NotNull] string message,
@@ -485,7 +487,6 @@ namespace fCraft {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            int i = 0;
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
@@ -493,19 +494,20 @@ namespace fCraft {
             foreach( Packet packet in LineWrapper.Wrap( message ) ) {
                 foreach( Player player in sourceArray ) {
                     player.Send( packet );
-                    i++;
                 }
             }
-            return i;
+            return sourceArray.Length;
         }
 
 
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="except"> Player to exclude from the recepient list. </param>
-        /// <param name="message"> String/message to send. </param>
-        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of message packets that were sent out. </returns>
+        /// <param name="except"> Player to exclude from the recepient list. May be null (no one will be excluded). </param>
+        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
+        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
+        /// <returns> Number of players who received the message. </returns>
+        /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
+        /// <exception cref="FormatException"> Message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public static int Message( [NotNull] this IEnumerable<Player> source,
                                    [CanBeNull] Player except,
@@ -517,16 +519,19 @@ namespace fCraft {
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
-            int i = 0;
+            int skipped = 0;
             Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.Wrap( message ) ) {
+                skipped = 0;
                 foreach( Player player in sourceArray ) {
-                    if( player == except ) continue;
+                    if( player == except ) {
+                        skipped++;
+                        continue;
+                    }
                     player.Send( packet );
-                    i++;
                 }
             }
-            return i;
+            return sourceArray.Length - skipped;
         }
 
 
@@ -534,12 +539,14 @@ namespace fCraft {
         /// <param name="source"> List of players who will receive the message. </param>
         /// <param name="prefix"> Prefix to prepend to prepend to each line after the 1st,
         /// if any line-wrapping occurs. Does NOT get prepended to first line. </param>
-        /// <param name="message"> String/message to send. </param>
-        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
-        /// <returns> Number of message packets that were sent out. </returns>
+        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
+        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
+        /// <returns> Number of players who received the message. </returns>
+        /// <exception cref="ArgumentNullException"> source, prefix, message, or formatArgs is null. </exception>
+        /// <exception cref="FormatException"> Message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix,
-                                           [NotNull] string message, params object[] formatArgs ) {
+                                           [NotNull] string message, [NotNull] params object[] formatArgs ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( message == null ) throw new ArgumentNullException( "message" );
             if( prefix == null ) throw new ArgumentNullException( "prefix" );
@@ -547,23 +554,23 @@ namespace fCraft {
             if( formatArgs.Length > 0 ) {
                 message = String.Format( message, formatArgs );
             }
-            int i = 0;
             Player[] sourceArray = source.ToArray();
             foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, message ) ) {
                 foreach( Player player in sourceArray ) {
                     player.Send( packet );
-                    i++;
                 }
             }
-            return i;
+            return sourceArray.Length;
         }
 
 
         /// <summary> Formats and broadcasts a message, showing on top-left for those who use WoM. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="message"> String/message to send. </param>
-        /// <param name="formatArgs"> Format parameters. Same semantics as String.Format </param>
+        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
+        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
         /// <returns> Number of players who received the message. </returns>
+        /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
+        /// <exception cref="FormatException"> Message format is invalid. </exception>
         [StringFormatMethod( "message" )]
         public static int MessageWoMAlert( [NotNull] this IEnumerable<Player> source,
                                            [NotNull] string message,

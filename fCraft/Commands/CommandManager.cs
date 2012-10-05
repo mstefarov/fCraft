@@ -11,7 +11,8 @@ namespace fCraft {
         static readonly SortedList<string, string> Aliases = new SortedList<string, string>();
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
-        static readonly string[] ReservedCommandNames = new[] { "ok", "nvm", "client" };
+        /// <summary> Set of reserved command names (ok, nvm, and client). </summary>
+        public static readonly string[] ReservedCommandNames = new[] { "ok", "nvm", "client" };
 
         // Sets up all the command hooks
         internal static void Init() {
@@ -64,11 +65,15 @@ namespace fCraft {
         }
 
 
-        /// <summary> Registers a custom command with fCraft.
-        /// Raises CommandManager.CommandRegistering/CommandRegistered events. </summary>
-        /// <param name="descriptor"> Command descriptor to register. May not be null. </param>
-        /// <exception cref="ArgumentNullException"> If descriptor is null. </exception>
-        /// <exception cref="CommandRegistrationException"> If command could not be registered. </exception>
+        /// <summary> Registers a custom command with fCraft, to be made available for players to call.
+        /// Raises CommandManager.CommandRegistering/CommandRegistered events. 
+        /// CommandRegistering event may silently cancel the registration. </summary>
+        /// <param name="descriptor"> Command descriptor to register. </param>
+        /// <exception cref="ArgumentNullException"> descriptor is null. </exception>
+        /// <exception cref="CommandRegistrationException"> Command descriptor could not be registered.
+        /// Check exception message for details. Possible reasons include:
+        /// No category/name/handler was set; a command with the same name has already been registed; command name is reserved;
+        /// or one of the aliases of given command matches the name of another registered command. </exception>
         public static void RegisterCustomCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             descriptor.IsCustom = true;
@@ -163,7 +168,7 @@ namespace fCraft {
         /// <param name="commandName"> Command to find. </param>
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
         /// <returns> Relevant CommandDesriptor object if found, null if not found. </returns>
-        /// <exception cref="ArgumentNullException"> If commandName is null. </exception>
+        /// <exception cref="ArgumentNullException"> commandName is null. </exception>
         [CanBeNull]
         public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
@@ -183,7 +188,7 @@ namespace fCraft {
         /// <param name="cmd"> Command to be parsed and executed. </param>
         /// <param name="fromConsole"> Whether this command is being called from a non-player (e.g. Console). </param>
         /// <returns> True if the command was called, false if something prevented it from being called. </returns>
-        /// <exception cref="ArgumentNullException"> If player or cmd is null. </exception>
+        /// <exception cref="ArgumentNullException"> player or cmd is null. </exception>
         public static bool ParseCommand( [NotNull] Player player, [NotNull] CommandReader cmd, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -218,10 +223,11 @@ namespace fCraft {
 
 
         /// <summary> Checks whether a command name is acceptable.
-        /// Constraints are similar to Player.IsValidName, except for minimum length. </summary>
+        /// Constraints are similar to Player.IsValidName, except for length.
+        /// Command names must bet between 1 and 16 characters long. </summary>
         /// <param name="name"> Command name to check. </param>
-        /// <returns> True if the name is valid. </returns>
-        /// <exception cref="ArgumentNullException"> If name is null. </exception>
+        /// <returns> True if the given name is valid; otherwise false. </returns>
+        /// <exception cref="ArgumentNullException"> name is null. </exception>
         public static bool IsValidCommandName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name.Length == 0 || name.Length > 16 ) return false;

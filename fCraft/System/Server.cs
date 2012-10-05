@@ -125,8 +125,8 @@ namespace fCraft {
         /// Does not raise any events besides Logger.Logged.
         /// Throws exceptions on failure. </summary>
         /// <param name="rawArgs"> string arguments passed to the frontend (if any). </param>
-        /// <exception cref="System.InvalidOperationException"> If library is already initialized. </exception>
-        /// <exception cref="System.IO.IOException"> Working path, log path, or map path could not be set. </exception>
+        /// <exception cref="System.InvalidOperationException"> Library is already initialized. </exception>
+        /// <exception cref="System.IO.IOException"> Working path, log path, or map path cannot be set. </exception>
         public static void InitLibrary( [NotNull] IEnumerable<string> rawArgs ) {
             if( rawArgs == null ) throw new ArgumentNullException( "rawArgs" );
             if( libraryInitialized ) {

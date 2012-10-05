@@ -14,7 +14,7 @@ namespace fCraft {
     /// Used as a searchable index of players for PlayerDB. </summary>
     /// <typeparam name="T"> Payload type (reference types only). </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
-    public class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
+    public sealed class Trie<T> : IDictionary<string, T>, IDictionary, ICloneable where T : class {
         const byte LeafNode = 254,
                    MultiNode = 255;
 
@@ -237,7 +237,7 @@ namespace fCraft {
         #region Key Encoding / Decoding
 
         // Decodes ASCII into internal letter code.
-        protected int CharToCode( char ch ) {
+        static int CharToCode( char ch ) {
             if( ch >= 'a' && ch <= 'z' )
                 return ch - 'a';
             else if( ch >= 'A' && ch <= 'Z' )
@@ -249,7 +249,7 @@ namespace fCraft {
         }
 
 
-        protected char CodeToChar( int code ) {
+        static char CodeToChar( int code ) {
             if( code < 26 )
                 return (char)(code + 'a');
             if( code >= 26 && code < 36 )
@@ -259,7 +259,7 @@ namespace fCraft {
         }
 
 
-        protected char CanonicizeChar( char ch ) {
+        static char CanonicizeChar( char ch ) {
             if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' )
                 return ch;
             else if( ch >= 'A' && ch <= 'Z' )
@@ -269,7 +269,7 @@ namespace fCraft {
         }
 
 
-        protected string CanonicizeKey( string key ) {
+        static string CanonicizeKey( string key ) {
             StringBuilder sb = new StringBuilder( key );
             for( int i = 0; i < sb.Length; i++ ) {
                 sb[i] = CanonicizeChar( sb[i] );
@@ -307,7 +307,7 @@ namespace fCraft {
 
 
         /// <summary> A subset of trie's key/value pairs that start with a certain prefix. </summary>
-        public class TrieSubset : IEnumerable<KeyValuePair<string, T>> {
+        public sealed class TrieSubset : IEnumerable<KeyValuePair<string, T>> {
             readonly Trie<T> trie;
             readonly string prefix;
 
@@ -319,7 +319,7 @@ namespace fCraft {
 
             public IEnumerator<KeyValuePair<string, T>> GetEnumerator() {
                 TrieNode node = trie.GetNode( prefix );
-                return new TrieEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
+                return new TrieEnumerator( node, trie, CanonicizeKey( prefix ) );
             }
 
 
@@ -449,7 +449,7 @@ namespace fCraft {
 
             // Pushes current node onto the stack, and makes the given node current.
             protected void MoveDown( TrieNode node, int index ) {
-                CurrentKeyName.Append( BaseTrie.CodeToChar( index ) );
+                CurrentKeyName.Append( CodeToChar( index ) );
                 Parents.Push( CurrentNode );
                 ParentIndices.Push( CurrentIndex + 1 );
                 CurrentNode = node;
@@ -762,7 +762,7 @@ namespace fCraft {
         #region ValueCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public class TrieValueCollection : ICollection<T>, ICollection {
+        public sealed class TrieValueCollection : ICollection<T>, ICollection {
             readonly Trie<T> trie;
 
 
@@ -845,7 +845,7 @@ namespace fCraft {
             }
 
 
-            public class TrieValueSubset : IEnumerable<T> {
+            public sealed class TrieValueSubset : IEnumerable<T> {
                 readonly Trie<T> trie;
                 readonly string prefix;
 
@@ -859,7 +859,7 @@ namespace fCraft {
 
                 public IEnumerator<T> GetEnumerator() {
                     TrieNode node = trie.GetNode( prefix );
-                    return new TrieValueEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
+                    return new TrieValueEnumerator( node, trie, CanonicizeKey( prefix ) );
                 }
 
 
@@ -930,7 +930,7 @@ namespace fCraft {
         #region KeyCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public class TrieKeyCollection : ICollection<string>, ICollection {
+        public sealed class TrieKeyCollection : ICollection<string>, ICollection {
             readonly Trie<T> trie;
 
 
@@ -1013,7 +1013,7 @@ namespace fCraft {
             }
 
 
-            public class TrieKeySubset : IEnumerable<string> {
+            public sealed class TrieKeySubset : IEnumerable<string> {
                 readonly Trie<T> trie;
                 readonly string prefix;
 
@@ -1027,7 +1027,7 @@ namespace fCraft {
 
                 public IEnumerator<string> GetEnumerator() {
                     TrieNode node = trie.GetNode( prefix );
-                    return new TrieKeyEnumerator( node, trie, trie.CanonicizeKey( prefix ) );
+                    return new TrieKeyEnumerator( node, trie, CanonicizeKey( prefix ) );
                 }
 
 

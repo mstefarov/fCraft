@@ -165,7 +165,8 @@ namespace fCraft {
 
         static readonly object CrashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
         static DateTime lastCrashReport = DateTime.MinValue;
-        const int MinCrashReportInterval = 61; // minimum interval between submitting crash reports, in seconds
+        static readonly TimeSpan MinCrashReportInterval = TimeSpan.FromSeconds( 61 ); // minimum interval between submitting crash reports, in seconds
+        static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds( 15 );
 
 
         /// <summary> Logs and reports a crash or an unhandled exception.
@@ -184,9 +185,10 @@ namespace fCraft {
             if( exception == null ) exception = new Exception( "(none)" );
 
             Log( LogType.SeriousError, "{0}: {1}", message, exception );
-            bool submitCrashReport;
+
+            // see if crash report should be submitted or skipped, based on CheckForCommonErrors and Crashed event
             try {
-                submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
+                bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
                 bool isCommon = CheckForCommonErrors( exception );
 
                 try {
@@ -213,17 +215,18 @@ namespace fCraft {
                 // For compatibility with lighttpd server (that received crash reports)
                 ServicePointManager.Expect100Continue = false;
 
-                if( DateTime.UtcNow.Subtract( lastCrashReport ).TotalSeconds < MinCrashReportInterval ) {
+                // Make sure tight errors-in-loops don't spam the reporter
+                if( DateTime.UtcNow.Subtract( lastCrashReport ) < MinCrashReportInterval ) {
                     Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
                     return;
                 }
+
                 lastCrashReport = DateTime.UtcNow;
                 LogAndReportCrashInner( message, assembly, exception );
             }
         }
 
 
-        static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds( 15 );
         static void LogAndReportCrashInner( string message, string assembly, Exception exception ) {
             if( exception.InnerException != null ) {
                 LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );

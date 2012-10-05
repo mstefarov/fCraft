@@ -445,15 +445,15 @@ namespace fCraft {
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        /// <exception cref="ArgumentNullException"> If message is null. </exception>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         public static LineWrapper Wrap( string message ) {
             return new LineWrapper( message );
         }
 
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
-        /// <exception cref="ArgumentNullException"> If prefix or message is null. </exception>
-        /// <exception cref="ArgumentException"> If prefix length exceeds maximum allowed value (48 characters). </exception>
+        /// <exception cref="ArgumentNullException"> prefix or message is null. </exception>
+        /// <exception cref="ArgumentException"> prefix length exceeds maximum allowed value (48 characters). </exception>
         public static LineWrapper WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
         }

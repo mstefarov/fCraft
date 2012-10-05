@@ -203,30 +203,31 @@ namespace fCraft {
         /// <summary> Checks for unprintable or illegal characters in a message. </summary>
         /// <param name="message"> Message to check. </param>
         /// <returns> True if message contains invalid chars. False if message is clean. </returns>
-        public static bool ContainsInvalidChars( string message ) {
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [Pure]
+        public static bool ContainsInvalidChars( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             return message.Any( t => t < ' ' || t == '&' || t > '~' );
         }
 
 
-        /// <summary> Determines the type of player-supplies message based on its syntax. </summary>
-        internal static RawMessageType GetRawMessageType( string message ) {
-            if( string.IsNullOrEmpty( message ) ) return RawMessageType.Invalid;
-            if( message == "/" ) return RawMessageType.RepeatCommand;
-            if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) return RawMessageType.Confirmation;
+        /// <summary> Determines the type of player-supplied message based on its syntax. </summary>
+        [Pure]
+        internal static RawMessageType GetRawMessageType( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( message.Length == 0 ) return RawMessageType.Invalid;
             if( message.EndsWith( " /" ) ) return RawMessageType.PartialMessage;
-            if( message.EndsWith( " //" ) ) message = message.Substring( 0, message.Length - 1 );
 
             switch( message[0] ) {
                 case '/':
-                    if( message.Length < 2 ) {
-                        // message too short to be a command
-                        return RawMessageType.Invalid;
-                    }
-                    if( message[1] == '/' ) {
+                    if( message.Length == 1 ) {
+                        return RawMessageType.RepeatCommand;
+                    } else if( message.Equals( "/ok", StringComparison.OrdinalIgnoreCase ) ) {
+                        return RawMessageType.Confirmation;
+                    } else if( message[1] == '/' ) {
                         // escaped slash in the beginning: "//blah"
                         return RawMessageType.Chat;
-                    }
-                    if( message[1] != ' ' ) {
+                    } else if( message[1] != ' ' ) {
                         // normal command: "/cmd"
                         return RawMessageType.Command;
                     }
@@ -253,8 +254,10 @@ namespace fCraft {
                         return RawMessageType.PrivateChat;
                     }
                     return RawMessageType.Invalid;
+
+                default:
+                    return RawMessageType.Chat;
             }
-            return RawMessageType.Chat;
         }
 
 
@@ -290,7 +293,8 @@ namespace fCraft {
 
         static readonly char[] UnicodeReplacements = " ☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
 
-        static readonly Dictionary<string, char> EmoteMacros = new Dictionary<string, char> {
+        /// <summary> List of chat keywords, and emotes that they stand for. </summary>
+        public static readonly Dictionary<string, char> EmoteKeywords = new Dictionary<string, char> {
             { ":)", '\u0001' }, // ☺
             { "smile", '\u0001' },
 
@@ -397,8 +401,13 @@ namespace fCraft {
         };
 
 
-        [NotNull]
-        public static string ReplaceEmoteMacros( [NotNull] string input ) {
+        /// <summary> Replaces emote keywords with actual emotes, using Chat.EmoteKeywords mapping. 
+        /// Keywords are enclosed in curly braces, and are case-insensitive. </summary>
+        /// <param name="input"> String to process. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        [NotNull, Pure]
+        public static string ReplaceEmoteKeywords( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
             int startIndex = input.IndexOf( '{' );
             if( startIndex == -1 ) {
@@ -421,7 +430,7 @@ namespace fCraft {
                 // extract the keyword
                 string keyword = input.Substring( startIndex + 1, endIndex - startIndex - 1 );
                 char substitute;
-                if( EmoteMacros.TryGetValue( keyword.ToLowerInvariant(), out substitute ) ) {
+                if( EmoteKeywords.TryGetValue( keyword.ToLowerInvariant(), out substitute ) ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;
@@ -449,7 +458,7 @@ namespace fCraft {
         /// Opposite of ReplaceEmotesWithUncode. </summary>
         /// <param name="input"> String to process. </param>
         /// <returns> Processed string, with its UTF-8 symbol characters replaced. </returns>
-        /// <exception cref="ArgumentNullException"> If input is null. </exception>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
         public static string ReplaceUncodeWithEmotes( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
@@ -465,7 +474,7 @@ namespace fCraft {
         /// Opposite of ReplaceUncodeWithEmotes. </summary>
         /// <param name="input"> String to process. </param>
         /// <returns> Processed string, with its ASCII control characters replaced. </returns>
-        /// <exception cref="ArgumentNullException"> If input is null. </exception>
+        /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
         public static string ReplaceEmotesWithUncode( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );

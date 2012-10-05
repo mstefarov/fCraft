@@ -19,7 +19,7 @@ namespace fCraft {
         /// <summary> Checks whether an IP address may belong to LAN or localhost (192.168.0.0/16, 10.0.0.0/24, or 127.0.0.0/24). </summary>
         /// <param name="addr"> IPv4 address to check. </param>
         /// <returns> True if given IP is local; otherwise false. </returns>
-        /// <exception cref="ArgumentNullException"> If addr is null. </exception>
+        /// <exception cref="ArgumentNullException"> addr is null. </exception>
         public static bool IsLocal( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
@@ -30,7 +30,7 @@ namespace fCraft {
 
 
         /// <summary> Represents an IPv4 address as an unsigned integer. </summary>
-        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
+        /// <exception cref="ArgumentNullException"> thisAddr is null. </exception>
         public static uint AsUInt( [NotNull] this IPAddress thisAddr ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             return (uint)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
@@ -38,7 +38,7 @@ namespace fCraft {
 
 
         /// <summary> Represents an IPv4 address as a signed integer. </summary>
-        /// <exception cref="ArgumentNullException"> If thisAddr is null. </exception>
+        /// <exception cref="ArgumentNullException"> thisAddr is null. </exception>
         public static int AsInt( [NotNull] this IPAddress thisAddr ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             return IPAddress.HostToNetworkOrder( BitConverter.ToInt32( thisAddr.GetAddressBytes(), 0 ) );
@@ -279,7 +279,7 @@ namespace fCraft {
         /// <summary> Fills the entire given byte array with a specified byte value, as efficiently as possible. </summary>
         /// <param name="array"> Array to work with. </param>
         /// <param name="value"> Value to assign to each byte of the array. </param>
-        /// <exception cref="ArgumentNullException"> If array is null. </exception>
+        /// <exception cref="ArgumentNullException"> array is null. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
             byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
@@ -307,8 +307,8 @@ namespace fCraft {
         /// <param name="value"> Value to assign to each byte of the array. </param>
         /// <param name="startIndex"> Index of the first byte that should be set. </param>
         /// <param name="length"> Number of bytes of the array to set. </param>
-        /// <exception cref="ArgumentNullException"> If array is null. </exception>
-        /// <exception cref="ArgumentOutOfRangeException"> If length is negative, if startIndex is negative,
+        /// <exception cref="ArgumentNullException"> array is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> length is negative; startIndex is negative;
         /// or if (length+startIndex) is greater than array length. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
             if( array == null ) throw new ArgumentNullException( "array" );
@@ -387,8 +387,8 @@ namespace fCraft {
         /// <param name="offset"> Offset, in bytes, from the start of data. </param>
         /// <param name="value"> Value to search for. Must contain only ASCII characters. </param>
         /// <returns> Whether the pattern was found. </returns>
-        /// <exception cref="ArgumentNullException">If data or value is null.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"> If offset is less than 0 or greater than data.Length. </exception>
+        /// <exception cref="ArgumentNullException"> data or value is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> offset is less than 0 or greater than data.Length. </exception>
         [Pure]
         public static bool MemCmp( [NotNull] byte[] data, int offset, [NotNull] string value ) {
             if( data == null ) throw new ArgumentNullException( "data" );
@@ -404,8 +404,8 @@ namespace fCraft {
         /// <summary> Reads a number of bytes from source that matches the length of destination byte array. </summary>
         /// <param name="source"> Stream to read from. </param>
         /// <param name="destination"> Byte array to write to. Length of this array is used. </param>
-        /// <exception cref="ArgumentNullException"> If source or destination is null. </exception>
-        /// <exception cref="EndOfStreamException"> If the end of stream was reached before destination array was filled. </exception>
+        /// <exception cref="ArgumentNullException"> source or destination is null. </exception>
+        /// <exception cref="EndOfStreamException"> The end of stream is reached before destination array was filled. </exception>
         public static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );

@@ -228,7 +228,7 @@ namespace Mono.Options
         }
     }
 
-    public class OptionValueCollection : IList, IList<string> {
+    public sealed class OptionValueCollection : IList, IList<string> {
         readonly List<string> values = new List<string>();
         readonly OptionContext c;
 
@@ -312,7 +312,7 @@ namespace Mono.Options
         }
     }
 
-    public class OptionContext {
+    public sealed class OptionContext {
         private Option option;
         private string name;
         private int index;

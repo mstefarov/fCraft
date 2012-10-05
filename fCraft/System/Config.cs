@@ -849,8 +849,9 @@ namespace fCraft {
         /// Use Config.TrySetValue() if you'd like to suppress exceptions in favor of a boolean return value. </summary>
         /// <param name="key"> Config key to set. </param>
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
-        /// <exception cref="T:System.ArgumentNullException" />
-        /// <exception cref="T:System.FormatException" />
+        /// <exception cref="ArgumentNullException"> rawValue is null. </exception>
+        /// <exception cref="NullReferenceException"> rawValue.ToString() is null. </exception>
+        /// <exception cref="FormatException"> Given value did not satisfy key's requirements. </exception>
         /// <returns> True if value is valid and has been assigned.
         /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
         public static bool SetValue( this ConfigKey key, object rawValue ) {

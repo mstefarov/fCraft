@@ -160,7 +160,8 @@ namespace fCraft {
         #region Shortcuts
 
         /// <summary> Decorated name of the player or entity who banned this player.
-        /// Returns raw BannedBy value if it's not a recognized player name. </summary>
+        /// Returns raw BannedBy value if it's not a recognized player name.
+        /// Returns '?' if BannedBy is null or empty. </summary>
         [NotNull]
         public string BannedByClassy {
             get { return PlayerDB.FindExactClassyName( BannedBy ); }
@@ -169,7 +170,7 @@ namespace fCraft {
 
         /// <summary> Decorated name of the player associted with this IP (if given at the time of banning).
         /// Returns raw PlayerName value if it's not a recognized player name.
-        /// Returns '?' if PlayerName is null (no player associated with this ban). </summary>
+        /// Returns '?' if PlayerName is null or empty (no player associated with this ban). </summary>
         [NotNull]
         public string PlayerNameClassy {
             get { return PlayerDB.FindExactClassyName( PlayerName ); }
@@ -178,7 +179,7 @@ namespace fCraft {
 
         /// <summary> Gets the Classy name of the player who last attempted to login with this banned IP.
         /// Returns raw LastAttemptName value if it's not a recognized player name.
-        /// Returns '?' if LastAttemptName is null (no attempts on record). </summary>
+        /// Returns '?' if LastAttemptName is null or empty (no attempts on record). </summary>
         [NotNull]
         public string LastAttemptNameClassy {
             get { return PlayerDB.FindExactClassyName( LastAttemptName ); }

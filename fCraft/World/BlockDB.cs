@@ -623,12 +623,12 @@ namespace fCraft {
         /// <param name="searchType"> Type of search (ReturnAll, ReturnOldest, or ReturnNewest). See BlockDBSearchType enum. </param>
         /// <param name="selector"> Function used to select BlockDBEntries to be returned. </param>
         /// <returns> Array of BlockDBEntry structs. </returns>
-        /// <exception cref="InvalidOperationException"> If BlockDB is disabled. </exception>
-        /// <exception cref="ArgumentOutOfRangeException"> If max is less than 0. </exception>
-        /// <exception cref="ArgumentNullException"> If selector is null. </exception>
-        /// <exception cref="EndOfStreamException"> If the end of .fbdb file was reached prematurely (corrupted file, or outside interference). </exception>
-        /// <exception cref="DataMisalignedException"> If .fbdb file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> If an I/O error occurred while trying to read .fbdb file from disk. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> max is less than 0. </exception>
+        /// <exception cref="ArgumentNullException"> selector is null. </exception>
+        /// <exception cref="InvalidOperationException"> BlockDB is disabled. </exception>
+        /// <exception cref="EndOfStreamException"> The end of FBDB file is reached prematurely (corrupted file, or outside interference). </exception>
+        /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
+        /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
         [NotNull]
         public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, [NotNull] Func<BlockDBEntry, bool> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
@@ -661,11 +661,11 @@ namespace fCraft {
 
         /// <summary> Traverses the database, newest to oldest entries, processing each entry with the given IBlockDBQueryProcessor. </summary>
         /// <param name="processor"> Processor to use for each BlockDBEntry. </param>
-        /// <exception cref="ArgumentNullException"> If processor is null. </exception>
-        /// <exception cref="InvalidOperationException"> If BlockDB is disabled. </exception>
-        /// <exception cref="EndOfStreamException"> If the end of .fbdb file was reached prematurely (corrupted file, or outside interference). </exception>
-        /// <exception cref="DataMisalignedException"> If .fbdb file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> If an I/O error occurred while trying to read .fbdb file from disk. </exception>
+        /// <exception cref="ArgumentNullException"> processor is null. </exception>
+        /// <exception cref="InvalidOperationException"> BlockDB is disabled. </exception>
+        /// <exception cref="EndOfStreamException"> The end of FBDB file is reached prematurely (corrupted file, or outside interference). </exception>
+        /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
+        /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
         public void Traverse( [NotNull] IBlockDBQueryProcessor processor ) {
             if( processor == null ) throw new ArgumentNullException( "processor" );
             if( !IsEnabled || !IsEnabledGlobally ) {
@@ -904,7 +904,7 @@ namespace fCraft {
         /// <summary> Returns list of all changes done to the map at the given coordinate, newest to oldest. </summary>
         /// <param name="max"> Maximum number of changes to return. </param>
         /// <param name="coords"> Coordinate to search at. </param>
-        /// <exception cref="ArgumentOutOfRangeException"> If coords are outside the map. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> Given coordinates are outside the map. </exception>
         public BlockDBEntry[] Lookup( int max, Vector3I coords ) {
             if( !World.LoadMap().InBounds( coords ) ) {
                 throw new ArgumentOutOfRangeException( "coords" );

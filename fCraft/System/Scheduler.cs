@@ -19,7 +19,9 @@ namespace fCraft {
                       backgroundThread;
 
 
-        public static int CriticalTaskCount {
+        // Numeber of background tasks marked as critical,
+        // that need to be finished before the server shutdown completes.
+        internal static int CriticalTaskCount {
             get {
                 lock( BackgroundTaskQueueLock ) {
                     return BackgroundTasks.Count( t => t.IsCritical );

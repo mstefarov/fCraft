@@ -405,7 +405,7 @@ namespace fCraft {
             // if a player is using InDev or SurvivalTest client, they may try to
             // place blocks that are not found in MC Classic. Convert them!
             if( type > 49 ) {
-                type = MapDat.MapBlock( type );
+                type = MapDat.MapSurvivalTestBlock( type );
             }
 
             Vector3I coords = new Vector3I( x, y, z );
@@ -1047,7 +1047,7 @@ namespace fCraft {
                 }
             }
 
-            RaisePlayerJoinedWorldEvent( this, oldWorld, reason );
+            RaisePlayerJoinedWorldEvent( this, oldWorld, newWorld, reason );
 
             Server.RequestGC();
             return true;

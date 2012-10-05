@@ -8,7 +8,7 @@ namespace fCraft {
     /// Coordinates are always inclusive, so note that even a bounding box with coinciding vertices is a 1x1x1 cube,
     /// and has non-zero volume and non-zero dimensions. </summary>
     public sealed class BoundingBox : IEquatable<BoundingBox>, ICloneable {
-        /// <summary> Empty BoundingBox (1x1x1). </summary>
+        /// <summary> Empty BoundingBox (1x1x1), at origin (0,0,0). </summary>
         public static readonly BoundingBox Empty = new BoundingBox( 0, 0, 0, 0, 0, 0 );
 
         public int XMin, YMin, ZMin, XMax, YMax, ZMax;
@@ -51,6 +51,7 @@ namespace fCraft {
 
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
         /// <exception cref="ArgumentNullException"> other is null. </exception>
+        [Pure]
         public bool Insersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return !( XMax < other.XMin || XMin > other.XMax ||
@@ -61,6 +62,7 @@ namespace fCraft {
 
         /// <summary> Checks if another bounding box is wholly contained inside this one. </summary>
         /// <exception cref="ArgumentNullException"> other is null. </exception>
+        [Pure]
         public bool Contains( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return XMin <= other.XMin && XMax >= other.XMax &&
@@ -70,6 +72,7 @@ namespace fCraft {
 
 
         /// <summary> Checks if a given point is inside this bounding box. </summary>
+        [Pure]
         public bool Contains( int x, int y, int z ) {
             return x >= XMin && x <= XMax &&
                    y >= YMin && y <= YMax &&
@@ -78,6 +81,7 @@ namespace fCraft {
 
 
         /// <summary> Checks if a given point is inside this bounding box. </summary>
+        [Pure]
         public bool Contains( Vector3I point ) {
             return point.X >= XMin && point.X <= XMax &&
                    point.Y >= YMin && point.Y <= YMax &&
@@ -88,6 +92,7 @@ namespace fCraft {
         /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
         /// <exception cref="ArgumentNullException"> other is null. </exception>
+        [Pure]
         public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             if( Contains( other ) ) {

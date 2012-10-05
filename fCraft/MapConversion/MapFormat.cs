@@ -36,6 +36,7 @@ namespace fCraft.MapConversion {
         /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>
         Opticraft,
 
+        /// <summary> Raw byte array, with no header. For export only. </summary>
         Raw
     }
 

@@ -583,7 +583,7 @@ namespace fCraft {
             }
             if( ConfigKey.IRCAllowMinecraftEmotes.Enabled() ) {
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
-                message = Chat.ReplaceEmoteMacros( message );
+                message = Chat.ReplaceEmoteKeywords( message );
                 message = Chat.ReplaceUncodeWithEmotes( message );
             } else {
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );

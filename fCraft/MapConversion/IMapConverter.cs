@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    /// <summary> Interface describing the proccess of converting non-native map formats into the default fCraft format. </summary>
+    /// <summary> A map converter (either importer, exporter, or both). </summary>
     public interface IMapConverter {
         /// <summary> Returns name(s) of the server(s) that uses this format. </summary>
         [NotNull]
@@ -26,6 +26,7 @@ namespace fCraft.MapConversion {
     }
 
 
+    /// <summary> IMapConverter that provides functionality for identifying and saving maps from files. </summary>
     public interface IMapImporter : IMapConverter {
         /// <summary> Returns true if the file name (or directory name) matches this format's expectations. </summary>
         bool ClaimsName( [NotNull] string path );
@@ -46,9 +47,9 @@ namespace fCraft.MapConversion {
     }
 
 
+    /// <summary> IMapConverter that provides functionality for saving maps to files. </summary>
     public interface IMapExporter : IMapConverter {
         /// <summary> Saves given map at the given location. </summary>
-        /// <returns> True if saving succeeded; otherwise false. </returns>
-        bool Save( [NotNull] Map mapToSave, [NotNull] string path );
+        void Save( [NotNull] Map mapToSave, [NotNull] string path );
     }
 }

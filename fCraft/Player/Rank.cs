@@ -91,7 +91,7 @@ namespace fCraft {
         /// <summary> Sets the name and ID of this Rank. </summary>
         /// <param name="name"> Name to assign to this Rank. </param>
         /// <param name="id"> Unique ID to assing to this Rank. Use RankManager.GenerateID to generate. </param>
-        /// <exception cref="ArgumentNullException"> If name or id is null. </exception>
+        /// <exception cref="ArgumentNullException"> name or id is null. </exception>
         public Rank( [NotNull] string name, [NotNull] string id )
             : this() {
             if( name == null ) throw new ArgumentNullException( "name" );

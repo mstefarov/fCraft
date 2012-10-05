@@ -572,7 +572,8 @@ namespace fCraft {
         };
 
         static void UnhideHandler( Player player, CommandReader cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             if( !player.Info.IsHidden ) {
                 player.Message( "You are not currently hidden." );
@@ -589,7 +590,7 @@ namespace fCraft {
 
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    string msg = Server.MakePlayerConnectedMessage( player, false, player.World );
+                    string msg = Server.MakePlayerConnectedMessage( player, false, playerWorld );
                     Server.Players.CantSee( player ).Message( msg );
                 }
             }

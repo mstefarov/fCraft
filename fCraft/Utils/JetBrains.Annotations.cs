@@ -337,17 +337,4 @@ namespace JetBrains.Annotations {
     /// <summary> Indicates that method doesn't contain observable side effects. </summary>
     [AttributeUsage( AttributeTargets.Method, Inherited = true )]
     public sealed class PureAttribute : Attribute { }
-
-    [AttributeUsage( AttributeTargets.Parameter )]
-    public class PathReferenceAttribute : Attribute {
-        public PathReferenceAttribute() { }
-
-        [UsedImplicitly]
-        public PathReferenceAttribute( [PathReference] string basePath ) {
-            BasePath = basePath;
-        }
-
-        [UsedImplicitly]
-        public string BasePath { get; private set; }
-    }
 }

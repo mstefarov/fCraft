@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     [DataContract]
-    public sealed class OpticraftMetaData {
+    internal sealed class OpticraftMetaData {
         [DataMember]
         public int X { get; set; }
         [DataMember]
@@ -37,14 +37,14 @@ namespace fCraft.MapConversion {
     }
 
 
-    public sealed class OpticraftDataStore {
+    internal sealed class OpticraftDataStore {
         [DataMember]
         public OpticraftZone[] Zones;
 
     }
 
 
-    public sealed class OpticraftZone {
+    internal sealed class OpticraftZone {
         [DataMember]
         public string Name { get; set; }
         [DataMember]
@@ -236,7 +236,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public void Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenWrite( fileName ) ) {
@@ -329,7 +329,6 @@ namespace fCraft.MapConversion {
                 writer.Write( compressedBlocks );
 
             }
-            return true;
         }
     }
 }
