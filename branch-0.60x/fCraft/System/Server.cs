@@ -114,8 +114,8 @@ namespace fCraft {
 
 
         static Server() {
-            InternalIP = IPAddress.None;
-            ExternalIP = IPAddress.None;
+            InternalIP = IPAddress.Any;
+            ExternalIP = IPAddress.Any;
         }
 
 
