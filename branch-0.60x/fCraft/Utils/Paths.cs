@@ -134,7 +134,7 @@ namespace fCraft {
         /// File.Replace, File.Copy/File.Delete, or File.Move is used depending on circumstances. </summary>
         /// <param name="source"> File to be moved. </param>
         /// <param name="destination"> Destination file name. If this file exists, it will be replaced. </param>
-        /// <exception cref="ArgumentNullException"> If source or destination is used. </exception>
+        /// <exception cref="ArgumentNullException"> source or destination is used. </exception>
         public static void MoveOrReplaceFile( [NotNull] string source, [NotNull] string destination ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( destination == null ) throw new ArgumentNullException( "destination" );
@@ -158,7 +158,7 @@ namespace fCraft {
         /// <param name="path"> Full or partial path. </param>
         /// <param name="checkForWriteAccess"> If set, tries to write to the given directory. </param>
         /// <returns> Full path of the directory (on success) or null (on failure). </returns>
-        /// <exception cref="ArgumentNullException"> If pathLabel or path is null. </exception>
+        /// <exception cref="ArgumentNullException"> pathLabel or path is null. </exception>
         public static bool TestDirectory( [NotNull] string pathLabel, [NotNull] string path, bool checkForWriteAccess ) {
             if( pathLabel == null ) throw new ArgumentNullException( "pathLabel" );
             if( path == null ) throw new ArgumentNullException( "path" );
@@ -207,7 +207,7 @@ namespace fCraft {
         /// a file and returns whether it succeeded. </param>
         /// <param name="neededAccess"> If file is present, type of access to test. </param>
         /// <returns> Whether target file passed all tests. </returns>
-        /// <exception cref="ArgumentNullException"> If fileLabel or fileName is null. </exception>
+        /// <exception cref="ArgumentNullException"> fileLabel or fileName is null. </exception>
         public static bool TestFile( [NotNull] string fileLabel, [NotNull] string fileName,
                                      bool createIfDoesNotExist, FileAccess neededAccess ) {
             if( fileLabel == null ) throw new ArgumentNullException( "fileLabel" );
@@ -254,7 +254,7 @@ namespace fCraft {
 
         /// <summary> Checks whether two paths/file names reference the exact same filesystem location. Accounts for filesystem quirks. </summary>
         /// <returns> True if given paths are referencing the same file. False if they're not. </returns>
-        /// <exception cref="ArgumentNullException"> If path1 or path2 is null. </exception>
+        /// <exception cref="ArgumentNullException"> path1 or path2 is null. </exception>
         public static bool Compare( [NotNull] string path1, [NotNull] string path2 ) {
             if( path1 == null ) throw new ArgumentNullException( "path1" );
             if( path2 == null ) throw new ArgumentNullException( "path2" );
@@ -265,7 +265,7 @@ namespace fCraft {
         /// <summary> Checks whether two paths/file names reference the exact same filesystem location.
         /// Allows specifying whether comparison should be case-sensitive or not. </summary>
         /// <returns> True if given paths are referencing the same file. False if they're not. </returns>
-        /// <exception cref="ArgumentNullException"> If path1 or path2 is null. </exception>
+        /// <exception cref="ArgumentNullException"> path1 or path2 is null. </exception>
         public static bool Compare( [NotNull] string path1, [NotNull] string path2, bool caseSensitive ) {
             if( path1 == null ) throw new ArgumentNullException( "path1" );
             if( path2 == null ) throw new ArgumentNullException( "path2" );
@@ -341,7 +341,7 @@ namespace fCraft {
         /// <param name="fileInfo"> FileInfo object in question. </param>
         /// <param name="caseSensitive"> Whether check should be case-sensitive or case-insensitive. </param>
         /// <returns> True if file exists, otherwise false. </returns>
-        /// <exception cref="ArgumentNullException"> If fileInfo is null. </exception>
+        /// <exception cref="ArgumentNullException"> fileInfo is null. </exception>
         public static bool Exists( [NotNull] this FileInfo fileInfo, bool caseSensitive ) {
             if( fileInfo == null ) throw new ArgumentNullException( "fileInfo" );
             if( caseSensitive == MonoCompat.IsCaseSensitive ) {
@@ -358,7 +358,7 @@ namespace fCraft {
 
         /// <summary> Gets full directory name for a given path, or path root for directory-less paths. 
         /// Uses either Path.GetDirectoryName or Path.GetPathRoot to get the result. </summary>
-        /// <exception cref="ArgumentNullException"> If fileOrDirName is null. </exception>
+        /// <exception cref="ArgumentNullException"> fileOrDirName is null. </exception>
         [NotNull]
         public static string GetDirectoryNameOrRoot( [NotNull] string fileOrDirName ) {
             if( fileOrDirName == null ) throw new ArgumentNullException( "fileOrDirName" );
@@ -373,7 +373,7 @@ namespace fCraft {
         /// <summary> Allows making changes to file name capitalization on case-insensitive filesystems. </summary>
         /// <param name="originalFullFileName"> Full path to the original file name </param>
         /// <param name="newFileName"> New file name (do not include the full path) </param>
-        /// <exception cref="ArgumentNullException"> If originalFullFileName or newFileName is null. </exception>
+        /// <exception cref="ArgumentNullException"> originalFullFileName or newFileName is null. </exception>
         public static void ForceRename( [NotNull] string originalFullFileName, [NotNull] string newFileName ) {
             if( originalFullFileName == null ) throw new ArgumentNullException( "originalFullFileName" );
             if( newFileName == null ) throw new ArgumentNullException( "newFileName" );
@@ -389,7 +389,7 @@ namespace fCraft {
         /// <summary> Find files that match the name in a case-insensitive way. </summary>
         /// <param name="fullFileName"> Case-insensitive file name to look for. </param>
         /// <returns> Array of matches. Empty array if no files matches. </returns>
-        /// <exception cref="ArgumentNullException"> If fullFileName is null. </exception>
+        /// <exception cref="ArgumentNullException"> fullFileName is null. </exception>
         public static FileInfo[] FindFiles( [NotNull] string fullFileName ) {
             if( fullFileName == null ) throw new ArgumentNullException( "fullFileName" );
             string fileName = Path.GetFileName( fullFileName );
@@ -404,7 +404,7 @@ namespace fCraft {
         /// Protected file names include all fCraft binaries, configuration files, and data files. </summary>
         /// <param name="fileName"> File name/path to check. </param>
         /// <returns> True if given file name is considered protected; otherwise false. </returns>
-        /// <exception cref="ArgumentNullException"> If fileName is null. </exception>
+        /// <exception cref="ArgumentNullException"> fileName is null. </exception>
         public static bool IsProtectedFileName( [NotNull] string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             return ProtectedFiles.Any( t => Compare( t, fileName ) );

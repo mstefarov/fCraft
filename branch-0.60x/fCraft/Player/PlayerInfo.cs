@@ -95,10 +95,13 @@ namespace fCraft {
         /// May be DateTime.MinValue if player has never been promoted/demoted before. </summary>
         public DateTime RankChangeDate;
 
-        /// <summary> Name of the entity that most recently promoted/demoted this player. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently promoted/demoted this player. May be null or empty. </summary>
         [CanBeNull]
         public string RankChangedBy;
 
+        /// <summary> Decorated name of the player or entity who most recently changed rank of this player.
+        /// Returns raw RankChangedBy value if it's not a recognized player name.
+        /// Returns '?' if RankChangedBy is null or empty. </summary>
         [NotNull]
         public string RankChangedByClassy {
             get {
@@ -106,7 +109,7 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Reason given for the most recent promotion/demotion. May be empty. </summary>
+        /// <summary> Reason given for the most recent promotion/demotion. May be null or empty. </summary>
         [CanBeNull]
         public string RankChangeReason;
 
@@ -129,10 +132,13 @@ namespace fCraft {
         /// <summary> Date of most recent ban, UTC. May be DateTime.MinValue if player was never banned. </summary>
         public DateTime BanDate;
 
-        /// <summary> Name of the entity responsible for most recent ban. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently banned this player. May be null or empty. </summary>
         [CanBeNull]
         public string BannedBy;
 
+        /// <summary> Decorated name of the player or entity who most recently banned this player.
+        /// Returns raw BannedBy value if it's not a recognized player name.
+        /// Returns '?' if BannedBy is null or empty. </summary>
         [NotNull]
         public string BannedByClassy {
             get {
@@ -140,17 +146,20 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Reason given for the most recent ban. May be empty. </summary>
+        /// <summary> Reason given for the most recent ban. May be null or empty. </summary>
         [CanBeNull]
         public string BanReason;
 
         /// <summary> Date of most recent unban, UTC. May be DateTime.MinValue if player was never unbanned. </summary>
         public DateTime UnbanDate;
 
-        /// <summary> Name of the entity responsible for most recent unban. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently unbanned this player. May be null or empty. </summary>
         [CanBeNull]
         public string UnbannedBy;
 
+        /// <summary> Decorated name of the player or entity who most recently unbanned this player.
+        /// Returns raw UnbannedBy value if it's not a recognized player name.
+        /// Returns '?' if UnbannedBy is null or empty. </summary>
         [NotNull]
         public string UnbannedByClassy {
             get {
@@ -158,7 +167,7 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Reason given for the most recent unban. May be empty. </summary>
+        /// <summary> Reason given for the most recent unban. May be null or empty. </summary>
         [CanBeNull]
         public string UnbanReason;
 
@@ -210,10 +219,13 @@ namespace fCraft {
         /// May be DateTime.MinValue if the player has never been kicked. </summary>
         public DateTime LastKickDate;
 
-        /// <summary> Name of the entity that most recently kicked this player. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently kicked this player. May be null or empty. </summary>
         [CanBeNull]
         public string LastKickBy;
 
+        /// <summary> Decorated name of the player or entity who most recently kicked this player.
+        /// Returns raw LastKickBy value if it's not a recognized player name.
+        /// Returns '?' if LastKickBy is null or empty. </summary>
         [NotNull]
         public string LastKickByClassy {
             get {
@@ -221,7 +233,7 @@ namespace fCraft {
             }
         }
 
-        /// <summary> Reason given for the most recent kick. May be empty. </summary>
+        /// <summary> Reason given for the most recent kick. May be null or empty. </summary>
         [CanBeNull]
         public string LastKickReason;
 
@@ -237,10 +249,13 @@ namespace fCraft {
         /// May be DateTime.MinValue of the player has never been frozen. </summary>
         public DateTime FrozenOn;
 
-        /// <summary> Name of the entity that most recently froze this player. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently froze this player. May be null or empty. </summary>
         [CanBeNull]
         public string FrozenBy;
 
+        /// <summary> Decorated name of the player or entity who most recently froze this player.
+        /// Returns raw FrozenBy value if it's not a recognized player name.
+        /// Returns '?' if FrozenBy is null or empty. </summary>
         [NotNull]
         public string FrozenByClassy {
             get {
@@ -258,10 +273,13 @@ namespace fCraft {
         /// <summary> Date until which the player is muted. If the date is in the past, player is NOT muted. </summary>
         public DateTime MutedUntil;
 
-        /// <summary> Name of the entity that most recently muted this player. May be empty. </summary>
+        /// <summary> Name of the player or entity who most recently muted this player. May be null or empty. </summary>
         [CanBeNull]
         public string MutedBy;
 
+        /// <summary> Decorated name of the player or entity who most recently muted this player.
+        /// Returns raw MutedBy value if it's not a recognized player name.
+        /// Returns '?' if MutedBy is null or empty. </summary>
         [NotNull]
         public string MutedByClassy {
             get {

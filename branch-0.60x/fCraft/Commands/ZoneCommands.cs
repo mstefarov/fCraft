@@ -190,7 +190,8 @@ namespace fCraft {
         };
 
         static void ZoneEditHandler( Player player, CommandReader cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             bool changesWereMade = false;
             string zoneName = cmd.Next();
             if( zoneName == null ) {
@@ -215,7 +216,7 @@ namespace fCraft {
                                         zone.ClassyName, oldWhitelist.JoinToClassyString() );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} cleared whitelist of zone {1} on world {2}: {3}",
-                                    player.Name, zone.Name, player.World.Name,
+                                    player.Name, zone.Name, playerWorld.Name,
                                     oldWhitelist.JoinToString( pi => pi.Name ) );
                     } else {
                         player.Message( "Whitelist of zone {0}&S is empty.",
@@ -233,7 +234,7 @@ namespace fCraft {
                                         zone.ClassyName, oldBlacklist.JoinToClassyString() );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} cleared blacklist of zone {1} on world {2}: {3}",
-                                    player.Name, zone.Name, player.World.Name,
+                                    player.Name, zone.Name, playerWorld.Name,
                                     oldBlacklist.JoinToString( pi => pi.Name ) );
                     } else {
                         player.Message( "Blacklist of zone {0}&S is empty.",
@@ -322,7 +323,7 @@ namespace fCraft {
                 }
 
                 if( changesWereMade ) {
-                    zone.Edit( player.Info );
+                    zone.OnEdited( player.Info.Name );
                 } else {
                     player.Message( "No changes were made to the zone." );
                 }
@@ -582,7 +583,7 @@ namespace fCraft {
 
         static void ZoneRenameHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
-            if(playerWorld==null)PlayerOpException.ThrowNoWorld( player );
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             // make sure that both parameters are given
             string oldName = cmd.Next();

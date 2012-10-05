@@ -569,9 +569,9 @@ namespace fCraft {
         /// <param name="map"> Map to assign to the newly created world. May be null. </param>
         /// <param name="preload"> Whether or not the map should be preloaded. </param>
         /// <returns> Newly-created world. </returns>
-        /// <exception cref="ArgumentNullException"> If name is null. </exception>
-        /// <exception cref="WorldOpException"> If world name was invalid, a world with this name already exists,
-        /// or if an event callback cancelled the addition. </exception>
+        /// <exception cref="ArgumentNullException"> name is null. </exception>
+        /// <exception cref="WorldOpException"> Given world name is invalid; a world with this name already exists;
+        /// or an event callback cancels the addition. </exception>
         [NotNull]
         public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
@@ -797,7 +797,7 @@ namespace fCraft {
         /// <param name="fileName"> FileName of the map to be searched for. </param>
         /// <returns> Full source file name.
         /// Null if file could not be found, or an error occurred. </returns>
-        /// <exception cref="ArgumentNullException"> If player or fileName is null. </exception>
+        /// <exception cref="ArgumentNullException"> player or fileName is null. </exception>
         [CanBeNull]
         public static string FindMapFile( [NotNull] Player player, [NotNull] string fileName ) {
             if( player == null ) throw new ArgumentNullException( "player" );

@@ -192,9 +192,11 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerJoinedWorldEvent( Player player, World oldWorld, WorldChangeReason reason ) {
+        static void RaisePlayerJoinedWorldEvent( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = JoinedWorld;
-            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, player.World, reason ) );
+            if( h != null ) h( null, new PlayerJoinedWorldEventArgs( player, oldWorld, newWorld, reason ) );
         }
     }
 }

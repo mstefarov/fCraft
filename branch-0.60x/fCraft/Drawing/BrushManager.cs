@@ -56,8 +56,8 @@ namespace fCraft.Drawing {
 
         /// <summary> Registers a new brush. </summary>
         /// <param name="factory"> IBrushFactory that will be used to create new instances of the brush. </param>
-        /// <exception cref="ArgumentNullException"> If factory is null. </exception>
-        /// <exception cref="ArgumentException"> If brush with the same name or alias already exists. </exception>
+        /// <exception cref="ArgumentNullException"> factory is null. </exception>
+        /// <exception cref="ArgumentException"> brush with the same name or alias already exists. </exception>
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             string helpString = String.Format( "{0} brush: {1}",
@@ -75,11 +75,11 @@ namespace fCraft.Drawing {
         }
 
 
-        /// <summary> Finds IBrushFactory for given brush name.
+        /// <summary> Finds IBrushFactory for given brush name or alias.
         /// Case-insensitive. Does not autocomplete names. </summary>
         /// <param name="brushName"> Brush name. </param>
         /// <returns> IBrushFactory if brush was found; otherwise null. </returns>
-        /// <exception cref="ArgumentNullException"> If brushName is null. </exception>
+        /// <exception cref="ArgumentNullException"> brushName is null. </exception>
         [CanBeNull]
         public static IBrushFactory GetBrushFactory( [NotNull] string brushName ) {
             if( brushName == null ) throw new ArgumentNullException( "brushName" );

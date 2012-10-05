@@ -496,20 +496,24 @@ namespace fCraft {
                         }
                     }
                     string contextString;
-                    if( entry.Context == BlockChangeContext.Manual ) {
-                        contextString = "";
-                    } else if( entry.Context == ( BlockChangeContext.Manual | BlockChangeContext.Replaced ) ) {
-                        contextString = "(Painted)";
-                    } else if( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
-                               entry.Context != BlockChangeContext.Drawn ) {
-                        if( entry.Context ==
-                            ( BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf | BlockChangeContext.Redone ) ) {
+                    switch( entry.Context ) {
+                        case BlockChangeContext.Manual:
+                            contextString = "";
+                            break;
+                        case BlockChangeContext.PaintedCombo:
+                            contextString = " (Painted)";
+                            break;
+                        case BlockChangeContext.RedoneCombo:
                             contextString = " (Redone)";
-                        } else {
-                            contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
-                        }
-                    } else {
-                        contextString = " (" + entry.Context + ")";
+                            break;
+                        default:
+                            if( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
+                                entry.Context != BlockChangeContext.Drawn ) {
+                                contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
+                            } else {
+                                contextString = " (" + entry.Context + ")";
+                            }
+                            break;
                     }
 
                     if( entry.OldBlock == (byte)Block.Air ) {
@@ -2238,13 +2242,16 @@ namespace fCraft {
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 var mainedRanks = RankManager.Ranks
-                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
-                                             .ToArray();
+                                            .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
+                                            .ToArray();
                 if( mainedRanks.Length > 0 ) {
-                    player.Message( "Rank mains: {0}",
-                                    mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
-                                                                                  r.MainWorld.ClassyName,
-                                                                                  r.ClassyName ) ) );
+                    string list = mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
+                                                                                // ReSharper disable PossibleNullReferenceException
+                                                                                r.MainWorld.ClassyName,
+                                                                                // ReSharper restore PossibleNullReferenceException
+                                                                                r.ClassyName ) );
+                    player.Message( "Rank mains: {0}", list );
+                                    
                 }
                 return;
             }

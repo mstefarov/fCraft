@@ -30,7 +30,7 @@ namespace fCraft {
             ErrorCode = errorCode;
         }
 
-        public static string GetMessage( string worldName, WorldOpExceptionCode code ) {
+        internal static string GetMessage( string worldName, WorldOpExceptionCode code ) {
             if( worldName != null ) {
                 switch( code ) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:

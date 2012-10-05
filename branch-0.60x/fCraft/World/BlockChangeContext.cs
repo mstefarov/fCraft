@@ -35,7 +35,14 @@ namespace fCraft {
         /// <summary> Block was filled (using /fill2d or /fill3d). </summary>
         Filled = 256,
 
-        /// <summary> Redone self using /redo. </summary>
-        Redone = 512
+        /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
+        Redone = 512,
+
+
+        /// <summary> Combination of Manual and Replaced (as used by /Paint). </summary>
+        PaintedCombo = Manual | Replaced,
+
+        /// <summary> Combination of Drawn, UndoneSelf, and Redone (as used by /Redo). </summary>
+        RedoneCombo = Drawn | UndoneSelf | Redone
     }
 }

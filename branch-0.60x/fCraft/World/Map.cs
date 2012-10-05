@@ -37,8 +37,7 @@ namespace fCraft {
         public readonly int Volume;
 
 
-        /// <summary> Default spawning point on the map. </summary>
-        /// <exception cref="ArgumentOutOfRangeException"> If spawn coordinates are outside the map. </exception>
+        /// <summary> Default spawning point on the map. A warning is logged when given coordinates are outside the map. </summary>
         public Position Spawn {
             get {
                 return spawn;
@@ -91,11 +90,15 @@ namespace fCraft {
         /// <param name="length"> Length (horizontal, Notch's Z). </param>
         /// <param name="height"> Height (vertical, Notch's Y). </param>
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
-        /// <exception cref="ArgumentOutOfRangeException"> If width/length/height are not between 16 and 2048. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> Width, length, or height is not between 16 and 2048. </exception>
+        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
         public Map( World world, int width, int length, int height, bool initBlockArray ) {
-            if( !IsValidDimension( width ) ) throw new ArgumentOutOfRangeException( "width", "Invalid map dimension." );
-            if( !IsValidDimension( length ) ) throw new ArgumentOutOfRangeException( "length", "Invalid map dimension." );
-            if( !IsValidDimension( height ) ) throw new ArgumentOutOfRangeException( "height", "Invalid map dimension." );
+            if( !IsValidDimension( width ) ) throw new ArgumentOutOfRangeException( "width", "Invalid map width." );
+            if( !IsValidDimension( length ) ) throw new ArgumentOutOfRangeException( "length", "Invalid map length." );
+            if( !IsValidDimension( height ) ) throw new ArgumentOutOfRangeException( "height", "Invalid map height." );
+            if( (long)width * length * height > Int32.MaxValue ) {
+                throw new ArgumentException( "Map volume exceeds Int32.MaxValue." );
+            }
             DateCreated = DateTime.UtcNow;
             DateModified = DateCreated;
             Guid = Guid.NewGuid();
@@ -137,11 +140,7 @@ namespace fCraft {
 
             // save to a temporary file
             try {
-                HasChangedSinceSave = false;
-                if( !MapUtility.TrySave( this, tempFileName, SaveFormat ) ) {
-                    HasChangedSinceSave = true;
-                }
-
+                HasChangedSinceSave = !MapUtility.TrySave( this, tempFileName, SaveFormat );
             } catch( IOException ex ) {
                 HasChangedSinceSave = true;
                 Logger.Log( LogType.Error,

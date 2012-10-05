@@ -110,7 +110,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public void Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
@@ -137,7 +137,6 @@ namespace fCraft.MapConversion {
                     // Write the map data
                     bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
                 }
-                return true;
             }
         }
 

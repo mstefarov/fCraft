@@ -65,7 +65,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadHeaderInternal( GZipStream gs ) {
+        static Map LoadHeaderInternal( Stream gs ) {
             if( gs == null ) throw new ArgumentNullException( "gs" );
             // Setup a GZipStream to decompress and read the map file
             BinaryReader bs = new BinaryReader( gs );
@@ -129,7 +129,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Save( Map mapToSave, string fileName ) {
+        public void Save( Map mapToSave, string fileName ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.Create( fileName ) ) {
@@ -156,7 +156,6 @@ namespace fCraft.MapConversion {
                         for( int i = 0; i < mapToSave.Volume; i++ ) {
                             bw.Write( (int)mapToSave.Blocks[i] );
                         }
-                        return true;
                     }
                 }
             }

@@ -61,7 +61,7 @@ namespace fCraft {
 
         /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
         /// <param name="bounds"> New zone boundaries. </param>
-        /// <param name="createdBy"> Player who created this zone. May not be null. </param>
+        /// <param name="createdBy"> Player who created this zone. </param>
         public void Create( [NotNull] BoundingBox bounds, [NotNull] PlayerInfo createdBy ) {
             if( bounds == null ) throw new ArgumentNullException( "bounds" );
             if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
@@ -71,10 +71,13 @@ namespace fCraft {
         }
 
 
-        public void Edit( [NotNull] PlayerInfo editedBy ) {
+        /// <summary> Sets EditedBy and EditedDate fields, and raises Changed event. </summary>
+        /// <param name="editedBy"> Name of player or entity who edited this zone. </param>
+        /// <exception cref="ArgumentNullException"> editedBy is null. </exception>
+        public void OnEdited( [NotNull] string editedBy ) {
             if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
             EditedDate = DateTime.UtcNow;
-            EditedBy = editedBy.Name;
+            EditedBy = editedBy;
             RaiseChangedEvent();
         }
 

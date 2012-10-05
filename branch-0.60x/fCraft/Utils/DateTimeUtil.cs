@@ -183,7 +183,7 @@ namespace fCraft {
 
         /// <summary> Attempts to parse the given string as a TimeSpan in compact representation. 
         /// No exception is thrown if parsing failed. </summary>
-        /// <param name="text"> String to parse. May not be null. </param>
+        /// <param name="text"> String to parse. </param>
         /// <param name="result"> Parsed TimeSpan. Set to TimeSpan.Zero if parsing failed. </param>
         /// <returns> True if parsing succeeded; otherwise false. </returns>
         /// <exception cref="ArgumentNullException"> text is null. </exception>
@@ -205,7 +205,7 @@ namespace fCraft {
 
 
         /// <summary> Parses the given string as a TimeSpan in compact representation. Throws exceptions on failure. </summary>
-        /// <param name="text"> String to parse. May not be null. </param>
+        /// <param name="text"> String to parse. </param>
         /// <returns> Parsed TimeSpan. </returns>
         /// <exception cref="ArgumentNullException"> text is null. </exception>
         /// <exception cref="OverflowException"> The resulting TimeSpan is greater than TimeSpan.MaxValue. </exception>

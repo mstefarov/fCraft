@@ -54,6 +54,7 @@ namespace fCraft {
         static readonly object SaveLoadLocker = new object();
 
 
+        /// <summary> Whether PlayerDB has been loaded. Ranks cannot be modified after PlayerDB is loaded. </summary>
         public static bool IsLoaded { get; private set; }
 
 
@@ -820,13 +821,25 @@ namespace fCraft {
 
         #region Escaping
 
+        static readonly char[] EscapableChars = new[] { ',', '\n', '\r' };
+        static readonly char[] EscapedChars = new[] { '\xFF', '\xFE', '\xFD' };
+
+        /// <summary> Escapes special characters (comma, newline, carriage return)
+        /// and appends the processed string to the given StringBuilder. 
+        /// Used on all string fields of PlayerInfo and IPBanInfo. </summary>
+        /// <param name="sb"> StringBuilder to which string should be appended. May not be null. </param>
+        /// <param name="str"> String to process and append. If this string is null or empty, nothing is appended. </param>
+        /// <returns> A reference to the given StringBuilder (sb). </returns>
+        /// <exception cref="ArgumentNullException"> sb is null. </exception>
         public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             if( !String.IsNullOrEmpty( str ) ) {
-                if( str.IndexOf( ',' ) > -1 ) {
+                if( str.IndexOfAny( EscapableChars ) > -1 ) {
                     int startIndex = sb.Length;
                     sb.Append( str );
                     sb.Replace( ',', '\xFF', startIndex, str.Length );
+                    sb.Replace( '\n', '\xFE', startIndex, str.Length );
+                    sb.Replace( '\r', '\xFD', startIndex, str.Length );
                 } else {
                     sb.Append( str );
                 }
@@ -834,11 +847,9 @@ namespace fCraft {
             return sb;
         }
 
-        static readonly char[] EscapableChars = new[] { ',', '\n', '\r' };
-        static readonly char[] EscapedChars = new[] { '\xFF', '\xFE', '\xFD' };
-
-        /// <summary> Escapes characters not suitable for PlayerDB serialization
-        /// (commas, newlines \n, and carriage-returns \r). </summary>
+        /// <summary> Escapes special characters (comma, newline, carriage return) in the given string. </summary>
+        /// <param name="str"> String to process. If this string is null, an empty string is returned. </param>
+        /// <returns> Processed string. </returns>
         [NotNull]
         public static string Escape( [CanBeNull] string str ) {
             if( String.IsNullOrEmpty( str ) ) {
@@ -860,6 +871,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Restores escaped special characters (comma, newline, carriage return). 
+        /// Used on all string fields of PlayerInfo and IPBanInfo records, at load time. </summary>
+        /// <param name="str"> String to unescape. </param>
+        /// <returns> Procesed string, with the escaped special character restored. </returns>
+        /// <exception cref="ArgumentNullException"> str is null. </exception>
         [NotNull]
         public static string Unescape( [NotNull] string str ) {
             if( str == null ) throw new ArgumentNullException( "str" );

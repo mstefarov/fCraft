@@ -149,9 +149,9 @@ namespace fCraft.Drawing {
         /// <param name="marks"> Array of marks given by the player. </param>
         /// <returns> True if both DrawOperation and Brush have been prepared succesfully.
         /// False if either of them failed. </returns>
-        /// <exception cref="ArgumentNullException"> If marks is null. </exception>
-        /// <exception cref="ArgumentException"> If wrong number of marks was given. </exception>
-        /// <exception cref="NullReferenceException"> If Brush property was not set before calling Prepare. </exception>
+        /// <exception cref="ArgumentNullException"> marks is null. </exception>
+        /// <exception cref="ArgumentException"> Wrong number of marks is given. </exception>
+        /// <exception cref="NullReferenceException"> DrawOperation's Brush property is not set before calling Prepare. </exception>
         public virtual bool Prepare( [NotNull] Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length != ExpectedMarks ) {

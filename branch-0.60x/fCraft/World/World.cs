@@ -539,9 +539,9 @@ namespace fCraft {
 
         /// <summary> Selects the next player to teleport to while patroling.
         /// Sets target's LastPatrolTime automatically. </summary>
-        /// <param name="observer"> Player who is patrolling </param>
-        /// <returns> Player who has been selected to be patrolled </returns>
-        /// <exception cref="ArgumentNullException"> If observer is null. </exception>
+        /// <param name="observer"> Player who is patrolling. </param>
+        /// <returns> Player who has been selected to be patrolled. </returns>
+        /// <exception cref="ArgumentNullException"> observer is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
@@ -561,12 +561,12 @@ namespace fCraft {
 
         /// <summary> Selects the next player to teleport to while patroling.
         /// Includes additional inclusion check (predicate). </summary>
-        /// <param name="observer"> Player who is patrolling </param>
+        /// <param name="observer"> Player who is patrolling. </param>
         /// <param name="predicate"> Additional inclusion check for patrol targets.
         /// Applied after the standard checks. Allows filtering out unwanted players. </param>
         /// <param name="setLastPatrolTime"> Whether to set target's LastPatrolTime. </param>
-        /// <returns> Player who has been selected to be patrolled </returns>
-        /// <exception cref="ArgumentNullException"> If observer or predicate is null. </exception>
+        /// <returns> Player who has been selected to be patrolled. </returns>
+        /// <exception cref="ArgumentNullException"> observer or predicate is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer,
                                            [NotNull] Predicate<Player> predicate,
                                            bool setLastPatrolTime ) {
@@ -772,7 +772,7 @@ namespace fCraft {
         /// This does NOT save map to disk, and does NOT guarantee that the most up-to-date copy of the map was backed up. </summary>
         /// <param name="targetName"> Target file name. </param>
         /// <returns> Whether a backup was created or not. </returns>
-        /// <exception cref="ArgumentNullException"> If targetName is null. </exception>
+        /// <exception cref="ArgumentNullException"> targetName is null. </exception>
         public bool SaveBackup( [NotNull] string targetName ) {
             if( targetName == null ) throw new ArgumentNullException( "targetName" );
 
