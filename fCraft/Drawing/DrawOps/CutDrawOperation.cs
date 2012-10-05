@@ -58,16 +58,18 @@ namespace fCraft.Drawing {
                     }
                 }
             }
+            // ReSharper disable PossibleNullReferenceException
             copyInfo.OriginWorld = Player.World.Name;
+            // ReSharper restore PossibleNullReferenceException
             copyInfo.CopyTime = DateTime.UtcNow;
             Player.SetCopyState( copyInfo );
 
             Player.Message( "{0} blocks cut into slot #{1}. You can now &H/Paste",
                             Bounds.Volume, Player.CopySlot + 1 );
             Player.Message( "Origin at {0} {1}{2} corner.",
-                            (copyInfo.Orientation.Z == 1 ? "bottom" : "top"),
-                            (copyInfo.Orientation.Y == 1 ? "south" : "north"),
-                            (copyInfo.Orientation.X == 1 ? "east" : "west") );
+                            ( copyInfo.Orientation.Z == 1 ? "bottom" : "top" ),
+                            ( copyInfo.Orientation.Y == 1 ? "south" : "north" ),
+                            ( copyInfo.Orientation.X == 1 ? "east" : "west" ) );
 
             return base.Begin();
         }
