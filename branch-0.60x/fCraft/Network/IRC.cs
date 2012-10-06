@@ -522,7 +522,7 @@ namespace fCraft {
         }
 
 
-        const int MaxMessageSize = 512;
+        const int MaxMessageSize = 510;
         public static void SendRawMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             // handle newlines
