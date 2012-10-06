@@ -522,7 +522,7 @@ namespace fCraft {
         }
 
 
-        const int MaxMessageSize = 510;
+        const int MaxMessageSize = 510; // +2 bytes for CR-LF
         public static void SendRawMessage( [NotNull] string line ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             // handle newlines
@@ -575,7 +575,8 @@ namespace fCraft {
             IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7E]" ),
             IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]" );
 
-        static string ProcessMessageFromIRC( string message ) {
+        static string ProcessMessageFromIRC( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
                 message = IRCAndMinecraftColors.Replace( message, "" );
             } else {
@@ -592,15 +593,19 @@ namespace fCraft {
         }
 
 
-        static string ProcessMessageToIRC( string message ) {
+        static string ProcessMessageToIRC( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             if( ConfigKey.IRCUseColor.Enabled() ) {
                 message = Chat.ReplaceEmotesWithUncode( message );
                 message = Color.MinecraftToIrcColors( message );
+                message = message.Replace( BoldCode, BoldReplacement );
+                message = message.Replace( ResetCode, ResetReplacement );
             } else {
+                message = Color.StripColors( message );
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
+                message = message.Replace( BoldCode, "" );
+                message = message.Replace( ResetCode, "" );
             }
-            message = message.Replace( BoldCode, BoldReplacement );
-            message = message.Replace( ResetCode, ResetReplacement );
             return message.Trim();
         }
 
