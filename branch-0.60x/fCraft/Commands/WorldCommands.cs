@@ -1502,7 +1502,7 @@ namespace fCraft {
                             player.Message( "{0}&S is now barred from accessing {1}",
                                             info.ClassyName, world.ClassyName );
                             if( target != null ) {
-                                target.Message( "&WYou were barred by {0}&W from accessing world {1}",
+                                target.Message( "&WYou were barred by {0}&W from accessing {1}",
                                                 player.ClassyName, world.ClassyName );
                             }
                             Logger.Log( LogType.UserActivity,

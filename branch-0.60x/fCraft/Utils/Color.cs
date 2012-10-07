@@ -107,7 +107,7 @@ namespace fCraft {
         [CanBeNull, Pure]
         public static string GetName( char code ) {
             code = Char.ToLower( code );
-            if( IsValidColorCode( code ) ) {
+            if( IsStandardColorCode( code ) ) {
                 return ColorNames[code];
             }
             string color = Parse( code );
@@ -164,7 +164,7 @@ namespace fCraft {
         [CanBeNull, Pure]
         public static string Parse( char code ) {
             code = Char.ToLower( code );
-            if( IsValidColorCode( code ) ) {
+            if( IsStandardColorCode( code ) ) {
                 return "&" + code;
             } else {
                 switch( code ) {
@@ -230,57 +230,29 @@ namespace fCraft {
         /// <summary> Checks whether a color code is valid (is a recognized standard color code).
         /// Standard color codes are hexadecimal digits. Both uppercase and lowercase digits are accepted.
         /// Does not recognize fCraft-specific color codes. </summary>
-        /// <returns> True is char is a recognized standard color code; otherwise false. </returns>
+        /// <returns> True if given char is a recognized standard color code; otherwise false. </returns>
         [Pure]
-        public static bool IsValidColorCode( char code ) {
+        public static bool IsStandardColorCode( char code ) {
             return ( code >= '0' && code <= '9' ) || ( code >= 'a' && code <= 'f' ) || ( code >= 'A' && code <= 'F' );
         }
 
-
-        /// <summary> Substitutes percent color codes with equivalent ampersand color codes. </summary>
-        public static void ReplacePercentCodes( [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            sb.Replace( "%0", "&0" );
-            sb.Replace( "%1", "&1" );
-            sb.Replace( "%2", "&2" );
-            sb.Replace( "%3", "&3" );
-            sb.Replace( "%4", "&4" );
-            sb.Replace( "%5", "&5" );
-            sb.Replace( "%6", "&6" );
-            sb.Replace( "%7", "&7" );
-            sb.Replace( "%8", "&8" );
-            sb.Replace( "%9", "&9" );
-            sb.Replace( "%a", "&a" );
-            sb.Replace( "%b", "&b" );
-            sb.Replace( "%c", "&c" );
-            sb.Replace( "%d", "&d" );
-            sb.Replace( "%e", "&e" );
-            sb.Replace( "%f", "&f" );
-            sb.Replace( "%A", "&a" );
-            sb.Replace( "%B", "&b" );
-            sb.Replace( "%C", "&c" );
-            sb.Replace( "%D", "&d" );
-            sb.Replace( "%E", "&e" );
-            sb.Replace( "%F", "&f" );
-            sb.Replace( "%n", "\n" );
-            sb.Replace( "%N", "\n" );
+        /// <summary> Checks whether a color code is valid. Both uppercase and lowercase digits are accepted.
+        /// Both standard (0-F) and fCraft-specific (H, I, M, P, R, S, W, and Y) color codes are accepted. </summary>
+        /// <returns> True if given char is a recognized color code; otherwise false. </returns>
+        [Pure]
+        public static bool IsColorCode( char code ) {
+            return ( code >= '0' && code <= '9' ) ||
+                   ( code >= 'a' && code <= 'f' ) ||
+                   ( code >= 'A' && code <= 'F' ) ||
+                   code == 'H' || code == 'h' ||
+                   code == 'I' || code == 'i' ||
+                   code == 'M' || code == 'm' ||
+                   code == 'P' || code == 'p' ||
+                   code == 'R' || code == 'r' ||
+                   code == 'S' || code == 's' ||
+                   code == 'W' || code == 'w' ||
+                   code == 'Y' || code == 'y';
         }
-
-
-        /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
-        /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
-        /// <param name="message"> Message to process. </param>
-        /// <returns> Processed string. </returns>
-        /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
-        public static string ReplacePercentCodes( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            StringBuilder sb = new StringBuilder( message );
-            ReplacePercentCodes( sb );
-            return sb.ToString();
-        }
-
-
 
         /// <summary> Substitutes all fCraft-specific ampersand color codes (like &amp;S/Color.Sys)
         /// with the assigned Minecraft colors (like &amp;E/Color.Yellow).
@@ -319,7 +291,7 @@ namespace fCraft {
                             sb[i] = IRC[1];
                             break;
                         default:
-                            if( !IsValidColorCode( sb[i] ) ) {
+                            if( !IsStandardColorCode( sb[i] ) ) {
                                 sb.Remove( i - 1, 2 );
                             }
                             break;

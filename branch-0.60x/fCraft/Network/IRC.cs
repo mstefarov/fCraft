@@ -571,20 +571,22 @@ namespace fCraft {
 
         // includes IRC color codes and non-printable ASCII
         static readonly Regex
-            IRCAndMinecraftColors = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|&." ),
             IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7E]" ),
             IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼]" );
 
         static string ProcessMessageFromIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
-                message = IRCAndMinecraftColors.Replace( message, "" );
+                message = Color.StripColors( message );
             } else {
+                message = Chat.ReplacePercentColorCodes( message );
+                message = Chat.UnescapeBackslashes( message );
                 message = Color.IrcToMinecraftColors( message );
             }
             if( ConfigKey.IRCAllowMinecraftEmotes.Enabled() ) {
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
                 message = Chat.ReplaceEmoteKeywords( message );
+                message = Chat.UnescapeBackslashes( message );
                 message = Chat.ReplaceUncodeWithEmotes( message );
             } else {
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
