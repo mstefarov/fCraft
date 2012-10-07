@@ -1,3 +1,14 @@
+0.635
+ Feature: Added support for "emotes" (chat symbols). New permission (UseEmotes) and config key (IRCAllowEmotes) were added.
+ Fix: Fixed ParseMiniTimespan/TryParseMiniTimespan accepting numbers as valid time spans.
+ Fix: Fixed PlayerDB not saving strings with newlines properly.
+ Fix: Fixed fCraft not building in DEBUG_IRC configuration.
+ Fix: Fixed IRC bot sometimes producing messages that are a couple characters over the IRC message size limit (512 chars).
+ Change: Symbolic color codes (e.g. %S) can now be used in chat.
+ Change: Backslash can now be used to escape percent color codes (e.g. \%C).
+ Change: Server.StartServer will now retry looking up the external IP up to 3 times.
+ Change: Lots of documentation, annotation, and API improvements.
+
 0.634
  Fix: Fixed an occasional InvalidOperationException when auto-updating in ServerGUI.
  Fix: Fixed ConfigGUI showing misleading information in "unrecognized entry ignore" errors.
