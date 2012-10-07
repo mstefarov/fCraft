@@ -103,11 +103,14 @@ namespace fCraft {
         public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] args ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
+            if( !Enabled ) return;
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
-            message = Color.StripColors( Chat.ReplaceEmotesWithUncode( message ) );
-            if( !Enabled ) return;
+            message = message.Replace( "&n", "\n" );
+            message = message.Replace( "&N", "\n" );
+            message = Chat.ReplaceEmotesWithUncode( message );
+            message = Color.StripColors( message );
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {

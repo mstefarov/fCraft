@@ -317,35 +317,28 @@ namespace fCraft {
         }
 
 
-        /// <summary> Strips Minecraft color codes.
-        /// Removes all ampersand-character sequences, including standard and fCraft-specific color codes.
-        /// Removes any leftover ampersands. Replaces newline codes (&amp;N) with actual newlines. 
+        /// <summary> Strips Minecraft color codes from a given string.
+        /// Removes all ampersand-character sequences, including standard, fCraft-specific color codes, and newline codes.
         /// Does not remove percent-color-codes. </summary>
-        /// <param name="input"> String to process. </param>
+        /// <param name="message"> String to process. </param>
         /// <returns> A processed string. </returns>
-        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull]
-        public static string StripColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            if( input.IndexOf( '&' ) == -1 ) {
-                return input;
-            } else {
-                StringBuilder output = new StringBuilder( input.Length );
-                for( int i = 0; i < input.Length; i++ ) {
-                    if( input[i] == '&' ) {
-                        if( i == input.Length - 1 ) {
-                            break;
-                        }
-                        i++;
-                        if( input[i] == 'n' || input[i] == 'N' ) {
-                            output.Append( '\n' );
-                        }
-                    } else {
-                        output.Append( input[i] );
-                    }
-                }
-                return output.ToString();
+        public static string StripColors( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            int start = message.IndexOf( '&' );
+            if( start == -1 ) {
+                return message;
             }
+            int lastInsert = 0;
+            StringBuilder output = new StringBuilder( message.Length );
+            while( start != -1 ) {
+                output.Append( message, lastInsert, lastInsert - start );
+                lastInsert = Math.Min( start + 2, message.Length - 1 );
+                start = message.IndexOf( '&', lastInsert );
+            }
+            output.Append( message, lastInsert, message.Length - lastInsert );
+            return output.ToString();
         }
 
 

@@ -406,8 +406,7 @@ namespace fCraft {
         /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
-        [NotNull]
-        [Pure]
+        [NotNull, Pure]
         public static string ReplaceEmoteKeywords( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             int startIndex = message.IndexOf( '{' );
@@ -423,7 +422,7 @@ namespace fCraft {
                     break; // abort if there are no more closing braces
                 }
 
-                // see if symbol was escaped (if odd number of % precede it)
+                // see if emote was escaped (if odd number of backslashes precede it)
                 bool escaped = false;
                 for( int i = startIndex - 1; i >= 0 && message[i] == '\\'; i-- ) {
                     escaped = !escaped;
@@ -455,30 +454,28 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
         /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
         /// <param name="message"> Message to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull]
-        [Pure]
+        [NotNull, Pure]
         public static string ReplacePercentColorCodes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             int startIndex = message.IndexOf( '%' );
             if( startIndex == -1 ) {
-                return message; // break out early if there are no opening braces
+                return message; // break out early if there are no percent marks
             }
 
             StringBuilder output = new StringBuilder( message.Length );
             int lastAppendedIndex = 0;
             while( startIndex != -1 && startIndex < message.Length - 1 ) {
-                // see if symbol was escaped (if odd number of % precede it)
+                // see if colorcode was escaped (if odd number of backslashes precede it)
                 bool escaped = false;
                 for( int i = startIndex - 1; i >= 0 && message[i] == '\\'; i-- ) {
                     escaped = !escaped;
                 }
-                // extract the keyword
+                // extract the colorcode
                 char colorCode = message[startIndex + 1];
                 if( Color.IsColorCode( colorCode ) ) {
                     if( escaped ) {
@@ -494,7 +491,7 @@ namespace fCraft {
                         startIndex += 2;
                     }
                 } else {
-                    startIndex++; // unrecognized macro, keep going
+                    startIndex++; // unrecognized colorcode, keep going
                 }
                 startIndex = message.IndexOf( '%', startIndex );
             }
@@ -504,7 +501,13 @@ namespace fCraft {
         }
 
 
+        /// <summary> Unescapes backslashes. Any paid of backslashes (\\) is converted to a single one (\). </summary>
+        /// <param name="message"> String to process. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull, Pure]
         public static string UnescapeBackslashes( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
             if( message.IndexOf( '\\' ) != -1 ) {
                 return message.Replace( @"\\", @"\" );
             } else {

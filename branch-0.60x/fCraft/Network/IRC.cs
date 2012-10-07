@@ -609,6 +609,8 @@ namespace fCraft {
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
             } else {
+                message = message.Replace( "&n", "\n" );
+                message = message.Replace( "&N", "\n" );
                 message = Color.StripColors( message );
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
                 message = message.Replace( BoldCode, "" );
