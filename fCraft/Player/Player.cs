@@ -198,11 +198,13 @@ namespace fCraft {
             
             // replace %-codes with &-codes
             if( Can( Permission.UseColorCodes ) ) {
-                rawMessage = Color.ReplacePercentCodes( rawMessage );
+                rawMessage = Chat.ReplacePercentColorCodes( rawMessage );
             }
+            // replace emotes
             if( Can( Permission.UseEmotes ) ) {
                 rawMessage = Chat.ReplaceEmoteKeywords( rawMessage );
             }
+            rawMessage = Chat.UnescapeBackslashes( rawMessage );
 
             switch( Chat.GetRawMessageType( rawMessage ) ) {
                 case RawMessageType.Chat: {

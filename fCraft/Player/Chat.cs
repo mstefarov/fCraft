@@ -71,15 +71,15 @@ namespace fCraft {
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
         public static bool SendPM( [NotNull] Player from, [NotNull] Player to, [NotNull] string rawMessage ) {
-            if( from == null ) throw new ArgumentNullException( "from" );
+            if( @from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             var recepientList = new[] { to };
 
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
-                                                     from.Name, rawMessage );
+                                                     @from.Name, rawMessage );
 
-            var e = new ChatSendingEventArgs( from,
+            var e = new ChatSendingEventArgs( @from,
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.PM,
@@ -89,7 +89,7 @@ namespace fCraft {
 
             Logger.Log( LogType.PrivateChat,
                         "{0} to {1}: {2}",
-                        from.Name, to.Name, rawMessage );
+                        @from.Name, to.Name, rawMessage );
             return true;
         }
 
@@ -342,13 +342,13 @@ namespace fCraft {
 
             { "sun", '\u000F' }, // ☼
             { "celestia", '\u000F' },
-            
+
             { ">>", '\u0010' }, // ►
             { "right2", '\u0010' },
 
             { "<<", '\u0011' }, // ◄
             { "left2", '\u0011' },
-            
+
             { "updown", '\u0012' }, // ↕
             { "^v", '\u0012' },
 
@@ -376,11 +376,11 @@ namespace fCraft {
 
             { "v", '\u0019' }, // ↓
             { "down", '\u0019' },
-            
+
             { ">", '\u001A' }, // →
             { "->", '\u001A' },
             { "right", '\u001A' },
-            
+
             { "<", '\u001B' }, // ←
             { "<-", '\u001B' },
             { "left", '\u001B' },
@@ -392,7 +392,7 @@ namespace fCraft {
             { "<>", '\u001D' }, // ↔
             { "<->", '\u001D' },
             { "leftright", '\u001D' },
-            
+
             { "^^", '\u001E' }, // ▲
             { "up2", '\u001E' },
 
@@ -403,42 +403,43 @@ namespace fCraft {
 
         /// <summary> Replaces emote keywords with actual emotes, using Chat.EmoteKeywords mapping. 
         /// Keywords are enclosed in curly braces, and are case-insensitive. </summary>
-        /// <param name="input"> String to process. </param>
+        /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>
-        [NotNull, Pure]
-        public static string ReplaceEmoteKeywords( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            int startIndex = input.IndexOf( '{' );
+        [NotNull]
+        [Pure]
+        public static string ReplaceEmoteKeywords( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            int startIndex = message.IndexOf( '{' );
             if( startIndex == -1 ) {
-                return input; // break out early if there are no opening braces
+                return message; // break out early if there are no opening braces
             }
 
-            StringBuilder output = new StringBuilder( input.Length );
+            StringBuilder output = new StringBuilder( message.Length );
             int lastAppendedIndex = 0;
             while( startIndex != -1 ) {
-                int endIndex = input.IndexOf( '}', startIndex + 1 );
+                int endIndex = message.IndexOf( '}', startIndex + 1 );
                 if( endIndex == -1 ) {
                     break; // abort if there are no more closing braces
                 }
 
                 // see if symbol was escaped (if odd number of % precede it)
                 bool escaped = false;
-                for( int i = startIndex - 1; i >= 0 && input[i] == '%'; i-- ) {
+                for( int i = startIndex - 1; i >= 0 && message[i] == '\\'; i-- ) {
                     escaped = !escaped;
                 }
                 // extract the keyword
-                string keyword = input.Substring( startIndex + 1, endIndex - startIndex - 1 );
+                string keyword = message.Substring( startIndex + 1, endIndex - startIndex - 1 );
                 char substitute;
                 if( EmoteKeywords.TryGetValue( keyword.ToLowerInvariant(), out substitute ) ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;
-                        output.Append( input, lastAppendedIndex, startIndex - lastAppendedIndex - 2 );
+                        output.Append( message, lastAppendedIndex, startIndex - lastAppendedIndex - 2 );
                         lastAppendedIndex = startIndex - 1;
                     } else {
                         // it was not escaped; insert substitute character
-                        output.Append( input, lastAppendedIndex, startIndex - lastAppendedIndex );
+                        output.Append( message, lastAppendedIndex, startIndex - lastAppendedIndex );
                         output.Append( substitute );
                         startIndex = endIndex + 1;
                         lastAppendedIndex = startIndex;
@@ -446,11 +447,69 @@ namespace fCraft {
                 } else {
                     startIndex++; // unrecognized macro, keep going
                 }
-                startIndex = input.IndexOf( '{', startIndex );
+                startIndex = message.IndexOf( '{', startIndex );
             }
             // append the leftovers
-            output.Append( input, lastAppendedIndex, input.Length - lastAppendedIndex );
+            output.Append( message, lastAppendedIndex, message.Length - lastAppendedIndex );
             return output.ToString();
+        }
+
+
+
+        /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
+        /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <returns> Processed string. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
+        [NotNull]
+        [Pure]
+        public static string ReplacePercentColorCodes( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            int startIndex = message.IndexOf( '%' );
+            if( startIndex == -1 ) {
+                return message; // break out early if there are no opening braces
+            }
+
+            StringBuilder output = new StringBuilder( message.Length );
+            int lastAppendedIndex = 0;
+            while( startIndex != -1 ) {
+                // see if symbol was escaped (if odd number of % precede it)
+                bool escaped = false;
+                for( int i = startIndex - 1; i >= 0 && message[i] == '\\'; i-- ) {
+                    escaped = !escaped;
+                }
+                // extract the keyword
+                char colorCode = message[startIndex];
+                if( Color.IsColorCode( colorCode ) ) {
+                    if( escaped ) {
+                        // it was escaped; remove escaping character
+                        startIndex++;
+                        output.Append( message, lastAppendedIndex, startIndex - lastAppendedIndex - 2 );
+                        lastAppendedIndex = startIndex - 1;
+                    } else {
+                        // it was not escaped; insert substitute character
+                        output.Append( message, lastAppendedIndex, startIndex - lastAppendedIndex );
+                        output.Append( '&' );
+                        startIndex += 2;
+                        lastAppendedIndex = startIndex;
+                    }
+                } else {
+                    startIndex++; // unrecognized macro, keep going
+                }
+                startIndex = message.IndexOf( '%', startIndex );
+            }
+            // append the leftovers
+            output.Append( message, lastAppendedIndex, message.Length - lastAppendedIndex );
+            return output.ToString();
+        }
+
+
+        public static string UnescapeBackslashes( [NotNull] string message ) {
+            if( message.IndexOf( '\\' ) != -1 ) {
+                return message.Replace( @"\\", @"\" );
+            } else {
+                return message;
+            }
         }
 
 
