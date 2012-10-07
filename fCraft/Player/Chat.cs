@@ -472,14 +472,14 @@ namespace fCraft {
 
             StringBuilder output = new StringBuilder( message.Length );
             int lastAppendedIndex = 0;
-            while( startIndex != -1 ) {
+            while( startIndex != -1 && startIndex < message.Length - 1 ) {
                 // see if symbol was escaped (if odd number of % precede it)
                 bool escaped = false;
                 for( int i = startIndex - 1; i >= 0 && message[i] == '\\'; i-- ) {
                     escaped = !escaped;
                 }
                 // extract the keyword
-                char colorCode = message[startIndex];
+                char colorCode = message[startIndex + 1];
                 if( Color.IsColorCode( colorCode ) ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
@@ -490,8 +490,8 @@ namespace fCraft {
                         // it was not escaped; insert substitute character
                         output.Append( message, lastAppendedIndex, startIndex - lastAppendedIndex );
                         output.Append( '&' );
+                        lastAppendedIndex = startIndex + 1;
                         startIndex += 2;
-                        lastAppendedIndex = startIndex;
                     }
                 } else {
                     startIndex++; // unrecognized macro, keep going
