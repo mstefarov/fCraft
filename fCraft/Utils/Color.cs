@@ -319,7 +319,8 @@ namespace fCraft {
 
         /// <summary> Strips Minecraft color codes.
         /// Removes all ampersand-character sequences, including standard and fCraft-specific color codes.
-        /// Removes any leftover ampersands. Replaces newline codes (&amp;N) with actual newlines. </summary>
+        /// Removes any leftover ampersands. Replaces newline codes (&amp;N) with actual newlines. 
+        /// Does not remove percent-color-codes. </summary>
         /// <param name="input"> String to process. </param>
         /// <returns> A processed string. </returns>
         /// <exception cref="ArgumentNullException"> input is null. </exception>

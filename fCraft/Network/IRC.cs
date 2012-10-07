@@ -576,21 +576,27 @@ namespace fCraft {
 
         static string ProcessMessageFromIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( ConfigKey.IRCStripMinecraftColors.Enabled() ) {
-                message = Color.StripColors( message );
-            } else {
-                message = Chat.ReplacePercentColorCodes( message );
-                message = Chat.UnescapeBackslashes( message );
+            bool useColor = !ConfigKey.IRCStripMinecraftColors.Enabled();
+            bool useEmotes = ConfigKey.IRCAllowMinecraftEmotes.Enabled();
+
+            if( useColor && useEmotes ) {
                 message = Color.IrcToMinecraftColors( message );
-            }
-            if( ConfigKey.IRCAllowMinecraftEmotes.Enabled() ) {
-                message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
-                message = Chat.ReplaceEmoteKeywords( message );
-                message = Chat.UnescapeBackslashes( message );
                 message = Chat.ReplaceUncodeWithEmotes( message );
+                message = Chat.ReplaceEmoteKeywords( message );
+                message = Chat.ReplacePercentColorCodes( message );
+            } else if( useColor ) {
+                message = Color.IrcToMinecraftColors( message );
+                message = Chat.ReplacePercentColorCodes( message );
+            } else if( useEmotes ) {
+                message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
+                message = Chat.ReplaceUncodeWithEmotes( message );
+                message = Chat.ReplaceEmoteKeywords( message );
             } else {
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
+                message = Color.StripColors( message );
             }
+
+            message = Chat.UnescapeBackslashes( message );
             return message.Trim();
         }
 
