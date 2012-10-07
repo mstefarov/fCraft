@@ -884,7 +884,6 @@ namespace fCraft {
                 if( oneChar[0] >= 48 && oneChar[0] <= 57 ||
                     oneChar[0] >= 65 && oneChar[0] <= 90 ||
                     oneChar[0] >= 97 && oneChar[0] <= 122 ) {
-                    //if( oneChar[0] >= 33 && oneChar[0] <= 126 ) {
                     sb.Append( (char)oneChar[0] );
                 }
             }
