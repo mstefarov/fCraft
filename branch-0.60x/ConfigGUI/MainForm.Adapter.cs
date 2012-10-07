@@ -355,18 +355,19 @@ namespace fCraft.ConfigGUI {
             tIRCNickServ.Text = ConfigKey.IRCNickServ.GetString();
             tIRCNickServMessage.Text = ConfigKey.IRCNickServMessage.GetString();
 
+            xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.Enabled();
             xIRCBotAnnounceIRCJoins.Checked = ConfigKey.IRCBotAnnounceIRCJoins.Enabled();
             xIRCBotAnnounceServerJoins.Checked = ConfigKey.IRCBotAnnounceServerJoins.Enabled();
             xIRCBotForwardFromIRC.Checked = ConfigKey.IRCBotForwardFromIRC.Enabled();
             xIRCBotForwardFromServer.Checked = ConfigKey.IRCBotForwardFromServer.Enabled();
-            xIRCStripMinecraftColors.Checked = !ConfigKey.IRCStripMinecraftColors.Enabled();
 
             colorIRC = ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
             Color.IRC = Parse( colorIRC );
 
             xIRCUseColor.Checked = ConfigKey.IRCUseColor.Enabled();
-            xIRCBotAnnounceServerEvents.Checked = ConfigKey.IRCBotAnnounceServerEvents.Enabled();
+            xIRCStripMinecraftColors.Checked = !ConfigKey.IRCStripMinecraftColors.Enabled();
+            xIRCAllowMinecraftEmotes.Checked = ConfigKey.IRCAllowMinecraftEmotes.Enabled();
         }
 
 
@@ -599,6 +600,7 @@ namespace fCraft.ConfigGUI {
 
             ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
             ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
+            ConfigKey.IRCAllowMinecraftEmotes.TrySetValue( xIRCAllowMinecraftEmotes.Checked );
             ConfigKey.IRCStripMinecraftColors.TrySetValue( !xIRCStripMinecraftColors.Checked );
 
             // advanced
