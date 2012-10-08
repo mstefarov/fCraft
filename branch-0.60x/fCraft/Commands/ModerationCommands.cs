@@ -988,7 +988,8 @@ namespace fCraft {
         };
 
         static void BringAllHandler( Player player, CommandReader cmd ) {
-            if( player.World == null ) PlayerOpException.ThrowNoWorld( player );
+            World playerWorld = player.World;
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
             List<World> targetWorlds = new List<World>();
             List<Rank> targetRanks = new List<Rank>();
@@ -1066,7 +1067,7 @@ namespace fCraft {
             // Actually bring all the players
             foreach( Player targetPlayer in targetPlayers.CanBeSeen( player )
                                                          .RankedAtMost( bringLimit ) ) {
-                if( targetPlayer.World == player.World ) {
+                if( targetPlayer.World == playerWorld ) {
                     // teleport within the same world
                     targetPlayer.TeleportTo( player.Position );
                     targetPlayer.Position = player.Position;
@@ -1076,7 +1077,7 @@ namespace fCraft {
 
                 } else {
                     // teleport to a different world
-                    BringPlayerToWorld( player, targetPlayer, player.World, false, true );
+                    BringPlayerToWorld( player, targetPlayer, playerWorld, false, true );
                 }
                 count++;
             }
