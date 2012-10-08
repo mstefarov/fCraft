@@ -603,8 +603,8 @@ namespace fCraft {
 
         static string ProcessMessageToIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            message = Chat.ReplaceEmotesWithUncode( message );
             if( ConfigKey.IRCUseColor.Enabled() ) {
-                message = Chat.ReplaceEmotesWithUncode( message );
                 message = Color.MinecraftToIrcColors( message );
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
@@ -612,7 +612,7 @@ namespace fCraft {
                 message = message.Replace( "&n", "\n" );
                 message = message.Replace( "&N", "\n" );
                 message = Color.StripColors( message );
-                message = IRCColorsAndNonStandardChars.Replace( message, "" );
+                message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
                 message = message.Replace( BoldCode, "" );
                 message = message.Replace( ResetCode, "" );
             }
