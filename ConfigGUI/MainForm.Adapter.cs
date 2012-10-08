@@ -144,6 +144,7 @@ namespace fCraft.ConfigGUI {
             updaterWindow.RunBeforeUpdate = ConfigKey.RunBeforeUpdate.GetString();
             updaterWindow.RunAfterUpdate = ConfigKey.RunAfterUpdate.GetString();
             updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+            cUpdaterMode.SelectedIndex = (int)updaterWindow.UpdaterMode;
         }
 
 
@@ -392,8 +393,6 @@ namespace fCraft.ConfigGUI {
                         cProcessPriority.SelectedIndex = 5; break;
                 }
             }
-
-            ApplyEnum( cUpdaterMode, ConfigKey.UpdaterMode, UpdaterMode.Prompt );
 
             nThrottling.Value = ConfigKey.BlockUpdateThrottling.GetInt();
             xLowLatencyMode.Checked = ConfigKey.LowLatencyMode.Enabled();
