@@ -97,7 +97,6 @@ namespace fCraft.ConfigGUI {
             this.xRankPrefixesInList = new System.Windows.Forms.CheckBox();
             this.xRankPrefixesInChat = new System.Windows.Forms.CheckBox();
             this.xRankColorsInChat = new System.Windows.Forms.CheckBox();
-            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabWorlds = new System.Windows.Forms.TabPage();
             this.xWoMEnableEnvExtensions = new System.Windows.Forms.CheckBox();
             this.bMapPath = new System.Windows.Forms.Button();
@@ -226,6 +225,7 @@ namespace fCraft.ConfigGUI {
             this.columnHeader3 = new System.Windows.Forms.ColumnHeader();
             this.tabIRC = new System.Windows.Forms.TabPage();
             this.gIRCColors = new System.Windows.Forms.GroupBox();
+            this.xIRCAllowMinecraftEmotes = new System.Windows.Forms.CheckBox();
             this.xIRCStripMinecraftColors = new System.Windows.Forms.CheckBox();
             this.bColorIRC = new System.Windows.Forms.Button();
             this.xIRCUseColor = new System.Windows.Forms.CheckBox();
@@ -295,7 +295,7 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip( this.components );
-            this.xIRCAllowMinecraftEmotes = new System.Windows.Forms.CheckBox();
+            this.chatPreview = new fCraft.ConfigGUI.ChatPreview();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1126,13 +1126,6 @@ namespace fCraft.ConfigGUI {
             this.xRankColorsInChat.TabIndex = 0;
             this.xRankColorsInChat.Text = "Show rank colors.";
             this.xRankColorsInChat.UseVisualStyleBackColor = true;
-            // 
-            // chatPreview
-            // 
-            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
-            this.chatPreview.Name = "chatPreview";
-            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
-            this.chatPreview.TabIndex = 2;
             // 
             // tabWorlds
             // 
@@ -2249,7 +2242,7 @@ namespace fCraft.ConfigGUI {
             // xBackupDataOnStartup
             // 
             this.xBackupDataOnStartup.AutoSize = true;
-            this.xBackupDataOnStartup.Location = new System.Drawing.Point( 16, 20 );
+            this.xBackupDataOnStartup.Location = new System.Drawing.Point( 11, 20 );
             this.xBackupDataOnStartup.Name = "xBackupDataOnStartup";
             this.xBackupDataOnStartup.Size = new System.Drawing.Size( 261, 19 );
             this.xBackupDataOnStartup.TabIndex = 0;
@@ -2303,11 +2296,11 @@ namespace fCraft.ConfigGUI {
             // gBackups
             // 
             this.gBackups.Controls.Add( this.xBackupOnlyWhenChanged );
+            this.gBackups.Controls.Add( this.xBackupOnStartup );
             this.gBackups.Controls.Add( this.lMaxBackupSize );
             this.gBackups.Controls.Add( this.xMaxBackupSize );
             this.gBackups.Controls.Add( this.nMaxBackupSize );
             this.gBackups.Controls.Add( this.xMaxBackups );
-            this.gBackups.Controls.Add( this.xBackupOnStartup );
             this.gBackups.Controls.Add( this.lMaxBackups );
             this.gBackups.Controls.Add( this.nMaxBackups );
             this.gBackups.Controls.Add( this.nBackupInterval );
@@ -2324,7 +2317,7 @@ namespace fCraft.ConfigGUI {
             // xBackupOnlyWhenChanged
             // 
             this.xBackupOnlyWhenChanged.AutoSize = true;
-            this.xBackupOnlyWhenChanged.Location = new System.Drawing.Point( 369, 46 );
+            this.xBackupOnlyWhenChanged.Location = new System.Drawing.Point( 334, 20 );
             this.xBackupOnlyWhenChanged.Name = "xBackupOnlyWhenChanged";
             this.xBackupOnlyWhenChanged.Size = new System.Drawing.Size( 260, 19 );
             this.xBackupOnlyWhenChanged.TabIndex = 4;
@@ -2334,7 +2327,7 @@ namespace fCraft.ConfigGUI {
             // lMaxBackupSize
             // 
             this.lMaxBackupSize.AutoSize = true;
-            this.lMaxBackupSize.Location = new System.Drawing.Point( 418, 124 );
+            this.lMaxBackupSize.Location = new System.Drawing.Point( 413, 122 );
             this.lMaxBackupSize.Name = "lMaxBackupSize";
             this.lMaxBackupSize.Size = new System.Drawing.Size( 103, 15 );
             this.lMaxBackupSize.TabIndex = 11;
@@ -2343,7 +2336,7 @@ namespace fCraft.ConfigGUI {
             // xMaxBackupSize
             // 
             this.xMaxBackupSize.AutoSize = true;
-            this.xMaxBackupSize.Location = new System.Drawing.Point( 16, 123 );
+            this.xMaxBackupSize.Location = new System.Drawing.Point( 11, 121 );
             this.xMaxBackupSize.Name = "xMaxBackupSize";
             this.xMaxBackupSize.Size = new System.Drawing.Size( 317, 19 );
             this.xMaxBackupSize.TabIndex = 9;
@@ -2353,7 +2346,7 @@ namespace fCraft.ConfigGUI {
             // 
             // nMaxBackupSize
             // 
-            this.nMaxBackupSize.Location = new System.Drawing.Point( 339, 122 );
+            this.nMaxBackupSize.Location = new System.Drawing.Point( 334, 120 );
             this.nMaxBackupSize.Maximum = new decimal( new int[] {
             1000000,
             0,
@@ -2366,7 +2359,7 @@ namespace fCraft.ConfigGUI {
             // xMaxBackups
             // 
             this.xMaxBackups.AutoSize = true;
-            this.xMaxBackups.Location = new System.Drawing.Point( 16, 98 );
+            this.xMaxBackups.Location = new System.Drawing.Point( 11, 96 );
             this.xMaxBackups.Name = "xMaxBackups";
             this.xMaxBackups.Size = new System.Drawing.Size( 251, 19 );
             this.xMaxBackups.TabIndex = 6;
@@ -2377,18 +2370,17 @@ namespace fCraft.ConfigGUI {
             // xBackupOnStartup
             // 
             this.xBackupOnStartup.AutoSize = true;
-            this.xBackupOnStartup.Enabled = false;
-            this.xBackupOnStartup.Location = new System.Drawing.Point( 16, 20 );
+            this.xBackupOnStartup.Location = new System.Drawing.Point( 11, 71 );
             this.xBackupOnStartup.Name = "xBackupOnStartup";
-            this.xBackupOnStartup.Size = new System.Drawing.Size( 168, 19 );
+            this.xBackupOnStartup.Size = new System.Drawing.Size( 272, 19 );
             this.xBackupOnStartup.TabIndex = 0;
-            this.xBackupOnStartup.Text = "Create backups on startup";
+            this.xBackupOnStartup.Text = "Create backups of ALL maps on each startup.";
             this.xBackupOnStartup.UseVisualStyleBackColor = true;
             // 
             // lMaxBackups
             // 
             this.lMaxBackups.AutoSize = true;
-            this.lMaxBackups.Location = new System.Drawing.Point( 336, 99 );
+            this.lMaxBackups.Location = new System.Drawing.Point( 331, 97 );
             this.lMaxBackups.Name = "lMaxBackups";
             this.lMaxBackups.Size = new System.Drawing.Size( 157, 15 );
             this.lMaxBackups.TabIndex = 8;
@@ -2396,7 +2388,7 @@ namespace fCraft.ConfigGUI {
             // 
             // nMaxBackups
             // 
-            this.nMaxBackups.Location = new System.Drawing.Point( 273, 97 );
+            this.nMaxBackups.Location = new System.Drawing.Point( 268, 95 );
             this.nMaxBackups.Maximum = new decimal( new int[] {
             100000,
             0,
@@ -2408,7 +2400,7 @@ namespace fCraft.ConfigGUI {
             // 
             // nBackupInterval
             // 
-            this.nBackupInterval.Location = new System.Drawing.Point( 164, 45 );
+            this.nBackupInterval.Location = new System.Drawing.Point( 160, 19 );
             this.nBackupInterval.Maximum = new decimal( new int[] {
             100000,
             0,
@@ -2421,7 +2413,7 @@ namespace fCraft.ConfigGUI {
             // lBackupIntervalUnits
             // 
             this.lBackupIntervalUnits.AutoSize = true;
-            this.lBackupIntervalUnits.Location = new System.Drawing.Point( 218, 47 );
+            this.lBackupIntervalUnits.Location = new System.Drawing.Point( 214, 21 );
             this.lBackupIntervalUnits.Name = "lBackupIntervalUnits";
             this.lBackupIntervalUnits.Size = new System.Drawing.Size( 51, 15 );
             this.lBackupIntervalUnits.TabIndex = 3;
@@ -2430,7 +2422,7 @@ namespace fCraft.ConfigGUI {
             // xBackupInterval
             // 
             this.xBackupInterval.AutoSize = true;
-            this.xBackupInterval.Location = new System.Drawing.Point( 16, 46 );
+            this.xBackupInterval.Location = new System.Drawing.Point( 12, 20 );
             this.xBackupInterval.Name = "xBackupInterval";
             this.xBackupInterval.Size = new System.Drawing.Size( 142, 19 );
             this.xBackupInterval.TabIndex = 1;
@@ -2441,7 +2433,7 @@ namespace fCraft.ConfigGUI {
             // xBackupOnJoin
             // 
             this.xBackupOnJoin.AutoSize = true;
-            this.xBackupOnJoin.Location = new System.Drawing.Point( 16, 72 );
+            this.xBackupOnJoin.Location = new System.Drawing.Point( 12, 46 );
             this.xBackupOnJoin.Name = "xBackupOnJoin";
             this.xBackupOnJoin.Size = new System.Drawing.Size( 279, 19 );
             this.xBackupOnJoin.TabIndex = 5;
@@ -2631,6 +2623,16 @@ namespace fCraft.ConfigGUI {
             this.gIRCColors.TabIndex = 6;
             this.gIRCColors.TabStop = false;
             this.gIRCColors.Text = "Colors";
+            // 
+            // xIRCAllowMinecraftEmotes
+            // 
+            this.xIRCAllowMinecraftEmotes.AutoSize = true;
+            this.xIRCAllowMinecraftEmotes.Location = new System.Drawing.Point( 325, 49 );
+            this.xIRCAllowMinecraftEmotes.Name = "xIRCAllowMinecraftEmotes";
+            this.xIRCAllowMinecraftEmotes.Size = new System.Drawing.Size( 254, 19 );
+            this.xIRCAllowMinecraftEmotes.TabIndex = 4;
+            this.xIRCAllowMinecraftEmotes.Text = "Show emotes in incoming IRC messages.";
+            this.xIRCAllowMinecraftEmotes.UseVisualStyleBackColor = true;
             // 
             // xIRCStripMinecraftColors
             // 
@@ -3457,15 +3459,12 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xIRCAllowMinecraftEmotes
+            // chatPreview
             // 
-            this.xIRCAllowMinecraftEmotes.AutoSize = true;
-            this.xIRCAllowMinecraftEmotes.Location = new System.Drawing.Point( 325, 49 );
-            this.xIRCAllowMinecraftEmotes.Name = "xIRCAllowMinecraftEmotes";
-            this.xIRCAllowMinecraftEmotes.Size = new System.Drawing.Size( 254, 19 );
-            this.xIRCAllowMinecraftEmotes.TabIndex = 4;
-            this.xIRCAllowMinecraftEmotes.Text = "Show emotes in incoming IRC messages.";
-            this.xIRCAllowMinecraftEmotes.UseVisualStyleBackColor = true;
+            this.chatPreview.Location = new System.Drawing.Point( 7, 256 );
+            this.chatPreview.Name = "chatPreview";
+            this.chatPreview.Size = new System.Drawing.Size( 637, 241 );
+            this.chatPreview.TabIndex = 2;
             // 
             // MainForm
             // 

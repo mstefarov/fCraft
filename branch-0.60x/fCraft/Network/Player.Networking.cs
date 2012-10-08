@@ -1188,10 +1188,8 @@ namespace fCraft {
         // anti-speedhack vars
         int speedHackDetectionCounter;
 
-        const int AntiSpeedMaxJumpDelta = 25,
-                  // 16 for normal client, 25 for WoM
-                  AntiSpeedMaxDistanceSquared = 1024,
-                  // 32 * 32
+        const int AntiSpeedMaxJumpDelta = 25, // 16 for normal client, 25 for WoM
+                  AntiSpeedMaxDistanceSquared = 1024, // 32 * 32
                   AntiSpeedMaxPacketCount = 200,
                   AntiSpeedMaxPacketInterval = 5;
 

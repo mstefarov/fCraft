@@ -1437,10 +1437,10 @@ namespace fCraft {
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/InfoSwap Player1 Player2",
             Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
-            Handler = DoPlayerDB
+            Handler = InfoSwapHandler
         };
 
-        static void DoPlayerDB( Player player, CommandReader cmd ) {
+        static void InfoSwapHandler( Player player, CommandReader cmd ) {
             string p1Name = cmd.Next();
             string p2Name = cmd.Next();
             if( p1Name == null || p2Name == null ) {
