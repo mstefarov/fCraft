@@ -79,15 +79,7 @@ namespace fCraft {
         /// Use this method for all messages of LogType.ConsoleOutput </summary>
         public static void LogToConsole( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            if( message.Contains( '\n' ) ) {
-                foreach( string line in message.Split( '\n' ) ) {
-                    LogToConsole( line );
-                }
-                return;
-            }
-
-            message = "# " + message;
-            Log( LogType.ConsoleOutput, message );
+            Log( LogType.ConsoleOutput, "# " + message );
         }
 
 
@@ -107,8 +99,7 @@ namespace fCraft {
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
-            message = message.Replace( "&n", "\n" );
-            message = message.Replace( "&N", "\n" );
+            message = Chat.ReplaceNewlines( message );
             message = Chat.ReplaceEmotesWithUncode( message );
             message = Color.StripColors( message );
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized

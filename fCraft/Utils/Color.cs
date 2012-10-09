@@ -118,20 +118,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Looks up color name for the given numeric color code. </summary>
-        /// <param name="index"> Ordinal numeric color code (between 0 and 15),
-        /// corresponding to Minecraft color code's hex value. </param>
-        /// <returns> Lowercase color name if input code was in range; otherwise null. </returns>
-        [CanBeNull, Pure]
-        public static string GetName( int index ) {
-            if( index >= 0 && index <= 15 ) {
-                return ColorNames.Values[index];
-            } else {
-                return null;
-            }
-        }
-
-
         /// <summary> Looks up color name for the given color string.
         /// Accepts any input format that is recognized by Color.Parse(String). </summary>
         /// <param name="color"> String representation of a color, empty string, or null. </param>
@@ -333,7 +319,7 @@ namespace fCraft {
             int lastInsert = 0;
             StringBuilder output = new StringBuilder( message.Length );
             while( start != -1 ) {
-                output.Append( message, lastInsert, lastInsert - start );
+                output.Append( message, lastInsert, start - lastInsert );
                 lastInsert = Math.Min( start + 2, message.Length - 1 );
                 start = message.IndexOf( '&', lastInsert );
             }

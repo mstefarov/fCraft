@@ -789,6 +789,12 @@ namespace fCraft {
                 case "dn":
                     string oldDisplayedName = info.DisplayedName;
                     if( valName.Length == 0 ) valName = null;
+
+                    if( valName != null && valName.Contains( '\n' ) ) {
+                        player.Message( "SetInfo: DisplayedName may not contain line breaks." );
+                        return;
+                    }
+
                     if( valName == info.DisplayedName ) {
                         if( valName == null ) {
                             player.Message( "SetInfo: DisplayedName for {0} is not set.",
@@ -1467,7 +1473,8 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "InfoSwap: Asked {0} to confirm swapping stats of players {1} and {2}",
                             player.Name, p1.Name, p2.Name );
-                player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?", p1.ClassyName, p2.ClassyName );
+                player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?",
+                                     p1.ClassyName, p2.ClassyName );
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
                 Logger.Log( LogType.UserActivity,

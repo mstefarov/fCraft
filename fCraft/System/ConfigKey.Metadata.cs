@@ -237,7 +237,7 @@ namespace fCraft {
         public override void Validate( string value ) {
             base.Validate( value );
             bool test;
-            if( !Boolean.TryParse( value, out test ) ) {
+            if( value.Length != 0 && !Boolean.TryParse( value, out test ) ) {
                 throw new FormatException( "Value cannot be parsed as a boolean." );
             }
         }

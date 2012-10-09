@@ -183,6 +183,10 @@ namespace fCraft {
      * 
      * 162 - r1800 - Added UseEmotes permission and IRCAllowMinecraftEmotes key
      * 
+     * 163 - r1823 - Added IRCShowNewlinesFromIRC and IRCShowEmotesFromServer keys
+     *               Renamed key IRCUseColor to IRCShowColorsFromServer
+     *               Renamed key IRCAllowMinecraftEmotes to IRCShowEmotesFromIRC
+     *               Replaced IRCStripMinecraftColors key with IRCShowColorsFromIRC
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -193,7 +197,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 162;
+        public const int CurrentVersion = 163;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -254,6 +258,8 @@ namespace fCraft {
             LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "BackupInterval".ToLower(), ConfigKey.DefaultBackupInterval );
             LegacyConfigKeys.Add( "EnableBlockDB".ToLower(), ConfigKey.BlockDBEnabled );
+            LegacyConfigKeys.Add( "IRCUseColor".ToLower(), ConfigKey.IRCShowColorsFromServer );
+            LegacyConfigKeys.Add( "IRCAllowMinecraftEmotes".ToLower(), ConfigKey.IRCShowEmotesFromIRC );
 
             // These values have been renamed at some point. LEGACY
             LegacyConfigValues.Add( ConfigKey.ProcessPriority,
@@ -452,15 +458,16 @@ namespace fCraft {
 
             string keyName = element.Name.ToString().ToLower();
             ConfigKey key;
-            if(EnumUtil.TryParse(keyName,out key,true)){
+            if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key
                 TrySetValue( key, element.Value );
 
-            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
-                // renamed/legacy key
+            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
+                // LEGACY - renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], element.Value );
 
-            } else if( keyName == "limitoneconnectionperip" ) { // LEGACY
+            } else if( keyName == "limitoneconnectionperip" ) {
+                // LEGACY
                 Logger.Log( LogType.Warning,
                             "Config: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). " +
                             "Adjust your configuration accordingly." );
@@ -482,7 +489,7 @@ namespace fCraft {
             if( element == null ) throw new ArgumentNullException( "element" );
 
             // ReSharper disable PossibleNullReferenceException
-            string keyName = element.Attribute( "key" ).Value;
+            string keyName = element.Attribute( "key" ).Value.ToLower();
             string value = element.Attribute( "value" ).Value;
             // ReSharper restore PossibleNullReferenceException
 
@@ -491,9 +498,13 @@ namespace fCraft {
                 // known key
                 TrySetValue( key, value );
 
-            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) { // LEGACY
-                // renamed/legacy key
+            } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
+                // LEGACY - renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], value );
+
+            } else if( keyName == "ircstripminecraftcolors" ) { // LEGACY
+                TrySetValue( ConfigKey.IRCShowColorsFromIRC, element.Value );
+                ConfigKey.IRCShowColorsFromIRC.SetValue( !ConfigKey.IRCShowColorsFromIRC.Enabled() );
 
             } else {
                 // unknown key
@@ -502,6 +513,7 @@ namespace fCraft {
                             keyName, value );
             }
         }
+
 
         static void LoadLogOptions( [NotNull] XContainer el, [NotNull] IList<bool> list ) {
             if( el == null ) throw new ArgumentNullException( "el" );

@@ -1,7 +1,5 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
-using JetBrains.Annotations;
-
 namespace fCraft.ConfigGUI {
     partial class MainForm {
 
@@ -694,11 +692,11 @@ or type in address/port manually below.";
             toolTip.SetToolTip( xIRCBotAnnounceServerJoins, ConfigKey.IRCBotAnnounceServerJoins.GetDescription() );
             toolTip.SetToolTip( xIRCBotAnnounceServerEvents, ConfigKey.IRCBotAnnounceServerEvents.GetDescription() );
 
-            // TODO: IRCThreads
-
-            toolTip.SetToolTip( xIRCUseColor, ConfigKey.IRCUseColor.GetDescription() );
-            toolTip.SetToolTip( xIRCStripMinecraftColors, ConfigKey.IRCStripMinecraftColors.GetDescription() );
-            toolTip.SetToolTip( xIRCAllowMinecraftEmotes, ConfigKey.IRCAllowMinecraftEmotes.GetDescription() );
+            toolTip.SetToolTip( xIRCShowColorsFromServer, ConfigKey.IRCShowColorsFromServer.GetDescription() );
+            toolTip.SetToolTip( xIRCShowEmotesFromServer, ConfigKey.IRCShowEmotesFromServer.GetDescription() );
+            toolTip.SetToolTip( xIRCShowColorsFromIRC, ConfigKey.IRCShowColorsFromIRC.GetDescription() );
+            toolTip.SetToolTip( xIRCShowEmotesFromIRC, ConfigKey.IRCShowEmotesFromIRC.GetDescription() );
+            toolTip.SetToolTip( xIRCShowNewlinesFromIRC, ConfigKey.IRCShowNewlinesFromIRC.GetDescription() );
         }
 
 

@@ -15,14 +15,14 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <OutputPath>C:\fCraftHelp\0.632\</OutputPath>
+    <OutputPath>C:\fCraftHelp\0.635\</OutputPath>
     <HtmlHelpName>Documentation</HtmlHelpName>
     <Language>en-US</Language>
     <HelpFileFormat>Website</HelpFileFormat>
     <DocumentationSources>
       <DocumentationSource sourceFile="fCraft\fCraft.csproj" />
     </DocumentationSources>
-    <HelpTitle>fCraft 0.632 API Reference</HelpTitle>
+    <HelpTitle>fCraft 0.635 API Reference</HelpTitle>
     <NamingMethod>MemberName</NamingMethod>
     <PresentationStyle>hana</PresentationStyle>
     <SyntaxFilters>CSharp</SyntaxFilters>

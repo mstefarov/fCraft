@@ -576,8 +576,8 @@ namespace fCraft {
 
         static string ProcessMessageFromIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            bool useColor = !ConfigKey.IRCStripMinecraftColors.Enabled();
-            bool useEmotes = ConfigKey.IRCAllowMinecraftEmotes.Enabled();
+            bool useColor = ConfigKey.IRCShowColorsFromIRC.Enabled();
+            bool useEmotes = ConfigKey.IRCShowEmotesFromIRC.Enabled();
 
             if( useColor && useEmotes ) {
                 message = Color.IrcToMinecraftColors( message );
@@ -604,7 +604,7 @@ namespace fCraft {
         static string ProcessMessageToIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             message = Chat.ReplaceEmotesWithUncode( message );
-            if( ConfigKey.IRCUseColor.Enabled() ) {
+            if( ConfigKey.IRCShowColorsFromServer.Enabled() ) {
                 message = Color.MinecraftToIrcColors( message );
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
