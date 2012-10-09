@@ -358,7 +358,9 @@ namespace fCraft {
                 delta.Y = 0;
                 delta.Z = 0;
 
-            } else if( !Can( Permission.UseSpeedHack ) ) {
+            } else if( Can( Permission.UseSpeedHack ) ) {
+                lastValidPosition = Position;
+            } else {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
                 if( DetectMovementPacketSpam() ) {
@@ -372,6 +374,10 @@ namespace fCraft {
                         lastValidPosition = Position;
                     } else if( speedHackDetectionCounter > 1 ) {
                         DenyMovement();
+                        if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
+                            Message( "&WYou are not allowed to speedhack." );
+                            antiSpeedLastNotification = DateTime.UtcNow;
+                        }
                         speedHackDetectionCounter = 0;
                         return;
                     }
@@ -1466,6 +1472,10 @@ namespace fCraft {
                 double spamTimer = DateTime.UtcNow.Subtract( oldestTime ).TotalSeconds;
                 if( spamTimer < AntiSpeedMaxPacketInterval ) {
                     DenyMovement();
+                    if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
+                        Message( "&WYou are not allowed to speedhack." );
+                        antiSpeedLastNotification = DateTime.UtcNow;
+                    }
                     return true;
                 }
             }
@@ -1476,10 +1486,6 @@ namespace fCraft {
 
         void DenyMovement() {
             SendNow( Packet.MakeSelfTeleport( lastValidPosition ) );
-            if( DateTime.UtcNow.Subtract( antiSpeedLastNotification ).Seconds > 1 ) {
-                Message( "&WYou are not allowed to speedhack." );
-                antiSpeedLastNotification = DateTime.UtcNow;
-            }
         }
 
         #endregion
