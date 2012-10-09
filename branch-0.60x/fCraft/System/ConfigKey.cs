@@ -391,17 +391,27 @@ or requires identification/authentication." )]
 @"Color of IRC messages and event announcements, as seen on the server/in-game." )]
         IRCMessageColor,
 
-        [BoolKey( ConfigSection.IRC, true,
-@"Whether the bots should use colors and formatting on IRC." )]
-        IRCUseColor,
 
-        [BoolKey(ConfigSection.IRC, true,
-@"Whether Minecraft colorcodes entered on IRC should be removed before showing message in-game." )]
-        IRCStripMinecraftColors,
+        [BoolKey( ConfigSection.IRC, true,
+@"Whether colors in server messages should be shown on IRC." )]
+        IRCShowColorsFromServer,
+
+        [BoolKey( ConfigSection.IRC, true,
+@"Whether emotes in servers messages should be shown on IRC." )]
+        IRCShowEmotesFromServer,
+
+        [BoolKey(ConfigSection.IRC, false,
+@"Whether colors in IRC messages (both ^K colorcodes and &-colorcodes) should be shown in-game." )]
+        IRCShowColorsFromIRC,
 
         [BoolKey( ConfigSection.IRC, false,
-@"Whether Minecraft emote macros entered on IRC should be converted to in-game emotes." )]
-        IRCAllowMinecraftEmotes,
+@"Whether Minecraft emote keywords and symbols in IRC messages should be shown in-game." )]
+        IRCShowEmotesFromIRC,
+
+        [BoolKey( ConfigSection.IRC, false,
+@"Whether newline/linebreak keywords (%N and &N) in IRC messages should be converted to newlines in-game." )]
+        IRCShowNewlinesFromIRC,
+
 
         [IntKey( ConfigSection.IRC, 750,
 @"Minimum delay (in milliseconds) between IRC messages. Many networks

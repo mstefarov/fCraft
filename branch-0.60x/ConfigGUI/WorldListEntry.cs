@@ -416,7 +416,7 @@ namespace fCraft.ConfigGUI {
         readonly int blockDBLimit;
         TimeSpan blockDBTimeLimit;
 
-        XElement[] rankMains;
+        readonly XElement[] rankMains;
 
 
         public object Clone() {

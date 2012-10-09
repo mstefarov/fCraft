@@ -366,9 +366,11 @@ namespace fCraft.ConfigGUI {
             ApplyColor( bColorIRC, colorIRC );
             Color.IRC = Parse( colorIRC );
 
-            xIRCUseColor.Checked = ConfigKey.IRCUseColor.Enabled();
-            xIRCStripMinecraftColors.Checked = !ConfigKey.IRCStripMinecraftColors.Enabled();
-            xIRCAllowMinecraftEmotes.Checked = ConfigKey.IRCAllowMinecraftEmotes.Enabled();
+            xIRCShowColorsFromServer.Checked = ConfigKey.IRCShowColorsFromServer.Enabled();
+            xIRCShowEmotesFromServer.Checked = ConfigKey.IRCShowEmotesFromServer.Enabled();
+            xIRCShowColorsFromIRC.Checked = ConfigKey.IRCShowColorsFromIRC.Enabled();
+            xIRCShowEmotesFromIRC.Checked = ConfigKey.IRCShowEmotesFromIRC.Enabled();
+            xIRCShowNewlinesFromIRC.Checked = ConfigKey.IRCShowNewlinesFromIRC.Enabled();
         }
 
 
@@ -473,13 +475,13 @@ namespace fCraft.ConfigGUI {
 
 
             // Chat
-            ConfigKey.SystemMessageColor.TrySetValue( Color.GetName( colorSys ) );
-            ConfigKey.HelpColor.TrySetValue( Color.GetName( colorHelp ) );
-            ConfigKey.SayColor.TrySetValue( Color.GetName( colorSay ) );
-            ConfigKey.AnnouncementColor.TrySetValue( Color.GetName( colorAnnouncement ) );
-            ConfigKey.PrivateMessageColor.TrySetValue( Color.GetName( colorPM ) );
-            ConfigKey.WarningColor.TrySetValue( Color.GetName( colorWarning ) );
-            ConfigKey.MeColor.TrySetValue( Color.GetName( colorMe ) );
+            ConfigKey.SystemMessageColor.TrySetValue( GetName( colorSys ) );
+            ConfigKey.HelpColor.TrySetValue( GetName( colorHelp ) );
+            ConfigKey.SayColor.TrySetValue( GetName( colorSay ) );
+            ConfigKey.AnnouncementColor.TrySetValue( GetName( colorAnnouncement ) );
+            ConfigKey.PrivateMessageColor.TrySetValue( GetName( colorPM ) );
+            ConfigKey.WarningColor.TrySetValue( GetName( colorWarning ) );
+            ConfigKey.MeColor.TrySetValue( GetName( colorMe ) );
             ConfigKey.ShowJoinedWorldMessages.TrySetValue( xShowJoinedWorldMessages.Checked );
             ConfigKey.RankColorsInWorldNames.TrySetValue( xRankColorsInWorldNames.Checked );
             ConfigKey.RankColorsInChat.TrySetValue( xRankColorsInChat.Checked );
@@ -597,10 +599,13 @@ namespace fCraft.ConfigGUI {
             ConfigKey.IRCBotForwardFromIRC.TrySetValue( xIRCBotForwardFromIRC.Checked );
             ConfigKey.IRCBotForwardFromServer.TrySetValue( xIRCBotForwardFromServer.Checked );
 
-            ConfigKey.IRCMessageColor.TrySetValue( Color.GetName( colorIRC ) );
-            ConfigKey.IRCUseColor.TrySetValue( xIRCUseColor.Checked );
-            ConfigKey.IRCAllowMinecraftEmotes.TrySetValue( xIRCAllowMinecraftEmotes.Checked );
-            ConfigKey.IRCStripMinecraftColors.TrySetValue( !xIRCStripMinecraftColors.Checked );
+
+            ConfigKey.IRCShowColorsFromServer.TrySetValue( xIRCShowColorsFromServer.Checked );
+            ConfigKey.IRCShowEmotesFromServer.TrySetValue( xIRCShowEmotesFromServer.Checked );
+            ConfigKey.IRCShowEmotesFromIRC.TrySetValue( xIRCShowEmotesFromIRC.Checked );
+            ConfigKey.IRCShowColorsFromIRC.TrySetValue( xIRCShowColorsFromIRC.Checked );
+            ConfigKey.IRCShowNewlinesFromIRC.TrySetValue( xIRCShowNewlinesFromIRC.Checked );
+            ConfigKey.IRCMessageColor.TrySetValue( GetName( colorIRC ) );
 
             // advanced
             ConfigKey.SubmitCrashReports.TrySetValue( xSubmitCrashReports.Checked );

@@ -289,6 +289,14 @@ namespace fCraft {
         }
 
 
+        public static string ReplaceNewlines( string input ) {
+            input = input.Replace( "\r\n", "\n" );
+            input = input.Replace( "%n", "\n" );
+            input = input.Replace( "%N", "\n" );
+            return input;
+        }
+
+
         #region Emotes
 
         static readonly char[] UnicodeReplacements = " ☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼".ToCharArray();
@@ -477,7 +485,7 @@ namespace fCraft {
                 }
                 // extract the colorcode
                 char colorCode = message[startIndex + 1];
-                if( Color.IsColorCode( colorCode ) ) {
+                if( Color.IsColorCode( colorCode ) || colorCode == 'n' || colorCode == 'N' ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;

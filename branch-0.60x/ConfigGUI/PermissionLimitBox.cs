@@ -62,7 +62,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        int GetLimitIndex( Rank rank, Permission permission ) {
+        static int GetLimitIndex( Rank rank, Permission permission ) {
             if( rank.HasLimitSet( permission ) ) {
                 return rank.GetLimit( permission ).Index + 1;
             } else {
