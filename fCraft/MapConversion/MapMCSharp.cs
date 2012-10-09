@@ -85,8 +85,8 @@ namespace fCraft.MapConversion {
             // Read in the spawn location
             map.Spawn = new Position {
                 X = (short)( bs.ReadInt16() * 32 ),
-                Z = (short)( bs.ReadInt16() * 32 ),
                 Y = (short)( bs.ReadInt16() * 32 ),
+                Z = (short)( bs.ReadInt16() * 32 ),
                 R = bs.ReadByte(),
                 L = bs.ReadByte(),
             };
