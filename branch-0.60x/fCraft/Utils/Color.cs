@@ -327,7 +327,6 @@ namespace fCraft {
             return output.ToString();
         }
 
-
         #region IRC Colors
 
         static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
