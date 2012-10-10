@@ -188,7 +188,7 @@ namespace fCraft {
             if( RaiseSendingEvent( e ) ) return false;
 
             Player[] players = e.RecepientList.ToArray();
-            int packets = players.Message( e.FormattedMessage );
+            int recepients = players.Message( e.FormattedMessage );
 
             // Only increment the MessagesWritten count if someone other than
             // the player was on the recepient list.
@@ -196,7 +196,7 @@ namespace fCraft {
                 e.Player.Info.ProcessMessageWritten();
             }
 
-            RaiseSentEvent( e, packets );
+            RaiseSentEvent( e, recepients );
             return true;
         }
 
@@ -290,27 +290,32 @@ namespace fCraft {
         }
 
 
+        /// <summary> Replaces newline codes (&amp;n and &amp;N) with actual newlines (\n). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <returns> Processed message. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull, Pure]
         public static string ReplaceNewlines( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            message = message.Replace( "\r\n", "\n" );
-            message = message.Replace( "%n", "\n" );
-            message = message.Replace( "%N", "\n" );
             message = message.Replace( "&n", "\n" );
             message = message.Replace( "&N", "\n" );
             return message;
         }
 
 
+        /// <summary> Removes newlines (\n) and newline codes (&amp;n and &amp;N). </summary>
+        /// <param name="message"> Message to process. </param>
+        /// <returns> Processed message. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull, Pure]
         public static string StripNewlines( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            message = message.Replace( "\n", "" );
             message = message.Replace( "&n", "" );
             message = message.Replace( "&N", "" );
-            message = message.Replace( "%n", "" );
-            message = message.Replace( "%N", "" );
             return message;
         }
+
 
         #region Emotes
 
@@ -421,10 +426,12 @@ namespace fCraft {
 
             { "vv", '\u001F' }, // ▼
             { "down2", '\u001F' },
+
+            { "house", '\u007F' } // ⌂
         };
 
 
-        static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F]" );
+        static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F\x7F]" );
         /// <summary> Strips all emote symbols (ASCII control characters). Does not strip UTF-8 equivalents of emotes. </summary>
         /// <param name="message"> Message to strip emotes from. </param>
         /// <returns> Message with its emotes stripped. </returns>
@@ -512,8 +519,7 @@ namespace fCraft {
                 }
                 // extract the colorcode
                 char colorCode = message[startIndex + 1];
-                if( Color.IsColorCode( colorCode ) ||
-                    allowNewlines && (colorCode == 'n' || colorCode == 'N' ) ) {
+                if( Color.IsColorCode( colorCode ) || allowNewlines && (colorCode == 'n' || colorCode == 'N' ) ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;
@@ -564,6 +570,7 @@ namespace fCraft {
             for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
                 sb.Replace( UnicodeReplacements[i], (char)i );
             }
+            sb.Replace( '⌂', '\u007F' );
             return sb.ToString();
         }
 
@@ -580,6 +587,7 @@ namespace fCraft {
             for( int i = 1; i < UnicodeReplacements.Length; i++ ) {
                 sb.Replace( (char)i, UnicodeReplacements[i] );
             }
+            sb.Replace( '\u007F', '⌂' );
             return sb.ToString();
         }
 
@@ -596,11 +604,11 @@ namespace fCraft {
         }
 
 
-        static void RaiseSentEvent( ChatSendingEventArgs args, int count ) {
+        static void RaiseSentEvent( ChatSendingEventArgs args, int recepientCount ) {
             var h = Sent;
             if( h != null )
                 h( null, new ChatSentEventArgs( args.Player, args.Message, args.FormattedMessage,
-                                                args.MessageType, args.RecepientList, count ) );
+                                                args.MessageType, args.RecepientList, recepientCount ) );
         }
 
 
@@ -710,13 +718,13 @@ namespace fCraft.Events {
     /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
         internal ChatSentEventArgs( Player player, string message, string formattedMessage,
-                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int packetCount ) {
+                                    ChatMessageType messageType, IEnumerable<Player> recepientList, int recepientCount ) {
             Player = player;
             Message = message;
             MessageType = messageType;
             RecepientList = recepientList;
             FormattedMessage = formattedMessage;
-            PacketCount = packetCount;
+            RecepientCount = recepientCount;
         }
 
 
@@ -735,7 +743,7 @@ namespace fCraft.Events {
         /// <summary> List of players who received the message. </summary>
         public IEnumerable<Player> RecepientList { get; private set; }
 
-        /// <summary> Number of message packets that were sent out. </summary>
-        public int PacketCount { get; private set; }
+        /// <summary> Number of players who received the message. </summary>
+        public int RecepientCount { get; private set; }
     }
 }

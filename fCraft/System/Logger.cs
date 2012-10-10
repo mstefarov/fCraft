@@ -3,12 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
 #if DEBUG_EVENTS
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
@@ -96,12 +96,16 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( args == null ) throw new ArgumentNullException( "args" );
             if( !Enabled ) return;
+
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
+            // occasionally \r\n newlines slip into the system, e.g. in stack traces
+            message = message.Replace( "\r\n", "\n" );
             message = Chat.ReplaceNewlines( message );
             message = Chat.ReplaceEmotesWithUncode( message );
             message = Color.StripColors( message );
+
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
 
             lock( LogLock ) {
@@ -383,8 +387,8 @@ namespace fCraft {
         static readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
 
 
-        static List<string> eventWhitelist = new List<string>();
-        static List<string> eventBlacklist = new List<string>();
+        static readonly List<string> eventWhitelist = new List<string>();
+        static readonly List<string> eventBlacklist = new List<string>();
         const string TraceWhitelistFile = "traceonly.txt",
                      TraceBlacklistFile = "notrace.txt";
         static bool useEventWhitelist, useEventBlacklist;
@@ -497,7 +501,7 @@ namespace fCraft {
 
             Log( LogType.Trace,
                  "TraceEvent: {0}.{1}( {2} )",
-                 eventInfo.DeclaringType.Name, eventInfo.Name, sb.ToString() );
+                 eventInfo.DeclaringType.Name, eventInfo.Name, sb );
 
         }
 

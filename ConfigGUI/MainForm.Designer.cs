@@ -230,7 +230,6 @@ namespace fCraft.ConfigGUI {
             this.lColorIRC = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
-            this.xIRCShowNewlinesFromIRC = new System.Windows.Forms.CheckBox();
             this.xIRCShowEmotesFromServer = new System.Windows.Forms.CheckBox();
             this.xIRCShowEmotesFromIRC = new System.Windows.Forms.CheckBox();
             this.xIRCShowColorsFromIRC = new System.Windows.Forms.CheckBox();
@@ -2627,7 +2626,6 @@ namespace fCraft.ConfigGUI {
             this.gIRCFormatting.Controls.Add( this.lColorIRC );
             this.gIRCFormatting.Controls.Add( this.label2 );
             this.gIRCFormatting.Controls.Add( this.label1 );
-            this.gIRCFormatting.Controls.Add( this.xIRCShowNewlinesFromIRC );
             this.gIRCFormatting.Controls.Add( this.xIRCShowEmotesFromServer );
             this.gIRCFormatting.Controls.Add( this.xIRCShowEmotesFromIRC );
             this.gIRCFormatting.Controls.Add( this.xIRCShowColorsFromIRC );
@@ -2678,16 +2676,6 @@ namespace fCraft.ConfigGUI {
             this.label1.TabIndex = 7;
             this.label1.Text = "For messages sent from IRC to Minecraft, show:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.TopRight;
-            // 
-            // xIRCShowNewlinesFromIRC
-            // 
-            this.xIRCShowNewlinesFromIRC.AutoSize = true;
-            this.xIRCShowNewlinesFromIRC.Location = new System.Drawing.Point( 486, 48 );
-            this.xIRCShowNewlinesFromIRC.Name = "xIRCShowNewlinesFromIRC";
-            this.xIRCShowNewlinesFromIRC.Size = new System.Drawing.Size( 116, 19 );
-            this.xIRCShowNewlinesFromIRC.TabIndex = 6;
-            this.xIRCShowNewlinesFromIRC.Text = "Line breaks (&&n)";
-            this.xIRCShowNewlinesFromIRC.UseVisualStyleBackColor = true;
             // 
             // xIRCShowEmotesFromServer
             // 
@@ -3885,7 +3873,6 @@ namespace fCraft.ConfigGUI {
         private CheckBox xIRCShowEmotesFromIRC;
         private Label label2;
         private Label label1;
-        private CheckBox xIRCShowNewlinesFromIRC;
         private CheckBox xIRCShowEmotesFromServer;
         private Button bColorIRC;
         private Label lColorIRC;

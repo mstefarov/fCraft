@@ -370,7 +370,6 @@ namespace fCraft.ConfigGUI {
             xIRCShowEmotesFromServer.Checked = ConfigKey.IRCShowEmotesFromServer.Enabled();
             xIRCShowColorsFromIRC.Checked = ConfigKey.IRCShowColorsFromIRC.Enabled();
             xIRCShowEmotesFromIRC.Checked = ConfigKey.IRCShowEmotesFromIRC.Enabled();
-            xIRCShowNewlinesFromIRC.Checked = ConfigKey.IRCShowNewlinesFromIRC.Enabled();
         }
 
 
@@ -604,7 +603,6 @@ namespace fCraft.ConfigGUI {
             ConfigKey.IRCShowEmotesFromServer.TrySetValue( xIRCShowEmotesFromServer.Checked );
             ConfigKey.IRCShowEmotesFromIRC.TrySetValue( xIRCShowEmotesFromIRC.Checked );
             ConfigKey.IRCShowColorsFromIRC.TrySetValue( xIRCShowColorsFromIRC.Checked );
-            ConfigKey.IRCShowNewlinesFromIRC.TrySetValue( xIRCShowNewlinesFromIRC.Checked );
             ConfigKey.IRCMessageColor.TrySetValue( GetName( colorIRC ) );
 
             // advanced

@@ -97,7 +97,9 @@ namespace fCraft {
                 return;
             }
 
+            // ReSharper disable AssignNullToNotNullAttribute
             if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
+                // ReSharper restore AssignNullToNotNullAttribute
                 player.Message( "You may not use this file." );
                 return;
             }
@@ -790,7 +792,7 @@ namespace fCraft {
                     string oldDisplayedName = info.DisplayedName;
                     if( valName.Length == 0 ) valName = null;
 
-                    if( valName != null && valName.Contains( '\n' ) ) {
+                    if( valName != null && ( valName.Contains( '\n' ) || valName.Contains( "&n" ) || valName.Contains( "&N" ) ) ) {
                         player.Message( "SetInfo: DisplayedName may not contain line breaks." );
                         return;
                     }

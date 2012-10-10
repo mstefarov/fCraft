@@ -53,6 +53,7 @@ namespace fCraft {
         /// <summary> Color of warning messages. </summary>
         public static string Warning { get; set; }
 
+
         // Defaults for user-defined colors.
         /// <summary> Default color of system messages, nickserv, chanserv. Yellow. </summary>
         public const string SysDefault = Yellow;
@@ -77,6 +78,7 @@ namespace fCraft {
 
         /// <summary> Default color of warning messages. Red. </summary>
         public const string WarningDefault = Red;
+
 
         /// <summary> List of color names indexed by their id. </summary>
         public static readonly SortedList<char, string> ColorNames = new SortedList<char, string> {
@@ -222,6 +224,7 @@ namespace fCraft {
             return ( code >= '0' && code <= '9' ) || ( code >= 'a' && code <= 'f' ) || ( code >= 'A' && code <= 'F' );
         }
 
+
         /// <summary> Checks whether a color code is valid. Both uppercase and lowercase digits are accepted.
         /// Both standard (0-F) and fCraft-specific (H, I, M, P, R, S, W, and Y) color codes are accepted. </summary>
         /// <returns> True if given char is a recognized color code; otherwise false. </returns>
@@ -239,6 +242,7 @@ namespace fCraft {
                    code == 'W' || code == 'w' ||
                    code == 'Y' || code == 'y';
         }
+
 
         /// <summary> Substitutes all fCraft-specific ampersand color codes (like &amp;S/Color.Sys)
         /// with the assigned Minecraft colors (like &amp;E/Color.Yellow).
@@ -327,25 +331,26 @@ namespace fCraft {
             return output.ToString();
         }
 
+
         #region IRC Colors
 
-        static readonly Dictionary<string, IRCColor> MinecraftToIRCColors = new Dictionary<string, IRCColor> {
-            { White, IRCColor.White },
-            { Black, IRCColor.Black },
-            { Navy, IRCColor.Navy },
-            { Green, IRCColor.Green },
-            { Red, IRCColor.Red },
-            { Maroon, IRCColor.Maroon },
-            { Purple, IRCColor.Purple },
-            { Olive, IRCColor.Olive },
-            { Yellow, IRCColor.Yellow },
-            { Lime, IRCColor.Lime },
-            { Teal, IRCColor.Teal },
-            { Aqua, IRCColor.Aqua },
-            { Blue, IRCColor.Blue },
-            { Magenta, IRCColor.Magenta },
-            { Gray, IRCColor.Gray },
-            { Silver, IRCColor.Silver },
+        static readonly Dictionary<string, string> MinecraftToIRCColors = new Dictionary<string, string> {
+            { White, "\u000300" },
+            { Black, "\u000301" },
+            { Navy, "\u000302" },
+            { Green, "\u000303" },
+            { Red, "\u000304" },
+            { Maroon, "\u000305" },
+            { Purple, "\u000306" },
+            { Olive, "\u000307" },
+            { Yellow, "\u000308" },
+            { Lime, "\u000309" },
+            { Teal, "\u00030A" },
+            { Aqua, "\u00030B" },
+            { Blue, "\u00030C" },
+            { Magenta, "\u00030D" },
+            { Gray, "\u00030E" },
+            { Silver, "\u00030F" },
         };
 
 
@@ -356,9 +361,8 @@ namespace fCraft {
         public static void MinecraftToIrcColors( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             SubstituteSpecialColors( sb );
-            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                string replacement = '\u0003' + ( (int)code.Value ).ToStringInvariant().PadLeft( 2, '0' );
-                sb.Replace( code.Key, replacement );
+            foreach( var codePair in MinecraftToIRCColors ) {
+                sb.Replace( codePair.Key, codePair.Value );
             }
         }
 
@@ -384,9 +388,8 @@ namespace fCraft {
         public static void IrcToMinecraftColors( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             SubstituteSpecialColors( sb );
-            foreach( KeyValuePair<string, IRCColor> code in MinecraftToIRCColors ) {
-                string replacement = '\u0003' + ( (int)code.Value ).ToStringInvariant().PadLeft( 2, '0' );
-                sb.Replace( replacement, code.Key );
+            foreach( var codePair in MinecraftToIRCColors ) {
+                sb.Replace( codePair.Value, codePair.Key );
             }
         }
 
@@ -405,25 +408,5 @@ namespace fCraft {
         }
 
         #endregion
-    }
-
-
-    enum IRCColor {
-        White = 0,
-        Black,
-        Navy,
-        Green,
-        Red,
-        Maroon,
-        Purple,
-        Olive,
-        Yellow,
-        Lime,
-        Teal,
-        Aqua,
-        Blue,
-        Magenta,
-        Gray,
-        Silver
     }
 }
