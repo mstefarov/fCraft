@@ -580,6 +580,10 @@ namespace fCraft {
             bool useEmotes = ConfigKey.IRCShowEmotesFromIRC.Enabled();
             bool allowNewlines = ConfigKey.IRCShowNewlinesFromIRC.Enabled();
 
+            if( !allowNewlines ) {
+                message = Chat.StripNewlines( message );
+            }
+
             if( useColor && useEmotes ) {
                 message = Color.IrcToMinecraftColors( message );
                 message = Chat.ReplaceUncodeWithEmotes( message );
@@ -595,13 +599,6 @@ namespace fCraft {
             } else {
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
                 message = Color.StripColors( message );
-            }
-
-            if( allowNewlines ) {
-                message = message.Replace( "&n", "\n" );
-                message = message.Replace( "&N", "\n" );
-            } else {
-                message = message.Replace( "\n", "" );
             }
 
             message = Chat.UnescapeBackslashes( message );

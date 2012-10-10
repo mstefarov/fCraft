@@ -290,13 +290,27 @@ namespace fCraft {
         }
 
 
-        public static string ReplaceNewlines( string input ) {
-            input = input.Replace( "\r\n", "\n" );
-            input = input.Replace( "%n", "\n" );
-            input = input.Replace( "%N", "\n" );
-            return input;
+        [NotNull, Pure]
+        public static string ReplaceNewlines( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            message = message.Replace( "\r\n", "\n" );
+            message = message.Replace( "%n", "\n" );
+            message = message.Replace( "%N", "\n" );
+            message = message.Replace( "&n", "\n" );
+            message = message.Replace( "&N", "\n" );
+            return message;
         }
 
+
+        [NotNull, Pure]
+        public static string StripNewlines( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            message = message.Replace( "&n", "" );
+            message = message.Replace( "&N", "" );
+            message = message.Replace( "%n", "" );
+            message = message.Replace( "%N", "" );
+            return message;
+        }
 
         #region Emotes
 
