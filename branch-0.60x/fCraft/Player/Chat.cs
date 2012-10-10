@@ -431,7 +431,7 @@ namespace fCraft {
         };
 
 
-        static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F\x7F]" );
+        static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F\x7F☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
         /// <summary> Strips all emote symbols (ASCII control characters). Does not strip UTF-8 equivalents of emotes. </summary>
         /// <param name="message"> Message to strip emotes from. </param>
         /// <returns> Message with its emotes stripped. </returns>

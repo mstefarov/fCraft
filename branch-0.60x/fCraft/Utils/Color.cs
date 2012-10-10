@@ -345,12 +345,12 @@ namespace fCraft {
             { Olive, "\u000307" },
             { Yellow, "\u000308" },
             { Lime, "\u000309" },
-            { Teal, "\u00030A" },
-            { Aqua, "\u00030B" },
-            { Blue, "\u00030C" },
-            { Magenta, "\u00030D" },
-            { Gray, "\u00030E" },
-            { Silver, "\u00030F" },
+            { Teal, "\u000310" },
+            { Aqua, "\u000311" },
+            { Blue, "\u000312" },
+            { Magenta, "\u000313" },
+            { Gray, "\u000314" },
+            { Silver, "\u000315" },
         };
 
 

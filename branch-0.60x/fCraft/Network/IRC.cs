@@ -587,15 +587,19 @@ namespace fCraft {
                 message = Chat.StripNewlines( message );
             } else if( useColor ) {
                 message = Color.IrcToMinecraftColors( message );
+                message = Chat.StripEmotes( message );
                 message = Chat.ReplacePercentColorCodes( message, false );
                 message = Chat.StripNewlines( message );
             } else if( useEmotes ) {
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
                 message = Chat.ReplaceUncodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
+                // strips minecraft colors and newlines
                 message = Color.StripColors( message );
             } else {
+                // strips emotes
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
+                // strips minecraft colors and newlines
                 message = Color.StripColors( message );
             }
 
@@ -611,18 +615,21 @@ namespace fCraft {
 
             if( useEmotes ) {
                 message = Chat.ReplaceEmotesWithUncode( message );
-                message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
             } else {
-                message = IRCColorsAndNonStandardChars.Replace( message, "" );
+                message = Chat.StripEmotes( message );
             }
+
+            message = Chat.ReplaceNewlines( message );
 
             if( useColor ) {
                 message = Color.MinecraftToIrcColors( message );
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
             } else {
-                message = message.Replace( "&n", "\n> " );
-                message = message.Replace( "&N", "\n> " );
+                message = message.Replace( "&n", "\n" );
+                message = message.Replace( "&N", "\n" );
+                message = message.Replace( BoldCode, "" );
+                message = message.Replace( ResetCode, "" );
                 message = Color.StripColors( message );
             }
             return message.Trim();
