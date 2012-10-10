@@ -1,3 +1,13 @@
+0.636
+ Feature: Check your configs! New options were added to control display of colors and emotes to/from IRC.
+ Feature: Added {house} emote (0x7F).
+ Fix: Fixed newline codes %n/%N not being parsed properly.
+ Fix: Fixed a crash in Color.StripColors (thanks sukinorules).
+ Fix: Fixed random symbols appearing in stack traces in console (thanks sukinorules).
+ Fix: Fixed couple problems with Player.Moving event (thanks 00pol).
+ Fix: Spawn points of MCSharp map files are now loaded correctly (thanks 00pol).
+ Change: Players' DisplayedNames may no longer contains line breaks.
+
 0.635
  Feature: Added support for "emotes" (chat symbols). New permission (UseEmotes) and config key (IRCAllowEmotes) were added.
  Fix: Fixed ParseMiniTimespan/TryParseMiniTimespan accepting numbers as valid time spans.
