@@ -578,15 +578,16 @@ namespace fCraft {
             if( message == null ) throw new ArgumentNullException( "message" );
             bool useColor = ConfigKey.IRCShowColorsFromIRC.Enabled();
             bool useEmotes = ConfigKey.IRCShowEmotesFromIRC.Enabled();
+            bool allowNewlines = ConfigKey.IRCShowNewlinesFromIRC.Enabled();
 
             if( useColor && useEmotes ) {
                 message = Color.IrcToMinecraftColors( message );
                 message = Chat.ReplaceUncodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
-                message = Chat.ReplacePercentColorCodes( message );
+                message = Chat.ReplacePercentColorCodes( message, allowNewlines );
             } else if( useColor ) {
                 message = Color.IrcToMinecraftColors( message );
-                message = Chat.ReplacePercentColorCodes( message );
+                message = Chat.ReplacePercentColorCodes( message, allowNewlines );
             } else if( useEmotes ) {
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
                 message = Chat.ReplaceUncodeWithEmotes( message );
@@ -596,6 +597,13 @@ namespace fCraft {
                 message = Color.StripColors( message );
             }
 
+            if( allowNewlines ) {
+                message = message.Replace( "&n", "\n" );
+                message = message.Replace( "&N", "\n" );
+            } else {
+                message = message.Replace( "\n", "" );
+            }
+
             message = Chat.UnescapeBackslashes( message );
             return message.Trim();
         }
@@ -603,18 +611,25 @@ namespace fCraft {
 
         static string ProcessMessageToIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
-            message = Chat.ReplaceEmotesWithUncode( message );
-            if( ConfigKey.IRCShowColorsFromServer.Enabled() ) {
+
+            bool useColor = ConfigKey.IRCShowColorsFromServer.Enabled();
+            bool useEmotes = ConfigKey.IRCShowEmotesFromServer.Enabled();
+
+            if( useEmotes ) {
+                message = Chat.ReplaceEmotesWithUncode( message );
+            } else {
+                message = Chat.StripEmotes( message );
+            }
+
+            if( useColor ) {
                 message = Color.MinecraftToIrcColors( message );
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
             } else {
-                message = message.Replace( "&n", "\n" );
-                message = message.Replace( "&N", "\n" );
+                message = message.Replace( "&n", "\n> " );
+                message = message.Replace( "&N", "\n> " );
                 message = Color.StripColors( message );
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
-                message = message.Replace( BoldCode, "" );
-                message = message.Replace( ResetCode, "" );
             }
             return message.Trim();
         }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using fCraft.Events;
 using JetBrains.Annotations;
 
@@ -409,6 +410,17 @@ namespace fCraft {
         };
 
 
+        static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F]" );
+        /// <summary> Strips all emote symbols (ASCII control characters). Does not strip UTF-8 equivalents of emotes. </summary>
+        /// <param name="message"> Message to strip emotes from. </param>
+        /// <returns> Message with its emotes stripped. </returns>
+        [NotNull, Pure]
+        public static string StripEmotes( [NotNull] string message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            return EmoteSymbols.Replace( message, "" );
+        }
+
+
         /// <summary> Replaces emote keywords with actual emotes, using Chat.EmoteKeywords mapping. 
         /// Keywords are enclosed in curly braces, and are case-insensitive. </summary>
         /// <param name="message"> String to process. </param>
@@ -465,10 +477,11 @@ namespace fCraft {
         /// <summary> Substitutes percent color codes (e.g. %C) with equivalent ampersand color codes (&amp;C).
         /// Also replaces newline codes (%N) with actual newlines (\n). </summary>
         /// <param name="message"> Message to process. </param>
+        /// <param name="allowNewlines"> Whether newlines are allowed. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull, Pure]
-        public static string ReplacePercentColorCodes( [NotNull] string message ) {
+        public static string ReplacePercentColorCodes( [NotNull] string message, bool allowNewlines ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             int startIndex = message.IndexOf( '%' );
             if( startIndex == -1 ) {
@@ -485,7 +498,8 @@ namespace fCraft {
                 }
                 // extract the colorcode
                 char colorCode = message[startIndex + 1];
-                if( Color.IsColorCode( colorCode ) || colorCode == 'n' || colorCode == 'N' ) {
+                if( Color.IsColorCode( colorCode ) ||
+                    allowNewlines && (colorCode == 'n' || colorCode == 'N' ) ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;

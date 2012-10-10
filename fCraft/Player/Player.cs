@@ -198,7 +198,7 @@ namespace fCraft {
             
             // replace %-codes with &-codes
             if( Can( Permission.UseColorCodes ) ) {
-                rawMessage = Chat.ReplacePercentColorCodes( rawMessage );
+                rawMessage = Chat.ReplacePercentColorCodes( rawMessage, true );
             }
             // replace emotes
             if( Can( Permission.UseEmotes ) ) {
