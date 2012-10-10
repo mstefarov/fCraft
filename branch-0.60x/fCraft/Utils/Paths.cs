@@ -366,7 +366,9 @@ namespace fCraft {
             if( Directory.Exists( fullPath ) ) {
                 return fullPath;
             }
+            // ReSharper disable AssignNullToNotNullAttribute
             return Path.GetDirectoryName( fullPath ) ?? Path.GetPathRoot( fullPath );
+            // ReSharper restore AssignNullToNotNullAttribute
         }
 
 

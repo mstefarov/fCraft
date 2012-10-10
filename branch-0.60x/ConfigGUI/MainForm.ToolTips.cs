@@ -696,7 +696,6 @@ or type in address/port manually below.";
             toolTip.SetToolTip( xIRCShowEmotesFromServer, ConfigKey.IRCShowEmotesFromServer.GetDescription() );
             toolTip.SetToolTip( xIRCShowColorsFromIRC, ConfigKey.IRCShowColorsFromIRC.GetDescription() );
             toolTip.SetToolTip( xIRCShowEmotesFromIRC, ConfigKey.IRCShowEmotesFromIRC.GetDescription() );
-            toolTip.SetToolTip( xIRCShowNewlinesFromIRC, ConfigKey.IRCShowNewlinesFromIRC.GetDescription() );
         }
 
 

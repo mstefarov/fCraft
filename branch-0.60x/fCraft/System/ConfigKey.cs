@@ -408,10 +408,6 @@ or requires identification/authentication." )]
 @"Whether Minecraft emote keywords and symbols in IRC messages should be shown in-game." )]
         IRCShowEmotesFromIRC,
 
-        [BoolKey( ConfigSection.IRC, false,
-@"Whether newline/linebreak keywords (%N and &N) in IRC messages should be converted to newlines in-game." )]
-        IRCShowNewlinesFromIRC,
-
 
         [IntKey( ConfigSection.IRC, 750,
 @"Minimum delay (in milliseconds) between IRC messages. Many networks

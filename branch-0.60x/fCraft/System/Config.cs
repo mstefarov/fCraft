@@ -187,6 +187,8 @@ namespace fCraft {
      *               Renamed key IRCUseColor to IRCShowColorsFromServer
      *               Renamed key IRCAllowMinecraftEmotes to IRCShowEmotesFromIRC
      *               Replaced IRCStripMinecraftColors key with IRCShowColorsFromIRC
+     *               
+     * 164 - r1828 - Removed IRCShowNewlinesFromIRC key
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
