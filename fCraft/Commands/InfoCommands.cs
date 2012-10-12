@@ -1282,10 +1282,12 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdEmotes = new CommandDescriptor {
             Name = "Emotes",
+            Usage = "/Emotes [Page]",
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of all available color codes.",
+            Help = "Shows a list of all available emotes and their keywords. "+
+                   "There are 31 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
             Handler = EmotesHandler
         };
 
@@ -1313,9 +1315,9 @@ namespace fCraft {
                 char ch1 = ch;
                 string keywords = Chat.EmoteKeywords
                                       .Where( pair => pair.Value == ch1 )
-                                      .Select( kvp => "{" + kvp.Key + "}" )
+                                      .Select( kvp => "{&F" + kvp.Key.UppercaseFirst() + "&7}" )
                                       .JoinToString( " " );
-                player.Message( "&F> &S{0} = {1}", ch, keywords );
+                player.Message( "&F  {0} &7= {1}", ch, keywords );
             }
 
             if( !player.Can( Permission.UseEmotes ) ) {

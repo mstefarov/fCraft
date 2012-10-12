@@ -345,7 +345,6 @@ namespace fCraft {
             { "spades", '\u0006' },
 
             { "*", '\u0007' }, // •
-            { "bull", '\u0007' },
             { "bullet", '\u0007' },
             { "dot", '\u0007' },
             { "point", '\u0007' },
