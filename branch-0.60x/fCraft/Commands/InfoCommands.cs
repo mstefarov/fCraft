@@ -35,6 +35,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdCommands );
 
             CommandManager.RegisterCommand( CdColors );
+            CommandManager.RegisterCommand( CdEmotes );
 
 #if DEBUG_SCHEDULER
             CommandManager.RegisterCommand( cdTaskDebug );
@@ -1243,7 +1244,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Colors
+        #region Colors and Emotes
 
         static readonly CommandDescriptor CdColors = new CommandDescriptor {
             Name = "Colors",
@@ -1273,6 +1274,56 @@ namespace fCraft {
                     player.Message( "&SNone of the ranks have permission to use colors in chat." );
                 } else {
                     player.Message( "&SOnly {0}+&S can use colors in chat.",
+                             reqRank.ClassyName );
+                }
+            }
+        }
+
+
+        static readonly CommandDescriptor CdEmotes = new CommandDescriptor {
+            Name = "Emotes",
+            Category = CommandCategory.Info | CommandCategory.Chat,
+            IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
+            Help = "Shows a list of all available color codes.",
+            Handler = EmotesHandler
+        };
+
+        static void EmotesHandler( Player player, CommandReader cmd ) {
+            int page = 1;
+            if( cmd.HasNext ) {
+                if( !cmd.NextInt( out page ) ) {
+                    CdEmotes.PrintUsage( player );
+                    return;
+                }
+            }
+            if( page < 1 || page > 3 ) {
+                CdEmotes.PrintUsage( player );
+                return;
+            }
+
+            var emoteChars = Chat.EmoteKeywords
+                                 .Values
+                                 .Distinct()
+                                 .Skip( ( page - 1 ) * 11 )
+                                 .Take( 11 );
+
+            player.Message( "List of emotes, page {0} of 3:", page );
+            foreach( char ch in emoteChars ) {
+                char ch1 = ch;
+                string keywords = Chat.EmoteKeywords
+                                      .Where( pair => pair.Value == ch1 )
+                                      .Select( kvp => "{" + kvp.Key + "}" )
+                                      .JoinToString( " " );
+                player.Message( "&F> &S{0} = {1}", ch, keywords );
+            }
+
+            if( !player.Can( Permission.UseEmotes ) ) {
+                Rank reqRank = RankManager.GetMinRankWithAllPermissions( Permission.UseEmotes );
+                if( reqRank == null ) {
+                    player.Message( "&SNote: None of the ranks have permission to use emotes." );
+                } else {
+                    player.Message( "&SNote: only {0}+&S can use emotes in chat.",
                              reqRank.ClassyName );
                 }
             }
