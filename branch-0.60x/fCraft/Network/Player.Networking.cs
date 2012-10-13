@@ -141,6 +141,9 @@ namespace fCraft {
                             return;
                         }
                         if( pingCounter > PingInterval ) {
+#if DEBUG_NETWORKING
+                            Logger.Log( LogType.Trace, "to {0} [{1}] Ping", IP, outPacketNumber++ );
+#endif
                             writer.Write( OpCode.Ping );
                             BytesSent++;
                             pingCounter = 0;
@@ -163,8 +166,11 @@ namespace fCraft {
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
                         if( !priorityOutputQueue.Dequeue( ref packet ) )
                             if( !outputQueue.Dequeue( ref packet ) ) break;
-
                         if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
+
+#if DEBUG_NETWORKING
+                        Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
+#endif
 
                         writer.Write( packet.Bytes );
                         BytesSent += packet.Bytes.Length;
@@ -187,6 +193,9 @@ namespace fCraft {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
                                 while( priorityOutputQueue.Dequeue( ref packet ) ) {
+#if DEBUG_NETWORKING
+                                    Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
+#endif
                                     writer.Write( packet.Bytes );
                                     BytesSent += packet.Bytes.Length;
                                     packetsSent++;
@@ -218,18 +227,30 @@ namespace fCraft {
                         switch( (OpCode)opcode ) {
 
                             case OpCode.Message:
+#if DEBUG_NETWORKING
+                                Logger.Log( LogType.Trace, "from {0} [{1}] Message", IP, inPacketNumber++ );
+#endif
                                 if( !ProcessMessagePacket() ) return;
                                 break;
 
                             case OpCode.Teleport:
+#if DEBUG_NETWORKING
+                                Logger.Log( LogType.Trace, "from {0} [{1}] Teleport", IP, inPacketNumber++ );
+#endif
                                 ProcessMovementPacket();
                                 break;
 
                             case OpCode.SetBlockClient:
+#if DEBUG_NETWORKING
+                                Logger.Log( LogType.Trace, "from {0} [{1}] SetBlockClient", IP, inPacketNumber++ );
+#endif
                                 ProcessSetBlockPacket();
                                 break;
 
                             case OpCode.Ping:
+#if DEBUG_NETWORKING
+                                Logger.Log( LogType.Trace, "from {0} [{1}] Ping", IP, inPacketNumber++ );
+#endif
                                 BytesReceived++;
                                 continue;
 
@@ -456,6 +477,10 @@ namespace fCraft {
 
         bool LoginSequence() {
             byte opcode = reader.ReadByte();
+
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "from {0} [{1}] {2}", IP, outPacketNumber++, (OpCode)opcode );
+#endif
 
             switch( opcode ) {
                 case (byte)OpCode.Handshake:
@@ -986,6 +1011,9 @@ namespace fCraft {
                 SendNow( Packet.MakeHandshake( this, textLine1, textLine2 ) );
             }
 
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "to {0} [{1}] MapBegin", IP, outPacketNumber++ );
+#endif
             writer.Write( OpCode.MapBegin );
             BytesSent++;
 
@@ -1020,6 +1048,9 @@ namespace fCraft {
                 writer.Write( (short)chunkSize );
                 writer.Write( buffer, 0, 1024 );
                 writer.Write( progress );
+#if DEBUG_NETWORKING
+                Logger.Log( LogType.Trace, "to {0} [{1}] MapChunk", IP, outPacketNumber++ );
+#endif
                 BytesSent += 1028;
                 mapBytesSent += chunkSize;
             }
@@ -1028,6 +1059,9 @@ namespace fCraft {
             client.NoDelay = ConfigKey.LowLatencyMode.Enabled();
 
             // Done sending over level copy
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "to {0} [{1}] MapEnd", IP, outPacketNumber++ );
+#endif
             writer.Write( OpCode.MapEnd );
             writer.Write( (short)map.Width );
             writer.Write( (short)map.Height );
@@ -1035,12 +1069,18 @@ namespace fCraft {
             BytesSent += 7;
 
             // Sets player's spawn point to map spawn
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "to {0} [{1}] AddEntity", IP, outPacketNumber++ );
+#endif
             writer.Write( Packet.MakeAddEntity( Packet.SelfID, ListName, map.Spawn ).Bytes );
             BytesSent += 74;
 
             // Teleport player to the target location
             // This allows preserving spawn rotation/look, and allows
             // teleporting player to a specific location (e.g. /TP or /Bring)
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "to {0} [{1}] Teleport", IP, outPacketNumber++ );
+#endif
             writer.Write( Packet.MakeTeleport( Packet.SelfID, Position ).Bytes );
             BytesSent += 10;
 
@@ -1073,6 +1113,9 @@ namespace fCraft {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
             }
+#if DEBUG_NETWORKING
+            Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
+#endif
             writer.Write( packet.Bytes );
             BytesSent += packet.Bytes.Length;
         }
@@ -1586,6 +1629,11 @@ namespace fCraft {
             lastBytesReceived = BytesReceived;
             lastMeasurementDate = DateTime.UtcNow;
         }
+
+#if DEBUG_NETWORKING
+        int inPacketNumber = 0,
+            outPacketNumber = 0;
+#endif
 
         #endregion
     }
