@@ -1631,8 +1631,8 @@ namespace fCraft {
         }
 
 #if DEBUG_NETWORKING
-        int inPacketNumber = 0,
-            outPacketNumber = 0;
+        int inPacketNumber,
+            outPacketNumber;
 #endif
 
         #endregion
