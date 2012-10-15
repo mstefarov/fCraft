@@ -67,7 +67,7 @@ namespace fCraft {
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             int thisAsInt = thisAddr.AsInt();
             int mask = (int)NetMask( range );
-            return new IPAddress( IPAddress.HostToNetworkOrder( thisAsInt & mask ) );
+            return new IPAddress( (uint)IPAddress.HostToNetworkOrder( thisAsInt & mask ) );
         }
 
 
