@@ -61,6 +61,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds the starting IPv4 address of the given address range. </summary>
+        /// <exception cref="ArgumentNullException"> thisAddr is null </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> range is over 32 </exception>
         [NotNull]
         public static IPAddress RangeMin( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
@@ -71,6 +74,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds the ending IPv4 address of the given address range. </summary>
+        /// <exception cref="ArgumentNullException"> thisAddr is null </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> range is over 32 </exception>
         [NotNull]
         public static IPAddress RangeMax( [NotNull] this IPAddress thisAddr, byte range ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
@@ -81,6 +87,8 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates an IPv4 mask for the given CIDR range. </summary>
+        /// <exception cref="ArgumentOutOfRangeException"> range is over 32 </exception>
         public static uint NetMask( byte range ) {
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             if( range == 0 ) {

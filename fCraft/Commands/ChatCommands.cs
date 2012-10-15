@@ -245,6 +245,11 @@ namespace fCraft {
                 min = 1;
                 max = 100;
             }
+            if( max == Int32.MaxValue - 1 ) {
+                player.Message( "Roll: Given values must be between {0} and {1}",
+                                Int32.MinValue, Int32.MaxValue - 1 );
+                return;
+            }
 
             int num = rand.Next( min, max + 1 );
             Server.Message( player,
