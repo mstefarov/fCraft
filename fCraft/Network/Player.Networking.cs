@@ -272,10 +272,16 @@ namespace fCraft {
                     Thread.Sleep( SleepDelay );
                 }
 
-            } catch( IOException ) {
+            } catch( IOException ex ) {
+#if DEBUG_NETWORKING
+                Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
+#endif
                 LeaveReason = LeaveReason.ClientQuit;
 
-            } catch( SocketException ) {
+            } catch( SocketException ex ) {
+#if DEBUG_NETWORKING
+                Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
+#endif
                 LeaveReason = LeaveReason.ClientQuit;
 #if !DEBUG
             } catch( Exception ex ) {
@@ -1049,7 +1055,7 @@ namespace fCraft {
                 writer.Write( buffer, 0, 1024 );
                 writer.Write( progress );
 #if DEBUG_NETWORKING
-                Logger.Log( LogType.Trace, "to {0} [{1}] MapChunk", IP, outPacketNumber++ );
+                Logger.Log( LogType.Trace, "to {0} [{1}] MapChunk({2}%)", IP, outPacketNumber++, progress );
 #endif
                 BytesSent += 1028;
                 mapBytesSent += chunkSize;
