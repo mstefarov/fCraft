@@ -139,7 +139,8 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
         [NotNull, Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] Func<T, string> stringConversionFunction ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items,
+                                              [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
             StringBuilder sb = new StringBuilder();
@@ -156,7 +157,8 @@ namespace fCraft {
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before contactenation. </summary>
         [NotNull, Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator, [NotNull] Func<T, string> stringConversionFunction ) {
+        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator,
+                                              [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
             if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
@@ -445,9 +447,10 @@ namespace fCraft {
                 output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
                 return Enum.IsDefined( typeof( TEnum ), output );
             } catch( ArgumentException ) {
-                output = default( TEnum );
-                return false;
+            } catch( OverflowException ) {
             }
+            output = default( TEnum );
+            return false;
         }
     }
 }

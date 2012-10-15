@@ -906,7 +906,12 @@ namespace fCraft {
             request.UserAgent = Updater.UserAgent;
 
             try {
-                using( WebResponse response = request.GetResponse() ) {
+                using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
+                    if( response.StatusCode != HttpStatusCode.OK ) {
+                        Logger.Log( LogType.Warning,
+                                    "Could not check external IP: {0}", response.StatusDescription );
+                        return null;
+                    }
                     // ReSharper disable AssignNullToNotNullAttribute
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute

@@ -92,8 +92,13 @@ namespace fCraft {
                 return;
             }
 
-            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
-                player.MessageUnsafePath();
+            try {
+                if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
+                    player.MessageUnsafePath();
+                    return;
+                }
+            } catch( ArgumentException e ) {
+                player.Message( "DumpStats: {0}", e.Message );
                 return;
             }
 
