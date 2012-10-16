@@ -52,17 +52,38 @@ namespace fCraft {
     }
 
 
-    internal sealed class StringKeyAttribute : ConfigKeyAttribute {
+    sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
+
+
         public StringKeyAttribute( ConfigSection section, object defaultValue, string description )
             : base( section, typeof( string ), defaultValue, description ) {
             MinLength = NoLengthRestriction;
             MaxLength = NoLengthRestriction;
-            Regex = null;
         }
+
+
         public int MinLength { get; set; }
         public int MaxLength { get; set; }
-        public Regex Regex { get; set; }
+        Regex regex;
+
+        public string RegexString {
+            get {
+                if( regex != null ) {
+                    return regex.ToString();
+                } else {
+                    return null;
+                }
+            }
+            set {
+                if( value == null ) {
+                    regex = null;
+                } else {
+                    regex = new Regex( value );
+                }
+            }
+        }
+
         public bool RestrictedChars { get; set; }
 
 
@@ -79,9 +100,9 @@ namespace fCraft {
             if( RestrictedChars && Chat.ContainsInvalidChars( value ) ) {
                 throw new FormatException( String.Format( "Value contains restricted characters." ) );
             }
-            if( Regex != null && !Regex.IsMatch( value ) ) {
+            if( regex != null && !regex.IsMatch( value ) ) {
                 throw new FormatException( String.Format( "Value does not match the expected format: /{0}/.",
-                                                          Regex ) );
+                                                          RegexString ) );
             }
         }
     }
