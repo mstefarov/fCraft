@@ -441,6 +441,7 @@ namespace fCraft {
         /// <param name="output"> Parsed enumeration to output. Set to default(TEnum) on failure. </param>
         /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
         /// <returns> Whether parsing succeeded. </returns>
+        /// <exception cref="ArgumentNullException"> value is null. </exception>
         public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
             if( value == null ) throw new ArgumentNullException( "value" );
             try {
