@@ -374,6 +374,11 @@ namespace fCraft {
         #region Loading
 
         internal static PlayerInfo LoadFormat2( string[] fields ) {
+            if( fields.Length < 44 ) {
+                throw new FormatException( "PlayerInfo record did not contain all the expected information. " +
+                                           "This record, or maybe the whole file, may be corrupted." );
+            }
+
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {

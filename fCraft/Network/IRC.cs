@@ -41,7 +41,6 @@ namespace fCraft {
 
     /// <summary> IRC control class. </summary>
     public static class IRC {
-        /// <summary> String that resets formatting for following part of an IRC message. </summary>
         const string ResetReplacement = "\u0003\u000F",
                      BoldReplacement = "\u0002";
         public const string ResetCode = "\u211C",
@@ -156,7 +155,10 @@ namespace fCraft {
 
                             if( client.Client.Available > 0 ) {
                                 string line = reader.ReadLine();
-                                if( line == null ) break;
+                                if( line == null ) {
+                                    reconnect = true;
+                                    break;
+                                }
                                 HandleMessage( line );
                             }
                         }
@@ -508,16 +510,6 @@ namespace fCraft {
             line = String.Format( "\u0001ACTION {0}\u0001", line );
             for( int i = 0; i < channelNames.Length; i++ ) {
                 SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
-            }
-        }
-
-
-        public static void SendNotice( [NotNull] string line ) {
-            if( line == null ) throw new ArgumentNullException( "line" );
-            if( channelNames == null ) return; // in case IRC bot is disabled.
-            line = ProcessMessageToIRC( line );
-            for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Notice( channelNames[i], line ) );
             }
         }
 
