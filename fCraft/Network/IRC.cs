@@ -45,6 +45,10 @@ namespace fCraft {
                      BoldReplacement = "\u0002";
         public const string ResetCode = "\u211C",
                             BoldCode = "\u212C";
+        static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z", RegexOptions.IgnoreCase ),
+                              UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$", RegexOptions.IgnoreCase ),
+                              MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
+        static int userHostLength = 60, maxNickLength = 30;
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
@@ -63,7 +67,7 @@ namespace fCraft {
             public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
-            string userhost;
+            int nickTry = 0;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
@@ -132,6 +136,7 @@ namespace fCraft {
                         // register
                         Send( IRCCommands.User( ActualBotNick, 8, ConfigKey.ServerName.GetString() ) );
                         Send( IRCCommands.Nick( ActualBotNick ) );
+                        nickTry = 0;
 
                         while( isConnected && !reconnect ) {
                             Thread.Sleep( 10 );
@@ -139,7 +144,9 @@ namespace fCraft {
                             if( localQueue.Length > 0 &&
                                 DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
                                 localQueue.Dequeue( ref outputLine ) ) {
-
+#if DEBUG_IRC
+                                Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
+#endif
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
@@ -148,7 +155,9 @@ namespace fCraft {
                             if( OutputQueue.Length > 0 &&
                                 DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
                                 OutputQueue.Dequeue( ref outputLine ) ) {
-
+#if DEBUG_IRC
+                                Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
+#endif
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
@@ -191,21 +200,30 @@ namespace fCraft {
                 IRCMessage msg = MessageParser( message, ActualBotNick );
 #if DEBUG_IRC
                 Logger.Log( LogType.IRCStatus,
-                            "[{0}.{1}]: {2}",
+                            "[{0}.{1}] {2}",
                             msg.Type, msg.ReplyCode, msg.RawMessage );
 #endif
 
                 switch( msg.Type ) {
                     case IRCMessageType.Login:
-                        if( ConfigKey.IRCRegisteredNick.Enabled() ) {
-                            Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
-                                                       ConfigKey.IRCNickServMessage.GetString() ) );
+                        if( msg.ReplyCode == IRCReplyCode.Welcome ) {
+                            if( ConfigKey.IRCRegisteredNick.Enabled() ) {
+                                Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
+                                                           ConfigKey.IRCNickServMessage.GetString() ) );
+                            }
+                            foreach( string channel in channelNames ) {
+                                Send( IRCCommands.Join( channel ) );
+                            }
+                            IsReady = true;
+                            Send( IRCCommands.Userhost( ActualBotNick ) );
+                            AssignBotForInputParsing(); // bot should be ready to receive input after joining
+                        } else if( msg.ReplyCode == IRCReplyCode.Bounce ) {
+                            Match nickLenMatch = MaxNickLengthRegex.Match( msg.Message );
+                            int maxNickLengthTemp;
+                            if( nickLenMatch.Success && Int32.TryParse( nickLenMatch.Groups[1].Value, out maxNickLengthTemp ) ) {
+                                maxNickLength = maxNickLengthTemp;
+                            }
                         }
-                        foreach( string channel in channelNames ) {
-                            Send( IRCCommands.Join( channel ) );
-                        }
-                        IsReady = true;
-                        AssignBotForInputParsing(); // bot should be ready to receive input after joining
                         return;
 
 
@@ -300,11 +318,18 @@ namespace fCraft {
 
 
                     case IRCMessageType.NickChange:
-                        if( !ResponsibleForInputParsing ) return;
-                        Server.Message( "&i(IRC) {0} is now known as {1}",
+                        if( msg.Nick == ActualBotNick ) {
+                            ActualBotNick = msg.Message;
+                            nickTry = 0;
+                            Logger.Log( LogType.IRCStatus,
+                                        "Bot was forcefully renamed from {0} to {1}",
                                         msg.Nick, msg.Message );
+                        } else {
+                            if( !ResponsibleForInputParsing ) return;
+                            Server.Message( "&i(IRC) {0} is now known as {1}",
+                                            msg.Nick, msg.Message );
+                        }
                         return;
-
 
                     case IRCMessageType.ErrorMessage:
                     case IRCMessageType.Error:
@@ -312,11 +337,22 @@ namespace fCraft {
                         switch( msg.ReplyCode ) {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
+                                string oldActualBotNick = ActualBotNick;
+                                if( ActualBotNick.Length < maxNickLength ) {
+                                    ActualBotNick += "_";
+                                } else {
+                                    nickTry++;
+                                    if( desiredBotNick.Length + nickTry / 10 + 1 > maxNickLength ) {
+                                        ActualBotNick = desiredBotNick.Substring( 0, maxNickLength - nickTry / 10 - 1 ) + nickTry;
+                                    } else {
+                                        ActualBotNick = desiredBotNick + nickTry;
+                                    }
+                                }
                                 Logger.Log( LogType.IRCStatus,
-                                            "Error: Nickname \"{0}\" is already in use. Trying \"{0}_\"",
-                                            ActualBotNick );
-                                ActualBotNick += "_";
+                                            "Error: Nickname \"{0}\" is already in use. Trying \"{1}\"",
+                                            oldActualBotNick, ActualBotNick );
                                 Send( IRCCommands.Nick( ActualBotNick ) );
+                                Send( IRCCommands.Userhost( ActualBotNick ) );
                                 break;
 
                             case IRCReplyCode.ErrorBannedFromChannel:
@@ -363,6 +399,15 @@ namespace fCraft {
                                     hostName, msg.Nick, msg.Message );
                         reconnect = true;
                         isConnected = false;
+                        return;
+
+                    case IRCMessageType.Unknown:
+                        if( msg.ReplyCode == IRCReplyCode.UserHost ) {
+                            Match match = UserHostRegex.Match( msg.Message );
+                            if( match.Success ) {
+                                userHostLength = match.Groups[1].Length;
+                            }
+                        }
                         return;
                 }
             }
@@ -465,6 +510,11 @@ namespace fCraft {
 
 
         public static bool Start() {
+            if( !IrcNickRegex.IsMatch( botNick ) ) {
+                Logger.Log( LogType.Error, "IRC: Unacceptable bot nick." );
+                return false;
+            }
+
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
             if( threadCount == 1 ) {
@@ -488,7 +538,7 @@ namespace fCraft {
                 HookUpHandlers();
                 return true;
             } else {
-                Logger.Log( LogType.IRCStatus, "IRC functionality disabled." );
+                Logger.Log( LogType.IRCStatus, "IRC: Set IRCThreads to 1." );
                 return false;
             }
         }
@@ -528,7 +578,7 @@ namespace fCraft {
             }
 
             // handle line wrapping
-            int maxContentLength = MaxMessageSize - prefix.Length - suffix.Length;
+            int maxContentLength = MaxMessageSize - prefix.Length - suffix.Length - userHostLength - 3 - maxNickLength;
             if( line.Length > maxContentLength ) {
                 SendRawMessage( prefix, line.Substring( 0, maxContentLength ), suffix );
                 int offset = maxContentLength;

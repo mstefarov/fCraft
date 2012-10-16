@@ -333,7 +333,7 @@ Note that encrypted IRC (via SSL) is not supported." )]
         [StringKey( ConfigSection.IRC, "MinecraftBot",
 @"IRC bot's nickname. If the nickname is taken, fCraft will append
 an underscore (_) to the name and retry.",
-            MinLength = 1, MaxLength = 32 )]
+            MinLength = 1, MaxLength = 30 )]
         IRCBotNick,
 
         [StringKey( ConfigSection.IRC, "irc.esper.net",
@@ -400,7 +400,7 @@ or requires identification/authentication." )]
 @"Whether emotes in servers messages should be shown on IRC." )]
         IRCShowEmotesFromServer,
 
-        [BoolKey(ConfigSection.IRC, false,
+        [BoolKey( ConfigSection.IRC, false,
 @"Whether colors in IRC messages (both ^K colorcodes and &-colorcodes) should be shown in-game." )]
         IRCShowColorsFromIRC,
 
@@ -421,7 +421,7 @@ Using multiple bots helps bypass message rate limits on some servers.
 Note that some networks frown upon having multiple connections from one IP.
 It is recommended to leave this at 1 unless you are having specific issues
 with IRC bots falling behind on messages.",
-            MinValue = 1, MaxValue=3 )]
+            MinValue = 1, MaxValue = 3 )]
         IRCThreads,
 
         #endregion
