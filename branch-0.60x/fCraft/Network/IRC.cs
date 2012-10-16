@@ -63,6 +63,7 @@ namespace fCraft {
             public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
+            string userhost;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
@@ -190,8 +191,8 @@ namespace fCraft {
                 IRCMessage msg = MessageParser( message, ActualBotNick );
 #if DEBUG_IRC
                 Logger.Log( LogType.IRCStatus,
-                            "[{0}]: {1}",
-                            msg.Type, msg.RawMessage );
+                            "[{0}.{1}]: {2}",
+                            msg.Type, msg.ReplyCode, msg.RawMessage );
 #endif
 
                 switch( msg.Type ) {
@@ -498,7 +499,7 @@ namespace fCraft {
             if( channelNames == null ) return; // in case IRC bot is disabled.
             line = ProcessMessageToIRC( line );
             for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
+                SendRawMessage( IRCCommands.Privmsg( channelNames[i], ""), line, "" );
             }
         }
 
@@ -507,42 +508,40 @@ namespace fCraft {
             if( line == null ) throw new ArgumentNullException( "line" );
             if( channelNames == null ) return; // in case IRC bot is disabled.
             line = ProcessMessageToIRC( line );
-            line = String.Format( "\u0001ACTION {0}\u0001", line );
             for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Privmsg( channelNames[i], line ) );
+                SendRawMessage( IRCCommands.Privmsg( channelNames[i], "\u0001ACTION " ), line, "\u0001" );
             }
         }
 
 
         const int MaxMessageSize = 510; // +2 bytes for CR-LF
-        public static void SendRawMessage( [NotNull] string line ) {
+        public static void SendRawMessage( string prefix, [NotNull] string line, string suffix ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             // handle newlines
             if( line.Contains( '\n' ) ) {
-                string prefix = line.Substring( 0, line.IndexOf( ':' ) + 1 );
-                string[] segments = line.Substring( prefix.Length ).Split( '\n' );
-                SendRawMessage( prefix + segments[0] );
+                string[] segments = line.Split( '\n' );
+                SendRawMessage( prefix, segments[0], suffix );
                 for( int i = 1; i < segments.Length; i++ ) {
-                    SendRawMessage( prefix + "> " + segments[i] );
+                    SendRawMessage( prefix, "> " + segments[i], suffix );
                 }
                 return;
             }
 
             // handle line wrapping
-            if( line.Length > MaxMessageSize ) {
-                string prefix = line.Substring( 0, line.IndexOf( ':' ) + 1 );
-                SendRawMessage( line.Substring( 0, MaxMessageSize ) );
-                int offset = MaxMessageSize;
+            int maxContentLength = MaxMessageSize - prefix.Length - suffix.Length;
+            if( line.Length > maxContentLength ) {
+                SendRawMessage( prefix, line.Substring( 0, maxContentLength ), suffix );
+                int offset = maxContentLength;
                 while( offset < line.Length ) {
-                    int length = Math.Min( line.Length - offset, MaxMessageSize - prefix.Length );
-                    SendRawMessage( prefix + "> " + line.Substring( offset, length - 2 ) );
+                    int length = Math.Min( line.Length - offset, maxContentLength - 2 );
+                    SendRawMessage( prefix, "> " + line.Substring( offset, length ), suffix );
                     offset += length;
                 }
                 return;
             }
 
             // actually send
-            OutputQueue.Enqueue( line );
+            OutputQueue.Enqueue( prefix + line + suffix );
         }
 
 
@@ -783,6 +782,9 @@ namespace fCraft {
                     case IRCReplyCode.MyInfo:
                     case IRCReplyCode.Bounce:
                         return IRCMessageType.Login;
+                    case IRCReplyCode.StatsConn:
+                    case IRCReplyCode.LocalUsers:
+                    case IRCReplyCode.GlobalUsers:
                     case IRCReplyCode.LuserClient:
                     case IRCReplyCode.LuserOp:
                     case IRCReplyCode.LuserUnknown:
@@ -1075,6 +1077,7 @@ namespace fCraft {
         ServiceListEnd = 235,
         StatsUptime = 242,
         StatsOLine = 243,
+        StatsConn = 250,
         LuserClient = 251,
         LuserOp = 252,
         LuserUnknown = 253,
@@ -1087,6 +1090,8 @@ namespace fCraft {
         TraceLog = 261,
         TraceEnd = 262,
         TryAgain = 263,
+        LocalUsers = 265,
+        GlobalUsers = 266,
         Away = 301,
         UserHost = 302,
         IsOn = 303,
