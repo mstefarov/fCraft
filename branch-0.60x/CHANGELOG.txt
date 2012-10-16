@@ -1,3 +1,13 @@
+0.637
+ Feature: Added /Emotes command, to list emotes and their keywords.
+ Fix: Fixed IRC bot cutting off very long messages.
+ Fix: Fixed /Info not working with some IP ranges (thanks _BjorN64_).
+ Fix: Fixed single-letter emote keywords not working (thanks Wundsalz).
+ Fix: Improved the way IRC bot handles nick conflicts (thanks Jonty800).
+ Fix: /DumpStats no longer dies when an invalid filename is given (thanks Hellenion)
+ Change: Added a new build configuration, DEBUG_NETWORKING, which traces all incoming and outgoing packets.
+ Change: IRC bot now logs all outgoing messages when built in DEBUG_IRC configuration.
+
 0.636
  Feature: Check your configs! New options were added to control display of colors and emotes to/from IRC.
  Feature: Added {house} emote (0x7F).
