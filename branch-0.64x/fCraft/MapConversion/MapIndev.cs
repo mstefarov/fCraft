@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using LibNbt;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
@@ -44,7 +45,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                     BinaryReader bs = new BinaryReader( gs );
-                    return ( bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" );
+                    return ( bs.ReadByte() == (byte)NbtTagType.Compound );
                 }
             } catch( Exception ) {
                 return false;
@@ -62,31 +63,31 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                NBTag tag = NBTag.ReadStream( gs );
+            NbtFile file = new NbtFile( fileName );
+            if( file.RootTag == null ) throw new MapFormatException( "No root tag" );
 
-                NBTag mapTag = tag["Map"];
-                // ReSharper disable UseObjectOrCollectionInitializer
-                Map map = new Map( null,
-                                   mapTag["Width"].GetShort(),
-                                   mapTag["Length"].GetShort(),
-                                   mapTag["Height"].GetShort(),
-                                   false );
-                // ReSharper restore UseObjectOrCollectionInitializer
-                map.Spawn = new Position {
-                    X = mapTag["Spawn"][0].GetShort(),
-                    Z = mapTag["Spawn"][1].GetShort(),
-                    Y = mapTag["Spawn"][2].GetShort(),
-                    R = 0,
-                    L = 0
-                };
+            NbtCompound mapTag = file.RootTag.Get<NbtCompound>( "Map" );
+            if( mapTag == null ) throw new MapFormatException( "No Map tag" );
 
-                map.Blocks = mapTag["Blocks"].GetBytes();
-                map.RemoveUnknownBlocktypes();
+            // ReSharper disable UseObjectOrCollectionInitializer
+            Map map = new Map( null,
+                               mapTag["Width"].ShortValue,
+                               mapTag["Length"].ShortValue,
+                               mapTag["Height"].ShortValue,
+                               false );
+            // ReSharper restore UseObjectOrCollectionInitializer
+            map.Spawn = new Position {
+                X = mapTag["Spawn"][0].ShortValue,
+                Z = mapTag["Spawn"][1].ShortValue,
+                Y = mapTag["Spawn"][2].ShortValue,
+                R = 0,
+                L = 0
+            };
 
-                return map;
-            }
+            map.Blocks = mapTag["Blocks"].ByteArrayValue;
+            map.RemoveUnknownBlocktypes();
+
+            return map;
         }
     }
 }

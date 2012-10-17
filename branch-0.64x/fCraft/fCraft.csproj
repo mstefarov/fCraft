@@ -89,6 +89,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="LibNbt, Version=0.3.0.0, Culture=neutral, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -131,7 +132,6 @@
     <Compile Include="MapConversion\MapMinerCPP.cs" />
     <Compile Include="MapConversion\MapIndev.cs" />
     <Compile Include="MapConversion\MapUtility.cs" />
-    <Compile Include="MapConversion\NBTag.cs" />
     <Compile Include="Network\IRC.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCCommands.cs" />
@@ -283,6 +283,11 @@
     <Compile Include="Player\PlayerInfo.Events.cs" />
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LibNbt.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
