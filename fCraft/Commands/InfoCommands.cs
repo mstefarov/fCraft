@@ -834,7 +834,7 @@ namespace fCraft {
                         ruleFileName = sectionFiles[i];
 
                     } else {
-                        var matches = sectionFiles.Select( f => Path.GetFileNameWithoutExtension( f ) )
+                        var matches = sectionFiles.Select( Path.GetFileNameWithoutExtension )
                                                   .Where( sn => sn != null && sn.StartsWith( sectionName, StringComparison.OrdinalIgnoreCase ) );
                         // if there are multiple matches, print a list
                         player.Message( "Multiple rule sections matched \"{0}\": {1}",
@@ -865,7 +865,7 @@ namespace fCraft {
         static string[] GetRuleSectionList() {
             if( Directory.Exists( Paths.RulesPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )
-                                             .Select( name => Path.GetFileNameWithoutExtension( name ) )
+                                             .Select( Path.GetFileNameWithoutExtension )
                                              .Where( name => !String.IsNullOrEmpty( name ) )
                                              .ToArray();
                 if( sections.Length != 0 ) {

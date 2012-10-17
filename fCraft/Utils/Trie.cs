@@ -665,7 +665,7 @@ namespace fCraft {
         }
 
 
-        void IDictionary.Add( object key, [NotNull] object value ) {
+        void IDictionary.Add( object key, object value ) {
             if( key == null ) {
                 throw new ArgumentNullException( "key" );
             }

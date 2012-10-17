@@ -350,7 +350,7 @@ namespace fCraft {
                 string parentDir = GetDirectoryNameOrRoot( fileInfo.FullName );
                 string[] files = Directory.GetFiles( parentDir, "*", SearchOption.TopDirectoryOnly );
                 StringComparison comparison = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
-                return files.Select( fullFileName => Path.GetFileName( fullFileName ) )
+                return files.Select( Path.GetFileName )
                             .Any( fileName => fileName.Equals( fileInfo.Name, comparison ) );
             }
         }
