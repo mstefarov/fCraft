@@ -1063,7 +1063,13 @@ namespace fCraft {
         }
 
         public TimeSpan TimeMutedLeft {
-            get { return MutedUntil.Subtract( DateTime.UtcNow ); }
+            get {
+                TimeSpan time = MutedUntil.Subtract( DateTime.UtcNow );
+                if( time >= TimeSpan.Zero ) {
+                    return time;
+                }
+                return TimeSpan.Zero;
+            }
         }
 
         #endregion
