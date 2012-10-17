@@ -75,14 +75,12 @@ namespace fCraft.MapConversion {
                                mapTag["Length"].ShortValue,
                                mapTag["Height"].ShortValue,
                                false );
-            // ReSharper restore UseObjectOrCollectionInitializer
             map.Spawn = new Position {
                 X = mapTag["Spawn"][0].ShortValue,
                 Z = mapTag["Spawn"][1].ShortValue,
-                Y = mapTag["Spawn"][2].ShortValue,
-                R = 0,
-                L = 0
+                Y = mapTag["Spawn"][2].ShortValue
             };
+            // ReSharper restore UseObjectOrCollectionInitializer
 
             map.Blocks = mapTag["Blocks"].ByteArrayValue;
             map.RemoveUnknownBlocktypes();

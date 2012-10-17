@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 //#define DEBUG_MOVEMENT
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -116,9 +117,7 @@ namespace fCraft {
 
                 BandwidthUseMode = Info.BandwidthUseMode;
 
-                // set up some temp variables
-                Packet packet = new Packet();
-
+                // used to time pings and polls
                 int pollCounter = 0,
                     pingCounter = 0;
 
@@ -163,9 +162,10 @@ namespace fCraft {
                     }
 
                     // send output to player
+                    Packet packet;
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( ref packet ) )
-                            if( !outputQueue.Dequeue( ref packet ) ) break;
+                        if( !priorityOutputQueue.TryDequeue( out packet ) )
+                            if( !outputQueue.TryDequeue( out packet ) ) break;
                         if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
 
 #if DEBUG_NETWORKING
@@ -192,7 +192,7 @@ namespace fCraft {
                     if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
-                                while( priorityOutputQueue.Dequeue( ref packet ) ) {
+                                while( priorityOutputQueue.TryDequeue( out packet ) ) {
 #if DEBUG_NETWORKING
                                     Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
 #endif
@@ -272,16 +272,18 @@ namespace fCraft {
                     Thread.Sleep( SleepDelay );
                 }
 
-            } catch( IOException ex ) {
 #if DEBUG_NETWORKING
+            } catch( IOException ex ) {
                 Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
 #endif
+            } catch( IOException ) {
                 LeaveReason = LeaveReason.ClientQuit;
 
-            } catch( SocketException ex ) {
 #if DEBUG_NETWORKING
+            } catch( SocketException ex ) {
                 Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
 #endif
+            } catch( SocketException ) {
                 LeaveReason = LeaveReason.ClientQuit;
 #if !DEBUG
             } catch( Exception ex ) {
@@ -1144,12 +1146,14 @@ namespace fCraft {
 
 
         public void ClearLowPriotityOutputQueue() {
-            outputQueue.Clear();
+            Packet temp;
+            while( outputQueue.Count > 0 ) outputQueue.TryDequeue( out temp );
         }
 
 
         public void ClearPriorityOutputQueue() {
-            priorityOutputQueue.Clear();
+            Packet temp;
+            while( priorityOutputQueue.Count > 0 ) priorityOutputQueue.TryDequeue( out temp );
         }
 
 

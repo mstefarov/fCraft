@@ -26,6 +26,7 @@
  */
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -67,7 +68,7 @@ namespace fCraft {
             public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
-            int nickTry = 0;
+            int nickTry;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
@@ -121,7 +122,6 @@ namespace fCraft {
 
             // runs in its own thread, started from Connect()
             void IoThread() {
-                string outputLine = "";
                 lastMessageSent = DateTime.UtcNow;
 
                 do {
@@ -141,9 +141,9 @@ namespace fCraft {
                         while( isConnected && !reconnect ) {
                             Thread.Sleep( 10 );
 
-                            if( localQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                localQueue.Dequeue( ref outputLine ) ) {
+                            string outputLine;
+                            if( DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
+                                localQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
                                 Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
 #endif
@@ -152,9 +152,8 @@ namespace fCraft {
                                 writer.Flush();
                             }
 
-                            if( OutputQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                OutputQueue.Dequeue( ref outputLine ) ) {
+                            if( DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
+                                OutputQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
                                 Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
 #endif
