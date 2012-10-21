@@ -21,11 +21,18 @@
             <returns> A string representing contants of this tag, and all child tags (if any). </returns>
             <exception cref="T:System.ArgumentNullException"> identString is null. </exception>
         </member>
+        <member name="P:LibNbt.NbtTag.Parent">
+            <summary> Parent compound tag, either NbtList or NbtCompound, if any. </summary>
+        </member>
         <member name="P:LibNbt.NbtTag.TagType">
             <summary> Type of this tag. </summary>
         </member>
         <member name="P:LibNbt.NbtTag.Name">
             <summary> Name of this tag. Immutable, and set by the constructor. May be null. </summary>
+        </member>
+        <member name="P:LibNbt.NbtTag.Path">
+            <summary> Gets the full name of this tag, including all parent tag names, separated by dots. 
+            Unnamed tags show up as empty strings. </summary>
         </member>
         <member name="P:LibNbt.NbtTag.Item(System.String)">
             <summary> Gets or sets the tag with the specified name. May return null. </summary>
@@ -239,7 +246,7 @@
             <exception cref="T:System.ArgumentException"> If given rootTag is unnamed. </exception>
         </member>
         <member name="M:LibNbt.NbtFile.#ctor(System.String)">
-            <summary> Loads NBT data from a file. Compression will be auto-detected. </summary>
+            <summary> Loads NBT data from a file. Automatically detects compression. </summary>
             <param name="fileName"> Name of the file from which data will be loaded. </param>
             <exception cref="T:System.ArgumentNullException"> <paramref name="fileName"/> is null. </exception>
             <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
@@ -249,10 +256,11 @@
             <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
             <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
         </member>
-        <member name="M:LibNbt.NbtFile.#ctor(System.String,LibNbt.NbtCompression)">
+        <member name="M:LibNbt.NbtFile.#ctor(System.String,LibNbt.NbtCompression,LibNbt.TagSelector)">
             <summary> Loads NBT data from a file. </summary>
             <param name="fileName"> Name of the file from which data will be loaded. </param>
             <param name="compression"> Compression method to use for loading/saving this file. </param>
+            <param name="selector"> Optional callback to select which tags to load into memory. Root may not be skipped. May be null. </param>
             <exception cref="T:System.ArgumentNullException"> <paramref name="fileName"/> is null. </exception>
             <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
             <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
@@ -261,10 +269,11 @@
             <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
             <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
         </member>
-        <member name="M:LibNbt.NbtFile.#ctor(System.IO.Stream,LibNbt.NbtCompression)">
+        <member name="M:LibNbt.NbtFile.#ctor(System.IO.Stream,LibNbt.NbtCompression,LibNbt.TagSelector)">
             <summary> Loads NBT data from a stream. </summary>
             <param name="stream"> Stream from which data will be loaded. If compression is set to AutoDetect, this stream must support seeking. </param>
             <param name="compression"> Compression method to use for loading/saving this file. </param>
+            <param name="selector"> Optional callback to select which tags to load into memory. Root may not be skipped. May be null. </param>
             <exception cref="T:System.ArgumentNullException"> <paramref name="stream"/> is null. </exception>
             <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
             <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
@@ -284,10 +293,11 @@
             <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
             <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
         </member>
-        <member name="M:LibNbt.NbtFile.LoadFromFile(System.String,LibNbt.NbtCompression)">
+        <member name="M:LibNbt.NbtFile.LoadFromFile(System.String,LibNbt.NbtCompression,LibNbt.TagSelector)">
             <summary> Loads NBT data from a file. Existing RootTag will be replaced. </summary>
             <param name="fileName"> Name of the file from which data will be loaded. </param>
             <param name="compression"> Compression method to use for loading/saving this file. </param>
+            <param name="selector"> Optional callback to select which tags to load into memory. Root may not be skipped. May be null. </param>
             <exception cref="T:System.ArgumentNullException"> <paramref name="fileName"/> is null. </exception>
             <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
             <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
@@ -296,13 +306,13 @@
             <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
             <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
         </member>
-        <member name="M:LibNbt.NbtFile.LoadFromStream(System.IO.Stream,LibNbt.NbtCompression)">
+        <member name="M:LibNbt.NbtFile.LoadFromStream(System.IO.Stream,LibNbt.NbtCompression,LibNbt.TagSelector)">
             <summary> Loads NBT data from a stream. Existing RootTag will be replaced </summary>
             <param name="stream"> Stream from which data will be loaded. If compression is set to AutoDetect, this stream must support seeking. </param>
             <param name="compression"> Compression method to use for loading/saving this file. </param>
+            <param name="selector"> Optional callback to select which tags to load into memory. Root may not be skipped. May be null. </param>
             <exception cref="T:System.ArgumentNullException"> <paramref name="stream"/> is null. </exception>
             <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
-            <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
             <exception cref="T:System.NotSupportedException"> If compression is set to AutoDetect, but the stream is not seekable. </exception>
             <exception cref="T:System.IO.EndOfStreamException"> If file ended earlier than expected. </exception>
             <exception cref="T:System.IO.InvalidDataException"> If file compression could not be detected, decompressing failed, or given stream does not support reading. </exception>
@@ -331,6 +341,40 @@
             <exception cref="T:System.IO.InvalidDataException"> If given stream does not support writing. </exception>
             <exception cref="T:LibNbt.NbtFormatException"> If one of the NbtCompound tags contained unnamed tags;
             or if an NbtList tag had Unknown list type and no elements. </exception>
+        </member>
+        <member name="M:LibNbt.NbtFile.ReadRootTagName(System.String)">
+            <summary> Reads the root name from the given NBT file. Automatically detects compression. </summary>
+            <param name="fileName"> Name of the file from which first tag will be read. </param>
+            <exception cref="T:System.ArgumentNullException"> <paramref name="fileName"/> is null. </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
+            <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
+            <exception cref="T:System.IO.EndOfStreamException"> If file ended earlier than expected. </exception>
+            <exception cref="T:System.IO.InvalidDataException"> If file compression could not be detected, or decompressing failed. </exception>
+            <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
+            <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
+        </member>
+        <member name="M:LibNbt.NbtFile.ReadRootTagName(System.String,LibNbt.NbtCompression)">
+            <summary> Reads the root name from the given NBT file. </summary>
+            <param name="fileName"> Name of the file from which data will be loaded. </param>
+            <param name="compression"> Format in which the given file is compressed. </param>
+            <exception cref="T:System.ArgumentNullException"> <paramref name="fileName"/> is null. </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
+            <exception cref="T:System.IO.FileNotFoundException"> If given file was not found. </exception>
+            <exception cref="T:System.IO.EndOfStreamException"> If file ended earlier than expected. </exception>
+            <exception cref="T:System.IO.InvalidDataException"> If file compression could not be detected, or decompressing failed. </exception>
+            <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
+            <exception cref="T:System.IO.IOException"> If an I/O error occurred while reading the file. </exception>
+        </member>
+        <member name="M:LibNbt.NbtFile.ReadRootTagName(System.IO.Stream,LibNbt.NbtCompression)">
+            <summary> Reads the root name from the given stream of NBT data. </summary>
+            <param name="stream"> Stream from which data will be loaded. If compression is set to AutoDetect, this stream must support seeking. </param>
+            <param name="compression"> Compression method to use for loading/saving this file. </param>
+            <exception cref="T:System.ArgumentNullException"> <paramref name="stream"/> is null. </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"> If an unrecognized/unsupported value was given for compression. </exception>
+            <exception cref="T:System.NotSupportedException"> If compression is set to AutoDetect, but the stream is not seekable. </exception>
+            <exception cref="T:System.IO.EndOfStreamException"> If file ended earlier than expected. </exception>
+            <exception cref="T:System.IO.InvalidDataException"> If file compression could not be detected, decompressing failed, or given stream does not support reading. </exception>
+            <exception cref="T:LibNbt.NbtFormatException"> If an error occured while parsing data in NBT format. </exception>
         </member>
         <member name="P:LibNbt.NbtFile.FileName">
             <summary> Gets the file name used for most recent loading/saving of this file.
@@ -458,6 +502,11 @@
         </member>
         <member name="P:LibNbt.NbtDouble.Value">
             <summary> Value/payload of this tag (a double-precision floating point number). </summary>
+        </member>
+        <member name="T:LibNbt.TagSelector">
+            <summary> Delegate used to skip loading certain tags of an NBT stream/file. 
+            The callback should return "true" for any tag that should be read, and "false" for any tag that should be skipped. </summary>
+            <param name="tag"> Tag that is being read. Note that tag's value has not yet been read at this time. </param>
         </member>
         <member name="T:LibNbt.NbtInt">
             <summary> A tag containing a single signed 32-bit integer. </summary>
@@ -671,8 +720,8 @@
             <summary> Gets or sets the tag at the specified index. </summary>
             <returns> The tag at the specified index. </returns>
             <param name="tagIndex"> The zero-based index of the tag to get or set. </param>
-            <exception cref="T:System.ArgumentOutOfRangeException"> tagIndex is not a valid index in the NbtList. </exception>
-            <exception cref="T:System.ArgumentNullException"> Given tag is null. </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException"> <paramref name="tagIndex"/> is not a valid index in the NbtList. </exception>
+            <exception cref="T:System.ArgumentNullException"> <paramref name="value"/> is null. </exception>
             <exception cref="T:System.ArgumentException"> Given tag's type does not match ListType. </exception>
         </member>
         <member name="P:LibNbt.NbtList.Count">
@@ -806,8 +855,15 @@
             <summary> Gets or sets the tag with the specified name. May return null. </summary>
             <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
             <param name="tagName"> The name of the tag to get or set. Must match tag's actual name. </param>
-            <exception cref="T:System.ArgumentNullException"> <paramref name="tagName"/> is null, or if trying to assign null value. </exception>
-            <exception cref="T:System.ArgumentException"> <paramref name="tagName"/> does not match the given tag's actual name. </exception>
+            <exception cref="T:System.ArgumentNullException"> <paramref name="tagName"/> is null; or if trying to assign null value. </exception>
+            <exception cref="T:System.ArgumentException"> <paramref name="tagName"/> does not match the given tag's actual name;
+            or given tag already has a Parent. </exception>
+        </member>
+        <member name="P:LibNbt.NbtCompound.Names">
+            <summary> Gets a collection containing all tag names in this NbtCompound. </summary>
+        </member>
+        <member name="P:LibNbt.NbtCompound.Tags">
+            <summary> Gets a collection containing all tags in this NbtCompound. </summary>
         </member>
         <member name="P:LibNbt.NbtCompound.Count">
             <summary> Gets the number of tags contained in the NbtCompound. </summary>
