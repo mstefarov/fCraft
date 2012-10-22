@@ -124,6 +124,20 @@ namespace fCraft {
         }
 
 
+        public static TimeSpan ParseTimeSpan( [NotNull] string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
+            if( str.Length == 0 ) {
+                return TimeSpan.Zero;
+            }
+            long ticks;
+            if( Int64.TryParse( str, out ticks ) ) {
+                return new TimeSpan( ticks * TimeSpan.TicksPerSecond );
+            } else {
+                throw new FormatException( "Could not parse time span." );
+            }
+        }
+
+
         /// <summary> Tries to create a TimeSpan from a string containing the number of seconds.
         /// If the string was empty, returns false and sets result to TimeSpan.Zero </summary>
         /// <exception cref="ArgumentNullException"> str is null </exception>
