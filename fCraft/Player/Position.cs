@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Runtime.InteropServices;
+using LibNbt;
 
 namespace fCraft {
     /// <summary> Struct representing a position AND orientation in 3D space.
@@ -23,6 +24,15 @@ namespace fCraft {
             Z = z;
             R = r;
             L = l;
+        }
+
+
+        public Position( NbtCompound tag ) {
+            X = tag["X"].ShortValue;
+            Y = tag["Y"].ShortValue;
+            Z = tag["Z"].ShortValue;
+            R = tag["R"].ByteValue;
+            L = tag["L"].ByteValue;
         }
 
 
