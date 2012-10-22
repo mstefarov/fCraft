@@ -1176,7 +1176,7 @@ namespace fCraft {
         }
 
 
-        public void LoadSettings( [NotNull] NbtCompound tag ) {
+        internal void LoadSettings( [NotNull] NbtCompound tag ) {
             if( tag == null ) throw new ArgumentNullException( "tag" );
             NbtInt enabledStateTag = tag.Get<NbtInt>( "EnabledState" );
             if( enabledStateTag != null ) {
@@ -1248,7 +1248,7 @@ namespace fCraft {
         }
 
 
-        public void LoadSettings( XElement el ) {
+        internal void LoadSettings( XElement el ) {
             XAttribute temp;
             if( ( temp = el.Attribute( "enabled" ) ) != null ) {
                 YesNoAuto enabledStateTemp;
