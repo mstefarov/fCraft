@@ -2,6 +2,7 @@
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using LibNbt;
 
 namespace fCraft {
     /// <summary> Defines a 3D bounding box, in integer cartesian coordinates.
@@ -44,6 +45,17 @@ namespace fCraft {
             YMax = Math.Max( y1, y2 );
             ZMin = Math.Min( z1, z2 );
             ZMax = Math.Max( z1, z2 );
+        }
+
+
+        public BoundingBox( [NotNull] NbtCompound tag ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+            XMin = tag["XMin"].IntValue;
+            XMax = tag["XMax"].IntValue;
+            YMin = tag["YMin"].IntValue;
+            YMax = tag["YMax"].IntValue;
+            ZMin = tag["ZMin"].IntValue;
+            ZMax = tag["ZMax"].IntValue;
         }
 
 

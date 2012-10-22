@@ -32,7 +32,7 @@ namespace fCraft.MapConversion {
         }
 
         public MapFormat Format {
-            get { return MapFormat.FCMv3; }
+            get { return MapFormat.FCMv5; }
         }
 
 
@@ -44,7 +44,7 @@ namespace fCraft.MapConversion {
 
         public bool Claims( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return ( NbtFile.ReadRootTagName( fileName ) == "fCraftMap" );
+            return ( NbtFile.ReadRootTagName( fileName ) == RootTagName );
         }
 
 
@@ -56,7 +56,7 @@ namespace fCraft.MapConversion {
         public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, HeaderTagSelector );
-            NbtTag root = file.RootTag;
+            NbtCompound root = file.RootTag;
             return LoadHeaderInternal( root );
         }
 
@@ -64,13 +64,59 @@ namespace fCraft.MapConversion {
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, HeaderTagSelector );
-            NbtTag root = file.RootTag;
+            NbtCompound root = file.RootTag;
             return LoadHeaderInternal( root );
         }
 
 
-        static Map LoadHeaderInternal( [NotNull] NbtTag root ) {
-            return new Map( null, 16, 16, 16, true );
+        static Map LoadHeaderInternal( [NotNull] NbtCompound root ) {
+            if( root.Name != RootTagName ) {
+                throw new MapFormatException( "Incorrect root tag name" );
+            }
+            NbtCompound mapData = root.Get<NbtCompound>( "MapData" );
+            NbtCompound spawn = root.Get<NbtCompound>( "Spawn" );
+            NbtCompound backupSettings = root.Get<NbtCompound>( "BackupSettings" );
+            NbtCompound accessPerms = root.Get<NbtCompound>( "AccessPermissions" );
+            NbtCompound buildPerms = root.Get<NbtCompound>( "BuildPermissions" );
+            NbtCompound environment = root.Get<NbtCompound>( "Environment" );
+            NbtCompound blockDBSettings = root.Get<NbtCompound>( "BlockDBSettings" );
+            NbtList zones = root.Get<NbtList>( "Zones" );
+            NbtCompound mapCustomData = root.Get<NbtCompound>( "MapCustomData" );
+            NbtCompound worldCustomData = root.Get<NbtCompound>( "WorldCustomData" );
+            NbtCompound events = root.Get<NbtCompound>( "Events" );
+
+            if( mapData == null || spawn == null || backupSettings == null ||
+                accessPerms == null || buildPerms == null || environment == null ||
+                blockDBSettings == null || zones == null || mapCustomData == null ||
+                worldCustomData == null || events == null ) {
+                throw new MapFormatException( "Some of the required metadata is missing." );
+            }
+
+            Map map = new Map( null,
+                               mapData["Width"].ShortValue,
+                               mapData["Length"].ShortValue,
+                               mapData["Height"].ShortValue,
+                               false );
+            map.Spawn = new Position( spawn["X"].ShortValue, spawn["Y"].ShortValue, spawn["Z"].ShortValue,
+                                      spawn["R"].ByteValue, spawn["L"].ByteValue );
+            // TODO: BackupSettings
+            // TODO: AccessPerms
+            // TODO: BuildPerms
+            // TODO: Environment
+            // TODO: BlockDBSettings
+
+            foreach( NbtCompound zoneTag in zones ) {
+                try {
+                    map.Zones.Add( new Zone( zoneTag ) );
+                } catch( Exception ex ) {
+                    Logger.Log( LogType.Error, "Error parsing a zone: {0}", ex );
+                }
+            }
+
+            // TODO: MapCustomData
+            // TODO: WorldCustomData
+            // TODO: Events
+            return map;
         }
 
 
