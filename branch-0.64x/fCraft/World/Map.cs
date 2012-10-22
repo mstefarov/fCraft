@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using LibNbt;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
@@ -70,6 +71,10 @@ namespace fCraft {
         public DateTime DateModified { get; set; }
         public DateTime DateCreated { get; set; }
         public Guid Guid { get; set; }
+
+        // FCMv5 additions
+        public string GeneratorName { get; set; }
+        public NbtTag GeneratorParams { get; set; }
 
         /// <summary> Array of map blocks.
         /// Use Index(x,y,h) to convert coordinates to array indices.
