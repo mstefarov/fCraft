@@ -1,8 +1,5 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
-using System.IO;
-using System.IO.Compression;
-using System.Text;
 using JetBrains.Annotations;
 using LibNbt;
 
@@ -63,7 +60,7 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, HeaderTagSelector );
+            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
             NbtCompound root = file.RootTag;
             Map map = LoadHeaderInternal( root );
             map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
@@ -73,14 +70,14 @@ namespace fCraft.MapConversion {
 
         static Map LoadHeaderInternal( [NotNull] NbtCompound root ) {
             if( root.Name != RootTagName ) {
-                throw new MapFormatException( "Incorrect root tag name" );
+                throw new MapFormatException( "MapFCMv5: Incorrect root tag name" );
             }
             NbtCompound mapDataTag = root.Get<NbtCompound>( "MapData" );
             NbtCompound spawnTag = root.Get<NbtCompound>( "Spawn" );
             NbtList zonesTag = root.Get<NbtList>( "Zones" );
 
             if( mapDataTag == null || spawnTag == null || zonesTag == null ) {
-                    throw new MapFormatException( "MapFCMv5: Some of the required metadata is missing." );
+                throw new MapFormatException( "MapFCMv5: Some of the required metadata is missing." );
             }
 
             Map map = new Map( null,
@@ -88,6 +85,8 @@ namespace fCraft.MapConversion {
                                mapDataTag["Length"].ShortValue,
                                mapDataTag["Height"].ShortValue,
                                false );
+            map.DateCreated = DateTimeUtil.TryParseDateTime( mapDataTag["DateCreated"].LongValue );
+            map.DateModified = DateTimeUtil.TryParseDateTime( mapDataTag["DateModified"].LongValue );
             map.Guid = new Guid( mapDataTag["GUID"].ByteArrayValue );
             map.GeneratorName = mapDataTag["GeneratorName"].StringValue;
             map.GeneratorParams = mapDataTag["GeneratorParams"];

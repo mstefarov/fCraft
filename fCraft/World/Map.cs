@@ -15,7 +15,7 @@ namespace fCraft {
     /// <summary> Represents a map file (associated with a world or not).
     /// Maps can be created blank (using Map constructor), generated terrain (using MapGenerator),
     /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
-    public unsafe sealed class Map {
+    public sealed unsafe class Map {
         /// <summary> Current default map format for saving. </summary>
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
@@ -41,9 +41,7 @@ namespace fCraft {
 
         /// <summary> Default spawning point on the map. A warning is logged when given coordinates are outside the map. </summary>
         public Position Spawn {
-            get {
-                return spawn;
-            }
+            get { return spawn; }
             set {
                 if( value.X > Width * 32 || value.Y > Length * 32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
                     Logger.Log( LogType.Warning, "Map.Spawn: Coordinates are outside the map!" );
@@ -53,7 +51,9 @@ namespace fCraft {
                 HasChangedSinceSave = true;
             }
         }
+
         Position spawn;
+
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
@@ -186,7 +186,7 @@ namespace fCraft {
         /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( int x, int y, int z ) {
-            return (z * Length + y) * Width + x;
+            return ( z * Length + y ) * Width + x;
         }
 
 
@@ -194,7 +194,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( Vector3I coords ) {
-            return (coords.Z * Length + coords.Y) * Width + coords.X;
+            return ( coords.Z * Length + coords.Y ) * Width + coords.X;
         }
 
 
@@ -218,7 +218,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, Block type ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && (byte)type < 50 ) {
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 &&
+                coords.Z >= 0 && (byte)type < 50 ) {
                 Blocks[Index( coords )] = (byte)type;
                 HasChangedSinceSave = true;
                 compressedCopyCache = null;
@@ -252,7 +253,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public Block GetBlock( Vector3I coords ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 &&
+                coords.Z >= 0 )
                 return (Block)Blocks[Index( coords )];
             return Block.None;
         }
@@ -402,13 +404,13 @@ namespace fCraft {
                 }
 
                 // draw a batch of blocks
-                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
+                int blocksToDraw = maxTotalUpdates / ( drawOps.Count - i );
                 op.StartBatch();
 #if DEBUG
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
 #else
                 int blocksDrawn;
-                try{
+                try {
                     blocksDrawn = op.DrawBatch( blocksToDraw );
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "DrawOp error", "fCraft", ex, false );
@@ -451,6 +453,7 @@ namespace fCraft {
 
 
         #region Utilities
+
         /// <summary> Checks if a given map dimension (width, height, or length) is acceptable.
         /// Values between 1 and 2047 are technically allowed. </summary>
         public static bool IsValidDimension( int dimension ) {
@@ -461,7 +464,7 @@ namespace fCraft {
         /// <summary> Checks if a given map dimension (width, height, or length) is among the set of recommended values
         /// Recommended values are: 16, 32, 64, 128, 256, 512, 1024 </summary>
         public static bool IsRecommendedDimension( int dimension ) {
-            return dimension >= 16 && (dimension & (dimension - 1)) == 0 && dimension <= 1024;
+            return dimension >= 16 && ( dimension & ( dimension - 1 ) ) == 0 && dimension <= 1024;
         }
 
 
@@ -485,7 +488,9 @@ namespace fCraft {
             return mapped;
         }
 
+
         static readonly byte[] ZeroMapping = new byte[256];
+
 
         /// <summary> Replaces all nonstandard (50-255) blocks with air. </summary>
         /// <returns> True if any blocks needed replacement. </returns>
@@ -496,6 +501,7 @@ namespace fCraft {
 
         static readonly Dictionary<string, Block> BlockNames = new Dictionary<string, Block>();
         static readonly Dictionary<Block, string> BlockEdgeTextures = new Dictionary<Block, string>();
+
 
         static Map() {
             // add default names for blocks, and their numeric codes
@@ -715,7 +721,7 @@ namespace fCraft {
         /// <returns> A 2D array of same Width/Length as the map.
         /// Value at each coordinate corresponds to the highest solid point on the map. </returns>
         public short[,] ComputeHeightmap() {
-            short[,] shadows = new short[Width, Length];
+            short[,] shadows = new short[Width,Length];
             for( int x = 0; x < Width; x++ ) {
                 for( int y = 0; y < Length; y++ ) {
                     for( short z = (short)( Height - 1 ); z >= 0; z-- ) {
@@ -796,6 +802,8 @@ namespace fCraft {
             }
             return currentCopy;
         }
+
+
         volatile byte[] compressedCopyCache;
 
 
