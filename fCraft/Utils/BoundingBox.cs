@@ -48,17 +48,6 @@ namespace fCraft {
         }
 
 
-        public BoundingBox( [NotNull] NbtCompound tag ) {
-            if( tag == null ) throw new ArgumentNullException( "tag" );
-            XMin = tag["XMin"].IntValue;
-            XMax = tag["XMax"].IntValue;
-            YMin = tag["YMin"].IntValue;
-            YMax = tag["YMax"].IntValue;
-            ZMin = tag["ZMin"].IntValue;
-            ZMax = tag["ZMax"].IntValue;
-        }
-
-
         #region Collision Detection
 
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
@@ -191,7 +180,7 @@ namespace fCraft {
 
         #region Serialization
 
-        public const string XmlRootElementName = "BoundingBox";
+        public const string DefaultTagName = "BoundingBox";
 
 
         public BoundingBox( [NotNull] XElement root ) {
@@ -212,7 +201,24 @@ namespace fCraft {
         }
 
 
-        public XElement Serialize( [NotNull] string tagName ) {
+        public BoundingBox( [NotNull] NbtCompound tag ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+            int x1 = tag["XMin"].IntValue;
+            int x2 = tag["XMax"].IntValue;
+            int y1 = tag["YMin"].IntValue;
+            int y2 = tag["YMax"].IntValue;
+            int z1 = tag["ZMin"].IntValue;
+            int z2 = tag["ZMax"].IntValue;
+            XMin = Math.Min( x1, x2 );
+            XMax = Math.Max( x1, x2 );
+            YMin = Math.Min( y1, y2 );
+            YMax = Math.Max( y1, y2 );
+            ZMin = Math.Min( z1, z2 );
+            ZMax = Math.Max( z1, z2 );
+        }
+
+
+        public XElement SerializeXml( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
             string data = String.Format( "{0} {1} {2} {3} {4} {5}",
                                          XMin, XMax, YMin, YMax, ZMin, ZMax );
@@ -220,8 +226,25 @@ namespace fCraft {
         }
 
 
-        public XElement Serialize() {
-            return Serialize( XmlRootElementName );
+        public XElement SerializeXml() {
+            return SerializeXml( DefaultTagName );
+        }
+
+
+        public NbtCompound SerializeNbt( [CanBeNull] string tagName ) {
+            NbtCompound tag = new NbtCompound( tagName );
+            tag.Add( new NbtInt( "XMin", XMin ) );
+            tag.Add( new NbtInt( "XMax", XMax ) );
+            tag.Add( new NbtInt( "YMin", YMin ) );
+            tag.Add( new NbtInt( "YMax", YMax ) );
+            tag.Add( new NbtInt( "ZMin", ZMin ) );
+            tag.Add( new NbtInt( "ZMax", ZMax ) );
+            return tag;
+        }
+
+
+        public NbtCompound SerializeNbt() {
+            return SerializeNbt( DefaultTagName );
         }
 
         #endregion

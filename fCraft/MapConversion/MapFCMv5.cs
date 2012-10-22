@@ -105,7 +105,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static World LoadWorld( string fileName, WorldDataCategory cats ) {
+        static World LoadWorld( string worldName, string fileName, WorldDataCategory cats ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
             NbtCompound root = file.RootTag;
@@ -115,7 +115,7 @@ namespace fCraft.MapConversion {
                 map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
             }
 
-            World world = new World( map );
+            World world = new World( worldName ) { Map = map };
 
             NbtCompound backupSettingsTag = root.Get<NbtCompound>( "BackupSettings" );
             if( ( cats & WorldDataCategory.BackupSettings ) != 0 && backupSettingsTag != null ) {
@@ -159,25 +159,5 @@ namespace fCraft.MapConversion {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
         }
-    }
-
-
-    [Flags]
-    public enum WorldDataCategory {
-        None = 0,
-        MapData = 1,
-        Spawn = 2,
-        BackupSettings = 4,
-        AccessPermissions = 8,
-        BuildPermissions = 16,
-        Environment = 32,
-        BlockDBSettings = 64,
-        BlockDBData = 128,
-        Zones = 256,
-        MapMetadata = 512,
-        WorldMetadata = 1024,
-        Events = 2048,
-
-        LoadByDefault = MapData | Spawn | BlockDBData | Zones | MapMetadata
     }
 }
