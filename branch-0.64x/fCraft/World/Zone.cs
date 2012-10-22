@@ -196,6 +196,20 @@ namespace fCraft {
                 throw new SerializationException( "Controller missing from zone definition tag." );
             }
             Controller = new SecurityController( controllerTag );
+
+            var createdByTag = tag.Get<NbtString>( "CreatedBy" );
+            var createdDateTag = tag.Get<NbtLong>( "CreatedDate" );
+            if( createdByTag != null && createdDateTag != null ) {
+                CreatedBy = createdByTag.Value;
+                CreatedDate = DateTimeUtil.TryParseDateTime( createdDateTag.Value );
+            }
+
+            var editedByTag = tag.Get<NbtString>( "EditedBy" );
+            var editedDateTag = tag.Get<NbtLong>( "EditedDate" );
+            if( editedByTag != null && editedDateTag != null ) {
+                EditedBy = editedByTag.Value;
+                EditedDate = DateTimeUtil.TryParseDateTime( editedDateTag.Value );
+            }
         }
 
 

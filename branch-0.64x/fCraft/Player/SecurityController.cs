@@ -367,10 +367,8 @@ namespace fCraft {
                     }
                 }
             } else {
-                rawWhitelist = whitelistTag.Select( whitelistNameTag => whitelistNameTag.StringValue )
-                                           .ToArray();
-                rawBlacklist = blacklistTag.Select( blacklistNameTag => blacklistNameTag.StringValue )
-                                           .ToArray();
+                rawWhitelist = whitelistTag.Select( nameTag => nameTag.StringValue ).ToArray();
+                rawBlacklist = blacklistTag.Select( nameTag => nameTag.StringValue ).ToArray();
             }
         }
         readonly string minRankName;
