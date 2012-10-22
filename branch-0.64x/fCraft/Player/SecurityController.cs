@@ -2,9 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using LibNbt;
 
 namespace fCraft {
 
@@ -323,6 +325,56 @@ namespace fCraft {
             }
             UpdatePlayerListCache();
         }
+
+
+        public SecurityController( [NotNull] NbtCompound tag ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+
+            var rankNameTag = tag.Get<NbtString>( "MinRank" );
+            if( rankNameTag == null ) throw new SerializationException( "MinRank missing" );
+            minRankName = rankNameTag.Value;
+            minRank = Rank.Parse( minRankName );
+            if( minRank == null ) {
+                Logger.Log( LogType.Warning, "Unrecognized rank name: {0}", minRankName );
+            }
+
+            var whitelistTag = tag.Get<NbtList>( "Whitelist" );
+            if( whitelistTag == null ) throw new SerializationException( "Whitelist missing" );
+            var blacklistTag = tag.Get<NbtList>( "Blacklist" );
+            if( blacklistTag == null ) throw new SerializationException( "Whitelist missing" );
+
+            if( PlayerDB.IsLoaded ) {
+                foreach( NbtString whitelistNameTag in whitelistTag ) {
+                    string playerName = whitelistNameTag.Value;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player name on a permission whitelist: {0}",
+                                    playerName );
+                    } else {
+                        Include( info );
+                    }
+                }
+                foreach( NbtString blacklistNameTag in blacklistTag ) {
+                    string playerName = blacklistNameTag.Value;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
+                    if( info == null ) {
+                        Logger.Log( LogType.Warning,
+                                    "Unrecognized player name on a permission blacklist: {0}",
+                                    playerName );
+                    } else {
+                        Exclude( info );
+                    }
+                }
+            } else {
+                rawWhitelist = whitelistTag.Select( whitelistNameTag => whitelistNameTag.StringValue )
+                                           .ToArray();
+                rawBlacklist = blacklistTag.Select( blacklistNameTag => blacklistNameTag.StringValue )
+                                           .ToArray();
+            }
+        }
+        readonly string minRankName;
+        readonly string[] rawWhitelist, rawBlacklist;
 
 
         /// <summary> Creates a copy of an existing controller. </summary>

@@ -9,8 +9,11 @@ namespace fCraft.MapConversion {
         /// <summary> Obsolete map format previously used by fCraft before release 0.500 </summary>
         FCMv2,
 
-        /// <summary> Obsolete map format previously used by fCraft 0.500-0.6xx </summary>
+        /// <summary> Obsolete map format previously used by fCraft 0.500-0.63x </summary>
         FCMv3,
+
+        /// <summary> Obsolete map format previously used by fCraft 0.640+ </summary>
+        FCMv5,
 
         /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler (TkTech). </summary>
         MCSharp,

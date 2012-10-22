@@ -1,6 +1,8 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
+using LibNbt;
 
 namespace fCraft {
     /// <summary> A bounding box selection that is designated as a sub area within a world.
@@ -180,6 +182,21 @@ namespace fCraft {
 
         internal readonly string RawWhitelist,
                                  RawBlacklist;
+
+
+        public Zone( NbtCompound tag ) {
+            NbtCompound boundsTag = tag.Get<NbtCompound>( "Bounds" );
+            if( boundsTag == null ) {
+                throw new SerializationException( "Bounds missing from zone definition tag." );
+            }
+            Bounds = new BoundingBox( boundsTag );
+
+            NbtCompound controllerTag = tag.Get<NbtCompound>( "Controller" );
+            if( controllerTag == null ) {
+                throw new SerializationException( "Controller missing from zone definition tag." );
+            }
+            Controller = new SecurityController( controllerTag );
+        }
 
 
         public string ClassyName {

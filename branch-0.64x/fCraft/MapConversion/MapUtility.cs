@@ -29,6 +29,7 @@ namespace fCraft.MapConversion {
 
 
         static MapUtility() {
+            RegisterConverter( new MapFCMv5() );
             RegisterConverter( new MapFCMv3() );
             RegisterConverter( new MapFCMv2() );
             RegisterConverter( new MapDat() );
