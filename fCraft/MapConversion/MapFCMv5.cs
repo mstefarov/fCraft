@@ -65,7 +65,9 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, HeaderTagSelector );
             NbtCompound root = file.RootTag;
-            return LoadHeaderInternal( root );
+            Map map = LoadHeaderInternal( root );
+            map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
+            return map;
         }
 
 
@@ -75,21 +77,10 @@ namespace fCraft.MapConversion {
             }
             NbtCompound mapDataTag = root.Get<NbtCompound>( "MapData" );
             NbtCompound spawnTag = root.Get<NbtCompound>( "Spawn" );
-            NbtCompound backupSettingsTag = root.Get<NbtCompound>( "BackupSettings" );
-            NbtCompound accessPermissionsTag = root.Get<NbtCompound>( "AccessPermissions" );
-            NbtCompound buildPermissionsTag = root.Get<NbtCompound>( "BuildPermissions" );
-            NbtCompound environmentTag = root.Get<NbtCompound>( "Environment" );
-            NbtCompound blockDBSettingsTag = root.Get<NbtCompound>( "BlockDBSettings" );
             NbtList zonesTag = root.Get<NbtList>( "Zones" );
-            NbtCompound mapCustomDataTag = root.Get<NbtCompound>( "MapCustomData" );
-            NbtCompound worldCustomDataTag = root.Get<NbtCompound>( "WorldCustomData" );
-            NbtCompound eventsTag = root.Get<NbtCompound>( "Events" );
 
-            if( mapDataTag == null || spawnTag == null || backupSettingsTag == null ||
-                accessPermissionsTag == null || buildPermissionsTag == null || environmentTag == null ||
-                blockDBSettingsTag == null || zonesTag == null || mapCustomDataTag == null ||
-                worldCustomDataTag == null || eventsTag == null ) {
-                throw new MapFormatException( "Some of the required metadata is missing." );
+            if( mapDataTag == null || spawnTag == null || zonesTag == null ) {
+                    throw new MapFormatException( "MapFCMv5: Some of the required metadata is missing." );
             }
 
             Map map = new Map( null,
@@ -97,24 +88,19 @@ namespace fCraft.MapConversion {
                                mapDataTag["Length"].ShortValue,
                                mapDataTag["Height"].ShortValue,
                                false );
+            map.Guid = new Guid( mapDataTag["GUID"].ByteArrayValue );
+            map.GeneratorName = mapDataTag["GeneratorName"].StringValue;
+            map.GeneratorParams = mapDataTag["GeneratorParams"];
+
             map.Spawn = new Position( spawnTag );
-            // TODO: BackupSettings
-            // TODO: AccessPerms
-            // TODO: BuildPerms
-            // TODO: Environment
-            // TODO: BlockDBSettings
 
             foreach( NbtCompound zoneTag in zonesTag ) {
                 try {
                     map.Zones.Add( new Zone( zoneTag ) );
                 } catch( Exception ex ) {
-                    Logger.Log( LogType.Error, "Error parsing a zone definition: {0}", ex );
+                    Logger.Log( LogType.Error, "MapFCMv5: Error parsing a zone definition: {0}", ex );
                 }
             }
-
-            // TODO: MapCustomData
-            // TODO: WorldCustomData
-            // TODO: Events
             return map;
         }
 
