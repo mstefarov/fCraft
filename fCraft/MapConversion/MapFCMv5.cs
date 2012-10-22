@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using LibNbt;
 
@@ -101,6 +102,40 @@ namespace fCraft.MapConversion {
                 }
             }
             return map;
+        }
+
+
+        static World LoadWorld( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
+            NbtCompound root = file.RootTag;
+            Map map = LoadHeaderInternal( root );
+            map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
+            World world = new World( map );
+
+            NbtCompound backupSettingsTag = root.Get<NbtCompound>( "BackupSettings" );
+            if( backupSettingsTag != null ) {
+                YesNoAuto backupMode;
+                if( !Enum.TryParse( backupSettingsTag["EnabledState"].StringValue, out backupMode ) ) {
+                    throw new MapFormatException( "Could not parse BackupEnabledState." );
+                }
+                world.BackupInterval = TimeSpan.FromSeconds( backupSettingsTag["Interval"].IntValue );
+                world.BackupEnabledState = backupMode;
+            }
+
+            NbtCompound accessSecurityTag = root.Get<NbtCompound>( "AccessSecurity" );
+            if( accessSecurityTag != null ) {
+                world.AccessSecurity = new SecurityController( accessSecurityTag );
+            }
+
+            NbtCompound buildSecurityTag = root.Get<NbtCompound>( "BuildSecurity" );
+            if( buildSecurityTag != null ) {
+                world.BuildSecurity = new SecurityController( buildSecurityTag );
+            }
+
+
+
+            return world;
         }
 
 

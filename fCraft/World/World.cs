@@ -80,6 +80,11 @@ namespace fCraft {
         public BlockDB BlockDB { get; private set; }
 
 
+        internal World( Map map ) {
+            Map = map;
+        }
+
+
         internal World( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( !IsValidName( name ) ) {
