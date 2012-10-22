@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
+using LibNbt;
 using fCraft.Events;
 using JetBrains.Annotations;
 
@@ -1172,6 +1173,77 @@ namespace fCraft {
                 root.Add( new XAttribute( "timeLimit", (int)TimeLimit.TotalSeconds ) );
             }
             return root;
+        }
+
+
+        public void LoadSettings( NbtCompound tag ) {
+            NbtByte enabledStateTag = tag.Get<NbtByte>( "EnabledState" );
+            if( enabledStateTag != null ) {
+                if( Enum.IsDefined( typeof( YesNoAuto ), enabledStateTag.IntValue ) ) {
+                    EnabledState = (YesNoAuto)enabledStateTag.IntValue;
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "BlockDB: Could not parse EnabledState tag of world \"{0}\", assuming \"Auto\"",
+                                World.Name );
+                    EnabledState = YesNoAuto.Auto;
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "BlockDB: EnabledState tag missing for world \"{0}\", assuming \"Auto\"",
+                            World.Name );
+                EnabledState = YesNoAuto.Auto;
+            }
+
+            NbtByte preloadTag = tag.Get<NbtByte>( "IsPreloaded" );
+            if( preloadTag != null ) {
+                if( preloadTag.Value == 0 || preloadTag.Value == 1 ) {
+                    IsPreloaded = ( preloadTag.Value == 1 );
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "BlockDB: Value of IsPreloaded tag of world \"{0}\" out of range, assuming \"false\"",
+                                World.Name );
+                    IsPreloaded = false;
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "BlockDB: IsPreloaded tag missing for world \"{0}\", assuming \"false\"",
+                            World.Name );
+                IsPreloaded = false;
+            }
+
+            NbtInt limitTag = tag.Get<NbtInt>( "Limit" );
+            if( limitTag != null ) {
+                if( limitTag.Value >= 0 ) {
+                    Limit = limitTag.Value;
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "BlockDB: Value of Limit tag of world \"{0}\" out of range, assuming \"none\"",
+                                World.Name );
+                    Limit = 0;
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "BlockDB: Limit tag missing for world \"{0}\", assuming \"none\"",
+                            World.Name );
+                Limit = 0;
+            }
+
+            NbtInt timeLimitTag = tag.Get<NbtInt>( "TimeLimit" );
+            if( timeLimitTag != null ) {
+                if( timeLimitTag.Value >= 0 ) {
+                    TimeLimit = TimeSpan.FromSeconds( timeLimitTag.Value );
+                } else {
+                    Logger.Log( LogType.Warning,
+                                "BlockDB: Value of TimeLimit tag of world \"{0}\" out of range, assuming \"none\"",
+                                World.Name );
+                    TimeLimit = TimeSpan.Zero;
+                }
+            } else {
+                Logger.Log( LogType.Warning,
+                            "BlockDB: TimeLimit tag missing for world \"{0}\", assuming \"none\"",
+                            World.Name );
+                TimeLimit = TimeSpan.Zero;
+            }
         }
 
 

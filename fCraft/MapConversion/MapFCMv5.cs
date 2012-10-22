@@ -105,16 +105,20 @@ namespace fCraft.MapConversion {
         }
 
 
-        static World LoadWorld( string fileName ) {
+        static World LoadWorld( string fileName, WorldDataCategory cats ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
             NbtCompound root = file.RootTag;
+
             Map map = LoadHeaderInternal( root );
-            map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
+            if( ( cats & WorldDataCategory.MapData ) != 0 ) {
+                map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
+            }
+
             World world = new World( map );
 
             NbtCompound backupSettingsTag = root.Get<NbtCompound>( "BackupSettings" );
-            if( backupSettingsTag != null ) {
+            if( ( cats & WorldDataCategory.BackupSettings ) != 0 && backupSettingsTag != null ) {
                 YesNoAuto backupMode;
                 if( !Enum.TryParse( backupSettingsTag["EnabledState"].StringValue, out backupMode ) ) {
                     throw new MapFormatException( "Could not parse BackupEnabledState." );
@@ -124,16 +128,28 @@ namespace fCraft.MapConversion {
             }
 
             NbtCompound accessSecurityTag = root.Get<NbtCompound>( "AccessSecurity" );
-            if( accessSecurityTag != null ) {
+            if( ( cats & WorldDataCategory.AccessPermissions ) != 0 && accessSecurityTag != null ) {
                 world.AccessSecurity = new SecurityController( accessSecurityTag );
             }
 
             NbtCompound buildSecurityTag = root.Get<NbtCompound>( "BuildSecurity" );
-            if( buildSecurityTag != null ) {
+            if( ( cats & WorldDataCategory.BuildPermissions ) != 0 && buildSecurityTag != null ) {
                 world.BuildSecurity = new SecurityController( buildSecurityTag );
             }
 
+            NbtCompound envTag = root.Get<NbtCompound>( "Environment" );
+            if( ( cats & WorldDataCategory.Environment ) != 0 && envTag != null ) {
+                world.CloudColor = envTag["CloudColor"].IntValue;
+                world.FogColor = envTag["FogColor"].IntValue;
+                world.SkyColor = envTag["SkyColor"].IntValue;
+                world.EdgeLevel = envTag["EdgeLevel"].ShortValue;
+                world.EdgeBlock = (Block)envTag["EdgeBlock"].ByteValue;
+            }
 
+            NbtCompound blockDBSettingsTag = root.Get<NbtCompound>( "BlockDBSettings" );
+            if( ( cats & WorldDataCategory.BlockDBSettings ) != 0 && blockDBSettingsTag != null ) {
+                world.BlockDB.LoadSettings( blockDBSettingsTag );
+            }
 
             return world;
         }
@@ -143,5 +159,25 @@ namespace fCraft.MapConversion {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
         }
+    }
+
+
+    [Flags]
+    public enum WorldDataCategory {
+        None = 0,
+        MapData = 1,
+        Spawn = 2,
+        BackupSettings = 4,
+        AccessPermissions = 8,
+        BuildPermissions = 16,
+        Environment = 32,
+        BlockDBSettings = 64,
+        BlockDBData = 128,
+        Zones = 256,
+        MapMetadata = 512,
+        WorldMetadata = 1024,
+        Events = 2048,
+
+        LoadByDefault = MapData | Spawn | BlockDBData | Zones | MapMetadata
     }
 }
