@@ -1176,8 +1176,9 @@ namespace fCraft {
         }
 
 
-        public void LoadSettings( NbtCompound tag ) {
-            NbtByte enabledStateTag = tag.Get<NbtByte>( "EnabledState" );
+        public void LoadSettings( [NotNull] NbtCompound tag ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+            NbtInt enabledStateTag = tag.Get<NbtInt>( "EnabledState" );
             if( enabledStateTag != null ) {
                 if( Enum.IsDefined( typeof( YesNoAuto ), enabledStateTag.IntValue ) ) {
                     EnabledState = (YesNoAuto)enabledStateTag.IntValue;
