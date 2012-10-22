@@ -151,6 +151,18 @@ namespace fCraft.MapConversion {
                 world.BlockDB.LoadSettings( blockDBSettingsTag );
             }
 
+            NbtCompound worldEventsTag = root.Get<NbtCompound>( "WorldEvents" );
+            if( ( cats & WorldDataCategory.WorldEvents ) != 0 && worldEventsTag != null ) {
+                world.LoadedBy = worldEventsTag["LoadedBy"].StringValue;
+                world.LoadedOn = DateTimeUtil.TryParseDateTime( worldEventsTag["LoadedOn"].LongValue );
+                // TODO: UnloadedBy/UnloadedOn
+                world.MapChangedBy = worldEventsTag["MapChangedBy"].StringValue;
+                world.MapChangedOn = DateTimeUtil.TryParseDateTime( worldEventsTag["MapChangedOn"].LongValue );
+                world.LockedBy = worldEventsTag["LockedBy"].StringValue;
+                world.LockedOn = DateTimeUtil.TryParseDateTime( worldEventsTag["LockedOn"].LongValue );
+                world.UnlockedBy = worldEventsTag["UnlockedBy"].StringValue;
+                world.UnlockedOn = DateTimeUtil.TryParseDateTime( worldEventsTag["UnlockedOn"].LongValue );
+            }
             return world;
         }
 
