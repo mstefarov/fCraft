@@ -105,7 +105,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static World LoadWorld( string worldName, string fileName, WorldDataCategory cats ) {
+        internal static World LoadWorld( string worldName, string fileName, WorldDataCategory cats ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
             NbtCompound root = file.RootTag;
