@@ -258,7 +258,11 @@
     <Compile Include="System\ConfigSection.cs" />
     <Compile Include="System\ShutdownParams.cs" />
     <Compile Include="System\ShutdownReason.cs" />
+    <Compile Include="Utils\BufferUtil.cs" />
     <Compile Include="Utils\DateTimeUtil.cs" />
+    <Compile Include="Utils\EnumerableUtil.cs" />
+    <Compile Include="Utils\EnumUtil.cs" />
+    <Compile Include="Utils\IPAddressUtil.cs" />
     <Compile Include="Utils\Mono.Options.cs" />
     <Compile Include="Utils\RWLSExtension.cs" />
     <Compile Include="Utils\Vector3I.cs" />
@@ -268,7 +272,7 @@
     <Compile Include="System\SchedulerTask.cs" />
     <Compile Include="Utils\IClassy.cs" />
     <Compile Include="System\Server.Events.cs" />
-    <Compile Include="Utils\ExtensionMethods.cs" />
+    <Compile Include="Utils\FormatUtil.cs" />
     <Compile Include="Utils\LogRecorder.cs" />
     <Compile Include="Utils\PerlinNoise3D.cs" />
     <Compile Include="Utils\ZipStorer.cs" />

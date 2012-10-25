@@ -880,9 +880,10 @@ namespace fCraft {
             try {
                 string[] ruleLines = File.ReadAllLines( ruleFile.FullName );
                 foreach( string ruleLine in ruleLines ) {
-                    if( ruleLine.Trim().Length > 0 ) {
-                        player.Message( "&R{0}", Chat.ReplaceTextKeywords( player, ruleLine ) );
-                    }
+                    string ruleLineProc = Chat.ReplaceTextKeywords( player, ruleLine );
+                    ruleLineProc = Chat.ReplaceEmoteKeywords( ruleLineProc );
+                    ruleLineProc = Chat.ReplaceUncodeWithEmotes( ruleLineProc );
+                    player.Message( "&R{0}", ruleLineProc );
                 }
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,

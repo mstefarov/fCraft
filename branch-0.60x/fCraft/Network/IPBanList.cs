@@ -245,7 +245,9 @@ namespace fCraft {
                                   bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             // Check if player can ban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -346,7 +348,9 @@ namespace fCraft {
                                     bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             // Check if player can unban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -410,7 +414,9 @@ namespace fCraft {
                                    bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "ban-all",
@@ -530,7 +536,9 @@ namespace fCraft {
                                      bool announce, bool raiseEvents ) {
             if( targetAddress == null ) throw new ArgumentNullException( "targetAddress" );
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player, null, "unban-all",
