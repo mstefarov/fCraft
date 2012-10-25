@@ -1005,7 +1005,9 @@ namespace fCraft {
 
         internal void ProcessKick( [NotNull] Player kickedBy, [CanBeNull] string reason ) {
             if( kickedBy == null ) throw new ArgumentNullException( "kickedBy" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             lock( actionLock ) {
                 Interlocked.Increment( ref TimesKicked );

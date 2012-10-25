@@ -1689,7 +1689,9 @@ namespace fCraft {
             if( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             // Check if player can ban/unban in general
             if( !player.Can( Permission.Kick ) ) {
