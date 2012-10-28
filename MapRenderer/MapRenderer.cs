@@ -8,6 +8,7 @@ using System.Linq;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using System.Text.RegularExpressions;
 using ImageManipulation;
 using JetBrains.Annotations;
 using Mono.Options;
@@ -23,6 +24,9 @@ namespace fCraft.MapRenderer {
         static IMapImporter mapImporter;
         static IsoCat renderer;
         static ImageCodecInfo imageEncoder;
+        static Regex filterRegex;
+
+        static string[] inputPathList;
 
         static bool noGradient,
                     noShadows,
@@ -30,10 +34,10 @@ namespace fCraft.MapRenderer {
                     seeThroughLava,
                     recursive,
                     overwrite,
-                    uncropped;
+                    uncropped,
+                    useRegex;
 
-        static string inputPath,
-                      outputDirName,
+        static string outputDirName,
                       inputFilter;
 
 
@@ -46,53 +50,14 @@ namespace fCraft.MapRenderer {
                 return (int)optionParsingResult;
             }
 
-            // check if input path exists, and if it's a file or directory
-            bool directoryMode;
-            try {
-                if( File.Exists( inputPath ) ) {
-                    directoryMode = false;
-                    if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
-                    }
-
-                } else if( Directory.Exists( inputPath ) ) {
-                    directoryMode = true;
-                    if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
-                    }
-
-                } else {
-                    Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
-                    return (int)ReturnCode.InputDirNotFound;
+            if( useRegex ) {
+                try {
+                    filterRegex = new Regex( inputFilter );
+                } catch( ArgumentException ex) {
+                    Console.WriteLine( "MapRenderer: Cannot parse filter regex: {0}",
+                                       ex.Message );
+                    return (int)ReturnCode.ArgumentError;
                 }
-
-                if( !Directory.Exists( outputDirName ) ) {
-                    Directory.CreateDirectory( outputDirName );
-                }
-
-            } catch( Exception ex ) {
-                Console.Error.WriteLine( "MapRenderer: {0}: {1}",
-                                         ex.GetType().Name,
-                                         ex.Message );
-                return (int)ReturnCode.PathError;
-            }
-
-            // check recursive flag
-            if( recursive && !directoryMode ) {
-                Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
-            }
-
-            // check input filter
-            if( inputFilter != null && !directoryMode ) {
-                Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
-            }
-
-            // initialize image encoder
-            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            imageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == exportFormat.Guid );
-            if( imageEncoder == null ) {
-                Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
-                return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
             // create and configure the renderer
@@ -124,35 +89,93 @@ namespace fCraft.MapRenderer {
                     break;
             }
 
+            // initialize image encoder
+            ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
+            imageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == exportFormat.Guid );
+            if( imageEncoder == null ) {
+                Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
+                return (int)ReturnCode.UnsupportedSaveFormat;
+            }
+
+            foreach( string inputPath in inputPathList ) {
+                ReturnCode code = ProcessInputPath( inputPath );
+                if( code != ReturnCode.Success ) {
+                    return (int)code;
+                }
+            }
+            return (int)ReturnCode.Success;
+        }
+
+
+        static ReturnCode ProcessInputPath( string inputPath ) {
+            // check if input path exists, and if it's a file or directory
+            bool directoryMode;
+            try {
+                if( File.Exists( inputPath ) ) {
+                    directoryMode = false;
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
+                    }
+                } else if( Directory.Exists( inputPath ) ) {
+                    directoryMode = true;
+                    if( outputDirName == null ) {
+                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
+                    }
+                } else {
+                    Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
+                    return ReturnCode.InputDirNotFound;
+                }
+
+                if( !Directory.Exists( outputDirName ) ) {
+                    Directory.CreateDirectory( outputDirName );
+                }
+            } catch( Exception ex ) {
+                Console.Error.WriteLine( "MapRenderer: {0}: {1}",
+                                         ex.GetType().Name,
+                                         ex.Message );
+                return ReturnCode.PathError;
+            }
+
+            // check recursive flag
+            if( recursive && !directoryMode ) {
+                Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
+            }
+
+            // check input filter
+            if( inputFilter != null && !directoryMode ) {
+                Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
+            }
+
             if( !recursive && mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
                 // single-directory map
                 RenderOneMap( new DirectoryInfo( inputPath ) );
-
             } else if( !directoryMode ) {
                 // single-file map
                 RenderOneMap( new FileInfo( inputPath ) );
-
             } else {
                 // possible single-directory conversion
                 if( !recursive && RenderOneMap( new DirectoryInfo( inputPath ) ) ) {
-                    return (int)ReturnCode.Success;
+                    return ReturnCode.Success;
                 }
 
                 // go through all files inside the given directory
                 SearchOption recursiveOption = ( recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly );
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
-                if( inputFilter == null ) inputFilter = "*";
+                if( inputFilter == null || useRegex ) inputFilter = "*";
                 foreach( var dir in inputDirInfo.GetDirectories( inputFilter, recursiveOption ) ) {
-                    RenderOneMap( dir );
+                    if( !useRegex || filterRegex.IsMatch( dir.Name ) ) {
+                        RenderOneMap( dir );
+                    }
                 }
                 foreach( var file in inputDirInfo.GetFiles( inputFilter, recursiveOption ) ) {
-                    RenderOneMap( file );
+                    if( !useRegex || filterRegex.IsMatch( file.Name ) ) {
+                        RenderOneMap( file );
+                    }
                 }
             }
 
-            return (int)ReturnCode.Success;
+            return ReturnCode.Success;
         }
-
 
 
         static bool RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo ) {
@@ -294,6 +317,10 @@ namespace fCraft.MapRenderer {
                       "If not specified, images will be saved to the maps' directories.",
                       o => outputDirName = o )
 
+                .Add( "x|regex",
+                      "Enable regular expessions in \"filter\".",
+                      o => useRegex = ( o != null ) )
+
                 .Add( "y|overwrite",
                       "Do not ask for confirmation to overwrite existing files.",
                       o => overwrite = ( o != null ) )
@@ -344,12 +371,12 @@ namespace fCraft.MapRenderer {
                 Environment.Exit( (int)ReturnCode.Success );
             }
 
-            if( pathList.Count != 1 ) {
+            if( pathList.Count == 0 ) {
                 Console.Error.WriteLine( "MapRenderer: At least one file or directory name required." );
                 PrintUsage();
                 return ReturnCode.ArgumentError;
             }
-            inputPath = pathList[0];
+            inputPathList = pathList.ToArray();
 
             // Parse angle
             if( angleString != null && ( !Int32.TryParse( angleString, out angle ) ||
