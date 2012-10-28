@@ -38,7 +38,9 @@ namespace fCraft {
         void BanPlayerInfoInternal( [NotNull] Player player, [CanBeNull] string reason,
                                     bool unban, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             lock( actionLock ) {
                 // Check if player can ban/unban in general
@@ -150,7 +152,10 @@ namespace fCraft {
         /// <exception cref="fCraft.PlayerOpException" />
         public void BanIP( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
+
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "IP-ban", Permission.Ban, Permission.BanIP );
@@ -274,7 +279,10 @@ namespace fCraft {
         /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanIP( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
+
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "IP-unban", Permission.Ban, Permission.BanIP );
@@ -343,7 +351,10 @@ namespace fCraft {
         /// <exception cref="fCraft.PlayerOpException" />
         public void BanAll( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
+
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "ban-all",
@@ -467,7 +478,10 @@ namespace fCraft {
         /// <exception cref="fCraft.PlayerOpException" />
         public void UnbanAll( [NotNull] Player player, [CanBeNull] string reason, bool announce, bool raiseEvents ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
+
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                     PlayerOpException.ThrowPermissionMissing( player, this, "unban-all",
@@ -622,7 +636,8 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
 
-            if( reason != null && reason.Trim().Length == 0 ) reason = null;
+            if( reason != null ) reason = reason.Trim( ' ' );
+            if( reason != null && reason.Length == 0 ) reason = null;
 
             bool promoting = (newRank > Rank);
             string verb = (promoting ? "promote" : "demote");

@@ -51,7 +51,7 @@ namespace fCraft {
             if( player.DetectChatSpam() ) return;
 
             if( player.Can( Permission.Say ) ) {
-                string msg = cmd.NextAll().Trim();
+                string msg = cmd.NextAll().Trim( ' ' );
                 if( msg.Length > 0 ) {
                     Chat.SendSay( player, msg );
                 } else {
@@ -89,7 +89,7 @@ namespace fCraft {
 
             if( player.DetectChatSpam() ) return;
 
-            string message = cmd.NextAll().Trim();
+            string message = cmd.NextAll().Trim( ' );
             if( message.Length > 0 ) {
                 Chat.SendStaff( player, message );
             }
@@ -197,7 +197,7 @@ namespace fCraft {
 
             if( player.DetectChatSpam() ) return;
 
-            string msg = cmd.NextAll().Trim();
+            string msg = cmd.NextAll().Trim( ' ' );
             if( msg.Length > 0 ) {
                 Chat.SendMe( player, msg );
             } else {
