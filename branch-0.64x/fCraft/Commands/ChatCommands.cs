@@ -89,7 +89,7 @@ namespace fCraft {
 
             if( player.DetectChatSpam() ) return;
 
-            string message = cmd.NextAll().Trim( ' );
+            string message = cmd.NextAll().Trim( ' ' );
             if( message.Length > 0 ) {
                 Chat.SendStaff( player, message );
             }
