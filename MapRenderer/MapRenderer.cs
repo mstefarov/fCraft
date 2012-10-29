@@ -25,6 +25,7 @@ namespace fCraft.MapRenderer {
         static IsoCat renderer;
         static ImageCodecInfo imageEncoder;
         static Regex filterRegex;
+        static bool directoryMode;
 
         static string[] inputPathList;
 
@@ -50,6 +51,7 @@ namespace fCraft.MapRenderer {
                 return (int)optionParsingResult;
             }
 
+            // check regex filter
             if( useRegex ) {
                 try {
                     filterRegex = new Regex( inputFilter );
@@ -97,43 +99,35 @@ namespace fCraft.MapRenderer {
                 return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
+            // check input paths
+            bool hadFile = false,
+                 hadDir = false;
             foreach( string inputPath in inputPathList ) {
-                ReturnCode code = ProcessInputPath( inputPath );
-                if( code != ReturnCode.Success ) {
-                    return (int)code;
+                if( hadDir ) {
+                    Console.Error.WriteLine( "MapRenderer: Only one directory may be specified at a time." );
+                    return (int)ReturnCode.ArgumentError;
                 }
-            }
-            return (int)ReturnCode.Success;
-        }
-
-
-        static ReturnCode ProcessInputPath( string inputPath ) {
-            // check if input path exists, and if it's a file or directory
-            bool directoryMode;
-            try {
-                if( File.Exists( inputPath ) ) {
-                    directoryMode = false;
-                    if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
+                // check if input path exists, and if it's a file or directory
+                try {
+                    if( File.Exists( inputPath ) ) {
+                        hadFile = true;
+                    } else if( Directory.Exists( inputPath ) ) {
+                        hadDir = true;
+                        if( hadFile ) {
+                            Console.Error.WriteLine( "MapRenderer: Cannot mix directories and files in input." );
+                            return (int)ReturnCode.ArgumentError;
+                        }
+                        directoryMode = true;
+                    } else {
+                        Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
+                        return (int)ReturnCode.InputPathNotFound;
                     }
-                } else if( Directory.Exists( inputPath ) ) {
-                    directoryMode = true;
-                    if( outputDirName == null ) {
-                        outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
-                    }
-                } else {
-                    Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
-                    return ReturnCode.InputDirNotFound;
+                } catch( Exception ex ) {
+                    Console.Error.WriteLine( "MapRenderer: {0}: {1}",
+                                             ex.GetType().Name,
+                                             ex.Message );
+                    return (int)ReturnCode.PathError;
                 }
-
-                if( !Directory.Exists( outputDirName ) ) {
-                    Directory.CreateDirectory( outputDirName );
-                }
-            } catch( Exception ex ) {
-                Console.Error.WriteLine( "MapRenderer: {0}: {1}",
-                                         ex.GetType().Name,
-                                         ex.Message );
-                return ReturnCode.PathError;
             }
 
             // check recursive flag
@@ -146,6 +140,18 @@ namespace fCraft.MapRenderer {
                 Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
             }
 
+            // process inputs, one path at a time
+            foreach( string inputPath in inputPathList ) {
+                ReturnCode code = ProcessInputPath( inputPath );
+                if( code != ReturnCode.Success ) {
+                    return (int)code;
+                }
+            }
+            return (int)ReturnCode.Success;
+        }
+
+
+        static ReturnCode ProcessInputPath( string inputPath ) {
             if( !recursive && mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
                 // single-directory map
                 RenderOneMap( new DirectoryInfo( inputPath ) );
@@ -458,10 +464,15 @@ namespace fCraft.MapRenderer {
                 MapFormat importFormat;
                 if( !EnumUtil.TryParse( importerName, out importFormat, true ) ||
                     ( mapImporter = MapUtility.GetImporter( importFormat ) ) == null ) {
-                    Console.Error.WriteLine( "Unsupported importer \"{0}\"", importerName );
+                    Console.Error.WriteLine( "MapRenderer: Unsupported importer \"{0}\"", importerName );
                     PrintUsage();
                     return ReturnCode.UnrecognizedImporter;
                 }
+            }
+
+            if( inputFilter == null && useRegex ) {
+                Console.Error.WriteLine( "MapRenderer: --regex flag can only be used when --filter is specified." );
+                return ReturnCode.ArgumentError;
             }
 
             return ReturnCode.Success;
