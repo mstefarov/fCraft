@@ -94,14 +94,16 @@ namespace fCraft.MapConversion {
 
 
         /// <summary> Attempts to load the map excluding the block data from it's header using the specified file name. </summary>
-        /// <param name="fileName"> The name of the file.</param>
+        /// <param name="fileName"> The name of the file. </param>
+        /// <param name="tryFallbackConverters"> Whether or this method should try ALL converters,
+        /// including ones that do not typically handle files with the given file extension. </param>
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map excluding block data was loaded successfully. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
-        public static bool TryLoadHeader( [NotNull] string fileName, out Map map ) {
+        public static bool TryLoadHeader( [NotNull] string fileName, bool tryFallbackConverters, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
-                map = LoadHeader( fileName );
+                map = LoadHeader( fileName, tryFallbackConverters );
                 return true;
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
@@ -115,12 +117,14 @@ namespace fCraft.MapConversion {
 
         /// <summary> Loads the map excluding block data from it's header using the specified file name. </summary>
         /// <param name="fileName"> The name of the file. </param>
+        /// <param name="tryFallbackConverters"> Whether or this method should try ALL converters,
+        /// including ones that do not typically handle files with the given file extension. </param>
         /// <returns> The loaded map excluding block data. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
         /// <exception cref="FileNotFoundException"> File/directory with the given name is missing. </exception>
         /// <exception cref="NoMapConverterFoundException"> No converter can be found to load the map. </exception>
         [NotNull]
-        public static Map LoadHeader( [NotNull] string fileName ) {
+        public static Map LoadHeader( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
             MapStorageType targetType = MapStorageType.SingleFile;
@@ -155,14 +159,16 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            foreach( IMapImporter converter in fallbackConverters ) {
-                try {
-                    Map map = converter.LoadHeader( fileName );
-                    map.HasChangedSinceSave = false;
-                    return map;
-                    // ReSharper disable EmptyGeneralCatchClause
-                } catch {}
-                // ReSharper restore EmptyGeneralCatchClause
+            if( tryFallbackConverters ) {
+                foreach( IMapImporter converter in fallbackConverters ) {
+                    try {
+                        Map map = converter.LoadHeader( fileName );
+                        map.HasChangedSinceSave = false;
+                        return map;
+                        // ReSharper disable EmptyGeneralCatchClause
+                    } catch {}
+                    // ReSharper restore EmptyGeneralCatchClause
+                }
             }
 
             throw new NoMapConverterFoundException( "Could not find any converter to load the given file." );
@@ -171,13 +177,15 @@ namespace fCraft.MapConversion {
 
         /// <summary> Attempts to load the map including the block data from it's header using the specified file name. </summary>
         /// <param name="fileName"> The name of the file. </param>
+        /// <param name="tryFallbackConverters"> Whether or this method should try ALL converters,
+        /// including ones that do not typically handle files with the given file extension. </param>
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map was loaded successfully. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
-        public static bool TryLoad( [NotNull] string fileName, out Map map ) {
+        public static bool TryLoad( [NotNull] string fileName, bool tryFallbackConverters, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
-                map = Load( fileName );
+                map = Load( fileName, tryFallbackConverters );
                 return true;
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
@@ -190,12 +198,14 @@ namespace fCraft.MapConversion {
 
         /// <summary> Loads the map from it's header using the specified file name. </summary>
         /// <param name="fileName"> The name of the file. </param>
+        /// <param name="tryFallbackConverters"> Whether or this method should try ALL converters,
+        /// including ones that do not typically handle files with the given file extension. </param>
         /// <returns> The loaded map excluding block data. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
         /// <exception cref="FileNotFoundException"> File/directory with the given name is missing. </exception>
         /// <exception cref="NoMapConverterFoundException"> No converter can be found to load the given map file. </exception>
         [NotNull]
-        public static Map Load( [NotNull] string fileName ) {
+        public static Map Load( [NotNull] string fileName, bool tryFallbackConverters ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( fileName ) ) {
@@ -227,14 +237,16 @@ namespace fCraft.MapConversion {
                 }
             }
 
-            foreach( IMapImporter converter in fallbackConverters ) {
-                try {
-                    Map map = converter.Load( fileName );
-                    map.HasChangedSinceSave = false;
-                    return map;
-                    // ReSharper disable EmptyGeneralCatchClause
-                } catch {}
-                // ReSharper restore EmptyGeneralCatchClause
+            if( tryFallbackConverters ) {
+                foreach( IMapImporter converter in fallbackConverters ) {
+                    try {
+                        Map map = converter.Load( fileName );
+                        map.HasChangedSinceSave = false;
+                        return map;
+                        // ReSharper disable EmptyGeneralCatchClause
+                    } catch {}
+                    // ReSharper restore EmptyGeneralCatchClause
+                }
             }
 
             throw new NoMapConverterFoundException( "Could not find any converter to load the given file." );

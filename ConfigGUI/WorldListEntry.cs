@@ -336,7 +336,7 @@ namespace fCraft.ConfigGUI {
             get {
                 if( cachedMapHeader == null && !LoadingFailed ) {
                     string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
-                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, out cachedMapHeader );
+                    LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, false, out cachedMapHeader );
                 }
                 return cachedMapHeader;
             }
