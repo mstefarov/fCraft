@@ -226,7 +226,7 @@ namespace fCraft.ConfigGUI {
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             try {
-                Map = MapUtility.Load( fileToLoad );
+                Map = MapUtility.Load( fileToLoad, true );
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
                                                 ex.GetType().Name, ex.Message ) );
@@ -634,7 +634,7 @@ namespace fCraft.ConfigGUI {
 
             MapFormat format = MapUtility.Identify( fileName, true );
             try {
-                Map loadedMap = MapUtility.LoadHeader( fileName );
+                Map loadedMap = MapUtility.LoadHeader( fileName, true );
                 const string msgFormat =
 @"  Location: {0}
     Format: {1}

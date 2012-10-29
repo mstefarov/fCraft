@@ -1300,7 +1300,7 @@ namespace fCraft {
             if( fullFileName == null ) return;
 
             Map map;
-            if( !MapUtility.TryLoad( fullFileName, out map ) ) {
+            if( !MapUtility.TryLoad( fullFileName, true, out map ) ) {
                 player.Message( "Could not load the given map file ({0})", fileName );
                 return;
             }

@@ -1945,7 +1945,7 @@ namespace fCraft {
             // If map is not currently loaded, grab its header from disk
             if( map == null ) {
                 try {
-                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ) );
+                    map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ), false );
                 } catch( Exception ex ) {
                     player.Message( "  Map information could not be loaded: {0}: {1}",
                                     ex.GetType().Name, ex.Message );
@@ -2055,7 +2055,7 @@ namespace fCraft {
                 }
                 Map map;
                 try {
-                    map = MapUtility.Load( fullFileName );
+                    map = MapUtility.Load( fullFileName, true );
                 } catch( Exception ex ) {
                     player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                     return;
@@ -2134,7 +2134,7 @@ namespace fCraft {
 
                         Map map;
                         try {
-                            map = MapUtility.Load( fullFileName );
+                            map = MapUtility.Load( fullFileName, true );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load specified file: {0}: {1}", ex.GetType().Name, ex.Message );
                             return;
@@ -2175,7 +2175,7 @@ namespace fCraft {
 
                         Map map;
                         try {
-                            map = MapUtility.Load( fullFileName );
+                            map = MapUtility.Load( fullFileName, true );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
                                                fileName, ex.GetType().Name, ex.Message );
