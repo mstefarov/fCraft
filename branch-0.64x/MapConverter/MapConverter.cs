@@ -76,7 +76,7 @@ namespace fCraft.MapConverter {
 
                 } else {
                     Console.Error.WriteLine( "MapConverter: Cannot locate \"{0}\"", inputPath );
-                    return (int)ReturnCode.InputDirNotFound;
+                    return (int)ReturnCode.InputPathNotFound;
                 }
 
                 if( !Directory.Exists( outputDirName ) ) {
