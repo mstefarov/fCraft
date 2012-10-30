@@ -5,10 +5,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
-using System.Text.RegularExpressions;
 using ImageManipulation;
 using JetBrains.Annotations;
 using Mono.Options;
@@ -53,17 +53,6 @@ namespace fCraft.MapRenderer {
             ReturnCode optionParsingResult = ParseOptions( args );
             if( optionParsingResult != ReturnCode.Success ) {
                 return (int)optionParsingResult;
-            }
-
-            // check regex filter
-            if( useRegex ) {
-                try {
-                    filterRegex = new Regex( inputFilter );
-                } catch( ArgumentException ex) {
-                    Console.Error.WriteLine( "MapRenderer: Cannot parse filter regex: {0}",
-                                             ex.Message );
-                    return (int)ReturnCode.ArgumentError;
-                }
             }
 
             // parse importer name
@@ -116,18 +105,6 @@ namespace fCraft.MapRenderer {
                 }
             }
 
-            // check if output dir exists; create it if needed
-            if( outputDirName != null ) {
-                try {
-                    if( !Directory.Exists( outputDirName ) ) {
-                        Directory.CreateDirectory( outputDirName );
-                    }
-                } catch( Exception ex ) {
-                    Console.Error.WriteLine( "MapRenderer: Error checking output directory: {0}: {1}",
-                                             ex.GetType().Name, ex.Message );
-                }
-            }
-
             // initialize image encoder
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
             imageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == exportFormat.Guid );
@@ -168,11 +145,36 @@ namespace fCraft.MapRenderer {
             // check recursive flag
             if( recursive && !directoryMode ) {
                 Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
+                return (int)ReturnCode.ArgumentError;
             }
 
             // check input filter
             if( inputFilter != null && !directoryMode ) {
                 Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
+                return (int)ReturnCode.ArgumentError;
+            }
+
+            // check regex filter
+            if( useRegex ) {
+                try {
+                    filterRegex = new Regex( inputFilter );
+                } catch( ArgumentException ex ) {
+                    Console.Error.WriteLine( "MapRenderer: Cannot parse filter regex: {0}",
+                                             ex.Message );
+                    return (int)ReturnCode.ArgumentError;
+                }
+            }
+
+            // check if output dir exists; create it if needed
+            if( outputDirName != null ) {
+                try {
+                    if( !Directory.Exists( outputDirName ) ) {
+                        Directory.CreateDirectory( outputDirName );
+                    }
+                } catch( Exception ex ) {
+                    Console.Error.WriteLine( "MapRenderer: Error checking output directory: {0}: {1}",
+                                             ex.GetType().Name, ex.Message );
+                }
             }
 
             // process inputs, one path at a time
@@ -186,7 +188,8 @@ namespace fCraft.MapRenderer {
         }
 
 
-        static ReturnCode ProcessInputPath( string inputPath ) {
+        static ReturnCode ProcessInputPath( [NotNull] string inputPath ) {
+            if( inputPath == null ) throw new ArgumentNullException( "inputPath" );
             if( !recursive && mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
                 // single directory-based map (e.g. Myne)
                 if( !outputDirGiven ) {
@@ -229,8 +232,9 @@ namespace fCraft.MapRenderer {
         }
 
 
-        static void RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo, string relativeName ) {
+        static void RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo, [NotNull] string relativeName ) {
             if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
+            if( relativeName == null ) throw new ArgumentNullException( "relativeName" );
 
             try {
                 // if output directory was not given, save to same directory as the mapfile
@@ -252,7 +256,7 @@ namespace fCraft.MapRenderer {
                     map = MapUtility.Load( fileSystemInfo.FullName, tryHard );
                 }
 
-                // select image filename
+                // select target image file name
                 string targetFileName;
                 if( ( fileSystemInfo.Attributes & FileAttributes.Directory ) == FileAttributes.Directory ) {
                     targetFileName = fileSystemInfo.Name + imageFileExtension;
@@ -260,7 +264,7 @@ namespace fCraft.MapRenderer {
                     targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + imageFileExtension;
                 }
 
-                // get full image file name, see if it exists
+                // get full target image file name, check if it already exists
                 string targetPath = Path.Combine( outputDirName, targetFileName );
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();
@@ -405,7 +409,7 @@ namespace fCraft.MapRenderer {
                       o => seeThroughWater = ( o != null ) )
 
                 .Add( "x|regex",
-                      "Enable regular expessions in \"filter\".",
+                      "Enable regular expressions in \"filter\".",
                       o => useRegex = ( o != null ) )
 
                 .Add( "y|overwrite",
@@ -548,10 +552,11 @@ namespace fCraft.MapRenderer {
             if( prompt == null ) throw new ArgumentNullException( "prompt" );
             while( true ) {
                 Console.Write( prompt + " (Y/N): ", formatArgs );
-                string input = Console.ReadLine().ToLower();
-
-                if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) ||
-                    input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
+                string input = Console.ReadLine();
+                if( input == null ) {
+                    return false;
+                } else if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) ||
+                           input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
                     return true;
                 } else if( input.Equals( "no", StringComparison.OrdinalIgnoreCase ) ||
                            input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
