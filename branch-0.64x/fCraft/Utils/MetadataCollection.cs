@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
+using LibNbt;
 
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
@@ -55,14 +56,31 @@ namespace fCraft {
 
 
         /// <summary> Creates a copy of the given MetadataCollection. Copies all entries within. </summary>
-        public MetadataCollection( [NotNull] MetadataCollection<TValue> other )
-            : this() {
+        public MetadataCollection( [NotNull] MetadataCollection<TValue> other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( other.syncRoot ) {
-                foreach( var group in store ) {
+                foreach( var group in other.store ) {
                     foreach( var key in group.Value ) {
                         Add( group.Key, key.Key, key.Value );
                     }
+                }
+            }
+        }
+
+
+        /// <summary> Creates a new MetadataCollection from serialized Nbt representation. </summary>
+        /// <param name="tag"></param>
+        /// <param name="deserializationCallback"> Function that accepts string and constructs a TValue object. </param>
+        /// <exception cref="ArgumentNullException"> tag or deserializationCallback is null. </exception>
+        public MetadataCollection( [NotNull] NbtCompound tag, Func<string, TValue> deserializationCallback ) {
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+            foreach( NbtCompound groupTag in tag ) {
+                foreach( NbtString pairTag in groupTag ) {
+                    // ReSharper disable AssignNullToNotNullAttribute
+                    Add( groupTag.Name,
+                         pairTag.Name,
+                         deserializationCallback( pairTag.Value ) );
+                    // ReSharper restore AssignNullToNotNullAttribute
                 }
             }
         }
@@ -415,6 +433,25 @@ namespace fCraft {
         void RaiseChangedEvent() {
             var h = Changed;
             if( h != null ) h( null, EventArgs.Empty );
+        }
+
+
+        [NotNull]
+        public NbtCompound SerializeNbt( [NotNull] string tagName, [NotNull] Func<TValue,string> serializationCallback ) {
+            if( tagName == null ) throw new ArgumentNullException( "tagName" );
+            if( serializationCallback == null ) throw new ArgumentNullException( "serializationCallback" );
+            NbtCompound groupListTag = new NbtCompound( tagName );
+            lock( syncRoot ) {
+                foreach( var group in store ) {
+                    NbtCompound listTag = new NbtCompound( group.Key );
+                    foreach( var pair in group.Value ) {
+                        NbtString pairTag = new NbtString( pair.Key, serializationCallback( pair.Value ) );
+                        listTag.Add( pairTag );
+                    }
+                    groupListTag.Add( listTag );
+                }
+            }
+            return groupListTag;
         }
     }
 }
