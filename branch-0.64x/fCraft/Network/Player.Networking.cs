@@ -773,15 +773,15 @@ namespace fCraft {
             }
 
             // Check if other banned players logged in from this IP
-            PlayerInfo[] bannedPlayerNames = PlayerDB.FindPlayers( IP, 25 )
-                                                     .Where( playerFromSameIP => playerFromSameIP.IsBanned )
-                                                     .ToArray();
-            if( bannedPlayerNames.Length > 0 ) {
-                canSee.Message( "&WPlayer {0}&W logged in from an IP shared by banned players: {1}",
-                                ClassyName, bannedPlayerNames.JoinToClassyString() );
+            PlayerInfo[] shadyPlayerNames = PlayerDB.FindPlayers( IP )
+                                                    .Where( playerFromSameIP => playerFromSameIP.IsBanned || playerFromSameIP.IsFrozen )
+                                                    .ToArray();
+            if( shadyPlayerNames.Length > 0 ) {
+                canSee.Message( "&WPlayer {0}&W logged in from an IP shared by banned or frozen players: {1}",
+                                ClassyName, shadyPlayerNames.JoinToClassyString() );
                 Logger.Log( LogType.SuspiciousActivity,
-                            "Player {0} logged in from an IP shared by banned players: {1}",
-                            ClassyName, bannedPlayerNames.JoinToString( info => info.Name ) );
+                            "Player {0} logged in from an IP shared by banned or frozen players: {1}",
+                            Name, shadyPlayerNames.JoinToString( info => info.Name ) );
             }
 
             // check if player is still muted
