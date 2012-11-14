@@ -35,7 +35,7 @@ namespace fCraft {
                 "MapConverter.exe",
                 "MapRenderer.exe",
                 "HeartbeatSaver.exe",
-                UpdaterFileName,
+                UpdateInstallerFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
                 IPBanListFileName,
@@ -98,7 +98,7 @@ namespace fCraft {
 
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
-        public const string UpdaterFileName = "UpdateInstaller.exe";
+        public const string UpdateInstallerFileName = "UpdateInstaller.exe";
 
         public const string WorldListFileName = "worlds.xml";
 

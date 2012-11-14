@@ -267,7 +267,7 @@ namespace fCraft {
 #endif
             }
 
-            if( MonoCompat.IsMono && !MonoCompat.IsSGenCapable ) {
+            if( MonoCompat.MonoVersion != null && MonoCompat.MonoVersion < new Version( 2, 8 ) ) {
                 Logger.Log( LogType.Warning,
                             "You are using a relatively old version of the Mono runtime ({0}). " +
                             "It is recommended that you upgrade to at least 2.8+",
@@ -278,7 +278,7 @@ namespace fCraft {
             Config.RunSelfTest();
 #else
             // delete the old updater, if exists
-            File.Delete( Paths.UpdaterFileName );
+            File.Delete( Paths.UpdateInstallerFileName );
             File.Delete( "fCraftUpdater.exe" ); // pre-0.600
 #endif
 
@@ -626,10 +626,10 @@ namespace fCraft {
                                              MonoCompat.PrependMono( assemblyExecutable ),
                                              GetArgString() );
 
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, args, true );
+                MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, args, true );
 
             } else if( Updater.RunAtShutdown ) {
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, GetArgString(), true );
+                MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, GetArgString(), true );
 
             } else if( doRestart ) {
                 MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
