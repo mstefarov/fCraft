@@ -31,7 +31,7 @@ using fCraft.Events;
 
 namespace fCraft.ServerCLI {
     static class Program {
-        static bool useColor = true,
+        static bool useColor,
                     exitOnShutdown = true;
 
 
