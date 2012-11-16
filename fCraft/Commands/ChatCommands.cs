@@ -117,7 +117,7 @@ namespace fCraft {
                     CdIgnore.PrintUsage( player );
                     return;
                 }
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
                 if( targetInfo == null ) return;
 
                 if( player.Ignore( targetInfo ) ) {
@@ -153,7 +153,7 @@ namespace fCraft {
                     CdUnignore.PrintUsage( player );
                     return;
                 }
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
                 if( targetInfo == null ) return;
 
                 if( player.Unignore( targetInfo ) ) {

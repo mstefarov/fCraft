@@ -1095,15 +1095,7 @@ namespace fCraft {
                 }
 
             } else {
-                // no worlds found - see if player meant to type in "/Join" and not "/TP"
-                Player[] players = Server.FindPlayers( player, worldName, true );
-                if( players.Length == 1 ) {
-                    player.LastUsedPlayerName = players[0].Name;
-                    player.StopSpectating();
-                    player.ParseMessage( "/TP " + players[0].Name, false );
-                } else {
-                    player.MessageNoWorld( worldName );
-                }
+                player.MessageNoWorld( worldName );
             }
         }
 
@@ -1407,7 +1399,7 @@ namespace fCraft {
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), true );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1480,7 +1472,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), true );
                     if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -1676,7 +1668,7 @@ namespace fCraft {
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), true );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1749,7 +1741,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ) );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), true );
                     if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {

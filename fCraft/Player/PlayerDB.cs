@@ -506,9 +506,10 @@ namespace fCraft {
         /// If multiple players were found matching the partialName, first 25 matches are printed. </summary>
         /// <param name="player"> Player to print feedback to. </param>
         /// <param name="partialName"> Partial or full player name. </param>
+        /// <param name="includeSelf"> Whether player themself should be considered. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string partialName ) {
+        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string partialName, bool includeSelf ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( partialName == null ) throw new ArgumentNullException( "partialName" );
             CheckIfLoaded();
@@ -516,7 +517,7 @@ namespace fCraft {
             // If name starts with '!', return matches for online players only
             if( partialName.Length > 1 && partialName[0] == '!' ) {
                 partialName = partialName.Substring( 1 );
-                Player targetPlayer = Server.FindPlayerOrPrintMatches( player, partialName, false, true );
+                Player targetPlayer = Server.FindPlayerOrPrintMatches( player, partialName, includeSelf, false, true );
                 if( targetPlayer != null ) {
                     return targetPlayer.Info;
                 } else {
@@ -545,8 +546,12 @@ namespace fCraft {
             PlayerInfo target = FindPlayerInfoExact( partialName );
 
             // If no exact match was found, look for partial matches
-            if( target == null ) {
+            if( target == null || target == player.Info && !includeSelf ) {
                 PlayerInfo[] targets = FindPlayers( partialName );
+                if( !includeSelf ) {
+                    targets = targets.Where( p => p != player.Info ).ToArray();
+                }
+
                 if( targets.Length == 0 ) {
                     // No matches
                     player.MessageNoPlayer( partialName );

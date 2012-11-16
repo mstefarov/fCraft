@@ -74,7 +74,7 @@ namespace fCraft {
                 CdBan.PrintUsage( player );
                 return;
             }
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
             string reason = cmd.NextAll();
             try {
@@ -119,7 +119,7 @@ namespace fCraft {
                     player.Message( ex.MessageColored );
                 }
             } else {
-                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                 if( target == null ) return;
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
@@ -167,7 +167,7 @@ namespace fCraft {
                     player.Message( ex.MessageColored );
                 }
             } else {
-                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                 if( target == null ) return;
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
@@ -203,7 +203,7 @@ namespace fCraft {
                 CdUnban.PrintUsage( player );
                 return;
             }
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
             string reason = cmd.NextAll();
             try {
@@ -240,7 +240,7 @@ namespace fCraft {
                 if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanIP( player, reason, true, true );
                 } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                     if( target == null ) return;
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
@@ -280,7 +280,7 @@ namespace fCraft {
                 if( IPAddressUtil.IsIP( targetNameOrIP ) && IPAddress.TryParse( targetNameOrIP, out targetAddress ) ) {
                     targetAddress.UnbanAll( player, reason, true, true );
                 } else {
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP );
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                     if( target == null ) return;
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
@@ -313,7 +313,7 @@ namespace fCraft {
             }
             bool addExemption = (playerName[0] == '+');
             string targetName = playerName.Substring( 1 );
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, true );
             if( target == null ) return;
 
             switch( target.BanStatus ) {
@@ -378,7 +378,7 @@ namespace fCraft {
             }
 
             // find the target
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+            Player target = Server.FindPlayerOrPrintMatches( player, name, false, false, true );
             if( target == null ) return;
 
             string reason = cmd.NextAll();
@@ -646,7 +646,7 @@ namespace fCraft {
                     player.MessageManyMatches( "player", infos );
 
                 } else {
-                    infos = Server.FindPlayers( player, playerName, true );
+                    infos = Server.FindPlayers( player, playerName, true, false, true );
                     if( infos.Length > 0 ) {
                         player.Message( "You may only set spawn of players on the same world as you." );
                     } else {
@@ -683,7 +683,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
 
             try {
@@ -712,7 +712,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
 
             try {
@@ -775,7 +775,7 @@ namespace fCraft {
                         return;
                     }
                 }
-                Player[] matches = Server.FindPlayers( player, name, true );
+                Player[] matches = Server.FindPlayers( player, name, false, true, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
                     World targetWorld = target.World;
@@ -815,16 +815,7 @@ namespace fCraft {
                     player.MessageManyMatches( "player", matches );
 
                 } else {
-                    // Try to guess if player typed "/TP" instead of "/Join"
-                    World[] worlds = WorldManager.FindWorlds( player, name );
-
-                    if( worlds.Length == 1 ) {
-                        player.LastUsedWorldName = worlds[0].Name;
-                        player.StopSpectating();
-                        player.ParseMessage( "/Join " + worlds[0].Name, false );
-                    } else {
-                        player.MessageNoPlayer( name );
-                    }
+                    player.MessageNoPlayer( name );
                 }
             }
         }
@@ -857,7 +848,7 @@ namespace fCraft {
             string toName = cmd.Next();
             Player toPlayer = player;
             if( toName != null ) {
-                toPlayer = Server.FindPlayerOrPrintMatches( player, toName, false, true );
+                toPlayer = Server.FindPlayerOrPrintMatches( player, toName, true, false, true );
                 if( toPlayer == null ) return;
             } else if( toPlayer.World == null ) {
                 player.Message( "When used from console, /Bring requires both names to be given." );
@@ -867,7 +858,7 @@ namespace fCraft {
             World world = toPlayer.World;
             if( world == null ) PlayerOpException.ThrowNoWorld( toPlayer );
 
-            Player target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+            Player target = Server.FindPlayerOrPrintMatches( player, name, true, false, true );
             if( target == null ) return;
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
@@ -927,15 +918,10 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, playerName, false, true );
+            Player target = Server.FindPlayerOrPrintMatches( player, playerName, false, false, true );
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
 
             if( target == null || world == null ) return;
-
-            if( target == player ) {
-                player.Message( "&WYou cannot &H/WBring&W yourself." );
-                return;
-            }
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
@@ -1228,7 +1214,7 @@ namespace fCraft {
             }
 
             // find the target
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
 
             // actually mute
@@ -1258,7 +1244,7 @@ namespace fCraft {
             }
 
             // find target
-            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
 
             try {
@@ -1299,13 +1285,8 @@ namespace fCraft {
                 return;
             }
 
-            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, true );
+            Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, false, true );
             if( target == null ) return;
-
-            if( target == player ) {
-                player.Message( "You cannot spectate yourself." );
-                return;
-            }
 
             if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
                 player.Message( "You may only spectate players ranked {0}&S or lower.",

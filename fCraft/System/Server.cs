@@ -1091,10 +1091,16 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search.
         /// Used to determine whether others are hidden or not. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
+        /// <param name="includeSelf"> Whether player themself should be considered in the results. </param>
+        /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, bool raiseEvent ) {
+        public static Player[] FindPlayers( [NotNull] Player player,
+                                            [NotNull] string name,
+                                            bool includeSelf,
+                                            bool includeHidden,
+                                            bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
             if( name == "-" ) {
@@ -1107,14 +1113,18 @@ namespace fCraft {
             player.LastUsedPlayerName = name;
             List<Player> results = new List<Player>();
             Player[] tempList = Players;
-            for( int i = 0; i < tempList.Length; i++ ) {
-                if( tempList[i] == null || !player.CanSee( tempList[i] ) ) continue;
-                if( tempList[i].Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+            foreach( Player otherPlayer in tempList ) {
+                if( otherPlayer == null ||
+                    !includeHidden && !player.CanSee( otherPlayer ) ||
+                    !includeSelf && otherPlayer == player ) {
+                    continue;
+                }
+                if( otherPlayer.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
                     results.Clear();
-                    results.Add( tempList[i] );
+                    results.Add( otherPlayer );
                     break;
-                } else if( tempList[i].Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    results.Add( tempList[i] );
+                } else if( otherPlayer.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Add( otherPlayer );
                 }
             }
             if( raiseEvent ) {
@@ -1131,6 +1141,12 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds player by name without autocompletion.
+        /// Returns null if no player with the given name is online. </summary>
+        /// <param name="player"> Player from whose perspective search is performed. Used to determine whether others are hidden. </param>
+        /// <param name="name"> Full player name. Case-insensitive. </param>
+        /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
+        /// <returns> Player object if player was found online; otherwise null. </returns>
         public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, bool includeHidden ) {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
             if( target != null && includeHidden && !player.CanSee( target ) ) {
@@ -1145,32 +1161,38 @@ namespace fCraft {
         /// Returns null and prints message if none or multiple players matched.
         /// Raises Player.SearchingForPlayer event, which may modify search results. </summary>
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
-        /// <param name="name"> Full or partial name of the search target. </param>
+        /// <param name="partialName"> Full or partial name of the search target. </param>
+        /// <param name="includeSelf"> Whether player themself should be considered in the results. </param>
         /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
-        public static Player FindPlayerOrPrintMatches( [NotNull] Player player, [NotNull] string name,
-                                                       bool includeHidden, bool raiseEvent ) {
+        public static Player FindPlayerOrPrintMatches( [NotNull] Player player,
+                                                       [NotNull] string partialName,
+                                                       bool includeSelf,
+                                                       bool includeHidden,
+                                                       bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( name == "-" ) {
+            if( partialName == null ) throw new ArgumentNullException( "partialName" );
+            if( partialName == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
-                    name = player.LastUsedPlayerName;
+                    partialName = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
                 }
             }
-            Player[] matches;
-            if( includeHidden ) {
-                matches = FindPlayers( name, raiseEvent );
-            } else {
-                matches = FindPlayers( player, name, raiseEvent );
+
+            // Make sure player name is valid
+            if( !Player.ContainsValidCharacters( partialName ) ) {
+                player.MessageInvalidPlayerName( partialName );
+                return null;
             }
 
+            Player[] matches = FindPlayers( player, partialName, includeSelf, includeHidden, raiseEvent );
+
             if( matches.Length == 0 ) {
-                player.MessageNoPlayer( name );
+                player.MessageNoPlayer( partialName );
                 return null;
 
             } else if( matches.Length > 1 ) {
