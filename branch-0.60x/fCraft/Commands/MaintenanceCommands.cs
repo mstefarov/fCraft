@@ -652,7 +652,7 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName );
+            PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, true );
             if( info == null ) return;
 
             switch( propertyName.ToLower() ) {
@@ -1461,9 +1461,9 @@ namespace fCraft {
                 return;
             }
 
-            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1Name );
+            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p1Name, true );
             if( p1 == null ) return;
-            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2Name );
+            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches( player, p2Name, true );
             if( p2 == null ) return;
 
             if( p1 == p2 ) {

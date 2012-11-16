@@ -485,7 +485,7 @@ namespace fCraft {
                 }
 
             } else {
-                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name );
+                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, true );
                 if( info == null ) return;
 
                 address = info.LastIP;
@@ -1071,7 +1071,7 @@ namespace fCraft {
                     player.MessageNoAccess( Permission.ViewOthersInfo );
                     return;
                 }
-                target = Server.FindPlayerOrPrintMatches( player, name, false, true );
+                target = Server.FindPlayerOrPrintMatches( player, name, true, false, true );
                 if( target == null ) return;
             } else if( target.World == null ) {
                 player.Message( "When called from console, &H/Where&S requires a player name." );
