@@ -618,21 +618,23 @@ namespace fCraft {
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
-            bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
-            string assemblyExecutable = Assembly.GetEntryAssembly().Location;
+            if( !HasArg( ArgKey.NoUpdater ) ) {
+                bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
+                string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
-            if( Updater.RunAtShutdown && doRestart ) {
-                string args = String.Format( "--restart=\"{0}\" {1}",
-                                             MonoCompat.PrependMono( assemblyExecutable ),
-                                             GetArgString() );
+                if( Updater.RunAtShutdown && doRestart ) {
+                    string args = String.Format( "--restart=\"{0}\" {1}",
+                                                 MonoCompat.PrependMono( assemblyExecutable ),
+                                                 GetArgString() );
 
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, args, true );
+                    MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, args, true );
 
-            } else if( Updater.RunAtShutdown ) {
-                MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, GetArgString(), true );
+                } else if( Updater.RunAtShutdown ) {
+                    MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, GetArgString(), true );
 
-            } else if( doRestart ) {
-                MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
+                } else if( doRestart ) {
+                    MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
+                }
             }
 
             RaiseShutdownEndedEvent( param );
