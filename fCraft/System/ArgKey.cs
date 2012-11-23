@@ -32,6 +32,9 @@ namespace fCraft {
         NoLog,
 
         /// <summary> Disables colors in CLI frontends. </summary>
-        NoConsoleColor
+        NoConsoleColor,
+
+        /// <summary> Do not run the updater executable upon updating. </summary>
+        NoUpdater
     };
 }

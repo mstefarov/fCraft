@@ -280,6 +280,7 @@ namespace fCraft.ServerCLI {
 
 
         static void RestartForUpdate() {
+            if( Server.HasArg( ArgKey.NoUpdater ) ) return;
             string restartArgs = String.Format( "{0} --restart=\"{1}\"",
                                                 Server.GetArgString(),
                                                 MonoCompat.PrependMono( "ServerCLI.exe" ) );
