@@ -57,6 +57,8 @@ namespace fCraft {
 
         #region Paths & Properties
 
+        /// <summary> Whether fCraft should parse ConfigKey.MapPath when loading config.xml
+        /// This is set to "false" by Server if --mappath command-line argument was given. </summary>
         public static bool IgnoreMapPathConfigKey { get; internal set; }
 
         public const string MapPathDefault = "maps",
@@ -251,7 +253,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Checks whether two paths/file names reference the exact same filesystem location. Accounts for filesystem quirks. </summary>
         /// <returns> True if given paths are referencing the same file. False if they're not. </returns>
         /// <exception cref="ArgumentNullException"> path1 or path2 is null. </exception>
@@ -270,9 +271,11 @@ namespace fCraft {
             if( path1 == null ) throw new ArgumentNullException( "path1" );
             if( path2 == null ) throw new ArgumentNullException( "path2" );
             StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
-            return String.Equals( Path.GetFullPath( path1 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
-                                  Path.GetFullPath( path2 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
-                                  sc );
+            return
+                String.Equals(
+                    Path.GetFullPath( path1 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
+                    Path.GetFullPath( path2 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
+                    sc );
         }
 
 
@@ -288,11 +291,7 @@ namespace fCraft {
                 new FileInfo( path );
                 // ReSharper restore ObjectCreationAsStatement
                 return true;
-            } catch( ArgumentException ) {
-            } catch( PathTooLongException ) {
-            } catch( NotSupportedException ) {
-            } catch( UnauthorizedAccessException ) {
-            }
+            } catch( ArgumentException ) {} catch( PathTooLongException ) {} catch( NotSupportedException ) {} catch( UnauthorizedAccessException ) {}
             return false;
         }
 
@@ -316,9 +315,11 @@ namespace fCraft {
         public static bool Contains( [NotNull] string parentPath, [NotNull] string childPath, bool caseSensitive ) {
             if( parentPath == null ) throw new ArgumentNullException( "parentPath" );
             if( childPath == null ) throw new ArgumentNullException( "childPath" );
-            string fullParentPath = Path.GetFullPath( parentPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
-            string fullChildPath = Path.GetFullPath( childPath ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
-            StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
+            string fullParentPath = Path.GetFullPath( parentPath )
+                                        .TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
+            string fullChildPath = Path.GetFullPath( childPath )
+                                       .TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
+            StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
             return fullChildPath.StartsWith( fullParentPath, sc );
         }
 
@@ -349,8 +350,10 @@ namespace fCraft {
             } else {
                 string parentDir = GetDirectoryNameOrRoot( fileInfo.FullName );
                 string[] files = Directory.GetFiles( parentDir, "*", SearchOption.TopDirectoryOnly );
-                StringComparison comparison = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
-                return files.Select( fullFileName => Path.GetFileName( fullFileName ) )
+                StringComparison comparison = ( caseSensitive
+                                                    ? StringComparison.Ordinal
+                                                    : StringComparison.OrdinalIgnoreCase );
+                return files.Select( Path.GetFileName )
                             .Any( fileName => fileName.Equals( fileInfo.Name, comparison ) );
             }
         }
@@ -366,9 +369,7 @@ namespace fCraft {
             if( Directory.Exists( fullPath ) ) {
                 return fullPath;
             }
-            // ReSharper disable AssignNullToNotNullAttribute
             return Path.GetDirectoryName( fullPath ) ?? Path.GetPathRoot( fullPath );
-            // ReSharper restore AssignNullToNotNullAttribute
         }
 
 
