@@ -67,7 +67,7 @@ namespace fCraft {
             public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
-            int nickTry = 0;
+            int nickTry;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
 
 
@@ -150,6 +150,11 @@ namespace fCraft {
                                 writer.Write( outputLine + "\r\n" );
                                 lastMessageSent = DateTime.UtcNow;
                                 writer.Flush();
+                                if( outputLine.StartsWith( "QUIT" ) ) {
+                                    isConnected = false;
+                                    reconnect = false;
+                                    break;
+                                }
                             }
 
                             if( OutputQueue.Length > 0 &&
@@ -380,7 +385,7 @@ namespace fCraft {
                         if( die ) {
                             Logger.Log( LogType.IRCStatus, "Error: Disconnecting." );
                             reconnect = false;
-                            DisconnectThread();
+                            DisconnectThread( null );
                         }
 
                         return;
@@ -413,10 +418,15 @@ namespace fCraft {
             }
 
 
-            public void DisconnectThread() {
+            public void DisconnectThread( [CanBeNull] string quitMsg ) {
+                if( isConnected && quitMsg != null ) {
+                    localQueue.Clear();
+                    Send( IRCCommands.Quit( quitMsg ) );
+                } else {
+                    isConnected = false;
+                }
                 IsReady = false;
                 AssignBotForInputParsing();
-                isConnected = false;
                 if( thread != null && thread.IsAlive ) {
                     thread.Join( 1000 );
                     if( thread.IsAlive ) {
@@ -492,6 +502,7 @@ namespace fCraft {
                 Logger.Log( LogType.IRCStatus, "All IRC bots have disconnected." );
             }
         }
+
 
         public static void Init() {
             if( !ConfigKey.IRCBotEnabled.Enabled() ) return;
@@ -601,10 +612,10 @@ namespace fCraft {
         }
 
 
-        internal static void Disconnect() {
+        internal static void Disconnect( string quitMsg ) {
             if( threads != null && threads.Length > 0 ) {
                 foreach( IRCThread thread in threads ) {
-                    thread.DisconnectThread();
+                    thread.DisconnectThread( quitMsg );
                 }
             }
         }

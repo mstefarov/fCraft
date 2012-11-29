@@ -505,7 +505,8 @@ namespace fCraft {
                 }
 
                 // kill IRC bot
-                IRC.Disconnect();
+                string quitMsg = ConfigKey.ServerName.GetString() + " - " + shutdownParams.ReasonString;
+                IRC.Disconnect( Color.MinecraftToIrcColors( quitMsg ) );
 
                 // kick all players
                 Player[] kickedPlayers = null;
