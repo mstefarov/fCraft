@@ -110,6 +110,7 @@ namespace fCraft {
         static bool libraryInitialized,
                     serverInitialized;
 
+        /// <summary> Whether the server is currently running (true between Started and ShutdownEnded events). </summary>
         public static bool IsRunning { get; private set; }
 
 
@@ -396,7 +397,8 @@ namespace fCraft {
                             ExternalIP, Port );
             } else {
                 Logger.Log( LogType.SystemActivity,
-                            "Server.StartServer: External IP could not be looked up. Now accepting connections on port {0}", Port );
+                            "Server.StartServer: External IP could not be looked up. Now accepting connections on port {0}",
+                            Port );
             }
 
             // list loaded worlds
@@ -431,11 +433,13 @@ namespace fCraft {
             // Announcements
             if( ConfigKey.AnnouncementInterval.GetInt() > 0 ) {
                 TimeSpan announcementInterval = TimeSpan.FromMinutes( ConfigKey.AnnouncementInterval.GetInt() );
-                Scheduler.NewTask( ShowRandomAnnouncement ).RunForever( announcementInterval );
+                Scheduler.NewTask( ShowRandomAnnouncement )
+                         .RunForever( announcementInterval );
             }
 
             // garbage collection (every 60s)
-            gcTask = Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+            gcTask = Scheduler.NewTask( DoGC )
+                              .RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             Heartbeat.Start();
 
@@ -444,13 +448,17 @@ namespace fCraft {
             }
 
             if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                Scheduler.NewTask( AutoRankManager.TaskCallback ).RunForever( AutoRankManager.TickInterval );
+                Scheduler.NewTask( AutoRankManager.TaskCallback )
+                         .RunForever( AutoRankManager.TickInterval );
             }
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
+                // schedule automatic restart
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
-                Shutdown( new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true ), false );
-                ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true,
+                                                        "Automatic Server Restart",
+                                                        Player.Console );
+                Shutdown( sp, false );
             }
 
             // start the main loop - server is now connectible
@@ -619,7 +627,7 @@ namespace fCraft {
             ShutdownWaiter.Set();
 
             if( !HasArg( ArgKey.NoUpdater ) ) {
-                bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
+                bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
                 string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
                 if( Updater.RunAtShutdown && doRestart ) {
@@ -674,6 +682,8 @@ namespace fCraft {
         static SchedulerTask checkConnectionsTask;
         static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
 
+        /// <summary> Interval at which Server checks for incoming connections.
+        /// One player may be accepted per check. Default is 250ms. </summary>
         public static TimeSpan CheckConnectionsInterval {
             get { return checkConnectionsInterval; }
             set {
@@ -701,7 +711,8 @@ namespace fCraft {
         static SchedulerTask checkIdlesTask;
         static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
 
-        /// <summary> Interval at which Server checks for idle players (to kick idlers). </summary>
+        /// <summary> Interval at which Server checks for idle players (to kick idlers).
+        /// Default is 30 seconds. </summary>
         public static TimeSpan CheckIdlesInterval {
             get { return checkIdlesInterval; }
             set {
@@ -733,7 +744,8 @@ namespace fCraft {
         static SchedulerTask gcTask;
         static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
 
-        /// <summary> Interval at which Server checks whether forced garbage collection is needed. </summary>
+        /// <summary> Interval at which Server checks whether forced garbage collection is needed. 
+        /// Default is 60 seconds. </summary>
         public static TimeSpan GCInterval {
             get { return gcInterval; }
             set {
@@ -807,6 +819,7 @@ namespace fCraft {
         #region Utilities
 
         static bool gcRequested;
+
 
         /// <summary> Informs the server that garbage collection should be performed.
         /// Actual collection is done on the background task thread, asynchronously, as needed. </summary>
@@ -944,6 +957,7 @@ namespace fCraft {
                                                          int retryCount ) {
             return new IPEndPoint( InternalIP, 0 );
         }
+
 
         internal static readonly RequestCachePolicy CachePolicy = new RequestCachePolicy( RequestCacheLevel.BypassCache );
 
