@@ -448,9 +448,12 @@ namespace fCraft {
             }
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
+                // schedule automatic restart
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
-                Shutdown( new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true ), false );
-                ChatTimer.Start( restartIn, "Automatic Server Restart", Player.Console.Name );
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true,
+                                                        "Automatic Server Restart",
+                                                        Player.Console );
+                Shutdown( sp, false );
             }
 
             // start the main loop - server is now connectible
@@ -618,21 +621,23 @@ namespace fCraft {
             ShutdownNow( param );
             ShutdownWaiter.Set();
 
-            bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
-            string assemblyExecutable = Assembly.GetEntryAssembly().Location;
+            if( !HasArg( ArgKey.NoUpdater ) ) {
+                bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
+                string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
-            if( Updater.RunAtShutdown && doRestart ) {
-                string args = String.Format( "--restart=\"{0}\" {1}",
-                                             MonoCompat.PrependMono( assemblyExecutable ),
-                                             GetArgString() );
+                if( Updater.RunAtShutdown && doRestart ) {
+                    string args = String.Format( "--restart=\"{0}\" {1}",
+                                                 MonoCompat.PrependMono( assemblyExecutable ),
+                                                 GetArgString() );
 
-                MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, args, true );
+                    MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, args, true );
 
-            } else if( Updater.RunAtShutdown ) {
-                MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, GetArgString(), true );
+                } else if( Updater.RunAtShutdown ) {
+                    MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, GetArgString(), true );
 
-            } else if( doRestart ) {
-                MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
+                } else if( doRestart ) {
+                    MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
+                }
             }
 
             RaiseShutdownEndedEvent( param );
