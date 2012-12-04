@@ -3,8 +3,8 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
+using fCraft.GUI.Properties;
 using JetBrains.Annotations;
-using fCraftGUI.Properties;
 
 namespace fCraft.GUI {
     /// <summary> Isometric map renderer.
