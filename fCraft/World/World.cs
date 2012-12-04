@@ -45,9 +45,7 @@ namespace fCraft {
 
         [NotNull]
         public string LoadedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( LoadedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( LoadedBy ); }
         }
 
 
@@ -61,9 +59,7 @@ namespace fCraft {
 
         [NotNull]
         public string MapChangedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( MapChangedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( MapChangedBy ); }
         }
 
 
@@ -106,6 +102,7 @@ namespace fCraft {
                 map = value;
             }
         }
+
         Map map;
 
         /// <summary> Whether the map is currently loaded. </summary>
@@ -163,9 +160,7 @@ namespace fCraft {
         /// <summary> Returns the map file name, including MapPath. </summary>
         [NotNull]
         public string MapFileName {
-            get {
-                return Path.Combine( Paths.MapPath, Name + ".fcm" );
-            }
+            get { return Path.Combine( Paths.MapPath, Name + ".fcm" ); }
         }
 
 
@@ -229,9 +224,7 @@ namespace fCraft {
         /// Map is immediately loaded when Preload is set to true.
         /// Map is unloaded if Preloaded is set to false, and there are no players on this world. </summary>
         public bool Preload {
-            get {
-                return preload;
-            }
+            get { return preload; }
             set {
                 lock( SyncRoot ) {
                     if( preload == value ) return;
@@ -244,6 +237,7 @@ namespace fCraft {
                 }
             }
         }
+
         bool preload;
 
         #endregion
@@ -286,6 +280,7 @@ namespace fCraft {
 
         [NotNull]
         public Player[] Players { get; private set; }
+
 
         [CanBeNull]
         public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
@@ -331,7 +326,8 @@ namespace fCraft {
                 IsPendingMapUnload = false;
                 Map = LoadMap();
 
-                if( ConfigKey.BackupOnJoin.Enabled() && (HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
+                if( ConfigKey.BackupOnJoin.Enabled() &&
+                    ( HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
                     string backupFileName = String.Format( JoinBackupFormat,
                                                            Name, DateTime.Now, player.Name ); // localized
                     SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
@@ -341,8 +337,8 @@ namespace fCraft {
 
                 if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
                     Server.Players.CanSee( player )
-                                  .Message( "&SPlayer {0}&S joined {1}",
-                                            player.ClassyName, ClassyName );
+                          .Message( "&SPlayer {0}&S joined {1}",
+                                    player.ClassyName, ClassyName );
                 }
 
                 Logger.Log( LogType.UserActivity,
@@ -451,9 +447,7 @@ namespace fCraft {
 
         /// <summary> Whether the current world is full, determined by ConfigKey.MaxPlayersPerWorld </summary>
         public bool IsFull {
-            get {
-                return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt());
-            }
+            get { return ( Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt() ); }
         }
 
         #endregion
@@ -537,6 +531,7 @@ namespace fCraft {
         readonly object patrolLock = new object();
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
+
         /// <summary> Selects the next player to teleport to while patroling.
         /// Sets target's LastPatrolTime automatically. </summary>
         /// <param name="observer"> Player who is patrolling. </param>
@@ -559,6 +554,7 @@ namespace fCraft {
             }
         }
 
+
         /// <summary> Selects the next player to teleport to while patroling.
         /// Includes additional inclusion check (predicate). </summary>
         /// <param name="observer"> Player who is patrolling. </param>
@@ -568,7 +564,7 @@ namespace fCraft {
         /// <returns> Player who has been selected to be patrolled. </returns>
         /// <exception cref="ArgumentNullException"> observer or predicate is null. </exception>
         public Player GetNextPatrolTarget( [NotNull] Player observer,
-                                           [NotNull] Predicate<Player> predicate,
+                                           [NotNull, InstantHandle] Predicate<Player> predicate,
                                            bool setLastPatrolTime ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             if( predicate == null ) throw new ArgumentNullException( "predicate" );
@@ -703,12 +699,14 @@ namespace fCraft {
                 lock( BackupLock ) {
                     if( value == backupEnabledState ) return;
                     if( value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero ) {
-                        throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval." );
+                        throw new InvalidOperationException(
+                            "To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval." );
                     }
                     backupEnabledState = value;
                 }
             }
         }
+
         YesNoAuto backupEnabledState = YesNoAuto.Auto;
 
 
@@ -737,6 +735,7 @@ namespace fCraft {
                 }
             }
         }
+
         TimeSpan backupInterval;
 
 
@@ -881,6 +880,7 @@ namespace fCraft {
 
         /// <summary> The block which will be displayed in the background for the client. </summary>
         public Block EdgeBlock = Block.Water;
+
 
         /// <summary> Creates a WOM configuration string. </summary>
         /// <param name="sendMotd"> Determines if the motd is sent with the configuration string. </param>

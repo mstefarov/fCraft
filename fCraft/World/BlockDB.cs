@@ -630,7 +630,8 @@ namespace fCraft {
         /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
         /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
         [NotNull]
-        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, [NotNull] Func<BlockDBEntry, bool> selector ) {
+        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType,
+                                      [NotNull, InstantHandle] Func<BlockDBEntry, bool> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
