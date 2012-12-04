@@ -696,7 +696,9 @@ namespace fCraft {
 
 
             // ----==== Beyond this point, player is considered connected (authenticated and registered) ====----
-            Logger.Log( LogType.UserActivity, "Player {0} connected from {1}.", Name, IP );
+            Logger.Log( LogType.UserActivity,
+                        "Player {0} connected from {1} (session #{2})",
+                        Name, IP, Info.TimesVisited );
 
 
             // Figure out what the starting world should be
