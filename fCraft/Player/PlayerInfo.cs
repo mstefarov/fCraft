@@ -24,6 +24,9 @@ namespace fCraft {
                     sb.Append( Rank.Color );
                 }
                 if( DisplayedName != null ) {
+                    if( ConfigKey.RankPrefixesOnDisplayedNames.Enabled() ) {
+                        sb.Append( Rank.Prefix );
+                    }
                     sb.Append( DisplayedName );
                 } else {
                     if( ConfigKey.RankPrefixesInChat.Enabled() ) {

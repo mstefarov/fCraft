@@ -1,3 +1,10 @@
+0.639
+ Fix: Fixed an IRC-related hang.
+ Fix: Corrected the help message for /UndoAreaNot (thanks nope__avi)
+ Fix: Fixed /Unhide not faking a join message for hidden players (thanks ruggedbear).
+ Change: "/help commands" is no longer an alias for "/commands" (thanks ruggedbear).
+ Change: Players' connection messages in logs now include TimesVisited stat.
+
 0.638
  Feature: Emote keywords and their Unicode equivalents can now be included in announcement and rule files.
  Feature: IRC bot now sends a quit message consisting of server name and shutdown reason.

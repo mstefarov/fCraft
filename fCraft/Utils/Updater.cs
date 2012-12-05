@@ -16,10 +16,10 @@ namespace fCraft {
         /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             639,
-            1886,
-            new DateTime( 2012, 11, 30, 1, 50, 0, DateTimeKind.Utc ),
+            1896,
+            new DateTime( 2012, 12, 4, 2, 50, 0, DateTimeKind.Utc ),
             "", "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Dev
+            ReleaseFlags.Bugfix | ReleaseFlags.ConfigFormatChange | ReleaseFlags.Dev
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
