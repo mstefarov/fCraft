@@ -83,9 +83,13 @@ overwhelming the Internet connection with data.",
         RankColorsInWorldNames,
 
         [BoolKey( ConfigSection.Chat, false,
-@"Show 1-character prefixes in chat before player names. This can be
+@"Show rank prefixes in chat before player names. This can be
 used to set up IRC-style ""+"" and ""@"" prefixes for ops." )]
         RankPrefixesInChat,
+
+        [BoolKey( ConfigSection.Chat, false,
+@"Whether to prepend rank prefixes to players with a custom DisplayedName set." )]
+        RankPrefixesOnDisplayedNames,
 
         [BoolKey( ConfigSection.Chat, false,
 @"Show prefixes in the player list. As a side-effect, Minecraft client
