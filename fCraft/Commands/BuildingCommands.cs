@@ -1633,7 +1633,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
             RepeatableSelection = true,
-            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by the given player(s). " +
                    "Applies to a selected area in the current world. " +
                    "More than one player name can be given at a time. " +
@@ -1662,7 +1662,7 @@ namespace fCraft {
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
             RepeatableSelection = true,
-            Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoAreaNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
                    "Applies to a selected area in the current world. " +
                    "More than one player name can be given at a time.",
@@ -1755,7 +1755,7 @@ namespace fCraft {
             Aliases = new[] { "up", "undox" },
             Category = CommandCategory.Moderation,
             Permissions = new[] { Permission.UndoOthersActions },
-            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName]",
+            Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by a given player in the current world. " +
                    "More than one player name can be given at a time. " +
                    "Players with UndoAll permission can use '*' in place of player name to undo everyone's changes at once.",

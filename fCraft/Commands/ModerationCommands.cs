@@ -547,14 +547,16 @@ namespace fCraft {
             // to make it look like player just logged out in /Info
             player.Info.LastSeen = DateTime.UtcNow;
 
-            if( !silent ) {
-                if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Server.Players.CantSee( player ).Message( "&SPlayer {0}&S left the server.", player.ClassyName );
-                }
+            if( !silent && ConfigKey.ShowConnectionMessages.Enabled() ) {
+                Server.Players
+                      .CantSee( player )
+                      .Message( Server.MakePlayerDisconnectedMessage( player ) );
             }
 
             // for aware players: notify
-            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is now hidden.", player.ClassyName );
+            Server.Players
+                  .CanSee( player )
+                  .Message( "&SPlayer {0}&S is now hidden.", player.ClassyName );
 
             Player.RaisePlayerHideChangedEvent( player, true, silent );
         }
@@ -579,21 +581,23 @@ namespace fCraft {
                 player.Message( "You are not currently hidden." );
                 return;
             }
-
             bool silent = cmd.HasNext;
 
             // for aware players: notify
-            Server.Players.CanSee( player ).Message( "&SPlayer {0}&S is no longer hidden.",
-                                                     player.ClassyName );
-            player.Message( "&8You are no longer hidden." );
-            player.Info.IsHidden = false;
+            Server.Players
+                  .CanSee( player )
+                  .Message( "&SPlayer {0}&S is no longer hidden.",
+                            player.ClassyName );
 
+            // for unaware players: fake a join message
             if( !silent ) {
                 if( ConfigKey.ShowConnectionMessages.Enabled() ) {
                     string msg = Server.MakePlayerConnectedMessage( player, false, playerWorld );
                     Server.Players.CantSee( player ).Message( msg );
                 }
             }
+            player.Info.IsHidden = false;
+            player.Message( "&8You are no longer hidden." );
 
             Player.RaisePlayerHideChangedEvent( player, false, silent );
         }
