@@ -324,7 +324,7 @@ namespace fCraft {
             StringBuilder output = new StringBuilder( message.Length );
             while( start != -1 ) {
                 output.Append( message, lastInsert, start - lastInsert );
-                lastInsert = Math.Min( start + 2, message.Length - 1 );
+                lastInsert = Math.Min( start + 2, message.Length );
                 start = message.IndexOf( '&', lastInsert );
             }
             output.Append( message, lastInsert, message.Length - lastInsert );

@@ -1027,6 +1027,13 @@ namespace fCraft {
         }
 
 
+        public static string MakePlayerDisconnectedMessage( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            return String.Format( "&SPlayer {0}&S left the server.",
+                                  player.ClassyName );
+        }
+
+
         // Removes player from the list, and announced them leaving
         internal static void UnregisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -1040,8 +1047,8 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} left the server ({1}).", player.Name, player.LeaveReason );
                 if( player.HasFullyConnected && ConfigKey.ShowConnectionMessages.Enabled() ) {
-                    Players.CanSee( player ).Message( "&SPlayer {0}&S left the server.",
-                                                      player.ClassyName );
+                    Players.CanSee( player )
+                           .Message( MakePlayerDisconnectedMessage( player ) );
                 }
 
                 if( player.World != null ) {

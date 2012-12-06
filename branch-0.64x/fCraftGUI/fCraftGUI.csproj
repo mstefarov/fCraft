@@ -8,7 +8,7 @@
     <ProjectGuid>{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>fCraftGUI</RootNamespace>
+    <RootNamespace>fCraft.GUI</RootNamespace>
     <AssemblyName>fCraftGUI</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
