@@ -643,7 +643,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
+                            MessageCantParseHex( player, valueText );
                             return;
                         }
                         player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -659,7 +659,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
+                            MessageCantParseHex( player, valueText );
                             return;
                         }
                         player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -674,7 +674,7 @@ namespace fCraft {
                         try {
                             value = ParseHexColor( valueText );
                         } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
+                            MessageCantParseHex( player, valueText );
                             return;
                         }
                         player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
@@ -689,9 +689,15 @@ namespace fCraft {
                         try {
                             value = UInt16.Parse( valueText );
                         } catch( OverflowException ) {
+                            player.Message( "Env: Unacceptable number \"{0}\" for \"level\" variable. " +
+                                            "Expected a number between 0 and map height.",
+                                            valueText );
                             CdEnv.PrintUsage( player );
                             return;
                         } catch( FormatException ) {
+                            player.Message( "Env: Unacceptable value \"{0}\" for \"level\" variable. " +
+                                            "Expected a number between 0 and map height.",
+                                            valueText );
                             CdEnv.PrintUsage( player );
                             return;
                         }
@@ -703,6 +709,8 @@ namespace fCraft {
                 case "edge":
                     Block block;
                     if( !Map.GetBlockByName( valueText, false, out block ) ) {
+                        player.Message( "Env: Unacceptable value \"{0}\" for \"edge\" variable. Expected a block name.",
+                                        valueText );
                         CdEnv.PrintUsage( player );
                         return;
                     }
@@ -721,6 +729,7 @@ namespace fCraft {
                     break;
 
                 default:
+                    player.Message( "Unrecognized environmental variable: \"{0}\"", variable );
                     CdEnv.PrintUsage( player );
                     return;
             }
@@ -734,6 +743,13 @@ namespace fCraft {
                 }
             }
         }
+
+
+        static void MessageCantParseHex( Player player, string givenText ) {
+            player.Message( "Env: \"{0}\" is not a valid RGB color code. Use 3-digit or 6-digit hex codes.",
+                            givenText );
+        }
+
 
         static int ParseHexColor( string text ) {
             byte red, green, blue;
