@@ -571,7 +571,11 @@ namespace fCraft {
 
         static void EnvHandler( Player player, CommandReader cmd ) {
             if( !ConfigKey.WoMEnableEnvExtensions.Enabled() ) {
-                player.Message( "Env command is disabled on this server." );
+                player.Message( "Environment extensions are disabled on this server." );
+                if( player.Info.Rank == RankManager.HighestRank ) {
+                    player.Message( "Set WoMEnableEnvExtensions config key to \"true\", or " +
+                                    "check \"Enable WoM environment extensions\" on the \"Worlds\" tab in ConfigGUI." );
+                }
                 return;
             }
             string worldName = cmd.Next();
