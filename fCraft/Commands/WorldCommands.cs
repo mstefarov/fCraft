@@ -562,7 +562,7 @@ namespace fCraft {
                                 "Use \"normal\" instead of a number to reset to default (middle of the map)." },
                 { "edge",       "&H/Env <WorldName> edge <BlockType>\n&S" +
                                 "Changes the type of block that's visible beyond the map boundaries. "+
-                                "Use \"normal\" instead of a number to reset to default (water)." }
+                                "Use \"normal\" instead of a block name to reset to default (water)." }
             },
             Usage = "/Env <WorldName> <Variable>",
             IsConsoleSafe = true,
