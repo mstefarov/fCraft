@@ -779,7 +779,7 @@ namespace fCraft {
                         return;
                     }
                 }
-                Player[] matches = Server.FindPlayers( player, name, false, true, true );
+                Player[] matches = Server.FindPlayers( player, name, false, false, true );
                 if( matches.Length == 1 ) {
                     Player target = matches[0];
                     World targetWorld = target.World;
