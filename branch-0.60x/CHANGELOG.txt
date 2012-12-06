@@ -1,6 +1,11 @@
 0.639
+ Feature: Added RankPrefixesOnDisplayedNames config key (default: false) which controls whether to prepend rank prefixes to names of players with a custom DisplayedName set.
  Fix: Fixed an IRC-related hang.
- Fix: Corrected the help message for /UndoAreaNot (thanks nope__avi)
+ Fix: Fixed incorrect runtime version detection for Mono<2.6.
+ Fix: Clarified /Env error messages.
+ Fix: Fixed being able to teleport to hidden players (thanks nope__avi).
+ Fix: Fixed a colorcode bleed in /help (thanks BobKare).
+ Fix: Corrected the help message for /UndoAreaNot (thanks nope__avi).
  Fix: Fixed /Unhide not faking a join message for hidden players (thanks ruggedbear).
  Change: "/help commands" is no longer an alias for "/commands" (thanks ruggedbear).
  Change: Players' connection messages in logs now include TimesVisited stat.
