@@ -28,16 +28,22 @@ namespace fCraft {
         public static bool IsWindows { get; private set; }
 
 
-        const string UnsupportedMessage = "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
+        const string UnsupportedMessage =
+            "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
+
         static readonly Regex VersionRegex = new Regex( @"^(\d)+\.(\d+)\.(\d)\D" );
 
-        const BindingFlags MonoMethodFlags = BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
+        const BindingFlags MonoMethodFlags =
+            BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.DeclaredOnly | BindingFlags.ExactBinding;
+
+
         static MonoCompat() {
             Type monoRuntimeType = typeof( object ).Assembly.GetType( "Mono.Runtime" );
 
             if( monoRuntimeType != null ) {
                 IsMono = true;
-                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null, Type.EmptyTypes, null );
+                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null,
+                                                                             Type.EmptyTypes, null );
 
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
@@ -48,12 +54,12 @@ namespace fCraft {
                         int minor = Int32.Parse( versionMatch.Groups[2].Value );
                         int revision = Int32.Parse( versionMatch.Groups[3].Value );
                         MonoVersion = new Version( major, minor, revision );
-                        IsSGenCapable = (major == 2 && minor >= 8);
+                        IsSGenCapable = ( major == 2 && minor >= 8 );
                     } catch( Exception ex ) {
                         throw new Exception( UnsupportedMessage, ex );
                     }
 
-                    if( MonoVersion.Major < 2 && MonoVersion.Major < 6 ) {
+                    if( MonoVersion.Major < 2 || MonoVersion.Major == 2 && MonoVersion.Minor < 6 ) {
                         throw new Exception( UnsupportedMessage );
                     }
 
@@ -74,15 +80,16 @@ namespace fCraft {
             }
 
             IsCaseSensitive = !IsWindows;
-
         }
+
 
         /// <summary> Starts a .NET process, using Mono if necessary. </summary>
         /// <param name="assemblyLocation"> .NET executable path. </param>
         /// <param name="assemblyArgs"> Arguments to pass to the executable. </param>
         /// <param name="detachIfMono"> If true, new process will be detached under Mono. </param>
         /// <returns>Process object</returns>
-        public static Process StartDotNetProcess( [NotNull] string assemblyLocation, [NotNull] string assemblyArgs, bool detachIfMono ) {
+        public static Process StartDotNetProcess( [NotNull] string assemblyLocation, [NotNull] string assemblyArgs,
+                                                  bool detachIfMono ) {
             if( assemblyLocation == null ) throw new ArgumentNullException( "assemblyLocation" );
             if( assemblyArgs == null ) throw new ArgumentNullException( "assemblyArgs" );
             string binaryName, args;
