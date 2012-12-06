@@ -1126,10 +1126,7 @@ namespace fCraft {
         static void HelpHandler( Player player, CommandReader cmd ) {
             string commandName = cmd.Next();
 
-            if( commandName == "commands" ) {
-                CdCommands.Call( player, cmd, false );
-
-            } else if( commandName != null ) {
+            if( commandName != null ) {
                 CommandDescriptor descriptor = CommandManager.GetDescriptor( commandName, true );
                 if( descriptor == null ) {
                     player.Message( "Unknown command: \"{0}\"", commandName );
