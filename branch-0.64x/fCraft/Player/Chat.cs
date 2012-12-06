@@ -33,7 +33,7 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "{0}: {1}", player.Name, rawMessage );
+                        "(global){0}: {1}", player.Name, rawMessage );
             return true;
         }
 
