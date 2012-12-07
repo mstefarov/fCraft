@@ -1110,7 +1110,7 @@ namespace fCraft {
 
         #region Help
 
-        const string HelpPrefix = "&S    ";
+        const string HelpPrefix = "&S   ";
 
         static readonly CommandDescriptor CdHelp = new CommandDescriptor {
             Name = "Help",
@@ -1158,11 +1158,21 @@ namespace fCraft {
                         sb.Append( descriptor.Help );
                     }
 
-                    player.MessagePrefixed( HelpPrefix, sb.ToString() );
-
                     if( descriptor.Permissions != null && descriptor.Permissions.Length > 0 ) {
-                        player.MessageNoAccess( descriptor );
+                        Rank minRank = descriptor.MinRank;
+                        if( minRank == null ) {
+                            sb.Append( "\nNot available to any rank" );
+                        } else {
+                            sb.AppendFormat( "\nAvailable to {0}&S+", minRank.ClassyName );
+                        }
+                        sb.Append( " (permissions: " );
+                        sb.Append( descriptor.Permissions.JoinToString() );
+                        sb.Append( ')' );
+                    } else {
+                        sb.Append( "\nAvailable to players of all ranks." );
                     }
+
+                    player.MessagePrefixed( HelpPrefix, sb.ToString() );
                 }
 
             } else {

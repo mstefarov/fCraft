@@ -595,11 +595,11 @@ namespace fCraft {
             string valueText = cmd.Next();
             if( variable == null ) {
                 player.Message( "Environment settings for world {0}&S:", world.ClassyName );
-                player.Message( "  Cloud: {0}   Fog: {1}   Sky: {2}",
+                player.Message( "  Cloud: &F{0}&S   Fog: &F{1}&S   Sky: &F{2}",
                                 world.CloudColor == -1 ? "normal" : '#' + world.CloudColor.ToString( "X6" ),
                                 world.FogColor == -1 ? "normal" : '#' + world.FogColor.ToString( "X6" ),
                                 world.SkyColor == -1 ? "normal" : '#' + world.SkyColor.ToString( "X6" ) );
-                player.Message( "  Edge level: {0}  Edge texture: {1}",
+                player.Message( "  Edge level: &F{0}&S  Edge texture: &F{1}",
                                 world.EdgeLevel == -1 ? "normal" : world.EdgeLevel + " blocks",
                                 world.EdgeBlock );
                 if( !player.IsUsingWoM ) {
