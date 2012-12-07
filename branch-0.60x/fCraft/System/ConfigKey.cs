@@ -550,7 +550,11 @@ but will reduce bandwidth use." )]
 
         [BoolKey( ConfigSection.Advanced, false,
 @"Bypasses validation of HTTPS certificates, for heartbeat connections. May be useful under Mono." )]
-        BypassHttpsCertificateValidation
+        BypassHttpsCertificateValidation,
+
+        [BoolKey(ConfigSection.Advanced,true,
+@"Moves the emote suffix from end-of-line to immediately after its usage.")]
+        MoveEmoteDotToEndOfMessage
 
         #endregion
     }
