@@ -193,7 +193,7 @@ namespace fCraft {
      * 
      * 165 - r1896 - Added RankPrefixesOnDisplayedNames key
      * 
-     * 166 - r1910 - Added BypassHttpsCertificateValidation key
+     * 166 - r1910 - Added BypassHttpsCertificateValidation and MoveEmoteDotToEndOfMessage keys
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
