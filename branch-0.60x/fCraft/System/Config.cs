@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -191,6 +192,8 @@ namespace fCraft {
      * 164 - r1828 - Removed IRCShowNewlinesFromIRC key
      * 
      * 165 - r1896 - Added RankPrefixesOnDisplayedNames key
+     * 
+     * 166 - r1910 - Added BypassHttpsCertificateValidation key
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -201,7 +204,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 165;
+        public const int CurrentVersion = 166;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -592,6 +595,14 @@ namespace fCraft {
 
                 case ConfigKey.BlockUpdateThrottling:
                     Server.BlockUpdateThrottling = key.GetInt();
+                    break;
+
+                case ConfigKey.BypassHttpsCertificateValidation:
+                    if( key.Enabled() ) {
+                        ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                    } else {
+                        ServicePointManager.ServerCertificateValidationCallback = null;
+                    }
                     break;
 
                 case ConfigKey.ConsoleName:
@@ -1301,5 +1312,4 @@ namespace fCraft.Events {
             NewValue = newValue;
         }
     }
-
 }
