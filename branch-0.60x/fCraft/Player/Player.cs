@@ -320,6 +320,10 @@ namespace fCraft {
 
                         if( allPlayers.Length == 1 ) {
                             Player target = allPlayers[0];
+                            if( target == this ) {
+                                Message( "Trying to talk to yourself?" );
+                                return;
+                            }
                             if( !target.IsIgnoring( Info ) && !target.IsDeaf ) {
                                 Chat.SendPM( this, target, messageText );
                                 SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );

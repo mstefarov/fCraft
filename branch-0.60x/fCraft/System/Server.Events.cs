@@ -112,20 +112,21 @@ namespace fCraft.Events {
 
 
     public sealed class SearchingForPlayerEventArgs : EventArgs, IPlayerEvent {
-        internal SearchingForPlayerEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm, List<Player> matches ) {
+        internal SearchingForPlayerEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm, List<Player> matches, bool includeHidden, bool includeSelf ) {
             if( searchTerm == null ) throw new ArgumentNullException( "searchTerm" );
             Player = player;
             SearchTerm = searchTerm;
             Matches = matches;
+            IncludeHidden = includeHidden;
+            IncludeSelf = includeSelf;
         }
 
         [CanBeNull]
         public Player Player { get; private set; }
         public string SearchTerm { get; private set; }
-        public List<Player> Matches { get; set; }
+        public bool IncludeHidden { get; private set; }
+        public bool IncludeSelf { get; private set; }
 
-        public bool CheckVisibility {
-            get { return Player != null; }
-        }
+        public List<Player> Matches { get; set; }
     }
 }

@@ -548,7 +548,7 @@ namespace fCraft {
             // If no exact match was found, look for partial matches
             if( target == null || target == player.Info && !includeSelf ) {
                 PlayerInfo[] targets = FindPlayers( partialName );
-                if( !includeSelf ) {
+                if( !includeSelf && targets.Length > 1 ) {
                     targets = targets.Where( p => p != player.Info ).ToArray();
                 }
 
@@ -568,7 +568,9 @@ namespace fCraft {
             }
 
             // If a single name has been found, set it as LastUsedPlayerName
-            player.LastUsedPlayerName = target.Name;
+            if( includeSelf || target != player.Info ) {
+                player.LastUsedPlayerName = target.Name;
+            }
             return target;
         }
 

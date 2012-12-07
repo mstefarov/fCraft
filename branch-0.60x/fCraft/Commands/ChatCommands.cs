@@ -119,6 +119,10 @@ namespace fCraft {
                 }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
                 if( targetInfo == null ) return;
+                if( targetInfo == player.Info ) {
+                    player.Message( "You cannot &H/Ignore&S yourself." );
+                    return;
+                }
 
                 if( player.Ignore( targetInfo ) ) {
                     player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
@@ -155,6 +159,10 @@ namespace fCraft {
                 }
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
                 if( targetInfo == null ) return;
+                if( targetInfo == player.Info ) {
+                    player.Message( "You cannot &H/Ignore&S yourself." );
+                    return;
+                }
 
                 if( player.Unignore( targetInfo ) ) {
                     player.MessageNow( "You are no longer ignoring {0}", targetInfo.ClassyName );

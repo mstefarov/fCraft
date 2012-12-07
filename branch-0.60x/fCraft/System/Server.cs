@@ -1103,7 +1103,7 @@ namespace fCraft {
             if( raiseEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
-                    var e = new SearchingForPlayerEventArgs( null, name, results );
+                    var e = new SearchingForPlayerEventArgs( null, name, results, true, true );
                     h( null, e );
                 }
             }
@@ -1115,11 +1115,11 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search.
         /// Used to determine whether others are hidden or not. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
-        /// <param name="includeSelf"> Whether player themself should be considered in the results. </param>
+        /// <param name="includeSelf"> Whether player themself should be considered in name autocompletion.
+        /// NOTE: When includeSelf is false, player's own name matches the given name, and no other matches were found, this method returns player as the only result. </param>
         /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
-        /// <returns> An array of matches. List length of 0 means "no matches";
-        /// 1 is an exact match; over 1 for multiple matches. </returns>
+        /// <returns> An array of matches. Array length of 0 means "no matches"; 1 is an exact match or single partial match; over 1 for multiple matches. </returns>
         public static Player[] FindPlayers( [NotNull] Player player,
                                             [NotNull] string name,
                                             bool includeSelf,
@@ -1151,10 +1151,15 @@ namespace fCraft {
                     results.Add( otherPlayer );
                 }
             }
+            if( results.Count == 0 ) {
+                if( player.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                    results.Add( player );
+                }
+            }
             if( raiseEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
-                    var e = new SearchingForPlayerEventArgs( player, name, results );
+                    var e = new SearchingForPlayerEventArgs( player, name, results, includeHidden, includeSelf );
                     h( null, e );
                 }
             }

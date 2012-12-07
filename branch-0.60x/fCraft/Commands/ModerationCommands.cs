@@ -76,6 +76,10 @@ namespace fCraft {
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Ban&S yourself." );
+                return;
+            }
             string reason = cmd.NextAll();
             try {
                 Player targetPlayer = target.PlayerObject;
@@ -121,6 +125,10 @@ namespace fCraft {
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                 if( target == null ) return;
+                if( target == player.Info ) {
+                    player.Message( "You cannot &H/BanIP&S yourself." );
+                    return;
+                }
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Ban( player, reason, true, true );
@@ -169,6 +177,10 @@ namespace fCraft {
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                 if( target == null ) return;
+                if( target == player.Info ) {
+                    player.Message( "You cannot &H/BanAll&S yourself." );
+                    return;
+                }
                 try {
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Ban( player, reason, true, true );
@@ -205,6 +217,10 @@ namespace fCraft {
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Unban&S yourself." );
+                return;
+            }
             string reason = cmd.NextAll();
             try {
                 target.Unban( player, reason, true, true );
@@ -242,6 +258,10 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                     if( target == null ) return;
+                    if( target == player.Info ) {
+                        player.Message( "You cannot &H/UnbanIP&S yourself." );
+                        return;
+                    }
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
                     } else {
@@ -282,6 +302,10 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetNameOrIP, false );
                     if( target == null ) return;
+                    if( target == player.Info ) {
+                        player.Message( "You cannot &H/UnbanAll&S yourself." );
+                        return;
+                    }
                     if( target.LastIP.Equals( IPAddress.Any ) || target.LastIP.Equals( IPAddress.None ) ) {
                         target.Unban( player, reason, true, true );
                     } else {
@@ -380,6 +404,10 @@ namespace fCraft {
             // find the target
             Player target = Server.FindPlayerOrPrintMatches( player, name, false, false, true );
             if( target == null ) return;
+            if( target == player ) {
+                player.Message( "You cannot &H/Kick&S yourself." );
+                return;
+            }
 
             string reason = cmd.NextAll();
             DateTime previousKickDate = target.Info.LastKickDate;
@@ -689,6 +717,10 @@ namespace fCraft {
 
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Freeze&S yourself." );
+                return;
+            }
 
             try {
                 target.Freeze( player, true, true );
@@ -718,6 +750,10 @@ namespace fCraft {
 
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Unfreeze&S yourself." );
+                return;
+            }
 
             try {
                 target.Unfreeze( player, true, true );
@@ -926,6 +962,11 @@ namespace fCraft {
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
 
             if( target == null || world == null ) return;
+
+            if( target == player ) {
+                player.Message( "You cannot &H/WBring&S yourself. Use &H/Join&S instead." );
+                return;
+            }
 
             if( !player.Can( Permission.Bring, target.Info.Rank ) ) {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
@@ -1220,6 +1261,10 @@ namespace fCraft {
             // find the target
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Mute&S yourself." );
+                return;
+            }
 
             // actually mute
             try {
@@ -1250,6 +1295,10 @@ namespace fCraft {
             // find target
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, false );
             if( target == null ) return;
+            if( target == player.Info ) {
+                player.Message( "You cannot &H/Unmute&S yourself." );
+                return;
+            }
 
             try {
                 target.Unmute( player, true, true );
@@ -1291,6 +1340,11 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches( player, targetName, false, false, true );
             if( target == null ) return;
+
+            if( target == player ) {
+                player.Message( "You cannot &H/Spectate&S yourself." );
+                return;
+            }
 
             if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
                 player.Message( "You may only spectate players ranked {0}&S or lower.",
