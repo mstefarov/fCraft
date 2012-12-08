@@ -144,6 +144,7 @@ namespace fCraft {
                 case LogType.Warning:
                     return "Warning: ";
                 case LogType.IRCStatus:
+                case LogType.IRCChat:
                     return "IRC: ";
                 default:
                     return String.Empty;
