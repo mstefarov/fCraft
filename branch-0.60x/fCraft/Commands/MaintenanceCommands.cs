@@ -609,34 +609,40 @@ namespace fCraft {
                    "BanReason, DisplayedName, KickReason, PreviousRank, RankChangeType, " +
                    "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &H/Help SetInfo <Property>",
             HelpSections = new Dictionary<string, string>{
+                { "bandwidth",      "&H/SetInfo <PlayerName> Bandwidth <Mode>\n&S" +
+                                    "Sets custom bandwidth use mode for given player. " +
+                                    "<Type> can be: Default, VeryLow, Low, Normal, High, VeryHigh. Shortcut: BW" },
                 { "banreason",      "&H/SetInfo <PlayerName> BanReason <Reason>\n&S" +
-                                    "Changes ban reason for the given player. Original ban reason is preserved in the logs." },
+                                    "Changes ban reason for the given player. Original ban reason is preserved in the logs. " +
+                                    "Shortcut: BR" },
                 { "displayedname",  "&H/SetInfo <RealPlayerName> DisplayedName <DisplayedName>\n&S" +
                                     "Sets or resets the way player's name is displayed in chat. "+
                                     "Any printable symbols or color codes may be used in the displayed name. "+
                                     "Note that player's real name is still used in logs and on the in-game player list. "+
-                                    "To remove a custom name, type \"&H/SetInfo <RealName> DisplayedName&S\" (omit the name)." },
+                                    "To remove a custom name, type \"&H/SetInfo <RealName> DisplayedName&S\" (omit the name). " +
+                                    "Shortcut: DN" },
                 { "kickreason",     "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
                                     "Changes reason of most-recent kick for the given player. " +
-                                    "Original kick reason is preserved in the logs." },
+                                    "Original kick reason is preserved in the logs. Shortcut: KR" },
                 { "previousrank",   "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
                                     "Changes previous rank held by the player. " +
                                     "To reset previous rank to \"none\" (will show as \"default\" in &H/Info&S), " +
-                                    "type \"&H/SetInfo <Name> PreviousRank&S\" (omit the rank name)." },
+                                    "type \"&H/SetInfo <Name> PreviousRank&S\" (omit the rank name). Shortcut: PR" },
                 { "rankchangetype", "&H/SetInfo <PlayerName> RankChangeType <Type>\n&S" +
-                                    "Sets the type of rank change. <Type> can be: Promoted, Demoted, AutoPromoted, AutoDemoted." },
+                                    "Sets the type of rank change. <Type> can be: Promoted, Demoted, AutoPromoted, AutoDemoted. " +
+                                    "Shortcut: RCT" },
                 { "rankreason",     "&H/SetInfo <PlayerName> RankReason <Reason>\n&S" +
                                     "Changes promotion/demotion reason for the given player. "+
-                                    "Original promotion/demotion reason is preserved in the logs." },
+                                    "Original promotion/demotion reason is preserved in the logs. Shortcut: RR" },
                 { "timeskicked",    "&H/SetInfo <PlayerName> TimesKicked <#>\n&S" +
                                     "Changes the number of times that a player has been kicked. "+
-                                    "Acceptable value range: 0-9999" },
+                                    "Acceptable value range: 0-9999. Shortcut: TK" },
                 { "totaltime",      "&H/SetInfo <PlayerName> TotalTime <Time>\n&S" +
                                     "Changes the amount of game time that the player has on record. " +
-                                    "Accepts values in the common compact time-span format." },
+                                    "Accepts values in the common compact time-span format. Shortcut: TT" },
                 { "unbanreason",    "&H/SetInfo <PlayerName> UnbanReason <Reason>\n&S" +
                                     "Changes unban reason for the given player. " +
-                                    "Original unban reason is preserved in the logs." }
+                                    "Original unban reason is preserved in the logs. Shortcut: UR" }
             },
             Usage = "/SetInfo <PlayerName> <Property> <Value>",
             Handler = SetInfoHandler
@@ -739,13 +745,13 @@ namespace fCraft {
                 case "rankchangetype":
                 case "rct":
                     RankChangeType oldType = info.RankChangeType;
-                    try {
-                        info.RankChangeType = (RankChangeType)Enum.Parse( typeof( RankChangeType ), valName, true );
-                    } catch( ArgumentException ) {
+                    RankChangeType newType;
+                    if(!EnumUtil.TryParse(valName, out newType, true)){
                         player.Message( "SetInfo: Could not parse RankChangeType. Allowed values: {0}",
                                         String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
                         return;
                     }
+                    info.RankChangeType = newType;
                     player.Message( "SetInfo: RankChangeType for {0}&S changed from {1} to {2}",
                                     info.ClassyName,
                                     oldType,
@@ -761,6 +767,21 @@ namespace fCraft {
                     } else {
                         return;
                     }
+
+                case "bandwidth":
+                case "bw":
+                    BandwidthUseMode oldMode = info.BandwidthUseMode;
+                    BandwidthUseMode newMode;
+                    if( !EnumUtil.TryParse( valName, out newMode, true ) ) {
+                        player.Message( "SetInfo: Could not parse BandwidthUseMode. Allowed values: {0}",
+                                        String.Join( ", ", Enum.GetNames( typeof( BandwidthUseMode ) ) ) );
+                        return;
+                    }
+                    info.BandwidthUseMode = newMode;
+                    player.Message( "SetInfo: BandwidthUseMode for {0}&S changed from {1} to {2}",
+                                    info.ClassyName,
+                                    oldMode, newMode );
+                    break;
 
                 case "unbanreason":
                 case "ur":
