@@ -243,16 +243,16 @@ namespace fCraft {
                         // channel chat
                         if( !ResponsibleForInputParsing ) return;
                         if( !IsBotNick( msg.Nick ) ) {
-                            string processedMessage = msg.Message;
+                            string rawMessage = msg.Message;
                             if( msg.Type == IRCMessageType.ChannelAction ) {
-                                if( processedMessage.StartsWith( "\u0001ACTION" ) ) {
-                                    processedMessage = processedMessage.Substring( 8 );
+                                if( rawMessage.StartsWith( "\u0001ACTION" ) ) {
+                                    rawMessage = rawMessage.Substring( 8 );
                                 } else {
                                     return;
                                 }
                             }
 
-                            processedMessage = ProcessMessageFromIRC( processedMessage );
+                            string processedMessage = ProcessMessageFromIRC( rawMessage );
 
                             if( processedMessage.Length > 0 ) {
                                 if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
@@ -260,18 +260,24 @@ namespace fCraft {
                                         Server.Message( "&i(IRC) * {0} {1}",
                                                         msg.Nick, processedMessage );
                                         Logger.Log( LogType.IRCChat,
-                                                    "(IRC) {0}: * {1} {2}", msg.Channel, msg.Nick, processedMessage );
+                                                    "{0}: * {1} {2}",
+                                                    msg.Channel, msg.Nick,
+                                                    IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
                                     } else {
                                         Server.Message( "&i(IRC) {0}{1}: {2}",
                                                         msg.Nick, Color.White, processedMessage );
                                         Logger.Log( LogType.IRCChat,
-                                                    "(IRC) {0}: {1}: {2}", msg.Channel, msg.Nick, processedMessage );
+                                                    "{0}: {1}: {2}",
+                                                    msg.Channel, msg.Nick,
+                                                    IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
                                     }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
                                                     msg.Nick, Color.White, processedMessage.Substring( 1 ) );
                                     Logger.Log( LogType.IRCChat,
-                                                "(IRC) {0}: {1}: {2}", msg.Channel, msg.Nick, processedMessage );
+                                                "{0}: {1}: {2}",
+                                                msg.Channel, msg.Nick,
+                                                IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
                                 }
                             }
                         }
@@ -284,7 +290,7 @@ namespace fCraft {
                             Server.Message( "&i(IRC) {0} joined {1}",
                                             msg.Nick, msg.Channel );
                             Logger.Log( LogType.IRCChat,
-                                        "(IRC) {0} joined {1}", msg.Nick, msg.Channel );
+                                        "{0} joined {1}", msg.Nick, msg.Channel );
                         }
                         return;
 
@@ -303,8 +309,9 @@ namespace fCraft {
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
                                             msg.Nick, kicked, msg.Channel, kickMessage );
                             Logger.Log( LogType.IRCChat,
-                                        "(IRC) {0} kicked {1} from {2} ({3})",
-                                        msg.Nick, kicked, msg.Channel, kickMessage );
+                                        "{0} kicked {1} from {2} ({3})",
+                                        msg.Nick, kicked, msg.Channel,
+                                        IRCColorsAndNonStandardChars.Replace( kickMessage, "" ) );
                         }
                         return;
 
@@ -316,8 +323,8 @@ namespace fCraft {
                             Server.Message( "&i(IRC) {0} left {1}",
                                             msg.Nick, msg.Channel );
                             Logger.Log( LogType.IRCChat,
-                                        "(IRC) {0} left {1}",
-                                            msg.Nick, msg.Channel );
+                                        "{0} left {1} ({2})",
+                                        msg.Nick, msg.Channel, IRCColorsAndNonStandardChars.Replace( msg.Message, "" ) );
                         }
                         return;
 
