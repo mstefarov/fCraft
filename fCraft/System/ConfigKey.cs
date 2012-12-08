@@ -547,7 +547,6 @@ but will reduce bandwidth use." )]
 @"Automatically restarts the server after a given number of seconds." )]
         RestartInterval,
 
-
         [BoolKey( ConfigSection.Advanced, false,
 @"Bypasses validation of HTTPS certificates, for heartbeat connections. May be useful under Mono." )]
         BypassHttpsCertificateValidation,
