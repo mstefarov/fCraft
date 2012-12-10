@@ -7,7 +7,7 @@
  Fix: Server now gives more informative messages when you try to do something disallowed to yourself (mute, unfreeze, ban, kick, etc).
  Fix: Fixed being able to teleport to hidden players (thanks nope__avi).
  Fix: Fixed /Unhide not faking a join message for hidden players (thanks ruggedbear).
- Fix: Fixed IRC bot sending USER before NICK (fixes occasional error 451, (thanks Hellenion).
+ Fix: Fixed IRC bot sending USER before NICK (fixes occasional error 451), (thanks Hellenion).
  Change: Added ability to set players' BandwidthUseMode via /SetInfo.
  Change: Improved /Env, /UndoAreaNot, and /Help messages.
  Change: Players' connection messages in logs now include TimesVisited stat.
