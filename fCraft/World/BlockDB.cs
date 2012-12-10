@@ -813,6 +813,7 @@ namespace fCraft {
                 return true;
             }
 
+
             public BlockDBEntry[] GetResults() {
                 return result.Values.ToArray();
             }
@@ -847,6 +848,8 @@ namespace fCraft {
                 }
                 return true;
             }
+
+
             public BlockDBEntry[] GetResults() {
                 return result.Values.ToArray();
             }
@@ -1053,7 +1056,8 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude,
+                                      TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
@@ -1104,7 +1108,8 @@ namespace fCraft {
         }
 
 
-        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
+        public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude,
+                                      TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
@@ -1263,6 +1268,8 @@ namespace fCraft {
         /// <param name="entry"> Current entry. </param>
         /// <returns> True if traversal should continue. False if traversal should end. </returns>
         bool ProcessEntry( BlockDBEntry entry );
+
+
         /// <summary> Returns the gathered results, as an array of BlockDBEntry structs. </summary>
         BlockDBEntry[] GetResults();
     }
