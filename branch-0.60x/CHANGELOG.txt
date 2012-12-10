@@ -8,6 +8,7 @@
  Fix: Fixed being able to teleport to hidden players (thanks nope__avi).
  Fix: Fixed /Unhide not faking a join message for hidden players (thanks ruggedbear).
  Fix: Fixed IRC bot sending USER before NICK (fixes occasional error 451, (thanks Hellenion).
+ Change: Added ability to set players' BandwidthUseMode via /SetInfo.
  Change: Improved /Env, /UndoAreaNot, and /Help messages.
  Change: Players' connection messages in logs now include TimesVisited stat.
  Change: "/help commands" is no longer an alias for "/commands" (thanks ruggedbear).
