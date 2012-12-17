@@ -1,7 +1,8 @@
 Each branch contains a different snapshot of fCraft's code. Branches are:
 
     /tags/          Code snapshots corresponding to STABLE fCraft releases.
-                    These are the versions that you should use for any mods.
+                    THERE ARE THE SNAPSHOTS THAT SHOULD BE USED AS STARTING
+                    POINT FOR ANY/ALL MODS.
 
     /branch-0.10x/  First ever version of fCraft. Does not work. Not updated.
 
@@ -11,6 +12,10 @@ Each branch contains a different snapshot of fCraft's code. Branches are:
     /branch-0.53x/  Previous stable version of fCraft. No longer updated.
 
     /branch-0.60x/  Current stable version of fCraft. Updated with bugfixes.
-                    Can sometimes contain unstable or untested code.
+                    Currently in maintenance-only mode.
 
-    /branch-0.70x/  Abandoned experimental branch. Don't use it.
+    /branch-0.60x/  Branched off code for the next feature release of fCraft.
+                    Frequently updated. Full of unstable/untested code.
+
+    /branch-0.70x/  Abandoned experimental branch. Thoroughly unstable.
+                    Don't use it.
