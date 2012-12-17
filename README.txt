@@ -1,7 +1,7 @@
 Thank you for downloading fCraft, the custom Minecraft server.
 
 If you like fCraft, support its development by donating!
-    http://donate.fcraft.net
+    http://donate.fCraft.net
 
 
 
@@ -9,25 +9,29 @@ If you like fCraft, support its development by donating!
 
 fCraft requires Microsoft .NET Framework 3.5. Your system may already have it
 installed, and you can download it from microsoft.com
-For more information, see http://www.fcraft.net/wiki/Installation_Instructions
+For more information, see http://fCraft.net/wiki/Installation_Instructions
 
 
 
 === Installation (Linux, Unix, MacOS X) =======================================
 
-fCraft requires Mono 2.6.4 (minumum) or Mono 2.10 (recommended). You can
+fCraft requires Mono 2.6.4+ (minumum) or Mono 2.10+ (recommended). You can
 download it from www.mono-project.org, or (on some Linux distributions) install
-it through your package manager.
+it through your package manager. To be able to use graphical fCraft components
+(ServerGUI and ConfigGUI) you will also need GDI+ library (libgdiplus).
 
-To be able to use graphical fCraft components (ServerGUI and ConfigGUI) you
-will also need GDI+ library (libgdiplus). Before starting fCraft, make sure
-that it has read/write permissions in the fCraft directory.
+Before starting fCraft, make sure that it has read/write permissions in the
+fCraft directory. Working directory and other paths can be set via command-
+line options (see below).
 
 To run ".exe" files with Mono, use the following syntax:
 Mono 2.6.4: "mono SomeFile.exe"
 Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
 
-For more information, see http://www.fcraft.net/wiki/Installation_Instructions
+Also check out "fcraftd", unofficial script by Hellenion that makes fCraft
+easier to deploy and maintain under Linux: http://fCraft.net/wiki/fcraftd
+
+For more information, see http://fCraft.net/wiki/Installation_Instructions
 
 
 
@@ -65,7 +69,7 @@ Server does not show up on minecraft.net list:
     Make sure that you added firewall exception for fCraft (if applicable),
     and forwarded the port on your router. If you are connecting from same
     computer that the server is working on, try connecting to:
-    http://www.minecraft.net/play.jsp?ip=127.0.0.1&port=____
+    http://www.minecraft.net/classic/play?ip=127.0.0.1&port=_____
         (fill in the blank with your server's port number)
 
 "Could not verify player name":
@@ -92,17 +96,23 @@ Other players cannot connect from the same LAN/network as me:
     be able to connect via the public URL. There is a workaround:
 
     1. Check "Allow connections from LAN without verification" in ConfigGUI.
-        (or set <AllowUnverifiedLAN> to true in config.xml).
+        (or set AllowUnverifiedLAN config key to "true").
     2. Find your local IP address.
         * In Windows XP+, go to Start -> type "cmd" to open a terminal ->
             type "ipconfig". The address you need is labeled "IPv4 Address"
             under "Local Area Connection".
         * In Unix/Linux, use "ifconfig" utility. 
-   3. Connect to http://www.minecraft.net/play.jsp?ip=____&port=____
+   3. Connect to http://www.minecraft.net/classic/play?ip=_____&port=_____
         (fill in the blanks with your server's IP address and port number)
 
+"Error getting response stream (Write: The authentication or decryption..."
+    Common problem for Mono users. You need to import certificates for Mono to
+    work with HTTPS. See http://is.gd/MonoHttps
+    Alternatively, set BypassHttpsCertificateValidation config key to "true"
+    (slightly less safe).
+
 Other problems:
-    See http://fcraft.net/wiki/Troubleshooting
+    See http://fCraft.net/wiki/Troubleshooting
 
 
 
@@ -123,9 +133,9 @@ Other problems:
        ServerCLI.exe - Command-line interface (CLI) for the server.
        ServerGUI.exe - Graphical interface (GUI) for the server.
 
-  HeartbeatSaver.exe - Standalone heartbeat sender (CLI).
-    MapConverter.exe - Batch map format converter (CLI).
-     MapRenderer.exe - Creates images of map files (CLI).
+  HeartbeatSaver.exe - Standalone heartbeat sender tool (CLI).
+    MapConverter.exe - Batch map format converter tool (CLI).
+     MapRenderer.exe - Tool that creates images of map files (CLI).
 
 
 
@@ -159,9 +169,15 @@ options that can only be set via command-line switches:
                         at once in the event of an unrecoverable crash, instead
                         of showing a message and prompting for user input.
 
+    --noupdater         If this flag is present, fCraft will not launch the
+                        downloaded UpdateInstaller.exe when restarting for
+                        update/shutdown. It will handle all other aspects of
+                        the update process, including exiting with the correct
+                        exit-code, but not launch the updater.
+
     --nolog             If this flag is present, all logging is disabled.
 
-    --nocolor           If this flag is present, ServerCLI will not use any
+    --noconsolecolor    If this flag is present, ServerCLI will not use any
                         colors or formatting in its console output.
 
 
@@ -174,15 +190,15 @@ When you first join the server, promote yourself by typing...
 
 Type "/help" in-game or in server console to get started. Type "/commands" for
 a list of available commands. For detailed information, please visit:
-    http://fcraft.net/wiki
+    http://fCraft.net/wiki
 
 To request features, report bugs, or receive support, please visit:
-    http://forum.fcraft.net
+    http://forum.fCraft.net
 
 For quick help/support, join #fCraft.dev channel on Esper.net IRC:
     irc://irc.esper.net:5555/fCraft.dev
 
-See CHANGELOG.txt or visit http://fcraft.net/wiki/Version_history for complete
+See CHANGELOG.txt or visit http://fCraft.net/wiki/Version_history for complete
 information about changes in this release compared to previous versions of
 fCraft.
 
@@ -194,7 +210,7 @@ fCraft is open-source and free for all uses. fCraft code and binaries are
 licensed and distributed under the permissive MIT License, reproduced here:
 
 ----
-Copyright 2009, 2010, 2011 Matvei Stefarov <me@matvei.org>
+Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -220,10 +236,6 @@ fCraft's original code, they belong to you and you are free to do absolutely
 anything with them. However, if you would like to distribute whole modified
 copies of fCraft, please follow the MIT License terms.
 
-fCraft uses and bundles Devart dotConnect for MySQL, under free license.
-Full text of the Devart dotConnect for MySQL license should be included with
-your copy of fCraft in LICENSE.dotConnect.txt
-
 Original Minecraft was developed by Markus "Notch" Persson of Mojang, and is 
 not affiliated with fCraft in any way. fCraft does not use any code, assets,
 or any other files from Minecraft.
@@ -232,15 +244,15 @@ or any other files from Minecraft.
 
 === Credits ===================================================================
 
-fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2011
+fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
 
 Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, Jonty800, M1_Abrams, Optical-Lza,
-    Redshift, SystemX17, TkTech, Wootalyzer
+    Asiekierka, Dag10, Destroyer, FontPeg, Hellenion, Jonty800, M1_Abrams,
+    Optical-Lza, Redshift, SystemX17, TkTech, Wootalyzer
 
 Thanks to people who supported fCraft development through donations:
     fCraft.net community, Astelyn, D3M0N, Destoned, DreamPhreak, Pandorum,
-    Redshift, TkTech, ven000m,  wtfmejt, Team9000 and SpecialAttack.net
+    Redshift, TkTech, ven000m, wtfmejt, Team9000 and SpecialAttack.net
     communities, and others who donated anonymously
 
 Thanks to people whose code has been ported to fCraft:

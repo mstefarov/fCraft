@@ -1,3 +1,31 @@
+0.639
+ Feature: Added RankPrefixesOnDisplayedNames config key (default: false), which controls whether to prepend rank prefixes to names of players with a custom DisplayedName set.
+ Feature: Added BypassHttpsCertificateValidation config key (default: false), to ease HTTPS-related pains under Mono.
+ Feature: Added MoveEmoteDotToEndOfMessage config key (default: true), which slightly changes emote formatting, by BobKare's request.
+ Fix: Fixed a stability issue in the IRC bot.
+ Fix: Fixed incorrect runtime version detection for Mono versions older than 2.6.
+ Fix: Server now gives more informative messages when you try to do something disallowed to yourself (mute, unfreeze, ban, kick, etc).
+ Fix: Fixed being able to teleport to hidden players (thanks nope__avi).
+ Fix: Fixed /Unhide not faking a join message for hidden players (thanks ruggedbear).
+ Fix: Fixed IRC bot sending USER before NICK (fixes occasional error 451) (thanks Hellenion).
+ Change: Added ability to set players' BandwidthUseMode via /SetInfo.
+ Change: Improved /Env, /UndoAreaNot, and /Help messages.
+ Change: Players' connection messages in logs now include TimesVisited stat.
+ Change: "/Help commands" is no longer an alias for "/Commands" (thanks ruggedbear).
+
+0.638
+ Feature: Emote keywords and their Unicode equivalents can now be included in announcement and rule files.
+ Feature: IRC bot now sends a quit message consisting of server name and shutdown reason.
+ Fix: Fixed a very small chance of PlayerInfo.TimeMutedLeft returning negative time spans.
+ Fix: Leading and trailing spaces are now trimmed from kick/ban/unban reasons.
+ Fix: Fixed some emotes getting trimmed from /Say, /Me, and /Staff (thanks Intertoothh)
+ Fix: Fixed RestartInterval starting two chat timers (thanks Hellenion)
+ Fix: Fixed ServerCLI using console colors for the first few messages even if --noconsolecolor was given (thanks Hellenion)
+ Change: Added --noupdater command line switch, which stops fCraft from launching update installer binaries (although all other update-related behavior remains the same)
+ Change: Player's own name is no longer considered in autocompletion/searches for commands that are not applicable to self (e.g. /ban, /mute, /ignore, /tp, etc)
+ Change: Logged global chat messages now have "(global)" prepended before player's name.
+ API: Updated trunk project files to VisualStudio 2010. Target runtime remains .NET 3.5 Client Profile.
+
 0.637
  Feature: Added /Emotes command, to list emotes and their keywords.
  Fix: Fixed IRC bot cutting off very long messages.
