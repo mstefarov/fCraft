@@ -261,7 +261,7 @@ namespace fCraft {
                                                 "{0}: * {1} {2}",
                                                 msg.Channel,
                                                 msg.Nick,
-                                                IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
+                                                IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                 } else {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
                                                     msg.Nick,
@@ -271,7 +271,7 @@ namespace fCraft {
                                                 "{0}: {1}: {2}",
                                                 msg.Channel,
                                                 msg.Nick,
-                                                IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
+                                                IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                 }
                             } else if( msg.Message.StartsWith( "#" ) ) {
                                 Server.Message( "&i(IRC) {0}{1}: {2}",
@@ -282,7 +282,7 @@ namespace fCraft {
                                             "{0}: {1}: {2}",
                                             msg.Channel,
                                             msg.Nick,
-                                            IRCColorsAndNonStandardChars.Replace( rawMessage, "" ) );
+                                            IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                             }
                         }
                     }
@@ -328,7 +328,7 @@ namespace fCraft {
                                     msg.Nick,
                                     kicked,
                                     msg.Channel,
-                                    IRCColorsAndNonStandardChars.Replace( kickMessage, "" ) );
+                                    IRCColorsAndNonStandardCharsExceptEmotes.Replace( kickMessage, "" ) );
                     }
                     return;
 
@@ -346,7 +346,7 @@ namespace fCraft {
                                 "{0} left {1} ({2})",
                                 msg.Nick,
                                 msg.Channel,
-                                IRCColorsAndNonStandardChars.Replace( msg.Message, "" ) );
+                                IRCColorsAndNonStandardCharsExceptEmotes.Replace( msg.Message, "" ) );
                     return;
 
 
@@ -1078,9 +1078,10 @@ namespace fCraft {
                 host = from.Substring( atpos + 1 );
             }
 
-            try {
-                replycode = (IRCReplyCode)int.Parse( messagecode );
-            } catch( FormatException ) {
+            int messageCodeInt;
+            if( Int32.TryParse( messagecode, out messageCodeInt ) ) {
+                replycode = (IRCReplyCode)messageCodeInt;
+            } else {
                 replycode = IRCReplyCode.Null;
             }
             IRCMessageType type = GetMessageType( rawline, actualBotNick );
