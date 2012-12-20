@@ -631,7 +631,7 @@ namespace fCraft {
         /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
         /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
         [NotNull]
-        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, [NotNull] Func<BlockDBEntry, bool> selector ) {
+        public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType, [NotNull] Predicate<BlockDBEntry> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -758,11 +758,11 @@ namespace fCraft {
         sealed class ReturnAllProcessor : IBlockDBQueryProcessor {
             int count;
             readonly int max;
-            readonly Func<BlockDBEntry, bool> selector;
+            readonly Predicate<BlockDBEntry> selector;
             readonly List<BlockDBEntry> result = new List<BlockDBEntry>();
 
 
-            public ReturnAllProcessor( int max, Func<BlockDBEntry, bool> selector ) {
+            public ReturnAllProcessor( int max, Predicate<BlockDBEntry> selector ) {
                 this.max = max;
                 this.selector = selector;
             }
@@ -790,11 +790,11 @@ namespace fCraft {
             readonly Map map;
             int count;
             readonly int max;
-            readonly Func<BlockDBEntry, bool> selector;
+            readonly Predicate<BlockDBEntry> selector;
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
-            public ReturnOldestProcessor( Map map, int max, Func<BlockDBEntry, bool> selector ) {
+            public ReturnOldestProcessor( Map map, int max, Predicate<BlockDBEntry> selector ) {
                 this.max = max;
                 this.selector = selector;
                 this.map = map;
@@ -823,11 +823,11 @@ namespace fCraft {
             readonly Map map;
             int count;
             readonly int max;
-            readonly Func<BlockDBEntry, bool> selector;
+            readonly Predicate<BlockDBEntry> selector;
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
-            public ReturnNewestProcessor( Map map, int max, Func<BlockDBEntry, bool> selector ) {
+            public ReturnNewestProcessor( Map map, int max, Predicate<BlockDBEntry> selector ) {
                 this.max = max;
                 this.selector = selector;
                 this.map = map;
@@ -857,15 +857,15 @@ namespace fCraft {
             readonly Map map;
             int count;
             readonly int max;
-            readonly Func<BlockDBEntry, bool> inclusionSelector;
-            readonly Func<BlockDBEntry, bool> exclusionSelector;
+            readonly Predicate<BlockDBEntry> inclusionSelector;
+            readonly Predicate<BlockDBEntry> exclusionSelector;
             readonly HashSet<int> excluded = new HashSet<int>();
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
             public ExcludingReturnOldestProcessor( Map map, int max,
-                                                   Func<BlockDBEntry, bool> inclusionSelector,
-                                                   Func<BlockDBEntry, bool> exclusionSelector ) {
+                                                   Predicate<BlockDBEntry> inclusionSelector,
+                                                   Predicate<BlockDBEntry> exclusionSelector ) {
                 this.max = max;
                 this.inclusionSelector = inclusionSelector;
                 this.exclusionSelector = exclusionSelector;
