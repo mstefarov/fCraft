@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Xml.Linq;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -540,141 +541,151 @@ namespace fCraft {
 
         static void ApplyKeyChange( ConfigKey key ) {
             switch( key ) {
-                case ConfigKey.AnnouncementColor:
-                    Color.Announcement = Color.Parse( key.GetString() );
-                    break;
+            case ConfigKey.AnnouncementColor:
+                Color.Announcement = Color.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.AntispamInterval:
-                    Player.AntispamInterval = key.GetInt();
-                    break;
+            case ConfigKey.AntispamInterval:
+                Player.AntispamInterval = key.GetInt();
+                break;
 
-                case ConfigKey.AntispamMessageCount:
-                    Player.AntispamMessageCount = key.GetInt();
-                    break;
+            case ConfigKey.AntispamMessageCount:
+                Player.AntispamMessageCount = key.GetInt();
+                break;
 
-                case ConfigKey.DefaultBuildRank:
-                    RankManager.DefaultBuildRank = Rank.Parse( key.GetString() );
-                    break;
+            case ConfigKey.DefaultBuildRank:
+                RankManager.DefaultBuildRank = Rank.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.DefaultRank:
-                    RankManager.DefaultRank = Rank.Parse( key.GetString() );
-                    break;
+            case ConfigKey.DefaultRank:
+                RankManager.DefaultRank = Rank.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.BandwidthUseMode:
-                    Player[] playerListCache = Server.Players;
-                    if( playerListCache != null ) {
-                        foreach( Player p in playerListCache ) {
-                            if( p.BandwidthUseMode == BandwidthUseMode.Default ) {
-                                // resets the use tweaks
-                                p.BandwidthUseMode = BandwidthUseMode.Default;
+            case ConfigKey.BandwidthUseMode:
+                Player[] playerListCache = Server.Players;
+                if( playerListCache != null ) {
+                    foreach( Player p in playerListCache ) {
+                        if( p.BandwidthUseMode == BandwidthUseMode.Default ) {
+                            // resets the use tweaks
+                            p.BandwidthUseMode = BandwidthUseMode.Default;
+                        }
+                    }
+                }
+                break;
+
+            case ConfigKey.BlockDBAutoEnableRank:
+                RankManager.BlockDBAutoEnableRank = Rank.Parse( key.GetString() );
+                if( BlockDB.IsEnabledGlobally ) {
+                    World[] worldListCache = WorldManager.Worlds;
+                    foreach( World world in worldListCache ) {
+                        if( world.BlockDB.AutoToggleIfNeeded() ) {
+                            if( world.BlockDB.IsEnabled ) {
+                                Logger.Log( LogType.SystemActivity,
+                                            "BlockDB is now auto-enabled on world {0}",
+                                            world.Name );
+                            } else {
+                                Logger.Log( LogType.SystemActivity,
+                                            "BlockDB is now auto-disabled on world {0}",
+                                            world.Name );
                             }
                         }
                     }
-                    break;
+                }
+                break;
 
-                case ConfigKey.BlockDBAutoEnableRank:
-                    RankManager.BlockDBAutoEnableRank = Rank.Parse( key.GetString() );
-                    if( BlockDB.IsEnabledGlobally ) {
-                        World[] worldListCache = WorldManager.Worlds;
-                        foreach( World world in worldListCache ) {
-                            if( world.BlockDB.AutoToggleIfNeeded() ) {
-                                if( world.BlockDB.IsEnabled ) {
-                                    Logger.Log( LogType.SystemActivity,
-                                                "BlockDB is now auto-enabled on world {0}", world.Name );
-                                } else {
-                                    Logger.Log( LogType.SystemActivity,
-                                                "BlockDB is now auto-disabled on world {0}", world.Name );
-                                }
-                            }
-                        }
+            case ConfigKey.BlockUpdateThrottling:
+                Server.BlockUpdateThrottling = key.GetInt();
+                break;
+
+            case ConfigKey.BypassHttpsCertificateValidation:
+                if( key.Enabled() ) {
+                    ServicePointManager.ServerCertificateValidationCallback = delegate { return true; };
+                } else {
+                    ServicePointManager.ServerCertificateValidationCallback = null;
+                }
+                break;
+
+            case ConfigKey.ConsoleName:
+                if( Player.Console != null ) {
+                    Player.Console.Info.Name = key.GetString();
+                }
+                break;
+
+            case ConfigKey.DefaultBackupInterval:
+                World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute*key.GetInt() );
+                break;
+
+            case ConfigKey.HelpColor:
+                Color.Help = Color.Parse( key.GetString() );
+                break;
+
+            case ConfigKey.IRCDelay:
+                IRC.SendDelay = key.GetInt();
+                break;
+
+            case ConfigKey.IRCMessageColor:
+                Color.IRC = Color.Parse( key.GetString() );
+                break;
+
+            case ConfigKey.LogMode:
+                Logger.SplittingType = key.GetEnum<LogSplittingType>();
+                break;
+
+            case ConfigKey.MapPath:
+                if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
+                    if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
+                        Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
                     }
-                    break;
+                }
+                break;
 
-                case ConfigKey.BlockUpdateThrottling:
-                    Server.BlockUpdateThrottling = key.GetInt();
-                    break;
+            case ConfigKey.MaxUndo:
+                BuildingCommands.MaxUndoCount = key.GetInt();
+                break;
 
-                case ConfigKey.ConsoleName:
-                    if( Player.Console != null ) {
-                        Player.Console.Info.Name = key.GetString();
-                    }
-                    break;
+            case ConfigKey.MeColor:
+                Color.Me = Color.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.DefaultBackupInterval:
-                    World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute * key.GetInt() );
-                    break;
+            case ConfigKey.NoPartialPositionUpdates:
+                if( key.Enabled() ) {
+                    Player.FullPositionUpdateInterval = 0;
+                } else {
+                    Player.FullPositionUpdateInterval = Player.FullPositionUpdateIntervalDefault;
+                }
+                break;
 
-                case ConfigKey.HelpColor:
-                    Color.Help = Color.Parse( key.GetString() );
-                    break;
+            case ConfigKey.PatrolledRank:
+                RankManager.PatrolledRank = Rank.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.IRCDelay:
-                    IRC.SendDelay = key.GetInt();
-                    break;
+            case ConfigKey.PrivateMessageColor:
+                Color.PM = Color.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.IRCMessageColor:
-                    Color.IRC = Color.Parse( key.GetString() );
-                    break;
+            case ConfigKey.RelayAllBlockUpdates:
+                Player.RelayAllUpdates = key.Enabled();
+                break;
 
-                case ConfigKey.LogMode:
-                    Logger.SplittingType = key.GetEnum<LogSplittingType>();
-                    break;
+            case ConfigKey.SayColor:
+                Color.Say = Color.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.MapPath:
-                    if( !Paths.IgnoreMapPathConfigKey && GetString( ConfigKey.MapPath ).Length > 0 ) {
-                        if( Paths.TestDirectory( "MapPath", GetString( ConfigKey.MapPath ), true ) ) {
-                            Paths.MapPath = Path.GetFullPath( GetString( ConfigKey.MapPath ) );
-                        }
-                    }
-                    break;
+            case ConfigKey.SystemMessageColor:
+                Color.Sys = Color.Parse( key.GetString() );
+                break;
 
-                case ConfigKey.MaxUndo:
-                    BuildingCommands.MaxUndoCount = key.GetInt();
-                    break;
+            case ConfigKey.TickInterval:
+                Server.TicksPerSecond = 1000/(float)key.GetInt();
+                break;
 
-                case ConfigKey.MeColor:
-                    Color.Me = Color.Parse( key.GetString() );
-                    break;
+            case ConfigKey.UploadBandwidth:
+                Server.MaxUploadSpeed = key.GetInt();
+                break;
 
-                case ConfigKey.NoPartialPositionUpdates:
-                    if( key.Enabled() ) {
-                        Player.FullPositionUpdateInterval = 0;
-                    } else {
-                        Player.FullPositionUpdateInterval = Player.FullPositionUpdateIntervalDefault;
-                    }
-                    break;
-
-                case ConfigKey.PatrolledRank:
-                    RankManager.PatrolledRank = Rank.Parse( key.GetString() );
-                    break;
-
-                case ConfigKey.PrivateMessageColor:
-                    Color.PM = Color.Parse( key.GetString() );
-                    break;
-
-                case ConfigKey.RelayAllBlockUpdates:
-                    Player.RelayAllUpdates = key.Enabled();
-                    break;
-
-                case ConfigKey.SayColor:
-                    Color.Say = Color.Parse( key.GetString() );
-                    break;
-
-                case ConfigKey.SystemMessageColor:
-                    Color.Sys = Color.Parse( key.GetString() );
-                    break;
-
-                case ConfigKey.TickInterval:
-                    Server.TicksPerSecond = 1000 / (float)key.GetInt();
-                    break;
-
-                case ConfigKey.UploadBandwidth:
-                    Server.MaxUploadSpeed = key.GetInt();
-                    break;
-
-                case ConfigKey.WarningColor:
-                    Color.Warning = Color.Parse( key.GetString() );
-                    break;
+            case ConfigKey.WarningColor:
+                Color.Warning = Color.Parse( key.GetString() );
+                break;
             }
         }
 
