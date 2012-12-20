@@ -138,15 +138,16 @@ namespace fCraft {
         [DebuggerStepThrough]
         static string GetPrefix( LogType level ) {
             switch( level ) {
-                case LogType.SeriousError:
-                case LogType.Error:
-                    return "ERROR: ";
-                case LogType.Warning:
-                    return "Warning: ";
-                case LogType.IRCStatus:
-                    return "IRC: ";
-                default:
-                    return String.Empty;
+            case LogType.SeriousError:
+            case LogType.Error:
+                return "ERROR: ";
+            case LogType.Warning:
+                return "Warning: ";
+            case LogType.IRCStatus:
+            case LogType.IRCChat:
+                return "IRC: ";
+            default:
+                return String.Empty;
             }
         }
 
