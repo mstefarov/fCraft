@@ -584,7 +584,8 @@ namespace fCraft {
                 }
             } else {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
-                if( world == null ) return;
+                if( world == null )
+                    return;
             }
 
             string variable = cmd.Next();
@@ -613,13 +614,15 @@ namespace fCraft {
                     world.EdgeBlock = Block.Water;
                     Logger.Log( LogType.UserActivity,
                                 "Env: Player {0} reset environment settings for world {1}",
-                                player.Name, world.Name );
+                                player.Name,
+                                world.Name );
                     player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
                     Logger.Log( LogType.UserActivity,
                                 "Env: Asked {0} to confirm resetting enviroment settings for world {1}",
-                                player.Name, world.Name );
+                                player.Name,
+                                world.Name );
                     player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
                 }
                 return;
@@ -636,93 +639,96 @@ namespace fCraft {
             }
 
             switch( variable.ToLower() ) {
-                case "fog":
-                    if( value == -1 ) {
-                        player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
-                    } else {
-                        try {
-                            value = ParseHexColor( valueText );
-                        } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
-                            return;
-                        }
-                        player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
+            case "fog":
+                if( value == -1 ) {
+                    player.Message( "Reset fog color for {0}&S to normal", world.ClassyName );
+                } else {
+                    try {
+                        value = ParseHexColor( valueText );
+                    } catch( FormatException ) {
+                        MessageCantParseHex( player, valueText );
+                        return;
                     }
-                    world.FogColor = value;
-                    break;
+                    player.Message( "Set fog color for {0}&S to #{1:X6}", world.ClassyName, value );
+                }
+                world.FogColor = value;
+                break;
 
-                case "cloud":
-                case "clouds":
-                    if( value == -1 ) {
-                        player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
-                    } else {
-                        try {
-                            value = ParseHexColor( valueText );
-                        } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
-                            return;
-                        }
-                        player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
+            case "cloud":
+            case "clouds":
+                if( value == -1 ) {
+                    player.Message( "Reset cloud color for {0}&S to normal", world.ClassyName );
+                } else {
+                    try {
+                        value = ParseHexColor( valueText );
+                    } catch( FormatException ) {
+                        MessageCantParseHex( player, valueText );
+                        return;
                     }
-                    world.CloudColor = value;
-                    break;
+                    player.Message( "Set cloud color for {0}&S to #{1:X6}", world.ClassyName, value );
+                }
+                world.CloudColor = value;
+                break;
 
-                case "sky":
-                    if( value == -1 ) {
-                        player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
-                    } else {
-                        try {
-                            value = ParseHexColor( valueText );
-                        } catch( FormatException ) {
-                            player.Message( "Env: \"{0}\" is not a valid RGB color code.", valueText );
-                            return;
-                        }
-                        player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
+            case "sky":
+                if( value == -1 ) {
+                    player.Message( "Reset sky color for {0}&S to normal", world.ClassyName );
+                } else {
+                    try {
+                        value = ParseHexColor( valueText );
+                    } catch( FormatException ) {
+                        MessageCantParseHex( player, valueText );
+                        return;
                     }
-                    world.SkyColor = value;
-                    break;
+                    player.Message( "Set sky color for {0}&S to #{1:X6}", world.ClassyName, value );
+                }
+                world.SkyColor = value;
+                break;
 
-                case "level":
-                    if( value == -1 ) {
-                        player.Message( "Reset edge level for {0}&S to normal", world.ClassyName );
-                    } else {
-                        try {
-                            value = UInt16.Parse( valueText );
-                        } catch( OverflowException ) {
-                            CdEnv.PrintUsage( player );
-                            return;
-                        } catch( FormatException ) {
-                            CdEnv.PrintUsage( player );
-                            return;
-                        }
-                        player.Message( "Set edge level for {0}&S to {1}", world.ClassyName, value );
-                    }
+            case "level":
+                if( value == -1 ) {
                     world.EdgeLevel = value;
-                    break;
-
-                case "edge":
-                    Block block;
-                    if( !Map.GetBlockByName( valueText, false, out block ) ) {
+                    player.Message( "Reset edge level for {0}&S to normal", world.ClassyName );
+                } else {
+                    ushort valueParsed;
+                    if( !UInt16.TryParse( valueText, out valueParsed ) ) {
+                        player.Message( "Env: Unacceptable number \"{0}\" for \"level\" variable. " +
+                                        "Expected a number between 0 and map height.",
+                                        valueText );
                         CdEnv.PrintUsage( player );
                         return;
                     }
-                    if( block == Block.Water || valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
-                        player.Message( "Reset edge block for {0}&S to normal (water)", world.ClassyName );
-                        world.EdgeBlock = Block.Water;
-                    } else {
-                        string textName = Map.GetEdgeTexture( block );
-                        if( textName == null ) {
-                            player.Message( "Env: Cannot use {0} for edge textures.", block );
-                            return;
-                        } else {
-                            world.EdgeBlock = block;
-                        }
-                    }
-                    break;
+                    world.EdgeLevel = valueParsed;
+                    player.Message( "Set edge level for {0}&S to {1}", world.ClassyName, value );
+                }
+                break;
 
-                default:
+            case "edge":
+                Block block;
+                if( !Map.GetBlockByName( valueText, false, out block ) ) {
+                    player.Message( "Env: Unacceptable value \"{0}\" for \"edge\" variable. Expected a block name.",
+                                    valueText );
                     CdEnv.PrintUsage( player );
                     return;
+                }
+                if( block == Block.Water || valueText.Equals( "normal", StringComparison.OrdinalIgnoreCase ) ) {
+                    player.Message( "Reset edge block for {0}&S to normal (water)", world.ClassyName );
+                    world.EdgeBlock = Block.Water;
+                } else {
+                    string textName = Map.GetEdgeTexture( block );
+                    if( textName == null ) {
+                        player.Message( "Env: Cannot use {0} for edge textures.", block );
+                        return;
+                    } else {
+                        world.EdgeBlock = block;
+                    }
+                }
+                break;
+
+            default:
+                player.Message( "Unrecognized environmental variable: \"{0}\"", variable );
+                CdEnv.PrintUsage( player );
+                return;
             }
 
             WorldManager.SaveWorldList();
@@ -733,6 +739,11 @@ namespace fCraft {
                     player.Message( "Env: You need WoM client to see the changes." );
                 }
             }
+        }
+
+        static void MessageCantParseHex( Player player, string givenText ) {
+            player.Message( "Env: \"{0}\" is not a valid RGB color code. Use 3-digit or 6-digit hex codes.",
+                            givenText );
         }
 
         static int ParseHexColor( string text ) {
