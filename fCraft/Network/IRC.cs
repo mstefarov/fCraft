@@ -134,8 +134,8 @@ namespace fCraft {
                         Connect();
 
                         // register
-                        Send( IRCCommands.User( ActualBotNick, 8, ConfigKey.ServerName.GetString() ) );
                         Send( IRCCommands.Nick( ActualBotNick ) );
+                        Send( IRCCommands.User( ActualBotNick, 8, ConfigKey.ServerName.GetString() ) );
                         nickTry = 0;
 
                         while( isConnected && !reconnect ) {
