@@ -25,7 +25,8 @@ namespace fCraft {
 
         const int MaxPrefixSize = 48;
         const int PacketSize = 66; // opcode + id + 64
-        const byte DefaultColor = (byte)'f';
+        const byte DefaultColor = (byte)'f',
+                   EmotePostfix = (byte)'.';
 
         public Packet Current { get; private set; }
 
@@ -249,7 +250,11 @@ namespace fCraft {
                 output[i] = (byte)' ';
             }
             if( endsWithSymbol ) {
-                output[65] = (byte)'.';
+                if( ConfigKey.MoveEmoteDotToEndOfMessage.Enabled() ) {
+                    output[65] = EmotePostfix;
+                } else {
+                    output[outputIndex] = EmotePostfix;
+                }
             }
 #if DEBUG_LINE_WRAPPER
             Console.WriteLine( "\"" + Encoding.ASCII.GetString( output, outputStart, outputIndex - outputStart ) + "\"" );
