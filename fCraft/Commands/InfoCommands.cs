@@ -1136,19 +1136,21 @@ namespace fCraft {
                 string sectionName = cmd.Next();
                 if( sectionName != null ) {
                     string sectionHelp;
-                    if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
+                    if( descriptor.HelpSections != null &&
+                        descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
                         player.MessagePrefixed( HelpPrefix, sectionHelp );
                     } else {
                         player.Message( "No help found for \"{0}\"", sectionName );
                     }
                 } else {
                     StringBuilder sb = new StringBuilder( Color.Help );
-                    sb.Append( descriptor.Usage ).Append( '\n' );
+                    sb.Append( descriptor.Usage )
+                      .Append( "\n&S" );
 
                     if( descriptor.Aliases != null ) {
-                        sb.Append( "Aliases: &H" );
-                        sb.Append( descriptor.Aliases.JoinToString() );
-                        sb.Append( "\n&S" );
+                        sb.Append( "Aliases: &H" )
+                          .Append( descriptor.Aliases.JoinToString() )
+                          .Append( "\n&S" );
                     }
 
                     if( String.IsNullOrEmpty( descriptor.Help ) ) {
