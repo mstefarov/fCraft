@@ -283,6 +283,7 @@ namespace fCraft {
                         default:
                             if( !IsStandardColorCode( sb[i] ) ) {
                                 sb.Remove( i - 1, 2 );
+                                i--;
                             }
                             break;
                     }
@@ -387,7 +388,6 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> sb is null. </exception>
         public static void IrcToMinecraftColors( [NotNull] StringBuilder sb ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
-            SubstituteSpecialColors( sb );
             foreach( var codePair in MinecraftToIRCColors ) {
                 sb.Replace( codePair.Value, codePair.Key );
             }
