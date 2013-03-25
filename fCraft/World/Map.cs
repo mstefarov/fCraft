@@ -6,7 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using LibNbt;
+using fNbt;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;

@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
-using LibNbt;
+using fNbt;
 
 namespace fCraft {
     /// <summary> A bounding box selection that is designated as a sub area within a world.

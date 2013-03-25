@@ -2,7 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
-using LibNbt;
+using fNbt;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>

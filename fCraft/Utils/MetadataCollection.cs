@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
-using LibNbt;
+using fNbt;
 
 namespace fCraft {
     /// <summary> A string metadata entry. </summary>
