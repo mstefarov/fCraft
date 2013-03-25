@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
-using LibNbt;
+using fNbt;
 
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for format version #5 (0.640+). </summary>
@@ -53,7 +53,8 @@ namespace fCraft.MapConversion {
 
         public Map LoadHeader( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, HeaderTagSelector );
+            NbtFile file = new NbtFile();
+            file.LoadFromFile( fileName, NbtCompression.None, HeaderTagSelector );
             NbtCompound root = file.RootTag;
             return LoadHeaderInternal( root );
         }
@@ -61,7 +62,8 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
+            NbtFile file = new NbtFile();
+            file.LoadFromFile( fileName, NbtCompression.None, null );
             NbtCompound root = file.RootTag;
             Map map = LoadHeaderInternal( root );
             map.Blocks = root["MapData"]["Blocks"].ByteArrayValue;
@@ -107,7 +109,8 @@ namespace fCraft.MapConversion {
 
         internal static World LoadWorld( string worldName, string fileName, WorldDataCategory cats ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            NbtFile file = new NbtFile( fileName, NbtCompression.AutoDetect, null );
+            NbtFile file = new NbtFile();
+            file.LoadFromFile( fileName, NbtCompression.None, null );
             NbtCompound root = file.RootTag;
 
             Map map = LoadHeaderInternal( root );

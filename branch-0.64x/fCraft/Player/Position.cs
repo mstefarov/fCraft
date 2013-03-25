@@ -1,7 +1,7 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Runtime.InteropServices;
-using LibNbt;
+using fNbt;
 
 namespace fCraft {
     /// <summary> Struct representing a position AND orientation in 3D space.

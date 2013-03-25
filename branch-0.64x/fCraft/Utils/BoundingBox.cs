@@ -2,7 +2,7 @@
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
-using LibNbt;
+using fNbt;
 
 namespace fCraft {
     /// <summary> Defines a 3D bounding box, in integer cartesian coordinates.

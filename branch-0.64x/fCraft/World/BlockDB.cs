@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using LibNbt;
+using fNbt;
 using fCraft.Events;
 using JetBrains.Annotations;
 
