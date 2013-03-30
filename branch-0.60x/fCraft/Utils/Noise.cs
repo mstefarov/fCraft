@@ -220,6 +220,8 @@ namespace fCraft {
 
 
         public float PerlinNoise( float x, float y, int startOctave, int endOctave, float decay ) {
+            if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
+            if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             float total = 0;
 
             float frequency = (float)Math.Pow( 2, startOctave );
@@ -235,6 +237,8 @@ namespace fCraft {
 
 
         public float PerlinNoise( float x, float y, float z, int startOctave, int endOctave, float decay ) {
+            if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
+            if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             float total = 0;
 
             float frequency = (float)Math.Pow( 2, startOctave );
@@ -252,6 +256,8 @@ namespace fCraft {
 
 
         public void PerlinNoise( [NotNull] float[,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY ) {
+            if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
+            if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), map.GetLength( 1 ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
@@ -263,6 +269,8 @@ namespace fCraft {
 
 
         public void PerlinNoise( [NotNull] float[, ,] map, int startOctave, int endOctave, float decay, int offsetX, int offsetY, int offsetZ ) {
+            if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
+            if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {

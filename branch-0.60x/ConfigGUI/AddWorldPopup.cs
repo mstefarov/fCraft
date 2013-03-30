@@ -388,6 +388,7 @@ namespace fCraft.ConfigGUI {
             stopwatch.Stop();
             if( Map == null ) {
                 tStatus1.Text = "Generation failed!";
+                Logger.LogAndReportCrash( "Exception while generating map", "ConfigGUI", e.Error, false );
             } else {
                 tStatus1.Text = "Generation successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
