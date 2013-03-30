@@ -319,7 +319,7 @@ namespace fCraft {
                 ReportProgress( 5, "Heightmap Processing: Randomizing" );
                 altmap = new float[map.Width, map.Length];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( args.MapWidth, args.MapLength ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( altmap, 3, blendmapDetailSize, 0.5f, 0, 0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( altmap, Math.Min( blendmapDetailSize, 3 ), blendmapDetailSize, 0.5f, 0, 0 );
                 Noise.Normalize( altmap, -1, 1 );
             }
 
