@@ -190,12 +190,6 @@ namespace fCraft.UpdateInstaller {
 
             // Restart fCraft (if requested)
             if( restartTarget != null ) {
-                if( restartTarget == "fCraftConsole.exe" ) {
-                    restartTarget = "ServerCLI.exe";
-                } else if( restartTarget == "fCraftUI.exe" ) {
-                    restartTarget = "ServerGUI.exe";
-                }
-
                 if( !File.Exists( restartTarget ) ) {
                     Console.Error.WriteLine( "Restart target not found, quitting: {0}", restartTarget );
                     return (int)ReturnCodes.RestartTargetNotFound;
