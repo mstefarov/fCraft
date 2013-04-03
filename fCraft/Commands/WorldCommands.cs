@@ -2177,11 +2177,11 @@ namespace fCraft {
                             !Paths.Compare( targetFullFileName, fullFileName ) ) {
                             // and is different from sourceFile
                             Logger.Log( LogType.UserActivity,
-                                        "WLoad: Asked {0} to confirm replacing map file \"{1}\"",
-                                        player.Name, fullFileName );
+                                        "WLoad: Asked {0} to confirm replacing map file \"{1}\" with \"{2}\"",
+                                        player.Name, targetFullFileName, fullFileName );
                             player.Confirm( cmd,
                                             "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                            Path.GetFileName( fullFileName ), Path.GetFileName( fullFileName ) );
+                                            Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
                             return;
                         }
 
