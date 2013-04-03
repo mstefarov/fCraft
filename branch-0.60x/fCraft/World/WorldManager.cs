@@ -366,7 +366,7 @@ namespace fCraft {
                 }
                 // Try loading the map header
                 try {
-                    MapUtility.LoadHeader( world.MapFileName );
+                    MapUtility.LoadHeader( world.MapFileName, true );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Warning,
                                 "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}",

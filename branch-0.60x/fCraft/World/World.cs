@@ -124,7 +124,7 @@ namespace fCraft {
 
                 if( File.Exists( MapFileName ) ) {
                     try {
-                        Map = MapUtility.Load( MapFileName );
+                        Map = MapUtility.Load( MapFileName, true );
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "World.LoadMap: Failed to load map ({0}): {1}",
