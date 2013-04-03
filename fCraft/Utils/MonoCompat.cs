@@ -15,9 +15,6 @@ namespace fCraft {
         /// <summary> Whether we are currently running under Mono. </summary>
         public static bool IsMono { get; private set; }
 
-        /// <summary> Whether Mono's generational GC is available. </summary>
-        public static bool IsSGenCapable { get; private set; }
-
         /// <summary> Full Mono version string. May be null if we are running a REALLY old version. </summary>
         public static string MonoVersionString { get; private set; }
 
@@ -29,7 +26,7 @@ namespace fCraft {
 
 
         const string UnsupportedMessage =
-            "Your Mono version is not supported. Update to at least Mono 2.6+ (recommended 2.10+)";
+            "Your Mono version is not supported. Update to at least Mono 2.8+ (recommended 2.10+)";
 
         static readonly Regex VersionRegex = new Regex( @"^(\d)+\.(\d+)\.(\d)\D" );
 
@@ -42,8 +39,11 @@ namespace fCraft {
 
             if( monoRuntimeType != null ) {
                 IsMono = true;
-                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName", MonoMethodFlags, null,
-                                                                             Type.EmptyTypes, null );
+                MethodInfo getDisplayNameMethod = monoRuntimeType.GetMethod( "GetDisplayName",
+                                                                             MonoMethodFlags,
+                                                                             null,
+                                                                             Type.EmptyTypes,
+                                                                             null );
 
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
@@ -54,12 +54,11 @@ namespace fCraft {
                         int minor = Int32.Parse( versionMatch.Groups[2].Value );
                         int revision = Int32.Parse( versionMatch.Groups[3].Value );
                         MonoVersion = new Version( major, minor, revision );
-                        IsSGenCapable = ( major == 2 && minor >= 8 );
                     } catch( Exception ex ) {
                         throw new Exception( UnsupportedMessage, ex );
                     }
 
-                    if( MonoVersion.Major < 2 || MonoVersion.Major == 2 && MonoVersion.Minor < 6 ) {
+                    if( MonoVersion.Major < 2 || MonoVersion.Major == 2 && MonoVersion.Minor < 8 ) {
                         throw new Exception( UnsupportedMessage );
                     }
 
@@ -94,11 +93,7 @@ namespace fCraft {
             if( assemblyArgs == null ) throw new ArgumentNullException( "assemblyArgs" );
             string binaryName, args;
             if( IsMono ) {
-                if( IsSGenCapable ) {
-                    binaryName = "mono-sgen";
-                } else {
-                    binaryName = "mono";
-                }
+                binaryName = "mono";
                 args = "\"" + assemblyLocation + "\"";
                 if( !String.IsNullOrEmpty( assemblyArgs ) ) {
                     args += " " + assemblyArgs;
@@ -118,11 +113,7 @@ namespace fCraft {
         public static string PrependMono( [NotNull] string dotNetExecutable ) {
             if( dotNetExecutable == null ) throw new ArgumentNullException( "dotNetExecutable" );
             if( IsMono ) {
-                if( IsSGenCapable ) {
-                    return "mono-sgen " + dotNetExecutable;
-                } else {
-                    return "mono " + dotNetExecutable;
-                }
+                return "mono " + dotNetExecutable;
             } else {
                 return dotNetExecutable;
             }
