@@ -6,7 +6,7 @@ namespace fCraft.MapConverter {
         ArgumentError = 1,
         UnrecognizedImporter = 2,
         UnrecognizedExporter = 3,
-        InputDirNotFound = 4,
+        InputPathNotFound = 4,
         PathError = 5,
         UnsupportedLoadFormat = 6,
         UnsupportedSaveFormat = 7
