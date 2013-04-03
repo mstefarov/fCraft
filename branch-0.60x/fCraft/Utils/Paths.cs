@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -34,7 +35,7 @@ namespace fCraft {
                 "MapConverter.exe",
                 "MapRenderer.exe",
                 "HeartbeatSaver.exe",
-                UpdaterFileName,
+                UpdateInstallerFileName,
                 ConfigFileNameDefault,
                 PlayerDBFileName,
                 IPBanListFileName,
@@ -99,7 +100,7 @@ namespace fCraft {
 
         public const string HeartbeatDataFileName = "heartbeatdata.txt";
 
-        public const string UpdaterFileName = "UpdateInstaller.exe";
+        public const string UpdateInstallerFileName = "UpdateInstaller.exe";
 
         public const string WorldListFileName = "worlds.xml";
 
@@ -131,6 +132,41 @@ namespace fCraft {
 
 
         #region Utility Methods
+
+        /// <summary> Normalizes a directory name: makes all separator characters match,
+        /// adds an end separator, expands full path. </summary>
+        /// <param name="path"> Path to normalize. </param>
+        /// <returns> Normalized path. </returns>
+        /// <exception cref="ArgumentNullException"> path is null. </exception>
+        public static string NormalizeDirName( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
+            path = Path.GetFullPath( path );
+            path = path.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
+            if( !path.EndsWith( Path.DirectorySeparatorChar.ToString( CultureInfo.InvariantCulture ) ) ) {
+                path += Path.DirectorySeparatorChar;
+            }
+            return new Uri( path ).LocalPath;
+        }
+
+
+        /// <summary> Creates a relative path from one file or folder to another. </summary>
+        /// <param name="fromPath"> Contains the directory that defines the start of the relative path. </param>
+        /// <param name="toPath"> Contains the path that defines the endpoint of the relative path. </param>
+        /// <returns> The relative path from the start directory to the end path. </returns>
+        /// <exception cref="ArgumentNullException"> fromPath or toPath is null. </exception>
+        public static string MakeRelativePath( [NotNull] string fromPath, [NotNull] string toPath ) {
+            if( fromPath == null ) throw new ArgumentNullException( "fromPath" );
+            if( toPath == null ) throw new ArgumentNullException( "toPath" );
+
+            Uri fromUri = new Uri( fromPath );
+            Uri toUri = new Uri( toPath );
+
+            Uri relativeUri = fromUri.MakeRelativeUri( toUri );
+            String relativePath = Uri.UnescapeDataString( relativeUri.ToString() );
+
+            return relativePath.Replace( '/', Path.DirectorySeparatorChar );
+        }
+
 
         /// <summary> Moves file from source to destination, overwriting destination if it exists, as safely as possible. 
         /// File.Replace, File.Copy/File.Delete, or File.Move is used depending on circumstances. </summary>

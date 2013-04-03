@@ -181,7 +181,9 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl = el.Element( "Greeting" );
-            if( tempEl != null && !String.IsNullOrEmpty( tempEl.Value ) ) world.Greeting = tempEl.Value;
+            if( tempEl != null && !String.IsNullOrEmpty( tempEl.Value ) ) {
+                world.Greeting = tempEl.Value;
+            }
 
             if( (tempEl = el.Element( AccessSecurityXmlTagName )) != null ) {
                 world.AccessSecurity = new SecurityController( tempEl, true );
@@ -461,6 +463,10 @@ namespace fCraft {
                         if( world.UnlockedOn != DateTime.MinValue ) {
                             temp.Add( new XElement( "UnlockedOn", world.UnlockedOn.ToUnixTime() ) );
                         }
+                    }
+
+                    if( !String.IsNullOrEmpty( world.Greeting ) ) {
+                        temp.Add( new XElement( "Greeting", world.Greeting ) );
                     }
 
                     root.Add( temp );
