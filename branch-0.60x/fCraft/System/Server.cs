@@ -268,13 +268,6 @@ namespace fCraft {
 #endif
             }
 
-            if( MonoCompat.MonoVersion != null && MonoCompat.MonoVersion < new Version( 2, 8 ) ) {
-                Logger.Log( LogType.Warning,
-                            "You are using a relatively old version of the Mono runtime ({0}). " +
-                            "It is recommended that you upgrade to at least 2.8+",
-                            MonoCompat.MonoVersion );
-            }
-
 #if DEBUG
             Config.RunSelfTest();
 #else
