@@ -259,7 +259,7 @@ namespace fCraft.ServerCLI {
                 WebClient client = new WebClient();
                 client.DownloadProgressChanged += OnUpdateDownloadProgress;
                 client.DownloadFileCompleted += OnUpdateDownloadCompleted;
-                client.DownloadFileAsync( update.DownloadUri, Paths.UpdaterFileName );
+                client.DownloadFileAsync( update.DownloadUri, Paths.UpdateInstallerFileName );
                 UpdateDownloadWaiter.WaitOne();
                 if( updateFailed ) return;
 
@@ -270,7 +270,7 @@ namespace fCraft.ServerCLI {
                         RestartForUpdate();
                     } else {
                         Console.WriteLine( "You can update manually by shutting down the server and running " +
-                                           Paths.UpdaterFileName );
+                                           Paths.UpdateInstallerFileName );
                     }
                 } else {
                     RestartForUpdate();
@@ -284,7 +284,7 @@ namespace fCraft.ServerCLI {
             string restartArgs = String.Format( "{0} --restart=\"{1}\"",
                                                 Server.GetArgString(),
                                                 MonoCompat.PrependMono( "ServerCLI.exe" ) );
-            MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, restartArgs, true );
+            MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, restartArgs, true );
         }
 
         #endregion

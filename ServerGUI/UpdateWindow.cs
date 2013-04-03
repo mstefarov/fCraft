@@ -16,7 +16,7 @@ namespace fCraft.ServerGUI {
 
         public UpdateWindow( UpdaterResult update ) {
             InitializeComponent();
-            updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdaterFileName );
+            updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdateInstallerFileName );
             updateResult = update;
             autoUpdate = (ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
             CreateDetailedChangeLog();
@@ -51,7 +51,7 @@ namespace fCraft.ServerGUI {
             } else {
                 progress.Value = 100;
                 if( e.Cancelled || e.Error != null ) {
-                    MessageBox.Show( e.Error.ToString(), "Error occurred while trying to download " + Paths.UpdaterFileName );
+                    MessageBox.Show( e.Error.ToString(), "Error occurred while trying to download " + Paths.UpdateInstallerFileName );
                 } else if( autoUpdate ) {
                     bUpdateNow_Click( null, null );
                 } else {

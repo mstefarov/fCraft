@@ -279,7 +279,7 @@ namespace fCraft {
             Config.RunSelfTest();
 #else
             // delete the old updater, if exists
-            File.Delete( Paths.UpdaterFileName );
+            File.Delete( Paths.UpdateInstallerFileName );
             File.Delete( "fCraftUpdater.exe" ); // pre-0.600
 #endif
 
@@ -636,10 +636,10 @@ namespace fCraft {
                                                  MonoCompat.PrependMono( assemblyExecutable ),
                                                  GetArgString() );
 
-                    MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, args, true );
+                    MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, args, true );
 
                 } else if( Updater.RunAtShutdown ) {
-                    MonoCompat.StartDotNetProcess( Paths.UpdaterFileName, GetArgString(), true );
+                    MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, GetArgString(), true );
 
                 } else if( doRestart ) {
                     MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
