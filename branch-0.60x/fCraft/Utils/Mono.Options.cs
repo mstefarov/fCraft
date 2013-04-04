@@ -634,7 +634,7 @@ namespace Mono.Options
         }
     }
 
-    public delegate void OptionAction<TKey, TValue>( TKey key, TValue value );
+    public delegate void OptionAction<in TKey, in TValue>( TKey key, TValue value );
 
     public sealed class OptionSet : KeyedCollection<string, Option> {
         public OptionSet()
