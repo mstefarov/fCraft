@@ -44,6 +44,7 @@ namespace fCraft {
         float[,] heightmap, blendmap, slopemap;
 
         const float CliffsideBlockThreshold = 0.01f;
+        const Block SnowBlock = Block.White;
 
         // theme-dependent vars
         Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
@@ -104,7 +105,6 @@ namespace fCraft {
         public static Map GenerateEmpty( int width, int length, int height ) {
             return new Map( null, width, length, height, true );
         }
-
 
 
         /// <summary> Generates a new "ocean" map: 1 layer of sand at the bottom the map,
@@ -271,7 +271,7 @@ namespace fCraft {
 
         #region Map Processing
 
-        public Map GenerateMap() {
+        Map GenerateMap() {
             Map map = new Map( null, args.MapWidth, args.MapLength, args.MapHeight, true );
 
 
@@ -279,28 +279,36 @@ namespace fCraft {
             float desiredWaterLevel = .5f;
             if( args.MatchWaterCoverage ) {
                 ReportProgress( 2, "Heightmap Processing: Matching water coverage" );
+                // find a number between 0 and 1 ("desiredWaterLevel") for the heightmap such that
+                // the fraction of heightmap coordinates ("blocks") that are below this threshold ("underwater")
+                // match the specified WaterCoverage
                 desiredWaterLevel = Noise.FindThreshold( heightmap, args.WaterCoverage );
             }
 
 
             // Calculate above/below water multipliers
             float aboveWaterMultiplier = 0;
-            if( desiredWaterLevel != 1 ) {
+            if( desiredWaterLevel < 1 ) {
                 aboveWaterMultiplier = (args.MaxHeight / (1 - desiredWaterLevel));
             }
 
 
             // Apply power functions to above/below water parts of the heightmap
-            if( args.BelowFuncExponent != 1 || args.AboveFuncExponent != 1 ) {
+            if( Math.Abs( args.BelowFuncExponent - 1 ) > float.Epsilon ||
+                Math.Abs( args.AboveFuncExponent - 1 ) > float.Epsilon ) {
                 ReportProgress( 5, "Heightmap Processing: Adjusting slope" );
                 for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                     for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                         if( heightmap[x, y] < desiredWaterLevel ) {
-                            float normalizedDepth = 1 - heightmap[x, y] / desiredWaterLevel;
-                            heightmap[x, y] = desiredWaterLevel - (float)Math.Pow( normalizedDepth, args.BelowFuncExponent ) * desiredWaterLevel;
+                            float normalizedDepth = 1 - heightmap[x, y]/desiredWaterLevel;
+                            heightmap[x, y] = desiredWaterLevel -
+                                              (float)Math.Pow( normalizedDepth, args.BelowFuncExponent )*
+                                              desiredWaterLevel;
                         } else {
-                            float normalizedHeight = (heightmap[x, y] - desiredWaterLevel) / (1 - desiredWaterLevel);
-                            heightmap[x, y] = desiredWaterLevel + (float)Math.Pow( normalizedHeight, args.AboveFuncExponent ) * (1 - desiredWaterLevel);
+                            float normalizedHeight = (heightmap[x, y] - desiredWaterLevel)/(1 - desiredWaterLevel);
+                            heightmap[x, y] = desiredWaterLevel +
+                                              (float)Math.Pow( normalizedHeight, args.AboveFuncExponent )*
+                                              (1 - desiredWaterLevel);
                         }
                     }
                 }
@@ -314,12 +322,15 @@ namespace fCraft {
                 slopemap = Noise.CalculateSlope( heightmap );
             }
 
+            // Randomize max height/depth
             float[,] altmap = null;
             if( args.MaxHeightVariation != 0 || args.MaxDepthVariation != 0 ) {
                 ReportProgress( 5, "Heightmap Processing: Randomizing" );
-                altmap = new float[map.Width, map.Length];
+                altmap = new float[map.Width,map.Length];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( args.MapWidth, args.MapLength ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( altmap, Math.Min( blendmapDetailSize, 3 ), blendmapDetailSize, 0.5f, 0, 0 );
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine )
+                    .PerlinNoise( altmap, Math.Min( blendmapDetailSize, 3 ), blendmapDetailSize,
+                                  0.5f, 0, 0 );
                 Noise.Normalize( altmap, -1, 1 );
             }
 
@@ -332,6 +343,7 @@ namespace fCraft {
                     int level;
                     float slope;
                     if( heightmap[x, y] < desiredWaterLevel ) {
+                        // for blocks below "sea level"
                         float depth = args.MaxDepth;
                         if( altmap != null ) {
                             depth += altmap[x, y] * args.MaxDepthVariation;
@@ -384,6 +396,7 @@ namespace fCraft {
                         }
 
                     } else {
+                        // for blocks above "sea level"
                         float height;
                         if( altmap != null ) {
                             height = args.MaxHeight + altmap[x, y] * args.MaxHeightVariation;
@@ -405,7 +418,7 @@ namespace fCraft {
                             map.SetBlock( x, y, level, bCliff );
                         } else {
                             if( slope < args.CliffThreshold ) {
-                                map.SetBlock( x, y, level, (snow ? Block.White : bGroundSurface) );
+                                map.SetBlock( x, y, level, (snow ? SnowBlock : bGroundSurface) );
                             } else {
                                 map.SetBlock( x, y, level, bCliff );
                             }
@@ -418,7 +431,7 @@ namespace fCraft {
                                 } else {
                                     if( slope < args.CliffThreshold ) {
                                         if( snow ) {
-                                            map.SetBlock( x, y, i, Block.White );
+                                            map.SetBlock( x, y, i, SnowBlock );
                                         } else {
                                             map.SetBlock( x, y, i, bGround );
                                         }
@@ -474,7 +487,6 @@ namespace fCraft {
 
         // Cave generation method from Omen 0.70, used with osici's permission
         static void AddSingleCave( Random rand, Map map, byte bedrockType, byte fillingType, int length, double maxDiameter ) {
-
             int startX = rand.Next( 0, map.Width );
             int startY = rand.Next( 0, map.Length );
             int startZ = rand.Next( 0, map.Height );
@@ -526,12 +538,13 @@ namespace fCraft {
             }
         }
 
+
         static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l ) {
             AddSingleVein( rand, map, bedrockType, fillingType, k, maxDiameter, l, 10 );
         }
 
-        static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l, int i1 ) {
 
+        static void AddSingleVein( Random rand, Map map, byte bedrockType, byte fillingType, int k, double maxDiameter, int l, int i1 ) {
             int j1 = rand.Next( 0, map.Width );
             int k1 = rand.Next( 0, map.Height );
             int l1 = rand.Next( 0, map.Length );
@@ -573,6 +586,7 @@ namespace fCraft {
             }
         }
 
+
         static void SealLiquids( Map map, byte sealantType ) {
             for( int x = 1; x < map.Width - 1; x++ ) {
                 for( int z = 1; z < map.Height; z++ ) {
@@ -589,35 +603,34 @@ namespace fCraft {
             }
         }
 
+
         public void AddCaves( Map map ) {
             if( args.AddCaves ) {
                 ReportProgress( 5, "Processing: Adding caves" );
-                for( int i1 = 0; i1 < 36 * args.CaveDensity; i1++ )
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05 * args.CaveSize );
+                for( int i1 = 0; i1 < 36*args.CaveDensity; i1++ )
+                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05*args.CaveSize );
 
-                for( int j1 = 0; j1 < 9 * args.CaveDensity; j1++ )
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015 * args.CaveSize, 1 );
+                for( int j1 = 0; j1 < 9*args.CaveDensity; j1++ )
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015*args.CaveSize, 1 );
 
-                for( int k1 = 0; k1 < 30 * args.CaveDensity; k1++ )
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03 * args.CaveSize, 1, 20 );
-
+                for( int k1 = 0; k1 < 30*args.CaveDensity; k1++ )
+                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03*args.CaveSize, 1, 20 );
 
                 if( args.AddCaveLava ) {
-                    for( int i = 0; i < 8 * args.CaveDensity; i++ ) {
-                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05 * args.CaveSize );
+                    for( int i = 0; i < 8*args.CaveDensity; i++ ) {
+                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05*args.CaveSize );
                     }
-                    for( int j = 0; j < 3 * args.CaveDensity; j++ ) {
-                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015 * args.CaveSize, 1 );
+                    for( int j = 0; j < 3*args.CaveDensity; j++ ) {
+                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015*args.CaveSize, 1 );
                     }
                 }
 
-
                 if( args.AddCaveWater ) {
-                    for( int k = 0; k < 8 * args.CaveDensity; k++ ) {
-                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05 * args.CaveSize );
+                    for( int k = 0; k < 8*args.CaveDensity; k++ ) {
+                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05*args.CaveSize );
                     }
-                    for( int l = 0; l < 3 * args.CaveDensity; l++ ) {
-                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015 * args.CaveSize, 1 );
+                    for( int l = 0; l < 3*args.CaveDensity; l++ ) {
+                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015*args.CaveSize, 1 );
                     }
                 }
 
@@ -627,21 +640,21 @@ namespace fCraft {
 
             if( args.AddOre ) {
                 ReportProgress( 3, "Processing: Adding ore" );
-                for( int l1 = 0; l1 < 12 * args.CaveDensity; l1++ ) {
+                for( int l1 = 0; l1 < 12*args.CaveDensity; l1++ ) {
                     AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Coal, 500, 0.03 );
                 }
 
-                for( int i2 = 0; i2 < 32 * args.CaveDensity; i2++ ) {
+                for( int i2 = 0; i2 < 32*args.CaveDensity; i2++ ) {
                     AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Coal, 200, 0.015, 1 );
                     AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.IronOre, 500, 0.02 );
                 }
 
-                for( int k2 = 0; k2 < 8 * args.CaveDensity; k2++ ) {
+                for( int k2 = 0; k2 < 8*args.CaveDensity; k2++ ) {
                     AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.IronOre, 200, 0.015, 1 );
                     AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 200, 0.0145, 1 );
                 }
 
-                for( int l2 = 0; l2 < 20 * args.CaveDensity; l2++ ) {
+                for( int l2 = 0; l2 < 20*args.CaveDensity; l2++ ) {
                     AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 400, 0.0175 );
                 }
             }
