@@ -6,6 +6,9 @@ namespace fCraft.Drawing {
     /// <summary> Represents a set of copied blocks, including metadata.
     /// Created by /Copy and /Cut commands. </summary>
     public sealed class CopyState : ICloneable {
+        /// <summary> Creates a new CopyState between the two given marks.
+        /// First mark is the origin. Bounds and Orientation are set accordingly.
+        /// Also allocates Blocks array and sets CopyTime to UtcNow. </summary>
         public CopyState( Vector3I mark1, Vector3I mark2 ) {
             Bounds = new BoundingBox( mark1, mark2 );
             Orientation = new Vector3I( mark1.X <= mark2.X ? 1 : -1,
@@ -16,6 +19,8 @@ namespace fCraft.Drawing {
         }
 
 
+        /// <summary> Duplicates the given CopyState.
+        /// Note that this is a deep copy -- Blocks array and everything else is duplicated too. </summary>
         public CopyState( [NotNull] CopyState original ) {
             if( original == null ) throw new ArgumentNullException();
             Blocks = (Block[, ,])original.Blocks.Clone();
@@ -27,6 +32,9 @@ namespace fCraft.Drawing {
         }
 
 
+
+        /// <summary> Duplicates the given CopyState, but does not copy the Blocks array.
+        /// Updates Bounds to match the new buffer's size, but preserves original Orientation. </summary>
         public CopyState( [NotNull] CopyState original, [NotNull] Block[, ,] buffer ) {
             if( original == null ) throw new ArgumentNullException();
             Blocks = buffer;

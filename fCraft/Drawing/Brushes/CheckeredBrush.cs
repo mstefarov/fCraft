@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Constructs CheckeredBrush. </summary>
     public sealed class CheckeredBrushFactory : IBrushFactory {
+        /// <summary> Singleton instance of the CheckeredBrushFactory. </summary>
         public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
 
         CheckeredBrushFactory() {

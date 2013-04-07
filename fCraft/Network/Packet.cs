@@ -6,6 +6,9 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Packet struct, just a wrapper for a byte array. </summary>
     public struct Packet {
+        /// <summary> ID byte used in the protocol to indicate that an action should apply to self.
+        /// When used in AddEntity packet, sets player's own respawn point.
+        /// When used in Teleport packet, teleports the player. </summary>
         public const sbyte SelfID = -1;
 
         /// <summary> Raw bytes of this packet. </summary>
