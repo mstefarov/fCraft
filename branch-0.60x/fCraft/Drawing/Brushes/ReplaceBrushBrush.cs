@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Constructs ReplaceBrushBrush. </summary>
     public sealed class ReplaceBrushBrushFactory : IBrushFactory {
+        /// <summary> Singleton instance of the ReplaceBrushBrushFactory. </summary>
         public static readonly ReplaceBrushBrushFactory Instance = new ReplaceBrushBrushFactory();
 
         ReplaceBrushBrushFactory() {

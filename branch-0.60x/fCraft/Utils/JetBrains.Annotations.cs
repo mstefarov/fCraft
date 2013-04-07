@@ -15,6 +15,7 @@
  */
 using System;
 
+// ReSharper disable CSharpWarnings::CS1591
 namespace JetBrains.Annotations {
     /// <summary> Indicates that the marked method builds string by format pattern and (optional) arguments. 
     /// Parameter, which contains format string, should be given in constructor.
@@ -252,3 +253,4 @@ namespace JetBrains.Annotations {
     [AttributeUsage( AttributeTargets.Method, Inherited = true )]
     public sealed class PureAttribute : Attribute {}
 }
+// ReSharper restore CSharpWarnings::CS1591

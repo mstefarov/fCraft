@@ -6,17 +6,32 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Object used to store </summary>
     public sealed class UndoState {
+        /// <summary> Creates a new UndoState for the given DrawOperation. <param name="op"/> can be null. </summary>
         public UndoState( [CanBeNull] DrawOperation op ) {
             Op = op;
         }
 
 
-        [CanBeNull] public readonly DrawOperation Op;
-        [NotNull] public readonly List<UndoBlock> Buffer = new List<UndoBlock>();
+        /// <summary> Associated DrawOperation. May be null. </summary>
+        [CanBeNull]
+        public readonly DrawOperation Op;
+
+        /// <summary> List of block changes that can be undone. </summary>
+        [NotNull]
+        public readonly List<UndoBlock> Buffer = new List<UndoBlock>();
+
+        /// <summary> Whether the operation became too large to undo (in which case Buffer will be empty). </summary>
         public bool IsTooLargeToUndo;
-        [NotNull] public readonly object SyncRoot = new object();
+
+        /// <summary> Object used to synchronize reading/writing of blocks.
+        /// Necessary in case drawing/undo/redo end up running concurrently. </summary>
+        [NotNull]
+        public readonly object SyncRoot = new object();
 
 
+        /// <summary> Records a new block change. Synchronized. </summary>
+        /// <returns> True if block change was recorded; otherwise false.
+        /// Changes will not be recorded if undo is disabled, or if max undo size was exceeded. </returns>
         public bool Add( Vector3I coord, Block block ) {
             lock( SyncRoot ) {
                 if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
@@ -25,12 +40,14 @@ namespace fCraft.Drawing {
                 } else if( !IsTooLargeToUndo ) {
                     IsTooLargeToUndo = true;
                     Buffer.Clear();
+                    Buffer.TrimExcess();
                 }
                 return false;
             }
         }
 
 
+        /// <summary> Gets block change at the specified index. Synchronized. </summary>
         public UndoBlock Get( int index ) {
             lock( SyncRoot ) {
                 return Buffer[index];
@@ -38,6 +55,8 @@ namespace fCraft.Drawing {
         }
 
 
+        /// <summary> Calculates the bounding box within which all recorded blocks are located.
+        /// Quite slow, because every recorded block change needs to be checked in order. </summary>
         [NotNull]
         public BoundingBox CalculateBounds() {
             lock( SyncRoot ) {
