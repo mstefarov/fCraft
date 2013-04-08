@@ -1,17 +1,16 @@
-﻿using System;
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System;
 using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft.MapConversion;
-using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft.ConfigGUI {
-    /// <summary>
-    /// A wrapper for per-World metadata, designed to be usable with SortableBindingList.
-    /// All these properties map directly to the UI controls.
-    /// </summary>
-    sealed class WorldListEntry : ICloneable {
+    /// <summary> A wrapper for per-World metadata, designed to be usable with SortableBindingList.
+    /// All these properties map directly to the UI controls. </summary>
+    public sealed class WorldListEntry : ICloneable {
         public const string WorldInfoSignature = "(ConfigGUI)";
         public const string DefaultRankOption = "(everyone)";
         const string MapFileExtension = ".fcm";

@@ -169,6 +169,7 @@
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="World\Forester.cs" />
+    <Compile Include="World\IMapGenerator.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="World\MapGenerator.cs">
     </Compile>
