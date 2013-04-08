@@ -451,7 +451,7 @@ namespace fCraft {
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        public static LineWrapper Wrap( string message ) {
+        public static IEnumerable<Packet> Wrap( string message ) {
             return new LineWrapper( message );
         }
 
@@ -459,7 +459,7 @@ namespace fCraft {
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
         /// <exception cref="ArgumentNullException"> prefix or message is null. </exception>
         /// <exception cref="ArgumentException"> prefix length exceeds maximum allowed value (48 characters). </exception>
-        public static LineWrapper WrapPrefixed( string prefix, string message ) {
+        public static IEnumerable<Packet> WrapPrefixed( string prefix, string message ) {
             return new LineWrapper( prefix, message );
         }
     }
