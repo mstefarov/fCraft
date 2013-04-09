@@ -168,12 +168,14 @@
     <Compile Include="Player\Position.cs" />
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
-    <Compile Include="World\Forester.cs" />
-    <Compile Include="World\IMapGenerator.cs" />
+    <Compile Include="MapGeneration\Forester.cs" />
+    <Compile Include="MapGeneration\IMapGenerator.cs" />
+    <Compile Include="MapGeneration\IMapGeneratorParameters.cs" />
+    <Compile Include="MapGeneration\IMapGeneratorState.cs" />
     <Compile Include="World\Map.cs" />
-    <Compile Include="World\MapGenerator.cs">
+    <Compile Include="MapGeneration\MapGenerator.cs">
     </Compile>
-    <Compile Include="World\MapGeneratorArgs.cs" />
+    <Compile Include="MapGeneration\MapGeneratorArgs.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />
   </ItemGroup>
@@ -294,6 +296,7 @@
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
