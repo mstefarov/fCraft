@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System.ComponentModel;
 
 namespace fCraft {
     /// <summary> Represents a single-use state object for a paricular set of map generator parameters (IMapGeneratorParameters).
@@ -16,6 +17,9 @@ namespace fCraft {
         /// Expected to be set right before Generate() exits. </summary>
         bool Finished { get; }
 
+        /// <summary> Progress percentage -- an integer between 0 and 100.
+        /// Should start at 0 before Generate() is called,
+        /// get updated as Generate is working, and end up at exactly 100 by the time Generate() returns. </summary>
         int Progress { get; }
 
         /// <summary> String representing the current state of the map generator.
@@ -28,8 +32,17 @@ namespace fCraft {
         /// <summary> Flag: whether this generation task supports async cancellation. </summary>
         bool SupportsCancellation { get; }
 
+        /// <summary> Width (X-dimension) of the map being generated. </summary>
+        int MapWidth { get; }
+        /// <summary> Length (Y-dimension) of the map being generated. </summary>
+        int MapLength { get; }
+        /// <summary> Height (Z-dimension) of the map being generated. </summary>
+        int MapHeight { get; }
+
+
         /// <summary> Event that is raised when progress percentage or status string change. </summary>
         event ProgressChangedEventHandler ProgressChanged;
+
 
         /// <summary> Synchronously creates a map file. This will be invoked on a worker thread. </summary>
         /// <returns></returns>
