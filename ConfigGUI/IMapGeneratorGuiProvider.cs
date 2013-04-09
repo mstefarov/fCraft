@@ -3,11 +3,16 @@ using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
-    interface IMapGeneratorGuiProvider {
+    /// <summary> Represents a class that provides a GUI for choosing map generation parameters.
+    /// Associated with specific IMapGenerator, by name. </summary>
+    public interface IMapGeneratorGuiProvider {
         string Name { get; }
         string GeneratorName { get; }
         bool IsCompatible( Version generatorVersion );
 
-        Panel CreateGUI( WorldListEntry world );
+        UserControl CreateGUI();
+
+        void SetParameters( IMapGeneratorParameters generatorParameters );
+        IMapGeneratorParameters GetParameters();
     }
 }
