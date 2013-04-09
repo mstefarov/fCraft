@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 // ReSharper disable PossibleNullReferenceException
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed class MapGeneratorArgs {
+    public sealed class MapGeneratorArgs : IMapGeneratorParameters {
         const int FormatVersion = 2;
 
         public MapGenTheme Theme = MapGenTheme.Forest;
@@ -76,6 +76,10 @@ namespace fCraft {
                 throw new ArgumentException( "caveDensity and caveSize must be > 0" );
             }
             // TODO: additional validation
+        }
+
+        public MapGeneratorArgs( RealisticMapGenerator generator ) {
+            Generator = generator;
         }
 
         public MapGeneratorArgs() {
@@ -235,6 +239,77 @@ namespace fCraft {
             root.Add( new XElement( "maxHeightVariation", MaxHeightVariation ) );
             root.Add( new XElement( "maxDepthVariation", MaxDepthVariation ) );
             return root;
+        }
+
+
+
+        public object Clone() {
+            return new MapGeneratorArgs {
+                AboveFuncExponent = AboveFuncExponent,
+                AddBeaches = AddBeaches,
+                AddCaveLava = AddCaveLava,
+                AddCaves = AddCaves,
+                AddCaveWater = AddCaveWater,
+                AddCliffs = AddCliffs,
+                AddGiantTrees = AddGiantTrees,
+                AddOre = AddOre,
+                AddSnow = AddSnow,
+                AddTrees = AddTrees,
+                AddWater = AddWater,
+                BeachExtent = BeachExtent,
+                BeachHeight = BeachHeight,
+                BelowFuncExponent = BelowFuncExponent,
+                Bias = Bias,
+                CaveDensity = CaveDensity,
+                CaveSize = CaveSize,
+                CliffSmoothing = CliffSmoothing,
+                CliffThreshold = CliffThreshold,
+                CustomWaterLevel = CustomWaterLevel,
+                DelayBias = DelayBias,
+                DetailScale = DetailScale,
+                FeatureScale = FeatureScale,
+                Generator = Generator,
+                InvertHeightmap = InvertHeightmap,
+                LayeredHeightmap = LayeredHeightmap,
+                LoweredCorners = LoweredCorners,
+                MapHeight = MapHeight,
+                MapLength = MapLength,
+                MapWidth = MapWidth,
+                MarbledHeightmap = MarbledHeightmap,
+                MatchWaterCoverage = MatchWaterCoverage,
+                MaxDepth = MaxDepth,
+                MaxDepthVariation = MaxDepthVariation,
+                MaxHeight = MaxHeight,
+                MaxHeightVariation = MaxHeightVariation,
+                MidPoint = MidPoint,
+                RaisedCorners = RaisedCorners,
+                Roughness = Roughness,
+                Seed = Seed,
+                SnowAltitude = SnowAltitude,
+                SnowTransition = SnowTransition,
+                SummaryString = SummaryString,
+                Theme = Theme,
+                TreeHeightMax = TreeHeightMax,
+                TreeHeightMin = TreeHeightMin,
+                TreeSpacingMax = TreeSpacingMax,
+                TreeSpacingMin = TreeSpacingMin,
+                UseBias = UseBias,
+                WaterCoverage = WaterCoverage,
+                WaterLevel = WaterLevel
+            };
+        }
+
+
+        public IMapGenerator Generator { get; private set; }
+
+        public string SummaryString { get; private set; }
+
+        public string Save() {
+            return Serialize().ToString();
+        }
+
+        public IMapGeneratorState CreateGenerator( int width, int height, int length ) {
+            throw new NotImplementedException();
         }
     }
 }
