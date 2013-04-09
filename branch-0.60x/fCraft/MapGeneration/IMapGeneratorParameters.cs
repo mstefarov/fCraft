@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System;
 
 namespace fCraft {
     /// <summary> Represets a set of map generator parameters.
