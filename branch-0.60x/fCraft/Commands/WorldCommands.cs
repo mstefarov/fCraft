@@ -1011,16 +1011,16 @@ namespace fCraft {
             player.MessageNow( "Generating {0}...", templateFullName );
 
             if( genEmpty ) {
-                map = MapGenerator.GenerateEmpty( mapWidth, mapLength, mapHeight );
+                map = RealisticMapGeneratorState.GenerateEmpty( mapWidth, mapLength, mapHeight );
 
             } else if( genOcean ) {
-                map = MapGenerator.GenerateOcean( mapWidth, mapLength, mapHeight );
+                map = RealisticMapGeneratorState.GenerateOcean( mapWidth, mapLength, mapHeight );
 
             } else if( genFlatgrass ) {
-                map = MapGenerator.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
+                map = RealisticMapGeneratorState.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
-                MapGeneratorArgs args = MapGenerator.MakeTemplate( template );
+                MapGeneratorArgs args = RealisticMapGeneratorState.MakeTemplate( template );
                 if( theme == MapGenTheme.Desert ) {
                     args.AddWater = false;
                 }
@@ -1034,7 +1034,7 @@ namespace fCraft {
                 args.Theme = theme;
                 args.AddTrees = !noTrees;
 
-                MapGenerator generator = new MapGenerator( args );
+                RealisticMapGeneratorState generator = new RealisticMapGeneratorState( args );
                 map = generator.Generate();
             }
 

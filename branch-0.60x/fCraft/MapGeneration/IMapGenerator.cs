@@ -16,9 +16,9 @@ namespace fCraft {
 
         /// <summary> Parses serialized map generation parameters into a IMapGeneratorParameters object,
         /// (to load settings stored in template files or map metadata). </summary>
-        IMapGeneratorParameters CreateParameters( string args );
+        IMapGeneratorParameters CreateParameters( string serializedParameters );
 
         /// <summary> Parses command arguments to the generator, coming from in-game commands. </summary>
-        IMapGeneratorParameters CreateParameters( CommandReader args );
+        IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd );
     }
 }
