@@ -7,8 +7,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using fCraft.GUI;
 using fCraft.MapConversion;
 
@@ -329,7 +331,7 @@ namespace fCraft.ConfigGUI {
 
         #region Map Generation
 
-        MapGeneratorArgs generatorArgs = new MapGeneratorArgs();
+        MapGeneratorArgs generatorArgs = new MapGeneratorArgs( RealisticMapGenerator.Instance );
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             Map = null;
@@ -361,19 +363,19 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map generatedMap;
             if( tab == Tabs.Generator ) {
-                MapGenerator gen = new MapGenerator( generatorArgs );
+                RealisticMapGeneratorState gen = new RealisticMapGeneratorState( generatorArgs );
                 gen.ProgressChanged +=
                     ( progressSender, progressArgs ) =>
                     bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
                 generatedMap = gen.Generate();
             } else {
-                generatedMap = MapGenerator.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
+                generatedMap = RealisticMapGeneratorState.GenerateFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
                                                                Convert.ToInt32( nFlatgrassDimY.Value ),
                                                                Convert.ToInt32( nFlatgrassDimZ.Value ) );
             }
 
             if( floodBarrier ) {
-                MapGenerator.MakeFloodBarrier( generatedMap );
+                RealisticMapGeneratorState.MakeFloodBarrier( generatedMap );
             }
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
@@ -736,7 +738,12 @@ Could not load more information:
         private void bBrowseTemplate_Click( object sender, EventArgs e ) {
             if( browseTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( browseTemplateDialog.FileName ) ) {
                 try {
-                    generatorArgs = new MapGeneratorArgs( browseTemplateDialog.FileName );
+                    XDocument templateFile = XDocument.Load( browseTemplateDialog.FileName );
+                    if( templateFile.Root == null ) {
+                        throw new SerializationException(
+                            "RealisticManGenerator: Cannot load parameters: empty XML file." );
+                    }
+                    generatorArgs = new MapGeneratorArgs( RealisticMapGenerator.Instance, templateFile.Root );
                     LoadGeneratorArgs();
                     bGenerate.PerformClick();
                 } catch( Exception ex ) {
@@ -814,7 +821,7 @@ Could not load more information:
         }
 
         void SaveGeneratorArgs() {
-            generatorArgs = new MapGeneratorArgs {
+            generatorArgs = new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
                 DetailScale = sDetailScale.Value,
                 FeatureScale = sFeatureScale.Value,
                 MapHeight = (int)nMapHeight.Value,
@@ -881,7 +888,7 @@ Could not load more information:
         }
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
-            generatorArgs = MapGenerator.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
+            generatorArgs = RealisticMapGeneratorState.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
             LoadGeneratorArgs();
             bGenerate.PerformClick();
         }

@@ -1,7 +1,18 @@
 ﻿using System;
+using System.IO;
+using System.Runtime.Serialization;
+using System.Xml.Linq;
 
 namespace fCraft {
     public class RealisticMapGenerator : IMapGenerator {
+        public static RealisticMapGenerator Instance { get; private set; }
+        RealisticMapGenerator() {}
+
+        static RealisticMapGenerator() {
+            Instance = new RealisticMapGenerator();
+        }
+
+
         public string Name {
             get { return "Realistic"; }
         }
@@ -15,12 +26,13 @@ namespace fCraft {
             return new MapGeneratorArgs( this );
         }
 
-        public IMapGeneratorParameters CreateParameters( string args ) {
-            // todo: de-serialization
-            return GetDefaultParameters();
+
+        public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
+            return new MapGeneratorArgs( this, XElement.Parse( serializedParameters ) );
         }
 
-        public IMapGeneratorParameters CreateParameters( CommandReader args ) {
+
+        public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             // todo: /Gen parameter parsing
             return GetDefaultParameters();
         }

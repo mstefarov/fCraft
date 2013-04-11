@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Represents a map file (associated with a world or not).
-    /// Maps can be created blank (using Map constructor), generated terrain (using MapGenerator),
+    /// Maps can be created blank (using Map constructor), generated terrain (using RealisticMapGeneratorState),
     /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
     public unsafe sealed class Map {
         /// <summary> Current default map format for saving. </summary>

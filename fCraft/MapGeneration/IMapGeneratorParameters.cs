@@ -19,6 +19,6 @@ namespace fCraft {
 
         /// <summary> Creates IMapGeneratorState to create a map with the current parameters and specified dimensions. 
         /// Does NOT start the generation process yet -- that should be done in IMapGeneratorState.Generate() </summary>
-        IMapGeneratorState CreateGenerator( int width, int height, int length );
+        IMapGeneratorState CreateGenerator( int width, int length, int height );
     }
 }

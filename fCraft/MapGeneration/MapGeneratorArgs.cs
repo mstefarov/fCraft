@@ -78,18 +78,16 @@ namespace fCraft {
             // TODO: additional validation
         }
 
+
         public MapGeneratorArgs( RealisticMapGenerator generator ) {
             Generator = generator;
-        }
-
-        public MapGeneratorArgs() {
             Seed = (new Random()).Next();
         }
 
-        public MapGeneratorArgs( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            XDocument doc = XDocument.Load( fileName );
-            XElement root = doc.Root;
+
+        public MapGeneratorArgs( RealisticMapGenerator generator, [NotNull] XElement root ) {
+            if( root == null ) throw new ArgumentNullException( "root" );
+            Generator = generator;
 
             XAttribute versionTag = root.Attribute( "version" );
             int version = 0;
@@ -244,7 +242,7 @@ namespace fCraft {
 
 
         public object Clone() {
-            return new MapGeneratorArgs {
+            return new MapGeneratorArgs(RealisticMapGenerator.Instance) {
                 AboveFuncExponent = AboveFuncExponent,
                 AddBeaches = AddBeaches,
                 AddCaveLava = AddCaveLava,

@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System.ComponentModel;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Represents a single-use state object for a paricular set of map generator parameters (IMapGeneratorParameters).
@@ -7,6 +8,7 @@ namespace fCraft {
     /// various properties to indicate progress, and an event to report progress changes. </summary>
     public interface IMapGeneratorState {
         /// <summary> Associated map generation parameters. </summary>
+        [NotNull]
         IMapGeneratorParameters Parameters { get; }
 
         /// <summary> Flag indicating whether this generation task has been canceled. 
@@ -39,6 +41,9 @@ namespace fCraft {
         /// <summary> Height (Z-dimension) of the map being generated. </summary>
         int MapHeight { get; }
 
+        /// <summary> Map that has been generated (may be null). </summary>
+        Map Result { get; }
+
 
         /// <summary> Event that is raised when progress percentage or status string change. </summary>
         event ProgressChangedEventHandler ProgressChanged;
@@ -46,6 +51,7 @@ namespace fCraft {
 
         /// <summary> Synchronously creates a map file. This will be invoked on a worker thread. </summary>
         /// <returns></returns>
+        [CanBeNull]
         Map Generate();
 
         /// <summary> Sigals this task to asynchronously finish executing. </summary>
