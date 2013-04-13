@@ -67,15 +67,74 @@ namespace fCraft {
         public int   BeachExtent = 6,
                      BeachHeight = 2;
 
+
+        /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
         public void Validate() {
-            if( RaisedCorners < 0 || RaisedCorners > 4 || LoweredCorners < 0 || RaisedCorners > 4 || RaisedCorners + LoweredCorners > 4 ) {
-                throw new ArgumentException( "The sum of raisedCorners and loweredCorners must be between 0 and 4." );
+            if( !Map.IsValidDimension( MapWidth ) || !Map.IsValidDimension( MapLength ) ||
+                !Map.IsValidDimension( MapHeight ) ) {
+                throw new ArgumentException( "One or more of the map dimensions is not valid." );
             }
 
-            if( CaveDensity <= 0 || CaveSize <= 0 ) {
-                throw new ArgumentException( "caveDensity and caveSize must be > 0" );
+            if( AddWater ) {
+                if( CustomWaterLevel && (WaterLevel < 0 || WaterLevel > MapHeight) ) {
+                    throw new ArgumentException( "WaterLevel must be between 0 and MapHeight (inclusive)." );
+                }
+
+                if( WaterCoverage < 0 || WaterCoverage > 1 ) {
+                    throw new ArgumentException( "WaterCoverage must be between 0 and 1 (inclusive)." );
+                }
             }
-            // TODO: additional validation
+
+            if( UseBias &&
+                (RaisedCorners < 0 || RaisedCorners > 4 || LoweredCorners < 0 || RaisedCorners > 4 ||
+                 RaisedCorners + LoweredCorners > 4) ) {
+                throw new ArgumentException(
+                    "The sum of RaisedCorners and LoweredCorners must be between 0 and 4 (inclusive)." );
+            }
+
+            if( DetailScale < 0 || FeatureScale < 0 ) {
+                throw new ArgumentException( "DetailScale and FeatureScale must be greater than 0." );
+            }
+
+            if( DetailScale < FeatureScale ) {
+                throw new ArgumentException( "DetailScale must be equal to or greater than FeatureScale." );
+            }
+
+            if( AddTrees ) {
+                if( TreeSpacingMax < 1 ) {
+                    throw new ArgumentException( "TreeSpacingMax must be greater than 0." );
+                }
+
+                if( TreeSpacingMin < 1 || TreeSpacingMin > TreeSpacingMax ) {
+                    throw new ArgumentException(
+                        "TreeSpacingMin must be greater than 0, and no greater than TreeSpacingMax." );
+                }
+
+                if( TreeHeightMax < 1 ) {
+                    throw new ArgumentException( "TreeHeightMax must be greater than 0." );
+                }
+
+                if( TreeHeightMin < 1 || TreeHeightMin > TreeHeightMax ) {
+                    throw new ArgumentException(
+                        "TreeHeightMin must be greater than 0, and no greater than TreeHeightMax." );
+                }
+            }
+
+            if( AddCaves && (CaveDensity < 0 || CaveSize < 0) ) {
+                throw new ArgumentException( "CaveDensity and CaveSize must not be negative." );
+            }
+
+            if( AddSnow && (SnowAltitude < 0 || SnowAltitude > MapHeight) ) {
+                throw new ArgumentException( "SnowAltitude must be between 0 and MapHeight (inclusive)." );
+            }
+
+            if( AddCliffs && (CliffThreshold < 0 || CliffThreshold > 1) ) {
+                throw new ArgumentException( "CliffThreshold must be between 0 and 1 (inclusive)." );
+            }
+
+            if( AddBeaches && (BeachExtent < 0 || BeachHeight < 0) ) {
+                throw new ArgumentException( "BeachExtent and BeachHeight must not be negative." );
+            }
         }
 
 
