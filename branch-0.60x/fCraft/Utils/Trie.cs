@@ -139,8 +139,10 @@ namespace fCraft {
         /// <param name="keyPart"> Partial or full key. </param>
         /// <param name="limit"> Limit on the number of payloads to find/return. </param>
         /// <returns> List of matches (if there are no matches, length is zero). </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="limit"/> is less than 1. </exception>
         public List<T> GetList( [NotNull] string keyPart, int limit ) {
             if( keyPart == null ) throw new ArgumentNullException( "keyPart" );
+            if( limit < 1 ) throw new ArgumentOutOfRangeException( "limit" );
             List<T> results = new List<T>();
 
             TrieNode startingNode = GetNode( keyPart );
@@ -236,7 +238,7 @@ namespace fCraft {
 
         #region Key Encoding / Decoding
 
-        // Decodes ASCII into internal letter code.
+        // Encodes ASCII into internal letter code.
         static int CharToCode( char ch ) {
             if( ch >= 'a' && ch <= 'z' )
                 return ch - 'a';
@@ -249,6 +251,7 @@ namespace fCraft {
         }
 
 
+        // Decodes internal letter code into AsCII
         static char CodeToChar( int code ) {
             if( code < 26 )
                 return (char)(code + 'a');
@@ -259,6 +262,7 @@ namespace fCraft {
         }
 
 
+        // Converts a letter to lowercase, and converts any unrecognized character to '_'
         static char CanonicizeChar( char ch ) {
             if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' )
                 return ch;
@@ -269,6 +273,7 @@ namespace fCraft {
         }
 
 
+        // Converts all letters to lowercase, and converts any unrecognized character to '_'
         static string CanonicizeKey( string key ) {
             StringBuilder sb = new StringBuilder( key );
             for( int i = 0; i < sb.Length; i++ ) {
@@ -1238,6 +1243,7 @@ namespace fCraft {
             // Children. May be null (if LeafNode),
             // TrieNode[ChildCount] (if MultiNode),
             // or TrieNode[1] (if single-child node)
+            [CanBeNull]
             public TrieNode[] Children;
 
             // May be null (if MultiNode or single-child node)
