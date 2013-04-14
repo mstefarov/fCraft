@@ -375,13 +375,22 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds all players who have most recently logged in from the given IP address. </summary>
+        /// <param name="address"> IPv4 address to search for. </param>
+        /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="address"/> is null. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
             return FindPlayers( address, Int32.MaxValue );
         }
 
 
+        /// <summary> Finds all players who have most recently logged in from the given IP address. </summary>
+        /// <param name="address"> IPv4 address to search for. </param>
+        /// <param name="limit"> Limit on the number of results to be returned. </param>
+        /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="address"/> is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="limit"/> is less than 1. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] IPAddress address, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
@@ -401,19 +410,32 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds all players whose IP address matches the given CIDR IP address range. </summary>
+        /// <param name="address"> IPv4 address to search for. </param>
+        /// <param name="range"> Number of leading bits of the routing prefix. </param>
+        /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="address"/> is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="range"/> is greater than 32. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range ) {
-            if( address == null ) throw new ArgumentNullException( "address" );
-            if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
             return FindPlayersCidr( address, range, Int32.MaxValue );
         }
 
 
+        /// <summary> Finds players whose IP address matches the given CIDR IP address range. </summary>
+        /// <param name="address"> IPv4 address to search for. </param>
+        /// <param name="range"> Number of leading bits of the routing prefix. </param>
+        /// <param name="limit"> Limit on the number of results to be returned. </param>
+        /// <returns> An array of matching PlayerInfo objects,
+        /// with length between zero and <paramref name="limit"/>. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="address"/> is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="range"/> is greater than 32,
+        /// or <paramref name="limit"/> is less than 1. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayersCidr( [NotNull] IPAddress address, byte range, int limit ) {
             if( address == null ) throw new ArgumentNullException( "address" );
             if( range > 32 ) throw new ArgumentOutOfRangeException( "range" );
-            if( limit < 0 ) throw new ArgumentOutOfRangeException( "limit" );
+            if( limit < 1 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -431,16 +453,27 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds all players whose name watches the given RegEx pattern. </summary>
+        /// <param name="regex"> Regular expression for matching player names. </param>
+        /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="regex"/> is null. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] Regex regex ) {
-            if( regex == null ) throw new ArgumentNullException( "regex" );
             return FindPlayers( regex, Int32.MaxValue );
         }
 
 
+        /// <summary> Finds players whose name watches the given RegEx pattern. Runs in O(n). </summary>
+        /// <param name="regex"> Regular expression for matching player names. </param>
+        /// <param name="limit"> Limit on the number of results to be returned. </param>
+        /// <returns> An array of matching PlayerInfo objects,
+        /// with length between zero and <paramref name="limit"/>. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="regex"/> is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="limit"/> is less than 1. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] Regex regex, int limit ) {
             if( regex == null ) throw new ArgumentNullException( "regex" );
+            if( limit < 1 ) throw new ArgumentOutOfRangeException( "limit" );
             CheckIfLoaded();
             List<PlayerInfo> result = new List<PlayerInfo>();
             int count = 0;
@@ -456,9 +489,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds all players who match a given name prefix. </summary>
-        /// <param name="namePart"> Full or first part of a player's name. </param>
-        /// <returns> An array of zero or more PlayerInfo objects whose names match <paramref name="namePart"/>. </returns>
+        /// <summary> Finds all players whose name starts with <paramref name="namePart"/>.
+        /// Runs in O(m), where m is namePart length. </summary>
+        /// <param name="namePart"> Full or partial player name. </param>
+        /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="namePart"/> is null. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart ) {
@@ -466,12 +500,14 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds players who match a given name prefix. </summary>
+        /// <summary> Finds players whose name starts with <paramref name="namePart"/>.
+        /// Runs in O(m), where m is namePart length. </summary>
         /// <param name="namePart"> Full or first part of a player's name. </param>
         /// <param name="limit"> Limit on the number of results to be returned. </param>
-        /// <returns> An array of PlayerInfo objects whose names match <paramref name="namePart"/>,
+        /// <returns> An array of matching PlayerInfo objects,
         /// with length between zero and <paramref name="limit"/>. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="namePart"/> is null. </exception>
+        /// <exception cref="ArgumentOutOfRangeException"> <paramref name="limit"/> is less than 1. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
@@ -482,10 +518,12 @@ namespace fCraft {
         }
 
 
-        /// <summary> Searches for player names starting with namePart, returning just one or none of the matches. </summary>
+        /// <summary> Searches for player names starting with <paramref name="namePart"/>, returning just one or none of the matches.
+        /// Runs in O(m), where m is namePart length. </summary>
         /// <param name="namePart"> Partial or full player name. </param>
         /// <param name="info"> PlayerInfo to output (will be set to null if no single match was found) </param>
         /// <returns> true if one or zero matches were found, false if multiple matches were found </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="namePart"/> is null. </exception>
         internal static bool FindPlayerInfo( [NotNull] string namePart, out PlayerInfo info ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
@@ -498,6 +536,7 @@ namespace fCraft {
         /// <summary> Finds player by exact name. Runs in O(m) - where m is string length. </summary>
         /// <param name="fullName"> Full, case-insensitive name of the player. </param>
         /// <returns> PlayerInfo object if the player was found. Null if not found. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="fullName"/> is null. </exception>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoExact( [NotNull] string fullName ) {
             if( fullName == null ) throw new ArgumentNullException( "fullName" );
@@ -516,6 +555,7 @@ namespace fCraft {
         /// <param name="partialName"> Partial or full player name. </param>
         /// <param name="includeSelf"> Whether player themself should be considered. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="partialName"/> is null. </exception>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string partialName, bool includeSelf ) {
             if( player == null ) throw new ArgumentNullException( "player" );
