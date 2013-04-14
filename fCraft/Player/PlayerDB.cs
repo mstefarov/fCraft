@@ -25,15 +25,14 @@ namespace fCraft {
 
         static int maxID = 255;
         const int BufferSize = 64 * 1024;
-
-        /* 
-         * Version 0 - before 0.530 - all dates/times are local
-         * Version 1 - 0.530-0.536 - all dates and times are stored as UTC unix timestamps (milliseconds)
-         * Version 2 - 0.600 dev - all dates and times are stored as UTC unix timestamps (seconds)
-         * Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced
-         * Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
-         * Version 5 - 0.600+ - removed FailedLoginCount column
-         */
+        
+        /// <summary> Format version number (5). History:
+        /// Version 0 - before 0.530 - all dates/times are local.
+        /// Version 1 - 0.530-0.536 - same as v0, but all dates and times are stored as UTC unix timestamps (milliseconds).
+        /// Version 2 - 0.600 dev - same as v1, but all dates and times are stored as UTC unix timestamps (seconds).
+        /// Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced.
+        /// Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
+        /// Version 5 - 0.600+ - removed FailedLoginCount column, added AccountType column.</summary>
         public const int FormatVersion = 5;
 
         const string Header = "fCraft PlayerDB | Row format: " +
@@ -350,7 +349,7 @@ namespace fCraft {
             CheckIfLoaded();
             PlayerInfo info;
 
-            // this flag is used to avoid executing PlayerInfoCreated event in the lock
+            // this flag is used to avoid raising PlayerInfoCreated event inside the lock
             bool raiseCreatedEvent = false;
 
             lock( AddLocker ) {
@@ -457,13 +456,22 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds all players who match a given name prefix. </summary>
+        /// <param name="namePart"> Full or first part of a player's name. </param>
+        /// <returns> An array of zero or more PlayerInfo objects whose names match <paramref name="namePart"/>. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="namePart"/> is null. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart ) {
-            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             return FindPlayers( namePart, Int32.MaxValue );
         }
 
 
+        /// <summary> Finds players who match a given name prefix. </summary>
+        /// <param name="namePart"> Full or first part of a player's name. </param>
+        /// <param name="limit"> Limit on the number of results to be returned. </param>
+        /// <returns> An array of PlayerInfo objects whose names match <paramref name="namePart"/>,
+        /// with length between zero and <paramref name="limit"/>. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="namePart"/> is null. </exception>
         [NotNull]
         public static PlayerInfo[] FindPlayers( [NotNull] string namePart, int limit ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
@@ -487,7 +495,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds player by exact name. </summary>
+        /// <summary> Finds player by exact name. Runs in O(m) - where m is string length. </summary>
         /// <param name="fullName"> Full, case-insensitive name of the player. </param>
         /// <returns> PlayerInfo object if the player was found. Null if not found. </returns>
         [CanBeNull]
@@ -575,6 +583,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Finds PlayerInfo by exact name and returns it its ClassyName (decorated with rank color/prefix or DisplayedName).
+        /// Returns raw <paramref name="name"/> back, with no decoration, if no matching player record was found. 
+        /// Returns '?' if name is empty or null. </summary>
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string name ) {
             if( string.IsNullOrEmpty( name ) ) return "?";
@@ -588,6 +599,7 @@ namespace fCraft {
 
         #region Stats
 
+        /// <summary> Counts banned players. Runs in O(n). </summary>
         public static int BannedCount {
             get {
                 return PlayerInfoList.Count( t => t.IsBanned );
@@ -595,6 +607,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Counts percentage of banned players. Returns a number between 0 and 100f. Runs in O(n). </summary>
         public static float BannedPercentage {
             get {
                 var listCache = PlayerInfoList;
@@ -607,6 +620,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Returns the total number of players in the database. Runs in O(1). </summary>
         public static int Size {
             get {
                 return Trie.Count;
@@ -616,12 +630,16 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Returns a unique numeric player ID.
+        /// Every call to this method will produce a new sequential ID. </summary>
         public static int GetNextID() {
             return Interlocked.Increment( ref maxID );
         }
 
 
-        /// <summary> Finds PlayerInfo by ID. Returns null of not found. </summary>
+        /// <summary> Finds PlayerInfo by ID. Returns null of not found. Runs in O(log n). </summary>
+        /// <returns> PlayerInfo associated with given player ID if it was found; otherwise null. </returns>
+        /// <exception cref="ArgumentOutOfRangeException"> ID is negative. </exception>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoByID( int id ) {
             if( id < 0 ) throw new ArgumentOutOfRangeException( "id" );
