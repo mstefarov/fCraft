@@ -266,6 +266,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Forced PlayerDB to be saved, synchronously. Thread-safe. </summary>
         public static void Save() {
             CheckIfLoaded();
             const string tempFileName = Paths.PlayerDBFileName + ".temp";
@@ -375,7 +376,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds all players who have most recently logged in from the given IP address. </summary>
+        /// <summary> Finds all players who have most recently logged in from the given IP address. Runs in O(n). </summary>
         /// <param name="address"> IPv4 address to search for. </param>
         /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="address"/> is null. </exception>
@@ -385,7 +386,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds all players who have most recently logged in from the given IP address. </summary>
+        /// <summary> Finds all players who have most recently logged in from the given IP address. Runs in O(n). </summary>
         /// <param name="address"> IPv4 address to search for. </param>
         /// <param name="limit"> Limit on the number of results to be returned. </param>
         /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
@@ -410,7 +411,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds all players whose IP address matches the given CIDR IP address range. </summary>
+        /// <summary> Finds all players whose IP address matches the given CIDR IP address range. Runs in O(n). </summary>
         /// <param name="address"> IPv4 address to search for. </param>
         /// <param name="range"> Number of leading bits of the routing prefix. </param>
         /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
@@ -422,7 +423,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds players whose IP address matches the given CIDR IP address range. </summary>
+        /// <summary> Finds players whose IP address matches the given CIDR IP address range. Runs in O(n). </summary>
         /// <param name="address"> IPv4 address to search for. </param>
         /// <param name="range"> Number of leading bits of the routing prefix. </param>
         /// <param name="limit"> Limit on the number of results to be returned. </param>
@@ -453,7 +454,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds all players whose name watches the given RegEx pattern. </summary>
+        /// <summary> Finds all players whose name watches the given RegEx pattern. Runs in O(n). </summary>
         /// <param name="regex"> Regular expression for matching player names. </param>
         /// <returns> An array of zero or more matching PlayerInfo objects. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="regex"/> is null. </exception>
@@ -547,37 +548,43 @@ namespace fCraft {
         }
 
 
-        /// <summary> Searches for player names starting with namePart.
+        // max number of matches printed by FindPlayerInfoOrPrintMatches
+        const int MatchesToPrint = 25;
+
+        /// <summary> Searches for players whose names start with <paramref name="namePart"/>.
         /// If exactly one player matched, returns the corresponding PlayerInfo object.
         /// If name format is incorrect, or if no matches were found, an appropriate message is printed to the player.
-        /// If multiple players were found matching the partialName, first 25 matches are printed. </summary>
-        /// <param name="player"> Player to print feedback to. </param>
-        /// <param name="partialName"> Partial or full player name. </param>
-        /// <param name="includeSelf"> Whether player themself should be considered. </param>
-        /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. </returns>
-        /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="partialName"/> is null. </exception>
+        /// If multiple players were found matching the namePart, first 25 matches are printed. </summary>
+        /// <param name="player"> Player to print feedback to. Also used to determine visibility, for sorting. </param>
+        /// <param name="namePart"> Partial or full player name. </param>
+        /// <param name="options"> Search options. Only IncludeSelf is considered. </param>
+        /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. 
+        /// Results are sorted using PlayerInfoComparer. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="namePart"/> is null. </exception>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string partialName, bool includeSelf ) {
+        public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string namePart, PlayerSearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( partialName == null ) throw new ArgumentNullException( "partialName" );
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
 
+            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
+
             // If name starts with '!', return matches for online players only
-            if( partialName.Length > 1 && partialName[0] == '!' ) {
-                partialName = partialName.Substring( 1 );
-                Player targetPlayer = Server.FindPlayerOrPrintMatches( player, partialName, includeSelf, false, true );
+            if( namePart.Length > 1 && namePart[0] == '!' ) {
+                namePart = namePart.Substring( 1 );
+                Player targetPlayer = Server.FindPlayerOrPrintMatches( player, namePart, options );
                 if( targetPlayer != null ) {
                     return targetPlayer.Info;
                 } else {
-                    player.Message( "No online players found matching \"{0}\"", partialName );
+                    player.Message( "No online players found matching \"{0}\"", namePart );
                     return null;
                 }
             }
 
             // Repeat last-used player name
-            if( partialName == "-" ) {
+            if( namePart == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
-                    partialName = player.LastUsedPlayerName;
+                    namePart = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
@@ -585,30 +592,30 @@ namespace fCraft {
             }
 
             // Make sure player name is valid
-            if( !Player.ContainsValidCharacters( partialName ) ) {
-                player.MessageInvalidPlayerName( partialName );
+            if( !Player.ContainsValidCharacters( namePart ) ) {
+                player.MessageInvalidPlayerName( namePart );
                 return null;
             }
 
             // Search for exact matches first
-            PlayerInfo target = FindPlayerInfoExact( partialName );
+            PlayerInfo target = FindPlayerInfoExact( namePart );
 
             // If no exact match was found, look for partial matches
             if( target == null || target == player.Info && !includeSelf ) {
-                PlayerInfo[] targets = FindPlayers( partialName );
-                if( !includeSelf && targets.Length > 1 ) {
+                PlayerInfo[] targets = FindPlayers( namePart );
+                if( !includeSelf ) {
                     targets = targets.Where( p => p != player.Info ).ToArray();
                 }
 
                 if( targets.Length == 0 ) {
                     // No matches
-                    player.MessageNoPlayer( partialName );
+                    player.MessageNoPlayer( namePart );
                     return null;
 
                 } else if( targets.Length > 1 ) {
                     // More than one match
                     Array.Sort( targets, new PlayerInfoComparer( player ) );
-                    player.MessageManyMatches( "player", targets.Take( 25 ).ToArray() );
+                    player.MessageManyMatches( "player", targets.Take( MatchesToPrint ).ToArray() );
                     return null;
 
                 } // else: one match!
@@ -616,7 +623,7 @@ namespace fCraft {
             }
 
             // If a single name has been found, set it as LastUsedPlayerName
-            if( includeSelf || target != player.Info ) {
+            if( includeSelf ) {
                 player.LastUsedPlayerName = target.Name;
             }
             return target;

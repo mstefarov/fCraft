@@ -1079,8 +1079,9 @@ namespace fCraft {
         /// Returns ALL matching players, including hidden ones. </summary>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( [NotNull] string name, bool raiseEvent ) {
+        public static Player[] FindPlayers( [NotNull] string name, PlayerSearchOptions options) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1093,7 +1094,7 @@ namespace fCraft {
                     results.Add( tempList[i] );
                 }
             }
-            if( raiseEvent ) {
+            if( !suppressEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
                     var e = new SearchingForPlayerEventArgs( null, name, results, true, true );
@@ -1108,18 +1109,18 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search.
         /// Used to determine whether others are hidden or not. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
-        /// <param name="includeSelf"> Whether player themself should be considered in name autocompletion.
-        /// NOTE: When includeSelf is false, player's own name matches the given name, and no other matches were found, this method returns player as the only result. </param>
-        /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
-        /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
-        /// <returns> An array of matches. Array length of 0 means "no matches"; 1 is an exact match or single partial match; over 1 for multiple matches. </returns>
+        /// <returns> An array of matches. Array length of 0 means "no matches";
+        /// 1 means an exact match or a single partial match; over 1 means multiple matches. </returns>
         public static Player[] FindPlayers( [NotNull] Player player,
                                             [NotNull] string name,
-                                            bool includeSelf,
-                                            bool includeHidden,
-                                            bool raiseEvent ) {
+                                            PlayerSearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
+
+            bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
+            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
+            bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
+
             if( name == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
@@ -1144,12 +1145,7 @@ namespace fCraft {
                     results.Add( otherPlayer );
                 }
             }
-            if( results.Count == 0 ) {
-                if( player.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    results.Add( player );
-                }
-            }
-            if( raiseEvent ) {
+            if( !suppressEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
                     var e = new SearchingForPlayerEventArgs( player, name, results, includeHidden, includeSelf );
@@ -1169,8 +1165,9 @@ namespace fCraft {
         /// <param name="name"> Full player name. Case-insensitive. </param>
         /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
         /// <returns> Player object if player was found online; otherwise null. </returns>
-        public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, bool includeHidden ) {
+        public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, PlayerSearchOptions options ) {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
+            bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
             if( target != null && includeHidden && !player.CanSee( target ) ) {
                 // hide players whom player cant see
                 target = null;
@@ -1183,22 +1180,22 @@ namespace fCraft {
         /// Returns null and prints message if none or multiple players matched.
         /// Raises Player.SearchingForPlayer event, which may modify search results. </summary>
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
-        /// <param name="partialName"> Full or partial name of the search target. </param>
+        /// <param name="namePart"> Full or partial name of the search target. </param>
         /// <param name="includeSelf"> Whether player themself should be considered in the results. </param>
         /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
         /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player,
-                                                       [NotNull] string partialName,
-                                                       bool includeSelf,
-                                                       bool includeHidden,
-                                                       bool raiseEvent ) {
+                                                       [NotNull] string namePart,
+                                                       PlayerSearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( partialName == null ) throw new ArgumentNullException( "partialName" );
-            if( partialName == "-" ) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
+
+            // Repeat last-used player name
+            if( namePart == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
-                    partialName = player.LastUsedPlayerName;
+                    namePart = player.LastUsedPlayerName;
                 } else {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
@@ -1206,15 +1203,15 @@ namespace fCraft {
             }
 
             // Make sure player name is valid
-            if( !Player.ContainsValidCharacters( partialName ) ) {
-                player.MessageInvalidPlayerName( partialName );
+            if( !Player.ContainsValidCharacters( namePart ) ) {
+                player.MessageInvalidPlayerName( namePart );
                 return null;
             }
 
-            Player[] matches = FindPlayers( player, partialName, includeSelf, includeHidden, raiseEvent );
+            Player[] matches = FindPlayers( player, namePart, options );
 
             if( matches.Length == 0 ) {
-                player.MessageNoPlayer( partialName );
+                player.MessageNoPlayer( namePart );
                 return null;
 
             } else if( matches.Length > 1 ) {
