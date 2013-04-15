@@ -135,7 +135,7 @@ namespace fCraft {
             } else if( name.StartsWith( "!" ) ) {
                 // find online players by partial matches
                 name = name.Substring( 1 );
-                infos = Server.FindPlayers( name, true )
+                infos = Server.FindPlayers( name, PlayerSearchOptions.Default )
                               .Select( p => p.Info )
                               .ToArray();
 
@@ -485,7 +485,7 @@ namespace fCraft {
                 }
 
             } else {
-                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, true );
+                info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, PlayerSearchOptions.IncludeSelf );
                 if( info == null ) return;
 
                 address = info.LastIP;
@@ -1071,7 +1071,7 @@ namespace fCraft {
                     player.MessageNoAccess( Permission.ViewOthersInfo );
                     return;
                 }
-                target = Server.FindPlayerOrPrintMatches( player, name, true, false, true );
+                target = Server.FindPlayerOrPrintMatches( player, name, PlayerSearchOptions.IncludeSelf );
                 if( target == null ) return;
             } else if( target.World == null ) {
                 player.Message( "When called from console, &H/Where&S requires a player name." );

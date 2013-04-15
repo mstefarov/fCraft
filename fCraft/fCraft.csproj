@@ -119,6 +119,7 @@
     <Compile Include="MapGeneration\MapGenTemplate.cs" />
     <Compile Include="MapGeneration\MapGenTheme.cs" />
     <Compile Include="MapGeneration\RealisticMapGenerator.cs" />
+    <Compile Include="Player\PlayerSearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\fNbt.cs" />
     <Compile Include="Utils\Paths.cs" />

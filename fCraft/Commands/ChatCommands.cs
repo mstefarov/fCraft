@@ -117,7 +117,7 @@ namespace fCraft {
                     CdIgnore.PrintUsage( player );
                     return;
                 }
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, PlayerSearchOptions.ReturnSelfIfNoOthersMatched );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
                     player.Message( "You cannot &H/Ignore&S yourself." );
@@ -157,10 +157,10 @@ namespace fCraft {
                     CdUnignore.PrintUsage( player );
                     return;
                 }
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, false );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, PlayerSearchOptions.ReturnSelfIfNoOthersMatched );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
-                    player.Message( "You cannot &H/Ignore&S yourself." );
+                    player.Message( "You cannot &H/Ignore&S (or &H/Unignore&S) yourself." );
                     return;
                 }
 
