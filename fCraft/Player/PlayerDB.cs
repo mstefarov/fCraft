@@ -557,7 +557,8 @@ namespace fCraft {
         /// If multiple players were found matching the namePart, first 25 matches are printed. </summary>
         /// <param name="player"> Player to print feedback to. Also used to determine visibility, for sorting. </param>
         /// <param name="namePart"> Partial or full player name. </param>
-        /// <param name="options"> Search options. Only IncludeSelf is considered. </param>
+        /// <param name="options"> Search options. O
+        /// IncludeSelf and ReturnSelfIfNoOthersMatched flags are applicable, other flags are ignored. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. 
         /// Results are sorted using PlayerInfoComparer. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="namePart"/> is null. </exception>
@@ -568,6 +569,7 @@ namespace fCraft {
             CheckIfLoaded();
 
             bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
+            bool returnSelf = (options & PlayerSearchOptions.ReturnSelfIfNoOthersMatched) != 0;
 
             // If name starts with '!', return matches for online players only
             if( namePart.Length > 1 && namePart[0] == '!' ) {
@@ -603,7 +605,7 @@ namespace fCraft {
             // If no exact match was found, look for partial matches
             if( target == null || target == player.Info && !includeSelf ) {
                 PlayerInfo[] targets = FindPlayers( namePart );
-                if( !includeSelf ) {
+                if( !includeSelf && targets.Length > 1 ) {
                     targets = targets.Where( p => p != player.Info ).ToArray();
                 }
 
@@ -623,7 +625,7 @@ namespace fCraft {
             }
 
             // If a single name has been found, set it as LastUsedPlayerName
-            if( includeSelf ) {
+            if( includeSelf || target != player.Info ) {
                 player.LastUsedPlayerName = target.Name;
             }
             return target;
