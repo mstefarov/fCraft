@@ -1,6 +1,7 @@
 ﻿// Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares, zipstorer.codeplex.com
 using System.Collections.Generic;
 using System.Text;
+using fCraft;
 
 namespace System.IO.Compression {
     /// <summary> Unique class for compression/decompression file. Represents a Zip file. </summary>
@@ -59,13 +60,13 @@ namespace System.IO.Compression {
         }
 
 
-        #region Public fields
+        #region Public properties
 
         /// <summary> True if UTF8 encoding for filename and comments, false if default (CP 437). </summary>
-        public bool EncodeUTF8;
+        public bool EncodeUTF8 { get; set; }
 
         /// <summary> Force deflate algotithm even if it inflates the stored file. Off by default. </summary>
-        public bool ForceDeflating;
+        public bool ForceDeflating { get; set; }
 
         #endregion
 
@@ -328,7 +329,7 @@ namespace System.IO.Compression {
         /// <remarks> Unique compression methods are Store and Deflate. </remarks>
         public bool ExtractFile( ZipFileEntry zfe, string filename ) {
             // Make sure the parent directory exist
-            string path = Path.GetDirectoryName( filename );
+            string path = Paths.GetDirectoryNameOrRoot( filename );
 
             if( !Directory.Exists( path ) )
                 Directory.CreateDirectory( path );
