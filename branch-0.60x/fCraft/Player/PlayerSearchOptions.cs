@@ -5,7 +5,7 @@ namespace fCraft {
     [Flags]
     public enum PlayerSearchOptions {
         /// <summary> Default dehavior is: do not include player themself in results;
-        /// do not count hidden players as online; do raise events if applicable;
+        /// do not consider hidden players to be "online"; do raise events if applicable;
         /// do print no-players-found message when applicable. </summary>
         Default = 0,
 

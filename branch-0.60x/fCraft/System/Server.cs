@@ -1077,27 +1077,30 @@ namespace fCraft {
 
         /// <summary> Finds a player by name, using autocompletion.
         /// Returns ALL matching players, including hidden ones. </summary>
+        /// <param name="namePart"> Full or partial player name. </param>
+        /// <param name="options"> Search options (recognizes SuppressEvent). </param>
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
-        public static Player[] FindPlayers( [NotNull] string name, PlayerSearchOptions options) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        /// <exception cref="ArgumentNullException"></exception>
+        public static Player[] FindPlayers( [NotNull] string namePart, PlayerSearchOptions options) {
+            if( namePart == null ) throw new ArgumentNullException( "namePart" );
             bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
                 if( tempList[i] == null ) continue;
-                if( tempList[i].Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
+                if( tempList[i].Name.Equals( namePart, StringComparison.OrdinalIgnoreCase ) ) {
                     results.Clear();
                     results.Add( tempList[i] );
                     break;
-                } else if( tempList[i].Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
+                } else if( tempList[i].Name.StartsWith( namePart, StringComparison.OrdinalIgnoreCase ) ) {
                     results.Add( tempList[i] );
                 }
             }
             if( !suppressEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
-                    var e = new SearchingForPlayerEventArgs( null, name, results, true, true );
+                    var e = new SearchingForPlayerEventArgs( null, namePart, results, options );
                     h( null, e );
                 }
             }
@@ -1105,22 +1108,26 @@ namespace fCraft {
         }
 
 
-        /// <summary> Finds a player by name, using autocompletion. Does not include hidden players. </summary>
+        /// <summary> Finds a player by name, using autocompletion. Does not include hidden players. 
+        /// Raises Player.SearchingForPlayer event, which may modify search results, unless SuppressEvent option is set. </summary>
         /// <param name="player"> Player who initiated the search.
-        /// Used to determine whether others are hidden or not. </param>
+        /// Used to determine which hidden players to show in results. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
+        /// <param name="options"> Search options.
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoOthersMatched) are applicable. </param>
         /// <returns> An array of matches. Array length of 0 means "no matches";
         /// 1 means an exact match or a single partial match; over 1 means multiple matches. </returns>
-        public static Player[] FindPlayers( [NotNull] Player player,
-                                            [NotNull] string name,
-                                            PlayerSearchOptions options ) {
+        [NotNull]
+        public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, PlayerSearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
 
             bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
             bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
             bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
+            bool returnSelf = (options & PlayerSearchOptions.ReturnSelfIfNoOthersMatched) != 0;
 
+            // Repeat last-used player name
             if( name == "-" ) {
                 if( player.LastUsedPlayerName != null ) {
                     name = player.LastUsedPlayerName;
@@ -1128,32 +1135,54 @@ namespace fCraft {
                     return new Player[0];
                 }
             }
-            player.LastUsedPlayerName = name;
+
+            // in case someone tries to use the "!" prefix in an online-only search
+            if( name.Length > 0 && name[0] == '!' ) {
+                name = name.Substring( 1 );
+            }
+
+            bool foundSelf = false;
             List<Player> results = new List<Player>();
             Player[] tempList = Players;
             foreach( Player otherPlayer in tempList ) {
                 if( otherPlayer == null ||
-                    !includeHidden && !player.CanSee( otherPlayer ) ||
-                    !includeSelf && otherPlayer == player ) {
+                    !includeHidden && !player.CanSee( otherPlayer ) ) {
                     continue;
                 }
                 if( otherPlayer.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    results.Clear();
-                    results.Add( otherPlayer );
-                    break;
+                    if( !includeSelf && otherPlayer == player ) {
+                        foundSelf = true;
+                    } else {
+                        results.Clear();
+                        results.Add( otherPlayer );
+                        break;
+                    }
                 } else if( otherPlayer.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    results.Add( otherPlayer );
+                    if( !includeSelf && otherPlayer == player ) {
+                        foundSelf = true;
+                    } else {
+                        results.Add( otherPlayer );
+                    }
                 }
             }
+
+            // set LastUsedPlayerName if we found one result
+            if( results.Count == 1 ) {
+                player.LastUsedPlayerName = results[0].Name;
+            }
+
+            // raise the SearchingForPlayer event
             if( !suppressEvent ) {
                 var h = SearchingForPlayer;
                 if( h != null ) {
-                    var e = new SearchingForPlayerEventArgs( player, name, results, includeHidden, includeSelf );
+                    var e = new SearchingForPlayerEventArgs( player, name, results, options );
                     h( null, e );
                 }
             }
-            if( results.Count == 1 ) {
-                player.LastUsedPlayerName = results[0].Name;
+
+            // special behavior for ReturnSelfIfNoOthersMatched flag
+            if( results.Count == 0 && !includeSelf && foundSelf && returnSelf ) {
+                results.Add( player );
             }
             return results.ToArray();
         }
@@ -1163,13 +1192,14 @@ namespace fCraft {
         /// Returns null if no player with the given name is online. </summary>
         /// <param name="player"> Player from whose perspective search is performed. Used to determine whether others are hidden. </param>
         /// <param name="name"> Full player name. Case-insensitive. </param>
-        /// <param name="includeHidden"> Whether hidden players should be considered in the search. </param>
+        /// <param name="options"> Search options (IncludeHidden and IncludeSelf are applicable, other flags are ignored). </param>
         /// <returns> Player object if player was found online; otherwise null. </returns>
         public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, PlayerSearchOptions options ) {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
             bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
-            if( target != null && includeHidden && !player.CanSee( target ) ) {
-                // hide players whom player cant see
+            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
+            if( target != null && includeHidden && !player.CanSee( target ) || // hide players whom player cant see
+                target == player && !includeSelf ) { // hide self, if applicable
                 target = null;
             }
             return target;
@@ -1178,12 +1208,11 @@ namespace fCraft {
 
         /// <summary> Find player by name using autocompletion.
         /// Returns null and prints message if none or multiple players matched.
-        /// Raises Player.SearchingForPlayer event, which may modify search results. </summary>
+        /// Raises Player.SearchingForPlayer event, which may modify search results, unless SuppressEvent option is set. </summary>
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
         /// <param name="namePart"> Full or partial name of the search target. </param>
-        /// <param name="includeSelf"> Whether player themself should be considered in the results. </param>
-        /// <param name="includeHidden"> Whether to include hidden players in the search. </param>
-        /// <param name="raiseEvent"> Whether to raise Server.SearchingForPlayer event. </param>
+        /// <param name="options"> Search options.
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoOthersMatched) are applicable. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player,
@@ -1200,6 +1229,11 @@ namespace fCraft {
                     player.Message( "Cannot repeat player name: you haven't used any names yet." );
                     return null;
                 }
+            }
+
+            // in case someone tries to use the "!" prefix in an online-only search
+            if( namePart.Length > 0 && namePart[0] == '!' ) {
+                namePart = namePart.Substring( 1 );
             }
 
             // Make sure player name is valid
