@@ -3,12 +3,12 @@ using System.ComponentModel;
 using System.Xml.Linq;
 
 namespace fCraft {
-    class FlatMapGenerator : IMapGenerator {
-        public static FlatMapGenerator Instance { get; private set; }
-        FlatMapGenerator() {}
+    public class FlatMapGen : IMapGenerator {
+        public static FlatMapGen Instance { get; private set; }
+        FlatMapGen() {}
 
-        static FlatMapGenerator() {
-            Instance = new FlatMapGenerator();
+        static FlatMapGen() {
+            Instance = new FlatMapGen();
         }
 
         public string Name {
@@ -20,23 +20,23 @@ namespace fCraft {
         }
 
         public IMapGeneratorParameters GetDefaultParameters() {
-            return new FlatMapGeneratorParameters();
+            return new FlatMapGenParameters();
         }
 
         public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
-            return new FlatMapGeneratorParameters( XElement.Parse( serializedParameters ) );
+            return new FlatMapGenParameters( XElement.Parse( serializedParameters ) );
         }
 
         public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 player.Message( "Flat map generator has no parameters." );
             }
-            return new FlatMapGeneratorParameters();
+            return new FlatMapGenParameters();
         }
     }
 
 
-    class FlatMapGeneratorParameters : IMapGeneratorParameters {
+    public class FlatMapGenParameters : IMapGeneratorParameters {
         public int GroundLevelOffset { get; set; }
         public int SurfaceThickness { get; set; }
         public int SoilThickness { get; set; }
@@ -51,11 +51,11 @@ namespace fCraft {
         public string SummaryString { get; private set; }
 
         public IMapGenerator Generator {
-            get { return FlatMapGenerator.Instance; }
+            get { return FlatMapGen.Instance; }
         }
 
 
-        public FlatMapGeneratorParameters() {
+        public FlatMapGenParameters() {
             SurfaceThickness = 1;
             SoilThickness = 5;
             BedrockThickness = 1;
@@ -68,7 +68,7 @@ namespace fCraft {
         }
 
 
-        public FlatMapGeneratorParameters( XElement el )
+        public FlatMapGenParameters( XElement el )
             : this() {
             XElement xElement = el.Element( "GroundLevelOffset" );
             if( xElement != null ) GroundLevelOffset = Int32.Parse( xElement.Value );
@@ -106,7 +106,7 @@ namespace fCraft {
 
 
         public string Save() {
-            XElement el = new XElement( "FlatMapGeneratorParameters" );
+            XElement el = new XElement( "FlatMapGenParameters" );
             el.Add( new XElement( "Version", Generator.Version.ToString() ) );
             el.Add( new XElement( "GroundLevelOffset", GroundLevelOffset ) );
             el.Add( new XElement( "SurfaceThickness", SurfaceThickness ) );
@@ -123,12 +123,12 @@ namespace fCraft {
 
 
         public IMapGeneratorState CreateGenerator( int width, int length, int height ) {
-            return new FlatMapGeneratorState( this, width, length, height );
+            return new FlatMapGenState( this, width, length, height );
         }
 
 
         public object Clone() {
-            return new FlatMapGeneratorParameters {
+            return new FlatMapGenParameters {
                 GroundLevelOffset = GroundLevelOffset,
                 SurfaceThickness = SurfaceThickness,
                 SoilThickness = SoilThickness,
@@ -144,8 +144,8 @@ namespace fCraft {
     }
 
 
-    class FlatMapGeneratorState : IMapGeneratorState {
-        public FlatMapGeneratorState( FlatMapGeneratorParameters parameters, int width, int length, int height ) {
+    class FlatMapGenState : IMapGeneratorState {
+        public FlatMapGenState( FlatMapGenParameters parameters, int width, int length, int height ) {
             Parameters = parameters;
             MapWidth = width;
             MapLength = length;
@@ -178,7 +178,7 @@ namespace fCraft {
             if( Finished ) return Result;
             try {
                 StatusString = "Generating...";
-                FlatMapGeneratorParameters p = (FlatMapGeneratorParameters)Parameters;
+                FlatMapGenParameters p = (FlatMapGenParameters)Parameters;
 
                 int layer = MapWidth*MapLength;
 

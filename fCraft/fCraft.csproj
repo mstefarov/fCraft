@@ -115,10 +115,10 @@
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
-    <Compile Include="MapGeneration\FlatMapGenerator.cs" />
+    <Compile Include="MapGeneration\FlatMapGen.cs" />
     <Compile Include="MapGeneration\MapGenTemplate.cs" />
     <Compile Include="MapGeneration\MapGenTheme.cs" />
-    <Compile Include="MapGeneration\RealisticMapGenerator.cs" />
+    <Compile Include="MapGeneration\RealisticMapGen.cs" />
     <Compile Include="Player\PlayerSearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\fNbt.cs" />
@@ -178,7 +178,7 @@
     <Compile Include="MapGeneration\IMapGeneratorParameters.cs" />
     <Compile Include="MapGeneration\IMapGeneratorState.cs" />
     <Compile Include="World\Map.cs" />
-    <Compile Include="MapGeneration\RealisticMapGeneratorState.cs">
+    <Compile Include="MapGeneration\RealisticMapGenState.cs">
     </Compile>
     <Compile Include="MapGeneration\MapGeneratorArgs.cs" />
     <Compile Include="World\World.cs" />
