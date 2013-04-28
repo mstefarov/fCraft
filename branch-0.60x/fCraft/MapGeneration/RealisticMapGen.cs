@@ -2,12 +2,12 @@
 using System.Xml.Linq;
 
 namespace fCraft {
-    public class RealisticMapGenerator : IMapGenerator {
-        public static RealisticMapGenerator Instance { get; private set; }
-        RealisticMapGenerator() {}
+    public class RealisticMapGen : IMapGenerator {
+        public static RealisticMapGen Instance { get; private set; }
+        RealisticMapGen() {}
 
-        static RealisticMapGenerator() {
-            Instance = new RealisticMapGenerator();
+        static RealisticMapGen() {
+            Instance = new RealisticMapGen();
         }
 
 

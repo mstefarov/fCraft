@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides functionality for generating map files. </summary>
-    public sealed class RealisticMapGeneratorState {
+    public sealed class RealisticMapGenState {
         readonly MapGeneratorArgs args;
         readonly Random rand;
         readonly Noise noise;
@@ -22,7 +22,7 @@ namespace fCraft {
         int groundThickness = 5;
         const int SeaFloorThickness = 3;
 
-        public RealisticMapGeneratorState( [NotNull] MapGeneratorArgs generatorArgs ) {
+        public RealisticMapGenState( [NotNull] MapGeneratorArgs generatorArgs ) {
             if( generatorArgs == null ) throw new ArgumentNullException( "generatorArgs" );
             args = generatorArgs;
             args.Validate();
@@ -787,7 +787,7 @@ namespace fCraft {
         public static MapGeneratorArgs MakeTemplate( MapGenTemplate template ) {
             switch( template ) {
                 case MapGenTemplate.Archipelago:
-                    return new MapGeneratorArgs(RealisticMapGenerator.Instance) {
+                    return new MapGeneratorArgs(RealisticMapGen.Instance) {
                         MaxHeight = 8,
                         MaxDepth = 20,
                         FeatureScale = 3,
@@ -797,7 +797,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Atoll:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         Theme = MapGenTheme.Desert,
                         MaxHeight = 2,
                         MaxDepth = 39,
@@ -814,7 +814,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Bay:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 22,
                         MaxDepth = 12,
                         UseBias = true,
@@ -829,7 +829,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Dunes:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         AddTrees = false,
                         AddWater = false,
                         Theme = MapGenTheme.Desert,
@@ -843,7 +843,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Hills:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         AddWater = false,
                         MaxHeight = 8,
                         MaxDepth = 8,
@@ -853,7 +853,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Ice:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         AddTrees = false,
                         Theme = MapGenTheme.Arctic,
                         MaxHeight = 2,
@@ -868,7 +868,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Island:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 16,
                         MaxDepth = 39,
                         UseBias = true,
@@ -884,7 +884,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Lake:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 14,
                         MaxDepth = 20,
                         UseBias = true,
@@ -898,7 +898,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Mountains:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         AddWater = false,
                         MaxHeight = 40,
                         MaxDepth = 10,
@@ -913,10 +913,10 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Random:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance );
+                    return new MapGeneratorArgs( RealisticMapGen.Instance );
 
                 case MapGenTemplate.River:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 22,
                         MaxDepth = 8,
                         FeatureScale = 0,
@@ -927,7 +927,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Streams:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 5,
                         MaxDepth = 4,
                         FeatureScale = 2,
@@ -941,7 +941,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Peninsula:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 22,
                         MaxDepth = 12,
                         UseBias = true,
@@ -956,7 +956,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Flat:
-                    return new MapGeneratorArgs( RealisticMapGenerator.Instance ) {
+                    return new MapGeneratorArgs( RealisticMapGen.Instance ) {
                         MaxHeight = 0,
                         MaxDepth = 0,
                         MaxHeightVariation = 0,
