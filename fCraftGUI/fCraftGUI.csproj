@@ -57,6 +57,10 @@
     <Compile Include="AboutWindow.Designer.cs">
       <DependentUpon>AboutWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="IMapGeneratorGui.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="IMapGeneratorGuiProvider.cs" />
     <Compile Include="IsoCat.cs" />
     <Compile Include="IsoCatMode.cs" />
     <Compile Include="IsoCatResult.cs" />
@@ -66,11 +70,12 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RealisticMapGenGUI.cs">
+    <Compile Include="RealisticMapGenGuiProvider.cs" />
+    <Compile Include="RealisticMapGenGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="RealisticMapGenGUI.Designer.cs">
-      <DependentUpon>RealisticMapGenGUI.cs</DependentUpon>
+    <Compile Include="RealisticMapGenGui.Designer.cs">
+      <DependentUpon>RealisticMapGenGui.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -92,8 +97,8 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="RealisticMapGenGUI.resx">
-      <DependentUpon>RealisticMapGenGUI.cs</DependentUpon>
+    <EmbeddedResource Include="RealisticMapGenGui.resx">
+      <DependentUpon>RealisticMapGenGui.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

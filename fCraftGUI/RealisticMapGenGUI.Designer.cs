@@ -1,5 +1,5 @@
 ﻿namespace fCraft.GUI {
-    partial class RealisticMapGenGUI {
+    partial class RealisticMapGenGui {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -1485,7 +1485,7 @@
             this.lMidpoint.TabIndex = 64;
             this.lMidpoint.Text = "Midpoint";
             // 
-            // RealisticMapGenGUI
+            // RealisticMapGenGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -1499,7 +1499,7 @@
             this.Controls.Add(this.gDimensions);
             this.Controls.Add(this.gTemplates);
             this.Controls.Add(this.gTerrainFeatures);
-            this.Name = "RealisticMapGenGUI";
+            this.Name = "RealisticMapGenGui";
             this.Size = new System.Drawing.Size(368, 980);
             this.gModules.ResumeLayout(false);
             this.gModules.PerformLayout();

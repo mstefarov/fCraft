@@ -11,13 +11,22 @@ namespace fCraft {
         readonly MapGeneratorArgs args;
         readonly Random rand;
         readonly Noise noise;
-        float[,] heightmap, blendmap, slopemap;
+        float[,] heightmap,
+                 blendmap,
+                 slopemap;
 
         const float CliffsideBlockThreshold = 0.01f;
         const Block SnowBlock = Block.White;
 
         // theme-dependent vars
-        Block bWaterSurface, bGroundSurface, bWater, bGround, bSeaFloor, bBedrock, bDeepWaterSurface, bCliff;
+        Block bWaterSurface,
+              bGroundSurface,
+              bWater,
+              bGround,
+              bSeaFloor,
+              bBedrock,
+              bDeepWaterSurface,
+              bCliff;
 
         int groundThickness = 5;
         const int SeaFloorThickness = 3;

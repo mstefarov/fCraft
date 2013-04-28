@@ -138,13 +138,13 @@ namespace fCraft {
         }
 
 
-        public MapGeneratorArgs( RealisticMapGenerator generator ) {
+        public MapGeneratorArgs( RealisticMapGen generator ) {
             Generator = generator;
             Seed = (new Random()).Next();
         }
 
 
-        public MapGeneratorArgs( RealisticMapGenerator generator, [NotNull] XElement root ) {
+        public MapGeneratorArgs( RealisticMapGen generator, [NotNull] XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
             Generator = generator;
 
@@ -301,7 +301,7 @@ namespace fCraft {
 
 
         public object Clone() {
-            return new MapGeneratorArgs(RealisticMapGenerator.Instance) {
+            return new MapGeneratorArgs(RealisticMapGen.Instance) {
                 AboveFuncExponent = AboveFuncExponent,
                 AddBeaches = AddBeaches,
                 AddCaveLava = AddCaveLava,
