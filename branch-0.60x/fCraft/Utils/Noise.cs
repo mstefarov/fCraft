@@ -20,7 +20,7 @@ namespace fCraft {
     }
 
 
-    /// <summary> Class for generating and filtering 2D and 3D noise, extensively used by RealisticMapGeneratorState and Cloudy brush. </summary>
+    /// <summary> Class for generating and filtering 2D and 3D noise, extensively used by RealisticMapGenState and Cloudy brush. </summary>
     public sealed class Noise {
         public readonly int Seed;
         public readonly NoiseInterpolationMode InterpolationMode;
