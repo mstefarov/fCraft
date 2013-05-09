@@ -10,7 +10,6 @@ namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
     /// and switching block placement modes (paint, bind). </summary>
     static class BuildingCommands {
-
         public static int MaxUndoCount = 2000000;
 
         const string GeneralDrawingHelp = " Use &H/Cancel&S to cancel selection mode. " +
@@ -20,9 +19,9 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdBind );
             CommandManager.RegisterCommand( CdGrass );
             CommandManager.RegisterCommand( CdLava );
-            CommandManager.RegisterCommand( CdPaint );
-            CommandManager.RegisterCommand( CdSolid );
             CommandManager.RegisterCommand( CdWater );
+            CommandManager.RegisterCommand( CdSolid );
+            CommandManager.RegisterCommand( CdPaint );
 
             CommandManager.RegisterCommand( CdCancel );
             CommandManager.RegisterCommand( CdMark );
@@ -371,16 +370,24 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build, Permission.PlaceAdmincrete },
             Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
+            Usage = "/Solid [on/off]",
             Handler = SolidHandler
         };
 
         static void SolidHandler( Player player, CommandReader cmd ) {
-            if( player.GetBind( Block.Stone ) == Block.Admincrete ) {
-                player.ResetBind( Block.Stone );
-                player.Message( "Solid: OFF" );
-            } else {
+            bool turnSolidOn = (player.GetBind( Block.Stone ) != Block.Admincrete);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnSolidOn ) ) {
+                CdSolid.PrintUsage( player );
+                return;
+            }
+
+            if( turnSolidOn ) {
                 player.Bind( Block.Stone, Block.Admincrete );
                 player.Message( "Solid: ON. Stone blocks are replaced with admincrete." );
+            } else {
+                player.ResetBind( Block.Stone );
+                player.Message( "Solid: OFF" );
             }
         }
 
@@ -393,14 +400,23 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
                    "Paint command toggles this behavior on and off.",
+            Usage = "/Paint [on/off]",
             Handler = PaintHandler
         };
 
         static void PaintHandler( Player player, CommandReader cmd ) {
-            player.IsPainting = !player.IsPainting;
-            if( player.IsPainting ) {
+            bool turnPaintOn = (!player.IsPainting);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnPaintOn ) ) {
+                CdPaint.PrintUsage( player );
+                return;
+            }
+
+            if( turnPaintOn ) {
+                player.IsPainting = true;
                 player.Message( "Paint mode: ON" );
             } else {
+                player.IsPainting = false;
                 player.Message( "Paint mode: OFF" );
             }
         }
@@ -413,16 +429,24 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build, Permission.PlaceGrass },
             Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
+            Usage = "/Grass [on/off]",
             Handler = GrassHandler
         };
 
         static void GrassHandler( Player player, CommandReader cmd ) {
-            if( player.GetBind( Block.Dirt ) == Block.Grass ) {
-                player.ResetBind( Block.Dirt );
-                player.Message( "Grass: OFF" );
-            } else {
+            bool turnGrassOn = (player.GetBind( Block.Dirt ) != Block.Grass);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnGrassOn ) ) {
+                CdGrass.PrintUsage( player );
+                return;
+            }
+
+            if( turnGrassOn ) {
                 player.Bind( Block.Dirt, Block.Grass );
                 player.Message( "Grass: ON. Dirt blocks are replaced with grass." );
+            } else {
+                player.ResetBind( Block.Dirt );
+                player.Message( "Grass: OFF" );
             }
         }
 
@@ -434,20 +458,28 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build, Permission.PlaceWater },
             Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
+            Usage = "/Water [on/off]",
             Handler = WaterHandler
         };
 
         static void WaterHandler( Player player, CommandReader cmd ) {
-            if( player.GetBind( Block.Aqua ) == Block.Water ||
-                player.GetBind( Block.Cyan ) == Block.Water ||
-                player.GetBind( Block.Blue ) == Block.Water ) {
-                player.ResetBind( Block.Aqua, Block.Cyan, Block.Blue );
-                player.Message( "Water: OFF" );
-            } else {
+            bool turnWaterOn = (player.GetBind( Block.Aqua ) != Block.Water ||
+                                player.GetBind( Block.Cyan ) != Block.Water ||
+                                player.GetBind( Block.Blue ) == Block.Water);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnWaterOn ) ) {
+                CdWater.PrintUsage( player );
+                return;
+            }
+
+            if( turnWaterOn ) {
                 player.Bind( Block.Aqua, Block.Water );
                 player.Bind( Block.Cyan, Block.Water );
                 player.Bind( Block.Blue, Block.Water );
                 player.Message( "Water: ON. Blue blocks are replaced with water." );
+            } else {
+                player.ResetBind( Block.Aqua, Block.Cyan, Block.Blue );
+                player.Message( "Water: OFF" );
             }
         }
 
@@ -459,16 +491,24 @@ namespace fCraft {
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build, Permission.PlaceLava },
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
+            Usage = "/Lava [on/off]",
             Handler = LavaHandler
         };
 
         static void LavaHandler( Player player, CommandReader cmd ) {
-            if( player.GetBind( Block.Red ) == Block.Lava ) {
-                player.ResetBind( Block.Red );
-                player.Message( "Lava: OFF" );
-            } else {
+            bool turnLavaOn = (player.GetBind( Block.Red ) != Block.Lava);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnLavaOn ) ) {
+                CdLava.PrintUsage( player );
+                return;
+            }
+
+            if( turnLavaOn ) {
                 player.Bind( Block.Red, Block.Lava );
                 player.Message( "Lava: ON. Red blocks are replaced with lava." );
+            } else {
+                player.ResetBind( Block.Red );
+                player.Message( "Lava: OFF" );
             }
         }
 
@@ -1857,21 +1897,25 @@ namespace fCraft {
             Name = "Static",
             Category = CommandCategory.Building,
             Help = "Toggles repetition of last selection on or off.",
+            Usage = "/Static [on/off]",
             Handler = StaticHandler
         };
 
         static void StaticHandler( Player player, CommandReader cmd ) {
-            if( cmd.HasNext ) {
+            bool turnStaticOn = (!player.IsRepeatingSelection);
+
+            if( cmd.HasNext && !cmd.NextOnOff( out turnStaticOn ) ) {
                 CdStatic.PrintUsage( player );
                 return;
             }
-            if( player.IsRepeatingSelection ) {
+
+            if( turnStaticOn ) {
+                player.Message( "Static: On" );
+                player.IsRepeatingSelection = true;
+            } else {
                 player.Message( "Static: Off" );
                 player.IsRepeatingSelection = false;
                 player.SelectionCancel();
-            } else {
-                player.Message( "Static: On" );
-                player.IsRepeatingSelection = true;
             }
         }
     }
