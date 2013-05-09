@@ -34,13 +34,6 @@ namespace fCraft {
         /// <summary> Flag: whether this generation task supports async cancellation. </summary>
         bool SupportsCancellation { get; }
 
-        /// <summary> Width (X-dimension) of the map being generated. </summary>
-        int MapWidth { get; }
-        /// <summary> Length (Y-dimension) of the map being generated. </summary>
-        int MapLength { get; }
-        /// <summary> Height (Z-dimension) of the map being generated. </summary>
-        int MapHeight { get; }
-
         /// <summary> Map that has been generated (may be null). </summary>
         Map Result { get; }
 

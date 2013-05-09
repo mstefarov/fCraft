@@ -10,6 +10,15 @@ namespace fCraft {
         /// <summary> Associated IMapGenerator object that created this parameter set. </summary>
         IMapGenerator Generator { get; }
 
+        /// <summary> Width (X-dimension) of the map being generated. </summary>
+        int MapWidth { get; set; }
+
+        /// <summary> Length (Y-dimension) of the map being generated. </summary>
+        int MapLength { get; set; }
+
+        /// <summary> Height (Z-dimension) of the map being generated. </summary>
+        int MapHeight { get; set; }
+
         /// <summary> Short summary of current parameter set, or name of this template. </summary>
         string SummaryString { get; }
 
@@ -19,6 +28,6 @@ namespace fCraft {
 
         /// <summary> Creates IMapGeneratorState to create a map with the current parameters and specified dimensions. 
         /// Does NOT start the generation process yet -- that should be done in IMapGeneratorState.Generate() </summary>
-        IMapGeneratorState CreateGenerator( int width, int length, int height );
+        IMapGeneratorState CreateGenerator();
     }
 }

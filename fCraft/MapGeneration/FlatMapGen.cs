@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public class FlatMapGen : IMapGenerator {
@@ -37,6 +38,10 @@ namespace fCraft {
 
 
     public class FlatMapGenParameters : IMapGeneratorParameters {
+        public int MapWidth { get; set; }
+        public int MapLength { get; set; }
+        public int MapHeight { get; set; }
+
         public int GroundLevelOffset { get; set; }
         public int SurfaceThickness { get; set; }
         public int SoilThickness { get; set; }
@@ -121,9 +126,8 @@ namespace fCraft {
             return el.ToString();
         }
 
-
-        public IMapGeneratorState CreateGenerator( int width, int length, int height ) {
-            return new FlatMapGenState( this, width, length, height );
+        public IMapGeneratorState CreateGenerator() {
+            return new FlatMapGenState( this );
         }
 
 
@@ -145,11 +149,8 @@ namespace fCraft {
 
 
     class FlatMapGenState : IMapGeneratorState {
-        public FlatMapGenState( FlatMapGenParameters parameters, int width, int length, int height ) {
+        public FlatMapGenState( FlatMapGenParameters parameters ) {
             Parameters = parameters;
-            MapWidth = width;
-            MapLength = length;
-            MapHeight = height;
         }
 
         public IMapGeneratorParameters Parameters { get; private set; }
@@ -166,10 +167,6 @@ namespace fCraft {
             get { return true; }
         }
 
-        public int MapWidth { get; private set; }
-        public int MapLength { get; private set; }
-        public int MapHeight { get; private set; }
-
         public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
 
@@ -180,9 +177,9 @@ namespace fCraft {
                 StatusString = "Generating...";
                 FlatMapGenParameters p = (FlatMapGenParameters)Parameters;
 
-                int layer = MapWidth*MapLength;
+                int layer = Parameters.MapWidth*Parameters.MapLength;
 
-                Map map = new Map( null, MapWidth, MapLength, MapHeight, true );
+                Map map = new Map( null, Parameters.MapWidth, Parameters.MapLength, Parameters.MapHeight, true );
                 int offset = 0;
                 if( p.BedrockThickness > 0 ) {
                     if( Canceled ) return null;
@@ -192,7 +189,7 @@ namespace fCraft {
                 }
 
                 if( Canceled ) return null;
-                int rockBlocks = layer*(MapHeight/2 + p.GroundLevelOffset -
+                int rockBlocks = layer*(Parameters.MapHeight/2 + p.GroundLevelOffset -
                                         p.BedrockThickness - p.SoilThickness - p.SurfaceThickness);
                 map.Blocks.MemSet( (byte)p.DeepBlock, offset, rockBlocks );
                 offset += rockBlocks;
