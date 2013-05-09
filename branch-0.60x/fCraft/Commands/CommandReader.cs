@@ -270,6 +270,32 @@ namespace fCraft {
         }
 
 
+        /// <summary> Reads a token and gets an "on" (1) or "off" (0) input from command. </summary>
+        /// <param name="param"> if user gave "on" or "1", this is set to true.
+        /// Otherwise (if "off" or "0" is given, if nothing was given,
+        /// or if an unrecognized string was given) this is set to false. </param>
+        /// <returns> true if a valid string ("on"/"1" or "off"/"0") was given;
+        /// false if nothing or an unregnized string was given. </returns>
+        public bool NextOnOff( out bool param ) {
+            string token = Next();
+            if( token == null ) {
+                // nothing given
+                param = false;
+                return false;
+            } else if( token.Equals( "on", StringComparison.OrdinalIgnoreCase ) || token == "1" ) {
+                // "on" or "1" given
+                param = true;
+            } else if( token.Equals( "off", StringComparison.OrdinalIgnoreCase ) || token == "0" ) {
+                // "off" or "0" given
+                param = false;
+            } else {
+                // unrecognized string given
+                param = false;
+            }
+            return true;
+        }
+
+
         [Pure]
         public override string ToString() {
             if( IsConfirmed ) {
