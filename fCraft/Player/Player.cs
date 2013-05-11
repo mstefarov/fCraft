@@ -1238,8 +1238,8 @@ namespace fCraft {
             bool hideOther = (spectatedPlayer == otherPlayer) ||
                              (spectatedPlayer != null && spectatedPlayer == otherPlayer.spectatedPlayer);
 
-            return otherPlayer == this || // players can see self
-                   IsSuper || // superplayers have ALL permissions
+            return otherPlayer == this || // players can always "see" self
+                   IsSuper ||             // superplayers have ALL permissions
                    canSeeOther && !hideOther;
         }
 
