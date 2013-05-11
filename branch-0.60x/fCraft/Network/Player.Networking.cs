@@ -1439,8 +1439,8 @@ namespace fCraft {
                 X = (short)( newPos.X - oldPos.X ),
                 Y = (short)( newPos.Y - oldPos.Y ),
                 Z = (short)( newPos.Z - oldPos.Z ),
-                R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                L = (byte)Math.Abs( newPos.L - oldPos.L )
+                R = (byte)( newPos.R - oldPos.R ),
+                L = (byte)( newPos.L - oldPos.L )
             };
 
             bool posChanged = ( delta.X != 0 ) || ( delta.Y != 0 ) || ( delta.Z != 0 );
@@ -1448,7 +1448,7 @@ namespace fCraft {
 
             if( skipUpdates ) {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
-                // movement optimization
+                // movement optimization (skipping every other packet, if difference is small enough)
                 if( distSquared < SkipMovementThresholdSquared &&
                     ( delta.R * delta.R + delta.L * delta.L ) < SkipRotationThresholdSquared &&
                     !entity.SkippedLastMove ) {
