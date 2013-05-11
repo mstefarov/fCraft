@@ -1325,14 +1325,13 @@ namespace fCraft {
                 VisibleEntity entity;
                 if( entities.TryGetValue( otherPlayer, out entity ) ) {
                     entity.MarkedForRetention = true;
+                    // Re-add player if their rank changed (to maintain correct name colors/prefix)
+                    if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
+                        ReAddEntity( entity, otherPlayer );
+                        entity.LastKnownRank = otherPlayer.Info.Rank;
+                    }
                 } else {
                     entity = AddEntity( otherPlayer );
-                }
-
-                // Re-add player if their rank changed (to maintain correct name colors/prefix)
-                if( entity.LastKnownRank != otherPlayer.Info.Rank ) {
-                    ReAddEntity( entity, otherPlayer );
-                    entity.LastKnownRank = otherPlayer.Info.Rank;
                 }
 
                 if( entity.Hidden ) {
