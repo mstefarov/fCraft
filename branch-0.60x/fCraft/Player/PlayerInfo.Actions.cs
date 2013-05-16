@@ -856,7 +856,10 @@ namespace fCraft {
 
                 // Apply side effects
                 Player target = PlayerObject;
-                if( target != null ) target.IsDeaf = false;
+                if( target != null ) {
+                    target.IsDeaf = false;
+                    target.StopSpectating();
+                }
 
                 // Log and announce
                 Logger.Log( LogType.UserActivity,
