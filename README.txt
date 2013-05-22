@@ -14,7 +14,7 @@ Each branch contains a different snapshot of fCraft's code. Branches are:
     /branch-0.60x/  Current stable version of fCraft. Updated with bugfixes.
                     Currently in maintenance-only mode.
 
-    /branch-0.60x/  Branched off code for the next feature release of fCraft.
+    /branch-0.64x/  Branched off code for the next feature release of fCraft.
                     Frequently updated. Full of unstable/untested code.
 
     /branch-0.70x/  Abandoned experimental branch. Thoroughly unstable.
