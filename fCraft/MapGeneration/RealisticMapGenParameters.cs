@@ -69,23 +69,7 @@ namespace fCraft {
         public int   BeachHeight { get; set; }
 
         // block selection for voxelization
-        public MapGenTheme Theme { get; set; }
-        public Block WaterSurfaceBlock { get; set; }
-        public Block GroundSurfaceBlock { get; set; }
-        public Block WaterBlock { get; set; }
-        public Block GroundBlock { get; set; }
-        public Block SeaFloorBlock { get; set; }
-        public Block BedrockBlock { get; set; }
-        public Block DeepWaterSurfaceBlock { get; set; }
-        public Block CliffBlock { get; set; }
-        public Block SnowBlock { get; set; }
-        public Block FoliageBlock { get; set; }
-        public Block TreeTrunkBlock { get; set; }
-
-        // voxelization parameters
-        public int GroundThickness { get; set; }
-        public int SeaFloorThickness { get; set; }
-        const int GroundThicknessDefault = 5;
+        public RealisticMapGenTheme Theme { get; set; }
 
         // IMapGeneratorParameters boilerplate code
         public IMapGenerator Generator { get; private set; }
@@ -228,16 +212,12 @@ namespace fCraft {
             AddCliffs = true;
             CliffSmoothing = true;
             CliffThreshold = 1;
+            CliffsideBlockThreshold = 0.01f;
 
             // default beach params (off)
             AddBeaches = false;
             BeachExtent = 6;
             BeachHeight = 2;
-
-            GroundThickness = GroundThicknessDefault; // 5
-            SeaFloorThickness = 3;
-            CliffsideBlockThreshold = 0.01f;
-            SnowBlock = Block.White;
         }
 
 
@@ -467,73 +447,6 @@ namespace fCraft {
 
         public IMapGeneratorState CreateGenerator() {
             return new RealisticMapGenState( this );
-        }
-
-
-        void ApplyTheme( MapGenTheme theme ) {
-            Theme = theme;
-            GroundThickness = GroundThicknessDefault;
-
-            switch( theme ) {
-                case MapGenTheme.Arctic:
-                    WaterSurfaceBlock = Block.Glass;
-                    DeepWaterSurfaceBlock = Block.Water;
-                    GroundSurfaceBlock = Block.White;
-                    WaterBlock = Block.Water;
-                    GroundBlock = Block.White;
-                    SeaFloorBlock = Block.White;
-                    BedrockBlock = Block.Stone;
-                    CliffBlock = Block.Stone;
-                    GroundThickness = 1;
-                    break;
-
-                case MapGenTheme.Desert:
-                    WaterSurfaceBlock = Block.Water;
-                    DeepWaterSurfaceBlock = Block.Water;
-                    GroundSurfaceBlock = Block.Sand;
-                    WaterBlock = Block.Water;
-                    GroundBlock = Block.Sand;
-                    SeaFloorBlock = Block.Sand;
-                    BedrockBlock = Block.Stone;
-                    CliffBlock = Block.Gravel;
-                    break;
-
-                case MapGenTheme.Hell:
-                    WaterSurfaceBlock = Block.Lava;
-                    DeepWaterSurfaceBlock = Block.Lava;
-                    GroundSurfaceBlock = Block.Obsidian;
-                    WaterBlock = Block.Lava;
-                    GroundBlock = Block.Stone;
-                    SeaFloorBlock = Block.Obsidian;
-                    BedrockBlock = Block.Stone;
-                    CliffBlock = Block.Stone;
-                    break;
-
-                case MapGenTheme.Forest:
-                    WaterSurfaceBlock = Block.Water;
-                    DeepWaterSurfaceBlock = Block.Water;
-                    GroundSurfaceBlock = Block.Grass;
-                    WaterBlock = Block.Water;
-                    GroundBlock = Block.Dirt;
-                    SeaFloorBlock = Block.Sand;
-                    BedrockBlock = Block.Stone;
-                    CliffBlock = Block.Stone;
-                    break;
-
-                case MapGenTheme.Swamp:
-                    WaterSurfaceBlock = Block.Water;
-                    DeepWaterSurfaceBlock = Block.Water;
-                    GroundSurfaceBlock = Block.Dirt;
-                    WaterBlock = Block.Water;
-                    GroundBlock = Block.Dirt;
-                    SeaFloorBlock = Block.Leaves;
-                    BedrockBlock = Block.Stone;
-                    CliffBlock = Block.Stone;
-                    break;
-
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
     }
 }

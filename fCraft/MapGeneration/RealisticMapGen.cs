@@ -6,6 +6,7 @@ namespace fCraft {
         public static RealisticMapGen Instance { get; private set; }
         RealisticMapGen() {}
 
+
         static RealisticMapGen() {
             Instance = new RealisticMapGen();
         }
