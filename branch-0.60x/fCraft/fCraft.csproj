@@ -180,7 +180,7 @@
     <Compile Include="World\Map.cs" />
     <Compile Include="MapGeneration\RealisticMapGenState.cs">
     </Compile>
-    <Compile Include="MapGeneration\MapGeneratorArgs.cs" />
+    <Compile Include="MapGeneration\RealisticMapGenParameters.cs" />
     <Compile Include="World\World.cs" />
     <Compile Include="World\Zone.cs" />
   </ItemGroup>

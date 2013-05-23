@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Provides functionality for generating map files. </summary>
     public sealed class RealisticMapGenState : IMapGeneratorState {
-        readonly MapGeneratorArgs args;
+        readonly RealisticMapGenParameters args;
         readonly Random rand;
         readonly Noise noise;
         float[,] heightmap,
@@ -32,11 +32,11 @@ namespace fCraft {
         const int SeaFloorThickness = 3;
 
 
-        public RealisticMapGenState( [NotNull] MapGeneratorArgs generatorArgs ) {
-            if( generatorArgs == null ) throw new ArgumentNullException( "generatorArgs" );
-            args = generatorArgs;
+        public RealisticMapGenState( [NotNull] RealisticMapGenParameters genParameters ) {
+            if( genParameters == null ) throw new ArgumentNullException( "genParameters" );
+            args = genParameters;
             args.Validate();
-            Parameters = generatorArgs;
+            Parameters = genParameters;
 
             if( !args.CustomWaterLevel ) {
                 args.WaterLevel = (args.MapHeight - 1) / 2;
