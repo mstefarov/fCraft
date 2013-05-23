@@ -3,69 +3,65 @@ using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-// ReSharper disable PossibleNullReferenceException
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
     public sealed class MapGeneratorArgs : IMapGeneratorParameters {
         const int FormatVersion = 2;
 
         public MapGenTheme Theme = MapGenTheme.Forest;
-        public int   Seed, // 0
-                     MapWidth = 256,
-                     MapLength = 256,
-                     MapHeight = 96,
-                     MaxHeight = 20,
-                     MaxDepth = 12,
-                     MaxHeightVariation = 4,
-                     MaxDepthVariation; // 0
+        public int   Seed{get;set;}
+        public int   MaxHeight{get;set;}
+        public int   MaxDepth{get;set;}
+        public int   MaxHeightVariation{get;set;}
+        public int   MaxDepthVariation { get; set; }
 
-        public bool  AddWater = true,
-                     CustomWaterLevel,   // false
-                     MatchWaterCoverage; // false
-        public int   WaterLevel = 48;
-        public float WaterCoverage = .5f;
+        public bool  AddWater { get; set; }
+        public bool  CustomWaterLevel { get; set; }
+        public bool  MatchWaterCoverage { get; set; }
+        public int   WaterLevel { get; set; }
+        public float WaterCoverage { get; set; }
 
-        public bool  UseBias,        // false
-                     DelayBias;      // false
-        public float Bias;           // 0
-        public int   RaisedCorners,  // 0
-                     LoweredCorners, // 0
-                     MidPoint;       // 0
+        public bool  UseBias { get; set; }
+        public bool  DelayBias { get; set; }
+        public float Bias { get; set; }
+        public int   RaisedCorners { get; set; }
+        public int   LoweredCorners { get; set; }
+        public int   MidPoint { get; set; }
 
-        public int   DetailScale = 7,
-                     FeatureScale = 1;
-        public float Roughness = .5f;
-        public bool  LayeredHeightmap, // false
-                     MarbledHeightmap, // false
-                     InvertHeightmap;  // false
-        public float AboveFuncExponent = 1,
-                     BelowFuncExponent = 1;
+        public int   DetailScale { get; set; }
+        public int   FeatureScale { get; set; }
+        public float Roughness { get; set; }
+        public bool  LayeredHeightmap { get; set; }
+        public bool  MarbledHeightmap { get; set; }
+        public bool  InvertHeightmap { get; set; }
+        public float AboveFuncExponent { get; set; }
+        public float BelowFuncExponent { get; set; }
 
-        public bool  AddTrees = true,
-                     AddGiantTrees; // false
-        public int   TreeSpacingMin = 7,
-                     TreeSpacingMax = 11,
-                     TreeHeightMin = 5,
-                     TreeHeightMax = 7;
+        public bool  AddTrees { get; set; }
+        public bool  AddGiantTrees { get; set; }
+        public int   TreeSpacingMin { get; set; }
+        public int   TreeSpacingMax { get; set; }
+        public int   TreeHeightMin { get; set; }
+        public int   TreeHeightMax { get; set; }
 
-        public bool  AddCaves,     // false
-                     AddOre,       // false
-                     AddCaveWater, // false
-                     AddCaveLava;  // false
-        public float CaveDensity = 2,
-                     CaveSize = 1;
+        public bool  AddCaves { get; set; }
+        public bool  AddOre { get; set; }
+        public bool  AddCaveWater { get; set; }
+        public bool  AddCaveLava { get; set; }
+        public float CaveDensity { get; set; }
+        public float CaveSize { get; set; }
 
-        public bool  AddSnow; // false
-        public int   SnowAltitude = 70,
-                     SnowTransition = 7;
+        public bool  AddSnow { get; set; }
+        public int   SnowAltitude { get; set; }
+        public int   SnowTransition { get; set; }
 
-        public bool  AddCliffs = true,
-                     CliffSmoothing = true;
-        public float CliffThreshold = 1;
+        public bool  AddCliffs { get; set; }
+        public bool  CliffSmoothing { get; set; }
+        public float CliffThreshold { get; set; }
 
-        public bool  AddBeaches; // false
-        public int   BeachExtent = 6,
-                     BeachHeight = 2;
+        public bool  AddBeaches { get; set; }
+        public int   BeachExtent { get; set; }
+        public int   BeachHeight{get;set;}
 
 
         /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
@@ -138,8 +134,79 @@ namespace fCraft {
         }
 
 
+        public void ApplyDefaults() {
+            // default map dimensions
+            MapWidth = 256;
+            MapLength = 256;
+            MapHeight = 96;
+
+            // default terrain elevation / depth
+            MaxHeight = 20;
+            MaxDepth = 12;
+            MaxHeightVariation = 4;
+            MaxDepthVariation = 0;
+
+            // water defaults: 50% water level, approx 50% coverage
+            AddWater = true;
+            CustomWaterLevel = false;
+            MatchWaterCoverage = false;
+            WaterLevel = 48;
+            WaterCoverage = .5f;
+
+            // bias defaults (no bias at all)
+            UseBias = false;
+            DelayBias = false;
+            Bias = 0;
+            RaisedCorners = 0;
+            LoweredCorners = 0;
+            MidPoint = 0;
+
+            // default heightmap filtering options
+            DetailScale = 7;
+            FeatureScale = 1;
+            Roughness = .5f;
+            LayeredHeightmap = false;
+            MarbledHeightmap = false;
+            InvertHeightmap = false;
+            AboveFuncExponent = 1;
+            BelowFuncExponent = 1;
+
+            // default tree params (small tress only)
+            AddTrees = true;
+            AddGiantTrees = false;
+            TreeSpacingMin = 7;
+            TreeSpacingMax = 11;
+            TreeHeightMin = 5;
+            TreeHeightMax = 7;
+
+            // default cave/ore params (all off)
+            AddCaves = false;
+            AddOre = false;
+            AddCaveWater = false;
+            AddCaveLava = false;
+            CaveDensity = 2;
+            CaveSize = 1;
+
+            // default snow params (off)
+            AddSnow = false;
+            SnowAltitude = 70;
+            SnowTransition = 7;
+
+            // default cliff params (on)
+            AddCliffs = true;
+            CliffSmoothing = true;
+            CliffThreshold = 1;
+
+            // default beach params (off)
+            AddBeaches = false;
+            BeachExtent = 6;
+            BeachHeight = 2;
+        }
+
+
         public MapGeneratorArgs( RealisticMapGen generator ) {
             Generator = generator;
+            ApplyDefaults();
             Seed = (new Random()).Next();
         }
 
@@ -231,6 +298,7 @@ namespace fCraft {
             document.Add( Serialize() );
             document.Save( fileName );
         }
+
 
         public XElement Serialize() {
             XElement root = new XElement( RootTagName );
@@ -358,6 +426,9 @@ namespace fCraft {
 
 
         public IMapGenerator Generator { get; private set; }
+        public int MapWidth { get; set; }
+        public int MapLength { get; set; }
+        public int MapHeight { get; set; }
 
         public string SummaryString { get; private set; }
 
@@ -365,9 +436,15 @@ namespace fCraft {
             return Serialize().ToString();
         }
 
+        public IMapGeneratorState CreateGenerator() {
+            return new RealisticMapGenState( this );
+        }
+
         public IMapGeneratorState CreateGenerator( int width, int height, int length ) {
-            throw new NotImplementedException();
+            MapWidth = width;
+            MapHeight = height;
+            MapLength = length;
+            return CreateGenerator();
         }
     }
 }
-// ReSharper restore PossibleNullReferenceException
