@@ -8,11 +8,15 @@ namespace fCraft {
     public sealed class MapGeneratorArgs : IMapGeneratorParameters {
         const int FormatVersion = 2;
 
-        public MapGenTheme Theme = MapGenTheme.Forest;
-        public int   Seed{get;set;}
-        public int   MaxHeight{get;set;}
-        public int   MaxDepth{get;set;}
-        public int   MaxHeightVariation{get;set;}
+        public int Seed { get; set; }
+
+        public int MapWidth { get; set; }
+        public int MapLength { get; set; }
+        public int MapHeight { get; set; }
+
+        public int   MaxHeight { get; set; }
+        public int   MaxDepth { get; set; }
+        public int   MaxHeightVariation { get; set; }
         public int   MaxDepthVariation { get; set; }
 
         public bool  AddWater { get; set; }
@@ -58,10 +62,35 @@ namespace fCraft {
         public bool  AddCliffs { get; set; }
         public bool  CliffSmoothing { get; set; }
         public float CliffThreshold { get; set; }
+        public float CliffsideBlockThreshold { get; set; }
 
         public bool  AddBeaches { get; set; }
         public int   BeachExtent { get; set; }
-        public int   BeachHeight{get;set;}
+        public int   BeachHeight { get; set; }
+
+        // block selection for voxelization
+        public MapGenTheme Theme { get; set; }
+        public Block WaterSurfaceBlock { get; set; }
+        public Block GroundSurfaceBlock { get; set; }
+        public Block WaterBlock { get; set; }
+        public Block GroundBlock { get; set; }
+        public Block SeaFloorBlock { get; set; }
+        public Block BedrockBlock { get; set; }
+        public Block DeepWaterSurfaceBlock { get; set; }
+        public Block CliffBlock { get; set; }
+        public Block SnowBlock { get; set; }
+        public Block FoliageBlock { get; set; }
+        public Block TreeTrunkBlock { get; set; }
+
+        // voxelization parameters
+        public int GroundThickness { get; set; }
+        public int SeaFloorThickness { get; set; }
+        const int GroundThicknessDefault = 5;
+
+        // IMapGeneratorParameters boilerplate code
+        public IMapGenerator Generator { get; private set; }
+
+        public string SummaryString { get; private set; }
 
 
         /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
@@ -135,6 +164,9 @@ namespace fCraft {
 
 
         public void ApplyDefaults() {
+            Theme = MapGenTheme.Forest;
+            Seed = (new Random()).Next();
+
             // default map dimensions
             MapWidth = 256;
             MapLength = 256;
@@ -201,13 +233,17 @@ namespace fCraft {
             AddBeaches = false;
             BeachExtent = 6;
             BeachHeight = 2;
+
+            GroundThickness = GroundThicknessDefault; // 5
+            SeaFloorThickness = 3;
+            CliffsideBlockThreshold = 0.01f;
+            SnowBlock = Block.White;
         }
 
 
         public MapGeneratorArgs( RealisticMapGen generator ) {
             Generator = generator;
             ApplyDefaults();
-            Seed = (new Random()).Next();
         }
 
 
@@ -367,7 +403,6 @@ namespace fCraft {
         }
 
 
-
         public object Clone() {
             return new MapGeneratorArgs(RealisticMapGen.Instance) {
                 AboveFuncExponent = AboveFuncExponent,
@@ -425,26 +460,80 @@ namespace fCraft {
         }
 
 
-        public IMapGenerator Generator { get; private set; }
-        public int MapWidth { get; set; }
-        public int MapLength { get; set; }
-        public int MapHeight { get; set; }
-
-        public string SummaryString { get; private set; }
-
         public string Save() {
             return Serialize().ToString();
         }
+
 
         public IMapGeneratorState CreateGenerator() {
             return new RealisticMapGenState( this );
         }
 
-        public IMapGeneratorState CreateGenerator( int width, int height, int length ) {
-            MapWidth = width;
-            MapHeight = height;
-            MapLength = length;
-            return CreateGenerator();
+
+        void ApplyTheme( MapGenTheme theme ) {
+            Theme = theme;
+            GroundThickness = GroundThicknessDefault;
+
+            switch( theme ) {
+                case MapGenTheme.Arctic:
+                    WaterSurfaceBlock = Block.Glass;
+                    DeepWaterSurfaceBlock = Block.Water;
+                    GroundSurfaceBlock = Block.White;
+                    WaterBlock = Block.Water;
+                    GroundBlock = Block.White;
+                    SeaFloorBlock = Block.White;
+                    BedrockBlock = Block.Stone;
+                    CliffBlock = Block.Stone;
+                    GroundThickness = 1;
+                    break;
+
+                case MapGenTheme.Desert:
+                    WaterSurfaceBlock = Block.Water;
+                    DeepWaterSurfaceBlock = Block.Water;
+                    GroundSurfaceBlock = Block.Sand;
+                    WaterBlock = Block.Water;
+                    GroundBlock = Block.Sand;
+                    SeaFloorBlock = Block.Sand;
+                    BedrockBlock = Block.Stone;
+                    CliffBlock = Block.Gravel;
+                    break;
+
+                case MapGenTheme.Hell:
+                    WaterSurfaceBlock = Block.Lava;
+                    DeepWaterSurfaceBlock = Block.Lava;
+                    GroundSurfaceBlock = Block.Obsidian;
+                    WaterBlock = Block.Lava;
+                    GroundBlock = Block.Stone;
+                    SeaFloorBlock = Block.Obsidian;
+                    BedrockBlock = Block.Stone;
+                    CliffBlock = Block.Stone;
+                    break;
+
+                case MapGenTheme.Forest:
+                    WaterSurfaceBlock = Block.Water;
+                    DeepWaterSurfaceBlock = Block.Water;
+                    GroundSurfaceBlock = Block.Grass;
+                    WaterBlock = Block.Water;
+                    GroundBlock = Block.Dirt;
+                    SeaFloorBlock = Block.Sand;
+                    BedrockBlock = Block.Stone;
+                    CliffBlock = Block.Stone;
+                    break;
+
+                case MapGenTheme.Swamp:
+                    WaterSurfaceBlock = Block.Water;
+                    DeepWaterSurfaceBlock = Block.Water;
+                    GroundSurfaceBlock = Block.Dirt;
+                    WaterBlock = Block.Water;
+                    GroundBlock = Block.Dirt;
+                    SeaFloorBlock = Block.Leaves;
+                    BedrockBlock = Block.Stone;
+                    CliffBlock = Block.Stone;
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

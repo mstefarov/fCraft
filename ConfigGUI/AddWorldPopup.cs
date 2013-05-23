@@ -888,7 +888,7 @@ Could not load more information:
         }
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
-            generatorArgs = RealisticMapGenState.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
+            generatorArgs = RealisticMapGen.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
             LoadGeneratorArgs();
             bGenerate.PerformClick();
         }
