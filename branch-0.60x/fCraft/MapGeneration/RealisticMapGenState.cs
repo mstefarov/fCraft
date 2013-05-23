@@ -14,22 +14,9 @@ namespace fCraft {
         float[,] heightmap,
                  blendmap,
                  slopemap;
+        RealisticMapGenTheme theme;
 
         const float CliffsideBlockThreshold = 0.01f;
-        const Block SnowBlock = Block.White;
-
-        // theme-dependent vars
-        Block bWaterSurface,
-              bGroundSurface,
-              bWater,
-              bGround,
-              bSeaFloor,
-              bBedrock,
-              bDeepWaterSurface,
-              bCliff;
-
-        int groundThickness = 5;
-        const int SeaFloorThickness = 3;
 
 
         public RealisticMapGenState( [NotNull] RealisticMapGenParameters genParameters ) {
@@ -228,7 +215,7 @@ namespace fCraft {
 
         Map GenerateMap() {
             Map map = new Map( null, args.MapWidth, args.MapLength, args.MapHeight, true );
-
+            theme = args.Theme;
 
             // Match water coverage
             float desiredWaterLevel = .5f;
@@ -293,6 +280,9 @@ namespace fCraft {
             int snowThreshold = args.SnowAltitude;
 
             ReportProgress( 10, "Filling" );
+            if( theme.AirBlock != Block.Air ) {
+                map.Blocks.MemSet( (byte)theme.AirBlock );
+            }
             for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     int level;
@@ -308,44 +298,44 @@ namespace fCraft {
 
                         if( args.AddWater ) {
                             if( args.WaterLevel - level > 3 ) {
-                                map.SetBlock( x, y, args.WaterLevel, bDeepWaterSurface );
+                                map.SetBlock( x, y, args.WaterLevel, theme.DeepWaterSurfaceBlock );
                             } else {
-                                map.SetBlock( x, y, args.WaterLevel, bWaterSurface );
+                                map.SetBlock( x, y, args.WaterLevel, theme.WaterSurfaceBlock );
                             }
                             for( int i = args.WaterLevel; i > level; i-- ) {
-                                map.SetBlock( x, y, i, bWater );
+                                map.SetBlock( x, y, i, theme.WaterBlock );
                             }
                             for( int i = level; i >= 0; i-- ) {
-                                if( level - i < SeaFloorThickness ) {
-                                    map.SetBlock( x, y, i, bSeaFloor );
+                                if( level - i < theme.SeaFloorThickness ) {
+                                    map.SetBlock( x, y, i, theme.SeaFloorBlock );
                                 } else {
-                                    map.SetBlock( x, y, i, bBedrock );
+                                    map.SetBlock( x, y, i, theme.BedrockBlock );
                                 }
                             }
                         } else {
                             if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
-                                map.SetBlock( x, y, level, bCliff );
+                                map.SetBlock( x, y, level, theme.CliffBlock );
                             } else {
                                 if( slope < args.CliffThreshold ) {
-                                    map.SetBlock( x, y, level, bGroundSurface );
+                                    map.SetBlock( x, y, level, theme.GroundSurfaceBlock );
                                 } else {
-                                    map.SetBlock( x, y, level, bCliff );
+                                    map.SetBlock( x, y, level, theme.CliffBlock );
                                 }
                             }
 
                             for( int i = level - 1; i >= 0; i-- ) {
-                                if( level - i < groundThickness ) {
+                                if( level - i < theme.GroundThickness ) {
                                     if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
-                                        map.SetBlock( x, y, i, bCliff );
+                                        map.SetBlock( x, y, i, theme.CliffBlock );
                                     } else {
                                         if( slope < args.CliffThreshold ) {
-                                            map.SetBlock( x, y, i, bGround );
+                                            map.SetBlock( x, y, i, theme.GroundBlock );
                                         } else {
-                                            map.SetBlock( x, y, i, bCliff );
+                                            map.SetBlock( x, y, i, theme.CliffBlock );
                                         }
                                     }
                                 } else {
-                                    map.SetBlock( x, y, i, bBedrock );
+                                    map.SetBlock( x, y, i, theme.BedrockBlock );
                                 }
                             }
                         }
@@ -370,32 +360,32 @@ namespace fCraft {
                                     (level > snowStartThreshold && rand.NextDouble() < (level - snowStartThreshold) / (double)(snowThreshold - snowStartThreshold)));
 
                         if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
-                            map.SetBlock( x, y, level, bCliff );
+                            map.SetBlock( x, y, level, theme.CliffBlock );
                         } else {
                             if( slope < args.CliffThreshold ) {
-                                map.SetBlock( x, y, level, (snow ? SnowBlock : bGroundSurface) );
+                                map.SetBlock( x, y, level, (snow ? theme.SnowBlock : theme.GroundSurfaceBlock) );
                             } else {
-                                map.SetBlock( x, y, level, bCliff );
+                                map.SetBlock( x, y, level, theme.CliffBlock );
                             }
                         }
 
                         for( int i = level - 1; i >= 0; i-- ) {
-                            if( level - i < groundThickness ) {
+                            if( level - i < theme.GroundThickness ) {
                                 if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold && blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
-                                    map.SetBlock( x, y, i, bCliff );
+                                    map.SetBlock( x, y, i, theme.CliffBlock );
                                 } else {
                                     if( slope < args.CliffThreshold ) {
                                         if( snow ) {
-                                            map.SetBlock( x, y, i, SnowBlock );
+                                            map.SetBlock( x, y, i, theme.SnowBlock );
                                         } else {
-                                            map.SetBlock( x, y, i, bGround );
+                                            map.SetBlock( x, y, i, theme.GroundBlock );
                                         }
                                     } else {
-                                        map.SetBlock( x, y, i, bCliff );
+                                        map.SetBlock( x, y, i, theme.CliffBlock );
                                     }
                                 }
                             } else {
-                                map.SetBlock( x, y, i, bBedrock );
+                                map.SetBlock( x, y, i, theme.BedrockBlock );
                             }
                         }
                     }
@@ -420,7 +410,7 @@ namespace fCraft {
                         Rand = rand,
                         TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (args.TreeSpacingMax + args.TreeSpacingMin) / 2)),
                         Operation = Forester.ForesterOperation.Add,
-                        PlantOn = bGroundSurface
+                        PlantOn = theme.GroundSurfaceBlock
                     };
                     foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
                     Forester.Generate( foresterArgs );
@@ -563,54 +553,54 @@ namespace fCraft {
             if( args.AddCaves ) {
                 ReportProgress( 5, "Processing: Adding caves" );
                 for( int i1 = 0; i1 < 36*args.CaveDensity; i1++ )
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Air, 30, 0.05*args.CaveSize );
+                    AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Air, 30, 0.05*args.CaveSize );
 
                 for( int j1 = 0; j1 < 9*args.CaveDensity; j1++ )
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 500, 0.015*args.CaveSize, 1 );
+                    AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.Air, 500, 0.015 * args.CaveSize, 1 );
 
                 for( int k1 = 0; k1 < 30*args.CaveDensity; k1++ )
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Air, 300, 0.03*args.CaveSize, 1, 20 );
+                    AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.Air, 300, 0.03 * args.CaveSize, 1, 20 );
 
                 if( args.AddCaveLava ) {
                     for( int i = 0; i < 8*args.CaveDensity; i++ ) {
-                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Lava, 30, 0.05*args.CaveSize );
+                        AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Lava, 30, 0.05 * args.CaveSize );
                     }
                     for( int j = 0; j < 3*args.CaveDensity; j++ ) {
-                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Lava, 1000, 0.015*args.CaveSize, 1 );
+                        AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.Lava, 1000, 0.015 * args.CaveSize, 1 );
                     }
                 }
 
                 if( args.AddCaveWater ) {
                     for( int k = 0; k < 8*args.CaveDensity; k++ ) {
-                        AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Water, 30, 0.05*args.CaveSize );
+                        AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Water, 30, 0.05 * args.CaveSize );
                     }
                     for( int l = 0; l < 3*args.CaveDensity; l++ ) {
-                        AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Water, 1000, 0.015*args.CaveSize, 1 );
+                        AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.Water, 1000, 0.015 * args.CaveSize, 1 );
                     }
                 }
 
-                SealLiquids( map, (byte)bBedrock );
+                SealLiquids( map, (byte)theme.BedrockBlock );
             }
 
 
             if( args.AddOre ) {
                 ReportProgress( 3, "Processing: Adding ore" );
                 for( int l1 = 0; l1 < 12*args.CaveDensity; l1++ ) {
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.Coal, 500, 0.03 );
+                    AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Coal, 500, 0.03 );
                 }
 
                 for( int i2 = 0; i2 < 32*args.CaveDensity; i2++ ) {
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.Coal, 200, 0.015, 1 );
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.IronOre, 500, 0.02 );
+                    AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.Coal, 200, 0.015, 1 );
+                    AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.IronOre, 500, 0.02 );
                 }
 
                 for( int k2 = 0; k2 < 8*args.CaveDensity; k2++ ) {
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.IronOre, 200, 0.015, 1 );
-                    AddSingleVein( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 200, 0.0145, 1 );
+                    AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.IronOre, 200, 0.015, 1 );
+                    AddSingleVein( rand, map, (byte)theme.BedrockBlock, (byte)Block.GoldOre, 200, 0.0145, 1 );
                 }
 
                 for( int l2 = 0; l2 < 20*args.CaveDensity; l2++ ) {
-                    AddSingleCave( rand, map, (byte)bBedrock, (byte)Block.GoldOre, 400, 0.0175 );
+                    AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.GoldOre, 400, 0.0175 );
                 }
             }
         }
@@ -624,7 +614,7 @@ namespace fCraft {
             for( int x = 0; x < map.Width; x++ ) {
                 for( int y = 0; y < map.Length; y++ ) {
                     for( int z = args.WaterLevel; z <= args.WaterLevel + args.BeachHeight; z++ ) {
-                        if( map.GetBlock( x, y, z ) != bGroundSurface ) continue;
+                        if( map.GetBlock( x, y, z ) != theme.GroundSurfaceBlock ) continue;
                         bool found = false;
                         for( int dx = -args.BeachExtent; !found && dx <= args.BeachExtent; dx++ ) {
                             for( int dy = -args.BeachExtent; !found && dy <= args.BeachExtent; dy++ ) {
@@ -636,7 +626,7 @@ namespace fCraft {
                                     if( xx < 0 || xx >= map.Width || yy < 0 || yy >= map.Length || zz < 0 ||
                                         zz >= map.Height ) continue;
                                     Block block = map.GetBlock( xx, yy, zz );
-                                    if( block == bWater || block == bWaterSurface ) {
+                                    if( block == theme.WaterBlock || block == theme.WaterSurfaceBlock ) {
                                         found = true;
                                         break;
                                     }
@@ -644,9 +634,9 @@ namespace fCraft {
                             }
                         }
                         if( found ) {
-                            map.SetBlock( x, y, z, bSeaFloor );
-                            if( z > 0 && map.GetBlock( x, y, z - 1 ) == bGround ) {
-                                map.SetBlock( x, y, z - 1, bSeaFloor );
+                            map.SetBlock( x, y, z, theme.SeaFloorBlock );
+                            if( z > 0 && map.GetBlock( x, y, z - 1 ) == theme.GroundBlock ) {
+                                map.SetBlock( x, y, z - 1, theme.SeaFloorBlock );
                             }
                         }
                     }
@@ -675,7 +665,7 @@ namespace fCraft {
                     if( nx < 0 || nx >= map.Width || ny < 0 || ny >= map.Length ) continue;
                     int nz = shadows[nx, ny];
 
-                    if( (map.GetBlock( nx, ny, nz ) == bGroundSurface) && slopemap[nx, ny] < .5 ) {
+                    if( (map.GetBlock( nx, ny, nz ) == theme.GroundSurfaceBlock) && slopemap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
                         int nh;
