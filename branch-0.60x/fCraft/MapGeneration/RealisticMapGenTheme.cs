@@ -111,7 +111,8 @@ namespace fCraft {
         }
 
 
-        public RealisticMapGenTheme( [NotNull] XElement root ) {
+        public RealisticMapGenTheme( [NotNull] XElement root )
+            : this( MapGenTheme.Forest ) {
             if( root == null ) {
                 throw new ArgumentNullException( "root" );
             }

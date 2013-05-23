@@ -138,7 +138,7 @@ namespace fCraft {
                     Logger.Log( LogType.Warning,
                                 "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.",
                                 Name );
-                    Map = RealisticMapGenState.GenerateFlatgrass( 128, 128, 64 );
+                    Map = FlatMapGen.MakeFlatgrass( 128, 128, 64 ).Generate();
                 }
 
                 return Map;

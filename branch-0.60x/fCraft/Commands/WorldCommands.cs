@@ -1011,13 +1011,13 @@ namespace fCraft {
             player.MessageNow( "Generating {0}...", templateFullName );
 
             if( genEmpty ) {
-                map = RealisticMapGenState.GenerateEmpty( mapWidth, mapLength, mapHeight );
+                map = FlatMapGen.MakeEmpty( mapWidth, mapLength, mapHeight ).Generate();
 
             } else if( genOcean ) {
-                map = RealisticMapGenState.GenerateOcean( mapWidth, mapLength, mapHeight );
+                map = FlatMapGen.MakeOcean( mapWidth, mapLength, mapHeight ).Generate();
 
             } else if( genFlatgrass ) {
-                map = RealisticMapGenState.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
+                map = FlatMapGen.MakeFlatgrass( mapWidth, mapLength, mapHeight ).Generate();
 
             } else {
                 RealisticMapGenParameters args = RealisticMapGen.MakeTemplate( template );
@@ -1031,7 +1031,7 @@ namespace fCraft {
                 args.MaxHeight = (int)Math.Round( args.MaxHeight * ratio );
                 args.MaxDepth = (int)Math.Round( args.MaxDepth * ratio );
                 args.SnowAltitude = (int)Math.Round( args.SnowAltitude * ratio );
-                args.Theme = theme;
+                args.Theme = new RealisticMapGenTheme( theme );
                 args.AddTrees = !noTrees;
 
                 RealisticMapGenState generator = new RealisticMapGenState( args );

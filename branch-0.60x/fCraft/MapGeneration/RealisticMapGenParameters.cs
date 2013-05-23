@@ -148,7 +148,7 @@ namespace fCraft {
 
 
         public void ApplyDefaults() {
-            Theme = MapGenTheme.Forest;
+            Theme = new RealisticMapGenTheme( MapGenTheme.Forest );
             Seed = (new Random()).Next();
 
             // default map dimensions
@@ -237,7 +237,19 @@ namespace fCraft {
                 version = Int32.Parse( versionTag.Value );
             }
 
-            Theme = (MapGenTheme)Enum.Parse( typeof( MapGenTheme ), root.Element( "theme" ).Value, true );
+            XElement el = root.Element( "theme" );
+            if( el != null ) {
+                string themeVal = el.Value;
+                MapGenTheme theme;
+                if( EnumUtil.TryParse( themeVal, out theme, true ) ) {
+                    // for old versions of MapGen templates, use enum
+                    Theme = new RealisticMapGenTheme( theme );
+                } else {
+                    // for newer versions, use the whole custom thing
+                    Theme = new RealisticMapGenTheme( el );
+                }
+            }
+
             Seed = Int32.Parse( root.Element( "seed" ).Value );
             MapWidth = Int32.Parse( root.Element( "dimX" ).Value );
             MapLength = Int32.Parse( root.Element( "dimY" ).Value );
