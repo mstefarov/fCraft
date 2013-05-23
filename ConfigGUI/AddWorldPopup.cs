@@ -331,7 +331,7 @@ namespace fCraft.ConfigGUI {
 
         #region Map Generation
 
-        MapGeneratorArgs generatorArgs = new MapGeneratorArgs( RealisticMapGen.Instance );
+        RealisticMapGenParameters genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance );
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             Map = null;
@@ -363,7 +363,7 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map generatedMap;
             if( tab == Tabs.Generator ) {
-                RealisticMapGenState gen = new RealisticMapGenState( generatorArgs );
+                RealisticMapGenState gen = new RealisticMapGenState( genParameters );
                 gen.ProgressChanged +=
                     ( progressSender, progressArgs ) =>
                     bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
@@ -743,7 +743,7 @@ Could not load more information:
                         throw new SerializationException(
                             "RealisticManGenerator: Cannot load parameters: empty XML file." );
                     }
-                    generatorArgs = new MapGeneratorArgs( RealisticMapGen.Instance, templateFile.Root );
+                    genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance, templateFile.Root );
                     LoadGeneratorArgs();
                     bGenerate.PerformClick();
                 } catch( Exception ex ) {
@@ -753,75 +753,75 @@ Could not load more information:
         }
 
         void LoadGeneratorArgs() {
-            nMapHeight.Value = generatorArgs.MapHeight;
-            nMapWidth.Value = generatorArgs.MapWidth;
-            nMapLength.Value = generatorArgs.MapLength;
+            nMapHeight.Value = genParameters.MapHeight;
+            nMapWidth.Value = genParameters.MapWidth;
+            nMapLength.Value = genParameters.MapLength;
 
-            cTheme.SelectedIndex = (int)generatorArgs.Theme;
+            cTheme.SelectedIndex = (int)genParameters.Theme;
 
-            sDetailScale.Value = generatorArgs.DetailScale;
-            sFeatureScale.Value = generatorArgs.FeatureScale;
+            sDetailScale.Value = genParameters.DetailScale;
+            sFeatureScale.Value = genParameters.FeatureScale;
 
-            xLayeredHeightmap.Checked = generatorArgs.LayeredHeightmap;
-            xMarbledMode.Checked = generatorArgs.MarbledHeightmap;
-            xMatchWaterCoverage.Checked = generatorArgs.MatchWaterCoverage;
-            xInvert.Checked = generatorArgs.InvertHeightmap;
+            xLayeredHeightmap.Checked = genParameters.LayeredHeightmap;
+            xMarbledMode.Checked = genParameters.MarbledHeightmap;
+            xMatchWaterCoverage.Checked = genParameters.MatchWaterCoverage;
+            xInvert.Checked = genParameters.InvertHeightmap;
 
-            nMaxDepth.Value = generatorArgs.MaxDepth;
-            nMaxHeight.Value = generatorArgs.MaxHeight;
-            sRoughness.Value = (int)(generatorArgs.Roughness * 100);
-            nSeed.Value = generatorArgs.Seed;
-            xWater.Checked = generatorArgs.AddWater;
+            nMaxDepth.Value = genParameters.MaxDepth;
+            nMaxHeight.Value = genParameters.MaxHeight;
+            sRoughness.Value = (int)(genParameters.Roughness * 100);
+            nSeed.Value = genParameters.Seed;
+            xWater.Checked = genParameters.AddWater;
 
-            if( generatorArgs.UseBias ) sBias.Value = (int)(generatorArgs.Bias * 100);
+            if( genParameters.UseBias ) sBias.Value = (int)(genParameters.Bias * 100);
             else sBias.Value = 0;
-            xDelayBias.Checked = generatorArgs.DelayBias;
+            xDelayBias.Checked = genParameters.DelayBias;
 
-            sWaterCoverage.Value = (int)(100 * generatorArgs.WaterCoverage);
-            cMidpoint.SelectedIndex = generatorArgs.MidPoint + 1;
-            nRaisedCorners.Value = generatorArgs.RaisedCorners;
-            nLoweredCorners.Value = generatorArgs.LoweredCorners;
+            sWaterCoverage.Value = (int)(100 * genParameters.WaterCoverage);
+            cMidpoint.SelectedIndex = genParameters.MidPoint + 1;
+            nRaisedCorners.Value = genParameters.RaisedCorners;
+            nLoweredCorners.Value = genParameters.LoweredCorners;
 
-            xAddTrees.Checked = generatorArgs.AddTrees;
-            xGiantTrees.Checked = generatorArgs.AddGiantTrees;
-            nTreeHeight.Value = (generatorArgs.TreeHeightMax + generatorArgs.TreeHeightMin) / 2m;
-            nTreeHeightVariation.Value = (generatorArgs.TreeHeightMax - generatorArgs.TreeHeightMin) / 2m;
-            nTreeSpacing.Value = (generatorArgs.TreeSpacingMax + generatorArgs.TreeSpacingMin) / 2m;
-            nTreeSpacingVariation.Value = (generatorArgs.TreeSpacingMax - generatorArgs.TreeSpacingMin) / 2m;
+            xAddTrees.Checked = genParameters.AddTrees;
+            xGiantTrees.Checked = genParameters.AddGiantTrees;
+            nTreeHeight.Value = (genParameters.TreeHeightMax + genParameters.TreeHeightMin) / 2m;
+            nTreeHeightVariation.Value = (genParameters.TreeHeightMax - genParameters.TreeHeightMin) / 2m;
+            nTreeSpacing.Value = (genParameters.TreeSpacingMax + genParameters.TreeSpacingMin) / 2m;
+            nTreeSpacingVariation.Value = (genParameters.TreeSpacingMax - genParameters.TreeSpacingMin) / 2m;
 
-            xCaves.Checked = generatorArgs.AddCaves;
-            xCaveLava.Checked = generatorArgs.AddCaveLava;
-            xCaveWater.Checked = generatorArgs.AddCaveWater;
-            xOre.Checked = generatorArgs.AddOre;
-            sCaveDensity.Value = (int)(generatorArgs.CaveDensity * 100);
-            sCaveSize.Value = (int)(generatorArgs.CaveSize * 100);
+            xCaves.Checked = genParameters.AddCaves;
+            xCaveLava.Checked = genParameters.AddCaveLava;
+            xCaveWater.Checked = genParameters.AddCaveWater;
+            xOre.Checked = genParameters.AddOre;
+            sCaveDensity.Value = (int)(genParameters.CaveDensity * 100);
+            sCaveSize.Value = (int)(genParameters.CaveSize * 100);
 
-            xWaterLevel.Checked = generatorArgs.CustomWaterLevel;
-            nWaterLevel.Maximum = generatorArgs.MapHeight;
-            nWaterLevel.Value = Math.Min( generatorArgs.WaterLevel, generatorArgs.MapHeight );
+            xWaterLevel.Checked = genParameters.CustomWaterLevel;
+            nWaterLevel.Maximum = genParameters.MapHeight;
+            nWaterLevel.Value = Math.Min( genParameters.WaterLevel, genParameters.MapHeight );
 
-            xAddSnow.Checked = generatorArgs.AddSnow;
+            xAddSnow.Checked = genParameters.AddSnow;
 
-            nSnowAltitude.Value = generatorArgs.SnowAltitude - (generatorArgs.CustomWaterLevel ? generatorArgs.WaterLevel : generatorArgs.MapHeight / 2);
-            nSnowTransition.Value = generatorArgs.SnowTransition;
+            nSnowAltitude.Value = genParameters.SnowAltitude - (genParameters.CustomWaterLevel ? genParameters.WaterLevel : genParameters.MapHeight / 2);
+            nSnowTransition.Value = genParameters.SnowTransition;
 
-            xAddCliffs.Checked = generatorArgs.AddCliffs;
-            sCliffThreshold.Value = (int)(generatorArgs.CliffThreshold * 100);
-            xCliffSmoothing.Checked = generatorArgs.CliffSmoothing;
+            xAddCliffs.Checked = genParameters.AddCliffs;
+            sCliffThreshold.Value = (int)(genParameters.CliffThreshold * 100);
+            xCliffSmoothing.Checked = genParameters.CliffSmoothing;
 
-            xAddBeaches.Checked = generatorArgs.AddBeaches;
-            nBeachExtent.Value = generatorArgs.BeachExtent;
-            nBeachHeight.Value = generatorArgs.BeachHeight;
+            xAddBeaches.Checked = genParameters.AddBeaches;
+            nBeachExtent.Value = genParameters.BeachExtent;
+            nBeachHeight.Value = genParameters.BeachHeight;
 
-            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, generatorArgs.AboveFuncExponent );
-            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, generatorArgs.BelowFuncExponent );
+            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, genParameters.AboveFuncExponent );
+            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, genParameters.BelowFuncExponent );
 
-            nMaxHeightVariation.Value = generatorArgs.MaxHeightVariation;
-            nMaxDepthVariation.Value = generatorArgs.MaxDepthVariation;
+            nMaxHeightVariation.Value = genParameters.MaxHeightVariation;
+            nMaxDepthVariation.Value = genParameters.MaxDepthVariation;
         }
 
         void SaveGeneratorArgs() {
-            generatorArgs = new MapGeneratorArgs( RealisticMapGen.Instance ) {
+            genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance ) {
                 DetailScale = sDetailScale.Value,
                 FeatureScale = sFeatureScale.Value,
                 MapHeight = (int)nMapHeight.Value,
@@ -880,7 +880,7 @@ Could not load more information:
             if( saveTemplateDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( saveTemplateDialog.FileName ) ) {
                 try {
                     SaveGeneratorArgs();
-                    generatorArgs.Save( saveTemplateDialog.FileName );
+                    genParameters.Save( saveTemplateDialog.FileName );
                 } catch( Exception ex ) {
                     MessageBox.Show( "Could not open template file: " + ex );
                 }
@@ -888,7 +888,7 @@ Could not load more information:
         }
 
         private void cTemplates_SelectedIndexChanged( object sender, EventArgs e ) {
-            generatorArgs = RealisticMapGen.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
+            genParameters = RealisticMapGen.MakeTemplate( (MapGenTemplate)cTemplates.SelectedIndex );
             LoadGeneratorArgs();
             bGenerate.PerformClick();
         }

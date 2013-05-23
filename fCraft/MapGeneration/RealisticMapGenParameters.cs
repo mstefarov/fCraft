@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed class MapGeneratorArgs : IMapGeneratorParameters {
+    public sealed class RealisticMapGenParameters : IMapGeneratorParameters {
         const int FormatVersion = 2;
 
         public int Seed { get; set; }
@@ -241,13 +241,13 @@ namespace fCraft {
         }
 
 
-        public MapGeneratorArgs( RealisticMapGen generator ) {
+        public RealisticMapGenParameters( RealisticMapGen generator ) {
             Generator = generator;
             ApplyDefaults();
         }
 
 
-        public MapGeneratorArgs( RealisticMapGen generator, [NotNull] XElement root ) {
+        public RealisticMapGenParameters( RealisticMapGen generator, [NotNull] XElement root ) {
             if( root == null ) throw new ArgumentNullException( "root" );
             Generator = generator;
 
@@ -404,7 +404,7 @@ namespace fCraft {
 
 
         public object Clone() {
-            return new MapGeneratorArgs(RealisticMapGen.Instance) {
+            return new RealisticMapGenParameters(RealisticMapGen.Instance) {
                 AboveFuncExponent = AboveFuncExponent,
                 AddBeaches = AddBeaches,
                 AddCaveLava = AddCaveLava,
