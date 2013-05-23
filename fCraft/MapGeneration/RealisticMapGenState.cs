@@ -50,13 +50,16 @@ namespace fCraft {
 
 
         public Map Generate() {
-            GenerateHeightmap();
-            return GenerateMap();
-        }
-
-
-        public void CancelAsync() {
-            Canceled = true;
+            if( Finished ) return Result;
+            try {
+                GenerateHeightmap();
+                if( Canceled ) return null;
+                Result = GenerateMap();
+                return Result;
+            } finally {
+                Finished = true;
+                StatusString = (Canceled ? "Canceled" : "Finished");
+            }
         }
 
 
@@ -83,20 +86,27 @@ namespace fCraft {
             }
         }
 
+        public IMapGeneratorParameters Parameters { get; private set; }
+        public Map Result { get; private set; }
+
 
         #region Progress Reporting
 
-        public IMapGeneratorParameters Parameters { get; private set; }
         public bool Canceled { get; private set; }
         public bool Finished { get; private set; }
         public int Progress { get; private set; }
         public string StatusString { get; private set; }
         public bool ReportsProgress { get; private set; }
         public bool SupportsCancellation { get; private set; }
-        public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
 
-        int progressTotalEstimate, progressRunningTotal;
+        int progressTotalEstimate,
+            progressRunningTotal;
+
+
+        public void CancelAsync() {
+            Canceled = true;
+        }
 
 
         void EstimateComplexity() {
@@ -127,11 +137,13 @@ namespace fCraft {
 
         void ReportProgress( int relativeIncrease, [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
+            progressRunningTotal += relativeIncrease;
+            Progress = (100*progressRunningTotal/progressTotalEstimate);
+            StatusString = message;
             var h = ProgressChanged;
             if( h != null ) {
-                h( this, new ProgressChangedEventArgs( (100 * progressRunningTotal / progressTotalEstimate), message ) );
+                h( this, new ProgressChangedEventArgs( Progress, message ) );
             }
-            progressRunningTotal += relativeIncrease;
         }
 
         #endregion

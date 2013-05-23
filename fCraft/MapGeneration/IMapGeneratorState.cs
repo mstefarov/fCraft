@@ -3,7 +3,7 @@ using System.ComponentModel;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Represents a single-use state object for a paricular set of map generator parameters (IMapGeneratorParameters).
+    /// <summary> Represents a single-use state object for a particular set of map generator parameters (IMapGeneratorParameters).
     /// Provides a synchronous method to carry out generation, asynchronous method to cancel generation,
     /// various properties to indicate progress, and an event to report progress changes. </summary>
     public interface IMapGeneratorState {
