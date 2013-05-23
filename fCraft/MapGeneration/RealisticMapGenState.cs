@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides functionality for generating map files. </summary>
-    public sealed class RealisticMapGenState {
+    public sealed class RealisticMapGenState : IMapGeneratorState {
         readonly MapGeneratorArgs args;
         readonly Random rand;
         readonly Noise noise;
@@ -31,10 +31,12 @@ namespace fCraft {
         int groundThickness = 5;
         const int SeaFloorThickness = 3;
 
+
         public RealisticMapGenState( [NotNull] MapGeneratorArgs generatorArgs ) {
             if( generatorArgs == null ) throw new ArgumentNullException( "generatorArgs" );
             args = generatorArgs;
             args.Validate();
+            Parameters = generatorArgs;
 
             if( !args.CustomWaterLevel ) {
                 args.WaterLevel = (args.MapHeight - 1) / 2;
@@ -53,53 +55,8 @@ namespace fCraft {
         }
 
 
-        const int FlatgrassDirtLevel = 5;
-
-        /// <summary> Generates a new "flatgrass" map: 1 layer of grass in the middle of the map,
-        /// 4 layers of dirt underneath, then stone all the way down. </summary>
-        /// <param name="width"> Map width (horizontal, Notch's X). </param>
-        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
-        /// <param name="height"> Map height (vertical, Notch's Y). </param>
-        /// <returns> Generated flatgrass map. </returns>
-        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
-        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
-        [NotNull]
-        public static Map GenerateFlatgrass( int width, int length, int height ) {
-            Map map = new Map( null, width, length, height, true );
-            map.Blocks.MemSet( (byte)Block.Stone, 0, width * length * (height / 2 - FlatgrassDirtLevel) );
-            map.Blocks.MemSet( (byte)Block.Dirt, width * length * (height / 2 - FlatgrassDirtLevel), width * length * (FlatgrassDirtLevel - 1) );
-            map.Blocks.MemSet( (byte)Block.Grass, width * length * (height / 2 - 1), width * length );
-            return map;
-        }
-
-
-        /// <summary> Generates a new empty map, filled entirely with air. </summary>
-        /// <param name="width"> Map width (horizontal, Notch's X). </param>
-        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
-        /// <param name="height"> Map height (vertical, Notch's Y). </param>
-        /// <returns> Generated empty map. </returns>
-        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
-        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
-        [NotNull]
-        public static Map GenerateEmpty( int width, int length, int height ) {
-            return new Map( null, width, length, height, true );
-        }
-
-
-        /// <summary> Generates a new "ocean" map: 1 layer of sand at the bottom the map,
-        /// then solid water up to the middle of the map. </summary>
-        /// <param name="width"> Map width (horizontal, Notch's X). </param>
-        /// <param name="length"> Map length (horizontal, Notch's Z). </param>
-        /// <param name="height"> Map height (vertical, Notch's Y). </param>
-        /// <returns> Generated "ocean" map. </returns>
-        /// <exception cref="ArgumentOutOfRangeException"> Map width, length, or height is not between 16 and 2048. </exception>
-        /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
-        [NotNull]
-        public static Map GenerateOcean( int width, int length, int height ) {
-            Map map = new Map( null, width, length, height, true );
-            map.Blocks.MemSet( (byte)Block.Sand, 0, width * length );
-            map.Blocks.MemSet( (byte)Block.Water, width * length, width * length * (height / 2 - 1) );
-            return map;
+        public void CancelAsync() {
+            Canceled = true;
         }
 
 
@@ -129,6 +86,14 @@ namespace fCraft {
 
         #region Progress Reporting
 
+        public IMapGeneratorParameters Parameters { get; private set; }
+        public bool Canceled { get; private set; }
+        public bool Finished { get; private set; }
+        public int Progress { get; private set; }
+        public string StatusString { get; private set; }
+        public bool ReportsProgress { get; private set; }
+        public bool SupportsCancellation { get; private set; }
+        public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
 
         int progressTotalEstimate, progressRunningTotal;

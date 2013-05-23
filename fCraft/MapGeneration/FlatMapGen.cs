@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Linq;
-using JetBrains.Annotations;
 
 namespace fCraft {
     public class FlatMapGen : IMapGenerator {
@@ -29,10 +28,20 @@ namespace fCraft {
         }
 
         public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                player.Message( "Flat map generator has no parameters." );
+            FlatMapGenParameters newParams = new FlatMapGenParameters();
+            string themeName = cmd.Next();
+            if( themeName != null ) {
+                MapGenTheme theme;
+                if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+                    newParams.ApplyTheme( theme );
+                } else {
+                    player.Message( "Gen: Flat: \"{0}\" is not a recognized theme name. Available themes are: {1}",
+                                    themeName,
+                                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                    return null;
+                }
             }
-            return new FlatMapGenParameters();
+            return newParams;
         }
     }
 
@@ -64,12 +73,39 @@ namespace fCraft {
             SurfaceThickness = 1;
             SoilThickness = 5;
             BedrockThickness = 1;
+            ApplyTheme( MapGenTheme.Forest );
+        }
+
+
+        public void ApplyTheme( MapGenTheme theme ) {
+            // base defaults ("forest")
             AirBlock = Block.Air;
             SurfaceBlock = Block.Grass;
             ShallowBlock = Block.Dirt;
             DeepBlock = Block.Stone;
             BedrockBlock = Block.Admincrete;
-            SummaryString = "Flatgrass";
+
+            switch( theme ) {
+                case MapGenTheme.Arctic:
+                    DeepBlock = Block.White;
+                    SurfaceThickness = 0;
+                    SoilThickness = 0;
+                    break;
+                case MapGenTheme.Desert:
+                    DeepBlock = Block.Sand;
+                    SurfaceThickness = 0;
+                    SoilThickness = 0;
+                    break;
+                case MapGenTheme.Hell:
+                    DeepBlock = Block.Obsidian;
+                    SurfaceThickness = 0;
+                    SoilThickness = 0;
+                    break;
+                case MapGenTheme.Swamp:
+                    SurfaceBlock = Block.Dirt;
+                    break;
+            }
+            SummaryString = theme + " Flat";
         }
 
 
@@ -125,6 +161,7 @@ namespace fCraft {
             el.Add( new XElement( "SummaryString", SummaryString ) );
             return el.ToString();
         }
+
 
         public IMapGeneratorState CreateGenerator() {
             return new FlatMapGenState( this );

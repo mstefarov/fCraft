@@ -35,6 +35,7 @@ namespace fCraft {
         bool SupportsCancellation { get; }
 
         /// <summary> Map that has been generated (may be null). </summary>
+        [CanBeNull]
         Map Result { get; }
 
 
@@ -43,7 +44,7 @@ namespace fCraft {
 
 
         /// <summary> Synchronously creates a map file. This will be invoked on a worker thread. </summary>
-        /// <returns></returns>
+        /// <returns> Created map file, or null (if generation was aborted). </returns>
         [CanBeNull]
         Map Generate();
 
