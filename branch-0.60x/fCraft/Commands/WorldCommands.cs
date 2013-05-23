@@ -1020,7 +1020,7 @@ namespace fCraft {
                 map = RealisticMapGenState.GenerateFlatgrass( mapWidth, mapLength, mapHeight );
 
             } else {
-                MapGeneratorArgs args = RealisticMapGenState.MakeTemplate( template );
+                MapGeneratorArgs args = RealisticMapGen.MakeTemplate( template );
                 if( theme == MapGenTheme.Desert ) {
                     args.AddWater = false;
                 }
