@@ -52,7 +52,7 @@ namespace fCraft {
 
                 case MapGenTemplate.Atoll:
                     return new RealisticMapGenParameters( Instance ) {
-                        Theme = MapGenTheme.Desert,
+                        Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
                         MaxHeight = 2,
                         MaxDepth = 39,
                         UseBias = true,
@@ -86,7 +86,7 @@ namespace fCraft {
                     return new RealisticMapGenParameters( Instance ) {
                         AddTrees = false,
                         AddWater = false,
-                        Theme = MapGenTheme.Desert,
+                        Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
                         MaxHeight = 12,
                         MaxDepth = 7,
                         FeatureScale = 2,
@@ -109,7 +109,7 @@ namespace fCraft {
                 case MapGenTemplate.Ice:
                     return new RealisticMapGenParameters( Instance ) {
                         AddTrees = false,
-                        Theme = MapGenTheme.Arctic,
+                        Theme = new RealisticMapGenTheme( MapGenTheme.Arctic ),
                         MaxHeight = 2,
                         MaxDepth = 2032,
                         FeatureScale = 2,

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public class FlatMapGen : IMapGenerator {
@@ -42,6 +43,44 @@ namespace fCraft {
                 }
             }
             return newParams;
+        }
+
+
+        [NotNull]
+        public static IMapGeneratorState MakeFlatgrass( int width, int length, int height ) {
+            return new FlatMapGenParameters {
+                MapWidth = width,
+                MapLength = length,
+                MapHeight = height
+            }.CreateGenerator();
+        }
+
+
+        [NotNull]
+        public static IMapGeneratorState MakeEmpty( int width, int length, int height ) {
+            return new FlatMapGenParameters {
+                MapWidth = width,
+                MapLength = length,
+                MapHeight = height,
+                SurfaceThickness = 0,
+                SoilThickness = 0,
+                BedrockThickness = 0,
+                DeepBlock = Block.Air
+            }.CreateGenerator();
+        }
+
+
+        [NotNull]
+        public static IMapGeneratorState MakeOcean( int width, int length, int height ) {
+            return new FlatMapGenParameters {
+                MapWidth = width,
+                MapLength = length,
+                MapHeight = height,
+                SurfaceThickness = 0,
+                SoilThickness = 0,
+                BedrockThickness = 0,
+                DeepBlock = Block.Water
+            }.CreateGenerator();
         }
     }
 
