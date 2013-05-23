@@ -164,9 +164,24 @@ namespace fCraft {
 
                     // send output to player
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( ref packet ) )
-                            if( !outputQueue.Dequeue( ref packet ) ) break;
-                        if( IsDeaf && packet.OpCode == OpCode.Message ) continue;
+                        if( !priorityOutputQueue.Dequeue( ref packet ) ) {
+                            if( !outputQueue.Dequeue( ref packet ) ) {
+                                // nothing more to send!
+                                break;
+                            }
+                        }
+
+                        if( IsDeaf && packet.OpCode == OpCode.Message ) {
+                            // allow empty messages through, to allow "/clear" to work
+                            bool foundNonSpace = false;
+                            for( int i = 2; i < packet.Bytes.Length; i++ ) {
+                                if( packet.Bytes[i] != (byte)' ' ) {
+                                    foundNonSpace = true;
+                                    break;
+                                }
+                            }
+                            if( foundNonSpace ) continue;
+                        }
 
 #if DEBUG_NETWORKING
                         Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
