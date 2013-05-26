@@ -419,6 +419,10 @@ namespace fCraft {
                 GenerateTrees( map );
             }
 
+            if( args.AddFloodBarrier ) {
+                MakeFloodBarrier( map );
+            }
+
             ReportProgress( 0, "Generation complete" );
 
             map.Metadata["_Origin", "GeneratorName"] = "fCraft";

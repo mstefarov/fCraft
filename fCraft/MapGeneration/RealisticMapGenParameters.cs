@@ -68,6 +68,8 @@ namespace fCraft {
         public int   BeachExtent { get; set; }
         public int   BeachHeight { get; set; }
 
+        public bool  AddFloodBarrier { get; set; }
+
         // block selection for voxelization
         public RealisticMapGenTheme Theme { get; set; }
 
