@@ -15,6 +15,15 @@ using fCraft.MapConversion;
 
 namespace fCraft.ConfigGUI {
     sealed partial class AddWorldPopup : Form {
+        static Dictionary<IMapGenerator, IMapGeneratorGuiProvider> generators =
+            new Dictionary<IMapGenerator, IMapGeneratorGuiProvider>();
+
+        static AddWorldPopup() {
+            generators.Add( FlatMapGen.Instance, DefaultMapGenGuiProvider.Instance );
+            generators.Add( RealisticMapGen.Instance, RealisticMapGenGuiProvider.Instance );
+        }
+
+
         readonly BackgroundWorker bwLoader = new BackgroundWorker(),
                                   bwGenerator = new BackgroundWorker(),
                                   bwRenderer = new BackgroundWorker();
@@ -49,6 +58,7 @@ namespace fCraft.ConfigGUI {
         string originalWorldName;
         readonly List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
         Tabs tab;
+        MapGeneratorGui genGui;
 
 
         internal WorldListEntry World { get; private set; }
@@ -75,9 +85,9 @@ namespace fCraft.ConfigGUI {
             bwRenderer.ProgressChanged += AsyncDrawProgress;
             bwRenderer.RunWorkerCompleted += AsyncDrawCompleted;
 
-            numericUpDown1.Validating += MapDimensionValidating; // TODO: fix naming
-            numericUpDown2.Validating += MapDimensionValidating;
-            numericUpDown3.Validating += MapDimensionValidating;
+            nMapWidth.Validating += MapDimensionValidating;
+            nMapHeight.Validating += MapDimensionValidating;
+            nMapLength.Validating += MapDimensionValidating;
 
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
@@ -93,6 +103,9 @@ namespace fCraft.ConfigGUI {
 
             savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
+
+            cGenerator.Items.AddRange( generators.Keys.Select( gen => gen.Name ).ToArray() );
+            cGenerator.SelectedIndex = 0;
 
             Shown += LoadMap;
         }
@@ -322,7 +335,6 @@ namespace fCraft.ConfigGUI {
         private void bGenerate_Click( object sender, EventArgs e ) {
             Map = null;
             bGenerate.Enabled = false;
-            bFlatgrassGenerate.Enabled = false;
 
             tStatus1.Text = "Generating...";
             tStatus2.Text = "";
@@ -339,18 +351,11 @@ namespace fCraft.ConfigGUI {
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            Map generatedMap;
-            if( tab == Tabs.Generator ) {
-                RealisticMapGenState gen = new RealisticMapGenState( genParameters );
-                gen.ProgressChanged +=
-                    ( progressSender, progressArgs ) =>
-                    bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
-                generatedMap = gen.Generate();
-            } else {
-                generatedMap = FlatMapGen.MakeFlatgrass( Convert.ToInt32( nFlatgrassDimX.Value ),
-                                                         Convert.ToInt32( nFlatgrassDimY.Value ),
-                                                         Convert.ToInt32( nFlatgrassDimZ.Value ) ).Generate();
-            }
+            RealisticMapGenState gen = new RealisticMapGenState( genParameters );
+            gen.ProgressChanged +=
+                ( progressSender, progressArgs ) =>
+                bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+            Map generatedMap = gen.Generate();
 
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
@@ -372,7 +377,6 @@ namespace fCraft.ConfigGUI {
                 Redraw( true );
             }
             bGenerate.Enabled = true;
-            bFlatgrassGenerate.Enabled = true;
         }
 
         #endregion
@@ -381,8 +385,9 @@ namespace fCraft.ConfigGUI {
         #region Input Handlers
 
 
-        static void MapDimensionValidating( object sender, CancelEventArgs e ) {
+        void MapDimensionValidating( object sender, CancelEventArgs e ) {
             ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
+            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
         }
 
 
@@ -453,8 +458,6 @@ namespace fCraft.ConfigGUI {
                 tab = Tabs.LoadFile;
             } else if( tabs.SelectedTab == tabCopy ) {
                 tab = Tabs.CopyWorld;
-            } else if( tabs.SelectedTab == tabFlatgrass ) {
-                tab = Tabs.Flatgrass;
             } else {
                 tab = Tabs.Generator;
             }
@@ -478,9 +481,11 @@ namespace fCraft.ConfigGUI {
                         bShow.Enabled = File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName );
                     }
                     return;
-                case Tabs.Flatgrass:
-                    return;
                 case Tabs.Generator:
+                    if( genGui != null ) {
+                        genGui.BringToFront();
+                        genGui.Dock = DockStyle.Fill;
+                    }
                     return;
             }
         }
@@ -489,7 +494,6 @@ namespace fCraft.ConfigGUI {
             ExistingMap,
             LoadFile,
             CopyWorld,
-            Flatgrass,
             Generator
         }
 
@@ -630,6 +634,25 @@ Could not load more information:
                     xBlockDB.Text = "BlockDB (Off)";
                     break;
             }*/
+        }
+
+        IMapGenerator generator;
+        private void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( genGui != null ) {
+                generatorParamsPanel.Controls.Remove( genGui );
+                genGui.Dispose();
+                genGui = null;
+            }
+
+            string genName = cGenerator.SelectedItem.ToString();
+            var genData = generators.First( kvp => kvp.Key.Name == genName );
+            generator = genData.Key;
+            genGui = genData.Value.CreateGui();
+            genGui.Padding = new Padding( 0 );
+            genGui.Margin = new Padding( 0 );
+            genGui.BorderStyle = BorderStyle.None;
+            generatorParamsPanel.Controls.Add( genGui );
+            genGui.SetParameters( generator.GetDefaultParameters() );
         }
     }
 }

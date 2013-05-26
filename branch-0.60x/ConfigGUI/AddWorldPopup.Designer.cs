@@ -46,39 +46,30 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabExisting = new System.Windows.Forms.TabPage();
             this.tExistingMapInfo = new System.Windows.Forms.TextBox();
             this.tabLoad = new System.Windows.Forms.TabPage();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
+            this.lFileFormatList2 = new System.Windows.Forms.Label();
+            this.lFolderList = new System.Windows.Forms.Label();
             this.lFolder = new System.Windows.Forms.Label();
             this.tFolder = new System.Windows.Forms.TextBox();
             this.bBrowseFolder = new System.Windows.Forms.Button();
-            this.lFormatList = new System.Windows.Forms.Label();
+            this.lFileFormatList1 = new System.Windows.Forms.Label();
             this.lFile = new System.Windows.Forms.Label();
             this.tLoadFileInfo = new System.Windows.Forms.TextBox();
             this.tabCopy = new System.Windows.Forms.TabPage();
             this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.lWorldToCopy = new System.Windows.Forms.Label();
-            this.tabFlatgrass = new System.Windows.Forms.TabPage();
-            this.bFlatgrassGenerate = new System.Windows.Forms.Button();
-            this.nFlatgrassDimX = new System.Windows.Forms.NumericUpDown();
-            this.lFlatgrassX1 = new System.Windows.Forms.Label();
-            this.lFlatgrassDimensions = new System.Windows.Forms.Label();
-            this.lFlatgrassX2 = new System.Windows.Forms.Label();
-            this.nFlatgrassDimZ = new System.Windows.Forms.NumericUpDown();
-            this.nFlatgrassDimY = new System.Windows.Forms.NumericUpDown();
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.lDimensions = new System.Windows.Forms.Label();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.nMapWidth = new System.Windows.Forms.NumericUpDown();
+            this.lX1 = new System.Windows.Forms.Label();
+            this.lX2 = new System.Windows.Forms.Label();
+            this.nMapHeight = new System.Windows.Forms.NumericUpDown();
+            this.nMapLength = new System.Windows.Forms.NumericUpDown();
             this.generatorParamsPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.lGenerator = new System.Windows.Forms.Label();
             this.cGenerator = new System.Windows.Forms.ComboBox();
@@ -89,21 +80,18 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
-            this.tabFlatgrass.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).BeginInit();
             this.tabTerrain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // bShow
@@ -181,7 +169,7 @@
             // cBackup
             // 
             this.cBackup.FormattingEnabled = true;
-            this.cBackup.Location = new System.Drawing.Point(342, 66);
+            this.cBackup.Location = new System.Drawing.Point(345, 66);
             this.cBackup.Name = "cBackup";
             this.cBackup.Size = new System.Drawing.Size(78, 21);
             this.cBackup.TabIndex = 7;
@@ -237,7 +225,7 @@
             // lBackup
             // 
             this.lBackup.AutoSize = true;
-            this.lBackup.Location = new System.Drawing.Point(242, 69);
+            this.lBackup.Location = new System.Drawing.Point(245, 69);
             this.lBackup.Name = "lBackup";
             this.lBackup.Size = new System.Drawing.Size(94, 13);
             this.lBackup.TabIndex = 6;
@@ -256,7 +244,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point(173, 490);
+            this.bPreviewPrev.Location = new System.Drawing.Point(171, 490);
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size(22, 22);
             this.bPreviewPrev.TabIndex = 0;
@@ -267,7 +255,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point(351, 490);
+            this.bPreviewNext.Location = new System.Drawing.Point(349, 490);
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size(22, 22);
             this.bPreviewNext.TabIndex = 2;
@@ -319,27 +307,13 @@
             this.previewLayout.Controls.Add(this.bPreviewNext, 2, 1);
             this.previewLayout.Controls.Add(this.preview, 0, 0);
             this.previewLayout.Controls.Add(this.cPreviewMode, 1, 1);
-            this.previewLayout.Location = new System.Drawing.Point(426, 12);
+            this.previewLayout.Location = new System.Drawing.Point(429, 12);
             this.previewLayout.Name = "previewLayout";
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.previewLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
-            this.previewLayout.Size = new System.Drawing.Size(546, 515);
+            this.previewLayout.Size = new System.Drawing.Size(543, 515);
             this.previewLayout.TabIndex = 12;
-            // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan(this.preview, 3);
-            this.preview.Location = new System.Drawing.Point(3, 3);
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(540, 481);
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
             // 
             // cPreviewMode
             // 
@@ -352,7 +326,7 @@
             "No front walls (\"Peeled\")",
             "See-through water",
             "See-through lava"});
-            this.cPreviewMode.Location = new System.Drawing.Point(201, 490);
+            this.cPreviewMode.Location = new System.Drawing.Point(199, 490);
             this.cPreviewMode.Name = "cPreviewMode";
             this.cPreviewMode.Size = new System.Drawing.Size(144, 21);
             this.cPreviewMode.TabIndex = 18;
@@ -376,12 +350,11 @@
             this.tabs.Controls.Add(this.tabExisting);
             this.tabs.Controls.Add(this.tabLoad);
             this.tabs.Controls.Add(this.tabCopy);
-            this.tabs.Controls.Add(this.tabFlatgrass);
             this.tabs.Controls.Add(this.tabTerrain);
             this.tabs.Location = new System.Drawing.Point(12, 110);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(408, 448);
+            this.tabs.Size = new System.Drawing.Size(411, 448);
             this.tabs.TabIndex = 11;
             this.tabs.SelectedIndexChanged += new System.EventHandler(this.tabs_SelectedIndexChanged);
             // 
@@ -391,7 +364,7 @@
             this.tabExisting.Location = new System.Drawing.Point(4, 22);
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding(3);
-            this.tabExisting.Size = new System.Drawing.Size(400, 422);
+            this.tabExisting.Size = new System.Drawing.Size(403, 422);
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -412,12 +385,12 @@
             // 
             // tabLoad
             // 
-            this.tabLoad.Controls.Add(this.label3);
-            this.tabLoad.Controls.Add(this.label2);
+            this.tabLoad.Controls.Add(this.lFileFormatList2);
+            this.tabLoad.Controls.Add(this.lFolderList);
             this.tabLoad.Controls.Add(this.lFolder);
             this.tabLoad.Controls.Add(this.tFolder);
             this.tabLoad.Controls.Add(this.bBrowseFolder);
-            this.tabLoad.Controls.Add(this.lFormatList);
+            this.tabLoad.Controls.Add(this.lFileFormatList1);
             this.tabLoad.Controls.Add(this.lFile);
             this.tabLoad.Controls.Add(this.tLoadFileInfo);
             this.tabLoad.Controls.Add(this.tFile);
@@ -425,29 +398,29 @@
             this.tabLoad.Location = new System.Drawing.Point(4, 22);
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLoad.Size = new System.Drawing.Size(400, 422);
+            this.tabLoad.Size = new System.Drawing.Size(403, 422);
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
             // 
-            // label3
+            // lFileFormatList2
             // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(211, 3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(151, 65);
-            this.label3.TabIndex = 1;
-            this.label3.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
+            this.lFileFormatList2.AutoSize = true;
+            this.lFileFormatList2.Location = new System.Drawing.Point(211, 3);
+            this.lFileFormatList2.Name = "lFileFormatList2";
+            this.lFileFormatList2.Size = new System.Drawing.Size(151, 65);
+            this.lFileFormatList2.TabIndex = 1;
+            this.lFileFormatList2.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
     "";
             // 
-            // label2
+            // lFolderList
             // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 126);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(173, 26);
-            this.label2.TabIndex = 5;
-            this.label2.Text = "Supported folder formats:\r\n- Myne, MyneCraft, Hyvebuilt, iCraft";
+            this.lFolderList.AutoSize = true;
+            this.lFolderList.Location = new System.Drawing.Point(6, 126);
+            this.lFolderList.Name = "lFolderList";
+            this.lFolderList.Size = new System.Drawing.Size(173, 26);
+            this.lFolderList.TabIndex = 5;
+            this.lFolderList.Text = "Supported folder formats:\r\n- Myne, MyneCraft, Hyvebuilt, iCraft";
             // 
             // lFolder
             // 
@@ -476,14 +449,14 @@
             this.bBrowseFolder.UseVisualStyleBackColor = true;
             this.bBrowseFolder.Click += new System.EventHandler(this.bBrowseFolder_Click);
             // 
-            // lFormatList
+            // lFileFormatList1
             // 
-            this.lFormatList.AutoSize = true;
-            this.lFormatList.Location = new System.Drawing.Point(6, 3);
-            this.lFormatList.Name = "lFormatList";
-            this.lFormatList.Size = new System.Drawing.Size(144, 78);
-            this.lFormatList.TabIndex = 0;
-            this.lFormatList.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
+            this.lFileFormatList1.AutoSize = true;
+            this.lFileFormatList1.Location = new System.Drawing.Point(6, 3);
+            this.lFileFormatList1.Name = "lFileFormatList1";
+            this.lFileFormatList1.Size = new System.Drawing.Size(144, 78);
+            this.lFileFormatList1.TabIndex = 0;
+            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
     "vl)\r\n- Creative (original .dat)\r\n- Survival Test (.mine)\r\n- Survival Indev (.mcl" +
     "evel)";
             // 
@@ -519,7 +492,7 @@
             this.tabCopy.Location = new System.Drawing.Point(4, 22);
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCopy.Size = new System.Drawing.Size(400, 422);
+            this.tabCopy.Size = new System.Drawing.Size(403, 422);
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -543,150 +516,15 @@
             this.lWorldToCopy.TabIndex = 0;
             this.lWorldToCopy.Text = "World to copy";
             // 
-            // tabFlatgrass
-            // 
-            this.tabFlatgrass.Controls.Add(this.bFlatgrassGenerate);
-            this.tabFlatgrass.Controls.Add(this.nFlatgrassDimX);
-            this.tabFlatgrass.Controls.Add(this.lFlatgrassX1);
-            this.tabFlatgrass.Controls.Add(this.lFlatgrassDimensions);
-            this.tabFlatgrass.Controls.Add(this.lFlatgrassX2);
-            this.tabFlatgrass.Controls.Add(this.nFlatgrassDimZ);
-            this.tabFlatgrass.Controls.Add(this.nFlatgrassDimY);
-            this.tabFlatgrass.Location = new System.Drawing.Point(4, 22);
-            this.tabFlatgrass.Name = "tabFlatgrass";
-            this.tabFlatgrass.Padding = new System.Windows.Forms.Padding(3);
-            this.tabFlatgrass.Size = new System.Drawing.Size(400, 422);
-            this.tabFlatgrass.TabIndex = 3;
-            this.tabFlatgrass.Text = "Flatgrass";
-            this.tabFlatgrass.UseVisualStyleBackColor = true;
-            // 
-            // bFlatgrassGenerate
-            // 
-            this.bFlatgrassGenerate.Location = new System.Drawing.Point(6, 6);
-            this.bFlatgrassGenerate.Name = "bFlatgrassGenerate";
-            this.bFlatgrassGenerate.Size = new System.Drawing.Size(74, 50);
-            this.bFlatgrassGenerate.TabIndex = 0;
-            this.bFlatgrassGenerate.Text = "Generate";
-            this.bFlatgrassGenerate.UseVisualStyleBackColor = true;
-            this.bFlatgrassGenerate.Click += new System.EventHandler(this.bGenerate_Click);
-            // 
-            // nFlatgrassDimX
-            // 
-            this.nFlatgrassDimX.Increment = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimX.Location = new System.Drawing.Point(153, 23);
-            this.nFlatgrassDimX.Maximum = new decimal(new int[] {
-            2032,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimX.Minimum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimX.Name = "nFlatgrassDimX";
-            this.nFlatgrassDimX.Size = new System.Drawing.Size(54, 20);
-            this.nFlatgrassDimX.TabIndex = 2;
-            this.nFlatgrassDimX.Value = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            // 
-            // lFlatgrassX1
-            // 
-            this.lFlatgrassX1.AutoSize = true;
-            this.lFlatgrassX1.Location = new System.Drawing.Point(213, 25);
-            this.lFlatgrassX1.Name = "lFlatgrassX1";
-            this.lFlatgrassX1.Size = new System.Drawing.Size(13, 13);
-            this.lFlatgrassX1.TabIndex = 3;
-            this.lFlatgrassX1.Text = "×";
-            // 
-            // lFlatgrassDimensions
-            // 
-            this.lFlatgrassDimensions.AutoSize = true;
-            this.lFlatgrassDimensions.Location = new System.Drawing.Point(86, 25);
-            this.lFlatgrassDimensions.Name = "lFlatgrassDimensions";
-            this.lFlatgrassDimensions.Size = new System.Drawing.Size(61, 13);
-            this.lFlatgrassDimensions.TabIndex = 1;
-            this.lFlatgrassDimensions.Text = "Dimensions";
-            // 
-            // lFlatgrassX2
-            // 
-            this.lFlatgrassX2.AutoSize = true;
-            this.lFlatgrassX2.Location = new System.Drawing.Point(292, 25);
-            this.lFlatgrassX2.Name = "lFlatgrassX2";
-            this.lFlatgrassX2.Size = new System.Drawing.Size(13, 13);
-            this.lFlatgrassX2.TabIndex = 5;
-            this.lFlatgrassX2.Text = "×";
-            // 
-            // nFlatgrassDimZ
-            // 
-            this.nFlatgrassDimZ.Increment = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimZ.Location = new System.Drawing.Point(311, 23);
-            this.nFlatgrassDimZ.Maximum = new decimal(new int[] {
-            2032,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimZ.Minimum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimZ.Name = "nFlatgrassDimZ";
-            this.nFlatgrassDimZ.Size = new System.Drawing.Size(54, 20);
-            this.nFlatgrassDimZ.TabIndex = 6;
-            this.nFlatgrassDimZ.Value = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            // 
-            // nFlatgrassDimY
-            // 
-            this.nFlatgrassDimY.Increment = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimY.Location = new System.Drawing.Point(232, 23);
-            this.nFlatgrassDimY.Maximum = new decimal(new int[] {
-            2032,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimY.Minimum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nFlatgrassDimY.Name = "nFlatgrassDimY";
-            this.nFlatgrassDimY.Size = new System.Drawing.Size(54, 20);
-            this.nFlatgrassDimY.TabIndex = 4;
-            this.nFlatgrassDimY.Value = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            // 
             // tabTerrain
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
             this.tabTerrain.Controls.Add(this.lDimensions);
-            this.tabTerrain.Controls.Add(this.numericUpDown1);
-            this.tabTerrain.Controls.Add(this.label1);
-            this.tabTerrain.Controls.Add(this.label4);
-            this.tabTerrain.Controls.Add(this.numericUpDown2);
-            this.tabTerrain.Controls.Add(this.numericUpDown3);
+            this.tabTerrain.Controls.Add(this.nMapWidth);
+            this.tabTerrain.Controls.Add(this.lX1);
+            this.tabTerrain.Controls.Add(this.lX2);
+            this.tabTerrain.Controls.Add(this.nMapHeight);
+            this.tabTerrain.Controls.Add(this.nMapLength);
             this.tabTerrain.Controls.Add(this.generatorParamsPanel);
             this.tabTerrain.Controls.Add(this.lGenerator);
             this.tabTerrain.Controls.Add(this.cGenerator);
@@ -694,7 +532,7 @@
             this.tabTerrain.Location = new System.Drawing.Point(4, 22);
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTerrain.Size = new System.Drawing.Size(400, 422);
+            this.tabTerrain.Size = new System.Drawing.Size(403, 422);
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
@@ -702,110 +540,110 @@
             // lDimensions
             // 
             this.lDimensions.AutoSize = true;
-            this.lDimensions.Location = new System.Drawing.Point(127, 35);
+            this.lDimensions.Location = new System.Drawing.Point(130, 35);
             this.lDimensions.Name = "lDimensions";
             this.lDimensions.Size = new System.Drawing.Size(61, 13);
             this.lDimensions.TabIndex = 28;
             this.lDimensions.Text = "Dimensions";
             this.lDimensions.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // numericUpDown1
+            // nMapWidth
             // 
-            this.numericUpDown1.Increment = new decimal(new int[] {
+            this.nMapWidth.Increment = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown1.Location = new System.Drawing.Point(194, 33);
-            this.numericUpDown1.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
-            this.numericUpDown1.Maximum = new decimal(new int[] {
+            this.nMapWidth.Location = new System.Drawing.Point(197, 33);
+            this.nMapWidth.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
+            this.nMapWidth.Maximum = new decimal(new int[] {
             2032,
             0,
             0,
             0});
-            this.numericUpDown1.Minimum = new decimal(new int[] {
+            this.nMapWidth.Minimum = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(54, 20);
-            this.numericUpDown1.TabIndex = 23;
-            this.numericUpDown1.Value = new decimal(new int[] {
+            this.nMapWidth.Name = "nMapWidth";
+            this.nMapWidth.Size = new System.Drawing.Size(54, 20);
+            this.nMapWidth.TabIndex = 23;
+            this.nMapWidth.Value = new decimal(new int[] {
             64,
             0,
             0,
             0});
             // 
-            // label1
+            // lX1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(251, 35);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(13, 13);
-            this.label1.TabIndex = 24;
-            this.label1.Text = "×";
+            this.lX1.AutoSize = true;
+            this.lX1.Location = new System.Drawing.Point(254, 35);
+            this.lX1.Name = "lX1";
+            this.lX1.Size = new System.Drawing.Size(13, 13);
+            this.lX1.TabIndex = 24;
+            this.lX1.Text = "×";
             // 
-            // label4
+            // lX2
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(324, 35);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(13, 13);
-            this.label4.TabIndex = 26;
-            this.label4.Text = "×";
+            this.lX2.AutoSize = true;
+            this.lX2.Location = new System.Drawing.Point(327, 35);
+            this.lX2.Name = "lX2";
+            this.lX2.Size = new System.Drawing.Size(13, 13);
+            this.lX2.TabIndex = 26;
+            this.lX2.Text = "×";
             // 
-            // numericUpDown2
+            // nMapHeight
             // 
-            this.numericUpDown2.Increment = new decimal(new int[] {
+            this.nMapHeight.Increment = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown2.Location = new System.Drawing.Point(340, 33);
-            this.numericUpDown2.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
+            this.nMapHeight.Location = new System.Drawing.Point(343, 33);
+            this.nMapHeight.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
+            this.nMapHeight.Maximum = new decimal(new int[] {
             2032,
             0,
             0,
             0});
-            this.numericUpDown2.Minimum = new decimal(new int[] {
+            this.nMapHeight.Minimum = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(54, 20);
-            this.numericUpDown2.TabIndex = 27;
-            this.numericUpDown2.Value = new decimal(new int[] {
+            this.nMapHeight.Name = "nMapHeight";
+            this.nMapHeight.Size = new System.Drawing.Size(54, 20);
+            this.nMapHeight.TabIndex = 27;
+            this.nMapHeight.Value = new decimal(new int[] {
             64,
             0,
             0,
             0});
             // 
-            // numericUpDown3
+            // nMapLength
             // 
-            this.numericUpDown3.Increment = new decimal(new int[] {
+            this.nMapLength.Increment = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown3.Location = new System.Drawing.Point(267, 33);
-            this.numericUpDown3.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.numericUpDown3.Maximum = new decimal(new int[] {
+            this.nMapLength.Location = new System.Drawing.Point(270, 33);
+            this.nMapLength.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.nMapLength.Maximum = new decimal(new int[] {
             2032,
             0,
             0,
             0});
-            this.numericUpDown3.Minimum = new decimal(new int[] {
+            this.nMapLength.Minimum = new decimal(new int[] {
             16,
             0,
             0,
             0});
-            this.numericUpDown3.Name = "numericUpDown3";
-            this.numericUpDown3.Size = new System.Drawing.Size(54, 20);
-            this.numericUpDown3.TabIndex = 25;
-            this.numericUpDown3.Value = new decimal(new int[] {
+            this.nMapLength.Name = "nMapLength";
+            this.nMapLength.Size = new System.Drawing.Size(54, 20);
+            this.nMapLength.TabIndex = 25;
+            this.nMapLength.Value = new decimal(new int[] {
             64,
             0,
             0,
@@ -824,7 +662,7 @@
             // lGenerator
             // 
             this.lGenerator.AutoSize = true;
-            this.lGenerator.Location = new System.Drawing.Point(134, 9);
+            this.lGenerator.Location = new System.Drawing.Point(137, 9);
             this.lGenerator.Name = "lGenerator";
             this.lGenerator.Size = new System.Drawing.Size(54, 13);
             this.lGenerator.TabIndex = 21;
@@ -835,10 +673,11 @@
             // 
             this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cGenerator.FormattingEnabled = true;
-            this.cGenerator.Location = new System.Drawing.Point(194, 6);
+            this.cGenerator.Location = new System.Drawing.Point(197, 6);
             this.cGenerator.Name = "cGenerator";
             this.cGenerator.Size = new System.Drawing.Size(200, 21);
             this.cGenerator.TabIndex = 1;
+            this.cGenerator.SelectedIndexChanged += new System.EventHandler(this.cGenerator_SelectedIndexChanged);
             // 
             // lMapFileOptions
             // 
@@ -868,7 +707,7 @@
             // lVisibility
             // 
             this.lVisibility.AutoSize = true;
-            this.lVisibility.Location = new System.Drawing.Point(248, 14);
+            this.lVisibility.Location = new System.Drawing.Point(251, 14);
             this.lVisibility.Name = "lVisibility";
             this.lVisibility.Size = new System.Drawing.Size(88, 13);
             this.lVisibility.TabIndex = 18;
@@ -884,7 +723,7 @@
             "All who can access",
             "All who can build",
             "No one"});
-            this.cVisibility.Location = new System.Drawing.Point(342, 12);
+            this.cVisibility.Location = new System.Drawing.Point(345, 12);
             this.cVisibility.Name = "cVisibility";
             this.cVisibility.Size = new System.Drawing.Size(78, 21);
             this.cVisibility.TabIndex = 19;
@@ -892,7 +731,7 @@
             // lBlockDB
             // 
             this.lBlockDB.AutoSize = true;
-            this.lBlockDB.Location = new System.Drawing.Point(287, 42);
+            this.lBlockDB.Location = new System.Drawing.Point(290, 42);
             this.lBlockDB.Name = "lBlockDB";
             this.lBlockDB.Size = new System.Drawing.Size(49, 13);
             this.lBlockDB.TabIndex = 20;
@@ -907,10 +746,24 @@
             "Auto",
             "Always On",
             "Always Off"});
-            this.cBlockDB.Location = new System.Drawing.Point(342, 39);
+            this.cBlockDB.Location = new System.Drawing.Point(345, 39);
             this.cBlockDB.Name = "cBlockDB";
             this.cBlockDB.Size = new System.Drawing.Size(78, 21);
             this.cBlockDB.TabIndex = 21;
+            // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan(this.preview, 3);
+            this.preview.Location = new System.Drawing.Point(3, 3);
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size(537, 481);
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
             // 
             // AddWorldPopup
             // 
@@ -945,7 +798,6 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
             this.tabExisting.ResumeLayout(false);
             this.tabExisting.PerformLayout();
@@ -953,16 +805,12 @@
             this.tabLoad.PerformLayout();
             this.tabCopy.ResumeLayout(false);
             this.tabCopy.PerformLayout();
-            this.tabFlatgrass.ResumeLayout(false);
-            this.tabFlatgrass.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimX)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimZ)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nFlatgrassDimY)).EndInit();
             this.tabTerrain.ResumeLayout(false);
             this.tabTerrain.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown3)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -998,26 +846,18 @@
         private System.Windows.Forms.TabPage tabExisting;
         private System.Windows.Forms.TabPage tabLoad;
         private System.Windows.Forms.TabPage tabCopy;
-        private System.Windows.Forms.TabPage tabFlatgrass;
         private System.Windows.Forms.TabPage tabTerrain;
         private CustomPictureBox preview;
         private System.Windows.Forms.Label lMapFileOptions;
         private System.Windows.Forms.TextBox tExistingMapInfo;
         private System.Windows.Forms.TextBox tLoadFileInfo;
         private System.Windows.Forms.Label lFile;
-        private System.Windows.Forms.Label lFormatList;
+        private System.Windows.Forms.Label lFileFormatList1;
         private System.Windows.Forms.TextBox tCopyInfo;
         private System.Windows.Forms.Label lWorldToCopy;
-        private System.Windows.Forms.Button bFlatgrassGenerate;
-        private System.Windows.Forms.NumericUpDown nFlatgrassDimX;
-        private System.Windows.Forms.Label lFlatgrassX1;
-        private System.Windows.Forms.Label lFlatgrassDimensions;
-        private System.Windows.Forms.Label lFlatgrassX2;
-        private System.Windows.Forms.NumericUpDown nFlatgrassDimZ;
-        private System.Windows.Forms.NumericUpDown nFlatgrassDimY;
         private System.Windows.Forms.Label lCreateMap;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label lFileFormatList2;
+        private System.Windows.Forms.Label lFolderList;
         private System.Windows.Forms.Label lFolder;
         private System.Windows.Forms.TextBox tFolder;
         private System.Windows.Forms.Button bBrowseFolder;
@@ -1031,10 +871,10 @@
         private System.Windows.Forms.ComboBox cGenerator;
         private System.Windows.Forms.ComboBox cPreviewMode;
         private System.Windows.Forms.Label lDimensions;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
-        private System.Windows.Forms.NumericUpDown numericUpDown3;
+        private System.Windows.Forms.NumericUpDown nMapWidth;
+        private System.Windows.Forms.Label lX1;
+        private System.Windows.Forms.Label lX2;
+        private System.Windows.Forms.NumericUpDown nMapHeight;
+        private System.Windows.Forms.NumericUpDown nMapLength;
     }
 }

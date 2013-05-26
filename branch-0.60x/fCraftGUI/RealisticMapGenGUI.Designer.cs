@@ -114,6 +114,9 @@
             this.gDimensions = new System.Windows.Forms.GroupBox();
             this.lMaxDepthUnits = new System.Windows.Forms.Label();
             this.gTemplates = new System.Windows.Forms.GroupBox();
+            this.xSeed = new System.Windows.Forms.CheckBox();
+            this.nSeed = new System.Windows.Forms.NumericUpDown();
+            this.xAdvanced = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
             this.lTheme = new System.Windows.Forms.Label();
             this.bSaveTemplate = new System.Windows.Forms.Button();
@@ -127,9 +130,6 @@
             this.nLoweredCorners = new System.Windows.Forms.NumericUpDown();
             this.cMidpoint = new System.Windows.Forms.ComboBox();
             this.lMidpoint = new System.Windows.Forms.Label();
-            this.xAdvanced = new System.Windows.Forms.CheckBox();
-            this.nSeed = new System.Windows.Forms.NumericUpDown();
-            this.xSeed = new System.Windows.Forms.CheckBox();
             this.gModules.SuspendLayout();
             this.gTrees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
@@ -161,11 +161,11 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
             this.gDimensions.SuspendLayout();
             this.gTemplates.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).BeginInit();
             this.gTerrainFeatures.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             this.SuspendLayout();
             // 
             // gModules
@@ -1255,6 +1255,44 @@
             this.gTemplates.TabStop = false;
             this.gTemplates.Text = "Template / Theme";
             // 
+            // xSeed
+            // 
+            this.xSeed.AutoSize = true;
+            this.xSeed.Location = new System.Drawing.Point(231, 80);
+            this.xSeed.Name = "xSeed";
+            this.xSeed.Size = new System.Drawing.Size(51, 17);
+            this.xSeed.TabIndex = 51;
+            this.xSeed.Text = "Seed";
+            this.xSeed.UseVisualStyleBackColor = true;
+            // 
+            // nSeed
+            // 
+            this.nSeed.Location = new System.Drawing.Point(288, 79);
+            this.nSeed.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.nSeed.Minimum = new decimal(new int[] {
+            -2147483648,
+            0,
+            0,
+            -2147483648});
+            this.nSeed.Name = "nSeed";
+            this.nSeed.Size = new System.Drawing.Size(100, 20);
+            this.nSeed.TabIndex = 50;
+            // 
+            // xAdvanced
+            // 
+            this.xAdvanced.AutoSize = true;
+            this.xAdvanced.Location = new System.Drawing.Point(13, 80);
+            this.xAdvanced.Name = "xAdvanced";
+            this.xAdvanced.Size = new System.Drawing.Size(143, 17);
+            this.xAdvanced.TabIndex = 7;
+            this.xAdvanced.Text = "Show advanced settings";
+            this.xAdvanced.UseVisualStyleBackColor = true;
+            this.xAdvanced.CheckedChanged += new System.EventHandler(this.xAdvanced_CheckedChanged);
+            // 
             // cTheme
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -1397,43 +1435,6 @@
             this.lMidpoint.TabIndex = 64;
             this.lMidpoint.Text = "Midpoint";
             // 
-            // xAdvanced
-            // 
-            this.xAdvanced.AutoSize = true;
-            this.xAdvanced.Location = new System.Drawing.Point(13, 80);
-            this.xAdvanced.Name = "xAdvanced";
-            this.xAdvanced.Size = new System.Drawing.Size(143, 17);
-            this.xAdvanced.TabIndex = 7;
-            this.xAdvanced.Text = "Show advanced settings";
-            this.xAdvanced.UseVisualStyleBackColor = true;
-            // 
-            // nSeed
-            // 
-            this.nSeed.Location = new System.Drawing.Point(288, 79);
-            this.nSeed.Maximum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            0});
-            this.nSeed.Minimum = new decimal(new int[] {
-            -2147483648,
-            0,
-            0,
-            -2147483648});
-            this.nSeed.Name = "nSeed";
-            this.nSeed.Size = new System.Drawing.Size(100, 20);
-            this.nSeed.TabIndex = 50;
-            // 
-            // xSeed
-            // 
-            this.xSeed.AutoSize = true;
-            this.xSeed.Location = new System.Drawing.Point(231, 80);
-            this.xSeed.Name = "xSeed";
-            this.xSeed.Size = new System.Drawing.Size(51, 17);
-            this.xSeed.TabIndex = 51;
-            this.xSeed.Text = "Seed";
-            this.xSeed.UseVisualStyleBackColor = true;
-            // 
             // RealisticMapGenGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1490,12 +1491,12 @@
             this.gDimensions.PerformLayout();
             this.gTemplates.ResumeLayout(false);
             this.gTemplates.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).EndInit();
             this.gTerrainFeatures.ResumeLayout(false);
             this.gTerrainFeatures.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             this.ResumeLayout(false);
 
         }

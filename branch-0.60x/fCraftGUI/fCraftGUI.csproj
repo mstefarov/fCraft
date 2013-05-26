@@ -57,7 +57,14 @@
     <Compile Include="AboutWindow.Designer.cs">
       <DependentUpon>AboutWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="IMapGeneratorGui.cs">
+    <Compile Include="DefaultMapGenGuiProvider.cs" />
+    <Compile Include="DefaultMapGenGui.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DefaultMapGenGui.Designer.cs">
+      <DependentUpon>DefaultMapGenGui.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MapGeneratorGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="IMapGeneratorGuiProvider.cs" />
@@ -92,6 +99,9 @@
     <EmbeddedResource Include="AboutWindow.resx">
       <DependentUpon>AboutWindow.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DefaultMapGenGui.resx">
+      <DependentUpon>DefaultMapGenGui.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
