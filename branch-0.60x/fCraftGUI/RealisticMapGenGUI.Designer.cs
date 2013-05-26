@@ -114,6 +114,8 @@
             this.gDimensions = new System.Windows.Forms.GroupBox();
             this.lMaxDepthUnits = new System.Windows.Forms.Label();
             this.gTemplates = new System.Windows.Forms.GroupBox();
+            this.cTheme = new System.Windows.Forms.ComboBox();
+            this.lTheme = new System.Windows.Forms.Label();
             this.bSaveTemplate = new System.Windows.Forms.Button();
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
@@ -125,6 +127,9 @@
             this.nLoweredCorners = new System.Windows.Forms.NumericUpDown();
             this.cMidpoint = new System.Windows.Forms.ComboBox();
             this.lMidpoint = new System.Windows.Forms.Label();
+            this.xAdvanced = new System.Windows.Forms.CheckBox();
+            this.nSeed = new System.Windows.Forms.NumericUpDown();
+            this.xSeed = new System.Windows.Forms.CheckBox();
             this.gModules.SuspendLayout();
             this.gTrees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
@@ -160,6 +165,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).BeginInit();
             this.gTerrainFeatures.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             this.SuspendLayout();
             // 
             // gModules
@@ -173,7 +179,7 @@
             this.gModules.Controls.Add(this.xAddFloodBarrier);
             this.gModules.Controls.Add(this.xAddWater);
             this.gModules.Controls.Add(this.xAddCaves);
-            this.gModules.Location = new System.Drawing.Point(3, 3);
+            this.gModules.Location = new System.Drawing.Point(3, 126);
             this.gModules.Name = "gModules";
             this.gModules.Size = new System.Drawing.Size(394, 91);
             this.gModules.TabIndex = 83;
@@ -297,7 +303,7 @@
             this.gTrees.Controls.Add(this.lTreeSpacingVariation);
             this.gTrees.Controls.Add(this.nTreeSpacing);
             this.gTrees.Controls.Add(this.lTreeSpacing);
-            this.gTrees.Location = new System.Drawing.Point(3, 683);
+            this.gTrees.Location = new System.Drawing.Point(3, 748);
             this.gTrees.Name = "gTrees";
             this.gTrees.Size = new System.Drawing.Size(394, 75);
             this.gTrees.TabIndex = 80;
@@ -486,7 +492,7 @@
             this.gCaves.Controls.Add(this.lCaveSize);
             this.gCaves.Controls.Add(this.sCaveDensity);
             this.gCaves.Controls.Add(this.lCaveDensity);
-            this.gCaves.Location = new System.Drawing.Point(3, 586);
+            this.gCaves.Location = new System.Drawing.Point(3, 651);
             this.gCaves.Name = "gCaves";
             this.gCaves.Size = new System.Drawing.Size(394, 91);
             this.gCaves.TabIndex = 82;
@@ -632,7 +638,7 @@
             this.gBeaches.Controls.Add(this.nBeachHeight);
             this.gBeaches.Controls.Add(this.nBeachExtent);
             this.gBeaches.Controls.Add(this.lBeachExtent);
-            this.gBeaches.Location = new System.Drawing.Point(3, 880);
+            this.gBeaches.Location = new System.Drawing.Point(3, 945);
             this.gBeaches.Name = "gBeaches";
             this.gBeaches.Size = new System.Drawing.Size(394, 48);
             this.gBeaches.TabIndex = 86;
@@ -822,7 +828,7 @@
             this.gSnow.Controls.Add(this.nSnowTransition);
             this.gSnow.Controls.Add(this.nSnowAltitude);
             this.gSnow.Controls.Add(this.lSnowAltitude);
-            this.gSnow.Location = new System.Drawing.Point(3, 764);
+            this.gSnow.Location = new System.Drawing.Point(3, 829);
             this.gSnow.Name = "gSnow";
             this.gSnow.Size = new System.Drawing.Size(394, 45);
             this.gSnow.TabIndex = 85;
@@ -845,7 +851,7 @@
             this.gCliffs.Controls.Add(this.lCliffThresholdUnits);
             this.gCliffs.Controls.Add(this.sCliffThreshold);
             this.gCliffs.Controls.Add(this.lCliffThreshold);
-            this.gCliffs.Location = new System.Drawing.Point(3, 815);
+            this.gCliffs.Location = new System.Drawing.Point(3, 880);
             this.gCliffs.Name = "gCliffs";
             this.gCliffs.Size = new System.Drawing.Size(394, 59);
             this.gCliffs.TabIndex = 84;
@@ -958,7 +964,7 @@
             this.gHeightmapCreation.Controls.Add(this.lMatchWaterCoverageDisplay);
             this.gHeightmapCreation.Controls.Add(this.lRoughness);
             this.gHeightmapCreation.Controls.Add(this.lDetailSize);
-            this.gHeightmapCreation.Location = new System.Drawing.Point(3, 354);
+            this.gHeightmapCreation.Location = new System.Drawing.Point(3, 419);
             this.gHeightmapCreation.Name = "gHeightmapCreation";
             this.gHeightmapCreation.Size = new System.Drawing.Size(394, 226);
             this.gHeightmapCreation.TabIndex = 79;
@@ -1215,7 +1221,7 @@
             this.gDimensions.Controls.Add(this.lMaxHeightUnits);
             this.gDimensions.Controls.Add(this.lMaxDepth);
             this.gDimensions.Controls.Add(this.lMaxDepthUnits);
-            this.gDimensions.Location = new System.Drawing.Point(3, 158);
+            this.gDimensions.Location = new System.Drawing.Point(3, 223);
             this.gDimensions.Name = "gDimensions";
             this.gDimensions.Size = new System.Drawing.Size(394, 100);
             this.gDimensions.TabIndex = 77;
@@ -1233,16 +1239,39 @@
             // 
             // gTemplates
             // 
+            this.gTemplates.Controls.Add(this.xSeed);
+            this.gTemplates.Controls.Add(this.nSeed);
+            this.gTemplates.Controls.Add(this.xAdvanced);
+            this.gTemplates.Controls.Add(this.cTheme);
+            this.gTemplates.Controls.Add(this.lTheme);
             this.gTemplates.Controls.Add(this.cTemplates);
             this.gTemplates.Controls.Add(this.lUseTemplate);
             this.gTemplates.Controls.Add(this.bBrowseTemplate);
             this.gTemplates.Controls.Add(this.bSaveTemplate);
-            this.gTemplates.Location = new System.Drawing.Point(3, 100);
+            this.gTemplates.Location = new System.Drawing.Point(3, 3);
             this.gTemplates.Name = "gTemplates";
-            this.gTemplates.Size = new System.Drawing.Size(394, 52);
+            this.gTemplates.Size = new System.Drawing.Size(394, 117);
             this.gTemplates.TabIndex = 81;
             this.gTemplates.TabStop = false;
-            this.gTemplates.Text = "Templates";
+            this.gTemplates.Text = "Template / Theme";
+            // 
+            // cTheme
+            // 
+            this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cTheme.FormattingEnabled = true;
+            this.cTheme.Location = new System.Drawing.Point(81, 48);
+            this.cTheme.Name = "cTheme";
+            this.cTheme.Size = new System.Drawing.Size(135, 21);
+            this.cTheme.TabIndex = 6;
+            // 
+            // lTheme
+            // 
+            this.lTheme.AutoSize = true;
+            this.lTheme.Location = new System.Drawing.Point(35, 51);
+            this.lTheme.Name = "lTheme";
+            this.lTheme.Size = new System.Drawing.Size(40, 13);
+            this.lTheme.TabIndex = 5;
+            this.lTheme.Text = "Theme";
             // 
             // bSaveTemplate
             // 
@@ -1315,7 +1344,7 @@
             this.gTerrainFeatures.Controls.Add(this.lBiasDisplay);
             this.gTerrainFeatures.Controls.Add(this.lBias);
             this.gTerrainFeatures.Controls.Add(this.sBias);
-            this.gTerrainFeatures.Location = new System.Drawing.Point(3, 264);
+            this.gTerrainFeatures.Location = new System.Drawing.Point(3, 329);
             this.gTerrainFeatures.Name = "gTerrainFeatures";
             this.gTerrainFeatures.Size = new System.Drawing.Size(394, 84);
             this.gTerrainFeatures.TabIndex = 78;
@@ -1368,6 +1397,43 @@
             this.lMidpoint.TabIndex = 64;
             this.lMidpoint.Text = "Midpoint";
             // 
+            // xAdvanced
+            // 
+            this.xAdvanced.AutoSize = true;
+            this.xAdvanced.Location = new System.Drawing.Point(13, 80);
+            this.xAdvanced.Name = "xAdvanced";
+            this.xAdvanced.Size = new System.Drawing.Size(143, 17);
+            this.xAdvanced.TabIndex = 7;
+            this.xAdvanced.Text = "Show advanced settings";
+            this.xAdvanced.UseVisualStyleBackColor = true;
+            // 
+            // nSeed
+            // 
+            this.nSeed.Location = new System.Drawing.Point(288, 79);
+            this.nSeed.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.nSeed.Minimum = new decimal(new int[] {
+            -2147483648,
+            0,
+            0,
+            -2147483648});
+            this.nSeed.Name = "nSeed";
+            this.nSeed.Size = new System.Drawing.Size(100, 20);
+            this.nSeed.TabIndex = 50;
+            // 
+            // xSeed
+            // 
+            this.xSeed.AutoSize = true;
+            this.xSeed.Location = new System.Drawing.Point(231, 80);
+            this.xSeed.Name = "xSeed";
+            this.xSeed.Size = new System.Drawing.Size(51, 17);
+            this.xSeed.TabIndex = 51;
+            this.xSeed.Text = "Seed";
+            this.xSeed.UseVisualStyleBackColor = true;
+            // 
             // RealisticMapGenGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1383,7 +1449,7 @@
             this.Controls.Add(this.gTemplates);
             this.Controls.Add(this.gTerrainFeatures);
             this.Name = "RealisticMapGenGui";
-            this.Size = new System.Drawing.Size(400, 936);
+            this.Size = new System.Drawing.Size(400, 996);
             this.gModules.ResumeLayout(false);
             this.gModules.PerformLayout();
             this.gTrees.ResumeLayout(false);
@@ -1429,6 +1495,7 @@
             this.gTerrainFeatures.ResumeLayout(false);
             this.gTerrainFeatures.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1537,5 +1604,10 @@
         private System.Windows.Forms.NumericUpDown nLoweredCorners;
         private System.Windows.Forms.ComboBox cMidpoint;
         private System.Windows.Forms.Label lMidpoint;
+        private System.Windows.Forms.ComboBox cTheme;
+        private System.Windows.Forms.Label lTheme;
+        private System.Windows.Forms.CheckBox xAdvanced;
+        private System.Windows.Forms.NumericUpDown nSeed;
+        private System.Windows.Forms.CheckBox xSeed;
     }
 }

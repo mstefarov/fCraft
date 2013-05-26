@@ -15,5 +15,9 @@ namespace fCraft.GUI {
         public virtual IMapGeneratorParameters GetParameters() {
             throw new NotImplementedException();
         }
+
+        public virtual void OnMapDimensionChange( int width, int length, int height ) {
+            throw new NotImplementedException();
+        }
     }
 }
