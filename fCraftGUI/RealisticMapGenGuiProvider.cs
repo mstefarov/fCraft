@@ -2,7 +2,11 @@
 using System;
 
 namespace fCraft.GUI {
-    class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
+    public class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
+        RealisticMapGenGuiProvider() { }
+
+        public static readonly RealisticMapGenGuiProvider Instance = new RealisticMapGenGuiProvider();
+
         public string Name {
             get { return "RealisticMapGen GUI"; }
         }
@@ -11,15 +15,13 @@ namespace fCraft.GUI {
             get { return new Version( 2, 1 ); }
         }
 
-        public string GeneratorName {
-            get { return RealisticMapGen.Instance.Name; }
+        public bool IsCompatible( string generatorName, Version generatorVersion ) {
+            return generatorName == RealisticMapGen.Instance.Name &&
+                   generatorVersion.Major == 2 &&
+                   generatorVersion.Minor == 1;
         }
 
-        public bool IsCompatible( Version generatorVersion ) {
-            return (generatorVersion.Major == 2 && generatorVersion.Minor == 1);
-        }
-
-        public MapGeneratorGui CreateGUI() {
+        public MapGeneratorGui CreateGui() {
             return new RealisticMapGenGui();
         }
     }

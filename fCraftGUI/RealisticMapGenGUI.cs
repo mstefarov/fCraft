@@ -38,7 +38,7 @@ namespace fCraft.GUI {
             return genParameters;
         }
 
-        public virtual void OnMapDimensionChange( int width, int length, int height ) {
+        public override void OnMapDimensionChange( int width, int length, int height ) {
             mapWidth = width;
             mapLength = length;
             mapHeight = height;

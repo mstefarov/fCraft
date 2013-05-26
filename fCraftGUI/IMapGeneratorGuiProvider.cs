@@ -8,9 +8,8 @@ namespace fCraft.GUI {
     public interface IMapGeneratorGuiProvider {
         string Name { get; }
         Version Version { get; }
-        string GeneratorName { get; }
-        bool IsCompatible( Version generatorVersion );
+        bool IsCompatible( string generatorName, Version generatorVersion );
 
-        MapGeneratorGui CreateGUI();
+        MapGeneratorGui CreateGui();
     }
 }
