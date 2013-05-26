@@ -482,10 +482,6 @@ namespace fCraft.ConfigGUI {
                     }
                     return;
                 case Tabs.Generator:
-                    if( genGui != null ) {
-                        genGui.BringToFront();
-                        genGui.Dock = DockStyle.Fill;
-                    }
                     return;
             }
         }
@@ -638,8 +634,9 @@ Could not load more information:
 
         IMapGenerator generator;
         private void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
+            generatorParamsPanel.SuspendLayout();
             if( genGui != null ) {
-                generatorParamsPanel.Controls.Remove( genGui );
+                generatorParamsPanel.Controls.Clear();
                 genGui.Dispose();
                 genGui = null;
             }
@@ -651,8 +648,11 @@ Could not load more information:
             genGui.Padding = new Padding( 0 );
             genGui.Margin = new Padding( 0 );
             genGui.BorderStyle = BorderStyle.None;
+            genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
             genGui.SetParameters( generator.GetDefaultParameters() );
+            generatorParamsPanel.ResumeLayout();
+            generatorParamsPanel.PerformLayout();
         }
     }
 }

@@ -52,27 +52,26 @@
             this.tabExisting = new System.Windows.Forms.TabPage();
             this.tExistingMapInfo = new System.Windows.Forms.TextBox();
             this.tabLoad = new System.Windows.Forms.TabPage();
+            this.lFileFormatList1 = new System.Windows.Forms.Label();
             this.lFileFormatList2 = new System.Windows.Forms.Label();
+            this.lFile = new System.Windows.Forms.Label();
             this.lFolderList = new System.Windows.Forms.Label();
             this.lFolder = new System.Windows.Forms.Label();
             this.tFolder = new System.Windows.Forms.TextBox();
             this.bBrowseFolder = new System.Windows.Forms.Button();
-            this.lFileFormatList1 = new System.Windows.Forms.Label();
-            this.lFile = new System.Windows.Forms.Label();
             this.tLoadFileInfo = new System.Windows.Forms.TextBox();
             this.tabCopy = new System.Windows.Forms.TabPage();
-            this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.lWorldToCopy = new System.Windows.Forms.Label();
+            this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.lGenerator = new System.Windows.Forms.Label();
+            this.cGenerator = new System.Windows.Forms.ComboBox();
             this.lDimensions = new System.Windows.Forms.Label();
             this.nMapWidth = new System.Windows.Forms.NumericUpDown();
             this.lX1 = new System.Windows.Forms.Label();
+            this.nMapLength = new System.Windows.Forms.NumericUpDown();
             this.lX2 = new System.Windows.Forms.Label();
             this.nMapHeight = new System.Windows.Forms.NumericUpDown();
-            this.nMapLength = new System.Windows.Forms.NumericUpDown();
-            this.generatorParamsPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.lGenerator = new System.Windows.Forms.Label();
-            this.cGenerator = new System.Windows.Forms.ComboBox();
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
@@ -80,6 +79,7 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
@@ -89,14 +89,14 @@
             this.tabCopy.SuspendLayout();
             this.tabTerrain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // bShow
             // 
-            this.bShow.Location = new System.Drawing.Point(305, 6);
+            this.bShow.Location = new System.Drawing.Point(323, 6);
             this.bShow.Name = "bShow";
             this.bShow.Size = new System.Drawing.Size(74, 23);
             this.bShow.TabIndex = 2;
@@ -130,12 +130,12 @@
             this.tFile.Location = new System.Drawing.Point(72, 87);
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size(242, 20);
+            this.tFile.Size = new System.Drawing.Size(251, 20);
             this.tFile.TabIndex = 3;
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point(320, 85);
+            this.bBrowseFile.Location = new System.Drawing.Point(323, 85);
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFile.TabIndex = 4;
@@ -385,16 +385,16 @@
             // 
             // tabLoad
             // 
+            this.tabLoad.Controls.Add(this.lFileFormatList1);
             this.tabLoad.Controls.Add(this.lFileFormatList2);
+            this.tabLoad.Controls.Add(this.lFile);
+            this.tabLoad.Controls.Add(this.tFile);
+            this.tabLoad.Controls.Add(this.bBrowseFile);
             this.tabLoad.Controls.Add(this.lFolderList);
             this.tabLoad.Controls.Add(this.lFolder);
             this.tabLoad.Controls.Add(this.tFolder);
             this.tabLoad.Controls.Add(this.bBrowseFolder);
-            this.tabLoad.Controls.Add(this.lFileFormatList1);
-            this.tabLoad.Controls.Add(this.lFile);
             this.tabLoad.Controls.Add(this.tLoadFileInfo);
-            this.tabLoad.Controls.Add(this.tFile);
-            this.tabLoad.Controls.Add(this.bBrowseFile);
             this.tabLoad.Location = new System.Drawing.Point(4, 22);
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
@@ -402,6 +402,17 @@
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
+            // 
+            // lFileFormatList1
+            // 
+            this.lFileFormatList1.AutoSize = true;
+            this.lFileFormatList1.Location = new System.Drawing.Point(6, 3);
+            this.lFileFormatList1.Name = "lFileFormatList1";
+            this.lFileFormatList1.Size = new System.Drawing.Size(144, 78);
+            this.lFileFormatList1.TabIndex = 0;
+            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
+    "vl)\r\n- Creative (original .dat)\r\n- Survival Test (.mine)\r\n- Survival Indev (.mcl" +
+    "evel)";
             // 
             // lFileFormatList2
             // 
@@ -412,6 +423,15 @@
             this.lFileFormatList2.TabIndex = 1;
             this.lFileFormatList2.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
     "";
+            // 
+            // lFile
+            // 
+            this.lFile.AutoSize = true;
+            this.lFile.Location = new System.Drawing.Point(6, 90);
+            this.lFile.Name = "lFile";
+            this.lFile.Size = new System.Drawing.Size(47, 13);
+            this.lFile.TabIndex = 2;
+            this.lFile.Text = "Load file";
             // 
             // lFolderList
             // 
@@ -436,38 +456,18 @@
             this.tFolder.Location = new System.Drawing.Point(72, 159);
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
-            this.tFolder.Size = new System.Drawing.Size(242, 20);
+            this.tFolder.Size = new System.Drawing.Size(251, 20);
             this.tFolder.TabIndex = 7;
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point(320, 156);
+            this.bBrowseFolder.Location = new System.Drawing.Point(323, 157);
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFolder.TabIndex = 8;
             this.bBrowseFolder.Text = "Browse";
             this.bBrowseFolder.UseVisualStyleBackColor = true;
             this.bBrowseFolder.Click += new System.EventHandler(this.bBrowseFolder_Click);
-            // 
-            // lFileFormatList1
-            // 
-            this.lFileFormatList1.AutoSize = true;
-            this.lFileFormatList1.Location = new System.Drawing.Point(6, 3);
-            this.lFileFormatList1.Name = "lFileFormatList1";
-            this.lFileFormatList1.Size = new System.Drawing.Size(144, 78);
-            this.lFileFormatList1.TabIndex = 0;
-            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
-    "vl)\r\n- Creative (original .dat)\r\n- Survival Test (.mine)\r\n- Survival Indev (.mcl" +
-    "evel)";
-            // 
-            // lFile
-            // 
-            this.lFile.AutoSize = true;
-            this.lFile.Location = new System.Drawing.Point(6, 90);
-            this.lFile.Name = "lFile";
-            this.lFile.Size = new System.Drawing.Size(47, 13);
-            this.lFile.TabIndex = 2;
-            this.lFile.Text = "Load file";
             // 
             // tLoadFileInfo
             // 
@@ -479,16 +479,16 @@
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size(391, 233);
+            this.tLoadFileInfo.Size = new System.Drawing.Size(394, 233);
             this.tLoadFileInfo.TabIndex = 9;
             this.tLoadFileInfo.TabStop = false;
             // 
             // tabCopy
             // 
-            this.tabCopy.Controls.Add(this.tCopyInfo);
             this.tabCopy.Controls.Add(this.lWorldToCopy);
-            this.tabCopy.Controls.Add(this.bShow);
             this.tabCopy.Controls.Add(this.cWorld);
+            this.tabCopy.Controls.Add(this.bShow);
+            this.tabCopy.Controls.Add(this.tCopyInfo);
             this.tabCopy.Location = new System.Drawing.Point(4, 22);
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding(3);
@@ -496,16 +496,6 @@
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
-            // 
-            // tCopyInfo
-            // 
-            this.tCopyInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tCopyInfo.Location = new System.Drawing.Point(6, 34);
-            this.tCopyInfo.Multiline = true;
-            this.tCopyInfo.Name = "tCopyInfo";
-            this.tCopyInfo.ReadOnly = true;
-            this.tCopyInfo.Size = new System.Drawing.Size(373, 100);
-            this.tCopyInfo.TabIndex = 3;
             // 
             // lWorldToCopy
             // 
@@ -516,19 +506,29 @@
             this.lWorldToCopy.TabIndex = 0;
             this.lWorldToCopy.Text = "World to copy";
             // 
+            // tCopyInfo
+            // 
+            this.tCopyInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.tCopyInfo.Location = new System.Drawing.Point(6, 35);
+            this.tCopyInfo.Multiline = true;
+            this.tCopyInfo.Name = "tCopyInfo";
+            this.tCopyInfo.ReadOnly = true;
+            this.tCopyInfo.Size = new System.Drawing.Size(391, 100);
+            this.tCopyInfo.TabIndex = 3;
+            // 
             // tabTerrain
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
+            this.tabTerrain.Controls.Add(this.generatorParamsPanel);
+            this.tabTerrain.Controls.Add(this.bGenerate);
+            this.tabTerrain.Controls.Add(this.lGenerator);
+            this.tabTerrain.Controls.Add(this.cGenerator);
             this.tabTerrain.Controls.Add(this.lDimensions);
             this.tabTerrain.Controls.Add(this.nMapWidth);
             this.tabTerrain.Controls.Add(this.lX1);
+            this.tabTerrain.Controls.Add(this.nMapLength);
             this.tabTerrain.Controls.Add(this.lX2);
             this.tabTerrain.Controls.Add(this.nMapHeight);
-            this.tabTerrain.Controls.Add(this.nMapLength);
-            this.tabTerrain.Controls.Add(this.generatorParamsPanel);
-            this.tabTerrain.Controls.Add(this.lGenerator);
-            this.tabTerrain.Controls.Add(this.cGenerator);
-            this.tabTerrain.Controls.Add(this.bGenerate);
             this.tabTerrain.Location = new System.Drawing.Point(4, 22);
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding(3);
@@ -536,6 +536,26 @@
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
+            // 
+            // lGenerator
+            // 
+            this.lGenerator.AutoSize = true;
+            this.lGenerator.Location = new System.Drawing.Point(137, 9);
+            this.lGenerator.Name = "lGenerator";
+            this.lGenerator.Size = new System.Drawing.Size(54, 13);
+            this.lGenerator.TabIndex = 21;
+            this.lGenerator.Text = "Generator";
+            this.lGenerator.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cGenerator
+            // 
+            this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cGenerator.FormattingEnabled = true;
+            this.cGenerator.Location = new System.Drawing.Point(197, 6);
+            this.cGenerator.Name = "cGenerator";
+            this.cGenerator.Size = new System.Drawing.Size(200, 21);
+            this.cGenerator.TabIndex = 1;
+            this.cGenerator.SelectedIndexChanged += new System.EventHandler(this.cGenerator_SelectedIndexChanged);
             // 
             // lDimensions
             // 
@@ -584,6 +604,34 @@
             this.lX1.TabIndex = 24;
             this.lX1.Text = "×";
             // 
+            // nMapLength
+            // 
+            this.nMapLength.Increment = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+            this.nMapLength.Location = new System.Drawing.Point(270, 33);
+            this.nMapLength.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.nMapLength.Maximum = new decimal(new int[] {
+            2032,
+            0,
+            0,
+            0});
+            this.nMapLength.Minimum = new decimal(new int[] {
+            16,
+            0,
+            0,
+            0});
+            this.nMapLength.Name = "nMapLength";
+            this.nMapLength.Size = new System.Drawing.Size(54, 20);
+            this.nMapLength.TabIndex = 25;
+            this.nMapLength.Value = new decimal(new int[] {
+            64,
+            0,
+            0,
+            0});
+            // 
             // lX2
             // 
             this.lX2.AutoSize = true;
@@ -620,64 +668,6 @@
             0,
             0,
             0});
-            // 
-            // nMapLength
-            // 
-            this.nMapLength.Increment = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nMapLength.Location = new System.Drawing.Point(270, 33);
-            this.nMapLength.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.nMapLength.Maximum = new decimal(new int[] {
-            2032,
-            0,
-            0,
-            0});
-            this.nMapLength.Minimum = new decimal(new int[] {
-            16,
-            0,
-            0,
-            0});
-            this.nMapLength.Name = "nMapLength";
-            this.nMapLength.Size = new System.Drawing.Size(54, 20);
-            this.nMapLength.TabIndex = 25;
-            this.nMapLength.Value = new decimal(new int[] {
-            64,
-            0,
-            0,
-            0});
-            // 
-            // generatorParamsPanel
-            // 
-            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
-            this.generatorParamsPanel.Name = "generatorParamsPanel";
-            this.generatorParamsPanel.Size = new System.Drawing.Size(400, 363);
-            this.generatorParamsPanel.TabIndex = 22;
-            // 
-            // lGenerator
-            // 
-            this.lGenerator.AutoSize = true;
-            this.lGenerator.Location = new System.Drawing.Point(137, 9);
-            this.lGenerator.Name = "lGenerator";
-            this.lGenerator.Size = new System.Drawing.Size(54, 13);
-            this.lGenerator.TabIndex = 21;
-            this.lGenerator.Text = "Generator";
-            this.lGenerator.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cGenerator
-            // 
-            this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cGenerator.FormattingEnabled = true;
-            this.cGenerator.Location = new System.Drawing.Point(197, 6);
-            this.cGenerator.Name = "cGenerator";
-            this.cGenerator.Size = new System.Drawing.Size(200, 21);
-            this.cGenerator.TabIndex = 1;
-            this.cGenerator.SelectedIndexChanged += new System.EventHandler(this.cGenerator_SelectedIndexChanged);
             // 
             // lMapFileOptions
             // 
@@ -751,6 +741,17 @@
             this.cBlockDB.Size = new System.Drawing.Size(78, 21);
             this.cBlockDB.TabIndex = 21;
             // 
+            // generatorParamsPanel
+            // 
+            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
+            this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.generatorParamsPanel.Name = "generatorParamsPanel";
+            this.generatorParamsPanel.Size = new System.Drawing.Size(400, 360);
+            this.generatorParamsPanel.TabIndex = 29;
+            // 
             // preview
             // 
             this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -770,26 +771,26 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(984, 583);
-            this.Controls.Add(this.lBlockDB);
-            this.Controls.Add(this.cBlockDB);
+            this.Controls.Add(this.lName);
+            this.Controls.Add(this.tName);
             this.Controls.Add(this.lVisibility);
             this.Controls.Add(this.cVisibility);
-            this.Controls.Add(this.lCreateMap);
+            this.Controls.Add(this.lAccess);
+            this.Controls.Add(this.cAccess);
+            this.Controls.Add(this.lBlockDB);
+            this.Controls.Add(this.cBlockDB);
+            this.Controls.Add(this.lBuild);
+            this.Controls.Add(this.cBuild);
+            this.Controls.Add(this.lBackup);
+            this.Controls.Add(this.cBackup);
             this.Controls.Add(this.lMapFileOptions);
             this.Controls.Add(this.tabs);
-            this.Controls.Add(this.bSavePreview);
             this.Controls.Add(this.previewLayout);
-            this.Controls.Add(this.statusStrip);
-            this.Controls.Add(this.tName);
-            this.Controls.Add(this.lBackup);
-            this.Controls.Add(this.lBuild);
-            this.Controls.Add(this.lAccess);
-            this.Controls.Add(this.lName);
-            this.Controls.Add(this.cBuild);
-            this.Controls.Add(this.cAccess);
-            this.Controls.Add(this.cBackup);
-            this.Controls.Add(this.bCancel);
+            this.Controls.Add(this.bSavePreview);
+            this.Controls.Add(this.lCreateMap);
             this.Controls.Add(this.bOK);
+            this.Controls.Add(this.bCancel);
+            this.Controls.Add(this.statusStrip);
             this.Name = "AddWorldPopup";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
@@ -808,8 +809,8 @@
             this.tabTerrain.ResumeLayout(false);
             this.tabTerrain.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -866,7 +867,6 @@
         private System.Windows.Forms.ComboBox cVisibility;
         private System.Windows.Forms.Label lBlockDB;
         private System.Windows.Forms.ComboBox cBlockDB;
-        private System.Windows.Forms.FlowLayoutPanel generatorParamsPanel;
         private System.Windows.Forms.Label lGenerator;
         private System.Windows.Forms.ComboBox cGenerator;
         private System.Windows.Forms.ComboBox cPreviewMode;
@@ -876,5 +876,6 @@
         private System.Windows.Forms.Label lX2;
         private System.Windows.Forms.NumericUpDown nMapHeight;
         private System.Windows.Forms.NumericUpDown nMapLength;
+        private System.Windows.Forms.Panel generatorParamsPanel;
     }
 }

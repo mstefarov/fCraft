@@ -28,6 +28,7 @@
             // 
             // pgGrid
             // 
+            this.pgGrid.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pgGrid.Location = new System.Drawing.Point(0, 0);
             this.pgGrid.Margin = new System.Windows.Forms.Padding(0);
             this.pgGrid.Name = "pgGrid";
