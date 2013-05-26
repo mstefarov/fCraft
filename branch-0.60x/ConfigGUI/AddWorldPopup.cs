@@ -101,6 +101,7 @@ namespace fCraft.ConfigGUI {
             tStatus2.Text = "";
 
             World = world;
+            cPreviewMode.SelectedIndex = 0;
 
             savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
@@ -270,6 +271,23 @@ namespace fCraft.ConfigGUI {
                 }
                 if( drawAgain ) {
                     renderer.Rotation = previewRotation;
+                    renderer.SeeThroughWater = false;
+                    renderer.SeeThroughLava = false;
+                    renderer.Mode = IsoCatMode.Normal;
+                    switch( cPreviewMode.SelectedIndex ) {
+                        case 1:
+                            renderer.Mode = IsoCatMode.Cut;
+                            break;
+                        case 2:
+                            renderer.Mode = IsoCatMode.Peeled;
+                            break;
+                        case 3:
+                            renderer.SeeThroughWater = true;
+                            break;
+                        case 4:
+                            renderer.SeeThroughLava = true;
+                            break;
+                    }
                     bwRenderer.RunWorkerAsync();
                 }
             }
@@ -654,6 +672,12 @@ Could not load more information:
             genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
+        }
+
+        private void cPreviewMode_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( Map == null ) return;
+            tStatus2.Text = ", redrawing...";
+            Redraw( true );
         }
     }
 }

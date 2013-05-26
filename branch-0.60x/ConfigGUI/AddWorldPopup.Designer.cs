@@ -46,6 +46,7 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
@@ -80,9 +81,9 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
@@ -91,7 +92,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // bShow
@@ -315,21 +315,36 @@
             this.previewLayout.Size = new System.Drawing.Size(550, 515);
             this.previewLayout.TabIndex = 12;
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan(this.preview, 3);
+            this.preview.Location = new System.Drawing.Point(3, 3);
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size(544, 481);
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // cPreviewMode
             // 
             this.cPreviewMode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.cPreviewMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPreviewMode.FormattingEnabled = true;
             this.cPreviewMode.Items.AddRange(new object[] {
-            "Normal Preview",
-            "Cross-section (\"Cut\")",
-            "No front walls (\"Peeled\")",
-            "See-through water",
-            "See-through lava"});
+            "Preview: Normal",
+            "Preview: Cross-section",
+            "Preview: \"Peeled\" walls",
+            "Preview: See-through water",
+            "Preview: See-through lava"});
             this.cPreviewMode.Location = new System.Drawing.Point(203, 490);
             this.cPreviewMode.Name = "cPreviewMode";
             this.cPreviewMode.Size = new System.Drawing.Size(144, 21);
             this.cPreviewMode.TabIndex = 18;
+            this.cPreviewMode.SelectedIndexChanged += new System.EventHandler(this.cPreviewMode_SelectedIndexChanged);
             // 
             // bSavePreview
             // 
@@ -752,20 +767,6 @@
             this.cBlockDB.Size = new System.Drawing.Size(78, 21);
             this.cBlockDB.TabIndex = 21;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan(this.preview, 3);
-            this.preview.Location = new System.Drawing.Point(3, 3);
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(544, 481);
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -799,6 +800,7 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
             this.tabExisting.ResumeLayout(false);
             this.tabExisting.PerformLayout();
@@ -811,7 +813,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
