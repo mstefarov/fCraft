@@ -64,6 +64,7 @@
             this.lWorldToCopy = new System.Windows.Forms.Label();
             this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
             this.cGenerator = new System.Windows.Forms.ComboBox();
             this.lDimensions = new System.Windows.Forms.Label();
@@ -79,7 +80,6 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
-            this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
@@ -96,7 +96,7 @@
             // 
             // bShow
             // 
-            this.bShow.Location = new System.Drawing.Point(323, 6);
+            this.bShow.Location = new System.Drawing.Point(316, 6);
             this.bShow.Name = "bShow";
             this.bShow.Size = new System.Drawing.Size(74, 23);
             this.bShow.TabIndex = 2;
@@ -109,7 +109,7 @@
             this.bGenerate.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bGenerate.Location = new System.Drawing.Point(6, 6);
             this.bGenerate.Name = "bGenerate";
-            this.bGenerate.Size = new System.Drawing.Size(115, 47);
+            this.bGenerate.Size = new System.Drawing.Size(98, 47);
             this.bGenerate.TabIndex = 0;
             this.bGenerate.Text = "Generate";
             this.bGenerate.UseVisualStyleBackColor = true;
@@ -121,7 +121,7 @@
             this.cWorld.FormattingEnabled = true;
             this.cWorld.Location = new System.Drawing.Point(85, 7);
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size(214, 21);
+            this.cWorld.Size = new System.Drawing.Size(225, 21);
             this.cWorld.TabIndex = 1;
             this.cWorld.SelectedIndexChanged += new System.EventHandler(this.cWorld_SelectedIndexChanged);
             // 
@@ -130,12 +130,12 @@
             this.tFile.Location = new System.Drawing.Point(72, 87);
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size(251, 20);
+            this.tFile.Size = new System.Drawing.Size(238, 20);
             this.tFile.TabIndex = 3;
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point(323, 85);
+            this.bBrowseFile.Location = new System.Drawing.Point(316, 85);
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFile.TabIndex = 4;
@@ -169,7 +169,7 @@
             // cBackup
             // 
             this.cBackup.FormattingEnabled = true;
-            this.cBackup.Location = new System.Drawing.Point(345, 66);
+            this.cBackup.Location = new System.Drawing.Point(334, 66);
             this.cBackup.Name = "cBackup";
             this.cBackup.Size = new System.Drawing.Size(78, 21);
             this.cBackup.TabIndex = 7;
@@ -179,7 +179,7 @@
             // 
             this.cAccess.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cAccess.FormattingEnabled = true;
-            this.cAccess.Location = new System.Drawing.Point(112, 39);
+            this.cAccess.Location = new System.Drawing.Point(100, 39);
             this.cAccess.Name = "cAccess";
             this.cAccess.Size = new System.Drawing.Size(113, 21);
             this.cAccess.TabIndex = 3;
@@ -189,7 +189,7 @@
             // 
             this.cBuild.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBuild.FormattingEnabled = true;
-            this.cBuild.Location = new System.Drawing.Point(112, 66);
+            this.cBuild.Location = new System.Drawing.Point(100, 66);
             this.cBuild.Name = "cBuild";
             this.cBuild.Size = new System.Drawing.Size(113, 21);
             this.cBuild.TabIndex = 5;
@@ -198,7 +198,7 @@
             // lName
             // 
             this.lName.AutoSize = true;
-            this.lName.Location = new System.Drawing.Point(42, 15);
+            this.lName.Location = new System.Drawing.Point(30, 15);
             this.lName.Name = "lName";
             this.lName.Size = new System.Drawing.Size(64, 13);
             this.lName.TabIndex = 0;
@@ -207,16 +207,16 @@
             // lAccess
             // 
             this.lAccess.AutoSize = true;
-            this.lAccess.Location = new System.Drawing.Point(12, 42);
+            this.lAccess.Location = new System.Drawing.Point(24, 42);
             this.lAccess.Name = "lAccess";
-            this.lAccess.Size = new System.Drawing.Size(94, 13);
+            this.lAccess.Size = new System.Drawing.Size(70, 13);
             this.lAccess.TabIndex = 2;
-            this.lAccess.Text = "Access permission";
+            this.lAccess.Text = "Accessible to";
             // 
             // lBuild
             // 
             this.lBuild.AutoSize = true;
-            this.lBuild.Location = new System.Drawing.Point(24, 69);
+            this.lBuild.Location = new System.Drawing.Point(12, 69);
             this.lBuild.Name = "lBuild";
             this.lBuild.Size = new System.Drawing.Size(82, 13);
             this.lBuild.TabIndex = 4;
@@ -225,7 +225,7 @@
             // lBackup
             // 
             this.lBackup.AutoSize = true;
-            this.lBackup.Location = new System.Drawing.Point(245, 69);
+            this.lBackup.Location = new System.Drawing.Point(234, 69);
             this.lBackup.Name = "lBackup";
             this.lBackup.Size = new System.Drawing.Size(94, 13);
             this.lBackup.TabIndex = 6;
@@ -234,7 +234,7 @@
             // 
             // tName
             // 
-            this.tName.Location = new System.Drawing.Point(112, 12);
+            this.tName.Location = new System.Drawing.Point(100, 12);
             this.tName.Name = "tName";
             this.tName.Size = new System.Drawing.Size(113, 20);
             this.tName.TabIndex = 1;
@@ -244,7 +244,7 @@
             // bPreviewPrev
             // 
             this.bPreviewPrev.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.bPreviewPrev.Location = new System.Drawing.Point(171, 490);
+            this.bPreviewPrev.Location = new System.Drawing.Point(175, 490);
             this.bPreviewPrev.Name = "bPreviewPrev";
             this.bPreviewPrev.Size = new System.Drawing.Size(22, 22);
             this.bPreviewPrev.TabIndex = 0;
@@ -255,7 +255,7 @@
             // bPreviewNext
             // 
             this.bPreviewNext.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.bPreviewNext.Location = new System.Drawing.Point(349, 490);
+            this.bPreviewNext.Location = new System.Drawing.Point(353, 490);
             this.bPreviewNext.Name = "bPreviewNext";
             this.bPreviewNext.Size = new System.Drawing.Size(22, 22);
             this.bPreviewNext.TabIndex = 2;
@@ -307,12 +307,12 @@
             this.previewLayout.Controls.Add(this.bPreviewNext, 2, 1);
             this.previewLayout.Controls.Add(this.preview, 0, 0);
             this.previewLayout.Controls.Add(this.cPreviewMode, 1, 1);
-            this.previewLayout.Location = new System.Drawing.Point(429, 12);
+            this.previewLayout.Location = new System.Drawing.Point(422, 12);
             this.previewLayout.Name = "previewLayout";
             this.previewLayout.RowCount = 2;
             this.previewLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.previewLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
-            this.previewLayout.Size = new System.Drawing.Size(543, 515);
+            this.previewLayout.Size = new System.Drawing.Size(550, 515);
             this.previewLayout.TabIndex = 12;
             // 
             // cPreviewMode
@@ -326,7 +326,7 @@
             "No front walls (\"Peeled\")",
             "See-through water",
             "See-through lava"});
-            this.cPreviewMode.Location = new System.Drawing.Point(199, 490);
+            this.cPreviewMode.Location = new System.Drawing.Point(203, 490);
             this.cPreviewMode.Name = "cPreviewMode";
             this.cPreviewMode.Size = new System.Drawing.Size(144, 21);
             this.cPreviewMode.TabIndex = 18;
@@ -354,7 +354,7 @@
             this.tabs.Location = new System.Drawing.Point(12, 110);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(411, 448);
+            this.tabs.Size = new System.Drawing.Size(404, 448);
             this.tabs.TabIndex = 11;
             this.tabs.SelectedIndexChanged += new System.EventHandler(this.tabs_SelectedIndexChanged);
             // 
@@ -364,7 +364,7 @@
             this.tabExisting.Location = new System.Drawing.Point(4, 22);
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding(3);
-            this.tabExisting.Size = new System.Drawing.Size(403, 422);
+            this.tabExisting.Size = new System.Drawing.Size(396, 422);
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -379,7 +379,7 @@
             this.tExistingMapInfo.Multiline = true;
             this.tExistingMapInfo.Name = "tExistingMapInfo";
             this.tExistingMapInfo.ReadOnly = true;
-            this.tExistingMapInfo.Size = new System.Drawing.Size(388, 410);
+            this.tExistingMapInfo.Size = new System.Drawing.Size(384, 410);
             this.tExistingMapInfo.TabIndex = 0;
             this.tExistingMapInfo.TabStop = false;
             // 
@@ -398,7 +398,7 @@
             this.tabLoad.Location = new System.Drawing.Point(4, 22);
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLoad.Size = new System.Drawing.Size(403, 422);
+            this.tabLoad.Size = new System.Drawing.Size(396, 422);
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
@@ -456,12 +456,12 @@
             this.tFolder.Location = new System.Drawing.Point(72, 159);
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
-            this.tFolder.Size = new System.Drawing.Size(251, 20);
+            this.tFolder.Size = new System.Drawing.Size(238, 20);
             this.tFolder.TabIndex = 7;
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point(323, 157);
+            this.bBrowseFolder.Location = new System.Drawing.Point(316, 157);
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFolder.TabIndex = 8;
@@ -475,11 +475,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tLoadFileInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 185);
+            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 186);
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size(394, 233);
+            this.tLoadFileInfo.Size = new System.Drawing.Size(387, 232);
             this.tLoadFileInfo.TabIndex = 9;
             this.tLoadFileInfo.TabStop = false;
             // 
@@ -492,7 +492,7 @@
             this.tabCopy.Location = new System.Drawing.Point(4, 22);
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCopy.Size = new System.Drawing.Size(403, 422);
+            this.tabCopy.Size = new System.Drawing.Size(396, 422);
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -513,7 +513,7 @@
             this.tCopyInfo.Multiline = true;
             this.tCopyInfo.Name = "tCopyInfo";
             this.tCopyInfo.ReadOnly = true;
-            this.tCopyInfo.Size = new System.Drawing.Size(391, 100);
+            this.tCopyInfo.Size = new System.Drawing.Size(384, 100);
             this.tCopyInfo.TabIndex = 3;
             // 
             // tabTerrain
@@ -532,15 +532,26 @@
             this.tabTerrain.Location = new System.Drawing.Point(4, 22);
             this.tabTerrain.Name = "tabTerrain";
             this.tabTerrain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTerrain.Size = new System.Drawing.Size(403, 422);
+            this.tabTerrain.Size = new System.Drawing.Size(396, 422);
             this.tabTerrain.TabIndex = 5;
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
             // 
+            // generatorParamsPanel
+            // 
+            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
+            this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
+            this.generatorParamsPanel.Name = "generatorParamsPanel";
+            this.generatorParamsPanel.Size = new System.Drawing.Size(390, 360);
+            this.generatorParamsPanel.TabIndex = 29;
+            // 
             // lGenerator
             // 
             this.lGenerator.AutoSize = true;
-            this.lGenerator.Location = new System.Drawing.Point(137, 9);
+            this.lGenerator.Location = new System.Drawing.Point(130, 9);
             this.lGenerator.Name = "lGenerator";
             this.lGenerator.Size = new System.Drawing.Size(54, 13);
             this.lGenerator.TabIndex = 21;
@@ -551,7 +562,7 @@
             // 
             this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cGenerator.FormattingEnabled = true;
-            this.cGenerator.Location = new System.Drawing.Point(197, 6);
+            this.cGenerator.Location = new System.Drawing.Point(190, 6);
             this.cGenerator.Name = "cGenerator";
             this.cGenerator.Size = new System.Drawing.Size(200, 21);
             this.cGenerator.TabIndex = 1;
@@ -560,7 +571,7 @@
             // lDimensions
             // 
             this.lDimensions.AutoSize = true;
-            this.lDimensions.Location = new System.Drawing.Point(130, 35);
+            this.lDimensions.Location = new System.Drawing.Point(123, 35);
             this.lDimensions.Name = "lDimensions";
             this.lDimensions.Size = new System.Drawing.Size(61, 13);
             this.lDimensions.TabIndex = 28;
@@ -574,7 +585,7 @@
             0,
             0,
             0});
-            this.nMapWidth.Location = new System.Drawing.Point(197, 33);
+            this.nMapWidth.Location = new System.Drawing.Point(190, 33);
             this.nMapWidth.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.nMapWidth.Maximum = new decimal(new int[] {
             2032,
@@ -598,7 +609,7 @@
             // lX1
             // 
             this.lX1.AutoSize = true;
-            this.lX1.Location = new System.Drawing.Point(254, 35);
+            this.lX1.Location = new System.Drawing.Point(247, 35);
             this.lX1.Name = "lX1";
             this.lX1.Size = new System.Drawing.Size(13, 13);
             this.lX1.TabIndex = 24;
@@ -611,7 +622,7 @@
             0,
             0,
             0});
-            this.nMapLength.Location = new System.Drawing.Point(270, 33);
+            this.nMapLength.Location = new System.Drawing.Point(263, 33);
             this.nMapLength.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.nMapLength.Maximum = new decimal(new int[] {
             2032,
@@ -635,7 +646,7 @@
             // lX2
             // 
             this.lX2.AutoSize = true;
-            this.lX2.Location = new System.Drawing.Point(327, 35);
+            this.lX2.Location = new System.Drawing.Point(320, 35);
             this.lX2.Name = "lX2";
             this.lX2.Size = new System.Drawing.Size(13, 13);
             this.lX2.TabIndex = 26;
@@ -648,7 +659,7 @@
             0,
             0,
             0});
-            this.nMapHeight.Location = new System.Drawing.Point(343, 33);
+            this.nMapHeight.Location = new System.Drawing.Point(336, 33);
             this.nMapHeight.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.nMapHeight.Maximum = new decimal(new int[] {
             2032,
@@ -697,7 +708,7 @@
             // lVisibility
             // 
             this.lVisibility.AutoSize = true;
-            this.lVisibility.Location = new System.Drawing.Point(251, 14);
+            this.lVisibility.Location = new System.Drawing.Point(240, 14);
             this.lVisibility.Name = "lVisibility";
             this.lVisibility.Size = new System.Drawing.Size(88, 13);
             this.lVisibility.TabIndex = 18;
@@ -713,7 +724,7 @@
             "All who can access",
             "All who can build",
             "No one"});
-            this.cVisibility.Location = new System.Drawing.Point(345, 12);
+            this.cVisibility.Location = new System.Drawing.Point(334, 12);
             this.cVisibility.Name = "cVisibility";
             this.cVisibility.Size = new System.Drawing.Size(78, 21);
             this.cVisibility.TabIndex = 19;
@@ -721,7 +732,7 @@
             // lBlockDB
             // 
             this.lBlockDB.AutoSize = true;
-            this.lBlockDB.Location = new System.Drawing.Point(290, 42);
+            this.lBlockDB.Location = new System.Drawing.Point(279, 42);
             this.lBlockDB.Name = "lBlockDB";
             this.lBlockDB.Size = new System.Drawing.Size(49, 13);
             this.lBlockDB.TabIndex = 20;
@@ -736,21 +747,10 @@
             "Auto",
             "Always On",
             "Always Off"});
-            this.cBlockDB.Location = new System.Drawing.Point(345, 39);
+            this.cBlockDB.Location = new System.Drawing.Point(334, 39);
             this.cBlockDB.Name = "cBlockDB";
             this.cBlockDB.Size = new System.Drawing.Size(78, 21);
             this.cBlockDB.TabIndex = 21;
-            // 
-            // generatorParamsPanel
-            // 
-            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
-            this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
-            this.generatorParamsPanel.Name = "generatorParamsPanel";
-            this.generatorParamsPanel.Size = new System.Drawing.Size(400, 360);
-            this.generatorParamsPanel.TabIndex = 29;
             // 
             // preview
             // 
@@ -761,7 +761,7 @@
             this.previewLayout.SetColumnSpan(this.preview, 3);
             this.preview.Location = new System.Drawing.Point(3, 3);
             this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(537, 481);
+            this.preview.Size = new System.Drawing.Size(544, 481);
             this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;

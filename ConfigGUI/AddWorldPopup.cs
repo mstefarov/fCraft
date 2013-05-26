@@ -15,12 +15,13 @@ using fCraft.MapConversion;
 
 namespace fCraft.ConfigGUI {
     sealed partial class AddWorldPopup : Form {
-        static Dictionary<IMapGenerator, IMapGeneratorGuiProvider> generators =
+        static readonly Dictionary<IMapGenerator, IMapGeneratorGuiProvider> generators =
             new Dictionary<IMapGenerator, IMapGeneratorGuiProvider>();
 
         static AddWorldPopup() {
             generators.Add( FlatMapGen.Instance, DefaultMapGenGuiProvider.Instance );
             generators.Add( RealisticMapGen.Instance, RealisticMapGenGuiProvider.Instance );
+            generators.Add( VanillaMapGen.Instance, DefaultMapGenGuiProvider.Instance );
         }
 
 
@@ -351,11 +352,10 @@ namespace fCraft.ConfigGUI {
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            RealisticMapGenState gen = new RealisticMapGenState( genParameters );
-            gen.ProgressChanged +=
-                ( progressSender, progressArgs ) =>
-                bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
-            Map generatedMap = gen.Generate();
+            IMapGeneratorParameters genParams = genGui.GetParameters();
+            IMapGeneratorState genState = genParams.CreateGenerator();
+            genState.ProgressChanged += ( progressSender, progressArgs ) => bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+            Map generatedMap = genState.Generate();
 
             Map = generatedMap;
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
@@ -651,6 +651,7 @@ Could not load more information:
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
             genGui.SetParameters( generator.GetDefaultParameters() );
+            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
         }
