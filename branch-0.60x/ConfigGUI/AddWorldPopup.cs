@@ -7,10 +7,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml.Linq;
 using fCraft.GUI;
 using fCraft.MapConversion;
 
