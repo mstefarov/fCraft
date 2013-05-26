@@ -349,33 +349,36 @@ namespace fCraft.ConfigGUI {
 
         #region Map Generation
 
-        RealisticMapGenParameters genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance );
+        IMapGeneratorState genState;
 
         private void bGenerate_Click( object sender, EventArgs e ) {
             Map = null;
             bGenerate.Enabled = false;
 
+            IMapGeneratorParameters genParams = genGui.GetParameters();
+            genState = genParams.CreateGenerator();
+
             tStatus1.Text = "Generating...";
             tStatus2.Text = "";
-            progressBar.Visible = true;
-            progressBar.Style = ProgressBarStyle.Continuous;
+            if( genState.ReportsProgress ) {
+                progressBar.Style = ProgressBarStyle.Continuous;
+                genState.ProgressChanged += ( progressSender, progressArgs ) => bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+            } else {
+                progressBar.Style = ProgressBarStyle.Marquee;
+            }
             progressBar.Value = 0;
-
+            progressBar.Visible = true;
             Refresh();
             bwGenerator.RunWorkerAsync();
             World.MapChangedBy = WorldListEntry.WorldInfoSignature;
             World.MapChangedOn = DateTime.UtcNow;
         }
 
+
         void AsyncGen( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
-            IMapGeneratorParameters genParams = genGui.GetParameters();
-            IMapGeneratorState genState = genParams.CreateGenerator();
-            genState.ProgressChanged += ( progressSender, progressArgs ) => bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
-            Map generatedMap = genState.Generate();
-
-            Map = generatedMap;
+            Map = genState.Generate();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 

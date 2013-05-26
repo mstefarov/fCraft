@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using JetBrains.Annotations;
 
 namespace fCraft {
     public class VanillaMapGen : IMapGenerator {
@@ -155,40 +154,88 @@ namespace fCraft {
             blocks = map.Blocks;
         }
 
+        VanillaMapGenParameters param;
         public IMapGeneratorParameters Parameters { get; private set; }
+
+
         public bool Canceled { get; private set; }
         public bool Finished { get; private set; }
+        public bool SupportsCancellation {
+            get { return false; }
+        }
+        public Map Result { get; private set; }
+
+
+        public event ProgressChangedEventHandler ProgressChanged;
+        void ReportProgress( int progressPercent, string statusString ) {
+            Progress = progressPercent;
+            StatusString = statusString;
+            var handler = ProgressChanged;
+            if( handler != null ) {
+                ProgressChangedEventArgs args = new ProgressChangedEventArgs( progressPercent, statusString );
+                handler( this, args );
+            }
+        }
+        public bool ReportsProgress {
+            get { return true; }
+        }
         public int Progress { get; private set; }
         public string StatusString { get; private set; }
-        public bool ReportsProgress { get; private set; }
-        public bool SupportsCancellation { get; private set; }
-        public Map Result { get; private set; }
-        public event ProgressChangedEventHandler ProgressChanged;
-        VanillaMapGenParameters param;
+
+
 
         Map IMapGeneratorState.Generate() {
             return Generate();
         }
 
-        public void CancelAsync() {
-            throw new NotImplementedException();
-        }
+        public void CancelAsync() {}
+
 
         Map Generate() {
-            Raise();
-            Erode();
-            Soil();
-            Carve();
-            MakeOreVeins( Block.Coal, param.CoalOreDensity );
-            MakeOreVeins( Block.IronOre, param.IronOreDensity );
-            MakeOreVeins( Block.GoldOre, param.GoldOreDensity );
-            Water();
-            Melt();
-            Grow();
-            PlantFlowers();
-            PlantShrooms();
-            PlantTrees();
-            return map;
+            try {
+                ReportProgress( 0, "Raising..." );
+                Raise();
+
+                ReportProgress( 20, "Eroding..." );
+                Erode();
+
+                ReportProgress( 35, "Soiling..." );
+                Soil();
+
+                ReportProgress( 45, "Carving..." );
+                Carve();
+
+                ReportProgress( 55, "Depositing coal..." );
+                MakeOreVeins( Block.Coal, param.CoalOreDensity );
+                ReportProgress( 58, "Depositing iron..." );
+                MakeOreVeins( Block.IronOre, param.IronOreDensity );
+                ReportProgress( 61, "Depositing gold..." );
+                MakeOreVeins( Block.GoldOre, param.GoldOreDensity );
+
+                ReportProgress( 65, "Watering..." );
+                Water();
+
+                ReportProgress( 75, "Melting..." );
+                Melt();
+
+                ReportProgress( 80, "Growing..." );
+                Grow();
+
+                ReportProgress( 90, "Planting flowers..." );
+                PlantFlowers();
+
+                ReportProgress( 93, "Planting shrooms..." );
+                PlantShrooms();
+
+                ReportProgress( 96, "Planting trees..." );
+                PlantTrees();
+
+                ReportProgress( 100, "Finished." );
+                Result = map;
+                return map;
+            } finally {
+                Finished = true;
+            }
         }
 
 
