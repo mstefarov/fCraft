@@ -47,6 +47,7 @@
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
             this.preview = new fCraft.ConfigGUI.CustomPictureBox();
+            this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabExisting = new System.Windows.Forms.TabPage();
@@ -72,6 +73,15 @@
             this.nFlatgrassDimZ = new System.Windows.Forms.NumericUpDown();
             this.nFlatgrassDimY = new System.Windows.Forms.NumericUpDown();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.lDimensions = new System.Windows.Forms.Label();
+            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
+            this.generatorParamsPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.lGenerator = new System.Windows.Forms.Label();
+            this.cGenerator = new System.Windows.Forms.ComboBox();
             this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
@@ -79,16 +89,6 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
-            this.cGenerator = new System.Windows.Forms.ComboBox();
-            this.lGenerator = new System.Windows.Forms.Label();
-            this.generatorParamsPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.cPreviewMode = new System.Windows.Forms.ComboBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
-            this.numericUpDown3 = new System.Windows.Forms.NumericUpDown();
-            this.lDimensions = new System.Windows.Forms.Label();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
@@ -142,12 +142,12 @@
             this.tFile.Location = new System.Drawing.Point(72, 87);
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
-            this.tFile.Size = new System.Drawing.Size(233, 20);
+            this.tFile.Size = new System.Drawing.Size(242, 20);
             this.tFile.TabIndex = 3;
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point(311, 85);
+            this.bBrowseFile.Location = new System.Drawing.Point(320, 85);
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFile.TabIndex = 4;
@@ -341,6 +341,22 @@
             this.preview.TabIndex = 17;
             this.preview.TabStop = false;
             // 
+            // cPreviewMode
+            // 
+            this.cPreviewMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cPreviewMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cPreviewMode.FormattingEnabled = true;
+            this.cPreviewMode.Items.AddRange(new object[] {
+            "Normal Preview",
+            "Cross-section (\"Cut\")",
+            "No front walls (\"Peeled\")",
+            "See-through water",
+            "See-through lava"});
+            this.cPreviewMode.Location = new System.Drawing.Point(201, 490);
+            this.cPreviewMode.Name = "cPreviewMode";
+            this.cPreviewMode.Size = new System.Drawing.Size(144, 21);
+            this.cPreviewMode.TabIndex = 18;
+            // 
             // bSavePreview
             // 
             this.bSavePreview.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -375,7 +391,7 @@
             this.tabExisting.Location = new System.Drawing.Point(4, 22);
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding(3);
-            this.tabExisting.Size = new System.Drawing.Size(391, 422);
+            this.tabExisting.Size = new System.Drawing.Size(400, 422);
             this.tabExisting.TabIndex = 0;
             this.tabExisting.Text = "Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
@@ -390,7 +406,7 @@
             this.tExistingMapInfo.Multiline = true;
             this.tExistingMapInfo.Name = "tExistingMapInfo";
             this.tExistingMapInfo.ReadOnly = true;
-            this.tExistingMapInfo.Size = new System.Drawing.Size(373, 410);
+            this.tExistingMapInfo.Size = new System.Drawing.Size(388, 410);
             this.tExistingMapInfo.TabIndex = 0;
             this.tExistingMapInfo.TabStop = false;
             // 
@@ -409,7 +425,7 @@
             this.tabLoad.Location = new System.Drawing.Point(4, 22);
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLoad.Size = new System.Drawing.Size(391, 422);
+            this.tabLoad.Size = new System.Drawing.Size(400, 422);
             this.tabLoad.TabIndex = 1;
             this.tabLoad.Text = "Load File";
             this.tabLoad.UseVisualStyleBackColor = true;
@@ -447,12 +463,12 @@
             this.tFolder.Location = new System.Drawing.Point(72, 159);
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
-            this.tFolder.Size = new System.Drawing.Size(233, 20);
+            this.tFolder.Size = new System.Drawing.Size(242, 20);
             this.tFolder.TabIndex = 7;
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point(311, 156);
+            this.bBrowseFolder.Location = new System.Drawing.Point(320, 156);
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFolder.TabIndex = 8;
@@ -490,7 +506,7 @@
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size(379, 233);
+            this.tLoadFileInfo.Size = new System.Drawing.Size(391, 233);
             this.tLoadFileInfo.TabIndex = 9;
             this.tLoadFileInfo.TabStop = false;
             // 
@@ -503,7 +519,7 @@
             this.tabCopy.Location = new System.Drawing.Point(4, 22);
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCopy.Size = new System.Drawing.Size(391, 422);
+            this.tabCopy.Size = new System.Drawing.Size(400, 422);
             this.tabCopy.TabIndex = 2;
             this.tabCopy.Text = "Copy World";
             this.tabCopy.UseVisualStyleBackColor = true;
@@ -683,122 +699,15 @@
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
             // 
-            // lMapFileOptions
+            // lDimensions
             // 
-            this.lMapFileOptions.AutoSize = true;
-            this.lMapFileOptions.Location = new System.Drawing.Point(12, 94);
-            this.lMapFileOptions.Name = "lMapFileOptions";
-            this.lMapFileOptions.Size = new System.Drawing.Size(47, 13);
-            this.lMapFileOptions.TabIndex = 10;
-            this.lMapFileOptions.Text = "Map file:";
-            // 
-            // lCreateMap
-            // 
-            this.lCreateMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.lCreateMap.AutoSize = true;
-            this.lCreateMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lCreateMap.ForeColor = System.Drawing.Color.Red;
-            this.lCreateMap.Location = new System.Drawing.Point(610, 539);
-            this.lCreateMap.Name = "lCreateMap";
-            this.lCreateMap.Size = new System.Drawing.Size(150, 13);
-            this.lCreateMap.TabIndex = 15;
-            this.lCreateMap.Text = "Create a map to continue";
-            // 
-            // folderBrowser
-            // 
-            this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
-            // 
-            // lVisibility
-            // 
-            this.lVisibility.AutoSize = true;
-            this.lVisibility.Location = new System.Drawing.Point(248, 14);
-            this.lVisibility.Name = "lVisibility";
-            this.lVisibility.Size = new System.Drawing.Size(88, 13);
-            this.lVisibility.TabIndex = 18;
-            this.lVisibility.Text = "World list visibility";
-            this.lVisibility.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cVisibility
-            // 
-            this.cVisibility.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cVisibility.FormattingEnabled = true;
-            this.cVisibility.Items.AddRange(new object[] {
-            "Everyone",
-            "All who can access",
-            "All who can build",
-            "No one"});
-            this.cVisibility.Location = new System.Drawing.Point(342, 12);
-            this.cVisibility.Name = "cVisibility";
-            this.cVisibility.Size = new System.Drawing.Size(78, 21);
-            this.cVisibility.TabIndex = 19;
-            // 
-            // lBlockDB
-            // 
-            this.lBlockDB.AutoSize = true;
-            this.lBlockDB.Location = new System.Drawing.Point(287, 42);
-            this.lBlockDB.Name = "lBlockDB";
-            this.lBlockDB.Size = new System.Drawing.Size(49, 13);
-            this.lBlockDB.TabIndex = 20;
-            this.lBlockDB.Text = "BlockDB";
-            this.lBlockDB.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cBlockDB
-            // 
-            this.cBlockDB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cBlockDB.FormattingEnabled = true;
-            this.cBlockDB.Items.AddRange(new object[] {
-            "Auto",
-            "Always On",
-            "Always Off"});
-            this.cBlockDB.Location = new System.Drawing.Point(342, 39);
-            this.cBlockDB.Name = "cBlockDB";
-            this.cBlockDB.Size = new System.Drawing.Size(78, 21);
-            this.cBlockDB.TabIndex = 21;
-            // 
-            // cGenerator
-            // 
-            this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cGenerator.FormattingEnabled = true;
-            this.cGenerator.Location = new System.Drawing.Point(194, 6);
-            this.cGenerator.Name = "cGenerator";
-            this.cGenerator.Size = new System.Drawing.Size(200, 21);
-            this.cGenerator.TabIndex = 1;
-            // 
-            // lGenerator
-            // 
-            this.lGenerator.AutoSize = true;
-            this.lGenerator.Location = new System.Drawing.Point(134, 9);
-            this.lGenerator.Name = "lGenerator";
-            this.lGenerator.Size = new System.Drawing.Size(54, 13);
-            this.lGenerator.TabIndex = 21;
-            this.lGenerator.Text = "Generator";
-            this.lGenerator.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // generatorParamsPanel
-            // 
-            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
-            this.generatorParamsPanel.Name = "generatorParamsPanel";
-            this.generatorParamsPanel.Size = new System.Drawing.Size(400, 363);
-            this.generatorParamsPanel.TabIndex = 22;
-            // 
-            // cPreviewMode
-            // 
-            this.cPreviewMode.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.cPreviewMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cPreviewMode.FormattingEnabled = true;
-            this.cPreviewMode.Items.AddRange(new object[] {
-            "Normal Preview",
-            "Cross-section (\"Cut\")",
-            "No front walls (\"Peeled\")",
-            "See-through water",
-            "See-through lava"});
-            this.cPreviewMode.Location = new System.Drawing.Point(201, 490);
-            this.cPreviewMode.Name = "cPreviewMode";
-            this.cPreviewMode.Size = new System.Drawing.Size(144, 21);
-            this.cPreviewMode.TabIndex = 18;
+            this.lDimensions.AutoSize = true;
+            this.lDimensions.Location = new System.Drawing.Point(127, 35);
+            this.lDimensions.Name = "lDimensions";
+            this.lDimensions.Size = new System.Drawing.Size(61, 13);
+            this.lDimensions.TabIndex = 28;
+            this.lDimensions.Text = "Dimensions";
+            this.lDimensions.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // numericUpDown1
             // 
@@ -902,15 +811,106 @@
             0,
             0});
             // 
-            // lDimensions
+            // generatorParamsPanel
             // 
-            this.lDimensions.AutoSize = true;
-            this.lDimensions.Location = new System.Drawing.Point(127, 35);
-            this.lDimensions.Name = "lDimensions";
-            this.lDimensions.Size = new System.Drawing.Size(61, 13);
-            this.lDimensions.TabIndex = 28;
-            this.lDimensions.Text = "Dimensions";
-            this.lDimensions.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
+            this.generatorParamsPanel.Name = "generatorParamsPanel";
+            this.generatorParamsPanel.Size = new System.Drawing.Size(400, 363);
+            this.generatorParamsPanel.TabIndex = 22;
+            // 
+            // lGenerator
+            // 
+            this.lGenerator.AutoSize = true;
+            this.lGenerator.Location = new System.Drawing.Point(134, 9);
+            this.lGenerator.Name = "lGenerator";
+            this.lGenerator.Size = new System.Drawing.Size(54, 13);
+            this.lGenerator.TabIndex = 21;
+            this.lGenerator.Text = "Generator";
+            this.lGenerator.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cGenerator
+            // 
+            this.cGenerator.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cGenerator.FormattingEnabled = true;
+            this.cGenerator.Location = new System.Drawing.Point(194, 6);
+            this.cGenerator.Name = "cGenerator";
+            this.cGenerator.Size = new System.Drawing.Size(200, 21);
+            this.cGenerator.TabIndex = 1;
+            // 
+            // lMapFileOptions
+            // 
+            this.lMapFileOptions.AutoSize = true;
+            this.lMapFileOptions.Location = new System.Drawing.Point(12, 94);
+            this.lMapFileOptions.Name = "lMapFileOptions";
+            this.lMapFileOptions.Size = new System.Drawing.Size(47, 13);
+            this.lMapFileOptions.TabIndex = 10;
+            this.lMapFileOptions.Text = "Map file:";
+            // 
+            // lCreateMap
+            // 
+            this.lCreateMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.lCreateMap.AutoSize = true;
+            this.lCreateMap.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lCreateMap.ForeColor = System.Drawing.Color.Red;
+            this.lCreateMap.Location = new System.Drawing.Point(610, 539);
+            this.lCreateMap.Name = "lCreateMap";
+            this.lCreateMap.Size = new System.Drawing.Size(150, 13);
+            this.lCreateMap.TabIndex = 15;
+            this.lCreateMap.Text = "Create a map to continue";
+            // 
+            // folderBrowser
+            // 
+            this.folderBrowser.Description = "Find the folder where your Myne / MyneCraft / Hydebuild / iCraft map is located.";
+            // 
+            // lVisibility
+            // 
+            this.lVisibility.AutoSize = true;
+            this.lVisibility.Location = new System.Drawing.Point(248, 14);
+            this.lVisibility.Name = "lVisibility";
+            this.lVisibility.Size = new System.Drawing.Size(88, 13);
+            this.lVisibility.TabIndex = 18;
+            this.lVisibility.Text = "World list visibility";
+            this.lVisibility.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cVisibility
+            // 
+            this.cVisibility.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cVisibility.FormattingEnabled = true;
+            this.cVisibility.Items.AddRange(new object[] {
+            "Everyone",
+            "All who can access",
+            "All who can build",
+            "No one"});
+            this.cVisibility.Location = new System.Drawing.Point(342, 12);
+            this.cVisibility.Name = "cVisibility";
+            this.cVisibility.Size = new System.Drawing.Size(78, 21);
+            this.cVisibility.TabIndex = 19;
+            // 
+            // lBlockDB
+            // 
+            this.lBlockDB.AutoSize = true;
+            this.lBlockDB.Location = new System.Drawing.Point(287, 42);
+            this.lBlockDB.Name = "lBlockDB";
+            this.lBlockDB.Size = new System.Drawing.Size(49, 13);
+            this.lBlockDB.TabIndex = 20;
+            this.lBlockDB.Text = "BlockDB";
+            this.lBlockDB.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cBlockDB
+            // 
+            this.cBlockDB.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cBlockDB.FormattingEnabled = true;
+            this.cBlockDB.Items.AddRange(new object[] {
+            "Auto",
+            "Always On",
+            "Always Off"});
+            this.cBlockDB.Location = new System.Drawing.Point(342, 39);
+            this.cBlockDB.Name = "cBlockDB";
+            this.cBlockDB.Size = new System.Drawing.Size(78, 21);
+            this.cBlockDB.TabIndex = 21;
             // 
             // AddWorldPopup
             // 

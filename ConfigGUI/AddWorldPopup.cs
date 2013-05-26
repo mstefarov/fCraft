@@ -77,9 +77,9 @@ namespace fCraft.ConfigGUI {
             bwRenderer.ProgressChanged += AsyncDrawProgress;
             bwRenderer.RunWorkerCompleted += AsyncDrawCompleted;
 
-            nMapWidth.Validating += MapDimensionValidating;
-            nMapLength.Validating += MapDimensionValidating;
-            nMapHeight.Validating += MapDimensionValidating;
+            numericUpDown1.Validating += MapDimensionValidating; // TODO: fix naming
+            numericUpDown2.Validating += MapDimensionValidating;
+            numericUpDown3.Validating += MapDimensionValidating;
 
             cAccess.Items.Add( "(everyone)" );
             cBuild.Items.Add( "(everyone)" );
@@ -124,7 +124,7 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 0;
-                xBlockDB.CheckState = CheckState.Indeterminate;
+                //xBlockDB.CheckState = CheckState.Indeterminate; // TODO
                 Map = null;
 
             } else {
@@ -136,7 +136,7 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedItem = World.AccessPermission;
                 cBuild.SelectedItem = World.BuildPermission;
                 cBackup.SelectedItem = World.Backup;
-                xHidden.Checked = World.Hidden;
+                /*xHidden.Checked = World.Hidden;
 
                 switch( World.BlockDBEnabled ) {
                     case YesNoAuto.Auto:
@@ -148,7 +148,7 @@ namespace fCraft.ConfigGUI {
                     case YesNoAuto.No:
                         xBlockDB.CheckState = CheckState.Unchecked;
                         break;
-                }
+                } TODO */
             }
 
             // Disable "copy" tab if there are no other worlds
@@ -188,7 +188,7 @@ namespace fCraft.ConfigGUI {
             if( fileBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( fileBrowser.FileName ) ) {
                 tFolder.Text = "";
                 tFile.Text = fileBrowser.FileName;
-                tFile.SelectAll();
+                tFile.Select( tFile.Text.Length, 0 );
 
                 fileToLoad = fileBrowser.FileName;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
@@ -202,7 +202,7 @@ namespace fCraft.ConfigGUI {
             if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( folderBrowser.SelectedPath ) ) {
                 tFile.Text = "";
                 tFolder.Text = folderBrowser.SelectedPath;
-                tFolder.SelectAll();
+                tFolder.Select( tFolder.Text.Length, 0 );
 
                 fileToLoad = folderBrowser.SelectedPath;
                 ShowMapDetails( tLoadFileInfo, fileToLoad );
@@ -421,7 +421,7 @@ namespace fCraft.ConfigGUI {
 
 
         void xHidden_CheckedChanged( object sender, EventArgs e ) {
-            World.Hidden = xHidden.Checked;
+            //World.Hidden = xHidden.Checked;
         }
 
 
@@ -618,7 +618,7 @@ Could not load more information:
         }
 
         private void xBlockDB_CheckStateChanged( object sender, EventArgs e ) {
-            switch( xBlockDB.CheckState ) {
+            /*switch( xBlockDB.CheckState ) {
                 case CheckState.Indeterminate:
                     World.BlockDBEnabled = YesNoAuto.Auto;
                     xBlockDB.Text = "BlockDB (Auto)";
@@ -631,7 +631,7 @@ Could not load more information:
                     World.BlockDBEnabled = YesNoAuto.No;
                     xBlockDB.Text = "BlockDB (Off)";
                     break;
-            }
+            }*/
         }
     }
 }
