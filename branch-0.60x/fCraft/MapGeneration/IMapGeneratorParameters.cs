@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using System.ComponentModel;
 
 namespace fCraft {
     /// <summary> Represets a set of map generator parameters.
@@ -18,9 +19,6 @@ namespace fCraft {
 
         /// <summary> Height (Z-dimension) of the map being generated. </summary>
         int MapHeight { get; set; }
-
-        /// <summary> Short summary of current parameter set, or name of this template. </summary>
-        string SummaryString { get; }
 
         /// <summary> Saves current generation parameters to a string,
         /// in a format that's expected to be readable by IMapGenerator.CreateParameters(string) </summary>

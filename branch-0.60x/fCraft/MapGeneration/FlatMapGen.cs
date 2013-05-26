@@ -86,38 +86,85 @@ namespace fCraft {
 
 
     public class FlatMapGenParameters : IMapGeneratorParameters {
+        [Browsable( false )]
         public int MapWidth { get; set; }
+        [Browsable( false )]
         public int MapLength { get; set; }
+        [Browsable( false )]
         public int MapHeight { get; set; }
 
-        public int GroundLevelOffset { get; set; }
-        public int SurfaceThickness { get; set; }
-        public int SoilThickness { get; set; }
-        public int BedrockThickness { get; set; }
-
-        public Block AirBlock { get; set; }
-        public Block SurfaceBlock { get; set; }
-        public Block ShallowBlock { get; set; }
-        public Block DeepBlock { get; set; }
-        public Block BedrockBlock { get; set; }
-
-        public string SummaryString { get; private set; }
-
+        [Browsable( false )]
         public IMapGenerator Generator {
             get { return FlatMapGen.Instance; }
         }
 
+        [Category( "Layers" )]
+        [Description( "Number of blocks (positive or negative) by which the ground level of the map " +
+                      "should be offset. Positive values make it higher, negative values make it lower." )]
+        [DefaultValue(0)]
+        public int GroundLevelOffset { get; set; }
+
+        [Category( "Layers" )]
+        [Description( "Thickness, in blocks, of the surface layer of blocks." )]
+        [DefaultValue( 1 )]
+        public int SurfaceThickness { get; set; }
+
+        [Category( "Layers" )]
+        [Description( "Thickness, in blocks, of the shallow/soil layer, right under the surface." )]
+        [DefaultValue( 5 )]
+        public int SoilThickness { get; set; }
+
+        [Category( "Layers" )]
+        [Description( "Thickness, in blocks, of the bottom-most layer blocks (under the deep block)." )]
+        [DefaultValue( 1 )]
+        public int BedrockThickness { get; set; }
+
+        [Category( "Blocks" )]
+        [Description( "Block to use for the upper half of the map, above the surface." )]
+        [DefaultValue( Block.Air )]
+        public Block AirBlock { get; set; }
+
+        [Category( "Blocks" )]
+        [Description( "Block to use for the surface layer." )]
+        [DefaultValue( Block.Grass )]
+        public Block SurfaceBlock { get; set; }
+
+        [Category( "Blocks" )]
+        [Description( "Block to use for the shallow/soil layer, right under the surface." )]
+        [DefaultValue( Block.Dirt )]
+        public Block ShallowBlock { get; set; }
+
+        [Category( "Blocks" )]
+        [Description( "Block to use for the deep/main layer, between shallow/soil and bedrock layers." )]
+        [DefaultValue( Block.Stone )]
+        public Block DeepBlock { get; set; }
+
+        [Category( "Blocks" )]
+        [Description( "Block to use for the bottom-most layer of the map, under the deep/main layer." )]
+        [DefaultValue( Block.Admincrete )]
+        public Block BedrockBlock { get; set; }
+
+
+        MapGenTheme lastChosenTheme;
+        [Category( "Preset" )]
+        public MapGenTheme Preset {
+            get { return lastChosenTheme; }
+            set { ApplyTheme( value );  }
+        }
+
 
         public FlatMapGenParameters() {
-            SurfaceThickness = 1;
-            SoilThickness = 5;
-            BedrockThickness = 1;
             ApplyTheme( MapGenTheme.Forest );
         }
 
 
         public void ApplyTheme( MapGenTheme theme ) {
+            lastChosenTheme = theme;
+
             // base defaults ("forest")
+            SurfaceThickness = 1;
+            SoilThickness = 5;
+            BedrockThickness = 1;
             AirBlock = Block.Air;
             SurfaceBlock = Block.Grass;
             ShallowBlock = Block.Dirt;
@@ -144,7 +191,6 @@ namespace fCraft {
                     SurfaceBlock = Block.Dirt;
                     break;
             }
-            SummaryString = theme + " Flat";
         }
 
 
@@ -180,8 +226,6 @@ namespace fCraft {
             if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
                 BedrockBlock = block;
             }
-            xElement = el.Element( "SummaryString" );
-            if( xElement != null ) SummaryString = xElement.Value;
         }
 
 
@@ -197,7 +241,6 @@ namespace fCraft {
             el.Add( new XElement( "ShallowBlock", ShallowBlock ) );
             el.Add( new XElement( "DeepBlock", DeepBlock ) );
             el.Add( new XElement( "BedrockBlock", BedrockBlock ) );
-            el.Add( new XElement( "SummaryString", SummaryString ) );
             return el.ToString();
         }
 
@@ -217,8 +260,7 @@ namespace fCraft {
                 SurfaceBlock = SurfaceBlock,
                 ShallowBlock = ShallowBlock,
                 DeepBlock = DeepBlock,
-                BedrockBlock = BedrockBlock,
-                SummaryString = SummaryString
+                BedrockBlock = BedrockBlock
             };
         }
     }

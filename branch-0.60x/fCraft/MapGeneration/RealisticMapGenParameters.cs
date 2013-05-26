@@ -76,8 +76,6 @@ namespace fCraft {
         // IMapGeneratorParameters boilerplate code
         public IMapGenerator Generator { get; private set; }
 
-        public string SummaryString { get; private set; }
-
 
         /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
         public void Validate() {
@@ -441,7 +439,6 @@ namespace fCraft {
                 Seed = Seed,
                 SnowAltitude = SnowAltitude,
                 SnowTransition = SnowTransition,
-                SummaryString = SummaryString,
                 Theme = Theme,
                 TreeHeightMax = TreeHeightMax,
                 TreeHeightMin = TreeHeightMin,
