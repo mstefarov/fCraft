@@ -183,15 +183,11 @@ namespace fCraft {
         public string StatusString { get; private set; }
 
 
-
-        Map IMapGeneratorState.Generate() {
-            return Generate();
-        }
-
         public void CancelAsync() {}
 
 
-        Map Generate() {
+        public Map Generate() {
+            if( Finished ) return Result;
             try {
                 ReportProgress( 0, "Raising..." );
                 Raise();
@@ -230,7 +226,7 @@ namespace fCraft {
                 ReportProgress( 96, "Planting trees..." );
                 PlantTrees();
 
-                ReportProgress( 100, "Finished." );
+                ReportProgress( 100, "Finished" );
                 Result = map;
                 return map;
             } finally {
