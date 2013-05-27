@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides functionality for generating map files. </summary>
-    public sealed class RealisticMapGenState : IMapGeneratorState {
+    sealed class RealisticMapGenState : IMapGeneratorState {
         readonly RealisticMapGenParameters args;
         readonly Random rand;
         readonly Noise noise;

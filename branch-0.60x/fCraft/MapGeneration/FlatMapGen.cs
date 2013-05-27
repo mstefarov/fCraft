@@ -85,7 +85,7 @@ namespace fCraft {
     }
 
 
-    public class FlatMapGenParameters : IMapGeneratorParameters {
+    class FlatMapGenParameters : IMapGeneratorParameters {
         [Browsable( false )]
         public int MapWidth { get; set; }
         [Browsable( false )]
