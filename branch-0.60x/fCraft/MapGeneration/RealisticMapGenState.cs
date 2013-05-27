@@ -40,11 +40,13 @@ namespace fCraft {
             try {
                 GenerateHeightmap();
                 if( Canceled ) return null;
-                Result = GenerateMap();
+                Map map = GenerateMap();
+                if( Canceled ) return null;
+                Result = map;
                 return Result;
             } finally {
+                ReportProgress( progressTotalEstimate - progressRunningTotal, Canceled ? "Canceled" : "Finished" );
                 Finished = true;
-                StatusString = (Canceled ? "Canceled" : "Finished");
             }
         }
 
@@ -82,8 +84,12 @@ namespace fCraft {
         public bool Finished { get; private set; }
         public int Progress { get; private set; }
         public string StatusString { get; private set; }
-        public bool ReportsProgress { get; private set; }
-        public bool SupportsCancellation { get; private set; }
+        public bool ReportsProgress {
+            get { return true; }
+        }
+        public bool SupportsCancellation {
+            get { return true; }
+        }
         public event ProgressChangedEventHandler ProgressChanged;
 
         int progressTotalEstimate,
