@@ -35,7 +35,7 @@ namespace fCraft {
     }
 
 
-    public class VanillaMapGenParameters : IMapGeneratorParameters {
+    class VanillaMapGenParameters : IMapGeneratorParameters {
         public VanillaMapGenParameters() {
             TerrainFeatureOctaves = 6;
             TerrainDetailOctaves = 8;
@@ -133,19 +133,19 @@ namespace fCraft {
         }
 
         public IMapGeneratorState CreateGenerator() {
-            return new NotchyMapGenerator( this );
+            return new VanillaMapGenState( this );
         }
     }
 
 
-    public sealed class NotchyMapGenerator : IMapGeneratorState {
+    sealed class VanillaMapGenState : IMapGeneratorState {
         readonly Random random;
         readonly byte[] blocks;
         readonly int waterLevel;
         readonly int[] heightmap;
         readonly Map map;
 
-        public NotchyMapGenerator( VanillaMapGenParameters genParams ) {
+        internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
             param = genParams;
             random = new Random();
             waterLevel = genParams.MapHeight/2;
