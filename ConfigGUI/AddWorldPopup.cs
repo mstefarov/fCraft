@@ -352,8 +352,13 @@ namespace fCraft.ConfigGUI {
         IMapGeneratorState genState;
 
         private void bGenerate_Click( object sender, EventArgs e ) {
+            if( genState != null ) {
+                genState.CancelAsync();
+                tStatus1.Text = "Canceling...";
+                bGenerate.Enabled = false;
+                return;
+            }
             Map = null;
-            bGenerate.Enabled = false;
 
             IMapGeneratorParameters genParams = genGui.GetParameters();
             genState = genParams.CreateGenerator();
@@ -365,6 +370,11 @@ namespace fCraft.ConfigGUI {
                 genState.ProgressChanged += ( progressSender, progressArgs ) => bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
             } else {
                 progressBar.Style = ProgressBarStyle.Marquee;
+            }
+            if( genState.SupportsCancellation ) {
+                bGenerate.Text = "Cancel";
+            } else {
+                bGenerate.Enabled = false;
             }
             progressBar.Value = 0;
             progressBar.Visible = true;
@@ -389,7 +399,9 @@ namespace fCraft.ConfigGUI {
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
-            if( Map == null ) {
+            if( genState.Canceled ) {
+                tStatus1.Text = "Generation canceled!";
+            }else if( Map == null ) {
                 tStatus1.Text = "Generation failed!";
                 Logger.LogAndReportCrash( "Exception while generating map", "ConfigGUI", e.Error, false );
             } else {
@@ -398,6 +410,8 @@ namespace fCraft.ConfigGUI {
                 Redraw( true );
             }
             bGenerate.Enabled = true;
+            bGenerate.Text = "Generate";
+            genState = null;
         }
 
         #endregion

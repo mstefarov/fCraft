@@ -161,7 +161,7 @@ namespace fCraft {
         public bool Canceled { get; private set; }
         public bool Finished { get; private set; }
         public bool SupportsCancellation {
-            get { return false; }
+            get { return true; }
         }
         public Map Result { get; private set; }
 
@@ -183,7 +183,9 @@ namespace fCraft {
         public string StatusString { get; private set; }
 
 
-        public void CancelAsync() {}
+        public void CancelAsync() {
+            Canceled = true;
+        }
 
 
         public Map Generate() {
@@ -191,15 +193,19 @@ namespace fCraft {
             try {
                 ReportProgress( 0, "Raising..." );
                 Raise();
+                if( Canceled ) return null;
 
                 ReportProgress( 20, "Eroding..." );
                 Erode();
+                if( Canceled ) return null;
 
                 ReportProgress( 35, "Soiling..." );
                 Soil();
+                if( Canceled ) return null;
 
                 ReportProgress( 45, "Carving..." );
                 Carve();
+                if( Canceled ) return null;
 
                 ReportProgress( 55, "Depositing coal..." );
                 MakeOreVeins( Block.Coal, param.CoalOreDensity );
@@ -207,29 +213,36 @@ namespace fCraft {
                 MakeOreVeins( Block.IronOre, param.IronOreDensity );
                 ReportProgress( 61, "Depositing gold..." );
                 MakeOreVeins( Block.GoldOre, param.GoldOreDensity );
+                if( Canceled ) return null;
 
                 ReportProgress( 65, "Watering..." );
                 Water();
+                if( Canceled ) return null;
 
                 ReportProgress( 75, "Melting..." );
                 Melt();
+                if( Canceled ) return null;
 
                 ReportProgress( 80, "Growing..." );
                 Grow();
+                if( Canceled ) return null;
 
                 ReportProgress( 90, "Planting flowers..." );
                 PlantFlowers();
+                if( Canceled ) return null;
 
                 ReportProgress( 93, "Planting shrooms..." );
                 PlantShrooms();
+                if( Canceled ) return null;
 
                 ReportProgress( 96, "Planting trees..." );
                 PlantTrees();
+                if( Canceled ) return null;
 
-                ReportProgress( 100, "Finished" );
                 Result = map;
                 return map;
             } finally {
+                ReportProgress( 100, Canceled ? "Canceled" : "Finished" );
                 Finished = true;
             }
         }
