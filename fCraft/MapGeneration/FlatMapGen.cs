@@ -269,6 +269,7 @@ namespace fCraft {
     class FlatMapGenState : IMapGeneratorState {
         public FlatMapGenState( FlatMapGenParameters parameters ) {
             Parameters = parameters;
+            StatusString = "Ready";
         }
 
         public IMapGeneratorParameters Parameters { get; private set; }
@@ -276,15 +277,8 @@ namespace fCraft {
         public bool Finished { get; private set; }
         public int Progress { get; private set; }
         public string StatusString { get; private set; }
-
-        public bool ReportsProgress {
-            get { return false; }
-        }
-
-        public bool SupportsCancellation {
-            get { return true; }
-        }
-
+        public bool ReportsProgress { get; private set; }
+        public bool SupportsCancellation { get; private set; }
         public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
 
@@ -292,51 +286,46 @@ namespace fCraft {
         public Map Generate() {
             if( Finished ) return Result;
             try {
-                StatusString = "Generating...";
+                StatusString = "Generating";
                 FlatMapGenParameters p = (FlatMapGenParameters)Parameters;
 
                 int layer = Parameters.MapWidth*Parameters.MapLength;
 
                 Map map = new Map( null, Parameters.MapWidth, Parameters.MapLength, Parameters.MapHeight, true );
+
                 int offset = 0;
                 if( p.BedrockThickness > 0 ) {
-                    if( Canceled ) return null;
                     int bedrockBlocks = layer*p.BedrockThickness;
                     map.Blocks.MemSet( (byte)p.BedrockBlock, 0, bedrockBlocks );
                     offset += bedrockBlocks;
                 }
 
-                if( Canceled ) return null;
                 int rockBlocks = layer*(Parameters.MapHeight/2 + p.GroundLevelOffset -
                                         p.BedrockThickness - p.SoilThickness - p.SurfaceThickness);
                 map.Blocks.MemSet( (byte)p.DeepBlock, offset, rockBlocks );
                 offset += rockBlocks;
 
                 if( p.SoilThickness > 0 ) {
-                    if( Canceled ) return null;
                     int soilBlocks = layer*p.SoilThickness;
                     map.Blocks.MemSet( (byte)p.ShallowBlock, offset, soilBlocks );
                     offset += soilBlocks;
                 }
 
                 if( p.SurfaceThickness > 0 ) {
-                    if( Canceled ) return null;
                     int surfaceBlocks = layer*p.SurfaceThickness;
                     map.Blocks.MemSet( (byte)p.SurfaceBlock, offset, surfaceBlocks );
                     offset += surfaceBlocks;
                 }
 
                 if( p.AirBlock != Block.Air ) {
-                    if( Canceled ) return null;
                     map.Blocks.MemSet( (byte)p.AirBlock, offset, map.Blocks.Length - offset );
                 }
 
-                if( Canceled ) return null;
                 Result = map;
+                StatusString = "Done";
                 return map;
             } finally {
                 Finished = true;
-                StatusString = (Canceled ? "Canceled" : "Finished");
             }
         }
 
