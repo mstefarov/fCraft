@@ -666,9 +666,7 @@ Could not load more information:
             var genData = generators.First( kvp => kvp.Key.Name == genName );
             generator = genData.Key;
             genGui = genData.Value.CreateGui();
-            genGui.Padding = new Padding( 0 );
-            genGui.Margin = new Padding( 0 );
-            genGui.BorderStyle = BorderStyle.None;
+
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
             genGui.SetParameters( generator.GetDefaultParameters() );

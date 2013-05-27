@@ -82,11 +82,8 @@
             this.gCliffs = new System.Windows.Forms.GroupBox();
             this.lAboveFunc = new System.Windows.Forms.Label();
             this.nMaxHeightVariation = new System.Windows.Forms.NumericUpDown();
-            this.cTemplates = new System.Windows.Forms.ComboBox();
             this.lMaxDepthVariationUnits = new System.Windows.Forms.Label();
             this.xWaterLevel = new System.Windows.Forms.CheckBox();
-            this.lUseTemplate = new System.Windows.Forms.Label();
-            this.bBrowseTemplate = new System.Windows.Forms.Button();
             this.lMaxHeightVariationUnits = new System.Windows.Forms.Label();
             this.gHeightmapCreation = new System.Windows.Forms.GroupBox();
             this.sDetailScale = new System.Windows.Forms.TrackBar();
@@ -113,13 +110,11 @@
             this.nMaxDepthVariation = new System.Windows.Forms.NumericUpDown();
             this.gDimensions = new System.Windows.Forms.GroupBox();
             this.lMaxDepthUnits = new System.Windows.Forms.Label();
-            this.gTemplates = new System.Windows.Forms.GroupBox();
             this.xSeed = new System.Windows.Forms.CheckBox();
             this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAdvanced = new System.Windows.Forms.CheckBox();
             this.cTheme = new System.Windows.Forms.ComboBox();
             this.lTheme = new System.Windows.Forms.Label();
-            this.bSaveTemplate = new System.Windows.Forms.Button();
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.lRaisedCorners = new System.Windows.Forms.Label();
@@ -130,6 +125,7 @@
             this.nLoweredCorners = new System.Windows.Forms.NumericUpDown();
             this.cMidpoint = new System.Windows.Forms.ComboBox();
             this.lMidpoint = new System.Windows.Forms.Label();
+            this.flpPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.gModules.SuspendLayout();
             this.gTrees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
@@ -160,36 +156,41 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
             this.gDimensions.SuspendLayout();
-            this.gTemplates.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).BeginInit();
             this.gTerrainFeatures.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).BeginInit();
+            this.flpPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // gModules
             // 
+            this.gModules.Controls.Add(this.xSeed);
             this.gModules.Controls.Add(this.xAddCliffs);
+            this.gModules.Controls.Add(this.nSeed);
             this.gModules.Controls.Add(this.xAddRuins);
+            this.gModules.Controls.Add(this.xAdvanced);
             this.gModules.Controls.Add(this.xAddOre);
+            this.gModules.Controls.Add(this.cTheme);
+            this.gModules.Controls.Add(this.lTheme);
             this.gModules.Controls.Add(this.xAddBeaches);
             this.gModules.Controls.Add(this.xAddTrees);
             this.gModules.Controls.Add(this.xAddSnow);
             this.gModules.Controls.Add(this.xAddFloodBarrier);
             this.gModules.Controls.Add(this.xAddWater);
             this.gModules.Controls.Add(this.xAddCaves);
-            this.gModules.Location = new System.Drawing.Point(3, 126);
+            this.gModules.Location = new System.Drawing.Point(3, 3);
             this.gModules.Name = "gModules";
-            this.gModules.Size = new System.Drawing.Size(394, 91);
+            this.gModules.Size = new System.Drawing.Size(366, 143);
             this.gModules.TabIndex = 83;
             this.gModules.TabStop = false;
-            this.gModules.Text = "Optional Modules";
+            this.gModules.Text = "General Settings";
             // 
             // xAddCliffs
             // 
             this.xAddCliffs.AutoSize = true;
-            this.xAddCliffs.Location = new System.Drawing.Point(292, 42);
+            this.xAddCliffs.Location = new System.Drawing.Point(267, 42);
             this.xAddCliffs.Name = "xAddCliffs";
             this.xAddCliffs.Size = new System.Drawing.Size(48, 17);
             this.xAddCliffs.TabIndex = 69;
@@ -200,7 +201,7 @@
             // 
             this.xAddRuins.AutoSize = true;
             this.xAddRuins.Enabled = false;
-            this.xAddRuins.Location = new System.Drawing.Point(292, 19);
+            this.xAddRuins.Location = new System.Drawing.Point(267, 19);
             this.xAddRuins.Name = "xAddRuins";
             this.xAddRuins.Size = new System.Drawing.Size(53, 17);
             this.xAddRuins.TabIndex = 68;
@@ -210,7 +211,7 @@
             // xAddOre
             // 
             this.xAddOre.AutoSize = true;
-            this.xAddOre.Location = new System.Drawing.Point(137, 65);
+            this.xAddOre.Location = new System.Drawing.Point(113, 65);
             this.xAddOre.Name = "xAddOre";
             this.xAddOre.Size = new System.Drawing.Size(71, 17);
             this.xAddOre.TabIndex = 67;
@@ -220,7 +221,7 @@
             // xAddBeaches
             // 
             this.xAddBeaches.AutoSize = true;
-            this.xAddBeaches.Location = new System.Drawing.Point(137, 19);
+            this.xAddBeaches.Location = new System.Drawing.Point(113, 19);
             this.xAddBeaches.Name = "xAddBeaches";
             this.xAddBeaches.Size = new System.Drawing.Size(68, 17);
             this.xAddBeaches.TabIndex = 58;
@@ -242,7 +243,7 @@
             // xAddSnow
             // 
             this.xAddSnow.AutoSize = true;
-            this.xAddSnow.Location = new System.Drawing.Point(137, 42);
+            this.xAddSnow.Location = new System.Drawing.Point(113, 42);
             this.xAddSnow.Name = "xAddSnow";
             this.xAddSnow.Size = new System.Drawing.Size(109, 17);
             this.xAddSnow.TabIndex = 24;
@@ -252,7 +253,7 @@
             // xAddFloodBarrier
             // 
             this.xAddFloodBarrier.AutoSize = true;
-            this.xAddFloodBarrier.Location = new System.Drawing.Point(292, 65);
+            this.xAddFloodBarrier.Location = new System.Drawing.Point(267, 65);
             this.xAddFloodBarrier.Name = "xAddFloodBarrier";
             this.xAddFloodBarrier.Size = new System.Drawing.Size(84, 17);
             this.xAddFloodBarrier.TabIndex = 4;
@@ -284,7 +285,7 @@
             // lCaveDensityDisplay
             // 
             this.lCaveDensityDisplay.AutoSize = true;
-            this.lCaveDensityDisplay.Location = new System.Drawing.Point(225, 23);
+            this.lCaveDensityDisplay.Location = new System.Drawing.Point(217, 23);
             this.lCaveDensityDisplay.Name = "lCaveDensityDisplay";
             this.lCaveDensityDisplay.Size = new System.Drawing.Size(33, 13);
             this.lCaveDensityDisplay.TabIndex = 67;
@@ -303,9 +304,9 @@
             this.gTrees.Controls.Add(this.lTreeSpacingVariation);
             this.gTrees.Controls.Add(this.nTreeSpacing);
             this.gTrees.Controls.Add(this.lTreeSpacing);
-            this.gTrees.Location = new System.Drawing.Point(3, 748);
+            this.gTrees.Location = new System.Drawing.Point(3, 696);
             this.gTrees.Name = "gTrees";
-            this.gTrees.Size = new System.Drawing.Size(394, 75);
+            this.gTrees.Size = new System.Drawing.Size(366, 75);
             this.gTrees.TabIndex = 80;
             this.gTrees.TabStop = false;
             this.gTrees.Text = "Trees";
@@ -314,7 +315,7 @@
             // xGiantTrees
             // 
             this.xGiantTrees.AutoSize = true;
-            this.xGiantTrees.Location = new System.Drawing.Point(292, 19);
+            this.xGiantTrees.Location = new System.Drawing.Point(264, 20);
             this.xGiantTrees.Name = "xGiantTrees";
             this.xGiantTrees.Size = new System.Drawing.Size(77, 17);
             this.xGiantTrees.TabIndex = 68;
@@ -456,7 +457,7 @@
             // xCaveLava
             // 
             this.xCaveLava.AutoSize = true;
-            this.xCaveLava.Location = new System.Drawing.Point(292, 46);
+            this.xCaveLava.Location = new System.Drawing.Point(264, 45);
             this.xCaveLava.Name = "xCaveLava";
             this.xCaveLava.Size = new System.Drawing.Size(82, 17);
             this.xCaveLava.TabIndex = 65;
@@ -466,7 +467,7 @@
             // lCaveSizeDisplay
             // 
             this.lCaveSizeDisplay.AutoSize = true;
-            this.lCaveSizeDisplay.Location = new System.Drawing.Point(225, 56);
+            this.lCaveSizeDisplay.Location = new System.Drawing.Point(217, 57);
             this.lCaveSizeDisplay.Name = "lCaveSizeDisplay";
             this.lCaveSizeDisplay.Size = new System.Drawing.Size(33, 13);
             this.lCaveSizeDisplay.TabIndex = 68;
@@ -475,7 +476,7 @@
             // xCaveWater
             // 
             this.xCaveWater.AutoSize = true;
-            this.xCaveWater.Location = new System.Drawing.Point(292, 23);
+            this.xCaveWater.Location = new System.Drawing.Point(264, 22);
             this.xCaveWater.Name = "xCaveWater";
             this.xCaveWater.Size = new System.Drawing.Size(96, 17);
             this.xCaveWater.TabIndex = 64;
@@ -492,9 +493,9 @@
             this.gCaves.Controls.Add(this.lCaveSize);
             this.gCaves.Controls.Add(this.sCaveDensity);
             this.gCaves.Controls.Add(this.lCaveDensity);
-            this.gCaves.Location = new System.Drawing.Point(3, 651);
+            this.gCaves.Location = new System.Drawing.Point(3, 777);
             this.gCaves.Name = "gCaves";
-            this.gCaves.Size = new System.Drawing.Size(394, 91);
+            this.gCaves.Size = new System.Drawing.Size(366, 91);
             this.gCaves.TabIndex = 82;
             this.gCaves.TabStop = false;
             this.gCaves.Text = "Caves";
@@ -509,7 +510,7 @@
             this.sCaveSize.Maximum = 250;
             this.sCaveSize.Minimum = 50;
             this.sCaveSize.Name = "sCaveSize";
-            this.sCaveSize.Size = new System.Drawing.Size(129, 27);
+            this.sCaveSize.Size = new System.Drawing.Size(116, 27);
             this.sCaveSize.TabIndex = 63;
             this.sCaveSize.TickFrequency = 50;
             this.sCaveSize.Value = 100;
@@ -532,7 +533,7 @@
             this.sCaveDensity.Maximum = 500;
             this.sCaveDensity.Minimum = 50;
             this.sCaveDensity.Name = "sCaveDensity";
-            this.sCaveDensity.Size = new System.Drawing.Size(129, 27);
+            this.sCaveDensity.Size = new System.Drawing.Size(116, 27);
             this.sCaveDensity.TabIndex = 61;
             this.sCaveDensity.TickFrequency = 50;
             this.sCaveDensity.Value = 200;
@@ -549,7 +550,7 @@
             // lAboveFuncUnits
             // 
             this.lAboveFuncUnits.AutoSize = true;
-            this.lAboveFuncUnits.Location = new System.Drawing.Point(343, 159);
+            this.lAboveFuncUnits.Location = new System.Drawing.Point(322, 159);
             this.lAboveFuncUnits.Name = "lAboveFuncUnits";
             this.lAboveFuncUnits.Size = new System.Drawing.Size(42, 13);
             this.lAboveFuncUnits.TabIndex = 44;
@@ -558,7 +559,7 @@
             // lBelowFuncUnits
             // 
             this.lBelowFuncUnits.AutoSize = true;
-            this.lBelowFuncUnits.Location = new System.Drawing.Point(343, 193);
+            this.lBelowFuncUnits.Location = new System.Drawing.Point(322, 193);
             this.lBelowFuncUnits.Name = "lBelowFuncUnits";
             this.lBelowFuncUnits.Size = new System.Drawing.Size(42, 13);
             this.lBelowFuncUnits.TabIndex = 45;
@@ -581,7 +582,7 @@
             this.sAboveFunc.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.sAboveFunc.Maximum = 600;
             this.sAboveFunc.Name = "sAboveFunc";
-            this.sAboveFunc.Size = new System.Drawing.Size(195, 27);
+            this.sAboveFunc.Size = new System.Drawing.Size(174, 27);
             this.sAboveFunc.SmallChange = 20;
             this.sAboveFunc.TabIndex = 43;
             this.sAboveFunc.TickFrequency = 20;
@@ -595,7 +596,7 @@
             this.sBelowFunc.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.sBelowFunc.Maximum = 600;
             this.sBelowFunc.Name = "sBelowFunc";
-            this.sBelowFunc.Size = new System.Drawing.Size(195, 27);
+            this.sBelowFunc.Size = new System.Drawing.Size(174, 27);
             this.sBelowFunc.SmallChange = 20;
             this.sBelowFunc.TabIndex = 42;
             this.sBelowFunc.TickFrequency = 20;
@@ -604,7 +605,7 @@
             // xInvert
             // 
             this.xInvert.AutoSize = true;
-            this.xInvert.Location = new System.Drawing.Point(292, 65);
+            this.xInvert.Location = new System.Drawing.Point(264, 63);
             this.xInvert.Name = "xInvert";
             this.xInvert.Size = new System.Drawing.Size(53, 17);
             this.xInvert.TabIndex = 39;
@@ -614,7 +615,7 @@
             // xDelayBias
             // 
             this.xDelayBias.AutoSize = true;
-            this.xDelayBias.Location = new System.Drawing.Point(292, 88);
+            this.xDelayBias.Location = new System.Drawing.Point(264, 86);
             this.xDelayBias.Name = "xDelayBias";
             this.xDelayBias.Size = new System.Drawing.Size(75, 17);
             this.xDelayBias.TabIndex = 40;
@@ -624,7 +625,7 @@
             // lSnowTransitionUnits
             // 
             this.lSnowTransitionUnits.AutoSize = true;
-            this.lSnowTransitionUnits.Location = new System.Drawing.Point(346, 21);
+            this.lSnowTransitionUnits.Location = new System.Drawing.Point(318, 21);
             this.lSnowTransitionUnits.Name = "lSnowTransitionUnits";
             this.lSnowTransitionUnits.Size = new System.Drawing.Size(38, 13);
             this.lSnowTransitionUnits.TabIndex = 69;
@@ -638,9 +639,9 @@
             this.gBeaches.Controls.Add(this.nBeachHeight);
             this.gBeaches.Controls.Add(this.nBeachExtent);
             this.gBeaches.Controls.Add(this.lBeachExtent);
-            this.gBeaches.Location = new System.Drawing.Point(3, 945);
+            this.gBeaches.Location = new System.Drawing.Point(3, 874);
             this.gBeaches.Name = "gBeaches";
-            this.gBeaches.Size = new System.Drawing.Size(394, 48);
+            this.gBeaches.Size = new System.Drawing.Size(366, 48);
             this.gBeaches.TabIndex = 86;
             this.gBeaches.TabStop = false;
             this.gBeaches.Text = "Beaches";
@@ -649,7 +650,7 @@
             // lBeachHeight
             // 
             this.lBeachHeight.AutoSize = true;
-            this.lBeachHeight.Location = new System.Drawing.Point(230, 23);
+            this.lBeachHeight.Location = new System.Drawing.Point(214, 23);
             this.lBeachHeight.Name = "lBeachHeight";
             this.lBeachHeight.Size = new System.Drawing.Size(38, 13);
             this.lBeachHeight.TabIndex = 69;
@@ -667,7 +668,7 @@
             // lBeachHeightUnits
             // 
             this.lBeachHeightUnits.AutoSize = true;
-            this.lBeachHeightUnits.Location = new System.Drawing.Point(334, 23);
+            this.lBeachHeightUnits.Location = new System.Drawing.Point(318, 23);
             this.lBeachHeightUnits.Name = "lBeachHeightUnits";
             this.lBeachHeightUnits.Size = new System.Drawing.Size(38, 13);
             this.lBeachHeightUnits.TabIndex = 67;
@@ -675,7 +676,7 @@
             // 
             // nBeachHeight
             // 
-            this.nBeachHeight.Location = new System.Drawing.Point(274, 21);
+            this.nBeachHeight.Location = new System.Drawing.Point(258, 21);
             this.nBeachHeight.Maximum = new decimal(new int[] {
             512,
             0,
@@ -733,7 +734,7 @@
             // lSnowTransition
             // 
             this.lSnowTransition.AutoSize = true;
-            this.lSnowTransition.Location = new System.Drawing.Point(251, 21);
+            this.lSnowTransition.Location = new System.Drawing.Point(223, 21);
             this.lSnowTransition.Name = "lSnowTransition";
             this.lSnowTransition.Size = new System.Drawing.Size(35, 13);
             this.lSnowTransition.TabIndex = 68;
@@ -750,7 +751,7 @@
             // 
             // nSnowTransition
             // 
-            this.nSnowTransition.Location = new System.Drawing.Point(292, 19);
+            this.nSnowTransition.Location = new System.Drawing.Point(264, 19);
             this.nSnowTransition.Maximum = new decimal(new int[] {
             1024,
             0,
@@ -813,7 +814,7 @@
             // xCliffSmoothing
             // 
             this.xCliffSmoothing.AutoSize = true;
-            this.xCliffSmoothing.Location = new System.Drawing.Point(292, 23);
+            this.xCliffSmoothing.Location = new System.Drawing.Point(286, 23);
             this.xCliffSmoothing.Name = "xCliffSmoothing";
             this.xCliffSmoothing.Size = new System.Drawing.Size(74, 17);
             this.xCliffSmoothing.TabIndex = 75;
@@ -828,9 +829,9 @@
             this.gSnow.Controls.Add(this.nSnowTransition);
             this.gSnow.Controls.Add(this.nSnowAltitude);
             this.gSnow.Controls.Add(this.lSnowAltitude);
-            this.gSnow.Location = new System.Drawing.Point(3, 829);
+            this.gSnow.Location = new System.Drawing.Point(3, 645);
             this.gSnow.Name = "gSnow";
-            this.gSnow.Size = new System.Drawing.Size(394, 45);
+            this.gSnow.Size = new System.Drawing.Size(366, 45);
             this.gSnow.TabIndex = 85;
             this.gSnow.TabStop = false;
             this.gSnow.Text = "Snowy Mountains";
@@ -851,9 +852,9 @@
             this.gCliffs.Controls.Add(this.lCliffThresholdUnits);
             this.gCliffs.Controls.Add(this.sCliffThreshold);
             this.gCliffs.Controls.Add(this.lCliffThreshold);
-            this.gCliffs.Location = new System.Drawing.Point(3, 880);
+            this.gCliffs.Location = new System.Drawing.Point(3, 580);
             this.gCliffs.Name = "gCliffs";
-            this.gCliffs.Size = new System.Drawing.Size(394, 59);
+            this.gCliffs.Size = new System.Drawing.Size(366, 59);
             this.gCliffs.TabIndex = 84;
             this.gCliffs.TabStop = false;
             this.gCliffs.Text = "Cliffs";
@@ -885,15 +886,6 @@
             0,
             0});
             // 
-            // cTemplates
-            // 
-            this.cTemplates.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTemplates.FormattingEnabled = true;
-            this.cTemplates.Location = new System.Drawing.Point(81, 21);
-            this.cTemplates.Name = "cTemplates";
-            this.cTemplates.Size = new System.Drawing.Size(135, 21);
-            this.cTemplates.TabIndex = 4;
-            // 
             // lMaxDepthVariationUnits
             // 
             this.lMaxDepthVariationUnits.AutoSize = true;
@@ -912,24 +904,6 @@
             this.xWaterLevel.TabIndex = 48;
             this.xWaterLevel.Text = "Custom water level";
             this.xWaterLevel.UseVisualStyleBackColor = true;
-            // 
-            // lUseTemplate
-            // 
-            this.lUseTemplate.AutoSize = true;
-            this.lUseTemplate.Location = new System.Drawing.Point(6, 24);
-            this.lUseTemplate.Name = "lUseTemplate";
-            this.lUseTemplate.Size = new System.Drawing.Size(69, 13);
-            this.lUseTemplate.TabIndex = 3;
-            this.lUseTemplate.Text = "Use template";
-            // 
-            // bBrowseTemplate
-            // 
-            this.bBrowseTemplate.Location = new System.Drawing.Point(222, 19);
-            this.bBrowseTemplate.Name = "bBrowseTemplate";
-            this.bBrowseTemplate.Size = new System.Drawing.Size(64, 23);
-            this.bBrowseTemplate.TabIndex = 1;
-            this.bBrowseTemplate.Text = "Browse";
-            this.bBrowseTemplate.UseVisualStyleBackColor = true;
             // 
             // lMaxHeightVariationUnits
             // 
@@ -964,9 +938,9 @@
             this.gHeightmapCreation.Controls.Add(this.lMatchWaterCoverageDisplay);
             this.gHeightmapCreation.Controls.Add(this.lRoughness);
             this.gHeightmapCreation.Controls.Add(this.lDetailSize);
-            this.gHeightmapCreation.Location = new System.Drawing.Point(3, 419);
+            this.gHeightmapCreation.Location = new System.Drawing.Point(3, 258);
             this.gHeightmapCreation.Name = "gHeightmapCreation";
-            this.gHeightmapCreation.Size = new System.Drawing.Size(394, 226);
+            this.gHeightmapCreation.Size = new System.Drawing.Size(366, 226);
             this.gHeightmapCreation.TabIndex = 79;
             this.gHeightmapCreation.TabStop = false;
             this.gHeightmapCreation.Text = "Heightmap Creation";
@@ -1048,7 +1022,7 @@
             this.sWaterCoverage.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.sWaterCoverage.Maximum = 100;
             this.sWaterCoverage.Name = "sWaterCoverage";
-            this.sWaterCoverage.Size = new System.Drawing.Size(195, 27);
+            this.sWaterCoverage.Size = new System.Drawing.Size(174, 27);
             this.sWaterCoverage.TabIndex = 6;
             this.sWaterCoverage.TickFrequency = 10;
             this.sWaterCoverage.Value = 50;
@@ -1056,7 +1030,7 @@
             // xLayeredHeightmap
             // 
             this.xLayeredHeightmap.AutoSize = true;
-            this.xLayeredHeightmap.Location = new System.Drawing.Point(292, 42);
+            this.xLayeredHeightmap.Location = new System.Drawing.Point(264, 40);
             this.xLayeredHeightmap.Name = "xLayeredHeightmap";
             this.xLayeredHeightmap.Size = new System.Drawing.Size(48, 17);
             this.xLayeredHeightmap.TabIndex = 3;
@@ -1066,7 +1040,7 @@
             // xMarbledMode
             // 
             this.xMarbledMode.AutoSize = true;
-            this.xMarbledMode.Location = new System.Drawing.Point(292, 19);
+            this.xMarbledMode.Location = new System.Drawing.Point(264, 17);
             this.xMarbledMode.Name = "xMarbledMode";
             this.xMarbledMode.Size = new System.Drawing.Size(64, 17);
             this.xMarbledMode.TabIndex = 2;
@@ -1088,7 +1062,7 @@
             // lMatchWaterCoverageDisplay
             // 
             this.lMatchWaterCoverageDisplay.AutoSize = true;
-            this.lMatchWaterCoverageDisplay.Location = new System.Drawing.Point(343, 129);
+            this.lMatchWaterCoverageDisplay.Location = new System.Drawing.Point(322, 126);
             this.lMatchWaterCoverageDisplay.Name = "lMatchWaterCoverageDisplay";
             this.lMatchWaterCoverageDisplay.Size = new System.Drawing.Size(27, 13);
             this.lMatchWaterCoverageDisplay.TabIndex = 33;
@@ -1221,12 +1195,12 @@
             this.gDimensions.Controls.Add(this.lMaxHeightUnits);
             this.gDimensions.Controls.Add(this.lMaxDepth);
             this.gDimensions.Controls.Add(this.lMaxDepthUnits);
-            this.gDimensions.Location = new System.Drawing.Point(3, 223);
+            this.gDimensions.Location = new System.Drawing.Point(3, 152);
             this.gDimensions.Name = "gDimensions";
-            this.gDimensions.Size = new System.Drawing.Size(394, 100);
+            this.gDimensions.Size = new System.Drawing.Size(366, 100);
             this.gDimensions.TabIndex = 77;
             this.gDimensions.TabStop = false;
-            this.gDimensions.Text = "Dimensions";
+            this.gDimensions.Text = "Elevation";
             // 
             // lMaxDepthUnits
             // 
@@ -1237,28 +1211,10 @@
             this.lMaxDepthUnits.TabIndex = 44;
             this.lMaxDepthUnits.Text = "+/-";
             // 
-            // gTemplates
-            // 
-            this.gTemplates.Controls.Add(this.xSeed);
-            this.gTemplates.Controls.Add(this.nSeed);
-            this.gTemplates.Controls.Add(this.xAdvanced);
-            this.gTemplates.Controls.Add(this.cTheme);
-            this.gTemplates.Controls.Add(this.lTheme);
-            this.gTemplates.Controls.Add(this.cTemplates);
-            this.gTemplates.Controls.Add(this.lUseTemplate);
-            this.gTemplates.Controls.Add(this.bBrowseTemplate);
-            this.gTemplates.Controls.Add(this.bSaveTemplate);
-            this.gTemplates.Location = new System.Drawing.Point(3, 3);
-            this.gTemplates.Name = "gTemplates";
-            this.gTemplates.Size = new System.Drawing.Size(394, 117);
-            this.gTemplates.TabIndex = 81;
-            this.gTemplates.TabStop = false;
-            this.gTemplates.Text = "Template / Theme";
-            // 
             // xSeed
             // 
             this.xSeed.AutoSize = true;
-            this.xSeed.Location = new System.Drawing.Point(231, 80);
+            this.xSeed.Location = new System.Drawing.Point(214, 118);
             this.xSeed.Name = "xSeed";
             this.xSeed.Size = new System.Drawing.Size(51, 17);
             this.xSeed.TabIndex = 51;
@@ -1267,7 +1223,7 @@
             // 
             // nSeed
             // 
-            this.nSeed.Location = new System.Drawing.Point(288, 79);
+            this.nSeed.Location = new System.Drawing.Point(271, 117);
             this.nSeed.Maximum = new decimal(new int[] {
             2147483647,
             0,
@@ -1279,13 +1235,13 @@
             0,
             -2147483648});
             this.nSeed.Name = "nSeed";
-            this.nSeed.Size = new System.Drawing.Size(100, 20);
+            this.nSeed.Size = new System.Drawing.Size(89, 20);
             this.nSeed.TabIndex = 50;
             // 
             // xAdvanced
             // 
             this.xAdvanced.AutoSize = true;
-            this.xAdvanced.Location = new System.Drawing.Point(13, 80);
+            this.xAdvanced.Location = new System.Drawing.Point(13, 93);
             this.xAdvanced.Name = "xAdvanced";
             this.xAdvanced.Size = new System.Drawing.Size(143, 17);
             this.xAdvanced.TabIndex = 7;
@@ -1297,33 +1253,24 @@
             // 
             this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cTheme.FormattingEnabled = true;
-            this.cTheme.Location = new System.Drawing.Point(81, 48);
+            this.cTheme.Location = new System.Drawing.Point(60, 116);
             this.cTheme.Name = "cTheme";
-            this.cTheme.Size = new System.Drawing.Size(135, 21);
+            this.cTheme.Size = new System.Drawing.Size(137, 21);
             this.cTheme.TabIndex = 6;
             // 
             // lTheme
             // 
             this.lTheme.AutoSize = true;
-            this.lTheme.Location = new System.Drawing.Point(35, 51);
+            this.lTheme.Location = new System.Drawing.Point(14, 119);
             this.lTheme.Name = "lTheme";
             this.lTheme.Size = new System.Drawing.Size(40, 13);
             this.lTheme.TabIndex = 5;
             this.lTheme.Text = "Theme";
             // 
-            // bSaveTemplate
-            // 
-            this.bSaveTemplate.Location = new System.Drawing.Point(324, 19);
-            this.bSaveTemplate.Name = "bSaveTemplate";
-            this.bSaveTemplate.Size = new System.Drawing.Size(64, 23);
-            this.bSaveTemplate.TabIndex = 0;
-            this.bSaveTemplate.Text = "Save";
-            this.bSaveTemplate.UseVisualStyleBackColor = true;
-            // 
             // nRaisedCorners
             // 
             this.nRaisedCorners.Enabled = false;
-            this.nRaisedCorners.Location = new System.Drawing.Point(334, 19);
+            this.nRaisedCorners.Location = new System.Drawing.Point(306, 19);
             this.nRaisedCorners.Maximum = new decimal(new int[] {
             4,
             0,
@@ -1336,7 +1283,7 @@
             // lBiasDisplay
             // 
             this.lBiasDisplay.AutoSize = true;
-            this.lBiasDisplay.Location = new System.Drawing.Point(178, 21);
+            this.lBiasDisplay.Location = new System.Drawing.Point(181, 21);
             this.lBiasDisplay.Name = "lBiasDisplay";
             this.lBiasDisplay.Size = new System.Drawing.Size(21, 13);
             this.lBiasDisplay.TabIndex = 57;
@@ -1345,7 +1292,7 @@
             // lRaisedCorners
             // 
             this.lRaisedCorners.AutoSize = true;
-            this.lRaisedCorners.Location = new System.Drawing.Point(250, 21);
+            this.lRaisedCorners.Location = new System.Drawing.Point(222, 21);
             this.lRaisedCorners.Name = "lRaisedCorners";
             this.lRaisedCorners.Size = new System.Drawing.Size(78, 13);
             this.lRaisedCorners.TabIndex = 61;
@@ -1382,18 +1329,18 @@
             this.gTerrainFeatures.Controls.Add(this.lBiasDisplay);
             this.gTerrainFeatures.Controls.Add(this.lBias);
             this.gTerrainFeatures.Controls.Add(this.sBias);
-            this.gTerrainFeatures.Location = new System.Drawing.Point(3, 329);
+            this.gTerrainFeatures.Location = new System.Drawing.Point(3, 490);
             this.gTerrainFeatures.Name = "gTerrainFeatures";
-            this.gTerrainFeatures.Size = new System.Drawing.Size(394, 84);
+            this.gTerrainFeatures.Size = new System.Drawing.Size(366, 84);
             this.gTerrainFeatures.TabIndex = 78;
             this.gTerrainFeatures.TabStop = false;
-            this.gTerrainFeatures.Text = "Feature Bias";
+            this.gTerrainFeatures.Text = "Terrain Features";
             this.gTerrainFeatures.Visible = false;
             // 
             // lLoweredCorners
             // 
             this.lLoweredCorners.AutoSize = true;
-            this.lLoweredCorners.Location = new System.Drawing.Point(242, 57);
+            this.lLoweredCorners.Location = new System.Drawing.Point(214, 57);
             this.lLoweredCorners.Name = "lLoweredCorners";
             this.lLoweredCorners.Size = new System.Drawing.Size(86, 13);
             this.lLoweredCorners.TabIndex = 66;
@@ -1402,7 +1349,7 @@
             // nLoweredCorners
             // 
             this.nLoweredCorners.Enabled = false;
-            this.nLoweredCorners.Location = new System.Drawing.Point(334, 55);
+            this.nLoweredCorners.Location = new System.Drawing.Point(306, 55);
             this.nLoweredCorners.Maximum = new decimal(new int[] {
             4,
             0,
@@ -1435,22 +1382,34 @@
             this.lMidpoint.TabIndex = 64;
             this.lMidpoint.Text = "Midpoint";
             // 
+            // flpPanel
+            // 
+            this.flpPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.flpPanel.AutoScroll = true;
+            this.flpPanel.Controls.Add(this.gModules);
+            this.flpPanel.Controls.Add(this.gDimensions);
+            this.flpPanel.Controls.Add(this.gHeightmapCreation);
+            this.flpPanel.Controls.Add(this.gTerrainFeatures);
+            this.flpPanel.Controls.Add(this.gCliffs);
+            this.flpPanel.Controls.Add(this.gSnow);
+            this.flpPanel.Controls.Add(this.gTrees);
+            this.flpPanel.Controls.Add(this.gCaves);
+            this.flpPanel.Controls.Add(this.gBeaches);
+            this.flpPanel.Location = new System.Drawing.Point(0, 0);
+            this.flpPanel.Margin = new System.Windows.Forms.Padding(0);
+            this.flpPanel.Name = "flpPanel";
+            this.flpPanel.Size = new System.Drawing.Size(390, 1008);
+            this.flpPanel.TabIndex = 87;
+            // 
             // RealisticMapGenGui
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.gModules);
-            this.Controls.Add(this.gTrees);
-            this.Controls.Add(this.gCaves);
-            this.Controls.Add(this.gBeaches);
-            this.Controls.Add(this.gSnow);
-            this.Controls.Add(this.gCliffs);
-            this.Controls.Add(this.gHeightmapCreation);
-            this.Controls.Add(this.gDimensions);
-            this.Controls.Add(this.gTemplates);
-            this.Controls.Add(this.gTerrainFeatures);
+            this.Controls.Add(this.flpPanel);
             this.Name = "RealisticMapGenGui";
-            this.Size = new System.Drawing.Size(400, 996);
+            this.Size = new System.Drawing.Size(390, 1008);
             this.gModules.ResumeLayout(false);
             this.gModules.PerformLayout();
             this.gTrees.ResumeLayout(false);
@@ -1489,14 +1448,13 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).EndInit();
             this.gDimensions.ResumeLayout(false);
             this.gDimensions.PerformLayout();
-            this.gTemplates.ResumeLayout(false);
-            this.gTemplates.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).EndInit();
             this.gTerrainFeatures.ResumeLayout(false);
             this.gTerrainFeatures.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nLoweredCorners)).EndInit();
+            this.flpPanel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1562,11 +1520,8 @@
         private System.Windows.Forms.GroupBox gCliffs;
         private System.Windows.Forms.Label lAboveFunc;
         private System.Windows.Forms.NumericUpDown nMaxHeightVariation;
-        private System.Windows.Forms.ComboBox cTemplates;
         private System.Windows.Forms.Label lMaxDepthVariationUnits;
         private System.Windows.Forms.CheckBox xWaterLevel;
-        private System.Windows.Forms.Label lUseTemplate;
-        private System.Windows.Forms.Button bBrowseTemplate;
         private System.Windows.Forms.Label lMaxHeightVariationUnits;
         private System.Windows.Forms.GroupBox gHeightmapCreation;
         private System.Windows.Forms.TrackBar sDetailScale;
@@ -1593,8 +1548,6 @@
         private System.Windows.Forms.NumericUpDown nMaxDepthVariation;
         private System.Windows.Forms.GroupBox gDimensions;
         private System.Windows.Forms.Label lMaxDepthUnits;
-        private System.Windows.Forms.GroupBox gTemplates;
-        private System.Windows.Forms.Button bSaveTemplate;
         private System.Windows.Forms.NumericUpDown nRaisedCorners;
         private System.Windows.Forms.Label lBiasDisplay;
         private System.Windows.Forms.Label lRaisedCorners;
@@ -1610,5 +1563,6 @@
         private System.Windows.Forms.CheckBox xAdvanced;
         private System.Windows.Forms.NumericUpDown nSeed;
         private System.Windows.Forms.CheckBox xSeed;
+        private System.Windows.Forms.FlowLayoutPanel flpPanel;
     }
 }
