@@ -178,36 +178,43 @@ namespace fCraft {
 
                 int numIslands = Math.Max( 1, (int)(map.Volume * genParams.IslandDensity / (96 * 96 * 64)) );
                 Random islandCoordRand = new Random( rand.Next() );
+
+                List<Island> islands = new List<Island>();
+
                 for( int i = 0; i < numIslands; i++ ) {
                     Vector3I offset = new Vector3I( islandCoordRand.Next( 16, genParams.MapWidth - 16 ),
                                                     islandCoordRand.Next( 16, genParams.MapLength - 16 ),
                                                     islandCoordRand.Next( 16, genParams.MapHeight - 16 ) );
-                    CreateIsland( offset );
+                    islands.Add( CreateIsland( offset ) );
                 }
                 if( Canceled ) return null;
                 
-                ReportProgress( 10, "Smoothing..." );
+                ReportProgress( 10, "Smoothing (0%)..." );
                 SmoothEdges();
                 if( Canceled ) return null;
                 
-                ReportProgress( 20, "Smoothing..." );
+                ReportProgress( 15, "Smoothing (50%)..." );
                 SmoothEdges();
                 if( Canceled ) return null;
                 
-                ReportProgress( 30, "Expanding..." );
+                ReportProgress( 20, "Expanding..." );
                 ExpandGround();
                 if( Canceled ) return null;
-                
-                ReportProgress( 80, "Planting grass..." );
+
+                ReportProgress( 70, "Adding stone..." );
+                for( int i = 0; i < numIslands; i++ ) {
+                    MakeIslandBase( islands[i] );
+                }
+
+                ReportProgress( 75, "Planting grass..." );
                 PlantGrass();
                 if( Canceled ) return null;
                 
-                ReportProgress( 70, "Watering..." );
+                ReportProgress( 80, "Watering..." );
                 for( int x = 0; x < map.Width; x++ ) {
                     for( int y = 0; y < map.Length; y++ ) {
-                        if( map.GetBlock( x, y, 0 ) == Block.Air ) {
-                            map.SetBlock( x, y, 0, Block.Water );
-                        }
+                        map.SetBlock( x, y, 0, Block.Admincrete );
+                        map.SetBlock( x, y, 1, Block.Water );
                     }
                 }
                 MakeWater();
@@ -218,14 +225,14 @@ namespace fCraft {
                 PlantTrees();
                 if( Canceled ) return null;
 
-                ReportProgress( 85, "Planting flowers..." );
+                ReportProgress( 88, "Planting flowers..." );
                 PlantFlowers();
                 if( Canceled ) return null;
                 
-                ReportProgress( 90, "Eroding..." );
+                ReportProgress( 90, "Eroding (0%)..." );
                 Erode();
                 if( Canceled ) return null;
-                ReportProgress( 95, "Eroding..." );
+                ReportProgress( 95, "Eroding (50%)..." );
                 Erode();
                 if( Canceled ) return null;
                 
@@ -238,75 +245,34 @@ namespace fCraft {
             }
         }
 
-        void PlantGiantTrees() {
-            Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) {Blocks = (byte[])map.Blocks.Clone()};
-            var foresterArgs = new ForesterArgs {
-                Map = map,
-                Rand = rand,
-                TreeCount = (int)(map.Width*map.Length*4/(1024f*(genParams.TreeSpacingMax + genParams.TreeSpacingMin)/2)),
-                Operation = Forester.ForesterOperation.Add,
-                PlantOn = Block.Grass
-            };
-            foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
-            Forester.Generate( foresterArgs );
-            map = outMap;
-        }
 
-
-        void MakeWater() {
-            int waterSources = (int)(256 * 256 * 96 / 50000 / genParams.IslandDensity * genParams.SpringDensity);
-            for( int i = 0; i < waterSources; i++ ) {
-                int x = rand.Next( 0, map.Width );
-                int y = rand.Next( 0, map.Length );
-                int z = rand.Next( map.Height/2, map.Height-1 );
-                while( z > 0 ) {
-                    if( map.GetBlock( x, y, z + 1 ) == Block.Air && map.GetBlock( x, y, z ) == Block.Grass ) {
-                        MakeWaterSource( x, y, z );
+        void MakeIslandBase( Island island ) {
+            foreach( Sphere sphere in island.Spheres ) {
+                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius*2 ) );
+                BoundingBox box = new BoundingBox( origin,
+                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius ) + 4 );
+                for( int x = box.XMin; x <= box.XMax; x++ ) {
+                    for( int y = box.YMin; y <= box.YMax; y++ ) {
+                        for( int z = box.ZMin; z <= box.ZMax; z++ ) {
+                            Vector3I coord = new Vector3I( x, y, z );
+                            Vector3F displacement = sphere.Origin - coord;
+                            if( (displacement.X * displacement.X * 2) / (sphere.Radius*sphere.Radius) +
+                                (displacement.Y * displacement.Y * 2) / (sphere.Radius*sphere.Radius) +
+                                (displacement.Z * displacement.Z) / (sphere.Radius*sphere.Radius*4) <= 1 ) {
+                                map.SetBlock( coord + island.Offset, Block.Stone );
+                            }
+                        }
                     }
-                    z--;
                 }
             }
         }
 
 
-        void MakeWaterSource( int x, int y, int z ) {
-            int hop = 0;
-            List<Vector3I> choices = new List<Vector3I>();
-            while( hop < genParams.SpringMaxHops && z > 0 ) {
-                hop++;
-                map.SetBlock( x, y, z, Block.Water );
-                Block blockUnder = map.GetBlock( x, y, z - 1 );
-                if( blockUnder == Block.Air || blockUnder == Block.Water ) {
-                    do {
-                        z--;
-                        blockUnder = map.GetBlock( x, y, z );
-                        map.SetBlock( x, y, z, Block.Water );
-                    } while( blockUnder == Block.Air || blockUnder == Block.Water );
-                    continue;
-                }
-                map.SetBlock( x, y, z-1, Block.Gravel );
-                choices.Clear();
-                if( x > 0 && map.GetBlock( x - 1, y, z + 1 ) == Block.Air ) {
-                    choices.Add( new Vector3I( x - 1, y, z ) );
-                }
-                if( x < map.Width - 1 && map.GetBlock( x + 1, y, z + 1 ) == Block.Air ) {
-                    choices.Add( new Vector3I( x + 1, y, z ) );
-                }
-                if( y > 0 && map.GetBlock( x, y - 1, z + 1 ) == Block.Air ) {
-                    choices.Add( new Vector3I( x, y - 1, z ) );
-                }
-                if( y < map.Length - 1 && map.GetBlock( x, y + 1, z + 1 ) == Block.Air ) {
-                    choices.Add( new Vector3I( x, y + 1, z ) );
-                }
-                if( choices.Count == 0 ) break;
-                Vector3I nextCoord = choices[rand.Next( choices.Count )];
-                x = nextCoord.X;
-                y = nextCoord.Y;
-            }
-        }
-
-
-        void CreateIsland( Vector3I offset ) {
+        Island CreateIsland( Vector3I offset ) {
             // step 1: create clumpy spheres
             List<Sphere> spheres = new List<Sphere>();
 
@@ -348,13 +314,13 @@ namespace fCraft {
 
             // step 2: voxelize our spheres
             foreach( Sphere sphere in spheres ) {
-                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ) - 4,
-                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ) - 4,
-                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) - 4 );
+                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) );
                 BoundingBox box = new BoundingBox( origin,
-                                                   (int)Math.Ceiling( sphere.Radius )*2 + 8,
-                                                   (int)Math.Ceiling( sphere.Radius )*2 + 8,
-                                                   (int)Math.Ceiling( sphere.Radius ) + 4 );
+                                                   (int)Math.Ceiling( sphere.Radius )*2,
+                                                   (int)Math.Ceiling( sphere.Radius )*2,
+                                                   (int)Math.Ceiling( sphere.Radius ) );
                 for( int x = box.XMin; x <= box.XMax; x++ ) {
                     for( int y = box.YMin; y <= box.YMax; y++ ) {
                         for( int z = box.ZMin; z <= box.ZMax; z++ ) {
@@ -366,6 +332,11 @@ namespace fCraft {
                     }
                 }
             }
+
+            return new Island {
+                Spheres = spheres,
+                Offset = offset
+            };
         }
 
 
@@ -569,6 +540,76 @@ namespace fCraft {
         }
 
 
+        void MakeWater() {
+            int waterSources = (int)(256 * 256 * 96 / 50000 / genParams.IslandDensity * genParams.SpringDensity);
+            for( int i = 0; i < waterSources; i++ ) {
+                int x = rand.Next( 0, map.Width );
+                int y = rand.Next( 0, map.Length );
+                int z = rand.Next( map.Height / 2, map.Height - 1 );
+                while( z > 0 ) {
+                    if( map.GetBlock( x, y, z + 1 ) == Block.Air && map.GetBlock( x, y, z ) == Block.Grass ) {
+                        MakeWaterSource( x, y, z );
+                        break;
+                    }
+                    z--;
+                }
+            }
+        }
+
+
+        void MakeWaterSource( int x, int y, int z ) {
+            int hop = 0;
+            List<Vector3I> choices = new List<Vector3I>();
+            while( hop < genParams.SpringMaxHops && z > 1 ) {
+                hop++;
+                map.SetBlock( x, y, z, Block.Water );
+                Block blockUnder = map.GetBlock( x, y, z - 1 );
+                if( blockUnder == Block.Air || blockUnder == Block.Water ) {
+                    do {
+                        if( map.GetBlock( x, y, z - 1 ) == Block.Gravel ) break;
+                        z--;
+                        blockUnder = map.GetBlock( x, y, z );
+                        map.SetBlock( x, y, z, Block.Water );
+                    } while( blockUnder == Block.Air || blockUnder == Block.Water );
+                    continue;
+                }
+                map.SetBlock( x, y, z - 1, Block.Gravel );
+                choices.Clear();
+                if( x > 0 && map.GetBlock( x - 1, y, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x - 1, y, z ) );
+                }
+                if( x < map.Width - 1 && map.GetBlock( x + 1, y, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x + 1, y, z ) );
+                }
+                if( y > 0 && map.GetBlock( x, y - 1, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x, y - 1, z ) );
+                }
+                if( y < map.Length - 1 && map.GetBlock( x, y + 1, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x, y + 1, z ) );
+                }
+                if( choices.Count == 0 ) break;
+                Vector3I nextCoord = choices[rand.Next( choices.Count )];
+                x = nextCoord.X;
+                y = nextCoord.Y;
+            }
+        }
+
+
+        void PlantGiantTrees() {
+            Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
+            var foresterArgs = new ForesterArgs {
+                Map = map,
+                Rand = rand,
+                TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (genParams.TreeSpacingMax + genParams.TreeSpacingMin) / 2)),
+                Operation = Forester.ForesterOperation.Add,
+                PlantOn = Block.Grass
+            };
+            foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
+            Forester.Generate( foresterArgs );
+            map = outMap;
+        }
+
+
         void PlantTrees() {
             Random treeRand = new Random( rand.Next() );
             int maxTrees = genParams.MapWidth*genParams.MapLength/genParams.TreeClusterDensity;
@@ -708,6 +749,12 @@ namespace fCraft {
             public float DistanceTo( Vector3I other ) {
                 return (other - Origin).Length;
             }
+        }
+
+
+        class Island {
+            public List<Sphere> Spheres = new List<Sphere>();
+            public Vector3I Offset;
         }
 
 
