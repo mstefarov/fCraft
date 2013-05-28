@@ -49,14 +49,36 @@ namespace fCraft {
             get { return FloatingIslandMapGen.Instance; }
         }
 
+        public double IslandDensity { get; set; }
+        public double SphereSeparation { get; set; }
+        public double SphereSizeReduction { get; set; }
+        public int SphereCount { get; set; }
+        public int SphereSize { get; set; }
+        public int SphereSizeSpread { get; set; }
+
+        public double Verticality { get; set; }
+
         public int TreeClusterDensity { get; set; }
         public int TreeChainsPerCluster { get; set; }
         public int TreeHopsPerChain { get; set; }
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
+        public int Seed { get; set; }
+
 
         public FloatingIslandMapGenParameters() {
+            IslandDensity = 1;
+            SphereSeparation = 0.75;
+            SphereSizeReduction = 0.9;
+            SphereCount = 128;
+
+            SphereSize = 12;
+            SphereSizeSpread = 3;
+            Verticality = 1;
+
+            Seed = new Random().Next();
+
             TreeClusterDensity = 4000;
             TreeChainsPerCluster = 20;
             TreeHopsPerChain = 20;
@@ -122,41 +144,51 @@ namespace fCraft {
             }
         }
 
-        Random rand = new Random();
+        Random rand;
         Map map;
 
         public Map Generate() {
             if( Finished ) return Result;
             try {
                 ReportProgress( 0, "Clumping spheres..." );
+                rand = new Random( genParams.Seed );
                 map = new Map( null, genParams.MapWidth, genParams.MapLength, genParams.MapHeight, true );
 
-                for( int i = 0; i < 8; i++ ) {
-                    Vector3I offset = new Vector3I( rand.Next( 16, genParams.MapWidth - 16 ),
-                                                    rand.Next( 16, genParams.MapLength - 16 ),
-                                                    rand.Next( 16, genParams.MapHeight - 16 ) );
+                int numIslands = Math.Max( 1, (int)(map.Volume * genParams.IslandDensity / (96 * 96 * 64)) );
+                Random islandCoordRand = new Random( rand.Next() );
+                for( int i = 0; i < numIslands; i++ ) {
+                    Vector3I offset = new Vector3I( islandCoordRand.Next( 16, genParams.MapWidth - 16 ),
+                                                    islandCoordRand.Next( 16, genParams.MapLength - 16 ),
+                                                    islandCoordRand.Next( 16, genParams.MapHeight - 16 ) );
                     CreateIsland( offset );
                 }
 
-                ReportProgress( 20, "Smoothing..." );
+                ReportProgress( 15, "Smoothing..." );
                 SmoothEdges();
 
-                ReportProgress( 40, "Smoothing..." );
+                ReportProgress( 30, "Smoothing..." );
                 SmoothEdges();
 
-                ReportProgress( 60, "Expanding..." );
+                ReportProgress( 45, "Expanding..." );
                 ExpandGround();
 
-                ReportProgress( 90, "Expanding..." );
+                ReportProgress( 80, "Planting grass..." );
                 PlantGrass();
 
+                ReportProgress( 85, "Planting trees..." );
                 PlantTrees();
+
+                ReportProgress( 90, "Eroding..." );
+                Erode();
+                ReportProgress( 95, "Eroding..." );
+                Erode();
 
                 if( Canceled ) return null;
                 Result = map;
                 return Result;
             } finally {
                 Finished = true;
+                Progress = 100;
                 StatusString = (Canceled ? "Canceled" : "Finished");
             }
         }
@@ -165,22 +197,22 @@ namespace fCraft {
         void CreateIsland( Vector3I offset ) {
             // step 1: create clumpy spheres
             List<Sphere> spheres = new List<Sphere>();
-            const int sphereCount = 128;
-            const float sphereSizeReduction = .92f;
 
-            const int startSphereSize = 12;
-            float sphereSize = startSphereSize;
-            Sphere firstSphere = new Sphere( genParams.MapWidth/2f,
-                                             genParams.MapLength/2f,
-                                             genParams.MapHeight/2f,
-                                             sphereSize );
+            const int hSpread = 100;
+            double vSpreadMin = -hSpread*genParams.Verticality/2,
+                   vSpreadMax = hSpread*genParams.Verticality/2;
+
+            double sphereSize = rand.Next( genParams.SphereSize - genParams.SphereSizeSpread,
+                                           genParams.SphereSize + genParams.SphereSizeSpread + 1 );
+            Sphere firstSphere = new Sphere( 0, 0, 0, (float)sphereSize );
             spheres.Add( firstSphere );
 
-            for( int i = 1; i < sphereCount; i++ ) {
-                float newRadius = sphereSize + 1;
-                Sphere newSphere = new Sphere( RandNextFloat( newRadius, genParams.MapWidth - newRadius ),
-                                               RandNextFloat( newRadius, genParams.MapLength - newRadius ),
-                                               RandNextFloat( newRadius, genParams.MapHeight - sphereSize ),
+            for( int i = 1; i < genParams.SphereCount; i++ ) {
+                float newRadius = (float)(sphereSize + 1);
+                double angle = rand.NextDouble()*Math.PI*2;
+                Sphere newSphere = new Sphere( (float)(Math.Cos( angle )*rand.NextDouble()*hSpread),
+                                               (float)(Math.Sin( angle )*rand.NextDouble()*hSpread),
+                                               RandNextFloat( vSpreadMin, vSpreadMax ),
                                                newRadius );
 
                 double closestDist = newSphere.DistanceTo( spheres[0] );
@@ -195,19 +227,14 @@ namespace fCraft {
 
                 Vector3F displacement = newSphere.Origin - closestSphere.Origin;
                 Vector3F direction = displacement.Normalize();
-                float distance = (float)Math.Pow( newSphere.Radius + closestSphere.Radius, .75 );
+                float distance = (float)Math.Pow( newSphere.Radius + closestSphere.Radius, genParams.SphereSeparation );
                 newSphere.Origin = closestSphere.Origin + direction*distance;
 
                 spheres.Add( newSphere );
-                sphereSize *= sphereSizeReduction;
+                sphereSize *= genParams.SphereSizeReduction;
             }
 
-            PerlinNoise pn = new PerlinNoise( rand, 3 );
-
             // step 2: voxelize our spheres
-            offset -= new Vector3I( genParams.MapWidth/2,
-                                    genParams.MapLength/2,
-                                    genParams.MapHeight/2 );
             foreach( Sphere sphere in spheres ) {
                 Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ) - 4,
                                                 (int)Math.Floor( sphere.Origin.Y - sphere.Radius ) - 4,
@@ -220,7 +247,7 @@ namespace fCraft {
                     for( int y = box.YMin; y <= box.YMax; y++ ) {
                         for( int z = box.ZMin; z <= box.ZMax; z++ ) {
                             Vector3I coord = new Vector3I( x, y, z );
-                            if( sphere.DistanceTo( coord ) < sphere.Radius + pn.GetNoise( x, y ) ) {
+                            if( sphere.DistanceTo( coord ) < sphere.Radius ) {
                                 map.SetBlock( coord + offset, Block.Stone );
                             }
                         }
@@ -242,9 +269,13 @@ namespace fCraft {
                                   (map.GetBlock( x, y, z - 1 ) != Block.Air ? 1 : 0) +
                                   (map.GetBlock( x, y, z + 1 ) != Block.Air ? 1 : 0);
                         if( map.GetBlock( x, y, z ) != Block.Air ) {
-                            newMap.SetBlock( x, y, z, Block.White );
+                            if( sum < 3 ) {
+                                newMap.SetBlock( x, y, z, Block.Red );
+                            } else {
+                                newMap.SetBlock( x, y, z, Block.White );
+                            }
                         } else if( sum > 1 && map.GetBlock( x, y, z - 1 ) != Block.Air ) {
-                            newMap.SetBlock( x, y, z, Block.Red );
+                            newMap.SetBlock( x, y, z, Block.Blue );
                         }
                     }
                 }
@@ -411,7 +442,7 @@ namespace fCraft {
         }
 
 
-        public void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
+        void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
             int treeHeight = treeRand.Next( 3 ) + 4;
 
             Block blockUnder = map.GetBlock( startX, startY, startZ - 1 );
@@ -452,6 +483,20 @@ namespace fCraft {
             }
             for( int z = 0; z < treeHeight; z++ ) {
                 map.SetBlock( startX, startY, startZ + z, Block.Log );
+            }
+        }
+
+
+        void Erode() {
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                for( int y = 0; y < genParams.MapLength; y++ ) {
+                    for( int z = genParams.MapHeight - 1; z > 0; z-- ) {
+                        if( map.GetBlock( x, y, z ) == Block.Dirt && map.GetBlock( x, y, z - 1 ) == Block.Air &&
+                            rand.NextDouble() > .5 ) {
+                            map.SetBlock( x, y, z, Block.Air );
+                        }
+                    }
+                }
             }
         }
 
