@@ -64,12 +64,23 @@ namespace fCraft {
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
+        public int TreeSpacingMax { get; set; }
+        public int TreeSpacingMin { get; set; }
+
+        public int FlowerClusterDensity { get; set; }
+        public int FlowerSpread { get; set; }
+        public int FlowerChainsPerCluster { get; set; }
+        public int FlowersPerChain { get; set; }
+
+        public double SpringDensity { get; set; }
+        public double SpringMaxHops { get; set; }
+
         public int Seed { get; set; }
 
 
         public FloatingIslandMapGenParameters() {
             IslandDensity = 1;
-            SphereSeparation = 0.75;
+            SphereSeparation = 0.8;
             SphereSizeReduction = 0.9;
             SphereCount = 128;
 
@@ -77,13 +88,24 @@ namespace fCraft {
             SphereSizeSpread = 3;
             Verticality = 1;
 
-            Seed = new Random().Next();
-
             TreeClusterDensity = 4000;
             TreeChainsPerCluster = 20;
             TreeHopsPerChain = 20;
             TreeSpread = 6;
             TreePlantRatio = 4;
+
+            FlowerClusterDensity = 3000;
+            FlowerSpread = 6;
+            FlowerChainsPerCluster = 10;
+            FlowersPerChain = 5;
+
+            SpringDensity = 1;
+            SpringMaxHops = 1024;
+
+            TreeSpacingMin = 7;
+            TreeSpacingMax = 11;
+
+            Seed = new Random().Next();
         }
 
 
@@ -162,34 +184,124 @@ namespace fCraft {
                                                     islandCoordRand.Next( 16, genParams.MapHeight - 16 ) );
                     CreateIsland( offset );
                 }
-
-                ReportProgress( 15, "Smoothing..." );
+                if( Canceled ) return null;
+                
+                ReportProgress( 10, "Smoothing..." );
                 SmoothEdges();
-
-                ReportProgress( 30, "Smoothing..." );
+                if( Canceled ) return null;
+                
+                ReportProgress( 20, "Smoothing..." );
                 SmoothEdges();
-
-                ReportProgress( 45, "Expanding..." );
+                if( Canceled ) return null;
+                
+                ReportProgress( 30, "Expanding..." );
                 ExpandGround();
-
+                if( Canceled ) return null;
+                
                 ReportProgress( 80, "Planting grass..." );
                 PlantGrass();
-
+                if( Canceled ) return null;
+                
+                ReportProgress( 70, "Watering..." );
+                for( int x = 0; x < map.Width; x++ ) {
+                    for( int y = 0; y < map.Length; y++ ) {
+                        if( map.GetBlock( x, y, 0 ) == Block.Air ) {
+                            map.SetBlock( x, y, 0, Block.Water );
+                        }
+                    }
+                }
+                MakeWater();
+                if( Canceled ) return null;
+                
                 ReportProgress( 85, "Planting trees..." );
+                PlantGiantTrees();
                 PlantTrees();
+                if( Canceled ) return null;
 
+                ReportProgress( 85, "Planting flowers..." );
+                PlantFlowers();
+                if( Canceled ) return null;
+                
                 ReportProgress( 90, "Eroding..." );
                 Erode();
+                if( Canceled ) return null;
                 ReportProgress( 95, "Eroding..." );
                 Erode();
-
                 if( Canceled ) return null;
+                
                 Result = map;
                 return Result;
             } finally {
                 Finished = true;
                 Progress = 100;
                 StatusString = (Canceled ? "Canceled" : "Finished");
+            }
+        }
+
+        void PlantGiantTrees() {
+            Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) {Blocks = (byte[])map.Blocks.Clone()};
+            var foresterArgs = new ForesterArgs {
+                Map = map,
+                Rand = rand,
+                TreeCount = (int)(map.Width*map.Length*4/(1024f*(genParams.TreeSpacingMax + genParams.TreeSpacingMin)/2)),
+                Operation = Forester.ForesterOperation.Add,
+                PlantOn = Block.Grass
+            };
+            foresterArgs.BlockPlacing += ( sender, e ) => outMap.SetBlock( e.Coordinate, e.Block );
+            Forester.Generate( foresterArgs );
+            map = outMap;
+        }
+
+
+        void MakeWater() {
+            int waterSources = (int)(256 * 256 * 96 / 50000 / genParams.IslandDensity * genParams.SpringDensity);
+            for( int i = 0; i < waterSources; i++ ) {
+                int x = rand.Next( 0, map.Width );
+                int y = rand.Next( 0, map.Length );
+                int z = rand.Next( map.Height/2, map.Height-1 );
+                while( z > 0 ) {
+                    if( map.GetBlock( x, y, z + 1 ) == Block.Air && map.GetBlock( x, y, z ) == Block.Grass ) {
+                        MakeWaterSource( x, y, z );
+                    }
+                    z--;
+                }
+            }
+        }
+
+
+        void MakeWaterSource( int x, int y, int z ) {
+            int hop = 0;
+            List<Vector3I> choices = new List<Vector3I>();
+            while( hop < genParams.SpringMaxHops && z > 0 ) {
+                hop++;
+                map.SetBlock( x, y, z, Block.Water );
+                Block blockUnder = map.GetBlock( x, y, z - 1 );
+                if( blockUnder == Block.Air || blockUnder == Block.Water ) {
+                    do {
+                        z--;
+                        blockUnder = map.GetBlock( x, y, z );
+                        map.SetBlock( x, y, z, Block.Water );
+                    } while( blockUnder == Block.Air || blockUnder == Block.Water );
+                    continue;
+                }
+                map.SetBlock( x, y, z-1, Block.Gravel );
+                choices.Clear();
+                if( x > 0 && map.GetBlock( x - 1, y, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x - 1, y, z ) );
+                }
+                if( x < map.Width - 1 && map.GetBlock( x + 1, y, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x + 1, y, z ) );
+                }
+                if( y > 0 && map.GetBlock( x, y - 1, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x, y - 1, z ) );
+                }
+                if( y < map.Length - 1 && map.GetBlock( x, y + 1, z + 1 ) == Block.Air ) {
+                    choices.Add( new Vector3I( x, y + 1, z ) );
+                }
+                if( choices.Count == 0 ) break;
+                Vector3I nextCoord = choices[rand.Next( choices.Count )];
+                x = nextCoord.X;
+                y = nextCoord.Y;
             }
         }
 
@@ -297,6 +409,10 @@ namespace fCraft {
                             newMap.SetBlock( x, y, z, Block.Stone );
                         }
                     }
+                }
+                if( x%4 == 0 ) {
+                    int percent = x*100/map.Width;
+                    ReportProgress( percent/2 + 30, "Expanding (" + percent + "%)..." );
                 }
             }
             map = newMap;
@@ -410,6 +526,46 @@ namespace fCraft {
                     }
                 }
             }
+            /*
+            PerlinNoise pn = new PerlinNoise( rand, 3 );
+            for( int x = 1; x < genParams.MapWidth-1; x++ ) {
+                for( int y = 1; y < genParams.MapLength-1; y++ ) {
+                    for( int z = 1; z < genParams.MapHeight - 1; z++ ) {
+                        if( map.GetBlock( x, y, z ) == Block.Grass ) {
+                            double slope = FindSlope( x, y, z );
+                            if( slope < 2 && pn.GetNoise( x/5d, y/5d ) > .6 ) {
+                                map.SetBlock( x, y, z, Block.Sand );
+                            }
+                        }
+                    }
+                }
+            }*/
+        }
+
+
+        double FindSlope( int x, int y, int z ) {
+            int z1 = FindNearestZ( x - 1, y, z );
+            int z2 = FindNearestZ( x + 1, y, z );
+            int z3 = FindNearestZ( x, y - 1, z );
+            int z4 = FindNearestZ( x, y + 1, z );
+            return Math.Abs( z1 - z2 ) + Math.Abs( z3 - z4 );
+        }
+
+
+        int FindNearestZ( int x, int y, int startZ ) {
+            int dz = 0;
+            while( Math.Abs( dz ) < 4 ) {
+                if( map.GetBlock( x, y, startZ + dz + 1 ) == Block.Air ) {
+                    if( map.GetBlock( x, y, startZ + dz ) != Block.Air ) {
+                        break;
+                    } else {
+                        dz--;
+                    }
+                } else {
+                    dz++;
+                }
+            }
+            return startZ + dz;
         }
 
 
@@ -483,6 +639,36 @@ namespace fCraft {
             }
             for( int z = 0; z < treeHeight; z++ ) {
                 map.SetBlock( startX, startY, startZ + z, Block.Log );
+            }
+        }
+
+
+        void PlantFlowers() {
+            Random flowerRand = new Random( rand.Next() );
+            int maxFlowers = genParams.MapWidth * genParams.MapLength / genParams.FlowerClusterDensity;
+            for( int cluster = 0; cluster < maxFlowers; cluster++ ) {
+                int flowerType = flowerRand.Next( 2 );
+                int clusterX = flowerRand.Next( genParams.MapWidth );
+                int clusterY = flowerRand.Next( genParams.MapLength );
+                for( int flower = 0; flower < genParams.FlowerChainsPerCluster; flower++ ) {
+                    int x = clusterX;
+                    int y = clusterY;
+                    for( int hop = 0; hop < genParams.FlowersPerChain; hop++ ) {
+                        x += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
+                        y += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
+                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
+                            continue;
+                        for( int z = genParams.MapHeight - 1; z > 0; z-- ) {
+                            if( map.GetBlock( x, y, z - 1 ) == Block.Grass ) {
+                                if( flowerType == 0 ) {
+                                    map.SetBlock( x, y, z, Block.YellowFlower );
+                                } else {
+                                    map.SetBlock( x, y, z, Block.RedFlower );
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
 
