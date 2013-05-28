@@ -16,13 +16,14 @@ using fCraft.MapConversion;
 
 namespace fCraft.ConfigGUI {
     sealed partial class AddWorldPopup : Form {
-        static readonly Dictionary<IMapGenerator, IMapGeneratorGuiProvider> generators =
+        static readonly Dictionary<IMapGenerator, IMapGeneratorGuiProvider> Generators =
             new Dictionary<IMapGenerator, IMapGeneratorGuiProvider>();
 
         static AddWorldPopup() {
-            generators.Add( FlatMapGen.Instance, DefaultMapGenGuiProvider.Instance );
-            generators.Add( RealisticMapGen.Instance, RealisticMapGenGuiProvider.Instance );
-            generators.Add( VanillaMapGen.Instance, DefaultMapGenGuiProvider.Instance );
+            Generators.Add( FlatMapGen.Instance, DefaultMapGenGuiProvider.Instance );
+            Generators.Add( RealisticMapGen.Instance, RealisticMapGenGuiProvider.Instance );
+            Generators.Add( VanillaMapGen.Instance, DefaultMapGenGuiProvider.Instance );
+            Generators.Add( FloatingIslandMapGen.Instance, DefaultMapGenGuiProvider.Instance );
         }
 
 
@@ -35,21 +36,18 @@ namespace fCraft.ConfigGUI {
         readonly object redrawLock = new object();
 
         Map map;
+
         Map Map {
-            get {
-                return map;
-            }
+            get { return map; }
             set {
                 try {
                     bOK.Invoke( (MethodInvoker)delegate {
                         try {
                             bOK.Enabled = (value != null);
                             lCreateMap.Visible = !bOK.Enabled;
-                        } catch( ObjectDisposedException ) {
-                        } catch( InvalidOperationException ) { }
+                        } catch( ObjectDisposedException ) {} catch( InvalidOperationException ) {}
                     } );
-                } catch( ObjectDisposedException ) {
-                } catch( InvalidOperationException ) { }
+                } catch( ObjectDisposedException ) {} catch( InvalidOperationException ) {}
                 map = value;
             }
         }
@@ -98,16 +96,18 @@ namespace fCraft.ConfigGUI {
                 cBuild.Items.Add( MainForm.ToComboBoxOption( rank ) );
             }
 
+            progressBar.Visible = false;
             tStatus1.Text = "";
             tStatus2.Text = "";
 
             World = world;
             cPreviewMode.SelectedIndex = 0;
 
-            savePreviewDialog.Filter = "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
+            savePreviewDialog.Filter =
+                "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
 
-            cGenerator.Items.AddRange( generators.Keys.Select( gen => gen.Name ).ToArray() );
+            cGenerator.Items.AddRange( Generators.Keys.Select( gen => gen.Name ).ToArray() );
             cGenerator.SelectedIndex = 0;
 
             Shown += LoadMap;
@@ -197,7 +197,7 @@ namespace fCraft.ConfigGUI {
             bwLoader.RunWorkerAsync();
         }
 
-        private void bBrowseFile_Click( object sender, EventArgs e ) {
+        void bBrowseFile_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
             if( fileBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( fileBrowser.FileName ) ) {
                 tFolder.Text = "";
@@ -212,7 +212,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        private void bBrowseFolder_Click( object sender, EventArgs e ) {
+        void bBrowseFolder_Click( object sender, EventArgs e ) {
             if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( folderBrowser.SelectedPath ) ) {
                 tFile.Text = "";
                 tFolder.Text = folderBrowser.SelectedPath;
@@ -227,13 +227,15 @@ namespace fCraft.ConfigGUI {
         }
 
         string fileToLoad;
+
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             try {
                 Map = MapUtility.Load( fileToLoad, true );
             } catch( Exception ex ) {
                 MessageBox.Show( String.Format( "Could not load specified map: {0}: {1}",
-                                                ex.GetType().Name, ex.Message ) );
+                                                ex.GetType().Name,
+                                                ex.Message ) );
             }
         }
 
@@ -329,7 +331,7 @@ namespace fCraft.ConfigGUI {
             progressBar.Visible = false;
         }
 
-        private void bPreviewPrev_Click( object sender, EventArgs e ) {
+        void bPreviewPrev_Click( object sender, EventArgs e ) {
             if( Map == null ) return;
             if( previewRotation == 0 ) previewRotation = 3;
             else previewRotation--;
@@ -337,7 +339,7 @@ namespace fCraft.ConfigGUI {
             Redraw( true );
         }
 
-        private void bPreviewNext_Click( object sender, EventArgs e ) {
+        void bPreviewNext_Click( object sender, EventArgs e ) {
             if( Map == null ) return;
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
@@ -352,7 +354,7 @@ namespace fCraft.ConfigGUI {
 
         IMapGeneratorState genState;
 
-        private void bGenerate_Click( object sender, EventArgs e ) {
+        void bGenerate_Click( object sender, EventArgs e ) {
             if( genState != null ) {
                 genState.CancelAsync();
                 tStatus1.Text = "Canceling...";
@@ -368,7 +370,9 @@ namespace fCraft.ConfigGUI {
             tStatus2.Text = "";
             if( genState.ReportsProgress ) {
                 progressBar.Style = ProgressBarStyle.Continuous;
-                genState.ProgressChanged += ( progressSender, progressArgs ) => bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
+                genState.ProgressChanged +=
+                    ( progressSender, progressArgs ) =>
+                    bwGenerator.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
             } else {
                 progressBar.Style = ProgressBarStyle.Marquee;
             }
@@ -402,9 +406,11 @@ namespace fCraft.ConfigGUI {
             stopwatch.Stop();
             if( genState.Canceled ) {
                 tStatus1.Text = "Generation canceled!";
-            }else if( Map == null ) {
+                progressBar.Visible = false;
+            } else if( Map == null ) {
                 tStatus1.Text = "Generation failed!";
                 Logger.LogAndReportCrash( "Exception while generating map", "ConfigGUI", e.Error, false );
+                progressBar.Visible = false;
             } else {
                 tStatus1.Text = "Generation successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
@@ -422,7 +428,7 @@ namespace fCraft.ConfigGUI {
 
 
         void MapDimensionValidating( object sender, CancelEventArgs e ) {
-            ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value / 16 ) * 16;
+            ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value/16 )*16;
             genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
         }
 
@@ -430,7 +436,7 @@ namespace fCraft.ConfigGUI {
         void tName_Validating( object sender, CancelEventArgs e ) {
             if( fCraft.World.IsValidName( tName.Text ) &&
                 (!MainForm.IsWorldNameTaken( tName.Text ) ||
-                (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
+                 (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
                 tName.ForeColor = SystemColors.ControlText;
             } else {
                 tName.ForeColor = System.Drawing.Color.Red;
@@ -487,7 +493,7 @@ namespace fCraft.ConfigGUI {
 
         #region Tabs
 
-        private void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
+        void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
             if( tabs.SelectedTab == tabExisting ) {
                 tab = Tabs.ExistingMap;
             } else if( tabs.SelectedTab == tabLoad ) {
@@ -557,7 +563,7 @@ namespace fCraft.ConfigGUI {
             try {
                 Map loadedMap = MapUtility.LoadHeader( fileName, true );
                 const string msgFormat =
-@"  Location: {0}
+                    @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
    Created: {3}
@@ -567,7 +573,7 @@ Dimensions: {5}×{6}×{7}
                 textBox.Text = String.Format( msgFormat,
                                               fileName,
                                               format,
-                                              (fileSize / 1024),
+                                              (fileSize/1024),
                                               creationTime.ToLongDateString(),
                                               modificationTime.ToLongDateString(),
                                               loadedMap.Width,
@@ -577,7 +583,7 @@ Dimensions: {5}×{6}×{7}
 
             } catch( Exception ex ) {
                 const string msgFormat =
-@"  Location: {0}
+                    @"  Location: {0}
     Format: {1}
   Filesize: {2} KB
    Created: {3}
@@ -588,7 +594,7 @@ Could not load more information:
                 textBox.Text = String.Format( msgFormat,
                                               fileName,
                                               format,
-                                              (fileSize / 1024),
+                                              (fileSize/1024),
                                               creationTime.ToLongDateString(),
                                               modificationTime.ToLongDateString(),
                                               ex.GetType().Name,
@@ -597,7 +603,7 @@ Could not load more information:
         }
 
 
-        private void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
+        void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
             Redraw( false );
             if( DialogResult == DialogResult.OK ) {
                 if( Map == null ) {
@@ -619,8 +625,12 @@ Could not load more information:
                         try {
                             File.Delete( oldFileName );
                         } catch( Exception ex ) {
-                            string errorMessage = String.Format( "Renaming the map file failed. Please delete the old file ({0}.fcm) manually.{1}{2}",
-                                                                 originalWorldName, Environment.NewLine, ex );
+                            string errorMessage =
+                                String.Format(
+                                    "Renaming the map file failed. Please delete the old file ({0}.fcm) manually.{1}{2}",
+                                    originalWorldName,
+                                    Environment.NewLine,
+                                    ex );
                             MessageBox.Show( errorMessage, "Error renaming the map file" );
                         }
                     }
@@ -630,19 +640,25 @@ Could not load more information:
 
 
         readonly SaveFileDialog savePreviewDialog = new SaveFileDialog();
-        private void bSavePreview_Click( object sender, EventArgs e ) {
+
+        void bSavePreview_Click( object sender, EventArgs e ) {
             try {
                 using( Image img = (Image)preview.Image.Clone() ) {
-                    if( savePreviewDialog.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( savePreviewDialog.FileName ) ) {
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK &&
+                        !String.IsNullOrEmpty( savePreviewDialog.FileName ) ) {
                         switch( savePreviewDialog.FilterIndex ) {
                             case 1:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Png ); break;
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Png );
+                                break;
                             case 2:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Tiff ); break;
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Tiff );
+                                break;
                             case 3:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Bmp ); break;
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Bmp );
+                                break;
                             case 4:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Jpeg ); break;
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Jpeg );
+                                break;
                         }
                     }
                 }
@@ -651,7 +667,7 @@ Could not load more information:
             }
         }
 
-        private void xBlockDB_CheckStateChanged( object sender, EventArgs e ) {
+        void xBlockDB_CheckStateChanged( object sender, EventArgs e ) {
             /*switch( xBlockDB.CheckState ) {
                 case CheckState.Indeterminate:
                     World.BlockDBEnabled = YesNoAuto.Auto;
@@ -669,7 +685,18 @@ Could not load more information:
         }
 
         IMapGenerator generator;
-        private void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
+
+        void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
+            string genName = cGenerator.SelectedItem.ToString();
+            SelectGenerator( GetGeneratorByName( genName ) );
+        }
+
+
+        IMapGenerator GetGeneratorByName( string genName ) {
+            return Generators.First( kvp => kvp.Key.Name == genName ).Key;
+        }
+
+        void SelectGenerator( IMapGenerator newGen ) {
             generatorParamsPanel.SuspendLayout();
             if( genGui != null ) {
                 generatorParamsPanel.Controls.Clear();
@@ -677,32 +704,38 @@ Could not load more information:
                 genGui = null;
             }
 
-            string genName = cGenerator.SelectedItem.ToString();
-            var genData = generators.First( kvp => kvp.Key.Name == genName );
-            generator = genData.Key;
-            genGui = genData.Value.CreateGui();
+            generator = newGen;
+            genGui = Generators[newGen].CreateGui();
 
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
             genGui.SetParameters( generator.GetDefaultParameters() );
-            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
+            SignalMapDimensionChange();
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
         }
 
-        private void cPreviewMode_SelectedIndexChanged( object sender, EventArgs e ) {
+
+        void cPreviewMode_SelectedIndexChanged( object sender, EventArgs e ) {
             if( Map == null ) return;
             tStatus2.Text = ", redrawing...";
             Redraw( true );
         }
 
+        void SignalMapDimensionChange() {
+            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
+        }
+
 
         SaveFileDialog savePresetDialog;
-        private void tsbSavePreset_Click( object sender, EventArgs e ) {
+
+        void tsbSavePreset_Click( object sender, EventArgs e ) {
             var genParams = genGui.GetParameters();
             if( savePresetDialog == null ) {
                 savePresetDialog = new SaveFileDialog {
-                    Filter = "fCraft MapGen Preset|*.fmgp"
+                    Filter = "fCraft MapGen Preset|*.fmgp|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
                 };
             }
             savePresetDialog.FileName = genParams.Generator.Name + "_preset.fmgp";
@@ -714,6 +747,79 @@ Could not load more information:
                 genParams.Save( genParamsEl );
                 root.Add( genParamsEl );
                 root.Save( savePresetDialog.FileName );
+            }
+        }
+
+
+        OpenFileDialog importSettingsDialog;
+
+        void tsbImportSettings_ButtonClick( object sender, EventArgs e ) {
+            if( importSettingsDialog == null ) {
+                importSettingsDialog = new OpenFileDialog {
+                    Filter = "All supported formats|*.fcm;*.ftpl|" +
+                             "fCraft Map|*.fcm|" +
+                             "fCraft Map Template (Legacy)|*.ftpl|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
+                };
+            }
+            if( importSettingsDialog.ShowDialog() == DialogResult.OK ) {
+                string fullFileName = importSettingsDialog.FileName;
+                string fileName = Path.GetFileName( fullFileName );
+                if( fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                    Map ourMap;
+                    if( MapUtility.TryLoadHeader( fullFileName, false, out ourMap ) ) {
+                        MapGenParamsFromMap( ourMap );
+                    } else {
+                        MessageBox.Show( "Could not load map file!" );
+                    }
+
+                } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
+                    XDocument doc = XDocument.Load( fullFileName );
+                    XElement root = doc.Root;
+                    MessageBox.Show( "TODO" ); // TODO
+
+                } else {
+                    MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
+                }
+            }
+        }
+
+        void MapGenParamsFromMap( Map ourMap ) {
+            string oldData;
+            if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
+                MessageBox.Show( "TODO" ); // TODO
+            }
+        }
+
+        OpenFileDialog loadPresetDialog;
+
+        void tsbLoadPreset_ButtonClick( object sender, EventArgs e ) {
+            if( loadPresetDialog == null ) {
+                loadPresetDialog = new OpenFileDialog {
+                    Filter = "fCraft MapGen Preset|*.fmgp|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
+                };
+            }
+            if( loadPresetDialog.ShowDialog() == DialogResult.OK ) {
+                string fullFileName = loadPresetDialog.FileName;
+                XDocument doc = XDocument.Load( fullFileName );
+                XElement root = doc.Root;
+                string genName = root.Element( "Generator" ).Value;
+                IMapGenerator gen = GetGeneratorByName( genName );
+                if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
+                    MessageBox.Show(
+                        "This preset was made for a different version of " + gen.Name +
+                        " map generator. Continue?",
+                        "Version mismatch",
+                        MessageBoxButtons.YesNo ) != DialogResult.Yes ) {
+                    return;
+                }
+                SelectGenerator( gen );
+                IMapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
+                genGui.SetParameters( genParams );
+                SignalMapDimensionChange();
             }
         }
     }
