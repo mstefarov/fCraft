@@ -37,8 +37,10 @@ namespace fCraft {
     public class FloatingIslandMapGenParameters : IMapGeneratorParameters {
         [Browsable( false )]
         public int MapWidth { get; set; }
+
         [Browsable( false )]
         public int MapLength { get; set; }
+
         [Browsable( false )]
         public int MapHeight { get; set; }
 
@@ -109,6 +111,7 @@ namespace fCraft {
 
         public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
+
         void ReportProgress( int progressPercent, string statusString ) {
             Progress = progressPercent;
             StatusString = statusString;
@@ -129,9 +132,9 @@ namespace fCraft {
                 map = new Map( null, genParams.MapWidth, genParams.MapLength, genParams.MapHeight, true );
 
                 for( int i = 0; i < 8; i++ ) {
-                    Vector3I offset = new Vector3I( rand.Next( 32, genParams.MapWidth - 32 ),
-                                                    rand.Next( 32, genParams.MapLength - 32 ),
-                                                    rand.Next( 32, genParams.MapHeight ) );
+                    Vector3I offset = new Vector3I( rand.Next( 16, genParams.MapWidth - 16 ),
+                                                    rand.Next( 16, genParams.MapLength - 16 ),
+                                                    rand.Next( 16, genParams.MapHeight - 16 ) );
                     CreateIsland( offset );
                 }
 
@@ -167,9 +170,9 @@ namespace fCraft {
 
             const int startSphereSize = 12;
             float sphereSize = startSphereSize;
-            Sphere firstSphere = new Sphere( genParams.MapWidth / 2f,
-                                             genParams.MapLength / 2f,
-                                             genParams.MapHeight / 2f,
+            Sphere firstSphere = new Sphere( genParams.MapWidth/2f,
+                                             genParams.MapLength/2f,
+                                             genParams.MapHeight/2f,
                                              sphereSize );
             spheres.Add( firstSphere );
 
@@ -192,30 +195,32 @@ namespace fCraft {
 
                 Vector3F displacement = newSphere.Origin - closestSphere.Origin;
                 Vector3F direction = displacement.Normalize();
-                float distance = (float)Math.Pow(newSphere.Radius + closestSphere.Radius, .75);
-                newSphere.Origin = closestSphere.Origin + direction * distance;
+                float distance = (float)Math.Pow( newSphere.Radius + closestSphere.Radius, .75 );
+                newSphere.Origin = closestSphere.Origin + direction*distance;
 
                 spheres.Add( newSphere );
                 sphereSize *= sphereSizeReduction;
             }
 
+            PerlinNoise pn = new PerlinNoise( rand, 3 );
+
             // step 2: voxelize our spheres
-            offset -= new Vector3I( genParams.MapWidth / 2,
-                                    genParams.MapLength / 2,
+            offset -= new Vector3I( genParams.MapWidth/2,
+                                    genParams.MapLength/2,
                                     genParams.MapHeight/2 );
             foreach( Sphere sphere in spheres ) {
-                Vector3I origin = new Vector3I( (int)Math.Floor(sphere.Origin.X - sphere.Radius),
-                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
-                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) );
+                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ) - 4,
+                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ) - 4,
+                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) - 4 );
                 BoundingBox box = new BoundingBox( origin,
-                                                   (int)Math.Ceiling( sphere.Radius )*2,
-                                                   (int)Math.Ceiling( sphere.Radius )*2,
-                                                   (int)Math.Ceiling( sphere.Radius ) );
+                                                   (int)Math.Ceiling( sphere.Radius )*2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius )*2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius ) + 4 );
                 for( int x = box.XMin; x <= box.XMax; x++ ) {
                     for( int y = box.YMin; y <= box.YMax; y++ ) {
                         for( int z = box.ZMin; z <= box.ZMax; z++ ) {
                             Vector3I coord = new Vector3I( x, y, z );
-                            if( sphere.DistanceTo( coord ) < sphere.Radius ) {
+                            if( sphere.DistanceTo( coord ) < sphere.Radius + pn.GetNoise( x, y ) ) {
                                 map.SetBlock( coord + offset, Block.Stone );
                             }
                         }
@@ -346,9 +351,9 @@ namespace fCraft {
                    map.GetBlock( x + 1, y, z - 2 ) != Block.Air ||
                    map.GetBlock( x - 1, y + 1, z - 2 ) != Block.Air ||
                    map.GetBlock( x, y + 1, z - 2 ) != Block.Air ||
-                   map.GetBlock( x + 1, y + 1, z - 2 ) != Block.Air;
+                   map.GetBlock( x + 1, y + 1, z - 2 ) != Block.Air ||
 
-            /*// top
+                   // top
                    map.GetBlock( x - 1, y - 1, z + 2 ) != Block.Air ||
                    map.GetBlock( x, y - 1, z + 2 ) != Block.Air ||
                    map.GetBlock( x + 1, y - 1, z + 2 ) != Block.Air ||
@@ -357,7 +362,7 @@ namespace fCraft {
                    map.GetBlock( x + 1, y, z + 2 ) != Block.Air ||
                    map.GetBlock( x - 1, y + 1, z + 2 ) != Block.Air ||
                    map.GetBlock( x, y + 1, z + 2 ) != Block.Air ||
-                   map.GetBlock( x + 1, y + 1, z + 2 ) != Block.Air;*/
+                   map.GetBlock( x + 1, y + 1, z + 2 ) != Block.Air;
         }
 
 
@@ -379,7 +384,7 @@ namespace fCraft {
 
         void PlantTrees() {
             Random treeRand = new Random( rand.Next() );
-            int maxTrees = genParams.MapWidth * genParams.MapLength / genParams.TreeClusterDensity;
+            int maxTrees = genParams.MapWidth*genParams.MapLength/genParams.TreeClusterDensity;
             for( int cluster = 0; cluster < maxTrees; cluster++ ) {
                 int clusterX = treeRand.Next( genParams.MapWidth );
                 int clusterY = treeRand.Next( genParams.MapLength );
@@ -433,7 +438,7 @@ namespace fCraft {
 
             for( int z = startZ - 3 + treeHeight; z <= startZ + treeHeight; z++ ) {
                 int n = z - (startZ + treeHeight);
-                int foliageExtent = 1 - n / 2;
+                int foliageExtent = 1 - n/2;
                 for( int x = startX - foliageExtent; x <= startX + foliageExtent; x++ ) {
                     int j = x - startX;
                     for( int y = startY - foliageExtent; y <= startY + foliageExtent; y++ ) {
@@ -452,7 +457,7 @@ namespace fCraft {
 
 
         float RandNextFloat( double min, double max ) {
-            return (float)(rand.NextDouble() * (max - min) + min);
+            return (float)(rand.NextDouble()*(max - min) + min);
         }
 
 
