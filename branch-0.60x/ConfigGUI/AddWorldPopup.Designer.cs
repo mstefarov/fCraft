@@ -23,6 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddWorldPopup));
             this.bShow = new System.Windows.Forms.Button();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
@@ -65,6 +66,13 @@
             this.lWorldToCopy = new System.Windows.Forms.Label();
             this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.tsGenPresets = new System.Windows.Forms.ToolStrip();
+            this.tsbLoadPreset = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsmLoadPresetDefaults = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbImportSettings = new System.Windows.Forms.ToolStripSplitButton();
+            this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
             this.cGenerator = new System.Windows.Forms.ComboBox();
@@ -89,6 +97,7 @@
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
             this.tabTerrain.SuspendLayout();
+            this.tsGenPresets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
@@ -534,6 +543,7 @@
             // tabTerrain
             // 
             this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
+            this.tabTerrain.Controls.Add(this.tsGenPresets);
             this.tabTerrain.Controls.Add(this.generatorParamsPanel);
             this.tabTerrain.Controls.Add(this.bGenerate);
             this.tabTerrain.Controls.Add(this.lGenerator);
@@ -552,6 +562,66 @@
             this.tabTerrain.Text = "Generator";
             this.tabTerrain.UseVisualStyleBackColor = true;
             // 
+            // tsGenPresets
+            // 
+            this.tsGenPresets.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tsGenPresets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbLoadPreset,
+            this.tsSeparator1,
+            this.tsbImportSettings,
+            this.tsSeparator2,
+            this.tsbSavePreset});
+            this.tsGenPresets.Location = new System.Drawing.Point(3, 394);
+            this.tsGenPresets.Name = "tsGenPresets";
+            this.tsGenPresets.Size = new System.Drawing.Size(390, 25);
+            this.tsGenPresets.TabIndex = 30;
+            this.tsGenPresets.Text = "toolStrip1";
+            // 
+            // tsbLoadPreset
+            // 
+            this.tsbLoadPreset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbLoadPreset.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsmLoadPresetDefaults});
+            this.tsbLoadPreset.Image = ((System.Drawing.Image)(resources.GetObject("tsbLoadPreset.Image")));
+            this.tsbLoadPreset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbLoadPreset.Name = "tsbLoadPreset";
+            this.tsbLoadPreset.Size = new System.Drawing.Size(84, 22);
+            this.tsbLoadPreset.Text = "Load Preset";
+            // 
+            // tsmLoadPresetDefaults
+            // 
+            this.tsmLoadPresetDefaults.Name = "tsmLoadPresetDefaults";
+            this.tsmLoadPresetDefaults.Size = new System.Drawing.Size(152, 22);
+            this.tsmLoadPresetDefaults.Text = "Defaults";
+            // 
+            // tsSeparator1
+            // 
+            this.tsSeparator1.Name = "tsSeparator1";
+            this.tsSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbImportSettings
+            // 
+            this.tsbImportSettings.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbImportSettings.Image = ((System.Drawing.Image)(resources.GetObject("tsbImportSettings.Image")));
+            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImportSettings.Name = "tsbImportSettings";
+            this.tsbImportSettings.Size = new System.Drawing.Size(104, 22);
+            this.tsbImportSettings.Text = "Import Settings";
+            // 
+            // tsSeparator2
+            // 
+            this.tsSeparator2.Name = "tsSeparator2";
+            this.tsSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbSavePreset
+            // 
+            this.tsbSavePreset.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.tsbSavePreset.Image = ((System.Drawing.Image)(resources.GetObject("tsbSavePreset.Image")));
+            this.tsbSavePreset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSavePreset.Name = "tsbSavePreset";
+            this.tsbSavePreset.Size = new System.Drawing.Size(70, 22);
+            this.tsbSavePreset.Text = "Save Preset";
+            // 
             // generatorParamsPanel
             // 
             this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -560,7 +630,7 @@
             this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
             this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.generatorParamsPanel.Name = "generatorParamsPanel";
-            this.generatorParamsPanel.Size = new System.Drawing.Size(390, 360);
+            this.generatorParamsPanel.Size = new System.Drawing.Size(390, 332);
             this.generatorParamsPanel.TabIndex = 29;
             // 
             // lGenerator
@@ -616,7 +686,7 @@
             this.nMapWidth.Size = new System.Drawing.Size(54, 20);
             this.nMapWidth.TabIndex = 23;
             this.nMapWidth.Value = new decimal(new int[] {
-            64,
+            256,
             0,
             0,
             0});
@@ -653,7 +723,7 @@
             this.nMapLength.Size = new System.Drawing.Size(54, 20);
             this.nMapLength.TabIndex = 25;
             this.nMapLength.Value = new decimal(new int[] {
-            64,
+            256,
             0,
             0,
             0});
@@ -690,7 +760,7 @@
             this.nMapHeight.Size = new System.Drawing.Size(54, 20);
             this.nMapHeight.TabIndex = 27;
             this.nMapHeight.Value = new decimal(new int[] {
-            64,
+            96,
             0,
             0,
             0});
@@ -810,6 +880,8 @@
             this.tabCopy.PerformLayout();
             this.tabTerrain.ResumeLayout(false);
             this.tabTerrain.PerformLayout();
+            this.tsGenPresets.ResumeLayout(false);
+            this.tsGenPresets.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
@@ -878,5 +950,12 @@
         private System.Windows.Forms.NumericUpDown nMapHeight;
         private System.Windows.Forms.NumericUpDown nMapLength;
         private System.Windows.Forms.Panel generatorParamsPanel;
+        private System.Windows.Forms.ToolStrip tsGenPresets;
+        private System.Windows.Forms.ToolStripSplitButton tsbLoadPreset;
+        private System.Windows.Forms.ToolStripMenuItem tsmLoadPresetDefaults;
+        private System.Windows.Forms.ToolStripSeparator tsSeparator1;
+        private System.Windows.Forms.ToolStripSplitButton tsbImportSettings;
+        private System.Windows.Forms.ToolStripSeparator tsSeparator2;
+        private System.Windows.Forms.ToolStripButton tsbSavePreset;
     }
 }
