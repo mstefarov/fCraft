@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace fCraft {
     /// <summary> Represets a set of map generator parameters.
@@ -20,9 +21,10 @@ namespace fCraft {
         /// <summary> Height (Z-dimension) of the map being generated. </summary>
         int MapHeight { get; set; }
 
-        /// <summary> Saves current generation parameters to a string,
-        /// in a format that's expected to be readable by IMapGenerator.CreateParameters(string) </summary>
-        string Save();
+        /// <summary> Saves current generation parameters to XML,
+        /// in a format that's expected to be readable by IMapGenerator.CreateParameters(XElement) </summary>
+        /// <param name="baseElement"> Element onto which the parameters should be attached. </param>
+        void Save( XElement baseElement );
 
         /// <summary> Creates IMapGeneratorState to create a map with the current parameters and specified dimensions. 
         /// Does NOT start the generation process yet -- that should be done in IMapGeneratorState.Generate() </summary>

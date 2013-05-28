@@ -433,7 +433,9 @@ namespace fCraft {
 
             map.Metadata["_Origin", "GeneratorName"] = "fCraft";
             map.Metadata["_Origin", "GeneratorVersion"] = Updater.CurrentRelease.VersionString;
-            map.Metadata["_Origin", "GeneratorParams"] = args.Serialize().ToString( SaveOptions.DisableFormatting );
+            XElement genParamsEl = new XElement( "Parameters" );
+            args.Save( genParamsEl );
+            map.Metadata["_Origin", "GeneratorParams"] = genParamsEl.ToString( SaveOptions.DisableFormatting );
             return map;
         }
 

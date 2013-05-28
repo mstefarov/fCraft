@@ -603,6 +603,7 @@
             this.tsbSavePreset.Name = "tsbSavePreset";
             this.tsbSavePreset.Size = new System.Drawing.Size(86, 22);
             this.tsbSavePreset.Text = "Save Preset";
+            this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
             // generatorParamsPanel
             // 

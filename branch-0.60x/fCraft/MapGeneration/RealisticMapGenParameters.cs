@@ -221,15 +221,15 @@ namespace fCraft {
         }
 
 
-        public RealisticMapGenParameters( RealisticMapGen generator ) {
-            Generator = generator;
+        public RealisticMapGenParameters() {
+            Generator = RealisticMapGen.Instance;
             ApplyDefaults();
         }
 
 
-        public RealisticMapGenParameters( RealisticMapGen generator, [NotNull] XElement root ) {
+        public RealisticMapGenParameters( [NotNull] XElement root )
+            : this() {
             if( root == null ) throw new ArgumentNullException( "root" );
-            Generator = generator;
 
             XAttribute versionTag = root.Attribute( "version" );
             int version = 0;
@@ -320,17 +320,10 @@ namespace fCraft {
         }
 
 
-        const string RootTagName = "fCraftMapGeneratorArgs";
-        public void Save( string fileName ) {
-            XDocument document = new XDocument();
-            document.Add( Serialize() );
-            document.Save( fileName );
-        }
+        const string LegacyRootTagName = "fCraftMapGeneratorArgs";
 
 
-        public XElement Serialize() {
-            XElement root = new XElement( RootTagName );
-
+        public void Save( XElement root ) {
             root.Add( new XAttribute( "version", FormatVersion ) );
 
             root.Add( new XElement( "theme", Theme ) );
@@ -391,12 +384,11 @@ namespace fCraft {
 
             root.Add( new XElement( "maxHeightVariation", MaxHeightVariation ) );
             root.Add( new XElement( "maxDepthVariation", MaxDepthVariation ) );
-            return root;
         }
 
 
         public object Clone() {
-            return new RealisticMapGenParameters(RealisticMapGen.Instance) {
+            return new RealisticMapGenParameters {
                 AboveFuncExponent = AboveFuncExponent,
                 AddBeaches = AddBeaches,
                 AddCaveLava = AddCaveLava,
@@ -448,11 +440,6 @@ namespace fCraft {
                 WaterCoverage = WaterCoverage,
                 WaterLevel = WaterLevel
             };
-        }
-
-
-        public string Save() {
-            return Serialize().ToString();
         }
 
 

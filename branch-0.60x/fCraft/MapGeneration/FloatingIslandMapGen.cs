@@ -23,7 +23,7 @@ namespace fCraft {
             return new FloatingIslandMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
+        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             throw new NotImplementedException();
         }
 
@@ -57,7 +57,7 @@ namespace fCraft {
         }
 
 
-        public string Save() {
+        public void Save( XElement baseElement ) {
             throw new NotImplementedException();
         }
 

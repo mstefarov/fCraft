@@ -23,12 +23,12 @@ namespace fCraft {
 
 
         public IMapGeneratorParameters GetDefaultParameters() {
-            return new RealisticMapGenParameters( this );
+            return new RealisticMapGenParameters();
         }
 
 
-        public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
-            return new RealisticMapGenParameters( this, XElement.Parse( serializedParameters ) );
+        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+            return new RealisticMapGenParameters( serializedParameters );
         }
 
 
@@ -41,7 +41,7 @@ namespace fCraft {
         public static RealisticMapGenParameters MakeTemplate( MapGenTemplate template ) {
             switch( template ) {
                 case MapGenTemplate.Archipelago:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 8,
                         MaxDepth = 20,
                         FeatureScale = 3,
@@ -51,7 +51,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Atoll:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
                         MaxHeight = 2,
                         MaxDepth = 39,
@@ -68,7 +68,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Bay:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
                         UseBias = true,
@@ -83,7 +83,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Dunes:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         AddTrees = false,
                         AddWater = false,
                         Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
@@ -97,7 +97,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Hills:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 8,
                         MaxDepth = 8,
@@ -107,7 +107,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Ice:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         AddTrees = false,
                         Theme = new RealisticMapGenTheme( MapGenTheme.Arctic ),
                         MaxHeight = 2,
@@ -122,7 +122,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Island:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 16,
                         MaxDepth = 39,
                         UseBias = true,
@@ -138,7 +138,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Lake:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 14,
                         MaxDepth = 20,
                         UseBias = true,
@@ -152,7 +152,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Mountains:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 40,
                         MaxDepth = 10,
@@ -167,10 +167,10 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Random:
-                    return new RealisticMapGenParameters( Instance );
+                    return new RealisticMapGenParameters();
 
                 case MapGenTemplate.River:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 8,
                         FeatureScale = 0,
@@ -181,7 +181,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Streams:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 5,
                         MaxDepth = 4,
                         FeatureScale = 2,
@@ -195,7 +195,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Peninsula:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
                         UseBias = true,
@@ -210,7 +210,7 @@ namespace fCraft {
                     };
 
                 case MapGenTemplate.Flat:
-                    return new RealisticMapGenParameters( Instance ) {
+                    return new RealisticMapGenParameters {
                         MaxHeight = 0,
                         MaxDepth = 0,
                         MaxHeightVariation = 0,

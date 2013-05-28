@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using fCraft.GUI;
 using fCraft.MapConversion;
 
@@ -693,6 +694,27 @@ Could not load more information:
             if( Map == null ) return;
             tStatus2.Text = ", redrawing...";
             Redraw( true );
+        }
+
+
+        SaveFileDialog savePresetDialog;
+        private void tsbSavePreset_Click( object sender, EventArgs e ) {
+            var genParams = genGui.GetParameters();
+            if( savePresetDialog == null ) {
+                savePresetDialog = new SaveFileDialog {
+                    Filter = "fCraft MapGen Preset|*.fmgp"
+                };
+            }
+            savePresetDialog.FileName = genParams.Generator.Name + "_preset.fmgp";
+            if( savePresetDialog.ShowDialog() == DialogResult.OK ) {
+                XElement root = new XElement( "fCraftMapGenPreset" );
+                root.Add( new XElement( "Generator", genParams.Generator.Name ) );
+                root.Add( new XElement( "Version", genParams.Generator.Version ) );
+                XElement genParamsEl = new XElement( "Parameters" );
+                genParams.Save( genParamsEl );
+                root.Add( genParamsEl );
+                root.Save( savePresetDialog.FileName );
+            }
         }
     }
 }
