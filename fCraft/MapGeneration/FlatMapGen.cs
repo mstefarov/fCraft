@@ -24,8 +24,8 @@ namespace fCraft {
             return new FlatMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
-            return new FlatMapGenParameters( XElement.Parse( serializedParameters ) );
+        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+            return new FlatMapGenParameters( serializedParameters );
         }
 
         public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
@@ -229,8 +229,7 @@ namespace fCraft {
         }
 
 
-        public string Save() {
-            XElement el = new XElement( "FlatMapGenParameters" );
+        public void Save( XElement el ) {
             el.Add( new XElement( "Version", Generator.Version.ToString() ) );
             el.Add( new XElement( "GroundLevelOffset", GroundLevelOffset ) );
             el.Add( new XElement( "SurfaceThickness", SurfaceThickness ) );
@@ -241,7 +240,6 @@ namespace fCraft {
             el.Add( new XElement( "ShallowBlock", ShallowBlock ) );
             el.Add( new XElement( "DeepBlock", DeepBlock ) );
             el.Add( new XElement( "BedrockBlock", BedrockBlock ) );
-            return el.ToString();
         }
 
 

@@ -10,7 +10,7 @@ namespace fCraft.GUI {
             mapLength,
             mapHeight;
 
-        RealisticMapGenParameters genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance );
+        RealisticMapGenParameters genParameters = new RealisticMapGenParameters();
 
 
         public RealisticMapGenGui() {
@@ -20,9 +20,6 @@ namespace fCraft.GUI {
 
             browseTemplateDialog.Filter = "MapGenerator Template|*.ftpl";
             browseTemplateDialog.Title = "Opening a MapGenerator template...";
-
-            saveTemplateDialog.Filter = browseTemplateDialog.Filter;
-            saveTemplateDialog.Title = "Saving a MapGenerator template...";
         }
 
         public override void SetParameters( IMapGeneratorParameters generatorParameters ) {
@@ -119,7 +116,7 @@ namespace fCraft.GUI {
         }
 
         void SaveGeneratorArgs() {
-            genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance ) {
+            genParameters = new RealisticMapGenParameters {
                 DetailScale = sDetailScale.Value,
                 FeatureScale = sFeatureScale.Value,
                 MapHeight = mapHeight,
@@ -185,24 +182,9 @@ namespace fCraft.GUI {
                         throw new SerializationException(
                             "RealisticManGenerator: Cannot load parameters: empty XML file." );
                     }
-                    genParameters = new RealisticMapGenParameters( RealisticMapGen.Instance, templateFile.Root );
+                    genParameters = new RealisticMapGenParameters( templateFile.Root );
                     LoadGeneratorArgs();
                     //bGenerate.PerformClick();
-                } catch( Exception ex ) {
-                    MessageBox.Show( "Could not open template file: " + ex );
-                }
-            }
-        }
-
-
-        readonly SaveFileDialog saveTemplateDialog = new SaveFileDialog();
-
-        void bSaveTemplate_Click( object sender, EventArgs e ) {
-            if( saveTemplateDialog.ShowDialog() == DialogResult.OK &&
-                !String.IsNullOrEmpty( saveTemplateDialog.FileName ) ) {
-                try {
-                    SaveGeneratorArgs();
-                    genParameters.Save( saveTemplateDialog.FileName );
                 } catch( Exception ex ) {
                     MessageBox.Show( "Could not open template file: " + ex );
                 }

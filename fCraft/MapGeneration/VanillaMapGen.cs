@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Xml.Linq;
 
 namespace fCraft {
     public class VanillaMapGen : IMapGenerator {
@@ -25,7 +26,7 @@ namespace fCraft {
             return new VanillaMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( string serializedParameters ) {
+        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             throw new NotImplementedException();
         }
 
@@ -128,7 +129,7 @@ namespace fCraft {
         [Browsable( false )]
         public int MapHeight { get; set; }
 
-        public string Save() {
+        public void Save( XElement baseElement ) {
             throw new NotImplementedException();
         }
 
