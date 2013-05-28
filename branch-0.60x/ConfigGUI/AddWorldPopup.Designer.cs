@@ -46,7 +46,6 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
@@ -68,7 +67,7 @@
             this.tsGenPresets = new System.Windows.Forms.ToolStrip();
             this.tsbLoadPreset = new System.Windows.Forms.ToolStripSplitButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbImportSettings = new System.Windows.Forms.ToolStripSplitButton();
             this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
@@ -87,9 +86,9 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
@@ -99,6 +98,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // bShow
@@ -287,7 +287,6 @@
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(100, 16);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
-            this.progressBar.Visible = false;
             // 
             // tStatus1
             // 
@@ -322,23 +321,11 @@
             this.previewLayout.Size = new System.Drawing.Size(550, 515);
             this.previewLayout.TabIndex = 12;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan(this.preview, 3);
-            this.preview.Location = new System.Drawing.Point(3, 3);
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(544, 481);
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // cPreviewMode
             // 
-            this.cPreviewMode.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.cPreviewMode.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.cPreviewMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPreviewMode.FormattingEnabled = true;
             this.cPreviewMode.Items.AddRange(new object[] {
@@ -563,6 +550,7 @@
             // tsGenPresets
             // 
             this.tsGenPresets.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.tsGenPresets.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.tsGenPresets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbLoadPreset,
             this.toolStripSeparator1,
@@ -582,6 +570,7 @@
             this.tsbLoadPreset.Name = "tsbLoadPreset";
             this.tsbLoadPreset.Size = new System.Drawing.Size(100, 22);
             this.tsbLoadPreset.Text = "Load Preset";
+            this.tsbLoadPreset.ButtonClick += new System.EventHandler(this.tsbLoadPreset_ButtonClick);
             // 
             // toolStripSeparator1
             // 
@@ -593,8 +582,9 @@
             this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
             this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbImportSettings.Name = "tsbImportSettings";
-            this.tsbImportSettings.Size = new System.Drawing.Size(117, 22);
+            this.tsbImportSettings.Size = new System.Drawing.Size(120, 22);
             this.tsbImportSettings.Text = "Import Settings";
+            this.tsbImportSettings.ButtonClick += new System.EventHandler(this.tsbImportSettings_ButtonClick);
             // 
             // tsSeparator2
             // 
@@ -615,7 +605,7 @@
             this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.generatorParamsPanel.Location = new System.Drawing.Point(0, 59);
+            this.generatorParamsPanel.Location = new System.Drawing.Point(3, 59);
             this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.generatorParamsPanel.Name = "generatorParamsPanel";
             this.generatorParamsPanel.Size = new System.Drawing.Size(390, 332);
@@ -825,6 +815,20 @@
             this.cBlockDB.Size = new System.Drawing.Size(78, 21);
             this.cBlockDB.TabIndex = 21;
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan(this.preview, 3);
+            this.preview.Location = new System.Drawing.Point(3, 3);
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size(544, 481);
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -858,7 +862,6 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
             this.tabExisting.ResumeLayout(false);
             this.tabExisting.PerformLayout();
@@ -873,6 +876,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -941,8 +945,8 @@
         private System.Windows.Forms.ToolStrip tsGenPresets;
         private System.Windows.Forms.ToolStripSplitButton tsbLoadPreset;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripDropDownButton tsbImportSettings;
         private System.Windows.Forms.ToolStripSeparator tsSeparator2;
         private System.Windows.Forms.ToolStripButton tsbSavePreset;
+        private System.Windows.Forms.ToolStripSplitButton tsbImportSettings;
     }
 }
