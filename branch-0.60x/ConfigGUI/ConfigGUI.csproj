@@ -12,7 +12,7 @@
     <AssemblyName>ConfigGUI</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>fcraft_config.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\fcraft_config.ico</ApplicationIcon>
     <StartupObject>fCraft.ConfigGUI.Program</StartupObject>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <FileUpgradeFlags>
@@ -119,8 +119,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ChatBackground.png" />
-    <Content Include="fcraft_config.ico" />
+    <Content Include="Resources\map--arrow.png" />
+    <Content Include="Resources\maps-stack.png" />
+    <None Include="Resources\ChatBackground.png" />
+    <Content Include="Resources\disk.png" />
+    <Content Include="Resources\fcraft_config.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
