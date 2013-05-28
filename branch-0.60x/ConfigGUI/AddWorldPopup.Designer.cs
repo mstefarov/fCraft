@@ -87,6 +87,7 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
@@ -271,6 +272,10 @@
             // 
             // statusStrip
             // 
+            this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.progressBar,
+            this.tStatus1,
+            this.tStatus2});
             this.statusStrip.Location = new System.Drawing.Point(0, 561);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(984, 22);
@@ -850,6 +855,8 @@
             this.ShowInTaskbar = false;
             this.Text = "Add World";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AddWorldPopup_FormClosing);
+            this.statusStrip.ResumeLayout(false);
+            this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
