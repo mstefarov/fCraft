@@ -141,6 +141,11 @@ namespace fCraft {
                     Map = FlatMapGen.MakeFlatgrass( 128, 128, 64 ).Generate();
                 }
 
+                if( Map == null ) {
+                    // should never happen, theoretically, unless FlatMapGen messes up
+                    throw new NullReferenceException( "World.LoadMap failed to produce a map file!" );
+                }
+
                 return Map;
             }
         }
