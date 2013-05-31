@@ -1550,6 +1550,7 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
+                    if( nextToken.StartsWith( "@" ) ) nextToken = nextToken.Substring( 1 );
                     Rank rank = RankManager.FindRank( nextToken );
                     if( rank == null ) {
                         player.MessageNoRank( nextToken );
@@ -1819,6 +1820,7 @@ namespace fCraft {
 
                     // Setting minimum rank
                 } else {
+                    if( nextToken.StartsWith( "@" ) ) nextToken = nextToken.Substring( 1 );
                     Rank rank = RankManager.FindRank( nextToken );
                     if( rank == null ) {
                         player.MessageNoRank( nextToken );
@@ -1883,12 +1885,13 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
             Name = "WFlush",
+            Aliases = new[] {"Flush"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.FlushWorlds },
+            Permissions = new[] {Permission.FlushWorlds},
             Usage = "/WFlush [WorldName]",
-            Help = "Flushes the update buffer on specified map by causing players to rejoin. " +
-                   "Makes cuboids and other draw commands finish REALLY fast.",
+            Help = "Reloads the current world to apply all pending drawing commands, forces all players to rejoin the map. " +
+                   "Makes cuboids and other draw commands finish REALLY quickly.",
             Handler = WorldFlushHandler
         };
 

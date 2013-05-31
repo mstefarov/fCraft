@@ -1355,7 +1355,7 @@
  Change: IRC bot's commands (e.g. !status) are temporarily unavailable.
 
 0.445
- IMPORTANT! Please update ASAP, a security was identified in previous version.
+ IMPORTANT! Please update ASAP, a security issue was identified in previous version.
  Fix: If you need to start message with a slash, you can now escape the slash (type "//")
  Fix: Fixed endless update loop (if automatic updates were enabled)
  Fix: Private messages with a space between '@' and the player name now work.
