@@ -8,7 +8,7 @@ using ImageManipulation;
 
 namespace fCraft.MapRenderer {
     class RenderWorker {
-        static int threadCount = 0;
+        static int threadCount;
         readonly BlockingQueue<RenderTask> inQueue, outQueue;
         readonly MapRendererParams p;
         readonly int threadNumber;

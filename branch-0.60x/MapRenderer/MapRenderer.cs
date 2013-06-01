@@ -1,7 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -10,7 +9,6 @@ using System.Threading;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
-using ImageManipulation;
 using JetBrains.Annotations;
 using Mono.Options;
 
@@ -24,6 +22,7 @@ namespace fCraft.MapRenderer {
 
         static readonly MapRendererParams p = new MapRendererParams();
         static string importerName;
+
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
@@ -147,13 +146,17 @@ namespace fCraft.MapRenderer {
                 while( resultsProcessed < totalFiles ) {
                     if( inputsProcessed < totalFiles ) {
                         // load and enqueue another map for rendering
-                        RenderTask newTask = InputPathList.Dequeue();
-                        if( LoadMap( newTask ) ) {
-                            WorkQueue.Enqueue( newTask );
+                        if( ResultQueue.Count < actualThreadCount ) {
+                            RenderTask newTask = InputPathList.Dequeue();
+                            if( LoadMap( newTask ) ) {
+                                WorkQueue.Enqueue( newTask );
+                            } else {
+                                resultsProcessed++;
+                            }
+                            inputsProcessed++;
                         } else {
-                            resultsProcessed++;
+                            Thread.Sleep( 1 );
                         }
-                        inputsProcessed++;
 
                         // try dequeue a rendered image for saving
                         RenderTask resultTask;
