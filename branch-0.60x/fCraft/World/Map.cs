@@ -708,29 +708,34 @@ namespace fCraft {
         /// <returns> A 2D array of same Width/Length as the map.
         /// Value at each coordinate corresponds to the highest solid point on the map. </returns>
         public short[,] ComputeHeightmap() {
-            short[,] shadows = new short[Width, Length];
-            for( int x = 0; x < Width; x++ ) {
-                for( int y = 0; y < Length; y++ ) {
-                    for( short z = (short)( Height - 1 ); z >= 0; z-- ) {
-                        switch( GetBlock( x, y, z ) ) {
-                            case Block.Air:
-                            case Block.BrownMushroom:
-                            case Block.Glass:
-                            case Block.Leaves:
-                            case Block.RedFlower:
-                            case Block.RedMushroom:
-                            case Block.Sapling:
-                            case Block.YellowFlower:
-                                continue;
-                            default:
-                                shadows[x, y] = z;
-                                break;
+            fixed( byte* blocks = Blocks ) {
+                int layer = Width*Length;
+                short[,] shadows = new short[Width,Length];
+                for( int x = 0; x < Width; x++ ) {
+                    for( int y = 0; y < Length; y++ ) {
+                        int index = Index( x, y, Height - 1 );
+                        for( int z = (Height - 1); z >= 0; z-- ) {
+                            switch( (Block)blocks[index] ) {
+                                case Block.Air:
+                                case Block.BrownMushroom:
+                                case Block.Glass:
+                                case Block.Leaves:
+                                case Block.RedFlower:
+                                case Block.RedMushroom:
+                                case Block.Sapling:
+                                case Block.YellowFlower:
+                                    index -= layer;
+                                    continue;
+                                default:
+                                    shadows[x, y] = (short)z;
+                                    break;
+                            }
+                            break;
                         }
-                        break;
                     }
                 }
+                return shadows;
             }
-            return shadows;
         }
 
 
