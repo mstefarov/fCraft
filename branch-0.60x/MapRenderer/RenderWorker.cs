@@ -49,6 +49,7 @@ namespace fCraft.MapRenderer {
                             image = result.Bitmap;
                         } else {
                             image = result.Bitmap.Clone( result.CropRectangle, result.Bitmap.PixelFormat );
+                            result.Bitmap.Dispose();
                         }
 
                         // encode image
@@ -63,6 +64,7 @@ namespace fCraft.MapRenderer {
                         } else {
                             image.Save( ms, p.ExportFormat );
                         }
+                        image.Dispose();
                         task.Result = ms.ToArray();
 
                     } catch( Exception ex ) {
