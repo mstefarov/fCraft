@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
@@ -15,36 +16,14 @@ using Mono.Options;
 
 namespace fCraft.MapRenderer {
     static class MapRenderer {
-        static int angle;
-        static IsoCatMode mode = IsoCatMode.Normal;
-        static ImageFormat exportFormat = ImageFormat.Png;
-        static string imageFileExtension = ".png";
-        static BoundingBox region = BoundingBox.Empty;
-        static int jpegQuality = 80;
-        static IMapImporter mapImporter;
-        static IsoCat renderer;
-        static ImageCodecInfo imageEncoder;
-        static bool directoryMode;
+        static readonly BlockingQueue<RenderTask> ResultQueue = new BlockingQueue<RenderTask>();
+        static readonly BlockingQueue<RenderTask> WorkQueue = new BlockingQueue<RenderTask>();
+        static readonly Queue<RenderTask> InputPathList = new Queue<RenderTask>();
 
-        static string[] inputPathList;
+        static readonly DateTime StartTime = DateTime.UtcNow;
 
-        static bool noGradient,
-                    noShadows,
-                    seeThroughWater,
-                    seeThroughLava,
-                    recursive,
-                    overwrite,
-                    uncropped,
-                    useRegex,
-                    outputDirGiven,
-                    tryHard;
-
-        static string outputDirName,
-                      inputFilter,
-                      importerName;
-
-        static Regex filterRegex;
-
+        static readonly MapRendererParams p = new MapRendererParams();
+        static string importerName;
 
         static int Main( string[] args ) {
             Logger.Logged += OnLogged;
@@ -63,8 +42,8 @@ namespace fCraft.MapRenderer {
                     PrintUsage();
                     return (int)ReturnCode.UnrecognizedImporter;
                 }
-                mapImporter = MapUtility.GetImporter( importFormat );
-                if( mapImporter == null ) {
+                p.MapImporter = MapUtility.GetImporter( importFormat );
+                if( p.MapImporter == null ) {
                     Console.Error.WriteLine( "Loading from \"{0}\" is not supported", importFormat );
                     PrintUsage();
                     return (int)ReturnCode.UnsupportedLoadFormat;
@@ -74,7 +53,7 @@ namespace fCraft.MapRenderer {
             // check input paths
             bool hadFile = false,
                  hadDir = false;
-            foreach( string inputPath in inputPathList ) {
+            foreach( string inputPath in p.InputPathList ) {
                 if( hadDir ) {
                     Console.Error.WriteLine( "MapRenderer: Only one directory may be specified at a time." );
                     return (int)ReturnCode.ArgumentError;
@@ -89,9 +68,9 @@ namespace fCraft.MapRenderer {
                             Console.Error.WriteLine( "MapRenderer: Cannot mix directories and files in input." );
                             return (int)ReturnCode.ArgumentError;
                         }
-                        directoryMode = true;
-                        if( !outputDirGiven ) {
-                            outputDirName = inputPath;
+                        p.DirectoryMode = true;
+                        if( !p.OutputDirGiven ) {
+                            p.OutputDirName = inputPath;
                         }
                     } else {
                         Console.Error.WriteLine( "MapRenderer: Cannot locate \"{0}\"", inputPath );
@@ -107,57 +86,29 @@ namespace fCraft.MapRenderer {
 
             // initialize image encoder
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageDecoders();
-            imageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == exportFormat.Guid );
-            if( imageEncoder == null ) {
+            p.ImageEncoder = codecs.FirstOrDefault( codec => codec.FormatID == p.ExportFormat.Guid );
+            if( p.ImageEncoder == null ) {
                 Console.Error.WriteLine( "MapRenderer: Specified image encoder is not supported." );
                 return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
-            // create and configure the renderer
-            renderer = new IsoCat {
-                SeeThroughLava = seeThroughLava,
-                SeeThroughWater = seeThroughWater,
-                Mode = mode,
-                Gradient = !noGradient,
-                DrawShadows = !noShadows
-            };
-            if( mode == IsoCatMode.Chunk ) {
-                renderer.ChunkCoords[0] = region.XMin;
-                renderer.ChunkCoords[1] = region.YMin;
-                renderer.ChunkCoords[2] = region.ZMin;
-                renderer.ChunkCoords[3] = region.XMax;
-                renderer.ChunkCoords[4] = region.YMax;
-                renderer.ChunkCoords[5] = region.ZMax;
-            }
-            switch( angle ) {
-                case 90:
-                    renderer.Rotation = 1;
-                    break;
-                case 180:
-                    renderer.Rotation = 2;
-                    break;
-                case 270:
-                case -90:
-                    renderer.Rotation = 3;
-                    break;
-            }
 
             // check recursive flag
-            if( recursive && !directoryMode ) {
+            if( p.Recursive && !p.DirectoryMode ) {
                 Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
                 return (int)ReturnCode.ArgumentError;
             }
 
             // check input filter
-            if( inputFilter != null && !directoryMode ) {
+            if( p.InputFilter != null && !p.DirectoryMode ) {
                 Console.Error.WriteLine( "MapRenderer: Filter param is given, but input is not a directory." );
                 return (int)ReturnCode.ArgumentError;
             }
 
             // check regex filter
-            if( useRegex ) {
+            if( p.UseRegex ) {
                 try {
-                    filterRegex = new Regex( inputFilter );
+                    p.FilterRegex = new Regex( p.InputFilter );
                 } catch( ArgumentException ex ) {
                     Console.Error.WriteLine( "MapRenderer: Cannot parse filter regex: {0}",
                                              ex.Message );
@@ -166,10 +117,10 @@ namespace fCraft.MapRenderer {
             }
 
             // check if output dir exists; create it if needed
-            if( outputDirName != null ) {
+            if( p.OutputDirName != null ) {
                 try {
-                    if( !Directory.Exists( outputDirName ) ) {
-                        Directory.CreateDirectory( outputDirName );
+                    if( !Directory.Exists( p.OutputDirName ) ) {
+                        Directory.CreateDirectory( p.OutputDirName );
                     }
                 } catch( Exception ex ) {
                     Console.Error.WriteLine( "MapRenderer: Error checking output directory: {0}: {1}",
@@ -178,133 +129,166 @@ namespace fCraft.MapRenderer {
             }
 
             // process inputs, one path at a time
-            foreach( string inputPath in inputPathList ) {
-                ReturnCode code = ProcessInputPath( inputPath );
-                if( code != ReturnCode.Success ) {
-                    return (int)code;
+            foreach( string inputPath in p.InputPathList ) {
+                ProcessInputPath( inputPath );
+            }
+            int totalFiles = InputPathList.Count;
+
+            if( totalFiles > 0 ) {
+                int actualThreadCount = Math.Min( p.ThreadCount, InputPathList.Count );
+                RenderWorker[] workers = new RenderWorker[actualThreadCount];
+                for( int i = 0; i < workers.Length; i++ ) {
+                    workers[i] = new RenderWorker( WorkQueue, ResultQueue, p );
+                    workers[i].Start();
+                }
+
+                int inputsProcessed = 0;
+                int resultsProcessed = 0;
+                while( resultsProcessed < totalFiles ) {
+                    if( inputsProcessed < totalFiles ) {
+                        // load and enqueue another map for rendering
+                        RenderTask newTask = InputPathList.Dequeue();
+                        if( LoadMap( newTask ) ) {
+                            WorkQueue.Enqueue( newTask );
+                        } else {
+                            resultsProcessed++;
+                        }
+                        inputsProcessed++;
+
+                        // try dequeue a rendered image for saving
+                        RenderTask resultTask;
+                        if( ResultQueue.TryDequeue( out resultTask ) ) {
+                            SaveImage( resultTask );
+                            resultsProcessed++;
+                        }
+
+                    } else {
+                        // no more maps to load -- just wait for results
+                        SaveImage( ResultQueue.WaitDequeue() );
+                        resultsProcessed++;
+                    }
                 }
             }
+
+            Console.WriteLine( "Processed {0} files in {1:0.00} seconds",
+                               InputPathList.Count,
+                               DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
             return (int)ReturnCode.Success;
         }
 
 
-        static ReturnCode ProcessInputPath( [NotNull] string inputPath ) {
-            if( inputPath == null ) throw new ArgumentNullException( "inputPath" );
-            if( !recursive && mapImporter != null && mapImporter.StorageType == MapStorageType.Directory ) {
-                // single directory-based map (e.g. Myne)
-                if( !outputDirGiven ) {
-                    string parentDir = Directory.GetParent( inputPath ).FullName;
-                    outputDirName = Paths.GetDirectoryNameOrRoot( parentDir );
-                }
-                RenderOneMap( new DirectoryInfo( inputPath ), Path.GetDirectoryName( inputPath ) );
+        static bool LoadMap( RenderTask task ) {
+            try {
+                Map map;
+                if( p.MapImporter != null ) {
+                    map = p.MapImporter.Load( task.MapPath );
 
-            } else if( !directoryMode ) {
-                // single file-based map
-                if( !outputDirGiven ) {
-                    outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
+                } else {
+                    map = MapUtility.Load( task.MapPath, p.TryHard );
                 }
-                RenderOneMap( new FileInfo( inputPath ), Path.GetFileName( inputPath ) );
+                task.Map = map;
+                return true;
+
+            } catch( NoMapConverterFoundException ) {
+                Console.WriteLine( "{0}: skipped", task.RelativeName );
+                return false;
+
+            } catch( Exception ex ) {
+                Console.WriteLine( "Error loading {0}", task.RelativeName );
+                Console.Error.WriteLine( ex );
+                return false;
+            }
+        }
+
+
+        static void ProcessInputPath( [NotNull] string inputPath ) {
+            if( inputPath == null ) throw new ArgumentNullException( "inputPath" );
+            if( !p.Recursive && p.MapImporter != null && p.MapImporter.StorageType == MapStorageType.Directory ) {
+                // single directory-based map (e.g. Myne)
+                if( !p.OutputDirGiven ) {
+                    string parentDir = Directory.GetParent( inputPath ).FullName;
+                    p.OutputDirName = Paths.GetDirectoryNameOrRoot( parentDir );
+                }
+                QueueOneMap( new DirectoryInfo( inputPath ), Path.GetDirectoryName( inputPath ) );
+
+            } else if( !p.DirectoryMode ) {
+                // single file-based map
+                if( !p.OutputDirGiven ) {
+                    p.OutputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
+                }
+                QueueOneMap( new FileInfo( inputPath ), Path.GetFileName( inputPath ) );
 
             } else {
                 // go through all files inside the given directory
-                SearchOption recursiveOption = (recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                SearchOption recursiveOption = (p.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 string inputDirNormalizedName = Paths.NormalizeDirName( inputDirInfo.FullName );
-                if( inputFilter == null || useRegex ) inputFilter = "*";
-                foreach( var file in inputDirInfo.GetFiles( inputFilter, recursiveOption ) ) {
+                if( p.InputFilter == null || p.UseRegex ) p.InputFilter = "*";
+                foreach( var file in inputDirInfo.GetFiles( p.InputFilter, recursiveOption ) ) {
                     string relativePath = Paths.MakeRelativePath( inputDirNormalizedName, file.FullName );
-                    if( !useRegex || filterRegex.IsMatch( relativePath ) ) {
-                        RenderOneMap( file, relativePath );
+                    if( !p.UseRegex || p.FilterRegex.IsMatch( relativePath ) ) {
+                        QueueOneMap( file, relativePath );
                     }
                 }
                 // try to go through all directories as well, for loading directory-based maps
-                bool tryLoadDirs = (mapImporter == null || mapImporter.StorageType == MapStorageType.Directory);
+                bool tryLoadDirs = (p.MapImporter == null || p.MapImporter.StorageType == MapStorageType.Directory);
                 if( tryLoadDirs ) {
-                    foreach( var dir in inputDirInfo.GetDirectories( inputFilter, recursiveOption ) ) {
+                    foreach( var dir in inputDirInfo.GetDirectories( p.InputFilter, recursiveOption ) ) {
                         string relativePath = Paths.MakeRelativePath( inputDirNormalizedName, Paths.NormalizeDirName( dir.FullName ) );
-                        if( !useRegex || filterRegex.IsMatch( relativePath ) ) {
-                            RenderOneMap( dir, relativePath );
+                        if( !p.UseRegex || p.FilterRegex.IsMatch( relativePath ) ) {
+                            QueueOneMap( dir, relativePath );
                         }
                     }
                 }
             }
-            return ReturnCode.Success;
         }
 
 
-        static void RenderOneMap( [NotNull] FileSystemInfo fileSystemInfo, [NotNull] string relativeName ) {
+        static void QueueOneMap( [NotNull] FileSystemInfo fileSystemInfo, [NotNull] string relativeName ) {
             if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
             if( relativeName == null ) throw new ArgumentNullException( "relativeName" );
 
-            try {
-                // if output directory was not given, save to same directory as the mapfile
-                if( !outputDirGiven ) {
-                    outputDirName = Paths.GetDirectoryNameOrRoot( fileSystemInfo.FullName );
-                }
+            string mapPath = fileSystemInfo.FullName;
 
-                // load the mapfile
-                Map map;
-                if( mapImporter != null ) {
-                    if( !mapImporter.ClaimsName( fileSystemInfo.FullName ) ) {
-                        return;
-                    }
-                    Console.Write( "Loading {0}... ", relativeName );
-                    map = mapImporter.Load( fileSystemInfo.FullName );
-
-                } else {
-                    Console.Write( "Checking {0}... ", relativeName );
-                    map = MapUtility.Load( fileSystemInfo.FullName, tryHard );
-                }
-
-                // select target image file name
-                string targetFileName;
-                if( (fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory ) {
-                    targetFileName = fileSystemInfo.Name + imageFileExtension;
-                } else {
-                    targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + imageFileExtension;
-                }
-
-                // get full target image file name, check if it already exists
-                string targetPath = Path.Combine( outputDirName, targetFileName );
-                if( !overwrite && File.Exists( targetPath ) ) {
-                    Console.WriteLine();
-                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
-                        return;
-                    }
-                }
-
-                // draw and save
-                Console.Write( "Drawing... " );
-                IsoCatResult result = renderer.Draw( map );
-                Console.Write( "Saving {0}... ", Path.GetFileName( targetFileName ) );
-                if( uncropped ) {
-                    SaveImage( result.Bitmap, targetPath );
-                } else {
-                    SaveImage( result.Bitmap.Clone( result.CropRectangle, result.Bitmap.PixelFormat ), targetPath );
-                }
-                Console.WriteLine( "ok" );
-
-            } catch( NoMapConverterFoundException ) {
-                Console.WriteLine( "skip" );
-
-            } catch( Exception ex ) {
-                Console.WriteLine( "ERROR" );
-                Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex );
+            if( p.MapImporter != null && !p.MapImporter.ClaimsName( mapPath ) ) {
+                return;
             }
+
+            // if output directory was not given, save to same directory as the mapfile
+            if( !p.OutputDirGiven ) {
+                p.OutputDirName = Paths.GetDirectoryNameOrRoot( fileSystemInfo.FullName );
+            }
+
+            // select target image file name
+            string targetFileName;
+            if( (fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory ) {
+                targetFileName = fileSystemInfo.Name + p.ImageFileExtension;
+            } else {
+                targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + p.ImageFileExtension;
+            }
+
+            // get full target image file name, check if it already exists
+            string targetPath = Path.Combine( p.OutputDirName, targetFileName );
+
+            InputPathList.Enqueue( new RenderTask( mapPath, targetPath, relativeName ) );
         }
 
 
-        static void SaveImage( Bitmap image, string targetFileName ) {
-            if( exportFormat.Equals( ImageFormat.Jpeg ) ) {
-                EncoderParameters encoderParams = new EncoderParameters();
-                encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, jpegQuality );
-                image.Save( targetFileName, imageEncoder, encoderParams );
-            } else if( exportFormat.Equals( ImageFormat.Gif ) ) {
-                OctreeQuantizer q = new OctreeQuantizer( 255, 8 );
-                image = q.Quantize( image );
-                image.Save( targetFileName, exportFormat );
+        static void SaveImage( RenderTask task ) {
+            if( task.Exception != null ) {
+                Console.WriteLine( "{0}: Error rendering image", task.RelativeName );
+                Console.Error.WriteLine( "{0}: {1}", task.Exception.GetType().Name, task.Exception );
             } else {
-                image.Save( targetFileName, exportFormat );
+                if( !p.AlwaysOverwrite && File.Exists( task.TargetPath ) ) {
+                    Console.WriteLine();
+                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", Path.GetFileName( task.TargetPath ) ) ) {
+                        return;
+                    }
+                }
+                using( FileStream fs = File.OpenWrite( task.TargetPath ) ) {
+                    fs.Write( task.Result, 0, task.Result.Length );
+                }
+                Console.WriteLine( "{0}: ok", task.RelativeName );
             }
         }
 
@@ -333,7 +317,8 @@ namespace fCraft.MapRenderer {
                    imageFormatName = null,
                    angleString = null,
                    isoCatModeName = null,
-                   regionString = null;
+                   regionString = null,
+                   threadCountString = null;
 
             string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
 
@@ -344,6 +329,10 @@ namespace fCraft.MapRenderer {
                       "Angle (orientation) from which the map is drawn. May be -90, 0, 90, 180, or 270. Default is 0.",
                       o => angleString = o )
 
+                .Add( "d|tryhard",
+                      "Try ALL the map converters on map files that cannot be loaded normally.",
+                      o => p.TryHard = (o != null) )
+
                 .Add( "e=|export=",
                       "Image format to use for exporting. " +
                       "Supported formats: PNG (default), BMP, GIF, JPEG, TIFF.",
@@ -352,11 +341,11 @@ namespace fCraft.MapRenderer {
                 .Add( "f=|filter=",
                       "Pattern to filter input filenames, e.g. \"*.dat\" or \"builder*\". " +
                       "Applicable only when a directory name is given as input.",
-                      o => inputFilter = o )
+                      o => p.InputFilter = o )
 
                 .Add( "g|nogradient",
                       "Disables altitude-based gradient/shading on terrain.",
-                      o => noGradient = (o != null) )
+                      o => p.NoGradient = (o != null) )
 
                 .Add( "i=|importer=",
                       "Optional: Converter used for importing/loading maps. " +
@@ -365,7 +354,7 @@ namespace fCraft.MapRenderer {
 
                 .Add( "l|seethroughlava",
                       "Makes all lava partially see-through, instead of opaque.",
-                      o => seeThroughLava = (o != null) )
+                      o => p.SeeThroughLava = (o != null) )
 
                 .Add( "m=|mode=",
                       "Rendering mode. May be \"normal\" (default), \"cut\" (cuts out a quarter of the map, revealing inside), " +
@@ -375,7 +364,7 @@ namespace fCraft.MapRenderer {
                 .Add( "o=|output=",
                       "Path to save images to. " +
                       "If not specified, images will be saved to the maps' directories.",
-                      o => outputDirName = o )
+                      o => p.OutputDirName = o )
 
                 .Add( "q=|quality=",
                       "Sets JPEG compression quality. Between 0 and 100. Default is 80. " +
@@ -385,11 +374,11 @@ namespace fCraft.MapRenderer {
                 .Add( "r|recursive",
                       "Look through all subdirectories for map files. " +
                       "Applicable only when a directory name is given as input.",
-                      o => recursive = (o != null) )
+                      o => p.Recursive = (o != null) )
 
-                .Add( "t|tryhard",
-                      "Try ALL the map converters on map files that cannot be loaded normally.",
-                      o => tryHard = (o != null) )
+                .Add( "t=|threads=",
+                      "Number of threads to use, to render multiple files in parallel.",
+                      o => threadCountString = o )
 
                 .Add( "region=",
                       "Region of the map to render. Should be given in following format: \"region=x1,y1,z1,x2,y2,z2\" " +
@@ -398,23 +387,23 @@ namespace fCraft.MapRenderer {
 
                 .Add( "s|noshadows",
                       "Disables rendering of shadows.",
-                      o => noShadows = (o != null) )
+                      o => p.NoShadows = (o != null) )
 
                 .Add( "u|uncropped",
                       "Does not crop the finished map image, leaving some empty space around the edges.",
-                      o => uncropped = (o != null) )
+                      o => p.Uncropped = (o != null) )
 
                 .Add( "w|seethroughwater",
                       "Makes all water see-through, instead of mostly opaque.",
-                      o => seeThroughWater = (o != null) )
+                      o => p.SeeThroughWater = (o != null) )
 
                 .Add( "x|regex",
                       "Enable regular expressions in \"filter\".",
-                      o => useRegex = (o != null) )
+                      o => p.UseRegex = (o != null) )
 
                 .Add( "y|overwrite",
                       "Do not ask for confirmation to overwrite existing files.",
-                      o => overwrite = (o != null) )
+                      o => p.AlwaysOverwrite = (o != null) )
 
                 .Add( "?|h|help",
                       "Prints out the options.",
@@ -440,21 +429,25 @@ namespace fCraft.MapRenderer {
                 PrintUsage();
                 return ReturnCode.ArgumentError;
             }
-            inputPathList = pathList.ToArray();
+            p.InputPathList = pathList.ToArray();
 
             // Parse angle
+            int angle = 0;
             if( angleString != null && (!Int32.TryParse( angleString, out angle ) ||
                                          angle != -90 && angle != 0 && angle != 180 && angle != 270) ) {
                 Console.Error.WriteLine( "MapRenderer: Angle must be a number: -90, 0, 90, 180, or 270" );
                 return ReturnCode.ArgumentError;
             }
+            p.Angle = angle;
 
             // Parse mode
+            IsoCatMode mode = IsoCatMode.Normal;
             if( isoCatModeName != null && !EnumUtil.TryParse( isoCatModeName, out mode, true ) ) {
                 Console.Error.WriteLine(
                     "MapRenderer: Rendering mode should be: \"normal\", \"cut\", \"peeled\", or \"chunk\"." );
                 return ReturnCode.ArgumentError;
             }
+            p.Mode = mode;
 
             // Parse region (if in chunk mode)
             if( mode == IsoCatMode.Chunk ) {
@@ -464,10 +457,10 @@ namespace fCraft.MapRenderer {
                 }
                 try {
                     string[] regionParts = regionString.Split( ',' );
-                    region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ),
-                                              Int32.Parse( regionParts[2] ),
-                                              Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ),
-                                              Int32.Parse( regionParts[5] ) );
+                    p.Region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ),
+                                                Int32.Parse( regionParts[2] ),
+                                                Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ),
+                                                Int32.Parse( regionParts[5] ) );
                 } catch {
                     Console.Error.WriteLine(
                         "MapRenderer: Region should be specified in the following format: \"--region=x1,y1,z1,x2,y2,z2\"" );
@@ -480,22 +473,22 @@ namespace fCraft.MapRenderer {
             // Parse given image format
             if( imageFormatName != null ) {
                 if( imageFormatName.Equals( "BMP", StringComparison.OrdinalIgnoreCase ) ) {
-                    exportFormat = ImageFormat.Bmp;
-                    imageFileExtension = ".bmp";
+                    p.ExportFormat = ImageFormat.Bmp;
+                    p.ImageFileExtension = ".bmp";
                 } else if( imageFormatName.Equals( "GIF", StringComparison.OrdinalIgnoreCase ) ) {
-                    exportFormat = ImageFormat.Gif;
-                    imageFileExtension = ".gif";
+                    p.ExportFormat = ImageFormat.Gif;
+                    p.ImageFileExtension = ".gif";
                 } else if( imageFormatName.Equals( "JPEG", StringComparison.OrdinalIgnoreCase ) ||
                            imageFormatName.Equals( "JPG", StringComparison.OrdinalIgnoreCase ) ) {
-                    exportFormat = ImageFormat.Jpeg;
-                    imageFileExtension = ".jpg";
+                    p.ExportFormat = ImageFormat.Jpeg;
+                    p.ImageFileExtension = ".jpg";
                 } else if( imageFormatName.Equals( "PNG", StringComparison.OrdinalIgnoreCase ) ) {
-                    exportFormat = ImageFormat.Png;
-                    imageFileExtension = ".png";
+                    p.ExportFormat = ImageFormat.Png;
+                    p.ImageFileExtension = ".png";
                 } else if( imageFormatName.Equals( "TIFF", StringComparison.OrdinalIgnoreCase ) ||
                            imageFormatName.Equals( "TIF", StringComparison.OrdinalIgnoreCase ) ) {
-                    exportFormat = ImageFormat.Tiff;
-                    imageFileExtension = ".tif";
+                    p.ExportFormat = ImageFormat.Tiff;
+                    p.ImageFileExtension = ".tif";
                 } else {
                     Console.Error.WriteLine(
                         "MapRenderer: Image file format should be: BMP, GIF, JPEG, PNG, or TIFF" );
@@ -505,29 +498,39 @@ namespace fCraft.MapRenderer {
 
             // Parse JPEG quality
             if( jpegQualityString != null ) {
-                if( exportFormat.Guid == ImageFormat.Jpeg.Guid ) {
+                if( p.ExportFormat.Guid == ImageFormat.Jpeg.Guid ) {
+                    int jpegQuality;
                     if( !Int32.TryParse( jpegQualityString, out jpegQuality ) || jpegQuality < 0 || jpegQuality > 100 ) {
                         Console.Error.WriteLine(
                             "MapRenderer: JpegQuality parameter should be a number between 0 and 100" );
                         return ReturnCode.ArgumentError;
                     }
+                    p.JpegQuality = jpegQuality;
                 } else {
                     Console.Error.WriteLine(
                         "MapRenderer: JpegQuality parameter given, but image export format was not set to \"JPEG\"." );
                 }
             }
 
-            if( mapImporter != null && tryHard ) {
+            if( p.MapImporter != null && p.TryHard ) {
                 Console.Error.WriteLine( "MapRenderer: --tryhard flag can only be used when importer is \"auto\"." );
                 return ReturnCode.ArgumentError;
             }
 
-            if( inputFilter == null && useRegex ) {
+            if( p.InputFilter == null && p.UseRegex ) {
                 Console.Error.WriteLine( "MapRenderer: --regex flag can only be used when --filter is specified." );
                 return ReturnCode.ArgumentError;
             }
 
-            outputDirGiven = (outputDirName != null);
+            byte tempThreadCount = 2;
+            if( threadCountString != null &&
+                (!Byte.TryParse( threadCountString, out tempThreadCount ) || tempThreadCount < 1) ) {
+                Console.Error.WriteLine( "MapRenderer: --threads flag must be a number between 1 and 255" );
+                return ReturnCode.ArgumentError;
+            }
+            p.ThreadCount = tempThreadCount;
+
+            p.OutputDirGiven = (p.OutputDirName != null);
 
             return ReturnCode.Success;
         }
@@ -548,7 +551,7 @@ namespace fCraft.MapRenderer {
 
 
         [StringFormatMethod( "prompt" )]
-        public static bool ShowYesNo( [NotNull] string prompt, params object[] formatArgs ) {
+        static bool ShowYesNo( [NotNull] string prompt, params object[] formatArgs ) {
             if( prompt == null ) throw new ArgumentNullException( "prompt" );
             while( true ) {
                 Console.Write( prompt + " (Y/N): ", formatArgs );
