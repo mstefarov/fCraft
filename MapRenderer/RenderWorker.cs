@@ -41,6 +41,7 @@ namespace fCraft.MapRenderer {
                     try {
                         // render the map
                         IsoCatResult result = renderer.Draw( task.Map );
+                        task.Map = null;
 
                         // crop image (if needed)
                         Image image;
