@@ -179,7 +179,7 @@ namespace fCraft.MapRenderer {
             }
 
             Console.WriteLine( "Processed {0} files in {1:0.00} seconds",
-                               InputPaths.Count,
+                               totalFiles,
                                DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
             return (int)ReturnCode.Success;
         }
