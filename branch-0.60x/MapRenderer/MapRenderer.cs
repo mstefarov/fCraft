@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -91,7 +92,6 @@ namespace fCraft.MapRenderer {
                 return (int)ReturnCode.UnsupportedSaveFormat;
             }
 
-
             // check recursive flag
             if( p.Recursive && !p.DirectoryMode ) {
                 Console.Error.WriteLine( "MapRenderer: Recursive flag is given, but input is not a directory." );
@@ -127,11 +127,14 @@ namespace fCraft.MapRenderer {
                 }
             }
 
+            Console.Write( "Counting files... " );
+
             // process inputs, one path at a time
             foreach( string inputPath in p.InputPathList ) {
                 ProcessInputPath( inputPath );
             }
             int totalFiles = InputPaths.Count;
+            Console.WriteLine( totalFiles );
 
             if( totalFiles > 0 ) {
                 int actualThreadCount = Math.Min( p.ThreadCount, InputPaths.Count );
@@ -161,13 +164,15 @@ namespace fCraft.MapRenderer {
                         // try dequeue a rendered image for saving
                         RenderTask resultTask;
                         if( ResultQueue.TryDequeue( out resultTask ) ) {
-                            SaveImage( resultTask );
+                            int percent = (resultsProcessed*100+100)/totalFiles;
+                            SaveImage( percent, resultTask );
                             resultsProcessed++;
                         }
 
                     } else {
                         // no more maps to load -- just wait for results
-                        SaveImage( ResultQueue.WaitDequeue() );
+                        int percent = (resultsProcessed * 100 + 100) / totalFiles;
+                        SaveImage( percent, ResultQueue.WaitDequeue() );
                         resultsProcessed++;
                     }
                 }
@@ -277,7 +282,7 @@ namespace fCraft.MapRenderer {
         }
 
 
-        static void SaveImage( RenderTask task ) {
+        static void SaveImage( int percentage, RenderTask task ) {
             if( task.Exception != null ) {
                 Console.WriteLine( "{0}: Error rendering image", task.RelativeName );
                 Console.Error.WriteLine( "{0}: {1}", task.Exception.GetType().Name, task.Exception );
@@ -291,7 +296,9 @@ namespace fCraft.MapRenderer {
                 using( FileStream fs = File.OpenWrite( task.TargetPath ) ) {
                     fs.Write( task.Result, 0, task.Result.Length );
                 }
-                Console.WriteLine( "{0}: ok", task.RelativeName );
+                Console.WriteLine( "[{0}%] {1}: ok",
+                                   percentage.ToString( CultureInfo.InvariantCulture ).PadLeft( 3 ),
+                                   task.RelativeName );
             }
         }
 
