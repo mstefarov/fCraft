@@ -47,9 +47,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapRenderer.cs" />
+    <Compile Include="MapRendererParams.cs" />
+    <Compile Include="RenderTask.cs" />
     <Compile Include="OctreeQuantizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Quantizer.cs" />
+    <Compile Include="RenderWorker.cs" />
     <Compile Include="ReturnCode.cs" />
   </ItemGroup>
   <ItemGroup>
