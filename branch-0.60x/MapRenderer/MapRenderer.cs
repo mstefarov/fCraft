@@ -16,7 +16,7 @@ namespace fCraft.MapRenderer {
     static class MapRenderer {
         static readonly BlockingQueue<RenderTask> ResultQueue = new BlockingQueue<RenderTask>();
         static readonly BlockingQueue<RenderTask> WorkQueue = new BlockingQueue<RenderTask>();
-        static readonly Queue<RenderTask> InputPathList = new Queue<RenderTask>();
+        static readonly Queue<RenderTask> InputPaths = new Queue<RenderTask>();
 
         static readonly DateTime StartTime = DateTime.UtcNow;
 
@@ -131,10 +131,10 @@ namespace fCraft.MapRenderer {
             foreach( string inputPath in p.InputPathList ) {
                 ProcessInputPath( inputPath );
             }
-            int totalFiles = InputPathList.Count;
+            int totalFiles = InputPaths.Count;
 
             if( totalFiles > 0 ) {
-                int actualThreadCount = Math.Min( p.ThreadCount, InputPathList.Count );
+                int actualThreadCount = Math.Min( p.ThreadCount, InputPaths.Count );
                 RenderWorker[] workers = new RenderWorker[actualThreadCount];
                 for( int i = 0; i < workers.Length; i++ ) {
                     workers[i] = new RenderWorker( WorkQueue, ResultQueue, p );
@@ -146,8 +146,8 @@ namespace fCraft.MapRenderer {
                 while( resultsProcessed < totalFiles ) {
                     if( inputsProcessed < totalFiles ) {
                         // load and enqueue another map for rendering
-                        if( ResultQueue.Count < actualThreadCount ) {
-                            RenderTask newTask = InputPathList.Dequeue();
+                        if( WorkQueue.Count < actualThreadCount ) {
+                            RenderTask newTask = InputPaths.Dequeue();
                             if( LoadMap( newTask ) ) {
                                 WorkQueue.Enqueue( newTask );
                             } else {
@@ -174,7 +174,7 @@ namespace fCraft.MapRenderer {
             }
 
             Console.WriteLine( "Processed {0} files in {1:0.00} seconds",
-                               InputPathList.Count,
+                               InputPaths.Count,
                                DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
             return (int)ReturnCode.Success;
         }
@@ -273,7 +273,7 @@ namespace fCraft.MapRenderer {
             // get full target image file name, check if it already exists
             string targetPath = Path.Combine( p.OutputDirName, targetFileName );
 
-            InputPathList.Enqueue( new RenderTask( mapPath, targetPath, relativeName ) );
+            InputPaths.Enqueue( new RenderTask( mapPath, targetPath, relativeName ) );
         }
 
 
