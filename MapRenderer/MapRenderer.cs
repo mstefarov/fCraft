@@ -390,7 +390,7 @@ namespace fCraft.MapRenderer {
                       o => p.Recursive = (o != null) )
 
                 .Add( "t=|threads=",
-                      "Number of threads to use, to render multiple files in parallel.",
+                      "Number of threads to use, to render multiple files in parallel. Default is CPU count.",
                       o => threadCountString = o )
 
                 .Add( "region=",
