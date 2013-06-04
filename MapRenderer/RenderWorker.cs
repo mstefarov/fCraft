@@ -7,6 +7,7 @@ using fCraft.GUI;
 using ImageManipulation;
 
 namespace fCraft.MapRenderer {
+    /// <summary> Class responsible for rendering map files, in a dedicated thread. </summary>
     class RenderWorker {
         static int threadCount;
         readonly BlockingQueue<RenderTask> inQueue, outQueue;
@@ -15,7 +16,8 @@ namespace fCraft.MapRenderer {
         IsoCat renderer;
         readonly Thread thread;
 
-        public RenderWorker( BlockingQueue<RenderTask> inputQueue, BlockingQueue<RenderTask> outputQueue, MapRendererParams taskParams ) {
+        public RenderWorker( BlockingQueue<RenderTask> inputQueue, BlockingQueue<RenderTask> outputQueue,
+                             MapRendererParams taskParams ) {
             inQueue = inputQueue;
             outQueue = outputQueue;
             threadCount++;
@@ -36,7 +38,9 @@ namespace fCraft.MapRenderer {
         void RenderLoop() {
             renderer = MakeRenderer();
             using( MemoryStream ms = new MemoryStream() ) {
-                while( true ) { // terminates with the rest of the program
+                // loop terminates with the rest of the program (this is a background thread)
+                while( true ) {
+                    // wait (block) until a map is available for drawing
                     RenderTask task = inQueue.WaitDequeue();
                     try {
                         // render the map
@@ -65,11 +69,15 @@ namespace fCraft.MapRenderer {
                             image.Save( ms, p.ExportFormat );
                         }
                         image.Dispose();
+
+                        // store result as a byte[]
                         task.Result = ms.ToArray();
 
                     } catch( Exception ex ) {
                         task.Exception = ex;
                     }
+
+                    // send stack to the results queue
                     outQueue.Enqueue( task );
                     ms.SetLength( 0 );
                 }
@@ -87,12 +95,7 @@ namespace fCraft.MapRenderer {
                 DrawShadows = !p.NoShadows
             };
             if( p.Mode == IsoCatMode.Chunk ) {
-                newRenderer.ChunkCoords[0] = p.Region.XMin;
-                newRenderer.ChunkCoords[1] = p.Region.YMin;
-                newRenderer.ChunkCoords[2] = p.Region.ZMin;
-                newRenderer.ChunkCoords[3] = p.Region.XMax;
-                newRenderer.ChunkCoords[4] = p.Region.YMax;
-                newRenderer.ChunkCoords[5] = p.Region.ZMax;
+                newRenderer.Chunk = p.Region;
             }
             switch( p.Angle ) {
                 case 90:

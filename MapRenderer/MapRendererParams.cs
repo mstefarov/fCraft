@@ -4,6 +4,7 @@ using fCraft.GUI;
 using fCraft.MapConversion;
 
 namespace fCraft.MapRenderer {
+    /// <summary> Holds all parameters for MapRenderer program, and sets some defaults. </summary>
     class MapRendererParams {
         public int Angle { get; set; }
         public IsoCatMode Mode { get; set; }

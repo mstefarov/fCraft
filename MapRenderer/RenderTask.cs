@@ -1,6 +1,7 @@
 ﻿using System;
 
 namespace fCraft.MapRenderer {
+    /// <summary> Holds all information related to a single map-rendering task. </summary>
     class RenderTask {
         public Byte[] Result { get; set; }
         public Map Map { get; set; }
