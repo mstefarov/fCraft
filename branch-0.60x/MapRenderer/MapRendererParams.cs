@@ -1,4 +1,5 @@
-﻿using System.Drawing.Imaging;
+﻿using System;
+using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
 using fCraft.GUI;
 using fCraft.MapConversion;
@@ -35,7 +36,7 @@ namespace fCraft.MapRenderer {
             Mode = IsoCatMode.Normal;
             Region = BoundingBox.Empty;
             JpegQuality = 90;
-            ThreadCount = 2;
+            ThreadCount = Environment.ProcessorCount;
             ExportFormat = ImageFormat.Png;
             ImageFileExtension = ".png";
         }
