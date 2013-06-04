@@ -46,7 +46,7 @@ namespace fCraft {
         #region Info
 
         const int MaxAltsToPrint = 15;
-        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\*\?]", RegexOptions.Compiled );
+        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\.\*\?]", RegexOptions.Compiled );
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
@@ -116,7 +116,12 @@ namespace fCraft {
 
             } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
-                string regexString = "^" + RegexNonNameChars.Replace( name, "" ).Replace( "*", ".*" ).Replace( "?", "." ) + "$";
+                string regexString = "^" +
+                                     RegexNonNameChars.Replace( name, "" )
+                                                      .Replace( ".", "\\." )
+                                                      .Replace( "*", ".*" )
+                                                      .Replace( "?", "." ) +
+                                     "$";
                 Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
                 infos = PlayerDB.FindPlayers( regex );
 
