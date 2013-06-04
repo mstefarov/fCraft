@@ -16,17 +16,6 @@ using fCraft.MapConversion;
 
 namespace fCraft.ConfigGUI {
     sealed partial class AddWorldPopup : Form {
-        static readonly Dictionary<IMapGenerator, IMapGeneratorGuiProvider> Generators =
-            new Dictionary<IMapGenerator, IMapGeneratorGuiProvider>();
-
-        static AddWorldPopup() {
-            Generators.Add( FlatMapGen.Instance, DefaultMapGenGuiProvider.Instance );
-            Generators.Add( RealisticMapGen.Instance, RealisticMapGenGuiProvider.Instance );
-            Generators.Add( VanillaMapGen.Instance, DefaultMapGenGuiProvider.Instance );
-            Generators.Add( FloatingIslandMapGen.Instance, DefaultMapGenGuiProvider.Instance );
-        }
-
-
         readonly BackgroundWorker bwLoader = new BackgroundWorker(),
                                   bwGenerator = new BackgroundWorker(),
                                   bwRenderer = new BackgroundWorker();
@@ -110,8 +99,10 @@ namespace fCraft.ConfigGUI {
                 "PNG Image|*.png|TIFF Image|*.tif;*.tiff|Bitmap Image|*.bmp|JPEG Image|*.jpg;*.jpeg";
             savePreviewDialog.Title = "Saving preview image...";
 
-            cGenerator.Items.AddRange( Generators.Keys.Select( gen => gen.Name ).ToArray() );
+            cGenerator.Items.AddRange( MapGenUtil.GeneratorList.Select( gen => gen.Name ).ToArray() );
             cGenerator.SelectedIndex = 0;
+
+            tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
 
             Shown += LoadMap;
         }
@@ -130,7 +121,6 @@ namespace fCraft.ConfigGUI {
                 var importSettingsItem = tsbImportSettings.DropDownItems.Add( otherWorld.Name );
                 importSettingsItem.Tag = otherWorld;
             }
-            tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
 
             if( World == null ) {
                 // initialize defaults for a new world (Adding)
@@ -421,6 +411,9 @@ namespace fCraft.ConfigGUI {
             stopwatch = Stopwatch.StartNew();
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map = genState.Generate();
+            if( Map != null ) {
+                Map.Metadata.Add( "_Origin", "MapGenerationParameters", null );
+            }
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
@@ -722,12 +715,7 @@ Could not load more information:
 
         void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
             string genName = cGenerator.SelectedItem.ToString();
-            SelectGenerator( GetGeneratorByName( genName ) );
-        }
-
-
-        IMapGenerator GetGeneratorByName( string genName ) {
-            return Generators.First( kvp => kvp.Key.Name == genName ).Key;
+            SelectGenerator( MapGenUtil.GetGeneratorByName( genName ) );
         }
 
         void SelectGenerator( IMapGenerator newGen ) {
@@ -739,7 +727,7 @@ Could not load more information:
             }
 
             generator = newGen;
-            genGui = Generators[newGen].CreateGui();
+            genGui = MapGenGuiUtil.GetGuiForGenerator(newGen).CreateGui();
 
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
@@ -852,7 +840,7 @@ Could not load more information:
                 XDocument doc = XDocument.Load( fullFileName );
                 XElement root = doc.Root;
                 string genName = root.Element( "Generator" ).Value;
-                IMapGenerator gen = GetGeneratorByName( genName );
+                IMapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
                 if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
                     MessageBox.Show(
                         "This preset was made for a different version of " + gen.Name +
