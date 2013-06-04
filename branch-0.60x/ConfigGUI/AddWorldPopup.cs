@@ -149,6 +149,7 @@ namespace fCraft.ConfigGUI {
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 0;
                 cBlockDB.SelectedIndex = 0; // Auto
+                cVisibility.SelectedIndex = 0;
                 Map = null;
 
             } else {
@@ -160,7 +161,7 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedItem = World.AccessPermission;
                 cBuild.SelectedItem = World.BuildPermission;
                 cBackup.SelectedItem = World.Backup;
-                /*xHidden.Checked = World.Hidden;*/
+                cVisibility.SelectedIndex = (World.Hidden ? 1 : 0);
 
                 switch( World.BlockDBEnabled ) {
                     case YesNoAuto.Auto:
@@ -521,6 +522,18 @@ namespace fCraft.ConfigGUI {
                     break;
                 case 2:
                     World.BlockDBEnabled = YesNoAuto.No;
+                    break;
+            }
+        }
+
+
+        void cVisibility_SelectedIndexChanged( object sender, EventArgs e ) {
+            switch( cVisibility.SelectedIndex ) {
+                case 0:
+                    World.Hidden = false;
+                    break;
+                case 1:
+                    World.Hidden = true;
                     break;
             }
         }

@@ -785,11 +785,11 @@
             // lVisibility
             // 
             this.lVisibility.AutoSize = true;
-            this.lVisibility.Location = new System.Drawing.Point(240, 14);
+            this.lVisibility.Location = new System.Drawing.Point(253, 15);
             this.lVisibility.Name = "lVisibility";
-            this.lVisibility.Size = new System.Drawing.Size(88, 13);
+            this.lVisibility.Size = new System.Drawing.Size(75, 13);
             this.lVisibility.TabIndex = 18;
-            this.lVisibility.Text = "World list visibility";
+            this.lVisibility.Text = "Hidden world?";
             this.lVisibility.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // cVisibility
@@ -797,14 +797,13 @@
             this.cVisibility.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cVisibility.FormattingEnabled = true;
             this.cVisibility.Items.AddRange(new object[] {
-            "Everyone",
-            "All who can access",
-            "All who can build",
-            "No one"});
+            "Visible",
+            "Hidden"});
             this.cVisibility.Location = new System.Drawing.Point(334, 12);
             this.cVisibility.Name = "cVisibility";
             this.cVisibility.Size = new System.Drawing.Size(78, 21);
             this.cVisibility.TabIndex = 19;
+            this.cVisibility.SelectedIndexChanged += new System.EventHandler(this.cVisibility_SelectedIndexChanged);
             // 
             // lBlockDB
             // 
