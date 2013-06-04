@@ -31,9 +31,18 @@ namespace fCraft.ConfigGUI {
                                   bwGenerator = new BackgroundWorker(),
                                   bwRenderer = new BackgroundWorker();
 
+        Stopwatch stopwatch;
+        int previewRotation;
+        Bitmap previewImage;
+        string originalWorldName;
+        readonly List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
+        Tabs tab;
+        MapGeneratorGui genGui;
+
         const string MapLoadFilter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta;*.mine;*.save";
 
         readonly object redrawLock = new object();
+
 
         Map map;
 
@@ -45,20 +54,14 @@ namespace fCraft.ConfigGUI {
                         try {
                             bOK.Enabled = (value != null);
                             lCreateMap.Visible = !bOK.Enabled;
-                        } catch( ObjectDisposedException ) {} catch( InvalidOperationException ) {}
+                        } catch( ObjectDisposedException ) {
+                        } catch( InvalidOperationException ) {}
                     } );
-                } catch( ObjectDisposedException ) {} catch( InvalidOperationException ) {}
+                } catch( ObjectDisposedException ) {
+                } catch( InvalidOperationException ) {}
                 map = value;
             }
         }
-
-        Stopwatch stopwatch;
-        int previewRotation;
-        Bitmap previewImage;
-        string originalWorldName;
-        readonly List<WorldListEntry> copyOptionsList = new List<WorldListEntry>();
-        Tabs tab;
-        MapGeneratorGui genGui;
 
 
         internal WorldListEntry World { get; private set; }
@@ -114,16 +117,23 @@ namespace fCraft.ConfigGUI {
         }
 
 
+        WorldListEntry[] otherWorlds;
+
         void LoadMap( object sender, EventArgs args ) {
+            // get the list of existing worlds
+            otherWorlds = MainForm.Worlds.Where( w => w != World ).ToArray();
+
             // Fill in the "Copy existing world" combobox
-            foreach( WorldListEntry otherWorld in MainForm.Worlds ) {
-                if( otherWorld != World ) {
-                    cWorld.Items.Add( otherWorld.Name + " (" + otherWorld.Description + ")" );
-                    copyOptionsList.Add( otherWorld );
-                }
+            foreach( WorldListEntry otherWorld in otherWorlds ) {
+                cWorld.Items.Add( otherWorld.Name + " (" + otherWorld.Description + ")" );
+                copyOptionsList.Add( otherWorld );
+                var importSettingsItem = tsbImportSettings.DropDownItems.Add( otherWorld.Name );
+                importSettingsItem.Tag = otherWorld;
             }
+            tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
 
             if( World == null ) {
+                // initialize defaults for a new world (Adding)
                 Text = "Adding a New World";
 
                 // keep trying "NewWorld#" until we find an unused number
@@ -138,11 +148,11 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedIndex = 0;
                 cBuild.SelectedIndex = 0;
                 cBackup.SelectedIndex = 0;
-                //xBlockDB.CheckState = CheckState.Indeterminate; // TODO
+                cBlockDB.SelectedIndex = 0; // Auto
                 Map = null;
 
             } else {
-                // Editing a world
+                // Fill in information from an existing world (Editing)
                 World = new WorldListEntry( World );
                 Text = "Editing World \"" + World.Name + "\"";
                 originalWorldName = World.Name;
@@ -150,19 +160,19 @@ namespace fCraft.ConfigGUI {
                 cAccess.SelectedItem = World.AccessPermission;
                 cBuild.SelectedItem = World.BuildPermission;
                 cBackup.SelectedItem = World.Backup;
-                /*xHidden.Checked = World.Hidden;
+                /*xHidden.Checked = World.Hidden;*/
 
                 switch( World.BlockDBEnabled ) {
                     case YesNoAuto.Auto:
-                        xBlockDB.CheckState = CheckState.Indeterminate;
+                        cBlockDB.SelectedIndex = 0;
                         break;
                     case YesNoAuto.Yes:
-                        xBlockDB.CheckState = CheckState.Checked;
+                        cBlockDB.SelectedIndex = 1;
                         break;
                     case YesNoAuto.No:
-                        xBlockDB.CheckState = CheckState.Unchecked;
+                        cBlockDB.SelectedIndex = 2;
                         break;
-                } TODO */
+                }
             }
 
             // Disable "copy" tab if there are no other worlds
@@ -188,6 +198,8 @@ namespace fCraft.ConfigGUI {
 
         #region Loading/Saving Map
 
+        string fileToLoad;
+
         void StartLoadingMap() {
             Map = null;
             tStatus1.Text = "Loading " + new FileInfo( fileToLoad ).Name;
@@ -196,6 +208,7 @@ namespace fCraft.ConfigGUI {
             progressBar.Style = ProgressBarStyle.Marquee;
             bwLoader.RunWorkerAsync();
         }
+
 
         void bBrowseFile_Click( object sender, EventArgs e ) {
             fileBrowser.FileName = tFile.Text;
@@ -212,6 +225,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+
         void bBrowseFolder_Click( object sender, EventArgs e ) {
             if( folderBrowser.ShowDialog() == DialogResult.OK && !String.IsNullOrEmpty( folderBrowser.SelectedPath ) ) {
                 tFile.Text = "";
@@ -226,7 +240,6 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        string fileToLoad;
 
         void AsyncLoad( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
@@ -238,6 +251,7 @@ namespace fCraft.ConfigGUI {
                                                 ex.Message ) );
             }
         }
+
 
         void AsyncLoadCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
@@ -296,6 +310,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+
         void AsyncDraw( object sender, DoWorkEventArgs e ) {
             stopwatch = Stopwatch.StartNew();
             renderer.Rotation = previewRotation;
@@ -315,9 +330,11 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Optimized );
         }
 
+
         void AsyncDrawProgress( object sender, ProgressChangedEventArgs e ) {
             progressBar.Value = e.ProgressPercentage;
         }
+
 
         void AsyncDrawCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
@@ -331,6 +348,7 @@ namespace fCraft.ConfigGUI {
             progressBar.Visible = false;
         }
 
+
         void bPreviewPrev_Click( object sender, EventArgs e ) {
             if( Map == null ) return;
             if( previewRotation == 0 ) previewRotation = 3;
@@ -339,10 +357,18 @@ namespace fCraft.ConfigGUI {
             Redraw( true );
         }
 
+
         void bPreviewNext_Click( object sender, EventArgs e ) {
             if( Map == null ) return;
             if( previewRotation == 3 ) previewRotation = 0;
             else previewRotation++;
+            tStatus2.Text = ", redrawing...";
+            Redraw( true );
+        }
+
+
+        void cPreviewMode_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( Map == null ) return;
             tStatus2.Text = ", redrawing...";
             Redraw( true );
         }
@@ -397,10 +423,12 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
 
+
         void AsyncGenProgress( object sender, ProgressChangedEventArgs e ) {
             progressBar.Value = e.ProgressPercentage;
             tStatus1.Text = (string)e.UserState;
         }
+
 
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
@@ -425,7 +453,6 @@ namespace fCraft.ConfigGUI {
 
 
         #region Input Handlers
-
 
         void MapDimensionValidating( object sender, CancelEventArgs e ) {
             ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value/16 )*16;
@@ -465,11 +492,6 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        void xHidden_CheckedChanged( object sender, EventArgs e ) {
-            //World.Hidden = xHidden.Checked;
-        }
-
-
         void bShow_Click( object sender, EventArgs e ) {
             if( cWorld.SelectedIndex != -1 && File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName ) ) {
                 bShow.Enabled = false;
@@ -485,6 +507,21 @@ namespace fCraft.ConfigGUI {
                 string fileName = copyOptionsList[cWorld.SelectedIndex].FullFileName;
                 bShow.Enabled = File.Exists( fileName );
                 ShowMapDetails( tCopyInfo, fileName );
+            }
+        }
+
+
+        void cBlockDB_SelectedIndexChanged( object sender, EventArgs e ) {
+            switch( cBlockDB.SelectedIndex ) {
+                case 0:
+                    World.BlockDBEnabled = YesNoAuto.Auto;
+                    break;
+                case 1:
+                    World.BlockDBEnabled = YesNoAuto.Yes;
+                    break;
+                case 2:
+                    World.BlockDBEnabled = YesNoAuto.No;
+                    break;
             }
         }
 
@@ -667,22 +704,6 @@ Could not load more information:
             }
         }
 
-        void xBlockDB_CheckStateChanged( object sender, EventArgs e ) {
-            /*switch( xBlockDB.CheckState ) {
-                case CheckState.Indeterminate:
-                    World.BlockDBEnabled = YesNoAuto.Auto;
-                    xBlockDB.Text = "BlockDB (Auto)";
-                    break;
-                case CheckState.Checked:
-                    World.BlockDBEnabled = YesNoAuto.Yes;
-                    xBlockDB.Text = "BlockDB (On)";
-                    break;
-                case CheckState.Unchecked:
-                    World.BlockDBEnabled = YesNoAuto.No;
-                    xBlockDB.Text = "BlockDB (Off)";
-                    break;
-            }*/
-        }
 
         IMapGenerator generator;
 
@@ -715,12 +736,6 @@ Could not load more information:
             generatorParamsPanel.PerformLayout();
         }
 
-
-        void cPreviewMode_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( Map == null ) return;
-            tStatus2.Text = ", redrawing...";
-            Redraw( true );
-        }
 
         void SignalMapDimensionChange() {
             genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
@@ -785,12 +800,29 @@ Could not load more information:
             }
         }
 
+
+        void tsbImportSettings_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            WorldListEntry entry = e.ClickedItem.Tag as WorldListEntry;
+            if( entry == null ) return;
+
+            Map ourMap;
+            if( MapUtility.TryLoadHeader( entry.FullFileName, false, out ourMap ) ) {
+                MapGenParamsFromMap( ourMap );
+            } else {
+                MessageBox.Show( "Could not load map file!" );
+            }
+        }
+
+
         void MapGenParamsFromMap( Map ourMap ) {
             string oldData;
             if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
                 MessageBox.Show( "TODO" ); // TODO
+            } else {
+                MessageBox.Show( "No embedded generation settings found!" );
             }
         }
+
 
         OpenFileDialog loadPresetDialog;
 
