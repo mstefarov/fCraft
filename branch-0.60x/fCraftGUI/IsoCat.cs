@@ -58,7 +58,9 @@ namespace fCraft.GUI {
         }
 
 
-        public int[] ChunkCoords { get; private set; }
+
+        [CanBeNull]
+        public BoundingBox Chunk { get; set; }
 
         public int Rotation { get; set; }
 
@@ -73,7 +75,7 @@ namespace fCraft.GUI {
         public IsoCat() {
             Rotation = 0;
             Mode = IsoCatMode.Normal;
-            ChunkCoords = new int[6];
+            Chunk = null;
             DrawShadows = true;
             Gradient = true;
         }
@@ -98,6 +100,11 @@ namespace fCraft.GUI {
         public IsoCatResult Draw( [NotNull] Map mapToDraw ) {
             if( mapToDraw == null ) throw new ArgumentNullException( "mapToDraw" );
             map = mapToDraw;
+
+            if( Mode == IsoCatMode.Chunk && Chunk == null ) {
+                throw new InvalidOperationException(
+                    "When IsoCatMode is set to \"Chunk\", chunk boundaries must be set before calling Draw()" );
+            }
 
             x = y = z = 0;
             dimX = map.Width;
@@ -130,17 +137,20 @@ namespace fCraft.GUI {
 
             mh34 = map.Height * 3 / 4;
 
-            short[,] shadows;
+            short[][] shadows;
             if( DrawShadows ) {
                 shadows = map.ComputeHeightmap();
             } else {
-                shadows = new short[map.Width, map.Length];
+                shadows = new short[map.Width][];
+                for( int i = 0; i < map.Width; i++ ) {
+                    shadows[i] = new short[map.Length];
+                }
             }
 
             try {
                 fixed( byte* bpx = map.Blocks,
-                    tp = Tiles,
-                    stp = ShadowTiles ) {
+                             tp = Tiles,
+                             stp = ShadowTiles ) {
                     bp = bpx;
                     while( z < map.Height ) {
                         block = GetBlock( x, y, z );
@@ -148,16 +158,16 @@ namespace fCraft.GUI {
 
                             switch( Rotation ) {
                                 case 0:
-                                    ctp = ( z >= shadows[x, y] ? tp : stp );
+                                    ctp = ( z >= shadows[x][y] ? tp : stp );
                                     break;
                                 case 1:
-                                    ctp = ( z >= shadows[dimX1 - y, x] ? tp : stp );
+                                    ctp = ( z >= shadows[dimX1 - y][x] ? tp : stp );
                                     break;
                                 case 2:
-                                    ctp = ( z >= shadows[dimX1 - x, dimY1 - y] ? tp : stp );
+                                    ctp = ( z >= shadows[dimX1 - x][dimY1 - y] ? tp : stp );
                                     break;
                                 case 3:
-                                    ctp = ( z >= shadows[y, dimY1 - x] ? tp : stp );
+                                    ctp = ( z >= shadows[y][dimY1 - x] ? tp : stp );
                                     break;
                             }
 
@@ -389,24 +399,39 @@ namespace fCraft.GUI {
                     realy = dimY1 - xx;
                     break;
             }
-            int pos = ( zz * dimY + realy ) * dimX + realx;
+            int pos = (zz*dimY + realy)*dimX + realx;
 
-            if( Mode == IsoCatMode.Normal ) {
-                return bp[pos];
-            } else if( Mode == IsoCatMode.Peeled &&
-                       ( xx == ( Rotation == 1 || Rotation == 3 ? dimY1 : dimX1 ) || yy == ( Rotation == 1 || Rotation == 3 ? dimX1 : dimY1 ) ||
-                         zz == map.Height - 1 ) ) {
-                return 0;
-            } else if( Mode == IsoCatMode.Cut && xx > ( Rotation == 1 || Rotation == 3 ? dimY2 : dimX2 ) &&
-                       yy > ( Rotation == 1 || Rotation == 3 ? dimX2 : dimY2 ) ) {
-                return 0;
-            } else if( Mode == IsoCatMode.Chunk &&
-                       ( realx < ChunkCoords[0] || realy < ChunkCoords[1] || zz < ChunkCoords[2] ||
-                         realx > ChunkCoords[3] || realy > ChunkCoords[4] || zz > ChunkCoords[5] ) ) {
-                return 0;
+            switch( Mode ) {
+                case IsoCatMode.Normal:
+                    return bp[pos];
+
+                case IsoCatMode.Peeled:
+                    if( xx == (Rotation == 1 || Rotation == 3 ? dimY1 : dimX1) ||
+                        yy == (Rotation == 1 || Rotation == 3 ? dimX1 : dimY1) ||
+                        zz == map.Height - 1 ) {
+                        return 0;
+                    } else {
+                        return bp[pos];
+                    }
+
+                case IsoCatMode.Cut:
+                    if( xx > (Rotation == 1 || Rotation == 3 ? dimY2 : dimX2) &&
+                        yy > (Rotation == 1 || Rotation == 3 ? dimX2 : dimY2) ) {
+                        return 0;
+                    } else {
+                        return bp[pos];
+                    }
+
+                case IsoCatMode.Chunk:
+                    if( Chunk.Contains( realx, realy, zz ) ) {
+                        return 0;
+                    } else {
+                        return bp[pos];
+                    }
+
+                default:
+                    throw new InvalidOperationException( "Unrecognized IsoCatMode" );
             }
-
-            return bp[pos];
         }
 
 

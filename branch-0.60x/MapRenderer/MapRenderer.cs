@@ -178,7 +178,7 @@ namespace fCraft.MapRenderer {
                 }
             }
 
-            Console.WriteLine( "Processed {0} files in {1:0.00} seconds",
+            Console.WriteLine( "MapRenderer: Processed {0} files in {1:0.00} seconds",
                                totalFiles,
                                DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
             return (int)ReturnCode.Success;
@@ -198,11 +198,11 @@ namespace fCraft.MapRenderer {
                 return true;
 
             } catch( NoMapConverterFoundException ) {
-                Console.WriteLine( "{0}: skipped", task.RelativeName );
+                Console.WriteLine( "{0}: Skipped (no compatible converter found).", task.RelativeName );
                 return false;
 
             } catch( Exception ex ) {
-                Console.WriteLine( "Error loading {0}", task.RelativeName );
+                Console.WriteLine( "{0}: Error loading map file:", task.RelativeName );
                 Console.Error.WriteLine( ex );
                 return false;
             }
@@ -284,12 +284,15 @@ namespace fCraft.MapRenderer {
 
         static void SaveImage( int percentage, RenderTask task ) {
             if( task.Exception != null ) {
-                Console.WriteLine( "{0}: Error rendering image", task.RelativeName );
+                Console.WriteLine( "{0}: Error rendering image:", task.RelativeName );
                 Console.Error.WriteLine( "{0}: {1}", task.Exception.GetType().Name, task.Exception );
             } else {
                 if( !p.AlwaysOverwrite && File.Exists( task.TargetPath ) ) {
                     Console.WriteLine();
                     if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", Path.GetFileName( task.TargetPath ) ) ) {
+                        Console.WriteLine( "[{0}%] {1}: Skipped (image file already exists)",
+                                           percentage.ToString( CultureInfo.InvariantCulture ).PadLeft( 3 ),
+                                           task.RelativeName );
                         return;
                     }
                 }

@@ -707,11 +707,13 @@ namespace fCraft {
         /// Air, Brown/Red mushrooms, Glass, Leaves, Red/Yellow flowers, and Saplings are considered non-solid. </summary>
         /// <returns> A 2D array of same Width/Length as the map.
         /// Value at each coordinate corresponds to the highest solid point on the map. </returns>
-        public short[,] ComputeHeightmap() {
+        public short[][] ComputeHeightmap() {
             fixed( byte* blocks = Blocks ) {
                 int layer = Width*Length;
-                short[,] shadows = new short[Width,Length];
+                short[][] shadows = new short[Width][];
                 for( int x = 0; x < Width; x++ ) {
+                    shadows[x] = new short[Length];
+                    var sx = shadows[x];
                     for( int y = 0; y < Length; y++ ) {
                         int index = Index( x, y, Height - 1 );
                         for( int z = (Height - 1); z >= 0; z-- ) {
@@ -727,7 +729,7 @@ namespace fCraft {
                                     index -= layer;
                                     continue;
                                 default:
-                                    shadows[x, y] = (short)z;
+                                    sx[y] = (short)z;
                                     break;
                             }
                             break;
