@@ -3,7 +3,7 @@
 namespace fCraft {
     /// <summary> Flags usable with Server and PlayerDB player-search methods. </summary>
     [Flags]
-    public enum PlayerSearchOptions {
+    public enum SearchOptions {
         /// <summary> Default dehavior is: do not include player themself in results;
         /// do not consider hidden players to be "online"; do raise events if applicable;
         /// do print no-players-found message when applicable. </summary>
@@ -20,9 +20,9 @@ namespace fCraft {
 
         /// <summary> This flag controls what search methods do when IncludeSelf flag is not set, and player's
         /// own info is the only result. By default, search methods print "no results" message and return null.
-        /// This flag changes that behavior. When ReturnSelfIfNoOthersMatched is set, search methods do not
+        /// This flag changes that behavior. When ReturnSelfIfNoMatches is set, search methods do not
         /// print any message, and return player's own PlayerInfo. This is useful if you want to make a custom
         /// "you cannot do this to yourself" message - just check if returned PlayerInfo is player's own. </summary>
-        ReturnSelfIfNoOthersMatched = 8
+        ReturnSelfIfNoMatches = 8
     }
 }

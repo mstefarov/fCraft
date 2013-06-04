@@ -113,7 +113,7 @@ namespace fCraft.Events {
 
     public sealed class SearchingForPlayerEventArgs : EventArgs, IPlayerEvent {
         internal SearchingForPlayerEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm,
-                                              List<Player> matches, PlayerSearchOptions options ) {
+                                              List<Player> matches, SearchOptions options ) {
             if( searchTerm == null ) throw new ArgumentNullException( "searchTerm" );
             Player = player;
             SearchTerm = searchTerm;
@@ -125,7 +125,7 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
 
         public string SearchTerm { get; private set; }
-        public PlayerSearchOptions Options { get; private set; }
+        public SearchOptions Options { get; private set; }
 
         public List<Player> Matches { get; set; }
     }

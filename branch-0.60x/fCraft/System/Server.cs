@@ -1082,9 +1082,9 @@ namespace fCraft {
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static Player[] FindPlayers( [NotNull] string namePart, PlayerSearchOptions options) {
+        public static Player[] FindPlayers( [NotNull] string namePart, SearchOptions options) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
+            bool suppressEvent = (options & SearchOptions.SuppressEvent) != 0;
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1114,18 +1114,18 @@ namespace fCraft {
         /// Used to determine which hidden players to show in results. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
         /// <param name="options"> Search options.
-        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoOthersMatched) are applicable. </param>
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoMatches) are applicable. </param>
         /// <returns> An array of matches. Array length of 0 means "no matches";
         /// 1 means an exact match or a single partial match; over 1 means multiple matches. </returns>
         [NotNull]
-        public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, PlayerSearchOptions options ) {
+        public static Player[] FindPlayers( [NotNull] Player player, [NotNull] string name, SearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( name == null ) throw new ArgumentNullException( "name" );
 
-            bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
-            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
-            bool suppressEvent = (options & PlayerSearchOptions.SuppressEvent) != 0;
-            bool returnSelf = (options & PlayerSearchOptions.ReturnSelfIfNoOthersMatched) != 0;
+            bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;
+            bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
+            bool suppressEvent = (options & SearchOptions.SuppressEvent) != 0;
+            bool returnSelf = (options & SearchOptions.ReturnSelfIfNoMatches) != 0;
 
             // Repeat last-used player name
             if( name == "-" ) {
@@ -1180,7 +1180,7 @@ namespace fCraft {
                 }
             }
 
-            // special behavior for ReturnSelfIfNoOthersMatched flag
+            // special behavior for ReturnSelfIfNoMatches flag
             if( results.Count == 0 && !includeSelf && foundSelf && returnSelf ) {
                 results.Add( player );
             }
@@ -1194,10 +1194,10 @@ namespace fCraft {
         /// <param name="name"> Full player name. Case-insensitive. </param>
         /// <param name="options"> Search options (IncludeHidden and IncludeSelf are applicable, other flags are ignored). </param>
         /// <returns> Player object if player was found online; otherwise null. </returns>
-        public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, PlayerSearchOptions options ) {
+        public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, SearchOptions options ) {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
-            bool includeHidden = (options & PlayerSearchOptions.IncludeHidden) != 0;
-            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
+            bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;
+            bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
             if( target != null && includeHidden && !player.CanSee( target ) || // hide players whom player cant see
                 target == player && !includeSelf ) { // hide self, if applicable
                 target = null;
@@ -1212,12 +1212,12 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
         /// <param name="namePart"> Full or partial name of the search target. </param>
         /// <param name="options"> Search options.
-        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoOthersMatched) are applicable. </param>
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoMatches) are applicable. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player,
                                                        [NotNull] string namePart,
-                                                       PlayerSearchOptions options ) {
+                                                       SearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
 

@@ -311,11 +311,11 @@ namespace fCraft {
                         }
 
                         // first, find ALL players (visible and hidden)
-                        Player[] allPlayers = Server.FindPlayers( otherPlayerName, PlayerSearchOptions.Default );
+                        Player[] allPlayers = Server.FindPlayers( otherPlayerName, SearchOptions.Default );
 
                         // if there is more than 1 target player, exclude hidden players
                         if( allPlayers.Length > 1 ) {
-                            allPlayers = Server.FindPlayers( this, otherPlayerName, PlayerSearchOptions.ReturnSelfIfNoOthersMatched );
+                            allPlayers = Server.FindPlayers( this, otherPlayerName, SearchOptions.ReturnSelfIfNoMatches );
                         }
 
                         if( allPlayers.Length == 1 ) {

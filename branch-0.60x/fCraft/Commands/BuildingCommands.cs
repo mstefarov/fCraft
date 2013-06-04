@@ -1546,7 +1546,7 @@ namespace fCraft {
 
                 } else {
                     // individual player
-                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.IncludeSelf );
                     if( target == null ) {
                         return null;
                     }
