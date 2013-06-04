@@ -558,19 +558,19 @@ namespace fCraft {
         /// <param name="player"> Player to print feedback to. Also used to determine visibility, for sorting. </param>
         /// <param name="namePart"> Partial or full player name. </param>
         /// <param name="options"> Search options.
-        /// IncludeSelf and ReturnSelfIfNoOthersMatched flags are applicable, other flags are ignored. </param>
+        /// IncludeSelf and ReturnSelfIfNoMatches flags are applicable, other flags are ignored. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. 
         /// Results are sorted using PlayerInfoComparer. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="namePart"/> is null. </exception>
         [CanBeNull]
         public static PlayerInfo FindPlayerInfoOrPrintMatches( [NotNull] Player player, [NotNull] string namePart,
-                                                               PlayerSearchOptions options ) {
+                                                               SearchOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
             CheckIfLoaded();
 
-            bool includeSelf = (options & PlayerSearchOptions.IncludeSelf) != 0;
-            bool returnSelf = (options & PlayerSearchOptions.ReturnSelfIfNoOthersMatched) != 0;
+            bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
+            bool returnSelf = (options & SearchOptions.ReturnSelfIfNoMatches) != 0;
 
             // If name starts with '!', return matches for online players only
             if( namePart.Length > 1 && namePart[0] == '!' ) {
@@ -612,7 +612,7 @@ namespace fCraft {
                     if( targets.Length > 1 ) {
                         targets = targets.Where( p => p != player.Info ).ToArray();
                     } else if( !returnSelf && targets.Length == 1 && targets[0] == player.Info ) {
-                        // special handling if ReturnSelfIfNoOthersMatched flag is not set
+                        // special handling if ReturnSelfIfNoMatches flag is not set
                         targets = new PlayerInfo[0];
                     }
                 }

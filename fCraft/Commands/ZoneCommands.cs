@@ -64,7 +64,7 @@ namespace fCraft {
                 givenZoneName = givenZoneName.Substring( 1 );
 
                 // Find the target player
-                PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, givenZoneName, PlayerSearchOptions.IncludeSelf );
+                PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, givenZoneName, SearchOptions.IncludeSelf );
                 if( info == null ) return;
 
                 // Make sure that the name is not taken already.
@@ -112,7 +112,7 @@ namespace fCraft {
                         CdZoneAdd.PrintUsage( player );
                         return;
                     }
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, name.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     if( name.StartsWith( "+" ) ) {
@@ -244,7 +244,7 @@ namespace fCraft {
                 }
 
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -279,7 +279,7 @@ namespace fCraft {
                     }
 
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     switch( zone.Controller.Exclude( info ) ) {

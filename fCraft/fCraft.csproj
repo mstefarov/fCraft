@@ -124,7 +124,7 @@
     <Compile Include="MapGeneration\RealisticMapGen.cs" />
     <Compile Include="MapGeneration\RealisticMapGenTheme.cs" />
     <Compile Include="MapGeneration\VanillaMapGen.cs" />
-    <Compile Include="Player\PlayerSearchOptions.cs" />
+    <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\BlockingQueue.cs" />
     <Compile Include="Utils\fNbt.cs" />

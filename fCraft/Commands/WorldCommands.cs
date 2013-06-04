@@ -1419,7 +1419,7 @@ namespace fCraft {
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1492,7 +1492,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
@@ -1689,7 +1689,7 @@ namespace fCraft {
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1762,7 +1762,7 @@ namespace fCraft {
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), PlayerSearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
