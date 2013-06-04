@@ -246,34 +246,10 @@ namespace fCraft {
         }
 
 
-        void MakeIslandBase( Island island ) {
-            foreach( Sphere sphere in island.Spheres ) {
-                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
-                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
-                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius*2 ) );
-                BoundingBox box = new BoundingBox( origin,
-                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
-                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
-                                                   (int)Math.Ceiling( sphere.Radius ) + 4 );
-                for( int x = box.XMin; x <= box.XMax; x++ ) {
-                    for( int y = box.YMin; y <= box.YMax; y++ ) {
-                        for( int z = box.ZMin; z <= box.ZMax; z++ ) {
-                            Vector3I coord = new Vector3I( x, y, z );
-                            Vector3F displacement = sphere.Origin - coord;
-                            if( (displacement.X * displacement.X * 2) / (sphere.Radius*sphere.Radius) +
-                                (displacement.Y * displacement.Y * 2) / (sphere.Radius*sphere.Radius) +
-                                (displacement.Z * displacement.Z) / (sphere.Radius*sphere.Radius*4) <= 1 ) {
-                                map.SetBlock( coord + island.Offset, Block.Stone );
-                            }
-                        }
-                    }
-                }
-            }
-        }
+
 
 
         Island CreateIsland( Vector3I offset ) {
-            // step 1: create clumpy spheres
             List<Sphere> spheres = new List<Sphere>();
 
             const int hSpread = 100;
@@ -290,7 +266,7 @@ namespace fCraft {
                 double angle = rand.NextDouble()*Math.PI*2;
                 Sphere newSphere = new Sphere( (float)(Math.Cos( angle )*rand.NextDouble()*hSpread),
                                                (float)(Math.Sin( angle )*rand.NextDouble()*hSpread),
-                                               RandNextFloat( vSpreadMin, vSpreadMax ),
+                                               (float)(rand.NextDouble() * (vSpreadMax - vSpreadMin) + vSpreadMin),
                                                newRadius );
 
                 double closestDist = newSphere.DistanceTo( spheres[0] );
@@ -314,29 +290,34 @@ namespace fCraft {
 
             // step 2: voxelize our spheres
             foreach( Sphere sphere in spheres ) {
-                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
-                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
-                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) );
-                BoundingBox box = new BoundingBox( origin,
-                                                   (int)Math.Ceiling( sphere.Radius )*2,
-                                                   (int)Math.Ceiling( sphere.Radius )*2,
-                                                   (int)Math.Ceiling( sphere.Radius ) );
-                for( int x = box.XMin; x <= box.XMax; x++ ) {
-                    for( int y = box.YMin; y <= box.YMax; y++ ) {
-                        for( int z = box.ZMin; z <= box.ZMax; z++ ) {
-                            Vector3I coord = new Vector3I( x, y, z );
-                            if( sphere.DistanceTo( coord ) < sphere.Radius ) {
-                                map.SetBlock( coord + offset, Block.Stone );
-                            }
-                        }
-                    }
-                }
+                MakeIslandHemisphere( offset, sphere );
             }
 
             return new Island {
                 Spheres = spheres,
                 Offset = offset
             };
+        }
+
+
+        void MakeIslandHemisphere( Vector3I offset, Sphere sphere ) {
+            Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
+                                            (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
+                                            (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) );
+            BoundingBox box = new BoundingBox( origin,
+                                               (int)Math.Ceiling( sphere.Radius )*2,
+                                               (int)Math.Ceiling( sphere.Radius )*2,
+                                               (int)Math.Ceiling( sphere.Radius ) );
+            for( int x = box.XMin; x <= box.XMax; x++ ) {
+                for( int y = box.YMin; y <= box.YMax; y++ ) {
+                    for( int z = box.ZMin; z <= box.ZMax; z++ ) {
+                        Vector3I coord = new Vector3I( x, y, z );
+                        if( sphere.DistanceTo( coord ) < sphere.Radius ) {
+                            map.SetBlock( coord + offset, Block.Stone );
+                        }
+                    }
+                }
+            }
         }
 
 
@@ -352,11 +333,7 @@ namespace fCraft {
                                   (map.GetBlock( x, y, z - 1 ) != Block.Air ? 1 : 0) +
                                   (map.GetBlock( x, y, z + 1 ) != Block.Air ? 1 : 0);
                         if( map.GetBlock( x, y, z ) != Block.Air ) {
-                            if( sum < 3 ) {
-                                newMap.SetBlock( x, y, z, Block.Red );
-                            } else {
-                                newMap.SetBlock( x, y, z, Block.White );
-                            }
+                            newMap.SetBlock( x, y, z, Block.White );
                         } else if( sum > 1 && map.GetBlock( x, y, z - 1 ) != Block.Air ) {
                             newMap.SetBlock( x, y, z, Block.Blue );
                         }
@@ -484,6 +461,32 @@ namespace fCraft {
         }
 
 
+        void MakeIslandBase( Island island ) {
+            foreach( Sphere sphere in island.Spheres ) {
+                Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
+                                                (int)Math.Floor( sphere.Origin.Z - sphere.Radius * 2 ) );
+                BoundingBox box = new BoundingBox( origin,
+                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius ) * 2 + 8,
+                                                   (int)Math.Ceiling( sphere.Radius ) + 4 );
+                for( int x = box.XMin; x <= box.XMax; x++ ) {
+                    for( int y = box.YMin; y <= box.YMax; y++ ) {
+                        for( int z = box.ZMin; z <= box.ZMax; z++ ) {
+                            Vector3I coord = new Vector3I( x, y, z );
+                            Vector3F displacement = sphere.Origin - coord;
+                            if( (displacement.X * displacement.X * 2) / (sphere.Radius * sphere.Radius) +
+                                (displacement.Y * displacement.Y * 2) / (sphere.Radius * sphere.Radius) +
+                                (displacement.Z * displacement.Z) / (sphere.Radius * sphere.Radius * 4) <= 1 ) {
+                                map.SetBlock( coord + island.Offset, Block.Stone );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+
         void PlantGrass() {
             for( int x = 0; x < genParams.MapWidth; x++ ) {
                 for( int y = 0; y < genParams.MapLength; y++ ) {
@@ -513,8 +516,7 @@ namespace fCraft {
             }*/
         }
 
-
-        double FindSlope( int x, int y, int z ) {
+        /* double FindSlope( int x, int y, int z ) {
             int z1 = FindNearestZ( x - 1, y, z );
             int z2 = FindNearestZ( x + 1, y, z );
             int z3 = FindNearestZ( x, y - 1, z );
@@ -537,7 +539,7 @@ namespace fCraft {
                 }
             }
             return startZ + dz;
-        }
+        }*/
 
 
         void MakeWater() {
@@ -725,11 +727,6 @@ namespace fCraft {
                     }
                 }
             }
-        }
-
-
-        float RandNextFloat( double min, double max ) {
-            return (float)(rand.NextDouble()*(max - min) + min);
         }
 
 
