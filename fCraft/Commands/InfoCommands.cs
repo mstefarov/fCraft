@@ -140,7 +140,7 @@ namespace fCraft {
             } else if( name.StartsWith( "!" ) ) {
                 // find online players by partial matches
                 name = name.Substring( 1 );
-                infos = Server.FindPlayers( name, SearchOptions.Default )
+                infos = Server.FindPlayers( player, name, SearchOptions.IncludeSelf )
                               .Select( p => p.Info )
                               .ToArray();
 

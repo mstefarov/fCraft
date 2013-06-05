@@ -1109,7 +1109,8 @@ namespace fCraft {
 
 
         /// <summary> Finds a player by name, using autocompletion. Does not include hidden players. 
-        /// Raises Player.SearchingForPlayer event, which may modify search results, unless SuppressEvent option is set. </summary>
+        /// Raises Player.SearchingForPlayer event, which may modify search results, unless SuppressEvent option is set.
+        /// Does not include self unless IncludeSelf search option is set. </summary>
         /// <param name="player"> Player who initiated the search.
         /// Used to determine which hidden players to show in results. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
