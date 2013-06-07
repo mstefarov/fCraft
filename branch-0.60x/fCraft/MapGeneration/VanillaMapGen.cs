@@ -26,17 +26,18 @@ namespace fCraft {
             return new VanillaMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
-            throw new NotImplementedException();
+        public IMapGeneratorParameters CreateParameters( XElement root ) {
+            return new VanillaMapGenParameters( root );
         }
 
         public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            throw new NotImplementedException();
+            return new VanillaMapGenParameters();
         }
     }
 
 
     class VanillaMapGenParameters : IMapGeneratorParameters {
+        readonly Random seedRng = new Random();
         public VanillaMapGenParameters() {
             TerrainFeatureOctaves = 6;
             TerrainDetailOctaves = 8;
@@ -60,9 +61,49 @@ namespace fCraft {
             IronOreDensity = 70;
             GoldOreDensity = 50;
             CaveDensity = 256;
-            Seed = 0;
+            lock( seedRng ) {
+                Seed = seedRng.Next();
+            }
 
             Generator = VanillaMapGen.Instance;
+        }
+
+        public VanillaMapGenParameters( XElement root )
+            : this() {
+            TerrainFeatureOctaves = LoadInt( root, "TerrainFeatureOctaves", TerrainFeatureOctaves );
+            TerrainDetailOctaves = LoadInt( root, "TerrainDetailOctaves", TerrainDetailOctaves );
+            WaterSpawnDensity = LoadInt( root, "WaterSpawnDensity", WaterSpawnDensity );
+            LavaSpawnDensity = LoadInt( root, "LavaSpawnDensity", LavaSpawnDensity );
+            FlowerClusterDensity = LoadInt( root, "FlowerClusterDensity", FlowerClusterDensity );
+            FlowerSpread = LoadInt( root, "FlowerSpread", FlowerSpread );
+            FlowerChainsPerCluster = LoadInt( root, "FlowerChainsPerCluster", FlowerChainsPerCluster );
+            FlowersPerChain = LoadInt( root, "FlowersPerChain", FlowersPerChain );
+            ShroomClusterDensity = LoadInt( root, "ShroomClusterDensity", ShroomClusterDensity );
+            ShroomChainsPerCluster = LoadInt( root, "ShroomChainsPerCluster", ShroomChainsPerCluster );
+            ShroomHopsPerChain = LoadInt( root, "ShroomHopsPerChain", ShroomHopsPerChain );
+            ShroomSpreadHozirontal = LoadInt( root, "ShroomSpreadHozirontal", ShroomSpreadHozirontal );
+            ShroomSpreadVertical = LoadInt( root, "ShroomSpreadVertical", ShroomSpreadVertical );
+            TreeClusterDensity = LoadInt( root, "TreeClusterDensity", TreeClusterDensity );
+            TreeChainsPerCluster = LoadInt( root, "TreeChainsPerCluster", TreeChainsPerCluster );
+            TreeHopsPerChain = LoadInt( root, "TreeHopsPerChain", TreeHopsPerChain );
+            TreeSpread = LoadInt( root, "TreeSpread", TreeSpread );
+            TreePlantRatio = LoadInt( root, "TreePlantRatio", TreePlantRatio );
+            CoalOreDensity = LoadInt( root, "CoalOreDensity", CoalOreDensity );
+            IronOreDensity = LoadInt( root, "IronOreDensity", IronOreDensity );
+            GoldOreDensity = LoadInt( root, "GoldOreDensity", GoldOreDensity );
+            CaveDensity = LoadInt( root, "CaveDensity", CaveDensity );
+            Seed = LoadInt( root, "Seed", Seed );
+        }
+
+
+        static int LoadInt( XElement root, string name, int defaultVal ) {
+            XElement el;
+            int temp;
+            if( (el = root.Element( name )) != null && Int32.TryParse( el.Value, out temp ) ) {
+                return temp;
+            } else {
+                return defaultVal;
+            }
         }
 
 
@@ -129,9 +170,38 @@ namespace fCraft {
         [Browsable( false )]
         public int MapHeight { get; set; }
 
+
         public void Save( XElement baseElement ) {
-            throw new NotImplementedException();
+            baseElement.Add( new XElement( "TerrainFeatureOctaves", TerrainFeatureOctaves ) );
+            baseElement.Add( new XElement( "TerrainDetailOctaves", TerrainDetailOctaves ) );
+            baseElement.Add( new XElement( "WaterSpawnDensity", WaterSpawnDensity ) );
+            baseElement.Add( new XElement( "LavaSpawnDensity", LavaSpawnDensity ) );
+
+            baseElement.Add( new XElement( "FlowerClusterDensity", FlowerClusterDensity ) );
+            baseElement.Add( new XElement( "FlowerSpread", FlowerSpread ) );
+            baseElement.Add( new XElement( "FlowerChainsPerCluster", FlowerChainsPerCluster ) );
+            baseElement.Add( new XElement( "FlowersPerChain", FlowersPerChain ) );
+
+            baseElement.Add( new XElement( "ShroomClusterDensity", ShroomClusterDensity ) );
+            baseElement.Add( new XElement( "ShroomChainsPerCluster", ShroomChainsPerCluster ) );
+            baseElement.Add( new XElement( "ShroomHopsPerChain", ShroomHopsPerChain ) );
+            baseElement.Add( new XElement( "ShroomSpreadHozirontal", ShroomSpreadHozirontal ) );
+            baseElement.Add( new XElement( "ShroomSpreadVertical", ShroomSpreadVertical ) );
+
+            baseElement.Add( new XElement( "TreeClusterDensity", TreeClusterDensity ) );
+            baseElement.Add( new XElement( "TreeChainsPerCluster", TreeChainsPerCluster ) );
+            baseElement.Add( new XElement( "TreeHopsPerChain", TreeHopsPerChain ) );
+            baseElement.Add( new XElement( "TreeSpread", TreeSpread ) );
+            baseElement.Add( new XElement( "TreePlantRatio", TreePlantRatio ) );
+
+            baseElement.Add( new XElement( "CoalOreDensity", CoalOreDensity ) );
+            baseElement.Add( new XElement( "IronOreDensity", IronOreDensity ) );
+            baseElement.Add( new XElement( "GoldOreDensity", GoldOreDensity ) );
+            baseElement.Add( new XElement( "CaveDensity", CaveDensity ) );
+
+            baseElement.Add( new XElement( "Seed", Seed ) );
         }
+
 
         public IMapGeneratorState CreateGenerator() {
             return new VanillaMapGenState( this );
