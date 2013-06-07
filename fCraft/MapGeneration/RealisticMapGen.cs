@@ -37,6 +37,12 @@ namespace fCraft {
             return GetDefaultParameters();
         }
 
+        public IMapGeneratorParameters CreateParameters( string presetName ) {
+            throw new NotImplementedException(); // TODO: preset loading
+        }
+
+        public string[] Presets { get; private set; } // TODO
+
 
         public static RealisticMapGenParameters MakeTemplate( MapGenTemplate template ) {
             switch( template ) {

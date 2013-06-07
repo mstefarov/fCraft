@@ -45,6 +45,12 @@ namespace fCraft {
             return newParams;
         }
 
+        public IMapGeneratorParameters CreateParameters( string presetName ) {
+            throw new NotImplementedException(); // TODO
+        }
+
+        public string[] Presets { get; private set; } // TODO
+
 
         [NotNull]
         public static IMapGeneratorState MakeFlatgrass( int width, int length, int height ) {
