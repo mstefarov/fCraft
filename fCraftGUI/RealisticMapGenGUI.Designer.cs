@@ -1400,7 +1400,7 @@
             this.flpPanel.Location = new System.Drawing.Point(0, 0);
             this.flpPanel.Margin = new System.Windows.Forms.Padding(0);
             this.flpPanel.Name = "flpPanel";
-            this.flpPanel.Size = new System.Drawing.Size(392, 638);
+            this.flpPanel.Size = new System.Drawing.Size(392, 942);
             this.flpPanel.TabIndex = 87;
             // 
             // RealisticMapGenGui
@@ -1409,7 +1409,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.flpPanel);
             this.Name = "RealisticMapGenGui";
-            this.Size = new System.Drawing.Size(392, 638);
+            this.Size = new System.Drawing.Size(392, 942);
             this.gModules.ResumeLayout(false);
             this.gModules.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
