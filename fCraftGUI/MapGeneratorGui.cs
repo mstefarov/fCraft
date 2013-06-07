@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Windows.Forms;
+using JetBrains.Annotations;
 
 namespace fCraft.GUI {
     /// <summary> Class that provides a GUI (UserControl) for adjusting map parameters. </summary>
@@ -30,21 +31,37 @@ namespace fCraft.GUI {
         }
 
         void Parent_SizeChanged( object sender, EventArgs e ) {
-            Size = Parent.Size;
+            if( Site != null && !Site.DesignMode ) {
+                // auto-resize only when not in Designer mode (in VS)
+                Size = Parent.Size;
+            }
         }
 
 
-
-        public virtual void SetParameters( IMapGeneratorParameters generatorParameters ) {
-            throw new NotImplementedException();
+        /// <summary> Reads given generator params, and adjusts GUI to reflect them. </summary>
+        /// <param name="generatorParameters"> Given generation parameters. </param>
+        public virtual void SetParameters( [NotNull] IMapGeneratorParameters generatorParameters ) {
+            throw new NotImplementedException( "SetParameters must be overriden in MapGeneratorGui implementations." );
         }
 
+
+        /// <summary> Creates mapgen parameters based on the current GUI state.
+        /// The returned IMapGeneratorParameters must not be modified after being returned. </summary>
+        /// <returns> IMapGeneratorParameters object representing GUI's current state. </returns>
+        [NotNull]
         public virtual IMapGeneratorParameters GetParameters() {
-            throw new NotImplementedException();
+            throw new NotImplementedException( "GetParameters must be overriden in MapGeneratorGui implementations." );
         }
 
+
+        /// <summary> Called by parent dialog when map dimension NumericUpDown controls have changed.
+        /// Used to adjust any settings that may rely on map dimensions for scaling. </summary>
+        /// <param name="width"> Map width (horizontal, x dimension), in blocks. </param>
+        /// <param name="length"> Map length (horizontal, y dimension), in blocks. </param>
+        /// <param name="height"> Map height (vertical, z dimension), in blocks. </param>
         public virtual void OnMapDimensionChange( int width, int length, int height ) {
-            throw new NotImplementedException();
+            throw new NotImplementedException(
+                "OnMapDimensionChange must be overriden in MapGeneratorGui implementations." );
         }
     }
 }

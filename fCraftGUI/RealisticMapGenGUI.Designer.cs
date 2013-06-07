@@ -24,9 +24,14 @@
         /// </summary>
         private void InitializeComponent() {
             this.gModules = new System.Windows.Forms.GroupBox();
+            this.xSeed = new System.Windows.Forms.CheckBox();
             this.xAddCliffs = new System.Windows.Forms.CheckBox();
+            this.nSeed = new System.Windows.Forms.NumericUpDown();
             this.xAddRuins = new System.Windows.Forms.CheckBox();
+            this.xAdvanced = new System.Windows.Forms.CheckBox();
             this.xAddOre = new System.Windows.Forms.CheckBox();
+            this.cTheme = new System.Windows.Forms.ComboBox();
+            this.lTheme = new System.Windows.Forms.Label();
             this.xAddBeaches = new System.Windows.Forms.CheckBox();
             this.xAddTrees = new System.Windows.Forms.CheckBox();
             this.xAddSnow = new System.Windows.Forms.CheckBox();
@@ -110,11 +115,6 @@
             this.nMaxDepthVariation = new System.Windows.Forms.NumericUpDown();
             this.gDimensions = new System.Windows.Forms.GroupBox();
             this.lMaxDepthUnits = new System.Windows.Forms.Label();
-            this.xSeed = new System.Windows.Forms.CheckBox();
-            this.nSeed = new System.Windows.Forms.NumericUpDown();
-            this.xAdvanced = new System.Windows.Forms.CheckBox();
-            this.cTheme = new System.Windows.Forms.ComboBox();
-            this.lTheme = new System.Windows.Forms.Label();
             this.nRaisedCorners = new System.Windows.Forms.NumericUpDown();
             this.lBiasDisplay = new System.Windows.Forms.Label();
             this.lRaisedCorners = new System.Windows.Forms.Label();
@@ -127,6 +127,7 @@
             this.lMidpoint = new System.Windows.Forms.Label();
             this.flpPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.gModules.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             this.gTrees.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeight)).BeginInit();
@@ -156,7 +157,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxHeight)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).BeginInit();
             this.gDimensions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).BeginInit();
             this.gTerrainFeatures.SuspendLayout();
@@ -187,6 +187,16 @@
             this.gModules.TabStop = false;
             this.gModules.Text = "General Settings";
             // 
+            // xSeed
+            // 
+            this.xSeed.AutoSize = true;
+            this.xSeed.Location = new System.Drawing.Point(214, 118);
+            this.xSeed.Name = "xSeed";
+            this.xSeed.Size = new System.Drawing.Size(51, 17);
+            this.xSeed.TabIndex = 51;
+            this.xSeed.Text = "Seed";
+            this.xSeed.UseVisualStyleBackColor = true;
+            // 
             // xAddCliffs
             // 
             this.xAddCliffs.AutoSize = true;
@@ -196,6 +206,23 @@
             this.xAddCliffs.TabIndex = 69;
             this.xAddCliffs.Text = "Cliffs";
             this.xAddCliffs.UseVisualStyleBackColor = true;
+            // 
+            // nSeed
+            // 
+            this.nSeed.Location = new System.Drawing.Point(271, 117);
+            this.nSeed.Maximum = new decimal(new int[] {
+            2147483647,
+            0,
+            0,
+            0});
+            this.nSeed.Minimum = new decimal(new int[] {
+            -2147483648,
+            0,
+            0,
+            -2147483648});
+            this.nSeed.Name = "nSeed";
+            this.nSeed.Size = new System.Drawing.Size(89, 20);
+            this.nSeed.TabIndex = 50;
             // 
             // xAddRuins
             // 
@@ -208,6 +235,17 @@
             this.xAddRuins.Text = "Ruins";
             this.xAddRuins.UseVisualStyleBackColor = true;
             // 
+            // xAdvanced
+            // 
+            this.xAdvanced.AutoSize = true;
+            this.xAdvanced.Location = new System.Drawing.Point(13, 93);
+            this.xAdvanced.Name = "xAdvanced";
+            this.xAdvanced.Size = new System.Drawing.Size(143, 17);
+            this.xAdvanced.TabIndex = 7;
+            this.xAdvanced.Text = "Show advanced settings";
+            this.xAdvanced.UseVisualStyleBackColor = true;
+            this.xAdvanced.CheckedChanged += new System.EventHandler(this.xAdvanced_CheckedChanged);
+            // 
             // xAddOre
             // 
             this.xAddOre.AutoSize = true;
@@ -217,6 +255,24 @@
             this.xAddOre.TabIndex = 67;
             this.xAddOre.Text = "Ore veins";
             this.xAddOre.UseVisualStyleBackColor = true;
+            // 
+            // cTheme
+            // 
+            this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cTheme.FormattingEnabled = true;
+            this.cTheme.Location = new System.Drawing.Point(60, 116);
+            this.cTheme.Name = "cTheme";
+            this.cTheme.Size = new System.Drawing.Size(137, 21);
+            this.cTheme.TabIndex = 6;
+            // 
+            // lTheme
+            // 
+            this.lTheme.AutoSize = true;
+            this.lTheme.Location = new System.Drawing.Point(14, 119);
+            this.lTheme.Name = "lTheme";
+            this.lTheme.Size = new System.Drawing.Size(40, 13);
+            this.lTheme.TabIndex = 5;
+            this.lTheme.Text = "Theme";
             // 
             // xAddBeaches
             // 
@@ -1211,62 +1267,6 @@
             this.lMaxDepthUnits.TabIndex = 44;
             this.lMaxDepthUnits.Text = "+/-";
             // 
-            // xSeed
-            // 
-            this.xSeed.AutoSize = true;
-            this.xSeed.Location = new System.Drawing.Point(214, 118);
-            this.xSeed.Name = "xSeed";
-            this.xSeed.Size = new System.Drawing.Size(51, 17);
-            this.xSeed.TabIndex = 51;
-            this.xSeed.Text = "Seed";
-            this.xSeed.UseVisualStyleBackColor = true;
-            // 
-            // nSeed
-            // 
-            this.nSeed.Location = new System.Drawing.Point(271, 117);
-            this.nSeed.Maximum = new decimal(new int[] {
-            2147483647,
-            0,
-            0,
-            0});
-            this.nSeed.Minimum = new decimal(new int[] {
-            -2147483648,
-            0,
-            0,
-            -2147483648});
-            this.nSeed.Name = "nSeed";
-            this.nSeed.Size = new System.Drawing.Size(89, 20);
-            this.nSeed.TabIndex = 50;
-            // 
-            // xAdvanced
-            // 
-            this.xAdvanced.AutoSize = true;
-            this.xAdvanced.Location = new System.Drawing.Point(13, 93);
-            this.xAdvanced.Name = "xAdvanced";
-            this.xAdvanced.Size = new System.Drawing.Size(143, 17);
-            this.xAdvanced.TabIndex = 7;
-            this.xAdvanced.Text = "Show advanced settings";
-            this.xAdvanced.UseVisualStyleBackColor = true;
-            this.xAdvanced.CheckedChanged += new System.EventHandler(this.xAdvanced_CheckedChanged);
-            // 
-            // cTheme
-            // 
-            this.cTheme.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cTheme.FormattingEnabled = true;
-            this.cTheme.Location = new System.Drawing.Point(60, 116);
-            this.cTheme.Name = "cTheme";
-            this.cTheme.Size = new System.Drawing.Size(137, 21);
-            this.cTheme.TabIndex = 6;
-            // 
-            // lTheme
-            // 
-            this.lTheme.AutoSize = true;
-            this.lTheme.Location = new System.Drawing.Point(14, 119);
-            this.lTheme.Name = "lTheme";
-            this.lTheme.Size = new System.Drawing.Size(40, 13);
-            this.lTheme.TabIndex = 5;
-            this.lTheme.Text = "Theme";
-            // 
             // nRaisedCorners
             // 
             this.nRaisedCorners.Enabled = false;
@@ -1400,7 +1400,7 @@
             this.flpPanel.Location = new System.Drawing.Point(0, 0);
             this.flpPanel.Margin = new System.Windows.Forms.Padding(0);
             this.flpPanel.Name = "flpPanel";
-            this.flpPanel.Size = new System.Drawing.Size(390, 1008);
+            this.flpPanel.Size = new System.Drawing.Size(392, 638);
             this.flpPanel.TabIndex = 87;
             // 
             // RealisticMapGenGui
@@ -1409,9 +1409,10 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.flpPanel);
             this.Name = "RealisticMapGenGui";
-            this.Size = new System.Drawing.Size(390, 1008);
+            this.Size = new System.Drawing.Size(392, 638);
             this.gModules.ResumeLayout(false);
             this.gModules.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             this.gTrees.ResumeLayout(false);
             this.gTrees.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nTreeHeightVariation)).EndInit();
@@ -1448,7 +1449,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMaxDepthVariation)).EndInit();
             this.gDimensions.ResumeLayout(false);
             this.gDimensions.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.nSeed)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nRaisedCorners)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.sBias)).EndInit();
             this.gTerrainFeatures.ResumeLayout(false);
