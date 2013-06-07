@@ -412,7 +412,7 @@ namespace fCraft.ConfigGUI {
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
             Map = genState.Generate();
             if( Map != null ) {
-                Map.Metadata.Add( "_Origin", "MapGenerationParameters", null );
+                genState.Parameters.SaveToMap( Map );
             }
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
         }
@@ -735,6 +735,8 @@ Could not load more information:
             SignalMapDimensionChange();
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
+
+            cGenerator.SelectedIndex = cGenerator.Items.IndexOf( newGen.Name );
         }
 
 
@@ -785,7 +787,7 @@ Could not load more information:
                 if( fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
                     Map ourMap;
                     if( MapUtility.TryLoadHeader( fullFileName, false, out ourMap ) ) {
-                        MapGenParamsFromMap( ourMap );
+                        MapGenParamsFromMap( fileName, ourMap );
                     } else {
                         MessageBox.Show( "Could not load map file!" );
                     }
@@ -808,19 +810,51 @@ Could not load more information:
 
             Map ourMap;
             if( MapUtility.TryLoadHeader( entry.FullFileName, false, out ourMap ) ) {
-                MapGenParamsFromMap( ourMap );
+                MapGenParamsFromMap( entry.FileName, ourMap );
             } else {
                 MessageBox.Show( "Could not load map file!" );
             }
         }
 
 
-        void MapGenParamsFromMap( Map ourMap ) {
+        void MapGenParamsFromMap( string fileName, Map ourMap ) {
+            tStatus2.Text = "";
+
             string oldData;
             if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
-                MessageBox.Show( "TODO" ); // TODO
+                MessageBox.Show( "TODO: legacy map loading" ); // TODO: legacy loading
+
             } else {
-                MessageBox.Show( "No embedded generation settings found!" );
+                try {
+                    IMapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
+                    if( genParams == null ) {
+                        tStatus1.Text = "No generation parameters found in " + fileName;
+                        MessageBox.Show(
+                            "No embedded map generation parameters found in " + fileName,
+                            "No generation parameters found",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning );
+                        return;
+                    }
+                    SelectGenerator( genParams.Generator );
+                    genGui.SetParameters( genParams );
+                    SignalMapDimensionChange();
+                    tStatus1.Text = "Imported map generation from " + fileName;
+
+                } catch( MapGenUtil.UnknownMapGeneratorException ex ) {
+                    tStatus1.Text = "No matching generator found for " + fileName;
+                    MessageBox.Show( "Could not find a matching map generator for \"" + ex.GeneratorName + "\"",
+                                     "Missing map generator",
+                                     MessageBoxButtons.OK,
+                                     MessageBoxIcon.Warning );
+
+                } catch( Exception ex ) {
+                    tStatus1.Text = "Error loading parameters from " + fileName;
+                    MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex.Message,
+                                     "Error loading parameters from " + fileName,
+                                     MessageBoxButtons.OK,
+                                     MessageBoxIcon.Warning );
+                }
             }
         }
 
@@ -835,25 +869,26 @@ Could not load more information:
                     InitialDirectory = Paths.MapPath
                 };
             }
-            if( loadPresetDialog.ShowDialog() == DialogResult.OK ) {
-                string fullFileName = loadPresetDialog.FileName;
-                XDocument doc = XDocument.Load( fullFileName );
-                XElement root = doc.Root;
-                string genName = root.Element( "Generator" ).Value;
-                IMapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
-                if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
-                    MessageBox.Show(
-                        "This preset was made for a different version of " + gen.Name +
-                        " map generator. Continue?",
-                        "Version mismatch",
-                        MessageBoxButtons.YesNo ) != DialogResult.Yes ) {
-                    return;
-                }
-                SelectGenerator( gen );
-                IMapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
-                genGui.SetParameters( genParams );
-                SignalMapDimensionChange();
+            if( loadPresetDialog.ShowDialog() != DialogResult.OK ) {
+                return;
             }
+            string fullFileName = loadPresetDialog.FileName;
+            XDocument doc = XDocument.Load( fullFileName );
+            XElement root = doc.Root;
+            string genName = root.Element( "Generator" ).Value;
+            IMapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
+            string versionMismatchMsg =
+                String.Format( "This preset was made for a different version of {0} map generator. Continue?",
+                               gen.Name );
+            if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
+                MessageBox.Show( versionMismatchMsg, "Version mismatch", MessageBoxButtons.YesNo ) !=
+                DialogResult.Yes ) {
+                return;
+            }
+            SelectGenerator( gen );
+            IMapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
+            genGui.SetParameters( genParams );
+            SignalMapDimensionChange();
         }
     }
 }

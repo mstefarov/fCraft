@@ -147,7 +147,7 @@ namespace fCraft {
         readonly Map map;
 
         internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
-            param = genParams;
+            this.genParams = genParams;
             random = new Random();
             waterLevel = genParams.MapHeight/2;
             heightmap = new int[genParams.MapWidth*genParams.MapLength];
@@ -155,8 +155,10 @@ namespace fCraft {
             blocks = map.Blocks;
         }
 
-        VanillaMapGenParameters param;
-        public IMapGeneratorParameters Parameters { get; private set; }
+        readonly VanillaMapGenParameters genParams;
+        public IMapGeneratorParameters Parameters {
+            get { return genParams; }
+        }
 
 
         public bool Canceled { get; private set; }
@@ -209,11 +211,11 @@ namespace fCraft {
                 if( Canceled ) return null;
 
                 ReportProgress( 55, "Depositing coal..." );
-                MakeOreVeins( Block.Coal, param.CoalOreDensity );
+                MakeOreVeins( Block.Coal, genParams.CoalOreDensity );
                 ReportProgress( 58, "Depositing iron..." );
-                MakeOreVeins( Block.IronOre, param.IronOreDensity );
+                MakeOreVeins( Block.IronOre, genParams.IronOreDensity );
                 ReportProgress( 61, "Depositing gold..." );
-                MakeOreVeins( Block.GoldOre, param.GoldOreDensity );
+                MakeOreVeins( Block.GoldOre, genParams.GoldOreDensity );
                 if( Canceled ) return null;
 
                 ReportProgress( 65, "Watering..." );
@@ -251,16 +253,16 @@ namespace fCraft {
 
         void Raise() {
             Random raiseRand = new Random( random.Next() );
-            FilteredNoise raiseNoise1 = new FilteredNoise( new PerlinNoise( raiseRand, param.TerrainDetailOctaves ),
-                                                           new PerlinNoise( raiseRand, param.TerrainDetailOctaves ) );
-            FilteredNoise raiseNoise2 = new FilteredNoise( new PerlinNoise( raiseRand, param.TerrainDetailOctaves ),
-                                                           new PerlinNoise( raiseRand, param.TerrainDetailOctaves ) );
-            PerlinNoise raiseNoise3 = new PerlinNoise( raiseRand, param.TerrainFeatureOctaves );
+            FilteredNoise raiseNoise1 = new FilteredNoise( new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ),
+                                                           new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ) );
+            FilteredNoise raiseNoise2 = new FilteredNoise( new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ),
+                                                           new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ) );
+            PerlinNoise raiseNoise3 = new PerlinNoise( raiseRand, genParams.TerrainFeatureOctaves );
 
             // raising
             const double scale = 1.3;
-            for( int x = 0; x < param.MapWidth; x++ ) {
-                for( int y = 0; y < param.MapLength; y++ ) {
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                for( int y = 0; y < genParams.MapLength; y++ ) {
                     double d2 = raiseNoise1.GetNoise( x*scale, y*scale )/6.0 - 4;
                     double d3 = raiseNoise2.GetNoise( x*scale, y*scale )/5.0 + 10.0 - 4;
                     double d4 = raiseNoise3.GetNoise( x, y )/8.0;
@@ -269,7 +271,7 @@ namespace fCraft {
                     double elevation = Math.Max( d2, d3 )/2.0;
                     if( elevation < 0 )
                         elevation *= 0.8;
-                    heightmap[(x + y*param.MapWidth)] = (int)elevation;
+                    heightmap[(x + y*genParams.MapWidth)] = (int)elevation;
                 }
             }
         }
@@ -277,18 +279,18 @@ namespace fCraft {
 
         void Erode() {
             Random erodeRand = new Random( random.Next() );
-            FilteredNoise erodeNoise1 = new FilteredNoise( new PerlinNoise( erodeRand, param.TerrainDetailOctaves ),
-                                                           new PerlinNoise( erodeRand, param.TerrainDetailOctaves ) );
-            FilteredNoise erodeNoise2 = new FilteredNoise( new PerlinNoise( erodeRand, param.TerrainDetailOctaves ),
-                                                           new PerlinNoise( erodeRand, param.TerrainDetailOctaves ) );
-            for( int x = 0; x < param.MapWidth; x++ ) {
-                for( int y = 0; y < param.MapLength; y++ ) {
+            FilteredNoise erodeNoise1 = new FilteredNoise( new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ),
+                                                           new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ) );
+            FilteredNoise erodeNoise2 = new FilteredNoise( new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ),
+                                                           new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ) );
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                for( int y = 0; y < genParams.MapLength; y++ ) {
                     double d1 = erodeNoise1.GetNoise( x*2, y*2 )/8.0;
                     int i7 = erodeNoise2.GetNoise( x*2, y*2 ) > 0 ? 1 : 0;
                     if( d1 <= 2 )
                         continue;
-                    int i19 = ((heightmap[(x + y*param.MapWidth)] - i7)/2*2) + i7;
-                    heightmap[(x + y*param.MapWidth)] = i19;
+                    int i19 = ((heightmap[(x + y*genParams.MapWidth)] - i7)/2*2) + i7;
+                    heightmap[(x + y*genParams.MapWidth)] = i19;
                 }
             }
         }
@@ -297,17 +299,17 @@ namespace fCraft {
         void Soil() {
             Random soilRand = new Random( random.Next() );
             PerlinNoise soilNoise1 = new PerlinNoise( soilRand, 8 );
-            for( int x = 0; x < param.MapWidth; x++ ) {
-                for( int y = 0; y < param.MapLength; y++ ) {
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                for( int y = 0; y < genParams.MapLength; y++ ) {
                     int i7 = (int)(soilNoise1.GetNoise( x, y )/24.0) - 4;
-                    int i19 = heightmap[(x + y*param.MapWidth)] + waterLevel;
+                    int i19 = heightmap[(x + y*genParams.MapWidth)] + waterLevel;
                     int i21 = i19 + i7;
-                    heightmap[(x + y*param.MapWidth)] = Math.Max( i19, i21 );
-                    if( heightmap[(x + y*param.MapWidth)] > param.MapHeight - 2 )
-                        heightmap[(x + y*param.MapWidth)] = (param.MapHeight - 2);
-                    if( heightmap[(x + y*param.MapWidth)] < 1 )
-                        heightmap[(x + y*param.MapWidth)] = 1;
-                    for( int z = 0; z < param.MapHeight; z++ ) {
+                    heightmap[(x + y*genParams.MapWidth)] = Math.Max( i19, i21 );
+                    if( heightmap[(x + y*genParams.MapWidth)] > genParams.MapHeight - 2 )
+                        heightmap[(x + y*genParams.MapWidth)] = (genParams.MapHeight - 2);
+                    if( heightmap[(x + y*genParams.MapWidth)] < 1 )
+                        heightmap[(x + y*genParams.MapWidth)] = 1;
+                    for( int z = 0; z < genParams.MapHeight; z++ ) {
                         Block block = Block.Air;
                         if( z <= i19 )
                             block = Block.Dirt;
@@ -315,7 +317,7 @@ namespace fCraft {
                             block = Block.Stone;
                         if( z == 0 )
                             block = Block.Lava;
-                        int index = (z*param.MapLength + y)*param.MapWidth + x;
+                        int index = (z*genParams.MapLength + y)*genParams.MapWidth + x;
                         blocks[index] = (byte)block;
                     }
                 }
@@ -325,20 +327,20 @@ namespace fCraft {
 
         void Water() {
             Random waterRand = new Random( random.Next() );
-            for( int x = 0; x < param.MapWidth; x++ ) {
-                FloodFill( x, 0, param.MapHeight/2 - 1, Block.StillWater );
-                FloodFill( x, param.MapLength - 1, param.MapHeight/2 - 1, Block.StillWater );
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                FloodFill( x, 0, genParams.MapHeight/2 - 1, Block.StillWater );
+                FloodFill( x, genParams.MapLength - 1, genParams.MapHeight/2 - 1, Block.StillWater );
             }
-            for( int y = 0; y < param.MapLength; y++ ) {
-                FloodFill( 0, y, param.MapHeight/2 - 1, Block.StillWater );
-                FloodFill( param.MapWidth - 1, y, param.MapHeight/2 - 1, Block.StillWater );
+            for( int y = 0; y < genParams.MapLength; y++ ) {
+                FloodFill( 0, y, genParams.MapHeight/2 - 1, Block.StillWater );
+                FloodFill( genParams.MapWidth - 1, y, genParams.MapHeight/2 - 1, Block.StillWater );
             }
-            int maxWaterSpawns = param.MapWidth*param.MapLength/param.WaterSpawnDensity;
+            int maxWaterSpawns = genParams.MapWidth*genParams.MapLength/genParams.WaterSpawnDensity;
             for( int waterSpawn = 0; waterSpawn < maxWaterSpawns; waterSpawn++ ) {
-                int x = waterRand.Next( param.MapWidth );
-                int y = waterRand.Next( param.MapLength );
+                int x = waterRand.Next( genParams.MapWidth );
+                int y = waterRand.Next( genParams.MapLength );
                 int z = waterLevel - 1 - waterRand.Next( 2 );
-                if( blocks[((z*param.MapLength + y)*param.MapWidth + x)] != (byte)Block.Air )
+                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air )
                     continue;
                 FloodFill( x, y, z, Block.StillWater );
             }
@@ -347,12 +349,12 @@ namespace fCraft {
 
         void Melt() {
             Random meltRand = new Random( random.Next() );
-            int lavaSpawns = param.MapWidth*param.MapLength*param.MapHeight/param.LavaSpawnDensity;
+            int lavaSpawns = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/genParams.LavaSpawnDensity;
             for( int lavaSpawn = 0; lavaSpawn < lavaSpawns; lavaSpawn++ ) {
-                int x = meltRand.Next( param.MapWidth );
-                int y = meltRand.Next( param.MapLength );
+                int x = meltRand.Next( genParams.MapWidth );
+                int y = meltRand.Next( genParams.MapLength );
                 int z = (int)(meltRand.NextDouble()*meltRand.NextDouble()*(waterLevel - 3));
-                if( blocks[((z*param.MapLength + y)*param.MapWidth + x)] != (byte)Block.Air )
+                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air )
                     continue;
                 FloodFill( x, y, z, Block.StillLava );
             }
@@ -362,21 +364,21 @@ namespace fCraft {
         void Grow() {
             PerlinNoise growNoise1 = new PerlinNoise( random, 8 );
             PerlinNoise growNoise2 = new PerlinNoise( random, 8 );
-            for( int x = 0; x < param.MapWidth; x++ ) {
-                for( int y = 0; y < param.MapLength; y++ ) {
-                    int elevation = heightmap[(x + y*param.MapWidth)];
-                    Block blockAbove = (Block)blocks[(((elevation + 1)*param.MapLength + y)*param.MapWidth + x)];
-                    int index = (elevation*param.MapLength + y)*param.MapWidth + x;
+            for( int x = 0; x < genParams.MapWidth; x++ ) {
+                for( int y = 0; y < genParams.MapLength; y++ ) {
+                    int elevation = heightmap[(x + y*genParams.MapWidth)];
+                    Block blockAbove = (Block)blocks[(((elevation + 1)*genParams.MapLength + y)*genParams.MapWidth + x)];
+                    int index = (elevation*genParams.MapLength + y)*genParams.MapWidth + x;
 
                     if( blockAbove == Block.Air ) {
                         bool placeSand = growNoise1.GetNoise( x, y ) > 8.0;
-                        if( (elevation <= param.MapHeight/2 - 1) && placeSand ) {
+                        if( (elevation <= genParams.MapHeight/2 - 1) && placeSand ) {
                             blocks[index] = (byte)Block.Sand;
                         } else {
                             blocks[index] = (byte)Block.Grass;
                         }
                     } else if( ((blockAbove == Block.Water) || (blockAbove == Block.StillWater)) &&
-                               (elevation <= param.MapHeight/2 - 1) ) {
+                               (elevation <= genParams.MapHeight/2 - 1) ) {
                         bool placeGravel = growNoise2.GetNoise( x, y ) > 12.0;
                         if( placeGravel ) {
                             blocks[index] = (byte)Block.Gravel;
@@ -389,21 +391,21 @@ namespace fCraft {
 
         void PlantFlowers() {
             Random flowerRand = new Random( random.Next() );
-            int maxFlowers = param.MapWidth*param.MapLength/param.FlowerClusterDensity;
+            int maxFlowers = genParams.MapWidth*genParams.MapLength/genParams.FlowerClusterDensity;
             for( int cluster = 0; cluster < maxFlowers; cluster++ ) {
                 int flowerType = flowerRand.Next( 2 );
-                int clusterX = flowerRand.Next( param.MapWidth );
-                int clusterY = flowerRand.Next( param.MapLength );
-                for( int flower = 0; flower < param.FlowerChainsPerCluster; flower++ ) {
+                int clusterX = flowerRand.Next( genParams.MapWidth );
+                int clusterY = flowerRand.Next( genParams.MapLength );
+                for( int flower = 0; flower < genParams.FlowerChainsPerCluster; flower++ ) {
                     int x = clusterX;
                     int y = clusterY;
-                    for( int hop = 0; hop < param.FlowersPerChain; hop++ ) {
-                        x += flowerRand.Next( param.FlowerSpread ) - flowerRand.Next( param.FlowerSpread );
-                        y += flowerRand.Next( param.FlowerSpread ) - flowerRand.Next( param.FlowerSpread );
-                        if( (x < 0) || (y < 0) || (x >= param.MapWidth) || (y >= param.MapLength) )
+                    for( int hop = 0; hop < genParams.FlowersPerChain; hop++ ) {
+                        x += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
+                        y += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
+                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
                             continue;
 
-                        int z = heightmap[(x + y*param.MapWidth)] + 1;
+                        int z = heightmap[(x + y*genParams.MapWidth)] + 1;
                         int index = Index( x, y, z );
 
                         Block blockAbove = (Block)blocks[index];
@@ -426,25 +428,25 @@ namespace fCraft {
 
         void PlantShrooms() {
             Random shroomRand = new Random( random.Next() );
-            int maxShrooms = param.MapWidth*param.MapLength*param.MapHeight/param.ShroomClusterDensity;
+            int maxShrooms = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/genParams.ShroomClusterDensity;
             for( int cluster = 0; cluster < maxShrooms; cluster++ ) {
                 int shroomType = shroomRand.Next( 2 );
-                int clusterX = shroomRand.Next( param.MapWidth );
-                int clusterY = shroomRand.Next( param.MapLength );
-                int clusterZ = shroomRand.Next( param.MapHeight );
-                for( int shroom = 0; shroom < param.ShroomChainsPerCluster; shroom++ ) {
+                int clusterX = shroomRand.Next( genParams.MapWidth );
+                int clusterY = shroomRand.Next( genParams.MapLength );
+                int clusterZ = shroomRand.Next( genParams.MapHeight );
+                for( int shroom = 0; shroom < genParams.ShroomChainsPerCluster; shroom++ ) {
                     int x = clusterX;
                     int y = clusterY;
                     int z = clusterZ;
-                    for( int hop = 0; hop < param.ShroomHopsPerChain; hop++ ) {
-                        x += shroomRand.Next( param.ShroomSpreadHozirontal ) -
-                             shroomRand.Next( param.ShroomSpreadHozirontal );
-                        y += shroomRand.Next( param.ShroomSpreadHozirontal ) -
-                             shroomRand.Next( param.ShroomSpreadHozirontal );
-                        z += shroomRand.Next( param.ShroomSpreadVertical ) -
-                             shroomRand.Next( param.ShroomSpreadVertical );
-                        if( (x < 0) || (y < 0) || (z < 1) || (x >= param.MapWidth) || (y >= param.MapLength) ||
-                            (z >= heightmap[(x + y*param.MapWidth)] - 1) )
+                    for( int hop = 0; hop < genParams.ShroomHopsPerChain; hop++ ) {
+                        x += shroomRand.Next( genParams.ShroomSpreadHozirontal ) -
+                             shroomRand.Next( genParams.ShroomSpreadHozirontal );
+                        y += shroomRand.Next( genParams.ShroomSpreadHozirontal ) -
+                             shroomRand.Next( genParams.ShroomSpreadHozirontal );
+                        z += shroomRand.Next( genParams.ShroomSpreadVertical ) -
+                             shroomRand.Next( genParams.ShroomSpreadVertical );
+                        if( (x < 0) || (y < 0) || (z < 1) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) ||
+                            (z >= heightmap[(x + y*genParams.MapWidth)] - 1) )
                             continue;
 
                         int index = Index( x, y, z );
@@ -468,21 +470,21 @@ namespace fCraft {
 
         void PlantTrees() {
             Random treeRand = new Random( random.Next() );
-            int maxTrees = param.MapWidth*param.MapLength/param.TreeClusterDensity;
+            int maxTrees = genParams.MapWidth*genParams.MapLength/genParams.TreeClusterDensity;
             for( int cluster = 0; cluster < maxTrees; cluster++ ) {
-                int clusterX = treeRand.Next( param.MapWidth );
-                int clusterY = treeRand.Next( param.MapLength );
-                for( int tree = 0; tree < param.TreeChainsPerCluster; tree++ ) {
+                int clusterX = treeRand.Next( genParams.MapWidth );
+                int clusterY = treeRand.Next( genParams.MapLength );
+                for( int tree = 0; tree < genParams.TreeChainsPerCluster; tree++ ) {
                     int x = clusterX;
                     int y = clusterY;
-                    for( int hop = 0; hop < param.TreeHopsPerChain; hop++ ) {
-                        x += treeRand.Next( param.TreeSpread ) - treeRand.Next( param.TreeSpread );
-                        y += treeRand.Next( param.TreeSpread ) - treeRand.Next( param.TreeSpread );
-                        if( (x < 0) || (y < 0) || (x >= param.MapWidth) || (y >= param.MapLength) )
+                    for( int hop = 0; hop < genParams.TreeHopsPerChain; hop++ ) {
+                        x += treeRand.Next( genParams.TreeSpread ) - treeRand.Next( genParams.TreeSpread );
+                        y += treeRand.Next( genParams.TreeSpread ) - treeRand.Next( genParams.TreeSpread );
+                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
                             continue;
-                        if( treeRand.Next( param.TreePlantRatio ) != 0 )
+                        if( treeRand.Next( genParams.TreePlantRatio ) != 0 )
                             continue;
-                        int z = heightmap[(x + y*param.MapWidth)] + 1;
+                        int z = heightmap[(x + y*genParams.MapWidth)] + 1;
                         GrowTree( treeRand, x, y, z );
                     }
                 }
@@ -538,11 +540,11 @@ namespace fCraft {
 
         void Carve() {
             Random carveRand = new Random( random.Next() );
-            int maxCaves = param.MapWidth*param.MapLength*param.MapHeight/param.CaveDensity/64*2;
+            int maxCaves = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/genParams.CaveDensity/64*2;
             for( int i = 0; i < maxCaves; i++ ) {
-                double startX = carveRand.NextDouble()*param.MapWidth;
-                double startY = carveRand.NextDouble()*param.MapLength;
-                double startZ = carveRand.NextDouble()*param.MapHeight;
+                double startX = carveRand.NextDouble()*genParams.MapWidth;
+                double startY = carveRand.NextDouble()*genParams.MapLength;
+                double startZ = carveRand.NextDouble()*genParams.MapHeight;
                 double f9 = carveRand.NextDouble()*Math.PI*2;
                 double f10 = 0;
                 double f11 = carveRand.NextDouble()*Math.PI*2;
@@ -562,7 +564,7 @@ namespace fCraft {
                     double f1 = startX + (carveRand.NextDouble()*4 - 2)*0.2;
                     double f2 = startZ + (carveRand.NextDouble()*4 - 2)*0.2;
                     double f5 = startY + (carveRand.NextDouble()*4 - 2)*0.2;
-                    double f6 = (param.MapHeight - f2)/param.MapHeight;
+                    double f6 = (genParams.MapHeight - f2)/genParams.MapHeight;
                     f6 = 1.2 + (f6*3.5 + 1)*f13;
                     f6 = Math.Sin( step*Math.PI/caveLength )*f6;
                     for( int x = (int)(f1 - f6); x <= (int)(f1 + f6); x++ ) {
@@ -574,8 +576,8 @@ namespace fCraft {
                                 f14 = f14*f14 + f15*f15*2 + f16*f16;
                                 if( (f14 >= f6*f6) ||
                                     (x < 1) || (z < 1) || (y < 1) ||
-                                    (x >= param.MapWidth - 1) || (z >= param.MapHeight - 1) ||
-                                    (y >= param.MapLength - 1) ) {
+                                    (x >= genParams.MapWidth - 1) || (z >= genParams.MapHeight - 1) ||
+                                    (y >= genParams.MapLength - 1) ) {
                                     continue;
                                 }
                                 int index = Index( x, y, z );
@@ -592,11 +594,11 @@ namespace fCraft {
 
         void MakeOreVeins( Block oreTile, int density ) {
             Random oreVeinRand = new Random( random.Next() );
-            int maxVeins = param.MapWidth*param.MapLength*param.MapHeight/256/64*density/100;
+            int maxVeins = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/256/64*density/100;
             for( int vein = 0; vein < maxVeins; vein++ ) {
-                double startX = oreVeinRand.NextDouble()*param.MapWidth;
-                double startY = oreVeinRand.NextDouble()*param.MapLength;
-                double startZ = oreVeinRand.NextDouble()*param.MapHeight;
+                double startX = oreVeinRand.NextDouble()*genParams.MapWidth;
+                double startY = oreVeinRand.NextDouble()*genParams.MapLength;
+                double startZ = oreVeinRand.NextDouble()*genParams.MapHeight;
                 double f4 = oreVeinRand.NextDouble()*Math.PI*2;
                 double f5 = 0;
                 double f6 = oreVeinRand.NextDouble()*Math.PI*2;
@@ -619,8 +621,8 @@ namespace fCraft {
                                 double f11 = y - startY;
                                 f9 = f9*f9 + f10*f10*2 + f11*f11;
                                 if( (f9 >= f8*f8) || (x < 1) || (z < 1) || (y < 1) ||
-                                    (x >= param.MapWidth - 1) || (z >= param.MapHeight - 1) ||
-                                    (y >= param.MapLength - 1) )
+                                    (x >= genParams.MapWidth - 1) || (z >= genParams.MapHeight - 1) ||
+                                    (y >= genParams.MapLength - 1) )
                                     continue;
                                 int index = Index( x, y, z );
                                 if( (Block)blocks[index] == Block.Stone ) {
@@ -642,13 +644,13 @@ namespace fCraft {
             while( stack.Count > 0 ) {
                 coord = stack.Pop();
                 blocks[Index( coord.X, coord.Y, coord.Z )] = (byte)newBlock;
-                if( coord.X + 1 < param.MapWidth && blocks[Index( coord.X + 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
+                if( coord.X + 1 < genParams.MapWidth && blocks[Index( coord.X + 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X + 1, coord.Y, coord.Z ) );
                 }
                 if( coord.X - 1 >= 0 && blocks[Index( coord.X - 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X - 1, coord.Y, coord.Z ) );
                 }
-                if( coord.Y + 1 < param.MapLength && blocks[Index( coord.X, coord.Y + 1, coord.Z )] == (byte)Block.Air ) {
+                if( coord.Y + 1 < genParams.MapLength && blocks[Index( coord.X, coord.Y + 1, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X, coord.Y + 1, coord.Z ) );
                 }
                 if( coord.Y - 1 >= 0 && blocks[Index( coord.X, coord.Y - 1, coord.Z )] == (byte)Block.Air ) {
@@ -673,7 +675,7 @@ namespace fCraft {
 
 
         int Index( int x, int y, int z ) {
-            return (z*param.MapLength + y)*param.MapWidth + x;
+            return (z*genParams.MapLength + y)*genParams.MapWidth + x;
         }
     }
 }

@@ -75,8 +75,8 @@ namespace fCraft.MapConversion {
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
                     BinaryReader br = new BinaryReader( ds );
                     for( int i = 0; i < metaCount; i++ ) {
-                        string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
-                        string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                        string group = ReadLengthPrefixedString( br );
+                        string key = ReadLengthPrefixedString( br );
                         string newValue = ReadLengthPrefixedString( br );
 
                         string oldValue;
@@ -124,8 +124,8 @@ namespace fCraft.MapConversion {
                 using( DeflateStream ds = new DeflateStream( mapStream, CompressionMode.Decompress ) ) {
                     BinaryReader br = new BinaryReader( ds );
                     for( int i = 0; i < metaSize; i++ ) {
-                        string group = ReadLengthPrefixedString( br ).ToLowerInvariant();
-                        string key = ReadLengthPrefixedString( br ).ToLowerInvariant();
+                        string group = ReadLengthPrefixedString( br );
+                        string key = ReadLengthPrefixedString( br );
                         string newValue = ReadLengthPrefixedString( br );
 
                         string oldValue;
