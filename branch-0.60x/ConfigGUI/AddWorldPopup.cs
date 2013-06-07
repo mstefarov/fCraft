@@ -719,6 +719,12 @@ Could not load more information:
         }
 
         void SelectGenerator( IMapGenerator newGen ) {
+            int genIndex = cGenerator.Items.IndexOf( newGen.Name );
+            if( cGenerator.SelectedIndex != genIndex ) {
+                cGenerator.SelectedIndex = genIndex;
+                return;
+            }
+
             generatorParamsPanel.SuspendLayout();
             if( genGui != null ) {
                 generatorParamsPanel.Controls.Clear();
@@ -736,7 +742,7 @@ Could not load more information:
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
 
-            cGenerator.SelectedIndex = cGenerator.Items.IndexOf( newGen.Name );
+            
         }
 
 
@@ -822,9 +828,11 @@ Could not load more information:
 
             string oldData;
             if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
-                MessageBox.Show( "TODO: legacy map loading" ); // TODO: legacy loading
+                // load legacy (pre-0.640) embedded generation parameters
+                MessageBox.Show( "TODO: legacy map loading" ); // TODO
 
             } else {
+                // load modern (0.640+) embedded generation parameters
                 try {
                     IMapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
                     if( genParams == null ) {

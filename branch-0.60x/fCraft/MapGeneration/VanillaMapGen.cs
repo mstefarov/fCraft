@@ -33,6 +33,12 @@ namespace fCraft {
         public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             return new VanillaMapGenParameters();
         }
+
+        public IMapGeneratorParameters CreateParameters( string presetName ) {
+            throw new NotImplementedException(); // TODO
+        }
+
+        public string[] Presets { get; private set; } // TODO
     }
 
 
