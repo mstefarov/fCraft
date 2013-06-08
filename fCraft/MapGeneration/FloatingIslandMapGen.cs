@@ -33,10 +33,17 @@ namespace fCraft {
         }
 
         public IMapGeneratorParameters CreateParameters( string presetName ) {
-            throw new NotImplementedException(); // TODO
+            if( presetName == PresetList[0] ) {
+                return GetDefaultParameters();
+            } else {
+                throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name" );
+            }
         }
 
-        public string[] Presets { get; private set; } // TODO
+        static readonly string[] PresetList = new[] { "Defaults" };
+        public string[] Presets {
+            get { return PresetList; }
+        }
     }
 
 
