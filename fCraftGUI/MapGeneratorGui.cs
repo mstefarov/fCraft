@@ -31,7 +31,7 @@ namespace fCraft.GUI {
         }
 
         void Parent_SizeChanged( object sender, EventArgs e ) {
-            if( Site != null && !Site.DesignMode ) {
+            if( !DesignMode ) {
                 // auto-resize only when not in Designer mode (in VS)
                 Size = Parent.Size;
             }
