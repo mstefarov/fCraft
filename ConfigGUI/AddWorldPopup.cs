@@ -102,9 +102,27 @@ namespace fCraft.ConfigGUI {
             cGenerator.Items.AddRange( MapGenUtil.GeneratorList.Select( gen => gen.Name ).ToArray() );
             cGenerator.SelectedIndex = 0;
 
+            tsbLoadPreset.DropDownItemClicked += new ToolStripItemClickedEventHandler( tsbLoadPreset_DropDownItemClicked );
             tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
 
             Shown += LoadMap;
+        }
+
+        void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( !e.ClickedItem.Enabled ) {
+                return;
+            }
+            try {
+                IMapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
+                genGui.SetParameters( mapGenParams );
+                SignalMapDimensionChange();
+
+            } catch( Exception ex ) {
+                MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex,
+                                 "Error loading preset",
+                                 MessageBoxButtons.OK,
+                                 MessageBoxIcon.Error );
+            }
         }
 
 
@@ -742,7 +760,20 @@ Could not load more information:
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
 
-            
+            // clear existing presets
+            for( int i = tsbLoadPreset.DropDownItems.Count; i > 0; i-- ) {
+                var item = tsbLoadPreset.DropDownItems[0];
+                tsbLoadPreset.DropDownItems.RemoveAt( 0 );
+                item.Dispose();
+            }
+
+            // add new presets
+            foreach( string presetName in generator.Presets ) {
+                tsbLoadPreset.DropDownItems.Add( presetName );
+            }
+            if( tsbLoadPreset.DropDownItems.Count == 0 ) {
+                tsbLoadPreset.DropDownItems[0].Enabled = false;
+            }
         }
 
 
