@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -10,6 +11,18 @@ namespace fCraft {
 
         static FlatMapGen() {
             Instance = new FlatMapGen();
+
+            List<string> presetList = new List<string> {
+                "Default (Flatgrass)",
+                "Empty",
+                "Ocean"
+            };
+            foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
+                if( themeName != MapGenTheme.Forest.ToString() ) {
+                    presetList.Add( themeName );
+                }
+            }
+            PresetList = presetList.ToArray();
         }
 
         public string Name {
@@ -45,49 +58,77 @@ namespace fCraft {
             return newParams;
         }
 
+
+        #region Presets
+
         public IMapGeneratorParameters CreateParameters( string presetName ) {
-            throw new NotImplementedException(); // TODO
+            if( presetName == null ) {
+                throw new ArgumentNullException( "presetName" );
+            }
+            if( presetName == PresetList[0] ) {
+                return GetDefaultParameters();
+
+            } else if( presetName == PresetList[1] ) {
+                return new FlatMapGenParameters {
+                    SurfaceThickness = 0,
+                    SoilThickness = 0,
+                    BedrockThickness = 0,
+                    DeepBlock = Block.Air
+                };
+
+            } else if( presetName == PresetList[2] ) {
+                return new FlatMapGenParameters {
+                    SurfaceThickness = 0,
+                    SoilThickness = 0,
+                    BedrockThickness = 0,
+                    DeepBlock = Block.Air
+                };
+
+            } else {
+                MapGenTheme theme;
+                if( EnumUtil.TryParse( presetName, out theme, true ) ) {
+                    FlatMapGenParameters genParams = new FlatMapGenParameters();
+                    genParams.ApplyTheme( theme );
+                    return genParams;
+                } else {
+                    throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name." );
+                }
+            }
         }
 
-        public string[] Presets { get; private set; } // TODO
+        static readonly string[] PresetList;
+        public string[] Presets {
+            get { return PresetList; }
+        }
 
 
         [NotNull]
         public static IMapGeneratorState MakeFlatgrass( int width, int length, int height ) {
-            return new FlatMapGenParameters {
-                MapWidth = width,
-                MapLength = length,
-                MapHeight = height
-            }.CreateGenerator();
+            return MakePreset( width, length, height, 0 );
         }
 
 
         [NotNull]
         public static IMapGeneratorState MakeEmpty( int width, int length, int height ) {
-            return new FlatMapGenParameters {
-                MapWidth = width,
-                MapLength = length,
-                MapHeight = height,
-                SurfaceThickness = 0,
-                SoilThickness = 0,
-                BedrockThickness = 0,
-                DeepBlock = Block.Air
-            }.CreateGenerator();
+            return MakePreset( width, length, height, 1 );
         }
 
 
         [NotNull]
         public static IMapGeneratorState MakeOcean( int width, int length, int height ) {
-            return new FlatMapGenParameters {
-                MapWidth = width,
-                MapLength = length,
-                MapHeight = height,
-                SurfaceThickness = 0,
-                SoilThickness = 0,
-                BedrockThickness = 0,
-                DeepBlock = Block.Water
-            }.CreateGenerator();
+            return MakePreset( width, length, height, 2 );
         }
+
+
+        static IMapGeneratorState MakePreset( int width, int length, int height, int index ) {
+            IMapGeneratorParameters preset = Instance.CreateParameters( PresetList[index] );
+            preset.MapWidth = width;
+            preset.MapLength = length;
+            preset.MapHeight = height;
+            return preset.CreateGenerator();
+        }
+
+        #endregion
     }
 
 
@@ -151,22 +192,12 @@ namespace fCraft {
         public Block BedrockBlock { get; set; }
 
 
-        MapGenTheme lastChosenTheme;
-        [Category( "Preset" )]
-        public MapGenTheme Preset {
-            get { return lastChosenTheme; }
-            set { ApplyTheme( value );  }
-        }
-
-
         public FlatMapGenParameters() {
             ApplyTheme( MapGenTheme.Forest );
         }
 
 
         public void ApplyTheme( MapGenTheme theme ) {
-            lastChosenTheme = theme;
-
             // base defaults ("forest")
             SurfaceThickness = 1;
             SoilThickness = 5;
@@ -199,6 +230,13 @@ namespace fCraft {
             }
         }
 
+
+        public IMapGeneratorState CreateGenerator() {
+            return new FlatMapGenState( this );
+        }
+
+
+        #region Serialization and Cloning
 
         public FlatMapGenParameters( XElement el )
             : this() {
@@ -249,11 +287,6 @@ namespace fCraft {
         }
 
 
-        public IMapGeneratorState CreateGenerator() {
-            return new FlatMapGenState( this );
-        }
-
-
         public object Clone() {
             return new FlatMapGenParameters {
                 GroundLevelOffset = GroundLevelOffset,
@@ -267,6 +300,8 @@ namespace fCraft {
                 BedrockBlock = BedrockBlock
             };
         }
+
+        #endregion
     }
 
 
