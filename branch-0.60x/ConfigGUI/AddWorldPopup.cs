@@ -102,29 +102,11 @@ namespace fCraft.ConfigGUI {
             cGenerator.Items.AddRange( MapGenUtil.GeneratorList.Select( gen => gen.Name ).ToArray() );
             cGenerator.SelectedIndex = 0;
 
-            tsbLoadPreset.DropDownItemClicked += new ToolStripItemClickedEventHandler( tsbLoadPreset_DropDownItemClicked );
+            tsbLoadPreset.DropDownItemClicked += tsbLoadPreset_DropDownItemClicked;
             tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
-
             Shown += LoadMap;
         }
-
-        void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            if( !e.ClickedItem.Enabled ) {
-                return;
-            }
-            try {
-                IMapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
-                genGui.SetParameters( mapGenParams );
-                SignalMapDimensionChange();
-
-            } catch( Exception ex ) {
-                MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex,
-                                 "Error loading preset",
-                                 MessageBoxButtons.OK,
-                                 MessageBoxIcon.Error );
-            }
-        }
-
+        
 
         WorldListEntry[] otherWorlds;
 
@@ -136,8 +118,8 @@ namespace fCraft.ConfigGUI {
             foreach( WorldListEntry otherWorld in otherWorlds ) {
                 cWorld.Items.Add( otherWorld.Name + " (" + otherWorld.Description + ")" );
                 copyOptionsList.Add( otherWorld );
-                var importSettingsItem = tsbImportSettings.DropDownItems.Add( otherWorld.Name );
-                importSettingsItem.Tag = otherWorld;
+                var item = new ToolStripMenuItem( otherWorld.Name ) {Tag = otherWorld};
+                tsbImportSettings.DropDownItems.Insert( 0, item );
             }
 
             if( World == null ) {
@@ -382,6 +364,35 @@ namespace fCraft.ConfigGUI {
             Redraw( true );
         }
 
+
+        readonly SaveFileDialog savePreviewDialog = new SaveFileDialog();
+
+        void bSavePreview_Click( object sender, EventArgs e ) {
+            try {
+                using( Image img = (Image)preview.Image.Clone() ) {
+                    if( savePreviewDialog.ShowDialog() == DialogResult.OK &&
+                        !String.IsNullOrEmpty( savePreviewDialog.FileName ) ) {
+                        switch( savePreviewDialog.FilterIndex ) {
+                            case 1:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Png );
+                                break;
+                            case 2:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Tiff );
+                                break;
+                            case 3:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Bmp );
+                                break;
+                            case 4:
+                                img.Save( savePreviewDialog.FileName, ImageFormat.Jpeg );
+                                break;
+                        }
+                    }
+                }
+            } catch( Exception ex ) {
+                MessageBox.Show( "Could not prepare image for saving: " + ex );
+            }
+        }
+
         #endregion
 
 
@@ -459,6 +470,57 @@ namespace fCraft.ConfigGUI {
             bGenerate.Enabled = true;
             bGenerate.Text = "Generate";
             genState = null;
+        }
+
+
+        IMapGenerator generator;
+
+        void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
+            string genName = cGenerator.SelectedItem.ToString();
+            SelectGenerator( MapGenUtil.GetGeneratorByName( genName ) );
+        }
+
+
+        void SelectGenerator( IMapGenerator newGen ) {
+            int genIndex = cGenerator.Items.IndexOf( newGen.Name );
+            if( cGenerator.SelectedIndex != genIndex ) {
+                cGenerator.SelectedIndex = genIndex;
+                return;
+            }
+
+            generatorParamsPanel.SuspendLayout();
+            if( genGui != null ) {
+                generatorParamsPanel.Controls.Clear();
+                genGui.Dispose();
+                genGui = null;
+            }
+
+            generator = newGen;
+            genGui = MapGenGuiUtil.GetGuiForGenerator( newGen ).CreateGui();
+
+            genGui.Width = generatorParamsPanel.Width;
+            generatorParamsPanel.Controls.Add( genGui );
+            genGui.SetParameters( generator.GetDefaultParameters() );
+            SignalMapDimensionChange();
+            generatorParamsPanel.ResumeLayout();
+            generatorParamsPanel.PerformLayout();
+
+            // clear existing presets
+            for( int i = tsbLoadPreset.DropDownItems.Count; i > 2; i-- ) {
+                var item = tsbLoadPreset.DropDownItems[0];
+                tsbLoadPreset.DropDownItems.RemoveAt( 0 );
+                item.Dispose();
+            }
+
+            // add new presets
+            foreach( string presetName in generator.Presets ) {
+                tsbLoadPreset.DropDownItems.Insert( 0, new ToolStripMenuItem( presetName ) );
+            }
+        }
+
+
+        void SignalMapDimensionChange() {
+            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
         }
 
         #endregion
@@ -700,87 +762,7 @@ Could not load more information:
         }
 
 
-        readonly SaveFileDialog savePreviewDialog = new SaveFileDialog();
-
-        void bSavePreview_Click( object sender, EventArgs e ) {
-            try {
-                using( Image img = (Image)preview.Image.Clone() ) {
-                    if( savePreviewDialog.ShowDialog() == DialogResult.OK &&
-                        !String.IsNullOrEmpty( savePreviewDialog.FileName ) ) {
-                        switch( savePreviewDialog.FilterIndex ) {
-                            case 1:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Png );
-                                break;
-                            case 2:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Tiff );
-                                break;
-                            case 3:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Bmp );
-                                break;
-                            case 4:
-                                img.Save( savePreviewDialog.FileName, ImageFormat.Jpeg );
-                                break;
-                        }
-                    }
-                }
-            } catch( Exception ex ) {
-                MessageBox.Show( "Could not prepare image for saving: " + ex );
-            }
-        }
-
-
-        IMapGenerator generator;
-
-        void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
-            string genName = cGenerator.SelectedItem.ToString();
-            SelectGenerator( MapGenUtil.GetGeneratorByName( genName ) );
-        }
-
-        void SelectGenerator( IMapGenerator newGen ) {
-            int genIndex = cGenerator.Items.IndexOf( newGen.Name );
-            if( cGenerator.SelectedIndex != genIndex ) {
-                cGenerator.SelectedIndex = genIndex;
-                return;
-            }
-
-            generatorParamsPanel.SuspendLayout();
-            if( genGui != null ) {
-                generatorParamsPanel.Controls.Clear();
-                genGui.Dispose();
-                genGui = null;
-            }
-
-            generator = newGen;
-            genGui = MapGenGuiUtil.GetGuiForGenerator(newGen).CreateGui();
-
-            genGui.Width = generatorParamsPanel.Width;
-            generatorParamsPanel.Controls.Add( genGui );
-            genGui.SetParameters( generator.GetDefaultParameters() );
-            SignalMapDimensionChange();
-            generatorParamsPanel.ResumeLayout();
-            generatorParamsPanel.PerformLayout();
-
-            // clear existing presets
-            for( int i = tsbLoadPreset.DropDownItems.Count; i > 0; i-- ) {
-                var item = tsbLoadPreset.DropDownItems[0];
-                tsbLoadPreset.DropDownItems.RemoveAt( 0 );
-                item.Dispose();
-            }
-
-            // add new presets
-            foreach( string presetName in generator.Presets ) {
-                tsbLoadPreset.DropDownItems.Add( presetName );
-            }
-            if( tsbLoadPreset.DropDownItems.Count == 0 ) {
-                tsbLoadPreset.DropDownItems[0].Enabled = false;
-            }
-        }
-
-
-        void SignalMapDimensionChange() {
-            genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
-        }
-
+        #region Generator Presets
 
         SaveFileDialog savePresetDialog;
 
@@ -808,7 +790,7 @@ Could not load more information:
 
         OpenFileDialog importSettingsDialog;
 
-        void tsbImportSettings_ButtonClick( object sender, EventArgs e ) {
+        void ImportSettingsFromFile() {
             if( importSettingsDialog == null ) {
                 importSettingsDialog = new OpenFileDialog {
                     Filter = "All supported formats|*.fcm;*.ftpl|" +
@@ -843,7 +825,10 @@ Could not load more information:
 
         void tsbImportSettings_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             WorldListEntry entry = e.ClickedItem.Tag as WorldListEntry;
-            if( entry == null ) return;
+            if( entry == null ) {
+                BeginInvoke( (Action)ImportSettingsFromFile ); // allow menu to close
+                return;
+            }
 
             Map ourMap;
             if( MapUtility.TryLoadHeader( entry.FullFileName, false, out ourMap ) ) {
@@ -898,9 +883,28 @@ Could not load more information:
         }
 
 
+        void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( e.ClickedItem == tsbLoadPresetFromFile || e.ClickedItem is ToolStripSeparator ) {
+                BeginInvoke( (Action)LoadPresetFromFile ); // allow menu to close
+                return;
+            }
+            try {
+                IMapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
+                genGui.SetParameters( mapGenParams );
+                SignalMapDimensionChange();
+
+            } catch( Exception ex ) {
+                MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex,
+                                 "Error loading preset",
+                                 MessageBoxButtons.OK,
+                                 MessageBoxIcon.Error );
+            }
+        }
+
+
         OpenFileDialog loadPresetDialog;
 
-        void tsbLoadPreset_ButtonClick( object sender, EventArgs e ) {
+        void LoadPresetFromFile() {
             if( loadPresetDialog == null ) {
                 loadPresetDialog = new OpenFileDialog {
                     Filter = "fCraft MapGen Preset|*.fmgp|" +
@@ -929,5 +933,7 @@ Could not load more information:
             genGui.SetParameters( genParams );
             SignalMapDimensionChange();
         }
+
+        #endregion
     }
 }

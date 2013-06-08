@@ -65,10 +65,10 @@ namespace fCraft {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
-            if( presetName == PresetList[0] ) {
+            if( presetName == PresetList[0] ) { // Flatgrass (default)
                 return GetDefaultParameters();
 
-            } else if( presetName == PresetList[1] ) {
+            } else if( presetName == PresetList[1] ) { // Empty
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
@@ -76,12 +76,12 @@ namespace fCraft {
                     DeepBlock = Block.Air
                 };
 
-            } else if( presetName == PresetList[2] ) {
+            } else if( presetName == PresetList[2] ) { // Ocean
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
                     BedrockThickness = 0,
-                    DeepBlock = Block.Air
+                    DeepBlock = Block.Water
                 };
 
             } else {

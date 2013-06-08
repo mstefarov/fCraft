@@ -23,6 +23,10 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            System.Windows.Forms.ToolStripSeparator tsSeparator1;
+            System.Windows.Forms.ToolStripSeparator tsSeparator2;
+            System.Windows.Forms.ToolStripSeparator tsSeparator3;
+            System.Windows.Forms.ToolStripSeparator tsSeparator4;
             this.bShow = new System.Windows.Forms.Button();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
@@ -66,10 +70,8 @@
             this.tCopyInfo = new System.Windows.Forms.TextBox();
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.tsGenPresets = new System.Windows.Forms.ToolStrip();
-            this.tsbLoadPreset = new System.Windows.Forms.ToolStripSplitButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbImportSettings = new System.Windows.Forms.ToolStripSplitButton();
-            this.tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbLoadPreset = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbLoadPresetFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
@@ -87,6 +89,12 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            tsSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            tsSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            tsSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
@@ -100,6 +108,21 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
             this.SuspendLayout();
+            // 
+            // tsSeparator1
+            // 
+            tsSeparator1.Name = "tsSeparator1";
+            tsSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsSeparator2
+            // 
+            tsSeparator2.Name = "tsSeparator2";
+            tsSeparator2.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsSeparator3
+            // 
+            tsSeparator3.Name = "tsSeparator3";
+            tsSeparator3.Size = new System.Drawing.Size(149, 6);
             // 
             // bShow
             // 
@@ -567,9 +590,9 @@
             this.tsGenPresets.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.tsGenPresets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbLoadPreset,
-            this.toolStripSeparator1,
+            tsSeparator1,
             this.tsbImportSettings,
-            this.tsSeparator2,
+            tsSeparator2,
             this.tsbSavePreset});
             this.tsGenPresets.Location = new System.Drawing.Point(3, 394);
             this.tsGenPresets.Name = "tsGenPresets";
@@ -579,31 +602,21 @@
             // 
             // tsbLoadPreset
             // 
+            this.tsbLoadPreset.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            tsSeparator3,
+            this.tsbLoadPresetFromFile});
             this.tsbLoadPreset.Image = global::fCraft.ConfigGUI.Properties.Resources.maps_stack;
             this.tsbLoadPreset.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbLoadPreset.Name = "tsbLoadPreset";
-            this.tsbLoadPreset.Size = new System.Drawing.Size(100, 22);
+            this.tsbLoadPreset.Size = new System.Drawing.Size(97, 22);
             this.tsbLoadPreset.Text = "Load Preset";
-            this.tsbLoadPreset.ButtonClick += new System.EventHandler(this.tsbLoadPreset_ButtonClick);
+            this.tsbLoadPreset.ToolTipText = "Choose one of standard presets, or load a custom one from file.";
             // 
-            // toolStripSeparator1
+            // tsbLoadPresetFromFile
             // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tsbImportSettings
-            // 
-            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
-            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImportSettings.Name = "tsbImportSettings";
-            this.tsbImportSettings.Size = new System.Drawing.Size(120, 22);
-            this.tsbImportSettings.Text = "Import Settings";
-            this.tsbImportSettings.ButtonClick += new System.EventHandler(this.tsbImportSettings_ButtonClick);
-            // 
-            // tsSeparator2
-            // 
-            this.tsSeparator2.Name = "tsSeparator2";
-            this.tsSeparator2.Size = new System.Drawing.Size(6, 25);
+            this.tsbLoadPresetFromFile.Name = "tsbLoadPresetFromFile";
+            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(152, 22);
+            this.tsbLoadPresetFromFile.Text = "From file...";
             // 
             // tsbSavePreset
             // 
@@ -612,6 +625,7 @@
             this.tsbSavePreset.Name = "tsbSavePreset";
             this.tsbSavePreset.Size = new System.Drawing.Size(86, 22);
             this.tsbSavePreset.Text = "Save Preset";
+            this.tsbSavePreset.ToolTipText = "Save current map generator\'s settings to a file, as a custom preset.";
             this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
             // generatorParamsPanel
@@ -829,6 +843,29 @@
             this.cBlockDB.TabIndex = 21;
             this.cBlockDB.SelectedIndexChanged += new System.EventHandler(this.cBlockDB_SelectedIndexChanged);
             // 
+            // tsbImportSettings
+            // 
+            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            tsSeparator4,
+            this.tsbImportSettingsFromFile});
+            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
+            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImportSettings.Name = "tsbImportSettings";
+            this.tsbImportSettings.Size = new System.Drawing.Size(117, 22);
+            this.tsbImportSettings.Text = "Import Settings";
+            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
+            // 
+            // tsbImportSettingsFromFile
+            // 
+            this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
+            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
+            this.tsbImportSettingsFromFile.Text = "From mapfile...";
+            // 
+            // tsSeparator4
+            // 
+            tsSeparator4.Name = "tsSeparator4";
+            tsSeparator4.Size = new System.Drawing.Size(149, 6);
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -943,10 +980,10 @@
         private System.Windows.Forms.NumericUpDown nMapLength;
         private System.Windows.Forms.Panel generatorParamsPanel;
         private System.Windows.Forms.ToolStrip tsGenPresets;
-        private System.Windows.Forms.ToolStripSplitButton tsbLoadPreset;
-        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripSeparator tsSeparator2;
         private System.Windows.Forms.ToolStripButton tsbSavePreset;
-        private System.Windows.Forms.ToolStripSplitButton tsbImportSettings;
+        private System.Windows.Forms.ToolStripDropDownButton tsbLoadPreset;
+        private System.Windows.Forms.ToolStripMenuItem tsbLoadPresetFromFile;
+        private System.Windows.Forms.ToolStripDropDownButton tsbImportSettings;
+        private System.Windows.Forms.ToolStripMenuItem tsbImportSettingsFromFile;
     }
 }
