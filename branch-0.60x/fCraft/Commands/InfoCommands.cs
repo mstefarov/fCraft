@@ -249,11 +249,19 @@ namespace fCraft {
                 }
                 player.Message( firstLine.ToString() );
 
-                // Show login information
-                player.Message( "  {0} account, {1} logins since {2:d MMM yyyy}.",
-                                info.AccountType,
-                                info.TimesVisited,
-                                info.FirstLoginDate );
+                if( info.Email != null && (player.Can( Permission.ViewPlayerIPs ) || player.Info == info) ) {
+                    // Show login information
+                    player.Message( "  <{0}> {1} logins since {2:d MMM yyyy}.",
+                                    Color.StripColors( info.Email ),
+                                    info.TimesVisited,
+                                    info.FirstLoginDate );
+                } else {
+                    // Show login information
+                    player.Message( "  {0} account, {1} logins since {2:d MMM yyyy}.",
+                                    info.AccountType,
+                                    info.TimesVisited,
+                                    info.FirstLoginDate );
+                }
             }
 
             if( info.IsFrozen ) {
