@@ -1470,7 +1470,7 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Usage = "/InfoSwap Player1 Player2",
-            Help = "Swaps records between two players. EXPERIMENTAL, use at your own risk.",
+            Help = "Swaps stats of two players in the database. Both players should be offline.",
             Handler = InfoSwapHandler
         };
 

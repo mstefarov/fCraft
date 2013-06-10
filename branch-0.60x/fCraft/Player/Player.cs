@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
@@ -1642,11 +1643,20 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < '@') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
             return true;
+        }
+
+        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\.\*\?@]", RegexOptions.Compiled );
+        /// <summary> Strips invalid characters from a name. </summary>
+        public static string StripInvalidCharacters( [NotNull] string name ) {
+            if( name == null ) {
+                throw new ArgumentNullException( "name" );
+            }
+            return RegexNonNameChars.Replace( name, "" );
         }
 
         #endregion

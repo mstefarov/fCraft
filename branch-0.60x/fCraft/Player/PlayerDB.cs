@@ -43,7 +43,7 @@ namespace fCraft {
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
                               "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
-                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName,AccountType";
+                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName,AccountType,Email";
 
 
         // used to ensure PlayerDB consistency when adding/removing PlayerDB entries
@@ -344,8 +344,8 @@ namespace fCraft {
         #region Lookup
 
         [NotNull]
-        public static PlayerInfo FindOrCreateInfoForPlayer( [NotNull] string name, [NotNull] IPAddress lastIP ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static PlayerInfo FindOrCreateInfoForPlayer( [NotNull] string givenName, [NotNull] IPAddress lastIP ) {
+            if( givenName == null ) throw new ArgumentNullException( "givenName" );
             if( lastIP == null ) throw new ArgumentNullException( "lastIP" );
             CheckIfLoaded();
             PlayerInfo info;
@@ -353,14 +353,52 @@ namespace fCraft {
             // this flag is used to avoid raising PlayerInfoCreated event inside the lock
             bool raiseCreatedEvent = false;
 
+            bool isEmail = false;
+            string name = givenName;
+
+            // handle email accounts
+            if( name.Contains( '@' ) ) {
+                isEmail = true;
+                name = Player.StripInvalidCharacters( name.Substring( 0, name.LastIndexOf( '@' ) ) );
+                name = name.Substring( 0, 14 ).PadLeft( 1, '_' ) + "@";
+            }
+
             lock( AddLocker ) {
-                info = Trie.Get( name );
+                if( isEmail ) {
+                    // special treatment for email accounts
+                    int i = 1;
+                    while( true ) {
+                        info = Trie.Get( name + i );
+                        if( info == null ) {
+                            // found a new player, not in the database
+                            name = name + i;
+                            break;
+
+                        } else if( info.Email == givenName ) {
+                            // player with matching email found
+                            return info;
+
+                        } else {
+                            // increment number and retry
+                            i++;
+                            if( (name + i).Length > 16 ) {
+                                name = name.Substring( 0, name.Length - 1 );
+                            }
+                        }
+                    }
+                }else{
+                    info = Trie.Get( name );
+                }
+
                 if( info == null ) {
                     var e = new PlayerInfoBeingCreatedEventArgs( name, lastIP, RankManager.DefaultRank, false );
                     PlayerInfo.RaiseCreatingEvent( e );
                     if( e.Cancel ) throw new OperationCanceledException( "Cancelled by a plugin." );
 
                     info = new PlayerInfo( name, lastIP, e.StartingRank );
+                    if( isEmail ) {
+                        info.Email = givenName;
+                    }
                     Trie.Add( name, info );
                     list.Add( info );
                     UpdateCache();
