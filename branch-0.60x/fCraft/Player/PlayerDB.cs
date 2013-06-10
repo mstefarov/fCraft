@@ -360,7 +360,8 @@ namespace fCraft {
             if( name.Contains( '@' ) ) {
                 isEmail = true;
                 name = Player.StripInvalidCharacters( name.Substring( 0, name.LastIndexOf( '@' ) ) );
-                name = name.Substring( 0, 14 ).PadLeft( 1, '_' ) + "@";
+                if( name.Length == 0 ) name = "_";
+                else if( name.Length > 14 ) name = name.Substring( 0, 14 );
             }
 
             lock( AddLocker ) {
@@ -368,10 +369,10 @@ namespace fCraft {
                     // special treatment for email accounts
                     int i = 1;
                     while( true ) {
-                        info = Trie.Get( name + i );
+                        info = Trie.Get( name + '@' + i );
                         if( info == null ) {
                             // found a new player, not in the database
-                            name = name + i;
+                            name = name + '@' + i;
                             break;
 
                         } else if( info.Email == givenName ) {
@@ -381,7 +382,7 @@ namespace fCraft {
                         } else {
                             // increment number and retry
                             i++;
-                            if( (name + i).Length > 16 ) {
+                            if( (name + '@' + i).Length > 16 ) {
                                 name = name.Substring( 0, name.Length - 1 );
                             }
                         }

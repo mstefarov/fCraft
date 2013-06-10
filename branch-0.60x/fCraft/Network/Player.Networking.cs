@@ -560,7 +560,7 @@ namespace fCraft {
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             if( isEmailAccount ) {
                 Logger.Log( LogType.SystemActivity,
-                            "Mojang account <{0}> connected as {1}.",
+                            "Mojang account <{0}> connected as {1}",
                             givenName,
                             Info.Name );
             }
