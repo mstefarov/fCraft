@@ -246,7 +246,14 @@ namespace fCraft {
                 return ch - 'A';
             else if( ch >= '0' && ch <= '9' )
                 return ch - '0' + 26;
-            return ch == '.' ? 37 : 36;
+            switch( ch ) {
+                case '.':
+                    return 37;
+                case '@':
+                    return 38;
+                default:
+                    return 36; // '_' and everything else
+            }
         }
 
 
@@ -256,7 +263,14 @@ namespace fCraft {
                 return (char)(code + 'a');
             if( code >= 26 && code < 36 )
                 return (char)(code + '0');
-            return code == 37 ? '.' : '_';
+            switch( code ) {
+                case 37:
+                    return '.';
+                case 38:
+                    return '@';
+                default:
+                    return '_';
+            }
         }
 
 
@@ -1230,7 +1244,7 @@ namespace fCraft {
 
 
         sealed class TrieNode {
-            const int ChildCount = 38;
+            const int ChildCount = 39;
 
 
             // Tag identifies TrieNode as being either a LeafNode,

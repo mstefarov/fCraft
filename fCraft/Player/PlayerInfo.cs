@@ -47,6 +47,9 @@ namespace fCraft {
         [CanBeNull]
         public string DisplayedName;
 
+        [CanBeNull]
+        public string Email;
+
         /// <summary> Player's unique numeric ID. Issued on first join. </summary>
         public int ID;
 
@@ -508,6 +511,11 @@ namespace fCraft {
                     }
                 }
             }
+            if( fields.Length > 49 ) {
+                if( fields[49].Length > 0 ) {
+                    info.Email = PlayerDB.Unescape( fields[49] );
+                }
+            }
 
             if( info.LastSeen < info.FirstLoginDate ) {
                 info.LastSeen = info.FirstLoginDate;
@@ -932,6 +940,11 @@ namespace fCraft {
 
             sb.Append( ',' );
             sb.Append( (byte)AccountType ); // 48
+
+            sb.Append( ',' );
+            if( Email != null ) {
+                sb.AppendEscaped( Email );
+            }
         }
 
         #endregion

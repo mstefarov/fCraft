@@ -539,8 +539,13 @@ namespace fCraft {
 
             string givenName = reader.ReadString();
 
-            // Check name for nonstandard characters
-            if( !IsValidName( givenName ) ) {
+            bool isEmailAccount = false;
+            if( givenName.Contains( '@' ) ) {
+                // Mojang account
+                isEmailAccount = true;
+
+            } else if( !IsValidName( givenName ) ) {
+                // Check name for nonstandard characters
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Unacceptable player name: {0} ({1})",
                             givenName, IP );
@@ -553,6 +558,13 @@ namespace fCraft {
             BytesReceived += 131;
 
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
+            if( isEmailAccount ) {
+                Logger.Log( LogType.SystemActivity,
+                            "Mojang account <{0}> connected as {1}.",
+                            givenName,
+                            Info.Name );
+            }
+
             ResetAllBinds();
 
             if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
