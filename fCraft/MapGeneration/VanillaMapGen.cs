@@ -70,16 +70,15 @@ namespace fCraft {
             TreeHopsPerChain = 20;
             TreeSpread = 6;
             TreePlantRatio = 4;
-            CoalOreDensity = 90;
-            IronOreDensity = 70;
-            GoldOreDensity = 50;
-            CaveDensity = 256;
+            OreDensity = 1;
+            CaveDensity = 1;
             lock( seedRng ) {
                 Seed = seedRng.Next();
             }
 
             Generator = VanillaMapGen.Instance;
         }
+
 
         public VanillaMapGenParameters( XElement root )
             : this() {
@@ -101,10 +100,8 @@ namespace fCraft {
             TreeHopsPerChain = LoadInt( root, "TreeHopsPerChain", TreeHopsPerChain );
             TreeSpread = LoadInt( root, "TreeSpread", TreeSpread );
             TreePlantRatio = LoadInt( root, "TreePlantRatio", TreePlantRatio );
-            CoalOreDensity = LoadInt( root, "CoalOreDensity", CoalOreDensity );
-            IronOreDensity = LoadInt( root, "IronOreDensity", IronOreDensity );
-            GoldOreDensity = LoadInt( root, "GoldOreDensity", GoldOreDensity );
-            CaveDensity = LoadInt( root, "CaveDensity", CaveDensity );
+            OreDensity = LoadDouble( root, "OreDensity", OreDensity );
+            CaveDensity = LoadDouble( root, "CaveDensity", CaveDensity );
             Seed = LoadInt( root, "Seed", Seed );
         }
 
@@ -120,28 +117,42 @@ namespace fCraft {
         }
 
 
+        static double LoadDouble( XElement root, string name, double defaultVal ) {
+            XElement el;
+            double temp;
+            if( (el = root.Element( name )) != null && Double.TryParse( el.Value, out temp ) ) {
+                return temp;
+            } else {
+                return defaultVal;
+            }
+        }
+
+
         public int TerrainFeatureOctaves { get; set; }
         public int TerrainDetailOctaves { get; set; }
         public int WaterSpawnDensity { get; set; }
         public int LavaSpawnDensity { get; set; }
+
         public int FlowerClusterDensity { get; set; }
         public int FlowerSpread { get; set; }
         public int FlowerChainsPerCluster { get; set; }
         public int FlowersPerChain { get; set; }
+
         public int ShroomClusterDensity { get; set; }
         public int ShroomChainsPerCluster { get; set; }
         public int ShroomHopsPerChain { get; set; }
         public int ShroomSpreadHozirontal { get; set; }
         public int ShroomSpreadVertical { get; set; }
+
         public int TreeClusterDensity { get; set; }
         public int TreeChainsPerCluster { get; set; }
         public int TreeHopsPerChain { get; set; }
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
-        public int CoalOreDensity { get; set; }
-        public int IronOreDensity { get; set; }
-        public int GoldOreDensity { get; set; }
-        public int CaveDensity { get; set; }
+
+        public double OreDensity { get; set; }
+        public double CaveDensity { get; set; }
+
         public int Seed { get; set; }
 
 
@@ -165,9 +176,7 @@ namespace fCraft {
                 TreeHopsPerChain = TreeHopsPerChain,
                 TreeSpread = TreeSpread,
                 TreePlantRatio = TreePlantRatio,
-                CoalOreDensity = CoalOreDensity,
-                IronOreDensity = IronOreDensity,
-                GoldOreDensity = GoldOreDensity,
+                OreDensity = OreDensity,
                 CaveDensity = CaveDensity,
                 Seed = Seed
             };
@@ -207,9 +216,7 @@ namespace fCraft {
             baseElement.Add( new XElement( "TreeSpread", TreeSpread ) );
             baseElement.Add( new XElement( "TreePlantRatio", TreePlantRatio ) );
 
-            baseElement.Add( new XElement( "CoalOreDensity", CoalOreDensity ) );
-            baseElement.Add( new XElement( "IronOreDensity", IronOreDensity ) );
-            baseElement.Add( new XElement( "GoldOreDensity", GoldOreDensity ) );
+            baseElement.Add( new XElement( "OreDensity", OreDensity ) );
             baseElement.Add( new XElement( "CaveDensity", CaveDensity ) );
 
             baseElement.Add( new XElement( "Seed", Seed ) );
@@ -223,6 +230,11 @@ namespace fCraft {
 
 
     sealed class VanillaMapGenState : IMapGeneratorState {
+        const int CoalOreDensity = 90;
+        const int IronOreDensity = 70;
+        const int GoldOreDensity = 50;
+        const int CaveDensity = 256;
+
         readonly Random random;
         readonly byte[] blocks;
         readonly int waterLevel;
@@ -294,11 +306,14 @@ namespace fCraft {
                 if( Canceled ) return null;
 
                 ReportProgress( 55, "Depositing coal..." );
-                MakeOreVeins( Block.Coal, genParams.CoalOreDensity );
+                int density = (int)Math.Round( genParams.OreDensity*CoalOreDensity );
+                MakeOreVeins( Block.Coal, density );
                 ReportProgress( 58, "Depositing iron..." );
-                MakeOreVeins( Block.IronOre, genParams.IronOreDensity );
+                density = (int)Math.Round( genParams.OreDensity * IronOreDensity );
+                MakeOreVeins( Block.IronOre, density);
                 ReportProgress( 61, "Depositing gold..." );
-                MakeOreVeins( Block.GoldOre, genParams.GoldOreDensity );
+                density = (int)Math.Round( genParams.OreDensity * GoldOreDensity );
+                MakeOreVeins( Block.GoldOre, density );
                 if( Canceled ) return null;
 
                 ReportProgress( 65, "Watering..." );
@@ -623,7 +638,8 @@ namespace fCraft {
 
         void Carve() {
             Random carveRand = new Random( random.Next() );
-            int maxCaves = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/genParams.CaveDensity/64*2;
+            int caveDensity = (int)Math.Round( CaveDensity*genParams.CaveDensity );
+            int maxCaves = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/caveDensity/64*2;
             for( int i = 0; i < maxCaves; i++ ) {
                 double startX = carveRand.NextDouble()*genParams.MapWidth;
                 double startY = carveRand.NextDouble()*genParams.MapLength;
