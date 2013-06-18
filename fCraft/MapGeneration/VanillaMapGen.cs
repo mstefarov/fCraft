@@ -42,7 +42,7 @@ namespace fCraft {
             }
         }
 
-        static readonly string[] PresetList = new[] {"Defaults"};
+        static readonly string[] PresetList = new[] {"Default"};
         public string[] Presets {
             get { return PresetList; }
         }
@@ -52,6 +52,10 @@ namespace fCraft {
     class VanillaMapGenParameters : IMapGeneratorParameters {
         readonly Random seedRng = new Random();
         public VanillaMapGenParameters() {
+            AddFlowers = true;
+            AddMushrooms = true;
+            AddCaves = true;
+            AddTrees = true;
             TerrainFeatureOctaves = 6;
             TerrainDetailOctaves = 8;
             WaterSpawnDensity = 8000;
@@ -82,6 +86,10 @@ namespace fCraft {
 
         public VanillaMapGenParameters( XElement root )
             : this() {
+            AddFlowers = LoadBool( root, "AddFlowers", AddFlowers );
+            AddMushrooms = LoadBool( root, "AddMushrooms", AddMushrooms );
+            AddCaves = LoadBool( root, "AddCaves", AddCaves );
+            AddTrees = LoadBool( root, "AddTrees", AddTrees );
             TerrainFeatureOctaves = LoadInt( root, "TerrainFeatureOctaves", TerrainFeatureOctaves );
             TerrainDetailOctaves = LoadInt( root, "TerrainDetailOctaves", TerrainDetailOctaves );
             WaterSpawnDensity = LoadInt( root, "WaterSpawnDensity", WaterSpawnDensity );
@@ -106,6 +114,17 @@ namespace fCraft {
         }
 
 
+        static bool LoadBool( XElement root, string name, bool defaultVal ) {
+            XElement el;
+            bool temp;
+            if( (el = root.Element( name )) != null && Boolean.TryParse( el.Value, out temp ) ) {
+                return temp;
+            } else {
+                return defaultVal;
+            }
+        }
+
+
         static int LoadInt( XElement root, string name, int defaultVal ) {
             XElement el;
             int temp;
@@ -127,6 +146,11 @@ namespace fCraft {
             }
         }
 
+
+        public bool AddFlowers { get; set; }
+        public bool AddMushrooms { get; set; }
+        public bool AddCaves { get; set; }
+        public bool AddTrees { get; set; }
 
         public int TerrainFeatureOctaves { get; set; }
         public int TerrainDetailOctaves { get; set; }
@@ -158,6 +182,10 @@ namespace fCraft {
 
         public object Clone() {
             return new VanillaMapGenParameters {
+                AddFlowers = AddFlowers,
+                AddMushrooms = AddMushrooms,
+                AddCaves = AddCaves,
+                AddTrees = AddTrees,
                 TerrainFeatureOctaves = TerrainFeatureOctaves,
                 TerrainDetailOctaves = TerrainDetailOctaves,
                 WaterSpawnDensity = WaterSpawnDensity,
@@ -194,6 +222,11 @@ namespace fCraft {
 
 
         public void Save( XElement baseElement ) {
+            baseElement.Add( new XElement( "AddFlowers", AddFlowers ) );
+            baseElement.Add( new XElement( "AddMushrooms", AddMushrooms ) );
+            baseElement.Add( new XElement( "AddCaves", AddCaves ) );
+            baseElement.Add( new XElement( "AddTrees", AddTrees ) );
+
             baseElement.Add( new XElement( "TerrainFeatureOctaves", TerrainFeatureOctaves ) );
             baseElement.Add( new XElement( "TerrainDetailOctaves", TerrainDetailOctaves ) );
             baseElement.Add( new XElement( "WaterSpawnDensity", WaterSpawnDensity ) );
@@ -301,9 +334,11 @@ namespace fCraft {
                 Soil();
                 if( Canceled ) return null;
 
-                ReportProgress( 45, "Carving..." );
-                Carve();
-                if( Canceled ) return null;
+                if( genParams.AddCaves ) {
+                    ReportProgress( 45, "Carving..." );
+                    Carve();
+                    if( Canceled ) return null;
+                }
 
                 ReportProgress( 55, "Depositing coal..." );
                 int density = (int)Math.Round( genParams.OreDensity*CoalOreDensity );
@@ -328,17 +363,23 @@ namespace fCraft {
                 Grow();
                 if( Canceled ) return null;
 
-                ReportProgress( 90, "Planting flowers..." );
-                PlantFlowers();
-                if( Canceled ) return null;
+                if( genParams.AddFlowers ) {
+                    ReportProgress( 90, "Planting flowers..." );
+                    PlantFlowers();
+                    if( Canceled ) return null;
+                }
 
-                ReportProgress( 93, "Planting shrooms..." );
-                PlantShrooms();
-                if( Canceled ) return null;
+                if( genParams.AddMushrooms ) {
+                    ReportProgress( 93, "Planting shrooms..." );
+                    PlantShrooms();
+                    if( Canceled ) return null;
+                }
 
-                ReportProgress( 96, "Planting trees..." );
-                PlantTrees();
-                if( Canceled ) return null;
+                if( genParams.AddTrees ) {
+                    ReportProgress( 96, "Planting trees..." );
+                    PlantTrees();
+                    if( Canceled ) return null;
+                }
 
                 Result = map;
                 return map;
@@ -349,6 +390,7 @@ namespace fCraft {
         }
 
 
+        // create the base heightmap
         void Raise() {
             Random raiseRand = new Random( random.Next() );
             FilteredNoise raiseNoise1 = new FilteredNoise( new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ),
@@ -357,16 +399,15 @@ namespace fCraft {
                                                            new PerlinNoise( raiseRand, genParams.TerrainDetailOctaves ) );
             PerlinNoise raiseNoise3 = new PerlinNoise( raiseRand, genParams.TerrainFeatureOctaves );
 
-            // raising
             const double scale = 1.3;
             for( int x = 0; x < genParams.MapWidth; x++ ) {
                 for( int y = 0; y < genParams.MapLength; y++ ) {
-                    double d2 = raiseNoise1.GetNoise( x*scale, y*scale )/6.0 - 4;
-                    double d3 = raiseNoise2.GetNoise( x*scale, y*scale )/5.0 + 10.0 - 4;
-                    double d4 = raiseNoise3.GetNoise( x, y )/8.0;
+                    double d2 = raiseNoise1.GetNoise( x*scale, y*scale )/6 - 4;
+                    double d3 = raiseNoise2.GetNoise( x*scale, y*scale )/5 + 10 - 4;
+                    double d4 = raiseNoise3.GetNoise( x, y )/8;
                     if( d4 > 0 )
                         d3 = d2;
-                    double elevation = Math.Max( d2, d3 )/2.0;
+                    double elevation = Math.Max( d2, d3 )/2;
                     if( elevation < 0 )
                         elevation *= 0.8;
                     heightmap[(x + y*genParams.MapWidth)] = (int)elevation;
@@ -375,6 +416,7 @@ namespace fCraft {
         }
 
 
+        // apply erosion effect on the heightmap
         void Erode() {
             Random erodeRand = new Random( random.Next() );
             FilteredNoise erodeNoise1 = new FilteredNoise( new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ),
@@ -383,7 +425,7 @@ namespace fCraft {
                                                            new PerlinNoise( erodeRand, genParams.TerrainDetailOctaves ) );
             for( int x = 0; x < genParams.MapWidth; x++ ) {
                 for( int y = 0; y < genParams.MapLength; y++ ) {
-                    double d1 = erodeNoise1.GetNoise( x*2, y*2 )/8.0;
+                    double d1 = erodeNoise1.GetNoise( x*2, y*2 )/8;
                     int i7 = erodeNoise2.GetNoise( x*2, y*2 ) > 0 ? 1 : 0;
                     if( d1 <= 2 )
                         continue;
@@ -394,12 +436,13 @@ namespace fCraft {
         }
 
 
+        // fill the map with blocks based on the heightmap
         void Soil() {
             Random soilRand = new Random( random.Next() );
             PerlinNoise soilNoise1 = new PerlinNoise( soilRand, 8 );
             for( int x = 0; x < genParams.MapWidth; x++ ) {
                 for( int y = 0; y < genParams.MapLength; y++ ) {
-                    int i7 = (int)(soilNoise1.GetNoise( x, y )/24.0) - 4;
+                    int i7 = (int)(soilNoise1.GetNoise( x, y )/24) - 4;
                     int i19 = heightmap[(x + y*genParams.MapWidth)] + waterLevel;
                     int i21 = i19 + i7;
                     heightmap[(x + y*genParams.MapWidth)] = Math.Max( i19, i21 );
@@ -423,15 +466,16 @@ namespace fCraft {
         }
 
 
+        // fill everything at water level with water
         void Water() {
             Random waterRand = new Random( random.Next() );
             for( int x = 0; x < genParams.MapWidth; x++ ) {
-                FloodFill( x, 0, genParams.MapHeight/2 - 1, Block.StillWater );
-                FloodFill( x, genParams.MapLength - 1, genParams.MapHeight/2 - 1, Block.StillWater );
+                FloodFill( x, 0, waterLevel - 1, Block.StillWater );
+                FloodFill( x, genParams.MapLength - 1, waterLevel - 1, Block.StillWater );
             }
             for( int y = 0; y < genParams.MapLength; y++ ) {
-                FloodFill( 0, y, genParams.MapHeight/2 - 1, Block.StillWater );
-                FloodFill( genParams.MapWidth - 1, y, genParams.MapHeight/2 - 1, Block.StillWater );
+                FloodFill( 0, y, waterLevel - 1, Block.StillWater );
+                FloodFill( genParams.MapWidth - 1, y, waterLevel - 1, Block.StillWater );
             }
             int maxWaterSpawns = genParams.MapWidth*genParams.MapLength/genParams.WaterSpawnDensity;
             for( int waterSpawn = 0; waterSpawn < maxWaterSpawns; waterSpawn++ ) {
@@ -445,12 +489,14 @@ namespace fCraft {
         }
 
 
+        // randomly spreads lava underground
         void Melt() {
             Random meltRand = new Random( random.Next() );
             int lavaSpawns = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/genParams.LavaSpawnDensity;
             for( int lavaSpawn = 0; lavaSpawn < lavaSpawns; lavaSpawn++ ) {
                 int x = meltRand.Next( genParams.MapWidth );
                 int y = meltRand.Next( genParams.MapLength );
+                // probability of lava spawning increases towards bottom of the map
                 int z = (int)(meltRand.NextDouble()*meltRand.NextDouble()*(waterLevel - 3));
                 if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air )
                     continue;
@@ -458,7 +504,8 @@ namespace fCraft {
             }
         }
 
-
+        
+        // replaces dirt with sand, grass, or gravel
         void Grow() {
             PerlinNoise growNoise1 = new PerlinNoise( random, 8 );
             PerlinNoise growNoise2 = new PerlinNoise( random, 8 );
@@ -469,15 +516,15 @@ namespace fCraft {
                     int index = (elevation*genParams.MapLength + y)*genParams.MapWidth + x;
 
                     if( blockAbove == Block.Air ) {
-                        bool placeSand = growNoise1.GetNoise( x, y ) > 8.0;
-                        if( (elevation <= genParams.MapHeight/2 - 1) && placeSand ) {
+                        bool placeSand = growNoise1.GetNoise( x, y ) > 8;
+                        if( (elevation <= waterLevel - 1) && placeSand ) {
                             blocks[index] = (byte)Block.Sand;
                         } else {
                             blocks[index] = (byte)Block.Grass;
                         }
                     } else if( ((blockAbove == Block.Water) || (blockAbove == Block.StillWater)) &&
-                               (elevation <= genParams.MapHeight/2 - 1) ) {
-                        bool placeGravel = growNoise2.GetNoise( x, y ) > 12.0;
+                               (elevation <= waterLevel - 1) ) {
+                        bool placeGravel = growNoise2.GetNoise( x, y ) > 12;
                         if( placeGravel ) {
                             blocks[index] = (byte)Block.Gravel;
                         }
@@ -590,8 +637,8 @@ namespace fCraft {
         }
 
 
-        // Based on Minecraft Classic's "com.mojang.minecraft.level.maybeGrowTree"
-        public void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
+        // Plant a single tree - Based on Minecraft Classic's "com.mojang.minecraft.level.maybeGrowTree"
+        void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
             int treeHeight = treeRand.Next( 3 ) + 4;
 
             Block blockUnder = map.GetBlock( startX, startY, startZ - 1 );
@@ -636,6 +683,7 @@ namespace fCraft {
         }
 
 
+        // Carve some caves underground. I have a very vague idea of how this works.
         void Carve() {
             Random carveRand = new Random( random.Next() );
             int caveDensity = (int)Math.Round( CaveDensity*genParams.CaveDensity );
@@ -762,15 +810,7 @@ namespace fCraft {
         }
 
 
-        struct Vector3I {
-            public Vector3I( int x, int y, int z ) {
-                X = x;
-                Y = y;
-                Z = z;
-            }
 
-            public readonly int X, Y, Z;
-        }
 
 
         int Index( int x, int y, int z ) {
