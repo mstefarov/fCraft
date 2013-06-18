@@ -316,8 +316,12 @@ namespace fCraft {
         public bool Finished { get; private set; }
         public int Progress { get; private set; }
         public string StatusString { get; private set; }
-        public bool ReportsProgress { get; private set; }
-        public bool SupportsCancellation { get; private set; }
+        public bool ReportsProgress {
+            get { return false; }
+        }
+        public bool SupportsCancellation {
+            get { return false; }
+        }
         public Map Result { get; private set; }
         public event ProgressChangedEventHandler ProgressChanged;
 
