@@ -5,13 +5,12 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
     public class FlatMapGen : IMapGenerator {
         public static FlatMapGen Instance { get; private set; }
         FlatMapGen() {}
 
         static FlatMapGen() {
-            Instance = new FlatMapGen();
-
             List<string> presetList = new List<string> {
                 "Default (Flatgrass)",
                 "Empty",
@@ -22,16 +21,19 @@ namespace fCraft {
                     presetList.Add( themeName );
                 }
             }
-            PresetList = presetList.ToArray();
+
+            Instance = new FlatMapGen {
+                Name = "Flat",
+                Version = new Version( 1, 0 ),
+                Presets = presetList.ToArray()
+            };
         }
 
-        public string Name {
-            get { return "Flat"; }
-        }
 
-        public Version Version {
-            get { return new Version( 1, 0 ); }
-        }
+        public string Name { get; private set; }
+        public Version Version { get; private set; }
+        public string[] Presets { get; private set; }
+
 
         public IMapGeneratorParameters GetDefaultParameters() {
             return new FlatMapGenParameters();
@@ -65,10 +67,10 @@ namespace fCraft {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
-            if( presetName == PresetList[0] ) { // Flatgrass (default)
+            if( presetName == Presets[0] ) { // Flatgrass (default)
                 return GetDefaultParameters();
 
-            } else if( presetName == PresetList[1] ) { // Empty
+            } else if( presetName == Presets[1] ) { // Empty
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
@@ -76,7 +78,7 @@ namespace fCraft {
                     DeepBlock = Block.Air
                 };
 
-            } else if( presetName == PresetList[2] ) { // Ocean
+            } else if( presetName == Presets[2] ) { // Ocean
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
@@ -94,11 +96,6 @@ namespace fCraft {
                     throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name." );
                 }
             }
-        }
-
-        static readonly string[] PresetList;
-        public string[] Presets {
-            get { return PresetList; }
         }
 
 
@@ -121,7 +118,7 @@ namespace fCraft {
 
 
         static IMapGeneratorState MakePreset( int width, int length, int height, int index ) {
-            IMapGeneratorParameters preset = Instance.CreateParameters( PresetList[index] );
+            IMapGeneratorParameters preset = Instance.CreateParameters( Instance.Presets[index] );
             preset.MapWidth = width;
             preset.MapLength = length;
             preset.MapHeight = height;
