@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     public class RealisticMapGen : IMapGenerator {
         public static RealisticMapGen Instance { get; private set; }
         RealisticMapGen() {}
 
-
         static RealisticMapGen() {
-            Instance = new RealisticMapGen();
+            Instance = new RealisticMapGen {
+                Name = "Realistic",
+                Version = new Version( 2, 1 ),
+                Presets = Enum.GetNames( typeof( MapGenTemplate ) )
+            };
         }
 
 
-        public string Name {
-            get { return "Realistic"; }
-        }
-
-
-        public Version Version {
-            get { return new Version( 2, 1 ); }
-        }
+        public string Name { get; private set; }
+        public Version Version { get; private set; }
+        public string[] Presets { get; private set; }
 
 
         public IMapGeneratorParameters GetDefaultParameters() {
@@ -37,11 +36,18 @@ namespace fCraft {
             return GetDefaultParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( string presetName ) {
-            throw new NotImplementedException(); // TODO: preset loading
-        }
 
-        public string[] Presets { get; private set; } // TODO
+        public IMapGeneratorParameters CreateParameters( string presetName ) {
+            if( presetName == null ) {
+                throw new ArgumentNullException( "presetName" );
+            }
+            MapGenTemplate template;
+            if( EnumUtil.TryParse( presetName, out template, true ) ) {
+                return MakeTemplate( template );
+            } else {
+                throw new ArgumentOutOfRangeException( "presetName", "Urecognized preset name." );
+            }
+        }
 
 
         public static RealisticMapGenParameters MakeTemplate( MapGenTemplate template ) {
@@ -172,7 +178,7 @@ namespace fCraft {
                         CliffThreshold = .9f
                     };
 
-                case MapGenTemplate.Random:
+                case MapGenTemplate.Default:
                     return new RealisticMapGenParameters();
 
                 case MapGenTemplate.River:
