@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Xml.Linq;
-using JetBrains.Annotations;
 
 namespace fCraft {
     public class RealisticMapGen : IMapGenerator {

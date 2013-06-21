@@ -71,16 +71,15 @@ namespace fCraft {
 
         public double Verticality { get; set; }
 
-        public int TreeClusterDensity { get; set; }
+        public double TreeClusterDensity { get; set; }
         public int TreeChainsPerCluster { get; set; }
         public int TreeHopsPerChain { get; set; }
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
-        public int TreeSpacingMax { get; set; }
-        public int TreeSpacingMin { get; set; }
+        public double GiantTreeDensity { get; set; }
 
-        public int FlowerClusterDensity { get; set; }
+        public double FlowerClusterDensity { get; set; }
         public int FlowerSpread { get; set; }
         public int FlowerChainsPerCluster { get; set; }
         public int FlowersPerChain { get; set; }
@@ -101,22 +100,21 @@ namespace fCraft {
             SphereSizeSpread = 3;
             Verticality = 1;
 
-            TreeClusterDensity = 4000;
+            TreeClusterDensity = 1;
             TreeChainsPerCluster = 20;
             TreeHopsPerChain = 20;
             TreeSpread = 6;
             TreePlantRatio = 4;
 
-            FlowerClusterDensity = 3000;
+            GiantTreeDensity = 1;
+
+            FlowerClusterDensity = 1;
             FlowerSpread = 6;
             FlowerChainsPerCluster = 10;
             FlowersPerChain = 5;
 
             SpringDensity = 1;
             SpringMaxHops = 1024;
-
-            TreeSpacingMin = 7;
-            TreeSpacingMax = 11;
 
             Seed = new Random().Next();
         }
@@ -144,7 +142,8 @@ namespace fCraft {
     }
 
 
-    class FloatingIslandMapGenState : IMapGeneratorState {
+    unsafe class FloatingIslandMapGenState : IMapGeneratorState {
+        #region IMapGeneratorState boilerplate
         public FloatingIslandMapGenState( FloatingIslandMapGenParameters parameters ) {
             genParams = parameters;
             Parameters = parameters;
@@ -179,8 +178,20 @@ namespace fCraft {
             }
         }
 
+
+        public void CancelAsync() {
+            Canceled = true;
+        }
+        #endregion
+
         Random rand;
         Map map;
+
+        const int BaseFlowerDensity = 3000,
+                  BaseTreeClusterDensity = 4000,
+                  BaseGiantTreeDensity = 750,
+                  BaseSpringDensity = 50000;
+
 
         public Map Generate() {
             if( Finished ) return Result;
@@ -259,9 +270,6 @@ namespace fCraft {
         }
 
 
-
-
-
         Island CreateIsland( Vector3I offset ) {
             List<Sphere> spheres = new List<Sphere>();
 
@@ -269,8 +277,9 @@ namespace fCraft {
             double vSpreadMin = -hSpread*genParams.Verticality/2,
                    vSpreadMax = hSpread*genParams.Verticality/2;
 
-            double sphereSize = rand.Next( genParams.SphereSize - genParams.SphereSizeSpread,
-                                           genParams.SphereSize + genParams.SphereSizeSpread + 1 );
+            double sphereSize = Math.Min( 1,
+                                          rand.Next( genParams.SphereSize - genParams.SphereSizeSpread,
+                                                     genParams.SphereSize + genParams.SphereSizeSpread + 1 ) );
             Sphere firstSphere = new Sphere( 0, 0, 0, (float)sphereSize );
             spheres.Add( firstSphere );
 
@@ -529,38 +538,15 @@ namespace fCraft {
             }*/
         }
 
-        /* double FindSlope( int x, int y, int z ) {
-            int z1 = FindNearestZ( x - 1, y, z );
-            int z2 = FindNearestZ( x + 1, y, z );
-            int z3 = FindNearestZ( x, y - 1, z );
-            int z4 = FindNearestZ( x, y + 1, z );
-            return Math.Abs( z1 - z2 ) + Math.Abs( z3 - z4 );
-        }
-
-
-        int FindNearestZ( int x, int y, int startZ ) {
-            int dz = 0;
-            while( Math.Abs( dz ) < 4 ) {
-                if( map.GetBlock( x, y, startZ + dz + 1 ) == Block.Air ) {
-                    if( map.GetBlock( x, y, startZ + dz ) != Block.Air ) {
-                        break;
-                    } else {
-                        dz--;
-                    }
-                } else {
-                    dz++;
-                }
-            }
-            return startZ + dz;
-        }*/
-
 
         void MakeWater() {
-            int waterSources = (int)(256 * 256 * 96 / 50000 / genParams.IslandDensity * genParams.SpringDensity);
+            if( genParams.SpringDensity <= 0 ) return;
+            int waterSources =
+                (int)(map.Width*map.Length*genParams.SpringDensity/BaseSpringDensity/genParams.IslandDensity);
             for( int i = 0; i < waterSources; i++ ) {
                 int x = rand.Next( 0, map.Width );
                 int y = rand.Next( 0, map.Length );
-                int z = rand.Next( map.Height / 2, map.Height - 1 );
+                int z = rand.Next( map.Height/2, map.Height - 1 );
                 while( z > 0 ) {
                     if( map.GetBlock( x, y, z + 1 ) == Block.Air && map.GetBlock( x, y, z ) == Block.Grass ) {
                         MakeWaterSource( x, y, z );
@@ -611,11 +597,15 @@ namespace fCraft {
 
 
         void PlantGiantTrees() {
-            Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
+            if( genParams.GiantTreeDensity <= 0 ) return;
+            Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) {
+                Blocks = (byte[])map.Blocks.Clone()
+            };
+            int plantableBlocks = ComputeSurfaceCoverage( Block.Grass );
             var foresterArgs = new ForesterArgs {
                 Map = map,
                 Rand = rand,
-                TreeCount = (int)(map.Width * map.Length * 4 / (1024f * (genParams.TreeSpacingMax + genParams.TreeSpacingMin) / 2)),
+                TreeCount = (int)(plantableBlocks*genParams.GiantTreeDensity/BaseGiantTreeDensity),
                 Operation = Forester.ForesterOperation.Add,
                 PlantOn = Block.Grass
             };
@@ -625,9 +615,38 @@ namespace fCraft {
         }
 
 
+        // Calculates what fraction of the map surface is covered by given block.
+        // Used to estimate plantable area for trees.
+        int ComputeSurfaceCoverage( Block coverBlock ) {
+            int count = 0;
+            fixed( byte* blocks = map.Blocks ) {
+                int layerSize = map.Width * map.Length;
+                for( int x = 0; x < map.Width; x++ ) {
+                    for( int y = 0; y < map.Length; y++ ) {
+                        int index = map.Index( x, y, map.Height - 1 );
+                        for( int z = (map.Height - 1); z >= 0; z-- ) {
+                            Block block = (Block)blocks[index];
+                            if( block == coverBlock ) {
+                                count++;
+                                break;
+                            } else if( block != Block.Air ) {
+                                break;
+                            } else {
+                                index -= layerSize;
+                            }
+                        }
+                    }
+                }
+                return count;
+            }
+        }
+
+
         void PlantTrees() {
+            if( genParams.TreeClusterDensity <= 0 ) return;
             Random treeRand = new Random( rand.Next() );
-            int maxTrees = genParams.MapWidth*genParams.MapLength/genParams.TreeClusterDensity;
+            int maxTrees = (int)Math.Round( genParams.MapWidth*genParams.MapLength*genParams.TreeClusterDensity/
+                                            BaseTreeClusterDensity );
             for( int cluster = 0; cluster < maxTrees; cluster++ ) {
                 int clusterX = treeRand.Next( genParams.MapWidth );
                 int clusterY = treeRand.Next( genParams.MapLength );
@@ -654,6 +673,7 @@ namespace fCraft {
         }
 
 
+        // grows a single Vanilla-style tree
         void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
             int treeHeight = treeRand.Next( 3 ) + 4;
 
@@ -700,21 +720,23 @@ namespace fCraft {
 
 
         void PlantFlowers() {
+            if( genParams.FlowerClusterDensity <= 0 ) return;
             Random flowerRand = new Random( rand.Next() );
-            int maxFlowers = genParams.MapWidth * genParams.MapLength / genParams.FlowerClusterDensity;
+            int maxFlowers =
+                (int)(map.Width * map.Length * genParams.FlowerClusterDensity / BaseFlowerDensity);
             for( int cluster = 0; cluster < maxFlowers; cluster++ ) {
                 int flowerType = flowerRand.Next( 2 );
-                int clusterX = flowerRand.Next( genParams.MapWidth );
-                int clusterY = flowerRand.Next( genParams.MapLength );
+                int clusterX = flowerRand.Next( map.Width );
+                int clusterY = flowerRand.Next( map.Length );
                 for( int flower = 0; flower < genParams.FlowerChainsPerCluster; flower++ ) {
                     int x = clusterX;
                     int y = clusterY;
                     for( int hop = 0; hop < genParams.FlowersPerChain; hop++ ) {
                         x += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
                         y += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
-                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
+                        if( (x < 0) || (y < 0) || (x >= map.Width) || (y >= map.Length) )
                             continue;
-                        for( int z = genParams.MapHeight - 1; z > 0; z-- ) {
+                        for( int z = map.Height - 1; z > 0; z-- ) {
                             if( map.GetBlock( x, y, z - 1 ) == Block.Grass ) {
                                 if( flowerType == 0 ) {
                                     map.SetBlock( x, y, z, Block.YellowFlower );
@@ -730,9 +752,9 @@ namespace fCraft {
 
 
         void Erode() {
-            for( int x = 0; x < genParams.MapWidth; x++ ) {
-                for( int y = 0; y < genParams.MapLength; y++ ) {
-                    for( int z = genParams.MapHeight - 1; z > 0; z-- ) {
+            for( int x = 0; x < map.Width; x++ ) {
+                for( int y = 0; y < map.Length; y++ ) {
+                    for( int z = map.Height - 1; z > 0; z-- ) {
                         if( map.GetBlock( x, y, z ) == Block.Dirt && map.GetBlock( x, y, z - 1 ) == Block.Air &&
                             rand.NextDouble() > .5 ) {
                             map.SetBlock( x, y, z, Block.Air );
@@ -765,11 +787,6 @@ namespace fCraft {
         class Island {
             public List<Sphere> Spheres = new List<Sphere>();
             public Vector3I Offset;
-        }
-
-
-        public void CancelAsync() {
-            Canceled = true;
         }
     }
 }
