@@ -86,64 +86,31 @@ namespace fCraft {
 
         public VanillaMapGenParameters( XElement root )
             : this() {
-            AddFlowers = LoadBool( root, "AddFlowers", AddFlowers );
-            AddMushrooms = LoadBool( root, "AddMushrooms", AddMushrooms );
-            AddCaves = LoadBool( root, "AddCaves", AddCaves );
-            AddTrees = LoadBool( root, "AddTrees", AddTrees );
-            TerrainFeatureOctaves = LoadInt( root, "TerrainFeatureOctaves", TerrainFeatureOctaves );
-            TerrainDetailOctaves = LoadInt( root, "TerrainDetailOctaves", TerrainDetailOctaves );
-            WaterSpawnDensity = LoadInt( root, "WaterSpawnDensity", WaterSpawnDensity );
-            LavaSpawnDensity = LoadInt( root, "LavaSpawnDensity", LavaSpawnDensity );
-            FlowerClusterDensity = LoadInt( root, "FlowerClusterDensity", FlowerClusterDensity );
-            FlowerSpread = LoadInt( root, "FlowerSpread", FlowerSpread );
-            FlowerChainsPerCluster = LoadInt( root, "FlowerChainsPerCluster", FlowerChainsPerCluster );
-            FlowersPerChain = LoadInt( root, "FlowersPerChain", FlowersPerChain );
-            ShroomClusterDensity = LoadInt( root, "ShroomClusterDensity", ShroomClusterDensity );
-            ShroomChainsPerCluster = LoadInt( root, "ShroomChainsPerCluster", ShroomChainsPerCluster );
-            ShroomHopsPerChain = LoadInt( root, "ShroomHopsPerChain", ShroomHopsPerChain );
-            ShroomSpreadHozirontal = LoadInt( root, "ShroomSpreadHozirontal", ShroomSpreadHozirontal );
-            ShroomSpreadVertical = LoadInt( root, "ShroomSpreadVertical", ShroomSpreadVertical );
-            TreeClusterDensity = LoadInt( root, "TreeClusterDensity", TreeClusterDensity );
-            TreeChainsPerCluster = LoadInt( root, "TreeChainsPerCluster", TreeChainsPerCluster );
-            TreeHopsPerChain = LoadInt( root, "TreeHopsPerChain", TreeHopsPerChain );
-            TreeSpread = LoadInt( root, "TreeSpread", TreeSpread );
-            TreePlantRatio = LoadInt( root, "TreePlantRatio", TreePlantRatio );
-            OreDensity = LoadDouble( root, "OreDensity", OreDensity );
-            CaveDensity = LoadDouble( root, "CaveDensity", CaveDensity );
-            Seed = LoadInt( root, "Seed", Seed );
-        }
-
-
-        static bool LoadBool( XElement root, string name, bool defaultVal ) {
-            XElement el;
-            bool temp;
-            if( (el = root.Element( name )) != null && Boolean.TryParse( el.Value, out temp ) ) {
-                return temp;
-            } else {
-                return defaultVal;
-            }
-        }
-
-
-        static int LoadInt( XElement root, string name, int defaultVal ) {
-            XElement el;
-            int temp;
-            if( (el = root.Element( name )) != null && Int32.TryParse( el.Value, out temp ) ) {
-                return temp;
-            } else {
-                return defaultVal;
-            }
-        }
-
-
-        static double LoadDouble( XElement root, string name, double defaultVal ) {
-            XElement el;
-            double temp;
-            if( (el = root.Element( name )) != null && Double.TryParse( el.Value, out temp ) ) {
-                return temp;
-            } else {
-                return defaultVal;
-            }
+            AddFlowers = ReadBool( root, "AddFlowers", AddFlowers );
+            AddMushrooms = ReadBool( root, "AddMushrooms", AddMushrooms );
+            AddCaves = ReadBool( root, "AddCaves", AddCaves );
+            AddTrees = ReadBool( root, "AddTrees", AddTrees );
+            TerrainFeatureOctaves = ReadInt( root, "TerrainFeatureOctaves", TerrainFeatureOctaves );
+            TerrainDetailOctaves = ReadInt( root, "TerrainDetailOctaves", TerrainDetailOctaves );
+            WaterSpawnDensity = ReadInt( root, "WaterSpawnDensity", WaterSpawnDensity );
+            LavaSpawnDensity = ReadInt( root, "LavaSpawnDensity", LavaSpawnDensity );
+            FlowerClusterDensity = ReadInt( root, "FlowerClusterDensity", FlowerClusterDensity );
+            FlowerSpread = ReadInt( root, "FlowerSpread", FlowerSpread );
+            FlowerChainsPerCluster = ReadInt( root, "FlowerChainsPerCluster", FlowerChainsPerCluster );
+            FlowersPerChain = ReadInt( root, "FlowersPerChain", FlowersPerChain );
+            ShroomClusterDensity = ReadInt( root, "ShroomClusterDensity", ShroomClusterDensity );
+            ShroomChainsPerCluster = ReadInt( root, "ShroomChainsPerCluster", ShroomChainsPerCluster );
+            ShroomHopsPerChain = ReadInt( root, "ShroomHopsPerChain", ShroomHopsPerChain );
+            ShroomSpreadHozirontal = ReadInt( root, "ShroomSpreadHozirontal", ShroomSpreadHozirontal );
+            ShroomSpreadVertical = ReadInt( root, "ShroomSpreadVertical", ShroomSpreadVertical );
+            TreeClusterDensity = ReadInt( root, "TreeClusterDensity", TreeClusterDensity );
+            TreeChainsPerCluster = ReadInt( root, "TreeChainsPerCluster", TreeChainsPerCluster );
+            TreeHopsPerChain = ReadInt( root, "TreeHopsPerChain", TreeHopsPerChain );
+            TreeSpread = ReadInt( root, "TreeSpread", TreeSpread );
+            TreePlantRatio = ReadInt( root, "TreePlantRatio", TreePlantRatio );
+            OreDensity = ReadDouble( root, "OreDensity", OreDensity );
+            CaveDensity = ReadDouble( root, "CaveDensity", CaveDensity );
+            Seed = ReadInt( root, "Seed", Seed );
         }
 
 

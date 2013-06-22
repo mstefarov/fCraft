@@ -225,36 +225,16 @@ namespace fCraft {
 
         public FlatMapGenParameters( XElement el )
             : this() {
-            XElement xElement = el.Element( "GroundLevelOffset" );
-            if( xElement != null ) GroundLevelOffset = Int32.Parse( xElement.Value );
-            xElement = el.Element( "SurfaceThickness" );
-            if( xElement != null ) SurfaceThickness = Int32.Parse( xElement.Value );
-            xElement = el.Element( "SoilThickness" );
-            if( xElement != null ) SoilThickness = Int32.Parse( xElement.Value );
-            xElement = el.Element( "BedrockThickness" );
-            if( xElement != null ) BedrockThickness = Int32.Parse( xElement.Value );
+            GroundLevelOffset = ReadInt( el, "GroundLevelOffset", GroundLevelOffset );
+            SurfaceThickness = ReadInt( el, "SurfaceThickness", SurfaceThickness );
+            SoilThickness = ReadInt( el, "SoilThickness", SoilThickness );
+            BedrockThickness = ReadInt( el, "BedrockThickness", BedrockThickness );
 
-            Block block;
-            xElement = el.Element( "AirBlock" );
-            if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
-                AirBlock = block;
-            }
-            xElement = el.Element( "SurfaceBlock" );
-            if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
-                SurfaceBlock = block;
-            }
-            xElement = el.Element( "ShallowBlock" );
-            if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
-                ShallowBlock = block;
-            }
-            xElement = el.Element( "DeepBlock" );
-            if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
-                DeepBlock = block;
-            }
-            xElement = el.Element( "BedrockBlock" );
-            if( xElement != null && EnumUtil.TryParse( xElement.Value, out block, true ) ) {
-                BedrockBlock = block;
-            }
+            AirBlock = ReadEnum( el, "AirBlock", AirBlock );
+            SurfaceBlock = ReadEnum( el, "SurfaceBlock", SurfaceBlock );
+            ShallowBlock = ReadEnum( el, "ShallowBlock", ShallowBlock );
+            DeepBlock = ReadEnum( el, "DeepBlock", DeepBlock );
+            BedrockBlock = ReadEnum( el, "BedrockBlock", BedrockBlock );
         }
 
 
