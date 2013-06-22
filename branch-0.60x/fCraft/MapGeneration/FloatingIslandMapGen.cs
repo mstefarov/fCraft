@@ -97,98 +97,14 @@ namespace fCraft {
         }
 
 
-        public FloatingIslandMapGenParameters( XElement el )
+        public FloatingIslandMapGenParameters( XElement baseElement )
             : this() {
-            IslandDensity = ReadDouble( el, "IslandDensity", IslandDensity );
-            Verticality = ReadDouble( el, "Verticality", Verticality );
-
-            SphereCount = ReadInt( el, "SphereCount", SphereCount );
-            SphereSeparation = ReadDouble( el, "SphereSeparation", SphereSeparation );
-            SphereSize = ReadInt( el, "SphereSize", SphereSize );
-            SphereSizeSpread = ReadInt( el, "SphereSizeSpread", SphereSizeSpread );
-            SphereSizeReduction = ReadDouble( el, "SphereSizeReduction", SphereSizeReduction );
-
-            TreeClusterDensity = ReadDouble( el, "TreeClusterDensity", TreeClusterDensity );
-            TreeChainsPerCluster = ReadInt( el, "TreeChainsPerCluster", TreeChainsPerCluster );
-            TreeHopsPerChain = ReadInt( el, "TreeHopsPerChain", TreeHopsPerChain );
-            TreeSpread = ReadInt( el, "TreeSpread", TreeSpread );
-            TreePlantRatio = ReadInt( el, "TreePlantRatio", TreePlantRatio );
-            GiantTreeDensity = ReadDouble( el, "GiantTreeDensity", GiantTreeDensity );
-
-            FlowerClusterDensity = ReadDouble( el, "FlowerClusterDensity", FlowerClusterDensity );
-            FlowerSpread = ReadInt( el, "FlowerSpread", FlowerSpread );
-            FlowerChainsPerCluster = ReadInt( el, "FlowerChainsPerCluster", FlowerChainsPerCluster );
-            FlowersPerChain = ReadInt( el, "FlowersPerChain", FlowersPerChain );
-
-            SpringDensity = ReadDouble( el, "SpringDensity", SpringDensity );
-            SpringMaxHops = ReadInt( el, "SpringMaxHops", SpringMaxHops );
-
-            Seed = ReadInt( el, "Seed", Seed );
-        }
-
-
-        public override void Save( XElement el ) {
-            el.Add( new XElement( "IslandDensity", IslandDensity ) );
-            el.Add( new XElement( "Verticality", Verticality ) );
-
-            el.Add( new XElement( "SphereCount", SphereCount ) );
-            el.Add( new XElement( "SphereSeparation", SphereSeparation ) );
-            el.Add( new XElement( "SphereSize", SphereSize ) );
-            el.Add( new XElement( "SphereSizeSpread", SphereSizeSpread ) );
-            el.Add( new XElement( "SphereSizeReduction", SphereSizeReduction ) );
-
-            el.Add( new XElement( "TreeClusterDensity", TreeClusterDensity ) );
-            el.Add( new XElement( "TreeChainsPerCluster", TreeChainsPerCluster ) );
-            el.Add( new XElement( "TreeHopsPerChain", TreeHopsPerChain ) );
-            el.Add( new XElement( "TreeSpread", TreeSpread ) );
-            el.Add( new XElement( "TreePlantRatio", TreePlantRatio ) );
-            el.Add( new XElement( "GiantTreeDensity", TreePlantRatio ) );
-
-            el.Add( new XElement( "FlowerClusterDensity", FlowerClusterDensity ) );
-            el.Add( new XElement( "FlowerSpread", FlowerSpread ) );
-            el.Add( new XElement( "FlowerChainsPerCluster", FlowerChainsPerCluster ) );
-            el.Add( new XElement( "FlowersPerChain", FlowersPerChain ) );
-
-            el.Add( new XElement( "SpringDensity", SpringDensity ) );
-            el.Add( new XElement( "SpringMaxHops", SpringMaxHops ) );
-
-            el.Add( new XElement( "Seed", Seed ) );
+            base.LoadProperties( baseElement );
         }
 
 
         public override MapGeneratorState CreateGenerator() {
             return new FloatingIslandMapGenState( this );
-        }
-
-
-        public override object Clone() {
-            return new FloatingIslandMapGenParameters {
-                IslandDensity = IslandDensity,
-                Verticality = Verticality,
-
-                SphereCount = SphereCount,
-                SphereSeparation = SphereSeparation,
-                SphereSize = SphereSize,
-                SphereSizeSpread = SphereSizeSpread,
-                SphereSizeReduction = SphereSizeReduction,
-
-                TreeClusterDensity = TreeClusterDensity,
-                TreeChainsPerCluster = TreeChainsPerCluster,
-                TreeHopsPerChain = TreeHopsPerChain,
-                TreeSpread = TreeSpread,
-                TreePlantRatio = TreePlantRatio,
-                GiantTreeDensity = GiantTreeDensity,
-
-                FlowerClusterDensity = FlowerClusterDensity,
-                FlowerSpread = FlowerSpread,
-                FlowerChainsPerCluster = FlowerChainsPerCluster,
-                FlowersPerChain = FlowersPerChain,
-
-                SpringDensity = SpringDensity,
-                SpringMaxHops = SpringMaxHops,
-
-                Seed = Seed
-            };
         }
     }
 
