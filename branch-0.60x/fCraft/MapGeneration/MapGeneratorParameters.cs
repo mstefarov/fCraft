@@ -57,7 +57,7 @@ namespace fCraft {
             foreach( PropertyInfo pi in ListProperties() ) {
                 XElement el = baseElement.Element( pi.Name );
                 if( el == null ) continue;
-                TypeConverter tc = TypeDescriptor.GetConverter( pi.GetType() );
+                TypeConverter tc = TypeDescriptor.GetConverter( pi.PropertyType );
                 pi.SetValue( this, tc.ConvertFromString( el.Value ), null );
             }
         }
