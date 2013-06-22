@@ -50,8 +50,11 @@ namespace fCraft {
 
 
     class VanillaMapGenParameters : MapGeneratorParameters {
-        readonly Random seedRng = new Random();
+        readonly static Random SeedRng = new Random();
+
         public VanillaMapGenParameters() {
+            Generator = VanillaMapGen.Instance;
+
             AddFlowers = true;
             AddMushrooms = true;
             AddCaves = true;
@@ -76,11 +79,9 @@ namespace fCraft {
             TreePlantRatio = 4;
             OreDensity = 1;
             CaveDensity = 1;
-            lock( seedRng ) {
-                Seed = seedRng.Next();
+            lock( SeedRng ) {
+                Seed = SeedRng.Next();
             }
-
-            Generator = VanillaMapGen.Instance;
         }
 
 

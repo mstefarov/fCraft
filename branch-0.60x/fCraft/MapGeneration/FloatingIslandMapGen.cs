@@ -76,6 +76,8 @@ namespace fCraft {
 
 
         public FloatingIslandMapGenParameters() {
+            Generator = FloatingIslandMapGen.Instance;
+
             IslandDensity = 1;
             Verticality = 1;
 
@@ -304,7 +306,7 @@ namespace fCraft {
             double vSpreadMin = -hSpread*genParams.Verticality/2,
                    vSpreadMax = hSpread*genParams.Verticality/2;
 
-            double sphereSize = Math.Min( 1,
+            double sphereSize = Math.Max( 1,
                                           rand.Next( genParams.SphereSize - genParams.SphereSizeSpread,
                                                      genParams.SphereSize + genParams.SphereSizeSpread + 1 ) );
             Sphere firstSphere = new Sphere( 0, 0, 0, (float)sphereSize );
@@ -371,7 +373,7 @@ namespace fCraft {
 
 
         void SmoothEdges() {
-            Map newMap = new Map( null, map.Width, map.Length, map.Height, true );
+            Map newMap = new Map( null, map.Width, map.Length, map.Height, false ) {Blocks = (byte[])map.Blocks.Clone()};
             for( int x = 1; x < genParams.MapWidth - 1; x++ ) {
                 for( int y = 1; y < genParams.MapLength - 1; y++ ) {
                     for( int z = 1; z < genParams.MapHeight - 1; z++ ) {
@@ -394,7 +396,7 @@ namespace fCraft {
 
 
         void ExpandGround() {
-            Map newMap = new Map( null, map.Width, map.Length, map.Height, true );
+            Map newMap = new Map( null, map.Width, map.Length, map.Height, false ) {Blocks = (byte[])map.Blocks.Clone()};
             for( int x = 2; x < genParams.MapWidth - 2; x++ ) {
                 for( int y = 2; y < genParams.MapLength - 2; y++ ) {
                     for( int z = 2; z < genParams.MapHeight - 2; z++ ) {

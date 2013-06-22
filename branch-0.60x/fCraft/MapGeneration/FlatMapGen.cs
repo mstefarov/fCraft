@@ -178,6 +178,7 @@ namespace fCraft {
 
 
         public FlatMapGenParameters() {
+            Generator = FlatMapGen.Instance;
             ApplyTheme( MapGenTheme.Forest );
         }
 
