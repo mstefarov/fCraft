@@ -34,6 +34,18 @@ namespace fCraft {
         /// Does NOT start the generation process yet -- that should be done in MapGeneratorState.Generate() </summary>
         public abstract MapGeneratorState CreateGenerator();
 
+        public abstract object Clone();
+
+
+        protected static bool ReadBool( XElement rootEl, string name, bool defaultVal ) {
+            bool val;
+            XElement el = rootEl.Element( name );
+            if( el != null && Boolean.TryParse( el.Value, out val ) ) {
+                return val;
+            } else {
+                return defaultVal;
+            }
+        }
 
         protected static string ReadString( XElement rootEl, string name, string defaultVal ) {
             XElement el = rootEl.Element( name );
@@ -73,7 +85,5 @@ namespace fCraft {
                 return defaultVal;
             }
         }
-
-        public abstract object Clone();
     }
 }
