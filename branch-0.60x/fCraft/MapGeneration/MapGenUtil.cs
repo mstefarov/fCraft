@@ -10,7 +10,7 @@ namespace fCraft {
         const string ParamsMetaKey = "MapGeneratorParameters";
         const string GenNameMetaKey = "MapGeneratorName";
         const string GenVersionMetaKey = "MapGeneratorVersion";
-        static readonly Dictionary<string, IMapGenerator> Generators = new Dictionary<string, IMapGenerator>();
+        static readonly Dictionary<string, MapGenerator> Generators = new Dictionary<string, MapGenerator>();
 
         static MapGenUtil() {
             RegisterGenerator( FlatMapGen.Instance );
@@ -34,7 +34,7 @@ namespace fCraft {
             if( !map.Metadata.TryGetValue( ParamsMetaGroup, GenNameMetaKey, out genNameString ) ) {
                 return null;
             }
-            IMapGenerator mapGen = GetGeneratorByName( genNameString );
+            MapGenerator mapGen = GetGeneratorByName( genNameString );
             if( mapGen == null ) {
                 throw new UnknownMapGeneratorException( genNameString );
             }
@@ -81,10 +81,10 @@ namespace fCraft {
 
 
         /// <summary> Registers a new map generator. </summary>
-        /// <param name="gen"> IMapGenerator to register. Must have a unique name. </param>
+        /// <param name="gen"> MapGenerator to register. Must have a unique name. </param>
         /// <exception cref="ArgumentNullException"> gen is null. </exception>
         /// <exception cref="ArgumentException"> A generator with the same name has already been registered. </exception>
-        public static void RegisterGenerator( [NotNull] IMapGenerator gen ) {
+        public static void RegisterGenerator( [NotNull] MapGenerator gen ) {
             if( gen == null ) {
                 throw new ArgumentNullException( "gen" );
             }
@@ -97,14 +97,14 @@ namespace fCraft {
 
         /// <summary> Finds a map generator by name. </summary>
         /// <param name="genName"> Generator name. Case-insensitive. </param>
-        /// <returns> IMapGenerator instance, if found. null if no matching generator was found. </returns>
+        /// <returns> MapGenerator instance, if found. null if no matching generator was found. </returns>
         /// <exception cref="ArgumentNullException"> genName is null. </exception>
         [CanBeNull]
-        public static IMapGenerator GetGeneratorByName( [NotNull] string genName ) {
+        public static MapGenerator GetGeneratorByName( [NotNull] string genName ) {
             if( genName == null ) {
                 throw new ArgumentNullException( "genName" );
             }
-            IMapGenerator gen;
+            MapGenerator gen;
             if( Generators.TryGetValue( genName.ToLowerInvariant(), out gen ) ) {
                 return gen;
             } else {
@@ -115,7 +115,7 @@ namespace fCraft {
 
         /// <summary> Returns an array of all registered generators. </summary>
         [NotNull]
-        public static IMapGenerator[] GeneratorList {
+        public static MapGenerator[] GeneratorList {
             get { return Generators.Values.ToArray(); }
         }
 

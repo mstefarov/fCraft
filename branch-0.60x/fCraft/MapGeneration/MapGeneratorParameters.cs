@@ -9,9 +9,9 @@ namespace fCraft {
     /// Must be mutable, should implement parameter range validation in property setters, and implement ICloneable,
     /// and pass a COPY to MapGeneratorState. </summary>
     public abstract class MapGeneratorParameters : ICloneable {
-        /// <summary> Associated IMapGenerator object that created this parameter set. </summary>
+        /// <summary> Associated MapGenerator object that created this parameter set. </summary>
         [Browsable( false )]
-        public IMapGenerator Generator { get; protected set; }
+        public MapGenerator Generator { get; protected set; }
 
         /// <summary> Width (X-dimension) of the map being generated. </summary>
         [Browsable( false )]
@@ -26,7 +26,7 @@ namespace fCraft {
         public int MapHeight { get; set; }
 
         /// <summary> Saves current generation parameters to XML,
-        /// in a format that's expected to be readable by IMapGenerator.CreateParameters(XElement) </summary>
+        /// in a format that's expected to be readable by MapGenerator.CreateParameters(XElement) </summary>
         /// <param name="baseElement"> Element onto which the parameters should be attached. </param>
         public abstract void Save( XElement baseElement );
 

@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
-    public class FlatMapGen : IMapGenerator {
+    public class FlatMapGen : MapGenerator {
         public static FlatMapGen Instance { get; private set; }
         FlatMapGen() {}
 
@@ -30,20 +30,15 @@ namespace fCraft {
         }
 
 
-        public string Name { get; private set; }
-        public Version Version { get; private set; }
-        public string[] Presets { get; private set; }
-
-
-        public MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters GetDefaultParameters() {
             return new FlatMapGenParameters();
         }
 
-        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new FlatMapGenParameters( serializedParameters );
         }
 
-        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             FlatMapGenParameters newParams = new FlatMapGenParameters();
             string themeName = cmd.Next();
             if( themeName != null ) {
@@ -63,7 +58,7 @@ namespace fCraft {
 
         #region Presets
 
-        public MapGeneratorParameters CreateParameters( string presetName ) {
+        public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }

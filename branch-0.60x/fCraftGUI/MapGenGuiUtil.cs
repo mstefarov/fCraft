@@ -53,13 +53,13 @@ namespace fCraft.GUI {
         }
 
 
-        /// <summary> Finds the best GUI provider for given IMapGenerator. </summary>
+        /// <summary> Finds the best GUI provider for given MapGenerator. </summary>
         /// <param name="gen"> Generator for which a GUI is needed. </param>
         /// <returns> Either specialized IMapGeneratorGuiProvider for given generator,
         /// or default GUI provider as fallback. </returns>
         /// <exception cref="ArgumentNullException"> gen is null. </exception>
         [NotNull]
-        public static IMapGeneratorGuiProvider GetGuiForGenerator( [NotNull] IMapGenerator gen ) {
+        public static IMapGeneratorGuiProvider GetGuiForGenerator( [NotNull] MapGenerator gen ) {
             if( gen == null ) {
                 throw new ArgumentNullException( "gen" );
             }

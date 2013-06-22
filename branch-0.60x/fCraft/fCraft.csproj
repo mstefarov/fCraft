@@ -180,7 +180,7 @@
     <Compile Include="World\Block.cs" />
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="MapGeneration\Forester.cs" />
-    <Compile Include="MapGeneration\IMapGenerator.cs" />
+    <Compile Include="MapGeneration\MapGenerator.cs" />
     <Compile Include="MapGeneration\MapGeneratorParameters.cs" />
     <Compile Include="MapGeneration\MapGeneratorState.cs" />
     <Compile Include="World\Map.cs" />

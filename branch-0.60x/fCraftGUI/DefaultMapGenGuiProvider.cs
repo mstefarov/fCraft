@@ -2,7 +2,7 @@
 using System;
 
 namespace fCraft.GUI {
-    /// <summary> Represents a class that provides a fallback GUI for any IMapGenerator.
+    /// <summary> Represents a class that provides a fallback GUI for any MapGenerator.
     /// Creates DefaultMapGenGui instances on demand. </summary>
     public class DefaultMapGenGuiProvider : IMapGeneratorGuiProvider {
         DefaultMapGenGuiProvider() {}

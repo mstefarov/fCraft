@@ -473,7 +473,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        IMapGenerator generator;
+        MapGenerator generator;
 
         void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
             string genName = cGenerator.SelectedItem.ToString();
@@ -481,7 +481,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        void SelectGenerator( IMapGenerator newGen ) {
+        void SelectGenerator( MapGenerator newGen ) {
             int genIndex = cGenerator.Items.IndexOf( newGen.Name );
             if( cGenerator.SelectedIndex != genIndex ) {
                 cGenerator.SelectedIndex = genIndex;
@@ -919,7 +919,7 @@ Could not load more information:
             XDocument doc = XDocument.Load( fullFileName );
             XElement root = doc.Root;
             string genName = root.Element( "Generator" ).Value;
-            IMapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
+            MapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
             string versionMismatchMsg =
                 String.Format( "This preset was made for a different version of {0} map generator. Continue?",
                                gen.Name );
