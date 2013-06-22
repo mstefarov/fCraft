@@ -2,7 +2,7 @@
 using System.Xml.Linq;
 
 namespace fCraft {
-    public class RealisticMapGen : IMapGenerator {
+    public class RealisticMapGen : MapGenerator {
         public static RealisticMapGen Instance { get; private set; }
         RealisticMapGen() {}
 
@@ -15,28 +15,23 @@ namespace fCraft {
         }
 
 
-        public string Name { get; private set; }
-        public Version Version { get; private set; }
-        public string[] Presets { get; private set; }
-
-
-        public MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters GetDefaultParameters() {
             return new RealisticMapGenParameters();
         }
 
 
-        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new RealisticMapGenParameters( serializedParameters );
         }
 
 
-        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             // todo: /Gen parameter parsing
             return GetDefaultParameters();
         }
 
 
-        public MapGeneratorParameters CreateParameters( string presetName ) {
+        public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }

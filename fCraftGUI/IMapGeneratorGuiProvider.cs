@@ -4,7 +4,7 @@ using System;
 namespace fCraft.GUI {
     /// <summary> Represents a class that provides a GUI for chosen map generation parameters.
     /// Creates IMapGeneratorGui on demand.
-    /// Associated with specific IMapGenerator, by name. </summary>
+    /// Associated with specific MapGenerator, by name. </summary>
     public interface IMapGeneratorGuiProvider {
         string Name { get; }
         Version Version { get; }

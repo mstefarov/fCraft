@@ -4,45 +4,36 @@ using System.ComponentModel;
 using System.Xml.Linq;
 
 namespace fCraft {
-    public class FloatingIslandMapGen : IMapGenerator {
+    public class FloatingIslandMapGen : MapGenerator {
         public static FloatingIslandMapGen Instance { get; private set; }
         FloatingIslandMapGen() {}
 
         static FloatingIslandMapGen() {
-            Instance = new FloatingIslandMapGen();
+            Instance = new FloatingIslandMapGen {
+                Name = "Floating Island",
+                Version = new Version( 1, 0 ),
+                Presets = new[] { "Defaults" }
+            };
         }
 
-        public string Name {
-            get { return "Floating Island"; }
-        }
-
-        public Version Version {
-            get { return new Version( 1, 0 ); }
-        }
-
-        public MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters GetDefaultParameters() {
             return new FloatingIslandMapGenParameters();
         }
 
-        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new FloatingIslandMapGenParameters( serializedParameters );
         }
 
-        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             return new FloatingIslandMapGenParameters(); // TODO: command parsing
         }
 
-        public MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == PresetList[0] ) {
+        public override MapGeneratorParameters CreateParameters( string presetName ) {
+            if( presetName == Presets[0] ) {
                 return GetDefaultParameters();
             } else {
                 throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name" );
             }
-        }
-
-        static readonly string[] PresetList = new[] { "Defaults" };
-        public string[] Presets {
-            get { return PresetList; }
         }
     }
 

@@ -8,7 +8,7 @@ namespace fCraft {
     public sealed class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;
 
-        public int Seed { get; set; }
+        public int   Seed { get; set; }
 
         public int   MaxHeight { get; set; }
         public int   MaxDepth { get; set; }

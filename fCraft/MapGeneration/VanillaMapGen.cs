@@ -1,50 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Xml.Linq;
 
 namespace fCraft {
-    public class VanillaMapGen : IMapGenerator {
+    public class VanillaMapGen : MapGenerator {
         public static VanillaMapGen Instance { get; private set; }
-
-        static VanillaMapGen() {
-            Instance = new VanillaMapGen();
-        }
-
         VanillaMapGen() {}
 
-
-        public string Name {
-            get { return "Vanilla"; }
+        static VanillaMapGen() {
+            Instance = new VanillaMapGen {
+                Name = "Vanilla",
+                Version = new Version( 1, 0 ),
+                Presets = new[] {"Default"}
+            };
         }
 
-        public Version Version {
-            get { return new Version( 1, 0 ); }
-        }
 
-        public MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters GetDefaultParameters() {
             return new VanillaMapGenParameters();
         }
 
-        public MapGeneratorParameters CreateParameters( XElement root ) {
+        public override MapGeneratorParameters CreateParameters( XElement root ) {
             return new VanillaMapGenParameters( root );
         }
 
-        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             return new VanillaMapGenParameters();
         }
 
-        public MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == PresetList[0] ) {
+        public override MapGeneratorParameters CreateParameters( string presetName ) {
+            if( presetName == Presets[0] ) {
                 return GetDefaultParameters();
             } else {
                 throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name" );
             }
-        }
-
-        static readonly string[] PresetList = new[] {"Default"};
-        public string[] Presets {
-            get { return PresetList; }
         }
     }
 
