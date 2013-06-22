@@ -26,7 +26,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> mapGen or map is null. </exception>
         /// <exception cref="UnknownMapGeneratorException"> Unrecongized map generator was specified by the map. </exception>
         [CanBeNull]
-        public static IMapGeneratorParameters LoadParamsFromMap( [NotNull] Map map ) {
+        public static MapGeneratorParameters LoadParamsFromMap( [NotNull] Map map ) {
             if( map == null ) {
                 throw new ArgumentNullException( "map" );
             }
@@ -52,7 +52,7 @@ namespace fCraft {
         /// <param name="mapGenParams"> Parameters to embed. </param>
         /// <param name="map"> Map to embed parameters in. </param>
         /// <exception cref="ArgumentNullException"> mapGenParams or map is null. </exception>
-        public static void SaveToMap( [NotNull] this IMapGeneratorParameters mapGenParams, [NotNull] Map map ) {
+        public static void SaveToMap( [NotNull] this MapGeneratorParameters mapGenParams, [NotNull] Map map ) {
             if( mapGenParams == null ) {
                 throw new ArgumentNullException( "mapGenParams" );
             }

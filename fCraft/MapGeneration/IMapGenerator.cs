@@ -17,21 +17,21 @@ namespace fCraft {
 
         /// <summary> Creates a IMapGeneratorParameters object containing default parameters. </summary>
         [NotNull]
-        IMapGeneratorParameters GetDefaultParameters();
+        MapGeneratorParameters GetDefaultParameters();
 
         /// <summary> Parses serialized map generation parameters into a IMapGeneratorParameters object,
         /// (to load settings stored in template files or map metadata). </summary>
         /// <remarks> Throw appropriate exceptions on failure (do not return null). </remarks>
-        IMapGeneratorParameters CreateParameters( [NotNull] XElement serializedParameters );
+        MapGeneratorParameters CreateParameters( [NotNull] XElement serializedParameters );
 
         /// <summary> Parses command arguments to the generator, coming from in-game commands. </summary>
         /// <remarks> In case of command-parsing problems, inform the player and return null. </remarks>
-        IMapGeneratorParameters CreateParameters( [NotNull] Player player, [NotNull] CommandReader cmd );
+        MapGeneratorParameters CreateParameters( [NotNull] Player player, [NotNull] CommandReader cmd );
 
         /// <summary> Creates parameters for a given preset name. </summary>
         /// <remarks> Throw ArgumentException if preset name is unrecognized. </remarks>
         [NotNull]
-        IMapGeneratorParameters CreateParameters( [NotNull] string presetName );
+        MapGeneratorParameters CreateParameters( [NotNull] string presetName );
 
         /// <summary> Returns list of presets for this generator. </summary>
         /// <remarks> May be blank (but not null). </remarks>

@@ -22,19 +22,19 @@ namespace fCraft {
             get { return new Version( 1, 0 ); }
         }
 
-        public IMapGeneratorParameters GetDefaultParameters() {
+        public MapGeneratorParameters GetDefaultParameters() {
             return new VanillaMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( XElement root ) {
+        public MapGeneratorParameters CreateParameters( XElement root ) {
             return new VanillaMapGenParameters( root );
         }
 
-        public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             return new VanillaMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( string presetName ) {
+        public MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == PresetList[0] ) {
                 return GetDefaultParameters();
             } else {
@@ -49,7 +49,7 @@ namespace fCraft {
     }
 
 
-    class VanillaMapGenParameters : IMapGeneratorParameters {
+    class VanillaMapGenParameters : MapGeneratorParameters {
         readonly Random seedRng = new Random();
         public VanillaMapGenParameters() {
             AddFlowers = true;
@@ -180,7 +180,7 @@ namespace fCraft {
         public int Seed { get; set; }
 
 
-        public object Clone() {
+        public override object Clone() {
             return new VanillaMapGenParameters {
                 AddFlowers = AddFlowers,
                 AddMushrooms = AddMushrooms,
@@ -211,17 +211,7 @@ namespace fCraft {
         }
 
 
-        [Browsable(false)]
-        public IMapGenerator Generator { get; private set; }
-        [Browsable( false )]
-        public int MapWidth { get; set; }
-        [Browsable( false )]
-        public int MapLength { get; set; }
-        [Browsable( false )]
-        public int MapHeight { get; set; }
-
-
-        public void Save( XElement baseElement ) {
+        public override void Save( XElement baseElement ) {
             baseElement.Add( new XElement( "AddFlowers", AddFlowers ) );
             baseElement.Add( new XElement( "AddMushrooms", AddMushrooms ) );
             baseElement.Add( new XElement( "AddCaves", AddCaves ) );
@@ -256,17 +246,17 @@ namespace fCraft {
         }
 
 
-        public IMapGeneratorState CreateGenerator() {
+        public override MapGeneratorState CreateGenerator() {
             return new VanillaMapGenState( this );
         }
     }
 
 
-    sealed class VanillaMapGenState : IMapGeneratorState {
-        const int CoalOreDensity = 90;
-        const int IronOreDensity = 70;
-        const int GoldOreDensity = 50;
-        const int CaveDensity = 256;
+    sealed class VanillaMapGenState : MapGeneratorState {
+        const int CoalOreDensity = 90,
+                  IronOreDensity = 70,
+                  GoldOreDensity = 50,
+                  BaseCaveDensity = 256;
 
         readonly Random random;
         readonly byte[] blocks;
@@ -276,50 +266,20 @@ namespace fCraft {
 
         internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
             this.genParams = genParams;
+            Parameters = genParams;
             random = new Random();
             waterLevel = genParams.MapHeight/2;
             heightmap = new int[genParams.MapWidth*genParams.MapLength];
             map = new Map( null, genParams.MapWidth, genParams.MapLength, genParams.MapHeight, true );
             blocks = map.Blocks;
+            ReportsProgress = true;
+            SupportsCancellation = true;
         }
 
         readonly VanillaMapGenParameters genParams;
-        public IMapGeneratorParameters Parameters {
-            get { return genParams; }
-        }
 
 
-        public bool Canceled { get; private set; }
-        public bool Finished { get; private set; }
-        public bool SupportsCancellation {
-            get { return true; }
-        }
-        public Map Result { get; private set; }
-
-
-        public event ProgressChangedEventHandler ProgressChanged;
-        void ReportProgress( int progressPercent, string statusString ) {
-            Progress = progressPercent;
-            StatusString = statusString;
-            var handler = ProgressChanged;
-            if( handler != null ) {
-                ProgressChangedEventArgs args = new ProgressChangedEventArgs( progressPercent, statusString );
-                handler( this, args );
-            }
-        }
-        public bool ReportsProgress {
-            get { return true; }
-        }
-        public int Progress { get; private set; }
-        public string StatusString { get; private set; }
-
-
-        public void CancelAsync() {
-            Canceled = true;
-        }
-
-
-        public Map Generate() {
+        public override Map Generate() {
             if( Finished ) return Result;
             try {
                 ReportProgress( 0, "Raising..." );
@@ -686,7 +646,7 @@ namespace fCraft {
         // Carve some caves underground. I have a very vague idea of how this works.
         void Carve() {
             Random carveRand = new Random( random.Next() );
-            int caveDensity = (int)Math.Round( CaveDensity*genParams.CaveDensity );
+            int caveDensity = (int)Math.Round( BaseCaveDensity*genParams.CaveDensity );
             int maxCaves = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/caveDensity/64*2;
             for( int i = 0; i < maxCaves; i++ ) {
                 double startX = carveRand.NextDouble()*genParams.MapWidth;

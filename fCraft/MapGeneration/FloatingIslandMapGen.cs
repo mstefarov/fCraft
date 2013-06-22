@@ -20,19 +20,19 @@ namespace fCraft {
             get { return new Version( 1, 0 ); }
         }
 
-        public IMapGeneratorParameters GetDefaultParameters() {
+        public MapGeneratorParameters GetDefaultParameters() {
             return new FloatingIslandMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new FloatingIslandMapGenParameters( serializedParameters );
         }
 
-        public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             return new FloatingIslandMapGenParameters(); // TODO: command parsing
         }
 
-        public IMapGeneratorParameters CreateParameters( string presetName ) {
+        public MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == PresetList[0] ) {
                 return GetDefaultParameters();
             } else {
@@ -47,21 +47,7 @@ namespace fCraft {
     }
 
 
-    public class FloatingIslandMapGenParameters : IMapGeneratorParameters {
-        [Browsable( false )]
-        public int MapWidth { get; set; }
-
-        [Browsable( false )]
-        public int MapLength { get; set; }
-
-        [Browsable( false )]
-        public int MapHeight { get; set; }
-
-        [Browsable( false )]
-        public IMapGenerator Generator {
-            get { return FloatingIslandMapGen.Instance; }
-        }
-
+    public class FloatingIslandMapGenParameters : MapGeneratorParameters {
         public double IslandDensity { get; set; }
         public double SphereSeparation { get; set; }
         public double SphereSizeReduction { get; set; }
@@ -85,7 +71,7 @@ namespace fCraft {
         public int FlowersPerChain { get; set; }
 
         public double SpringDensity { get; set; }
-        public double SpringMaxHops { get; set; }
+        public int SpringMaxHops { get; set; }
 
         public int Seed { get; set; }
 
@@ -126,63 +112,53 @@ namespace fCraft {
         }
 
 
-        public void Save( XElement baseElement ) {
+        public override void Save( XElement el ) {
             throw new NotImplementedException();
         }
 
 
-        public IMapGeneratorState CreateGenerator() {
+        public override MapGeneratorState CreateGenerator() {
             return new FloatingIslandMapGenState( this );
         }
 
 
-        public object Clone() {
-            throw new NotImplementedException();
+        public override object Clone() {
+            return new FloatingIslandMapGenParameters {
+                IslandDensity = IslandDensity,
+                SphereSeparation = SphereSeparation,
+                SphereSizeReduction = SphereSizeReduction,
+                SphereCount = SphereCount,
+                SphereSize = SphereSize,
+                SphereSizeSpread = SphereSizeSpread,
+                Verticality = Verticality,
+                TreeClusterDensity = TreeClusterDensity,
+                TreeChainsPerCluster = TreeChainsPerCluster,
+                TreeHopsPerChain = TreeHopsPerChain,
+                TreeSpread = TreeSpread,
+                TreePlantRatio = TreePlantRatio,
+                GiantTreeDensity = GiantTreeDensity,
+                FlowerClusterDensity = FlowerClusterDensity,
+                FlowerSpread = FlowerSpread,
+                FlowerChainsPerCluster = FlowerChainsPerCluster,
+                FlowersPerChain = FlowersPerChain,
+                SpringDensity = SpringDensity,
+                SpringMaxHops = SpringMaxHops,
+                Seed = Seed
+            };
         }
     }
 
 
-    unsafe class FloatingIslandMapGenState : IMapGeneratorState {
-        #region IMapGeneratorState boilerplate
+    unsafe class FloatingIslandMapGenState : MapGeneratorState {
         public FloatingIslandMapGenState( FloatingIslandMapGenParameters parameters ) {
             genParams = parameters;
             Parameters = parameters;
+            ReportsProgress = true;
+            SupportsCancellation = true;
         }
 
         readonly FloatingIslandMapGenParameters genParams;
 
-        public IMapGeneratorParameters Parameters { get; private set; }
-        public bool Canceled { get; private set; }
-        public bool Finished { get; private set; }
-        public int Progress { get; private set; }
-        public string StatusString { get; private set; }
-
-        public bool ReportsProgress {
-            get { return true; }
-        }
-
-        public bool SupportsCancellation {
-            get { return true; }
-        }
-
-        public Map Result { get; private set; }
-        public event ProgressChangedEventHandler ProgressChanged;
-
-        void ReportProgress( int progressPercent, string statusString ) {
-            Progress = progressPercent;
-            StatusString = statusString;
-            var handler = ProgressChanged;
-            if( handler != null ) {
-                ProgressChangedEventArgs args = new ProgressChangedEventArgs( progressPercent, statusString );
-                handler( this, args );
-            }
-        }
-
-
-        public void CancelAsync() {
-            Canceled = true;
-        }
-        #endregion
 
         Random rand;
         Map map;
@@ -193,7 +169,7 @@ namespace fCraft {
                   BaseSpringDensity = 50000;
 
 
-        public Map Generate() {
+        public override Map Generate() {
             if( Finished ) return Result;
             try {
                 ReportProgress( 0, "Clumping spheres..." );

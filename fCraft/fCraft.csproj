@@ -181,8 +181,8 @@
     <Compile Include="World\BlockUpdate.cs" />
     <Compile Include="MapGeneration\Forester.cs" />
     <Compile Include="MapGeneration\IMapGenerator.cs" />
-    <Compile Include="MapGeneration\IMapGeneratorParameters.cs" />
-    <Compile Include="MapGeneration\IMapGeneratorState.cs" />
+    <Compile Include="MapGeneration\MapGeneratorParameters.cs" />
+    <Compile Include="MapGeneration\MapGeneratorState.cs" />
     <Compile Include="World\Map.cs" />
     <Compile Include="MapGeneration\RealisticMapGenState.cs">
     </Compile>

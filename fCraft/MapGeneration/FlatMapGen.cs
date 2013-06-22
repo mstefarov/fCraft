@@ -35,15 +35,15 @@ namespace fCraft {
         public string[] Presets { get; private set; }
 
 
-        public IMapGeneratorParameters GetDefaultParameters() {
+        public MapGeneratorParameters GetDefaultParameters() {
             return new FlatMapGenParameters();
         }
 
-        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new FlatMapGenParameters( serializedParameters );
         }
 
-        public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             FlatMapGenParameters newParams = new FlatMapGenParameters();
             string themeName = cmd.Next();
             if( themeName != null ) {
@@ -63,7 +63,7 @@ namespace fCraft {
 
         #region Presets
 
-        public IMapGeneratorParameters CreateParameters( string presetName ) {
+        public MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
@@ -100,25 +100,25 @@ namespace fCraft {
 
 
         [NotNull]
-        public static IMapGeneratorState MakeFlatgrass( int width, int length, int height ) {
+        public static MapGeneratorState MakeFlatgrass( int width, int length, int height ) {
             return MakePreset( width, length, height, 0 );
         }
 
 
         [NotNull]
-        public static IMapGeneratorState MakeEmpty( int width, int length, int height ) {
+        public static MapGeneratorState MakeEmpty( int width, int length, int height ) {
             return MakePreset( width, length, height, 1 );
         }
 
 
         [NotNull]
-        public static IMapGeneratorState MakeOcean( int width, int length, int height ) {
+        public static MapGeneratorState MakeOcean( int width, int length, int height ) {
             return MakePreset( width, length, height, 2 );
         }
 
 
-        static IMapGeneratorState MakePreset( int width, int length, int height, int index ) {
-            IMapGeneratorParameters preset = Instance.CreateParameters( Instance.Presets[index] );
+        static MapGeneratorState MakePreset( int width, int length, int height, int index ) {
+            MapGeneratorParameters preset = Instance.CreateParameters( Instance.Presets[index] );
             preset.MapWidth = width;
             preset.MapLength = length;
             preset.MapHeight = height;
@@ -129,19 +129,7 @@ namespace fCraft {
     }
 
 
-    class FlatMapGenParameters : IMapGeneratorParameters {
-        [Browsable( false )]
-        public int MapWidth { get; set; }
-        [Browsable( false )]
-        public int MapLength { get; set; }
-        [Browsable( false )]
-        public int MapHeight { get; set; }
-
-        [Browsable( false )]
-        public IMapGenerator Generator {
-            get { return FlatMapGen.Instance; }
-        }
-
+    class FlatMapGenParameters : MapGeneratorParameters {
         [Category( "Layers" )]
         [Description( "Number of blocks (positive or negative) by which the ground level of the map " +
                       "should be offset. Positive values make it higher, negative values make it lower." )]
@@ -228,7 +216,7 @@ namespace fCraft {
         }
 
 
-        public IMapGeneratorState CreateGenerator() {
+        public override MapGeneratorState CreateGenerator() {
             return new FlatMapGenState( this );
         }
 
@@ -270,7 +258,7 @@ namespace fCraft {
         }
 
 
-        public void Save( XElement el ) {
+        public override void Save( XElement el ) {
             el.Add( new XElement( "Version", Generator.Version.ToString() ) );
             el.Add( new XElement( "GroundLevelOffset", GroundLevelOffset ) );
             el.Add( new XElement( "SurfaceThickness", SurfaceThickness ) );
@@ -284,7 +272,7 @@ namespace fCraft {
         }
 
 
-        public object Clone() {
+        public override object Clone() {
             return new FlatMapGenParameters {
                 GroundLevelOffset = GroundLevelOffset,
                 SurfaceThickness = SurfaceThickness,
@@ -302,28 +290,16 @@ namespace fCraft {
     }
 
 
-    class FlatMapGenState : IMapGeneratorState {
+    class FlatMapGenState : MapGeneratorState {
         public FlatMapGenState( FlatMapGenParameters parameters ) {
             Parameters = parameters;
             StatusString = "Ready";
+            ReportsProgress = false;
+            SupportsCancellation = false;
         }
 
-        public IMapGeneratorParameters Parameters { get; private set; }
-        public bool Canceled { get; private set; }
-        public bool Finished { get; private set; }
-        public int Progress { get; private set; }
-        public string StatusString { get; private set; }
-        public bool ReportsProgress {
-            get { return false; }
-        }
-        public bool SupportsCancellation {
-            get { return false; }
-        }
-        public Map Result { get; private set; }
-        public event ProgressChangedEventHandler ProgressChanged;
 
-
-        public Map Generate() {
+        public override Map Generate() {
             if( Finished ) return Result;
             try {
                 StatusString = "Generating";
@@ -367,11 +343,6 @@ namespace fCraft {
             } finally {
                 Finished = true;
             }
-        }
-
-
-        public void CancelAsync() {
-            Canceled = true;
         }
     }
 }

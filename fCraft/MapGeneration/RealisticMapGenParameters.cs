@@ -5,14 +5,10 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed class RealisticMapGenParameters : IMapGeneratorParameters {
+    public sealed class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;
 
         public int Seed { get; set; }
-
-        public int MapWidth { get; set; }
-        public int MapLength { get; set; }
-        public int MapHeight { get; set; }
 
         public int   MaxHeight { get; set; }
         public int   MaxDepth { get; set; }
@@ -72,9 +68,6 @@ namespace fCraft {
 
         // block selection for voxelization
         public RealisticMapGenTheme Theme { get; set; }
-
-        // IMapGeneratorParameters boilerplate code
-        public IMapGenerator Generator { get; private set; }
 
 
         /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
@@ -323,7 +316,7 @@ namespace fCraft {
         const string LegacyRootTagName = "fCraftMapGeneratorArgs";
 
 
-        public void Save( XElement root ) {
+        public override void Save( XElement root ) {
             root.Add( new XAttribute( "version", FormatVersion ) );
 
             root.Add( new XElement( "theme", Theme ) );
@@ -387,7 +380,7 @@ namespace fCraft {
         }
 
 
-        public object Clone() {
+        public override object Clone() {
             return new RealisticMapGenParameters {
                 AboveFuncExponent = AboveFuncExponent,
                 AddBeaches = AddBeaches,
@@ -443,7 +436,7 @@ namespace fCraft {
         }
 
 
-        public IMapGeneratorState CreateGenerator() {
+        public override MapGeneratorState CreateGenerator() {
             return new RealisticMapGenState( this );
         }
     }
