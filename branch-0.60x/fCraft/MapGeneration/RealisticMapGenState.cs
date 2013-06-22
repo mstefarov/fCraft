@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides functionality for generating map files. </summary>
-    sealed class RealisticMapGenState : IMapGeneratorState {
+    sealed class RealisticMapGenState : MapGeneratorState {
         readonly RealisticMapGenParameters args;
         readonly Random rand;
         readonly Noise noise;
@@ -32,10 +32,13 @@ namespace fCraft {
             rand = new Random( args.Seed );
             noise = new Noise( args.Seed, NoiseInterpolationMode.Bicubic );
             EstimateComplexity();
+
+            ReportsProgress = true;
+            SupportsCancellation = true;
         }
 
 
-        public Map Generate() {
+        public override Map Generate() {
             if( Finished ) return Result;
             try {
                 GenerateHeightmap();
@@ -45,7 +48,7 @@ namespace fCraft {
                 Result = map;
                 return Result;
             } finally {
-                ReportProgress( progressTotalEstimate - progressRunningTotal, Canceled ? "Canceled" : "Finished" );
+                ReportProgress( 100, Canceled ? "Canceled" : "Finished" );
                 Finished = true;
             }
         }
@@ -74,31 +77,10 @@ namespace fCraft {
             }
         }
 
-        public IMapGeneratorParameters Parameters { get; private set; }
-        public Map Result { get; private set; }
-
 
         #region Progress Reporting
-
-        public bool Canceled { get; private set; }
-        public bool Finished { get; private set; }
-        public int Progress { get; private set; }
-        public string StatusString { get; private set; }
-        public bool ReportsProgress {
-            get { return true; }
-        }
-        public bool SupportsCancellation {
-            get { return true; }
-        }
-        public event ProgressChangedEventHandler ProgressChanged;
-
         int progressTotalEstimate,
             progressRunningTotal;
-
-
-        public void CancelAsync() {
-            Canceled = true;
-        }
 
 
         void EstimateComplexity() {
@@ -127,15 +109,9 @@ namespace fCraft {
         }
 
 
-        void ReportProgress( int relativeIncrease, [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
+        void ReportRelativeProgress( int relativeIncrease, [NotNull] string message ) {
             progressRunningTotal += relativeIncrease;
-            Progress = (100*progressRunningTotal/progressTotalEstimate);
-            StatusString = message;
-            var h = ProgressChanged;
-            if( h != null ) {
-                h( this, new ProgressChangedEventArgs( Progress, message ) );
-            }
+            ReportProgress( (100*progressRunningTotal/progressTotalEstimate), message );
         }
 
         #endregion
@@ -144,13 +120,13 @@ namespace fCraft {
         #region Heightmap Processing
 
         void GenerateHeightmap() {
-            ReportProgress( 10, "Heightmap: Priming" );
+            ReportRelativeProgress( 10, "Heightmap: Priming" );
             heightmap = new float[args.MapWidth, args.MapLength];
 
             noise.PerlinNoise( heightmap, args.FeatureScale, args.DetailScale, args.Roughness, 0, 0 );
 
             if( args.UseBias && !args.DelayBias ) {
-                ReportProgress( 2, "Heightmap: Biasing" );
+                ReportRelativeProgress( 2, "Heightmap: Biasing" );
                 Noise.Normalize( heightmap );
                 ApplyBias();
             }
@@ -158,7 +134,7 @@ namespace fCraft {
             Noise.Normalize( heightmap );
 
             if( args.LayeredHeightmap ) {
-                ReportProgress( 10, "Heightmap: Layering" );
+                ReportRelativeProgress( 10, "Heightmap: Layering" );
 
                 // needs a new Noise object to randomize second map
                 float[,] heightmap2 = new float[args.MapWidth, args.MapLength];
@@ -177,17 +153,17 @@ namespace fCraft {
             }
 
             if( args.MarbledHeightmap ) {
-                ReportProgress( 1, "Heightmap: Marbling" );
+                ReportRelativeProgress( 1, "Heightmap: Marbling" );
                 Noise.Marble( heightmap );
             }
 
             if( args.InvertHeightmap ) {
-                ReportProgress( 1, "Heightmap: Inverting" );
+                ReportRelativeProgress( 1, "Heightmap: Inverting" );
                 Noise.Invert( heightmap );
             }
 
             if( args.UseBias && args.DelayBias ) {
-                ReportProgress( 2, "Heightmap: Biasing" );
+                ReportRelativeProgress( 2, "Heightmap: Biasing" );
                 Noise.Normalize( heightmap );
                 ApplyBias();
             }
@@ -226,7 +202,7 @@ namespace fCraft {
             // Match water coverage
             float desiredWaterLevel = .5f;
             if( args.MatchWaterCoverage ) {
-                ReportProgress( 2, "Heightmap Processing: Matching water coverage" );
+                ReportRelativeProgress( 2, "Heightmap Processing: Matching water coverage" );
                 // find a number between 0 and 1 ("desiredWaterLevel") for the heightmap such that
                 // the fraction of heightmap coordinates ("blocks") that are below this threshold ("underwater")
                 // match the specified WaterCoverage
@@ -244,7 +220,7 @@ namespace fCraft {
             // Apply power functions to above/below water parts of the heightmap
             if( Math.Abs( args.BelowFuncExponent - 1 ) > float.Epsilon ||
                 Math.Abs( args.AboveFuncExponent - 1 ) > float.Epsilon ) {
-                ReportProgress( 5, "Heightmap Processing: Adjusting slope" );
+                ReportRelativeProgress( 5, "Heightmap Processing: Adjusting slope" );
                 for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
                     for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                         if( heightmap[x, y] < desiredWaterLevel ) {
@@ -264,7 +240,7 @@ namespace fCraft {
 
             // Calculate the slope
             if( args.CliffSmoothing ) {
-                ReportProgress( 2, "Heightmap Processing: Smoothing" );
+                ReportRelativeProgress( 2, "Heightmap Processing: Smoothing" );
                 slopemap = Noise.CalculateSlope( Noise.GaussianBlur5X5( heightmap ) );
             } else {
                 slopemap = Noise.CalculateSlope( heightmap );
@@ -273,7 +249,7 @@ namespace fCraft {
             // Randomize max height/depth
             float[,] altmap = null;
             if( args.MaxHeightVariation != 0 || args.MaxDepthVariation != 0 ) {
-                ReportProgress( 5, "Heightmap Processing: Randomizing" );
+                ReportRelativeProgress( 5, "Heightmap Processing: Randomizing" );
                 altmap = new float[map.Width,map.Length];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( args.MapWidth, args.MapLength ), 2 ) - 2;
                 new Noise( rand.Next(), NoiseInterpolationMode.Cosine )
@@ -285,7 +261,7 @@ namespace fCraft {
             int snowStartThreshold = args.SnowAltitude - args.SnowTransition;
             int snowThreshold = args.SnowAltitude;
 
-            ReportProgress( 10, "Filling" );
+            ReportRelativeProgress( 10, "Filling" );
             if( theme.AirBlock != Block.Air ) {
                 map.Blocks.MemSet( (byte)theme.AirBlock );
             }
@@ -403,12 +379,12 @@ namespace fCraft {
             }
 
             if( args.AddBeaches ) {
-                ReportProgress( 5, "Processing: Adding beaches" );
+                ReportRelativeProgress( 5, "Processing: Adding beaches" );
                 AddBeaches( map );
             }
 
             if( args.AddTrees ) {
-                ReportProgress( 5, "Processing: Planting trees" );
+                ReportRelativeProgress( 5, "Processing: Planting trees" );
                 if( args.AddGiantTrees ) {
                     Map outMap = new Map( null, map.Width, map.Length, map.Height, false ) { Blocks = (byte[])map.Blocks.Clone() };
                     var foresterArgs = new ForesterArgs {
@@ -428,14 +404,6 @@ namespace fCraft {
             if( args.AddFloodBarrier ) {
                 MakeFloodBarrier( map );
             }
-
-            ReportProgress( 0, "Generation complete" );
-
-            map.Metadata["_Origin", "GeneratorName"] = "fCraft";
-            map.Metadata["_Origin", "GeneratorVersion"] = Updater.CurrentRelease.VersionString;
-            XElement genParamsEl = new XElement( "Parameters" );
-            args.Save( genParamsEl );
-            map.Metadata["_Origin", "GeneratorParams"] = genParamsEl.ToString( SaveOptions.DisableFormatting );
             return map;
         }
 
@@ -563,7 +531,7 @@ namespace fCraft {
 
         public void AddCaves( Map map ) {
             if( args.AddCaves ) {
-                ReportProgress( 5, "Processing: Adding caves" );
+                ReportRelativeProgress( 5, "Processing: Adding caves" );
                 for( int i1 = 0; i1 < 36*args.CaveDensity; i1++ )
                     AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Air, 30, 0.05*args.CaveSize );
 
@@ -596,7 +564,7 @@ namespace fCraft {
 
 
             if( args.AddOre ) {
-                ReportProgress( 3, "Processing: Adding ore" );
+                ReportRelativeProgress( 3, "Processing: Adding ore" );
                 for( int l1 = 0; l1 < 12*args.CaveDensity; l1++ ) {
                     AddSingleCave( rand, map, (byte)theme.BedrockBlock, (byte)Block.Coal, 500, 0.03 );
                 }

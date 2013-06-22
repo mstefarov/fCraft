@@ -40,7 +40,7 @@ namespace fCraft.GUI {
 
         /// <summary> Reads given generator params, and adjusts GUI to reflect them. </summary>
         /// <param name="generatorParameters"> Given generation parameters. </param>
-        public virtual void SetParameters( [NotNull] IMapGeneratorParameters generatorParameters ) {
+        public virtual void SetParameters( [NotNull] MapGeneratorParameters generatorParameters ) {
             throw new NotImplementedException( "SetParameters must be overriden in MapGeneratorGui implementations." );
         }
 
@@ -49,7 +49,7 @@ namespace fCraft.GUI {
         /// The returned IMapGeneratorParameters must not be modified after being returned. </summary>
         /// <returns> IMapGeneratorParameters object representing GUI's current state. </returns>
         [NotNull]
-        public virtual IMapGeneratorParameters GetParameters() {
+        public virtual MapGeneratorParameters GetParameters() {
             throw new NotImplementedException( "GetParameters must be overriden in MapGeneratorGui implementations." );
         }
 

@@ -398,7 +398,7 @@ namespace fCraft.ConfigGUI {
 
         #region Map Generation
 
-        IMapGeneratorState genState;
+        MapGeneratorState genState;
 
         void bGenerate_Click( object sender, EventArgs e ) {
             if( genState != null ) {
@@ -409,7 +409,7 @@ namespace fCraft.ConfigGUI {
             }
             Map = null;
 
-            IMapGeneratorParameters genParams = genGui.GetParameters();
+            MapGeneratorParameters genParams = genGui.GetParameters();
             genState = genParams.CreateGenerator();
 
             tStatus1.Text = "Generating...";
@@ -850,7 +850,7 @@ Could not load more information:
             } else {
                 // load modern (0.640+) embedded generation parameters
                 try {
-                    IMapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
+                    MapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
                     if( genParams == null ) {
                         tStatus1.Text = "No generation parameters found in " + fileName;
                         MessageBox.Show(
@@ -889,7 +889,7 @@ Could not load more information:
                 return;
             }
             try {
-                IMapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
+                MapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
                 genGui.SetParameters( mapGenParams );
                 SignalMapDimensionChange();
 
@@ -929,7 +929,7 @@ Could not load more information:
                 return;
             }
             SelectGenerator( gen );
-            IMapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
+            MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
             genGui.SetParameters( genParams );
             SignalMapDimensionChange();
         }

@@ -22,12 +22,12 @@ namespace fCraft.GUI {
             browseTemplateDialog.Title = "Opening a MapGenerator template...";
         }
 
-        public override void SetParameters( IMapGeneratorParameters generatorParameters ) {
+        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
             genParameters = (RealisticMapGenParameters)generatorParameters;
             LoadGeneratorArgs();
         }
 
-        public override IMapGeneratorParameters GetParameters() {
+        public override MapGeneratorParameters GetParameters() {
             if( !xSeed.Checked ) {
                 nSeed.Value = GetRandomSeed();
             }

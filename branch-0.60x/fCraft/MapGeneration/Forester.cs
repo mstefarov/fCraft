@@ -166,23 +166,23 @@ namespace fCraft {
         }
 
 
-        static void PlantRainForestTrees( ForesterArgs args, ICollection<Tree> treelist ) {
+        static void PlantRainForestTrees( ForesterArgs args, ICollection<Tree> treeList ) {
             int treeHeight = args.Height;
 
-            int existingTreeNum = treelist.Count;
+            int existingTreeNum = treeList.Count;
             int remainingTrees = args.TreeCount - existingTreeNum;
 
             const int shortTreeFraction = 6;
             int attempts = 0;
             for( int i = 0; i < remainingTrees && attempts < MaxTries; attempts++ ) {
-                float randomfac =
+                float randomFac =
                     (float)( ( Math.Sqrt( args.Rand.NextDouble() ) * 1.618 - .618 ) * args.HeightVariation + .5 );
 
                 int height;
                 if( i % shortTreeFraction == 0 ) {
-                    height = (int)( treeHeight + randomfac );
+                    height = (int)( treeHeight + randomFac );
                 } else {
-                    height = (int)( treeHeight - randomfac );
+                    height = (int)( treeHeight - randomFac );
                 }
                 Vector3I xyz = FindRandomTreeLocation( args, height );
                 if( xyz.Y < 0 ) continue;
@@ -190,20 +190,19 @@ namespace fCraft {
                 xyz.Y++;
 
                 bool displaced = false;
-                foreach( Tree otherTree in treelist ) {
+                foreach( Tree otherTree in treeList ) {
                     Vector3I otherLoc = otherTree.Pos;
-                    float otherheight = otherTree.Height;
                     int tallx = otherLoc[0];
                     int tallz = otherLoc[2];
                     float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
-                    float threshold = ( otherheight + height ) * .193f;
+                    float threshold = ( otherTree.Height + height ) * .193f;
                     if( dist < threshold ) {
                         displaced = true;
                         break;
                     }
                 }
                 if( displaced ) continue;
-                treelist.Add( new RainforestTree {
+                treeList.Add( new RainforestTree {
                     Args = args,
                     Pos = xyz,
                     Height = height

@@ -1,17 +1,17 @@
 ﻿namespace fCraft.GUI {
     public partial class DefaultMapGenGui : MapGeneratorGui {
-        IMapGeneratorParameters args;
+        MapGeneratorParameters args;
 
         public DefaultMapGenGui() {
             InitializeComponent();
         }
 
-        public override void SetParameters( IMapGeneratorParameters generatorParameters ) {
+        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
             args = generatorParameters;
             pgGrid.SelectedObject = args;
         }
 
-        public override IMapGeneratorParameters GetParameters() {
+        public override MapGeneratorParameters GetParameters() {
             return args;
         }
 

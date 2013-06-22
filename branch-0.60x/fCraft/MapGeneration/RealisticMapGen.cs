@@ -20,23 +20,23 @@ namespace fCraft {
         public string[] Presets { get; private set; }
 
 
-        public IMapGeneratorParameters GetDefaultParameters() {
+        public MapGeneratorParameters GetDefaultParameters() {
             return new RealisticMapGenParameters();
         }
 
 
-        public IMapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+        public MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new RealisticMapGenParameters( serializedParameters );
         }
 
 
-        public IMapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             // todo: /Gen parameter parsing
             return GetDefaultParameters();
         }
 
 
-        public IMapGeneratorParameters CreateParameters( string presetName ) {
+        public MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
