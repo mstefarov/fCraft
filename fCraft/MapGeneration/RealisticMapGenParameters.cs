@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed class RealisticMapGenParameters : MapGeneratorParameters {
+    public sealed partial class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;
 
         public int   Seed { get; set; }

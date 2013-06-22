@@ -217,52 +217,10 @@ namespace fCraft {
         }
 
 
-        #region Serialization and Cloning
-
         public FlatMapGenParameters( XElement el )
             : this() {
-            GroundLevelOffset = ReadInt( el, "GroundLevelOffset", GroundLevelOffset );
-            SurfaceThickness = ReadInt( el, "SurfaceThickness", SurfaceThickness );
-            SoilThickness = ReadInt( el, "SoilThickness", SoilThickness );
-            BedrockThickness = ReadInt( el, "BedrockThickness", BedrockThickness );
-
-            AirBlock = ReadEnum( el, "AirBlock", AirBlock );
-            SurfaceBlock = ReadEnum( el, "SurfaceBlock", SurfaceBlock );
-            ShallowBlock = ReadEnum( el, "ShallowBlock", ShallowBlock );
-            DeepBlock = ReadEnum( el, "DeepBlock", DeepBlock );
-            BedrockBlock = ReadEnum( el, "BedrockBlock", BedrockBlock );
+            base.LoadProperties( el );
         }
-
-
-        public override void Save( XElement el ) {
-            el.Add( new XElement( "Version", Generator.Version.ToString() ) );
-            el.Add( new XElement( "GroundLevelOffset", GroundLevelOffset ) );
-            el.Add( new XElement( "SurfaceThickness", SurfaceThickness ) );
-            el.Add( new XElement( "SoilThickness", SoilThickness ) );
-            el.Add( new XElement( "BedrockThickness", BedrockThickness ) );
-            el.Add( new XElement( "AirBlock", AirBlock ) );
-            el.Add( new XElement( "SurfaceBlock", SurfaceBlock ) );
-            el.Add( new XElement( "ShallowBlock", ShallowBlock ) );
-            el.Add( new XElement( "DeepBlock", DeepBlock ) );
-            el.Add( new XElement( "BedrockBlock", BedrockBlock ) );
-        }
-
-
-        public override object Clone() {
-            return new FlatMapGenParameters {
-                GroundLevelOffset = GroundLevelOffset,
-                SurfaceThickness = SurfaceThickness,
-                SoilThickness = SoilThickness,
-                BedrockThickness = BedrockThickness,
-                AirBlock = AirBlock,
-                SurfaceBlock = SurfaceBlock,
-                ShallowBlock = ShallowBlock,
-                DeepBlock = DeepBlock,
-                BedrockBlock = BedrockBlock
-            };
-        }
-
-        #endregion
     }
 
 
