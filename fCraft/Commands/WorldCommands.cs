@@ -17,11 +17,7 @@ namespace fCraft {
 
             CommandManager.RegisterCommand( CdEnv );
 
-            CdGenerate.Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
-                              "If no file name is given, loads generated world into current world.\n" +
-                              "Available themes: Grass, " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() + '\n' +
-                              "Available terrain types: Empty, Ocean, " + Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() + '\n' +
-                              "Note: You do not need to specify a theme with \"Empty\" and \"Ocean\" templates.";
+            CommandManager.RegisterCommand( CdSetGen );
             CommandManager.RegisterCommand( CdGenerate );
 
             CommandManager.RegisterCommand( CdJoin );
@@ -851,8 +847,10 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/Gen Theme Template [Width Length Height] [FileName]",
-            //Help is assigned by WorldCommands.Init
+            Usage = "/Gen [Width Length Height] [FileName]",
+            Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
+                   "If no file name is given, loads generated world into current world.\n" +
+                   "Select the generator using &H/SetGen&S command before calling &H/Gen&S.",
             Handler = GenHandler
         };
 
