@@ -727,6 +727,11 @@ namespace fCraft {
                 // reset binds (water, lava, admincrete)
                 target.ResetAllBinds();
 
+                // reset /SetGen if needed
+                if( !target.Can( Permission.ManageWorlds ) ) {
+                    target.GenParams = null;
+                }
+
                 // reset admincrete deletion permission
                 target.Send( Packet.MakeSetPermission( target ) );
 

@@ -803,6 +803,49 @@ namespace fCraft {
 
         #region Gen
 
+        static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
+            Name = "SetGen",
+            Category = CommandCategory.World,
+            IsConsoleSafe = true,
+            Permissions = new[] {
+                Permission.ManageWorlds
+            },
+            Usage = "/SetGen GenName [Options]",
+            Help = "TODO", // TODO
+            Handler = SetGenHandler
+        };
+
+        static void SetGenHandler( Player player, CommandReader cmd ) {
+            string genName = cmd.Next();
+            if( genName == null ) {
+                PrintCurrentGenerator( player, false );
+                return;
+            }
+
+            MapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
+            if( gen == null ) {
+                player.Message( "No generator named \"{0}\" found!", genName );
+                return;
+            }
+
+            MapGeneratorParameters genParams = gen.CreateParameters( player, cmd );
+            if( genParams != null ) {
+                PrintCurrentGenerator( player, true );
+            }
+        }
+
+        static void PrintCurrentGenerator( Player player, bool isNew ) {
+            MapGeneratorParameters genParams = player.GenParams;
+            if( genParams == null ) {
+                player.Message( "No gen parameters set. Use &H/SetGet&S to configure map generation." );
+            } else if( isNew ) {
+                player.Message( "New gen parameters: {0}", genParams );
+            } else {
+                player.Message( "Current gen parameters: {0}", genParams );
+            }
+        }
+
+
         static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
             Name = "Gen",
             Category = CommandCategory.World,
@@ -821,7 +864,7 @@ namespace fCraft {
             bool noTrees = false;
 
             if( themeName == null ) {
-                CdGenerate.PrintUsage( player );
+                PrintCurrentGenerator( player, false );
                 return;
             }
             MapGenTheme theme = MapGenTheme.Forest;

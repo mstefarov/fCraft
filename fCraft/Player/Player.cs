@@ -143,6 +143,8 @@ namespace fCraft {
         [NotNull]
         public MetadataCollection<object> Metadata { get; private set; }
 
+        public MapGeneratorParameters GenParams { get; set; }
+
         #endregion
 
 
