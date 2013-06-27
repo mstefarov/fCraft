@@ -27,24 +27,24 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             // todo: /Gen parameter parsing
-            return GetDefaultParameters();
+            throw new NotImplementedException();
         }
 
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                throw new ArgumentNullException( "presetName" );
+                return GetDefaultParameters();
             }
             MapGenTemplate template;
             if( EnumUtil.TryParse( presetName, out template, true ) ) {
-                return MakeTemplate( template );
+                return CreateParameters( template );
             } else {
-                throw new ArgumentOutOfRangeException( "presetName", "Urecognized preset name." );
+                return null;
             }
         }
 
 
-        public static RealisticMapGenParameters MakeTemplate( MapGenTemplate template ) {
+        public static RealisticMapGenParameters CreateParameters( MapGenTemplate template ) {
             switch( template ) {
                 case MapGenTemplate.Archipelago:
                     return new RealisticMapGenParameters {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Xml.Linq;
 
 namespace fCraft {
@@ -10,9 +9,7 @@ namespace fCraft {
 
         static FloatingIslandMapGen() {
             Instance = new FloatingIslandMapGen {
-                Name = "Floating Island",
-                Version = new Version( 1, 0 ),
-                Presets = new[] { "Defaults" }
+                Name = "Floating Island"
             };
         }
 
@@ -29,16 +26,17 @@ namespace fCraft {
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == Presets[0] ) {
+            if( presetName == null ) {
                 return GetDefaultParameters();
             } else {
-                throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name" );
+                // TODO: presets
+                throw new NotImplementedException();
             }
         }
     }
 
 
-    public class FloatingIslandMapGenParameters : MapGeneratorParameters {
+    class FloatingIslandMapGenParameters : MapGeneratorParameters {
         public double IslandDensity { get; set; }
         public double Verticality { get; set; }
 

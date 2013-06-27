@@ -1,5 +1,4 @@
-﻿using System;
-using System.Xml.Linq;
+﻿using System.Xml.Linq;
 
 namespace fCraft {
     public class EmptyMapGen : MapGenerator {
@@ -7,11 +6,7 @@ namespace fCraft {
 
         static EmptyMapGen() {
             Instance = new EmptyMapGen {
-                Name = "Empty",
-                Version = new Version( 1, 0 ),
-                Presets = new[] {
-                    "Default"
-                }
+                Name = "Empty"
             };
         }
 
@@ -34,12 +29,9 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                throw new ArgumentNullException( "presetName" );
-            }
-            if( presetName.Equals( Presets[0] ) ) {
                 return GetDefaultParameters();
             } else {
-                throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name." );
+                return null;
             }
         }
     }
