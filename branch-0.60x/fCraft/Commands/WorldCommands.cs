@@ -1052,10 +1052,10 @@ namespace fCraft {
             player.MessageNow( "Generating {0}...", templateFullName );
 
             if( genEmpty ) {
-                map = FlatMapGen.MakeEmpty( mapWidth, mapLength, mapHeight ).Generate();
+                map = EmptyMapGen.Instance.GetDefaultParameters().CreateGenerator().Generate();
 
             } else if( genOcean ) {
-                map = FlatMapGen.MakeOcean( mapWidth, mapLength, mapHeight ).Generate();
+                map = FlatMapGen.Instance.CreateParameters( "Ocean" ).CreateGenerator().Generate();
 
             } else if( genFlatgrass ) {
                 map = FlatMapGen.MakeFlatgrass( mapWidth, mapLength, mapHeight ).Generate();

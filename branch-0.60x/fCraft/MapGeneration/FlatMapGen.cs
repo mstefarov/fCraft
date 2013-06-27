@@ -8,12 +8,11 @@ namespace fCraft {
     /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
     public class FlatMapGen : MapGenerator {
         public static FlatMapGen Instance { get; private set; }
-        FlatMapGen() {}
+        protected FlatMapGen() {}
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
                 "Default (Flatgrass)",
-                "Empty",
                 "Ocean"
             };
             foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
@@ -31,15 +30,15 @@ namespace fCraft {
 
 
         public override MapGeneratorParameters GetDefaultParameters() {
-            return new FlatMapGenParameters();
+            return new FlatMapGenParameters( this );
         }
 
         public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
-            return new FlatMapGenParameters( serializedParameters );
+            return new FlatMapGenParameters( this, serializedParameters );
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            FlatMapGenParameters newParams = new FlatMapGenParameters();
+            FlatMapGenParameters newParams = new FlatMapGenParameters( this );
             string themeName = cmd.Next();
             if( themeName != null ) {
                 MapGenTheme theme;
@@ -55,36 +54,24 @@ namespace fCraft {
             return newParams;
         }
 
-
-        #region Presets
-
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
-            if( presetName == Presets[0] ) { // Flatgrass (default)
+            if( presetName.Equals(Presets[0], StringComparison.OrdinalIgnoreCase) ) { // Flatgrass (default)
                 return GetDefaultParameters();
 
-            } else if( presetName == Presets[1] ) { // Empty
-                return new FlatMapGenParameters {
-                    SurfaceThickness = 0,
-                    SoilThickness = 0,
-                    BedrockThickness = 0,
-                    DeepBlock = Block.Air
-                };
-
-            } else if( presetName == Presets[2] ) { // Ocean
-                return new FlatMapGenParameters {
+            } else if( presetName.Equals( Presets[1], StringComparison.OrdinalIgnoreCase ) ) {
+                return new FlatMapGenParameters( this ) {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
                     BedrockThickness = 0,
                     DeepBlock = Block.Water
                 };
-
-            } else {
-                MapGenTheme theme;
+            }else{
+            MapGenTheme theme;
                 if( EnumUtil.TryParse( presetName, out theme, true ) ) {
-                    FlatMapGenParameters genParams = new FlatMapGenParameters();
+                    FlatMapGenParameters genParams = new FlatMapGenParameters(this);
                     genParams.ApplyTheme( theme );
                     return genParams;
                 } else {
@@ -96,31 +83,12 @@ namespace fCraft {
 
         [NotNull]
         public static MapGeneratorState MakeFlatgrass( int width, int length, int height ) {
-            return MakePreset( width, length, height, 0 );
-        }
-
-
-        [NotNull]
-        public static MapGeneratorState MakeEmpty( int width, int length, int height ) {
-            return MakePreset( width, length, height, 1 );
-        }
-
-
-        [NotNull]
-        public static MapGeneratorState MakeOcean( int width, int length, int height ) {
-            return MakePreset( width, length, height, 2 );
-        }
-
-
-        static MapGeneratorState MakePreset( int width, int length, int height, int index ) {
-            MapGeneratorParameters preset = Instance.CreateParameters( Instance.Presets[index] );
+            MapGeneratorParameters preset = Instance.GetDefaultParameters();
             preset.MapWidth = width;
             preset.MapLength = length;
             preset.MapHeight = height;
             return preset.CreateGenerator();
         }
-
-        #endregion
     }
 
 
@@ -172,8 +140,8 @@ namespace fCraft {
         public Block BedrockBlock { get; set; }
 
 
-        public FlatMapGenParameters() {
-            Generator = FlatMapGen.Instance;
+        public FlatMapGenParameters( FlatMapGen generator ) {
+            Generator = generator;
             ApplyTheme( MapGenTheme.Forest );
         }
 
@@ -217,8 +185,8 @@ namespace fCraft {
         }
 
 
-        public FlatMapGenParameters( XElement el )
-            : this() {
+        public FlatMapGenParameters( FlatMapGen generator, XElement el )
+            : this( generator ) {
             base.LoadProperties( el );
         }
     }
