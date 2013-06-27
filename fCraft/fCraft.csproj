@@ -115,6 +115,7 @@
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
+    <Compile Include="MapGeneration\EmptyMapGen.cs" />
     <Compile Include="MapGeneration\FloatingIslandMapGen.cs" />
     <Compile Include="MapGeneration\FlatMapGen.cs" />
     <Compile Include="MapGeneration\MapGenTemplate.cs" />

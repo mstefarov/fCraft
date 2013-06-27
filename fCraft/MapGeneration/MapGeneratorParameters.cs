@@ -46,7 +46,7 @@ namespace fCraft {
 
 
         /// <summary> Loads generation parameters from XML.
-        /// All read-write public properties, except those with [NotSerialized] attribute, are considered.
+        /// All read-write public properties, except those with [XmlIgnore] attribute, are considered.
         /// If no corresponding XML element exists, property value is unchanged. </summary>
         /// <param name="baseElement"> Element from which parameters are read.
         /// Each property corresponds to a child element. </param>

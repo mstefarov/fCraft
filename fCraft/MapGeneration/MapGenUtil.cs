@@ -14,6 +14,7 @@ namespace fCraft {
 
         static MapGenUtil() {
             RegisterGenerator( FlatMapGen.Instance );
+            RegisterGenerator( EmptyMapGen.Instance );
             RegisterGenerator( RealisticMapGen.Instance );
             RegisterGenerator( VanillaMapGen.Instance );
             RegisterGenerator( FloatingIslandMapGen.Instance );
