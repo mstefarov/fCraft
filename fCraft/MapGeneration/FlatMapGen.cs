@@ -12,7 +12,6 @@ namespace fCraft {
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
-                "Default (Flatgrass)",
                 "Ocean"
             };
             foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
@@ -23,7 +22,6 @@ namespace fCraft {
 
             Instance = new FlatMapGen {
                 Name = "Flat",
-                Version = new Version( 1, 0 ),
                 Presets = presetList.ToArray()
             };
         }
@@ -56,26 +54,24 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                throw new ArgumentNullException( "presetName" );
-            }
-            if( presetName.Equals(Presets[0], StringComparison.OrdinalIgnoreCase) ) { // Flatgrass (default)
                 return GetDefaultParameters();
 
-            } else if( presetName.Equals( Presets[1], StringComparison.OrdinalIgnoreCase ) ) {
+            } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
                 return new FlatMapGenParameters( this ) {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
                     BedrockThickness = 0,
                     DeepBlock = Block.Water
                 };
-            }else{
-            MapGenTheme theme;
+
+            } else {
+                MapGenTheme theme;
                 if( EnumUtil.TryParse( presetName, out theme, true ) ) {
-                    FlatMapGenParameters genParams = new FlatMapGenParameters(this);
+                    FlatMapGenParameters genParams = new FlatMapGenParameters( this );
                     genParams.ApplyTheme( theme );
                     return genParams;
                 } else {
-                    throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name." );
+                    return null;
                 }
             }
         }

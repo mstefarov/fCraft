@@ -9,9 +9,7 @@ namespace fCraft {
 
         static VanillaMapGen() {
             Instance = new VanillaMapGen {
-                Name = "Vanilla",
-                Version = new Version( 1, 0 ),
-                Presets = new[] {"Default"}
+                Name = "Vanilla"
             };
         }
 
@@ -25,14 +23,14 @@ namespace fCraft {
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            return new VanillaMapGenParameters();
+            throw new NotImplementedException(); // TODO
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == Presets[0] ) {
+            if( presetName == null ) {
                 return GetDefaultParameters();
             } else {
-                throw new ArgumentOutOfRangeException( "presetName", "Unrecognized preset name" );
+                return null;
             }
         }
     }
