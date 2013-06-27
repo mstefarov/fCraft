@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 using fCraft.GUI;
 using fCraft.MapConversion;
 
@@ -500,13 +501,12 @@ namespace fCraft.ConfigGUI {
 
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
-            genGui.SetParameters( generator.GetDefaultParameters() );
-            SignalMapDimensionChange();
+            SetGenParams( generator.GetDefaultParameters() );
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
 
             // clear existing presets
-            for( int i = tsbLoadPreset.DropDownItems.Count; i > 2; i-- ) {
+            for( int i = tsbLoadPreset.DropDownItems.Count; i > 4; i-- ) {
                 var item = tsbLoadPreset.DropDownItems[0];
                 tsbLoadPreset.DropDownItems.RemoveAt( 0 );
                 item.Dispose();
@@ -519,7 +519,11 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        void SignalMapDimensionChange() {
+        void SetGenParams( [NotNull] MapGeneratorParameters genParams ) {
+            if( genParams == null ) {
+                throw new ArgumentNullException( "genParams" );
+            }
+            genGui.SetParameters( genParams );
             genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
         }
 
@@ -861,8 +865,7 @@ Could not load more information:
                         return;
                     }
                     SelectGenerator( genParams.Generator );
-                    genGui.SetParameters( genParams );
-                    SignalMapDimensionChange();
+                    SetGenParams( genParams );
                     tStatus1.Text = "Imported map generation from " + fileName;
 
                 } catch( MapGenUtil.UnknownMapGeneratorException ex ) {
@@ -884,21 +887,38 @@ Could not load more information:
 
 
         void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            if( e.ClickedItem == tsbLoadPresetFromFile || e.ClickedItem is ToolStripSeparator ) {
+            if( e.ClickedItem == tsbLoadPresetFromFile ) {
                 BeginInvoke( (Action)LoadPresetFromFile ); // allow menu to close
-                return;
-            }
-            try {
-                MapGeneratorParameters mapGenParams = generator.CreateParameters( e.ClickedItem.Text );
-                genGui.SetParameters( mapGenParams );
-                SignalMapDimensionChange();
 
-            } catch( Exception ex ) {
-                MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex,
-                                 "Error loading preset",
-                                 MessageBoxButtons.OK,
-                                 MessageBoxIcon.Error );
+            } else if( e.ClickedItem == tsbDefaultPreset ) {
+                SetGenParams( generator.GetDefaultParameters() );
+
+            } else if( e.ClickedItem is ToolStripSeparator ) {
+                BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
+                tsbLoadPreset.DropDown.AutoClose = false;
+
+            } else {
+                try {
+                    string presetName = e.ClickedItem.Text;
+                    MapGeneratorParameters genParams = generator.CreateParameters( presetName );
+                    if( genParams == null ) {
+                        ShowPresetLoadError( "Preset {0} was not recognized by {1}", presetName, generator.Name );
+                    } else {
+                        SetGenParams( genParams );
+                    }
+
+                } catch( Exception ex ) {
+                    ShowPresetLoadError( ex.GetType().Name + Environment.NewLine + ex );
+                }
             }
+        }
+
+        [StringFormatMethod("message")]
+        void ShowPresetLoadError( string message, params object[] formatParams ) {
+            MessageBox.Show( String.Format(message,formatParams),
+                             "Error loading preset",
+                             MessageBoxButtons.OK,
+                             MessageBoxIcon.Error );
         }
 
 
@@ -930,8 +950,7 @@ Could not load more information:
             }
             SelectGenerator( gen );
             MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
-            genGui.SetParameters( genParams );
-            SignalMapDimensionChange();
+            SetGenParams( genParams );
         }
 
         #endregion

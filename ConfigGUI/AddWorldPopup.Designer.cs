@@ -27,6 +27,7 @@
             System.Windows.Forms.ToolStripSeparator tsSeparator2;
             System.Windows.Forms.ToolStripSeparator tsSeparator3;
             System.Windows.Forms.ToolStripSeparator tsSeparator4;
+            System.Windows.Forms.ToolStripSeparator tsSeparator5;
             this.bShow = new System.Windows.Forms.Button();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
@@ -71,7 +72,10 @@
             this.tabTerrain = new System.Windows.Forms.TabPage();
             this.tsGenPresets = new System.Windows.Forms.ToolStrip();
             this.tsbLoadPreset = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbDefaultPreset = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbLoadPresetFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
@@ -89,12 +93,11 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
-            this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
-            this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
             tsSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            tsSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
@@ -122,7 +125,17 @@
             // tsSeparator3
             // 
             tsSeparator3.Name = "tsSeparator3";
-            tsSeparator3.Size = new System.Drawing.Size(149, 6);
+            tsSeparator3.Size = new System.Drawing.Size(127, 6);
+            // 
+            // tsSeparator4
+            // 
+            tsSeparator4.Name = "tsSeparator4";
+            tsSeparator4.Size = new System.Drawing.Size(151, 6);
+            // 
+            // tsSeparator5
+            // 
+            tsSeparator5.Name = "tsSeparator5";
+            tsSeparator5.Size = new System.Drawing.Size(127, 6);
             // 
             // bShow
             // 
@@ -598,12 +611,13 @@
             this.tsGenPresets.Name = "tsGenPresets";
             this.tsGenPresets.Size = new System.Drawing.Size(390, 25);
             this.tsGenPresets.TabIndex = 30;
-            this.tsGenPresets.Text = "toolStrip1";
             // 
             // tsbLoadPreset
             // 
             this.tsbLoadPreset.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             tsSeparator3,
+            this.tsbDefaultPreset,
+            tsSeparator5,
             this.tsbLoadPresetFromFile});
             this.tsbLoadPreset.Image = global::fCraft.ConfigGUI.Properties.Resources.maps_stack;
             this.tsbLoadPreset.ImageTransparentColor = System.Drawing.Color.Magenta;
@@ -612,11 +626,35 @@
             this.tsbLoadPreset.Text = "Load Preset";
             this.tsbLoadPreset.ToolTipText = "Choose one of standard presets, or load a custom one from file.";
             // 
+            // tsbDefaultPreset
+            // 
+            this.tsbDefaultPreset.Name = "tsbDefaultPreset";
+            this.tsbDefaultPreset.Size = new System.Drawing.Size(130, 22);
+            this.tsbDefaultPreset.Text = "Defaults";
+            // 
             // tsbLoadPresetFromFile
             // 
             this.tsbLoadPresetFromFile.Name = "tsbLoadPresetFromFile";
-            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(152, 22);
+            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(130, 22);
             this.tsbLoadPresetFromFile.Text = "From file...";
+            // 
+            // tsbImportSettings
+            // 
+            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            tsSeparator4,
+            this.tsbImportSettingsFromFile});
+            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
+            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImportSettings.Name = "tsbImportSettings";
+            this.tsbImportSettings.Size = new System.Drawing.Size(117, 22);
+            this.tsbImportSettings.Text = "Import Settings";
+            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
+            // 
+            // tsbImportSettingsFromFile
+            // 
+            this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
+            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
+            this.tsbImportSettingsFromFile.Text = "From mapfile...";
             // 
             // tsbSavePreset
             // 
@@ -843,29 +881,6 @@
             this.cBlockDB.TabIndex = 21;
             this.cBlockDB.SelectedIndexChanged += new System.EventHandler(this.cBlockDB_SelectedIndexChanged);
             // 
-            // tsbImportSettings
-            // 
-            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            tsSeparator4,
-            this.tsbImportSettingsFromFile});
-            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
-            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImportSettings.Name = "tsbImportSettings";
-            this.tsbImportSettings.Size = new System.Drawing.Size(117, 22);
-            this.tsbImportSettings.Text = "Import Settings";
-            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
-            // 
-            // tsbImportSettingsFromFile
-            // 
-            this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
-            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
-            this.tsbImportSettingsFromFile.Text = "From mapfile...";
-            // 
-            // tsSeparator4
-            // 
-            tsSeparator4.Name = "tsSeparator4";
-            tsSeparator4.Size = new System.Drawing.Size(149, 6);
-            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -985,5 +1000,6 @@
         private System.Windows.Forms.ToolStripMenuItem tsbLoadPresetFromFile;
         private System.Windows.Forms.ToolStripDropDownButton tsbImportSettings;
         private System.Windows.Forms.ToolStripMenuItem tsbImportSettingsFromFile;
+        private System.Windows.Forms.ToolStripMenuItem tsbDefaultPreset;
     }
 }
