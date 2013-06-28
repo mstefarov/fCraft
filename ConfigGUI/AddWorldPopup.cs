@@ -10,9 +10,9 @@ using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using JetBrains.Annotations;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using JetBrains.Annotations;
 
 
 namespace fCraft.ConfigGUI {
@@ -501,7 +501,7 @@ namespace fCraft.ConfigGUI {
 
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
-            SetGenParams( generator.GetDefaultParameters() );
+            SetGenParams( generator.CreateDefaultParameters() );
             generatorParamsPanel.ResumeLayout();
             generatorParamsPanel.PerformLayout();
 
@@ -513,7 +513,8 @@ namespace fCraft.ConfigGUI {
             }
 
             // add new presets
-            foreach( string presetName in generator.Presets ) {
+            tsbDefaultPreset.Text = generator.Presets[0];
+            foreach( string presetName in generator.Presets.Skip( 1 ) ) {
                 tsbLoadPreset.DropDownItems.Insert( 0, new ToolStripMenuItem( presetName ) );
             }
         }
@@ -614,6 +615,196 @@ namespace fCraft.ConfigGUI {
                     break;
             }
         }
+
+
+        #region Generator Presets
+
+        SaveFileDialog savePresetDialog;
+
+        void tsbSavePreset_Click( object sender, EventArgs e ) {
+            var genParams = genGui.GetParameters();
+            if( savePresetDialog == null ) {
+                savePresetDialog = new SaveFileDialog {
+                    Filter = "fCraft MapGen Preset|*.fmgp|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
+                };
+            }
+            savePresetDialog.FileName = genParams.Generator.Name + "_preset.fmgp";
+            if( savePresetDialog.ShowDialog() == DialogResult.OK ) {
+                XElement root = new XElement( "fCraftMapGenPreset" );
+                root.Add( new XElement( "Generator", genParams.Generator.Name ) );
+                root.Add( new XElement( "Version", genParams.Generator.Version ) );
+                XElement genParamsEl = new XElement( "Parameters" );
+                genParams.Save( genParamsEl );
+                root.Add( genParamsEl );
+                root.Save( savePresetDialog.FileName );
+            }
+        }
+
+
+        OpenFileDialog importSettingsDialog;
+
+        void ImportSettingsFromFile() {
+            if( importSettingsDialog == null ) {
+                importSettingsDialog = new OpenFileDialog {
+                    Filter = "All supported formats|*.fcm;*.ftpl|" +
+                             "fCraft Map|*.fcm|" +
+                             "fCraft Map Template (Legacy)|*.ftpl|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
+                };
+            }
+            if( importSettingsDialog.ShowDialog() == DialogResult.OK ) {
+                string fullFileName = importSettingsDialog.FileName;
+                string fileName = Path.GetFileName( fullFileName );
+                if( fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                    Map ourMap;
+                    if( MapUtility.TryLoadHeader( fullFileName, false, out ourMap ) ) {
+                        MapGenParamsFromMap( fileName, ourMap );
+                    } else {
+                        MessageBox.Show( "Could not load map file!" );
+                    }
+
+                } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
+                    XDocument doc = XDocument.Load( fullFileName );
+                    XElement root = doc.Root;
+                    MessageBox.Show( "TODO" ); // TODO
+
+                } else {
+                    MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
+                }
+            }
+        }
+
+
+        void tsbImportSettings_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            WorldListEntry entry = e.ClickedItem.Tag as WorldListEntry;
+            if( entry == null ) {
+                BeginInvoke( (Action)ImportSettingsFromFile ); // allow menu to close
+                return;
+            }
+
+            Map ourMap;
+            if( MapUtility.TryLoadHeader( entry.FullFileName, false, out ourMap ) ) {
+                MapGenParamsFromMap( entry.FileName, ourMap );
+            } else {
+                MessageBox.Show( "Could not load map file!" );
+            }
+        }
+
+
+        void MapGenParamsFromMap( string fileName, Map ourMap ) {
+            tStatus2.Text = "";
+
+            string oldData;
+            if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
+                // load legacy (pre-0.640) embedded generation parameters
+                MessageBox.Show( "TODO: legacy map loading" ); // TODO
+
+            } else {
+                // load modern (0.640+) embedded generation parameters
+                try {
+                    MapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
+                    if( genParams == null ) {
+                        tStatus1.Text = "No generation parameters found in " + fileName;
+                        MessageBox.Show(
+                            "No embedded map generation parameters found in " + fileName,
+                            "No generation parameters found",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning );
+                        return;
+                    }
+                    SelectGenerator( genParams.Generator );
+                    SetGenParams( genParams );
+                    tStatus1.Text = "Imported map generation from " + fileName;
+
+                } catch( MapGenUtil.UnknownMapGeneratorException ex ) {
+                    tStatus1.Text = "No matching generator found for " + fileName;
+                    MessageBox.Show( "Could not find a matching map generator for \"" + ex.GeneratorName + "\"",
+                                     "Missing map generator",
+                                     MessageBoxButtons.OK,
+                                     MessageBoxIcon.Warning );
+
+                } catch( Exception ex ) {
+                    tStatus1.Text = "Error loading parameters from " + fileName;
+                    MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex.Message,
+                                     "Error loading parameters from " + fileName,
+                                     MessageBoxButtons.OK,
+                                     MessageBoxIcon.Warning );
+                }
+            }
+        }
+
+
+        void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
+            if( e.ClickedItem == tsbLoadPresetFromFile ) {
+                BeginInvoke( (Action)LoadPresetFromFile ); // allow menu to close
+
+            } else if( e.ClickedItem == tsbDefaultPreset ) {
+                SetGenParams( generator.CreateDefaultParameters() );
+
+            } else if( e.ClickedItem is ToolStripSeparator ) {
+                BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
+                tsbLoadPreset.DropDown.AutoClose = false;
+
+            } else {
+                try {
+                    string presetName = e.ClickedItem.Text;
+                    MapGeneratorParameters genParams = generator.CreateParameters( presetName );
+                    if( genParams == null ) {
+                        ShowPresetLoadError( "Preset {0} was not recognized by {1}", presetName, generator.Name );
+                    } else {
+                        SetGenParams( genParams );
+                    }
+
+                } catch( Exception ex ) {
+                    ShowPresetLoadError( ex.GetType().Name + Environment.NewLine + ex );
+                }
+            }
+        }
+
+        [StringFormatMethod( "message" )]
+        void ShowPresetLoadError( string message, params object[] formatParams ) {
+            MessageBox.Show( String.Format( message, formatParams ),
+                             "Error loading preset",
+                             MessageBoxButtons.OK,
+                             MessageBoxIcon.Error );
+        }
+
+
+        OpenFileDialog loadPresetDialog;
+
+        void LoadPresetFromFile() {
+            if( loadPresetDialog == null ) {
+                loadPresetDialog = new OpenFileDialog {
+                    Filter = "fCraft MapGen Preset|*.fmgp|" +
+                             "All files|*.*",
+                    InitialDirectory = Paths.MapPath
+                };
+            }
+            if( loadPresetDialog.ShowDialog() != DialogResult.OK ) {
+                return;
+            }
+            string fullFileName = loadPresetDialog.FileName;
+            XDocument doc = XDocument.Load( fullFileName );
+            XElement root = doc.Root;
+            string genName = root.Element( "Generator" ).Value;
+            MapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
+            string versionMismatchMsg =
+                String.Format( "This preset was made for a different version of {0} map generator. Continue?",
+                               gen.Name );
+            if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
+                MessageBox.Show( versionMismatchMsg, "Version mismatch", MessageBoxButtons.YesNo ) !=
+                DialogResult.Yes ) {
+                return;
+            }
+            SelectGenerator( gen );
+            MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
+            SetGenParams( genParams );
+        }
+
+        #endregion
 
         #endregion
 
@@ -764,195 +955,5 @@ Could not load more information:
                 }
             }
         }
-
-
-        #region Generator Presets
-
-        SaveFileDialog savePresetDialog;
-
-        void tsbSavePreset_Click( object sender, EventArgs e ) {
-            var genParams = genGui.GetParameters();
-            if( savePresetDialog == null ) {
-                savePresetDialog = new SaveFileDialog {
-                    Filter = "fCraft MapGen Preset|*.fmgp|" +
-                             "All files|*.*",
-                    InitialDirectory = Paths.MapPath
-                };
-            }
-            savePresetDialog.FileName = genParams.Generator.Name + "_preset.fmgp";
-            if( savePresetDialog.ShowDialog() == DialogResult.OK ) {
-                XElement root = new XElement( "fCraftMapGenPreset" );
-                root.Add( new XElement( "Generator", genParams.Generator.Name ) );
-                root.Add( new XElement( "Version", genParams.Generator.Version ) );
-                XElement genParamsEl = new XElement( "Parameters" );
-                genParams.Save( genParamsEl );
-                root.Add( genParamsEl );
-                root.Save( savePresetDialog.FileName );
-            }
-        }
-
-
-        OpenFileDialog importSettingsDialog;
-
-        void ImportSettingsFromFile() {
-            if( importSettingsDialog == null ) {
-                importSettingsDialog = new OpenFileDialog {
-                    Filter = "All supported formats|*.fcm;*.ftpl|" +
-                             "fCraft Map|*.fcm|" +
-                             "fCraft Map Template (Legacy)|*.ftpl|" +
-                             "All files|*.*",
-                    InitialDirectory = Paths.MapPath
-                };
-            }
-            if( importSettingsDialog.ShowDialog() == DialogResult.OK ) {
-                string fullFileName = importSettingsDialog.FileName;
-                string fileName = Path.GetFileName( fullFileName );
-                if( fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
-                    Map ourMap;
-                    if( MapUtility.TryLoadHeader( fullFileName, false, out ourMap ) ) {
-                        MapGenParamsFromMap( fileName, ourMap );
-                    } else {
-                        MessageBox.Show( "Could not load map file!" );
-                    }
-
-                } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
-                    XDocument doc = XDocument.Load( fullFileName );
-                    XElement root = doc.Root;
-                    MessageBox.Show( "TODO" ); // TODO
-
-                } else {
-                    MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
-                }
-            }
-        }
-
-
-        void tsbImportSettings_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            WorldListEntry entry = e.ClickedItem.Tag as WorldListEntry;
-            if( entry == null ) {
-                BeginInvoke( (Action)ImportSettingsFromFile ); // allow menu to close
-                return;
-            }
-
-            Map ourMap;
-            if( MapUtility.TryLoadHeader( entry.FullFileName, false, out ourMap ) ) {
-                MapGenParamsFromMap( entry.FileName, ourMap );
-            } else {
-                MessageBox.Show( "Could not load map file!" );
-            }
-        }
-
-
-        void MapGenParamsFromMap( string fileName, Map ourMap ) {
-            tStatus2.Text = "";
-
-            string oldData;
-            if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
-                // load legacy (pre-0.640) embedded generation parameters
-                MessageBox.Show( "TODO: legacy map loading" ); // TODO
-
-            } else {
-                // load modern (0.640+) embedded generation parameters
-                try {
-                    MapGeneratorParameters genParams = MapGenUtil.LoadParamsFromMap( ourMap );
-                    if( genParams == null ) {
-                        tStatus1.Text = "No generation parameters found in " + fileName;
-                        MessageBox.Show(
-                            "No embedded map generation parameters found in " + fileName,
-                            "No generation parameters found",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning );
-                        return;
-                    }
-                    SelectGenerator( genParams.Generator );
-                    SetGenParams( genParams );
-                    tStatus1.Text = "Imported map generation from " + fileName;
-
-                } catch( MapGenUtil.UnknownMapGeneratorException ex ) {
-                    tStatus1.Text = "No matching generator found for " + fileName;
-                    MessageBox.Show( "Could not find a matching map generator for \"" + ex.GeneratorName + "\"",
-                                     "Missing map generator",
-                                     MessageBoxButtons.OK,
-                                     MessageBoxIcon.Warning );
-
-                } catch( Exception ex ) {
-                    tStatus1.Text = "Error loading parameters from " + fileName;
-                    MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex.Message,
-                                     "Error loading parameters from " + fileName,
-                                     MessageBoxButtons.OK,
-                                     MessageBoxIcon.Warning );
-                }
-            }
-        }
-
-
-        void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
-            if( e.ClickedItem == tsbLoadPresetFromFile ) {
-                BeginInvoke( (Action)LoadPresetFromFile ); // allow menu to close
-
-            } else if( e.ClickedItem == tsbDefaultPreset ) {
-                SetGenParams( generator.GetDefaultParameters() );
-
-            } else if( e.ClickedItem is ToolStripSeparator ) {
-                BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
-                tsbLoadPreset.DropDown.AutoClose = false;
-
-            } else {
-                try {
-                    string presetName = e.ClickedItem.Text;
-                    MapGeneratorParameters genParams = generator.CreateParameters( presetName );
-                    if( genParams == null ) {
-                        ShowPresetLoadError( "Preset {0} was not recognized by {1}", presetName, generator.Name );
-                    } else {
-                        SetGenParams( genParams );
-                    }
-
-                } catch( Exception ex ) {
-                    ShowPresetLoadError( ex.GetType().Name + Environment.NewLine + ex );
-                }
-            }
-        }
-
-        [StringFormatMethod("message")]
-        void ShowPresetLoadError( string message, params object[] formatParams ) {
-            MessageBox.Show( String.Format(message,formatParams),
-                             "Error loading preset",
-                             MessageBoxButtons.OK,
-                             MessageBoxIcon.Error );
-        }
-
-
-        OpenFileDialog loadPresetDialog;
-
-        void LoadPresetFromFile() {
-            if( loadPresetDialog == null ) {
-                loadPresetDialog = new OpenFileDialog {
-                    Filter = "fCraft MapGen Preset|*.fmgp|" +
-                             "All files|*.*",
-                    InitialDirectory = Paths.MapPath
-                };
-            }
-            if( loadPresetDialog.ShowDialog() != DialogResult.OK ) {
-                return;
-            }
-            string fullFileName = loadPresetDialog.FileName;
-            XDocument doc = XDocument.Load( fullFileName );
-            XElement root = doc.Root;
-            string genName = root.Element( "Generator" ).Value;
-            MapGenerator gen = MapGenUtil.GetGeneratorByName( genName );
-            string versionMismatchMsg =
-                String.Format( "This preset was made for a different version of {0} map generator. Continue?",
-                               gen.Name );
-            if( gen.Version != new Version( root.Element( "Version" ).Value ) &&
-                MessageBox.Show( versionMismatchMsg, "Version mismatch", MessageBoxButtons.YesNo ) !=
-                DialogResult.Yes ) {
-                return;
-            }
-            SelectGenerator( gen );
-            MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
-            SetGenParams( genParams );
-        }
-
-        #endregion
     }
 }

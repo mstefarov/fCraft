@@ -8,10 +8,12 @@ namespace fCraft {
     /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
     public sealed class FlatMapGen : MapGenerator {
         public static FlatMapGen Instance { get; private set; }
+
         FlatMapGen() {}
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
+                "Default (Flatgrass)",
                 "Ocean"
             };
             foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
@@ -27,7 +29,7 @@ namespace fCraft {
         }
 
 
-        public override MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters CreateDefaultParameters() {
             return new FlatMapGenParameters();
         }
 
@@ -54,9 +56,12 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                return GetDefaultParameters();
+                throw new ArgumentNullException( "presetName" );
 
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
+                return CreateDefaultParameters();
+
+            } else if( presetName.Equals( Presets[1], StringComparison.OrdinalIgnoreCase ) ) {
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
@@ -79,7 +84,7 @@ namespace fCraft {
 
         [NotNull]
         public static MapGeneratorState MakeFlatgrass( int width, int length, int height ) {
-            MapGeneratorParameters preset = Instance.GetDefaultParameters();
+            MapGeneratorParameters preset = Instance.CreateDefaultParameters();
             preset.MapWidth = width;
             preset.MapLength = length;
             preset.MapHeight = height;
@@ -92,7 +97,7 @@ namespace fCraft {
         [Category( "Layers" )]
         [Description( "Number of blocks (positive or negative) by which the ground level of the map " +
                       "should be offset. Positive values make it higher, negative values make it lower." )]
-        [DefaultValue(0)]
+        [DefaultValue( 0 )]
         public int GroundLevelOffset { get; set; }
 
         [Category( "Layers" )]

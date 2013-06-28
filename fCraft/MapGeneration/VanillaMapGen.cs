@@ -5,6 +5,7 @@ using System.Xml.Linq;
 namespace fCraft {
     public class VanillaMapGen : MapGenerator {
         public static VanillaMapGen Instance { get; private set; }
+
         VanillaMapGen() {}
 
         static VanillaMapGen() {
@@ -14,7 +15,7 @@ namespace fCraft {
         }
 
 
-        public override MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters CreateDefaultParameters() {
             return new VanillaMapGenParameters();
         }
 
@@ -28,7 +29,9 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                return GetDefaultParameters();
+                throw new ArgumentNullException( "presetName" );
+            } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
+                return CreateDefaultParameters();
             } else {
                 return null;
             }

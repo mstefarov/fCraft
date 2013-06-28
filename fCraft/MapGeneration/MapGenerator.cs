@@ -9,7 +9,7 @@ namespace fCraft {
     public abstract class MapGenerator {
         protected MapGenerator() {
             Version = new Version( 1, 0 );
-            Presets = new string[0];
+            Presets = new[] {"Defaults"};
         }
 
         /// <summary> Name of the map generator. Uses same rules as command and world names. </summary>
@@ -27,7 +27,7 @@ namespace fCraft {
 
         /// <summary> Creates a IMapGeneratorParameters object containing default parameters. </summary>
         [NotNull]
-        public abstract MapGeneratorParameters GetDefaultParameters();
+        public abstract MapGeneratorParameters CreateDefaultParameters();
 
         /// <summary> Parses serialized map generation parameters into a IMapGeneratorParameters object,
         /// (to load settings stored in template files or map metadata). </summary>
@@ -40,10 +40,11 @@ namespace fCraft {
         [CanBeNull]
         public abstract MapGeneratorParameters CreateParameters( [NotNull] Player player, [NotNull] CommandReader cmd );
 
-        /// <summary> Creates parameters for a given preset name. </summary>
+        /// <summary> Creates parameters for a given preset name.
+        /// Returns null if preset name was not recognized. Throws exceptions in case of other failures. </summary>
         /// <param name="presetName"> Name of preset. May be null (meaning "return defaults"). </param>
         /// <returns> MapGeneratorParameters object for given preset; null if presetName was not recongized. </returns>
         [CanBeNull]
-        public abstract MapGeneratorParameters CreateParameters( [CanBeNull] string presetName );
+        public abstract MapGeneratorParameters CreateParameters( [NotNull] string presetName );
     }
 }
