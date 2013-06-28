@@ -5,7 +5,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains parameters for advanced map generation. </summary>
-    public sealed partial class RealisticMapGenParameters : MapGeneratorParameters {
+    public sealed class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;
 
         public int   Seed { get; set; }
@@ -311,9 +311,6 @@ namespace fCraft {
 
             Validate();
         }
-
-
-        const string LegacyRootTagName = "fCraftMapGeneratorArgs";
 
 
         public override void Save( XElement root ) {

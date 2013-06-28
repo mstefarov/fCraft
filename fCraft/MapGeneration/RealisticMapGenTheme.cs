@@ -215,34 +215,59 @@ namespace fCraft {
         }
 
 
+        #region Equality members
+
         public override bool Equals( object obj ) {
-            RealisticMapGenTheme other = obj as RealisticMapGenTheme;
-            if( other != null ) {
-                return Equals( other );
-            } else if( obj == null ) {
-                throw new ArgumentNullException( "obj" );
-            } else {
+            if( ReferenceEquals( null, obj ) ) {
                 return false;
+            }else if( ReferenceEquals( this, obj ) ) {
+                return true;
+            }else if( obj.GetType() != GetType() ) {
+                return false;
+            } else {
+                return Equals( (RealisticMapGenTheme)obj );
             }
         }
 
 
         public bool Equals( RealisticMapGenTheme other ) {
-            if( other == null ) return false;
-            return AirBlock == other.AirBlock &&
-                   WaterSurfaceBlock == other.WaterSurfaceBlock &&
-                   GroundSurfaceBlock == other.GroundSurfaceBlock &&
-                   WaterBlock == other.WaterBlock &&
-                   GroundBlock == other.GroundBlock &&
-                   SeaFloorBlock == other.SeaFloorBlock &&
-                   BedrockBlock == other.BedrockBlock &&
-                   DeepWaterSurfaceBlock == other.DeepWaterSurfaceBlock &&
-                   CliffBlock == other.CliffBlock &&
-                   SnowBlock == other.SnowBlock &&
-                   FoliageBlock == other.FoliageBlock &&
-                   TreeTrunkBlock == other.TreeTrunkBlock &&
-                   GroundThickness == other.GroundThickness &&
+            if( ReferenceEquals( null, other ) ) {
+                return false;
+            }
+            if( ReferenceEquals( this, other ) ) {
+                return true;
+            }
+            return Theme == other.Theme && AirBlock == other.AirBlock && WaterSurfaceBlock == other.WaterSurfaceBlock &&
+                   GroundSurfaceBlock == other.GroundSurfaceBlock && WaterBlock == other.WaterBlock &&
+                   GroundBlock == other.GroundBlock && SeaFloorBlock == other.SeaFloorBlock &&
+                   BedrockBlock == other.BedrockBlock && DeepWaterSurfaceBlock == other.DeepWaterSurfaceBlock &&
+                   CliffBlock == other.CliffBlock && SnowBlock == other.SnowBlock && FoliageBlock == other.FoliageBlock &&
+                   TreeTrunkBlock == other.TreeTrunkBlock && GroundThickness == other.GroundThickness &&
                    SeaFloorThickness == other.SeaFloorThickness;
         }
+
+
+        public override int GetHashCode() {
+            unchecked {
+                int hashCode = (int)Theme;
+                hashCode = (hashCode * 397) ^ (int)AirBlock;
+                hashCode = (hashCode * 397) ^ (int)WaterSurfaceBlock;
+                hashCode = (hashCode * 397) ^ (int)GroundSurfaceBlock;
+                hashCode = (hashCode * 397) ^ (int)WaterBlock;
+                hashCode = (hashCode * 397) ^ (int)GroundBlock;
+                hashCode = (hashCode * 397) ^ (int)SeaFloorBlock;
+                hashCode = (hashCode * 397) ^ (int)BedrockBlock;
+                hashCode = (hashCode * 397) ^ (int)DeepWaterSurfaceBlock;
+                hashCode = (hashCode * 397) ^ (int)CliffBlock;
+                hashCode = (hashCode * 397) ^ (int)SnowBlock;
+                hashCode = (hashCode * 397) ^ (int)FoliageBlock;
+                hashCode = (hashCode * 397) ^ (int)TreeTrunkBlock;
+                hashCode = (hashCode * 397) ^ GroundThickness;
+                hashCode = (hashCode * 397) ^ SeaFloorThickness;
+                return hashCode;
+            }
+        }
+
+        #endregion
     }
 }

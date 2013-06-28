@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace fCraft {
@@ -11,6 +12,8 @@ namespace fCraft {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
                 Presets = Enum.GetNames( typeof( MapGenTemplate ) )
+                              .Where( n => n != MapGenTemplate.Default.ToString() )
+                              .ToArray()
             };
         }
 
@@ -37,7 +40,11 @@ namespace fCraft {
             }
             MapGenTemplate template;
             if( EnumUtil.TryParse( presetName, out template, true ) ) {
-                return CreateParameters( template );
+                if( template != MapGenTemplate.Default ) {
+                    return CreateParameters( template );
+                } else {
+                    return null;
+                }
             } else {
                 return null;
             }

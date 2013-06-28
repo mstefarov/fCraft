@@ -1,8 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
-using System.ComponentModel;
 using System.Linq;
-using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
