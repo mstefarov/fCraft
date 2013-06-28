@@ -1,4 +1,5 @@
-﻿using System.Xml.Linq;
+﻿using System;
+using System.Xml.Linq;
 
 namespace fCraft {
     public sealed class EmptyMapGen : MapGenerator {
@@ -10,12 +11,12 @@ namespace fCraft {
             };
         }
 
-        public override MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters CreateDefaultParameters() {
             return new EmptyMapGenParams();
         }
 
         public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
-            return GetDefaultParameters();
+            return CreateDefaultParameters();
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
@@ -23,13 +24,15 @@ namespace fCraft {
                 player.Message( "Empty map generator does not take any parameters." );
                 return null;
             } else {
-                return GetDefaultParameters();
+                return CreateDefaultParameters();
             }
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                return GetDefaultParameters();
+                throw new ArgumentNullException( "presetName" );
+            } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
+                return CreateDefaultParameters();
             } else {
                 return null;
             }

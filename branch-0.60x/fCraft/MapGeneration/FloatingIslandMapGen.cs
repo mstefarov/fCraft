@@ -5,6 +5,7 @@ using System.Xml.Linq;
 namespace fCraft {
     public class FloatingIslandMapGen : MapGenerator {
         public static FloatingIslandMapGen Instance { get; private set; }
+
         FloatingIslandMapGen() {}
 
         static FloatingIslandMapGen() {
@@ -13,7 +14,7 @@ namespace fCraft {
             };
         }
 
-        public override MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters CreateDefaultParameters() {
             return new FloatingIslandMapGenParameters();
         }
 
@@ -27,7 +28,9 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                return GetDefaultParameters();
+                throw new ArgumentNullException( "presetName" );
+            } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
+                return CreateDefaultParameters();
             } else {
                 // TODO: presets
                 throw new NotImplementedException();

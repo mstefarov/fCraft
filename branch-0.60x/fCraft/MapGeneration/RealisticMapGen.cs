@@ -12,13 +12,11 @@ namespace fCraft {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
                 Presets = Enum.GetNames( typeof( MapGenTemplate ) )
-                              .Where( n => n != MapGenTemplate.Default.ToString() )
-                              .ToArray()
             };
         }
 
 
-        public override MapGeneratorParameters GetDefaultParameters() {
+        public override MapGeneratorParameters CreateDefaultParameters() {
             return new RealisticMapGenParameters();
         }
 
@@ -36,15 +34,11 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
-                return GetDefaultParameters();
+                throw new ArgumentNullException( "presetName" );
             }
             MapGenTemplate template;
             if( EnumUtil.TryParse( presetName, out template, true ) ) {
-                if( template != MapGenTemplate.Default ) {
-                    return CreateParameters( template );
-                } else {
-                    return null;
-                }
+                return CreateParameters( template );
             } else {
                 return null;
             }
@@ -179,7 +173,7 @@ namespace fCraft {
                         CliffThreshold = .9f
                     };
 
-                case MapGenTemplate.Default:
+                case MapGenTemplate.Defaults:
                     return new RealisticMapGenParameters();
 
                 case MapGenTemplate.River:
