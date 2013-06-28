@@ -1,7 +1,7 @@
 ﻿using System.Xml.Linq;
 
 namespace fCraft {
-    public class EmptyMapGen : MapGenerator {
+    public sealed class EmptyMapGen : MapGenerator {
         public static EmptyMapGen Instance { get; private set; }
 
         static EmptyMapGen() {

@@ -6,9 +6,9 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
-    public class FlatMapGen : MapGenerator {
+    public sealed class FlatMapGen : MapGenerator {
         public static FlatMapGen Instance { get; private set; }
-        protected FlatMapGen() {}
+        FlatMapGen() {}
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
@@ -28,15 +28,15 @@ namespace fCraft {
 
 
         public override MapGeneratorParameters GetDefaultParameters() {
-            return new FlatMapGenParameters( this );
+            return new FlatMapGenParameters();
         }
 
         public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
-            return new FlatMapGenParameters( this, serializedParameters );
+            return new FlatMapGenParameters( serializedParameters );
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            FlatMapGenParameters newParams = new FlatMapGenParameters( this );
+            FlatMapGenParameters newParams = new FlatMapGenParameters();
             string themeName = cmd.Next();
             if( themeName != null ) {
                 MapGenTheme theme;
@@ -57,7 +57,7 @@ namespace fCraft {
                 return GetDefaultParameters();
 
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
-                return new FlatMapGenParameters( this ) {
+                return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
                     BedrockThickness = 0,
@@ -67,7 +67,7 @@ namespace fCraft {
             } else {
                 MapGenTheme theme;
                 if( EnumUtil.TryParse( presetName, out theme, true ) ) {
-                    FlatMapGenParameters genParams = new FlatMapGenParameters( this );
+                    FlatMapGenParameters genParams = new FlatMapGenParameters();
                     genParams.ApplyTheme( theme );
                     return genParams;
                 } else {
@@ -88,7 +88,7 @@ namespace fCraft {
     }
 
 
-    class FlatMapGenParameters : MapGeneratorParameters {
+    sealed class FlatMapGenParameters : MapGeneratorParameters {
         [Category( "Layers" )]
         [Description( "Number of blocks (positive or negative) by which the ground level of the map " +
                       "should be offset. Positive values make it higher, negative values make it lower." )]
@@ -136,8 +136,8 @@ namespace fCraft {
         public Block BedrockBlock { get; set; }
 
 
-        public FlatMapGenParameters( FlatMapGen generator ) {
-            Generator = generator;
+        public FlatMapGenParameters() {
+            Generator = FlatMapGen.Instance;
             ApplyTheme( MapGenTheme.Forest );
         }
 
@@ -181,14 +181,14 @@ namespace fCraft {
         }
 
 
-        public FlatMapGenParameters( FlatMapGen generator, XElement el )
-            : this( generator ) {
-            base.LoadProperties( el );
+        public FlatMapGenParameters( XElement el )
+            : this() {
+            LoadProperties( el );
         }
     }
 
 
-    class FlatMapGenState : MapGeneratorState {
+    sealed class FlatMapGenState : MapGeneratorState {
         public FlatMapGenState( FlatMapGenParameters parameters ) {
             Parameters = parameters;
             StatusString = "Ready";
