@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Text;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
@@ -14,13 +15,11 @@ namespace fCraft {
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
-                "Defaults",
+                "Default",
                 "Ocean"
             };
             foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
-                if( themeName != MapGenTheme.Grass.ToString() ) {
-                    presetList.Add( themeName );
-                }
+                presetList.Add( themeName );
             }
 
             Instance = new FlatMapGen {
@@ -45,8 +44,7 @@ namespace fCraft {
                 newParams = CreateParameters( themeName );
                 if( newParams == null ) {
                     player.Message( "SetGen: \"{0}\" is not a recognized flat theme name. Available themes are: {1}",
-                                    themeName,
-                                    Presets );
+                                    themeName, Presets );
                     return null;
                 }
             } else {
@@ -60,14 +58,19 @@ namespace fCraft {
                 throw new ArgumentNullException( "presetName" );
 
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
-                return CreateDefaultParameters();
+                // "Default"
+                return new FlatMapGenParameters {
+                    Preset = Presets[0]
+                };
 
             } else if( presetName.Equals( Presets[1], StringComparison.OrdinalIgnoreCase ) ) {
+                // "Ocean"
                 return new FlatMapGenParameters {
                     SurfaceThickness = 0,
                     SoilThickness = 0,
                     BedrockThickness = 0,
-                    DeepBlock = Block.Water
+                    DeepBlock = Block.Water,
+                    Preset = Presets[1]
                 };
 
             } else {
@@ -95,6 +98,8 @@ namespace fCraft {
 
 
     sealed class FlatMapGenParameters : MapGeneratorParameters {
+        public string Preset { get; set; }
+
         [Category( "Layers" )]
         [Description( "Number of blocks (positive or negative) by which the ground level of the map " +
                       "should be offset. Positive values make it higher, negative values make it lower." )]
@@ -145,11 +150,12 @@ namespace fCraft {
         public FlatMapGenParameters() {
             Generator = FlatMapGen.Instance;
             ApplyTheme( MapGenTheme.Grass );
+            Preset = "(Default)";
         }
 
 
         public void ApplyTheme( MapGenTheme theme ) {
-            // base defaults ("forest")
+            // base defaults ("Grass")
             SurfaceThickness = 1;
             SoilThickness = 5;
             BedrockThickness = 1;
@@ -159,6 +165,7 @@ namespace fCraft {
             DeepBlock = Block.Stone;
             BedrockBlock = Block.Admincrete;
 
+            Preset = theme.ToString();
             switch( theme ) {
                 case MapGenTheme.Arctic:
                     DeepBlock = Block.White;
@@ -193,7 +200,11 @@ namespace fCraft {
         }
 
         public override string ToString() {
-            return Generator.Name;
+            if( !String.IsNullOrEmpty( Preset ) ) {
+                return Generator.Name + " " + Preset;
+            } else {
+                return Generator.Name + " (Custom)";
+            }
         }
     }
 
