@@ -69,7 +69,10 @@ namespace fCraft {
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
+        /// <summary> Ore density fraction; default is 1; must be between 0.2 and 5.0 </summary>
         public double OreDensity { get; set; }
+
+        /// <summary> Cave density fraction; default is 1; must be between 0.1 and 10.0 </summary>
         public double CaveDensity { get; set; }
 
         public int Seed { get; set; }
@@ -135,7 +138,7 @@ namespace fCraft {
         internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
             this.genParams = genParams;
             Parameters = genParams;
-            random = new Random();
+            random = new Random( genParams.Seed );
             waterLevel = genParams.MapHeight/2;
             heightmap = new int[genParams.MapWidth*genParams.MapLength];
             map = new Map( null, genParams.MapWidth, genParams.MapLength, genParams.MapHeight, true );
@@ -172,10 +175,10 @@ namespace fCraft {
                 int density = (int)Math.Round( genParams.OreDensity*CoalOreDensity );
                 MakeOreVeins( Block.Coal, density );
                 ReportProgress( 58, "Depositing iron..." );
-                density = (int)Math.Round( genParams.OreDensity * IronOreDensity );
+                density = (int)Math.Round( genParams.OreDensity*IronOreDensity );
                 MakeOreVeins( Block.IronOre, density);
                 ReportProgress( 61, "Depositing gold..." );
-                density = (int)Math.Round( genParams.OreDensity * GoldOreDensity );
+                density = (int)Math.Round( genParams.OreDensity*GoldOreDensity );
                 MakeOreVeins( Block.GoldOre, density );
                 if( Canceled ) return null;
 
@@ -514,7 +517,7 @@ namespace fCraft {
         // Carve some caves underground. I have a very vague idea of how this works.
         void Carve() {
             Random carveRand = new Random( random.Next() );
-            int caveDensity = (int)Math.Round( BaseCaveDensity*genParams.CaveDensity );
+            int caveDensity = (int)Math.Round( BaseCaveDensity/genParams.CaveDensity );
             int maxCaves = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/caveDensity/64*2;
             for( int i = 0; i < maxCaves; i++ ) {
                 double startX = carveRand.NextDouble()*genParams.MapWidth;
@@ -568,8 +571,11 @@ namespace fCraft {
 
 
         void MakeOreVeins( Block oreTile, int density ) {
+            if( density < 1 || density > 500 )
+                throw new ArgumentOutOfRangeException( "density", "Ore density must be between 1 and 500" );
             Random oreVeinRand = new Random( random.Next() );
             int maxVeins = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/256/64*density/100;
+
             for( int vein = 0; vein < maxVeins; vein++ ) {
                 double startX = oreVeinRand.NextDouble()*genParams.MapWidth;
                 double startY = oreVeinRand.NextDouble()*genParams.MapLength;
@@ -578,7 +584,7 @@ namespace fCraft {
                 double f5 = 0;
                 double f6 = oreVeinRand.NextDouble()*Math.PI*2;
                 double f7 = 0;
-                int m = (int)((oreVeinRand.NextDouble() + oreVeinRand.NextDouble())*75*density/100);
+                int m = (int)((oreVeinRand.NextDouble() + oreVeinRand.NextDouble()) * 75 * density / 100);
                 for( int n = 0; n < m; n++ ) {
                     startX += Math.Sin( f4 )*Math.Cos( f6 );
                     startY += Math.Cos( f4 )*Math.Sin( f6 );
