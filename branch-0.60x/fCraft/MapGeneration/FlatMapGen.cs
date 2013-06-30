@@ -5,7 +5,8 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> MapGenerator that creates a flat, featureless, layered map. </summary>
+    /// <summary> MapGenerator that creates a flat, featureless, layered map.
+    /// This is a singleton class -- use FlatMapGen.Instance. </summary>
     public sealed class FlatMapGen : MapGenerator {
         public static FlatMapGen Instance { get; private set; }
 
@@ -13,11 +14,11 @@ namespace fCraft {
 
         static FlatMapGen() {
             List<string> presetList = new List<string> {
-                "Default (Flatgrass)",
+                "Defaults",
                 "Ocean"
             };
             foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
-                if( themeName != MapGenTheme.Forest.ToString() ) {
+                if( themeName != MapGenTheme.Grass.ToString() ) {
                     presetList.Add( themeName );
                 }
             }
@@ -38,18 +39,18 @@ namespace fCraft {
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            FlatMapGenParameters newParams = new FlatMapGenParameters();
             string themeName = cmd.Next();
+            MapGeneratorParameters newParams;
             if( themeName != null ) {
-                MapGenTheme theme;
-                if( EnumUtil.TryParse( themeName, out theme, true ) ) {
-                    newParams.ApplyTheme( theme );
-                } else {
-                    player.Message( "Gen: Flat: \"{0}\" is not a recognized theme name. Available themes are: {1}",
+                newParams = CreateParameters( themeName );
+                if( newParams == null ) {
+                    player.Message( "SetGen: \"{0}\" is not a recognized flat theme name. Available themes are: {1}",
                                     themeName,
-                                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                                    Presets );
                     return null;
                 }
+            } else {
+                newParams = CreateDefaultParameters();
             }
             return newParams;
         }
@@ -143,7 +144,7 @@ namespace fCraft {
 
         public FlatMapGenParameters() {
             Generator = FlatMapGen.Instance;
-            ApplyTheme( MapGenTheme.Forest );
+            ApplyTheme( MapGenTheme.Grass );
         }
 
 
@@ -189,6 +190,10 @@ namespace fCraft {
         public FlatMapGenParameters( XElement el )
             : this() {
             LoadProperties( el );
+        }
+
+        public override string ToString() {
+            return Generator.Name;
         }
     }
 

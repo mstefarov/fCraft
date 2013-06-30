@@ -826,6 +826,7 @@ namespace fCraft {
 
             MapGeneratorParameters genParams = gen.CreateParameters( player, cmd );
             if( genParams != null ) {
+                player.GenParams = genParams;
                 PrintCurrentGenerator( player, true );
             }
         }
@@ -865,7 +866,7 @@ namespace fCraft {
                 PrintCurrentGenerator( player, false );
                 return;
             }
-            MapGenTheme theme = MapGenTheme.Forest;
+            MapGenTheme theme = MapGenTheme.Grass;
             MapGenTemplate template = MapGenTemplate.Flat;
 
             // parse special template names (which do not need a theme)
@@ -885,19 +886,19 @@ namespace fCraft {
                 // parse theme
                 bool swapThemeAndTemplate = false;
                 if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
-                    theme = MapGenTheme.Forest;
+                    theme = MapGenTheme.Grass;
                     noTrees = true;
 
                 } else if( templateName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
-                    theme = MapGenTheme.Forest;
+                    theme = MapGenTheme.Grass;
                     noTrees = true;
                     swapThemeAndTemplate = true;
 
                 } else if( EnumUtil.TryParse( themeName, out theme, true ) ) {
-                    noTrees = (theme != MapGenTheme.Forest);
+                    noTrees = (theme != MapGenTheme.Grass);
 
                 } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
-                    noTrees = (theme != MapGenTheme.Forest);
+                    noTrees = (theme != MapGenTheme.Grass);
                     swapThemeAndTemplate = true;
 
                 } else {
@@ -981,7 +982,7 @@ namespace fCraft {
             }
 
             // figure out full template name
-            bool genFlatgrass = (theme == MapGenTheme.Forest && noTrees && template == MapGenTemplate.Flat);
+            bool genFlatgrass = (theme == MapGenTheme.Grass && noTrees && template == MapGenTemplate.Flat);
             string templateFullName;
             if( genEmpty ) {
                 templateFullName = "Empty";
@@ -990,7 +991,7 @@ namespace fCraft {
             } else if( genFlatgrass ) {
                 templateFullName = "Flatgrass";
             } else {
-                if( theme == MapGenTheme.Forest && noTrees ) {
+                if( theme == MapGenTheme.Grass && noTrees ) {
                     templateFullName = "Grass " + template;
                 } else {
                     templateFullName = theme + " " + template;

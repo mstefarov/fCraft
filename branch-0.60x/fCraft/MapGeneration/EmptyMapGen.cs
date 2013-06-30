@@ -2,6 +2,8 @@
 using System.Xml.Linq;
 
 namespace fCraft {
+    /// <summary> Basic empty map generator. Basically a fancy wrapper for Map constructor.
+    /// This is a singleton class -- use EmptyMapGen.Instance. </summary>
     public sealed class EmptyMapGen : MapGenerator {
         public static EmptyMapGen Instance { get; private set; }
 
