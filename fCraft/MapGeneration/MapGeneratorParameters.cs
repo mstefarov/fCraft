@@ -99,5 +99,10 @@ namespace fCraft {
             }
             return result;
         }
+
+
+        public override string ToString() {
+            return Generator.Name;
+        }
     }
 }

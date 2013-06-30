@@ -141,7 +141,7 @@ namespace fCraft {
 
 
         public void ApplyDefaults() {
-            Theme = new RealisticMapGenTheme( MapGenTheme.Forest );
+            Theme = new RealisticMapGenTheme( MapGenTheme.Grass );
             Seed = (new Random()).Next();
 
             // default map dimensions

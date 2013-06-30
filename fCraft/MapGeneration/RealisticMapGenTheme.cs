@@ -13,7 +13,7 @@ namespace fCraft {
         static RealisticMapGenTheme() {
             StandardThemes.Add( MapGenTheme.Arctic, new RealisticMapGenTheme( MapGenTheme.Arctic ) );
             StandardThemes.Add( MapGenTheme.Desert, new RealisticMapGenTheme( MapGenTheme.Desert ) );
-            StandardThemes.Add( MapGenTheme.Forest, new RealisticMapGenTheme( MapGenTheme.Forest ) );
+            StandardThemes.Add( MapGenTheme.Grass, new RealisticMapGenTheme( MapGenTheme.Grass ) );
             StandardThemes.Add( MapGenTheme.Hell, new RealisticMapGenTheme( MapGenTheme.Hell ) );
             StandardThemes.Add( MapGenTheme.Swamp, new RealisticMapGenTheme( MapGenTheme.Swamp ) );
         }
@@ -83,7 +83,7 @@ namespace fCraft {
                     CliffBlock = Block.Stone;
                     break;
 
-                case MapGenTheme.Forest:
+                case MapGenTheme.Grass:
                     WaterSurfaceBlock = Block.Water;
                     DeepWaterSurfaceBlock = Block.Water;
                     GroundSurfaceBlock = Block.Grass;
@@ -112,7 +112,7 @@ namespace fCraft {
 
 
         public RealisticMapGenTheme( [NotNull] XElement root )
-            : this( MapGenTheme.Forest ) {
+            : this( MapGenTheme.Grass ) {
             if( root == null ) {
                 throw new ArgumentNullException( "root" );
             }

@@ -3,7 +3,7 @@
     public enum MapGenTheme {
         Arctic,
         Desert,
-        Forest,
+        Grass,
         Hell,
         Swamp
     }
