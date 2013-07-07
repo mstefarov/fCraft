@@ -431,9 +431,11 @@ namespace fCraft {
 
 
         static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F\x7F☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
-        /// <summary> Strips all emote symbols (ASCII control characters). Does not strip UTF-8 equivalents of emotes. </summary>
+        /// <summary> Strips all emote symbols (ASCII control characters and their UTF-8 equivalents).
+        /// Does not strip emote keywords (e.g. {:)}). </summary>
         /// <param name="message"> Message to strip emotes from. </param>
         /// <returns> Message with its emotes stripped. </returns>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull, Pure]
         public static string StripEmotes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
@@ -445,7 +447,7 @@ namespace fCraft {
         /// Keywords are enclosed in curly braces, and are case-insensitive. </summary>
         /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
-        /// <exception cref="ArgumentNullException"> input is null. </exception>
+        /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull, Pure]
         public static string ReplaceEmoteKeywords( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );

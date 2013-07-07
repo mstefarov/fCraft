@@ -41,14 +41,15 @@ namespace fCraft {
 
     /// <summary> IRC control class. </summary>
     public static class IRC {
-        const string ResetReplacement = "\u0003\u000F",
-                     BoldReplacement = "\u0002";
+        internal const string ResetReplacement = "\u0003\u000F",
+                              BoldReplacement = "\u0002";
         public const string ResetCode = "\u211C",
                             BoldCode = "\u212C";
         static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z", RegexOptions.IgnoreCase ),
                               UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$", RegexOptions.IgnoreCase ),
                               MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
-        static int userHostLength = 60, maxNickLength = 30;
+        static int userHostLength = 60,
+                   maxNickLength = 30;
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing

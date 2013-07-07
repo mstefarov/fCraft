@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -382,17 +383,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Replaces IRC color codes with equivalent Minecraft color codes, in the given StringBuilder. 
-        /// Opposite of MinecraftToIrcColors method. </summary>
-        /// <param name="sb"> StringBuilder objects, the contents of which will be processed. </param>
-        /// <exception cref="ArgumentNullException"> sb is null. </exception>
-        public static void IrcToMinecraftColors( [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            foreach( var codePair in MinecraftToIRCColors ) {
-                sb.Replace( codePair.Value, codePair.Key );
-            }
-        }
-
+        static readonly Regex IrcTwoColorCode = new Regex( "(\x03\\d{1,2}),\\d{1,2}" );
 
         /// <summary> Replaces IRC color codes with equivalent Minecraft color codes, in the given string.
         /// Opposite of MinecraftToIrcColors method. </summary>
@@ -402,8 +393,13 @@ namespace fCraft {
         [NotNull, Pure]
         public static string IrcToMinecraftColors( [NotNull] string input ) {
             if( input == null ) throw new ArgumentNullException( "input" );
+            input = IrcTwoColorCode.Replace( input, "$1" );
             StringBuilder sb = new StringBuilder( input );
-            IrcToMinecraftColors( sb );
+            foreach( var codePair in MinecraftToIRCColors ) {
+                sb.Replace( codePair.Value, codePair.Key );
+            }
+            sb.Replace( "\u0003", White ); // color reset
+            sb.Replace( "\u000f", White ); // reset
             return sb.ToString();
         }
 
