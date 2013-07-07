@@ -17,9 +17,6 @@ namespace fCraft.GUI {
             InitializeComponent();
 
             cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
-
-            browseTemplateDialog.Filter = "MapGenerator Template|*.ftpl";
-            browseTemplateDialog.Title = "Opening a MapGenerator template...";
         }
 
         public override void SetParameters( MapGeneratorParameters generatorParameters ) {
@@ -31,6 +28,7 @@ namespace fCraft.GUI {
             if( !xSeed.Checked ) {
                 nSeed.Value = GetRandomSeed();
             }
+            SaveGeneratorArgs();
             return genParameters;
         }
 
@@ -171,28 +169,7 @@ namespace fCraft.GUI {
         }
 
 
-        readonly OpenFileDialog browseTemplateDialog = new OpenFileDialog();
-
-        void bBrowseTemplate_Click( object sender, EventArgs e ) {
-            if( browseTemplateDialog.ShowDialog() == DialogResult.OK &&
-                !String.IsNullOrEmpty( browseTemplateDialog.FileName ) ) {
-                try {
-                    XDocument templateFile = XDocument.Load( browseTemplateDialog.FileName );
-                    if( templateFile.Root == null ) {
-                        throw new SerializationException(
-                            "RealisticManGenerator: Cannot load parameters: empty XML file." );
-                    }
-                    genParameters = new RealisticMapGenParameters( templateFile.Root );
-                    LoadGeneratorArgs();
-                    //bGenerate.PerformClick();
-                } catch( Exception ex ) {
-                    MessageBox.Show( "Could not open template file: " + ex );
-                }
-            }
-        }
-
-
-        void xCaves_CheckedChanged( object sender, EventArgs e ) {
+        void xAddCaves_CheckedChanged( object sender, EventArgs e ) {
             gCaves.Visible = xAddCaves.Checked && xAdvanced.Checked;
         }
 
@@ -287,7 +264,7 @@ namespace fCraft.GUI {
         }
 
 
-        void sFeatureSize_ValueChanged( object sender, EventArgs e ) {
+        void sFeatureScale_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sFeatureScale.Maximum - sFeatureScale.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
             if( sDetailScale.Value < sFeatureScale.Value ) {
@@ -296,7 +273,7 @@ namespace fCraft.GUI {
         }
 
 
-        void sDetailSize_ValueChanged( object sender, EventArgs e ) {
+        void sDetailScale_ValueChanged( object sender, EventArgs e ) {
             int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
             if( sFeatureScale.Value > sDetailScale.Value ) {

@@ -196,6 +196,7 @@
             this.xSeed.TabIndex = 51;
             this.xSeed.Text = "Seed";
             this.xSeed.UseVisualStyleBackColor = true;
+            this.xSeed.CheckedChanged += new System.EventHandler(this.xSeed_CheckedChanged);
             // 
             // xAddCliffs
             // 
@@ -206,6 +207,7 @@
             this.xAddCliffs.TabIndex = 69;
             this.xAddCliffs.Text = "Cliffs";
             this.xAddCliffs.UseVisualStyleBackColor = true;
+            this.xAddCliffs.CheckedChanged += new System.EventHandler(this.xAddCliffs_CheckedChanged);
             // 
             // nSeed
             // 
@@ -283,6 +285,7 @@
             this.xAddBeaches.TabIndex = 58;
             this.xAddBeaches.Text = "Beaches";
             this.xAddBeaches.UseVisualStyleBackColor = true;
+            this.xAddBeaches.CheckedChanged += new System.EventHandler(this.xAddBeaches_CheckedChanged);
             // 
             // xAddTrees
             // 
@@ -295,6 +298,7 @@
             this.xAddTrees.TabIndex = 5;
             this.xAddTrees.Text = "Trees";
             this.xAddTrees.UseVisualStyleBackColor = true;
+            this.xAddTrees.CheckedChanged += new System.EventHandler(this.xAddTrees_CheckedChanged);
             // 
             // xAddSnow
             // 
@@ -305,6 +309,7 @@
             this.xAddSnow.TabIndex = 24;
             this.xAddSnow.Text = "Snowy mountains";
             this.xAddSnow.UseVisualStyleBackColor = true;
+            this.xAddSnow.CheckedChanged += new System.EventHandler(this.xAddSnow_CheckedChanged);
             // 
             // xAddFloodBarrier
             // 
@@ -327,6 +332,7 @@
             this.xAddWater.TabIndex = 20;
             this.xAddWater.Text = "Water";
             this.xAddWater.UseVisualStyleBackColor = true;
+            this.xAddWater.CheckedChanged += new System.EventHandler(this.xAddWater_CheckedChanged);
             // 
             // xAddCaves
             // 
@@ -337,6 +343,7 @@
             this.xAddCaves.TabIndex = 23;
             this.xAddCaves.Text = "Caves";
             this.xAddCaves.UseVisualStyleBackColor = true;
+            this.xAddCaves.CheckedChanged += new System.EventHandler(this.xAddCaves_CheckedChanged);
             // 
             // lCaveDensityDisplay
             // 
@@ -570,6 +577,7 @@
             this.sCaveSize.TabIndex = 63;
             this.sCaveSize.TickFrequency = 50;
             this.sCaveSize.Value = 100;
+            this.sCaveSize.ValueChanged += new System.EventHandler(this.sCaveSize_ValueChanged);
             // 
             // lCaveSize
             // 
@@ -593,6 +601,7 @@
             this.sCaveDensity.TabIndex = 61;
             this.sCaveDensity.TickFrequency = 50;
             this.sCaveDensity.Value = 200;
+            this.sCaveDensity.ValueChanged += new System.EventHandler(this.sCaveDensity_ValueChanged);
             // 
             // lCaveDensity
             // 
@@ -643,6 +652,7 @@
             this.sAboveFunc.TabIndex = 43;
             this.sAboveFunc.TickFrequency = 20;
             this.sAboveFunc.Value = 300;
+            this.sAboveFunc.ValueChanged += new System.EventHandler(this.sAboveFunc_ValueChanged);
             // 
             // sBelowFunc
             // 
@@ -657,6 +667,7 @@
             this.sBelowFunc.TabIndex = 42;
             this.sBelowFunc.TickFrequency = 20;
             this.sBelowFunc.Value = 300;
+            this.sBelowFunc.ValueChanged += new System.EventHandler(this.sBelowFunc_ValueChanged);
             // 
             // xInvert
             // 
@@ -857,6 +868,7 @@
             this.sCliffThreshold.TabIndex = 73;
             this.sCliffThreshold.TickFrequency = 10;
             this.sCliffThreshold.Value = 100;
+            this.sCliffThreshold.ValueChanged += new System.EventHandler(this.sCliffThreshold_ValueChanged);
             // 
             // lCliffThresholdUnits
             // 
@@ -960,6 +972,7 @@
             this.xWaterLevel.TabIndex = 48;
             this.xWaterLevel.Text = "Custom water level";
             this.xWaterLevel.UseVisualStyleBackColor = true;
+            this.xWaterLevel.CheckedChanged += new System.EventHandler(this.xWaterLevel_CheckedChanged);
             // 
             // lMaxHeightVariationUnits
             // 
@@ -1012,6 +1025,7 @@
             this.sDetailScale.Size = new System.Drawing.Size(116, 27);
             this.sDetailScale.TabIndex = 1;
             this.sDetailScale.Value = 7;
+            this.sDetailScale.ValueChanged += new System.EventHandler(this.sDetailScale_ValueChanged);
             // 
             // lDetailSizeDisplay
             // 
@@ -1041,6 +1055,7 @@
             this.sFeatureScale.Size = new System.Drawing.Size(116, 27);
             this.sFeatureScale.TabIndex = 0;
             this.sFeatureScale.Value = 2;
+            this.sFeatureScale.ValueChanged += new System.EventHandler(this.sFeatureScale_ValueChanged);
             // 
             // lRoughnessDisplay
             // 
@@ -1069,6 +1084,7 @@
             this.xMatchWaterCoverage.TabIndex = 5;
             this.xMatchWaterCoverage.Text = "Match water coverage";
             this.xMatchWaterCoverage.UseVisualStyleBackColor = true;
+            this.xMatchWaterCoverage.CheckedChanged += new System.EventHandler(this.xMatchWaterCoverage_CheckedChanged);
             // 
             // sWaterCoverage
             // 
@@ -1082,6 +1098,7 @@
             this.sWaterCoverage.TabIndex = 6;
             this.sWaterCoverage.TickFrequency = 10;
             this.sWaterCoverage.Value = 50;
+            this.sWaterCoverage.ValueChanged += new System.EventHandler(this.sWaterCoverage_ValueChanged);
             // 
             // xLayeredHeightmap
             // 
@@ -1114,6 +1131,7 @@
             this.sRoughness.TabIndex = 4;
             this.sRoughness.TickFrequency = 10;
             this.sRoughness.Value = 50;
+            this.sRoughness.ValueChanged += new System.EventHandler(this.sRoughness_ValueChanged);
             // 
             // lMatchWaterCoverageDisplay
             // 
@@ -1279,6 +1297,7 @@
             this.nRaisedCorners.Name = "nRaisedCorners";
             this.nRaisedCorners.Size = new System.Drawing.Size(54, 20);
             this.nRaisedCorners.TabIndex = 2;
+            this.nRaisedCorners.ValueChanged += new System.EventHandler(this.nRaisedCorners_ValueChanged);
             // 
             // lBiasDisplay
             // 
@@ -1317,6 +1336,7 @@
             this.sBias.Size = new System.Drawing.Size(116, 27);
             this.sBias.TabIndex = 0;
             this.sBias.TickFrequency = 20;
+            this.sBias.ValueChanged += new System.EventHandler(this.sBias_ValueChanged);
             // 
             // gTerrainFeatures
             // 
@@ -1358,6 +1378,7 @@
             this.nLoweredCorners.Name = "nLoweredCorners";
             this.nLoweredCorners.Size = new System.Drawing.Size(54, 20);
             this.nLoweredCorners.TabIndex = 65;
+            this.nLoweredCorners.ValueChanged += new System.EventHandler(this.nLoweredCorners_ValueChanged);
             // 
             // cMidpoint
             // 
