@@ -616,6 +616,8 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+        #endregion
+
 
         #region Generator Presets
 
@@ -743,6 +745,7 @@ namespace fCraft.ConfigGUI {
 
             } else if( e.ClickedItem == tsbDefaultPreset ) {
                 SetGenParams( generator.CreateDefaultParameters() );
+                SetStatus( "Default preset applied. Click [Generate] to see changes." );
 
             } else if( e.ClickedItem is ToolStripSeparator ) {
                 BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
@@ -753,9 +756,10 @@ namespace fCraft.ConfigGUI {
                     string presetName = e.ClickedItem.Text;
                     MapGeneratorParameters genParams = generator.CreateParameters( presetName );
                     if( genParams == null ) {
-                        ShowPresetLoadError( "Preset {0} was not recognized by {1}", presetName, generator.Name );
+                        ShowPresetLoadError( "Preset \"{0}\" was not recognized by {1} map generator.", presetName, generator.Name );
                     } else {
                         SetGenParams( genParams );
+                        SetStatus( "Preset \"{0}\" applied. Click [Generate] to see changes.", presetName );
                     }
 
                 } catch( Exception ex ) {
@@ -770,6 +774,14 @@ namespace fCraft.ConfigGUI {
                              "Error loading preset",
                              MessageBoxButtons.OK,
                              MessageBoxIcon.Error );
+        }
+
+        [StringFormatMethod( "message" )]
+        void SetStatus( string message, params object[] formatParams ) {
+            tStatus1.Text = String.Format( message, formatParams );
+            tStatus1.Visible = true;
+            tStatus2.Visible = false;
+            progressBar.Visible = false;
         }
 
 
@@ -802,9 +814,8 @@ namespace fCraft.ConfigGUI {
             SelectGenerator( gen );
             MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
             SetGenParams( genParams );
+            SetStatus( "Generation parameters loaded. Click [Generate] to see changes." );
         }
-
-        #endregion
 
         #endregion
 
