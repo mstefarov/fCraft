@@ -63,6 +63,12 @@
     <Compile Include="DefaultMapGenGui.Designer.cs">
       <DependentUpon>DefaultMapGenGui.cs</DependentUpon>
     </Compile>
+    <Compile Include="FlatMapGenGui.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FlatMapGenGui.Designer.cs">
+      <DependentUpon>FlatMapGenGui.cs</DependentUpon>
+    </Compile>
     <Compile Include="IMapGeneratorGuiProvider.cs" />
     <Compile Include="MapGeneratorGui.cs">
       <SubType>UserControl</SubType>
@@ -101,6 +107,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="DefaultMapGenGui.resx">
       <DependentUpon>DefaultMapGenGui.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FlatMapGenGui.resx">
+      <DependentUpon>FlatMapGenGui.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

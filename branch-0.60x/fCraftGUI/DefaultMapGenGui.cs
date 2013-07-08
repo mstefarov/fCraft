@@ -2,6 +2,30 @@
 using System;
 
 namespace fCraft.GUI {
+    public partial class DefaultMapGenGui : MapGeneratorGui {
+        MapGeneratorParameters args;
+
+        public DefaultMapGenGui() {
+            InitializeComponent();
+        }
+
+        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
+            args = generatorParameters;
+            pgGrid.SelectedObject = args;
+        }
+
+        public override MapGeneratorParameters GetParameters() {
+            return args;
+        }
+
+        public override void OnMapDimensionChange( int width, int length, int height ) {
+            args.MapWidth = width;
+            args.MapLength = length;
+            args.MapHeight = height;
+        }
+    }
+
+
     /// <summary> Represents a class that provides a fallback GUI for any MapGenerator.
     /// Creates DefaultMapGenGui instances on demand. </summary>
     public class DefaultMapGenGuiProvider : IMapGeneratorGuiProvider {
@@ -25,30 +49,6 @@ namespace fCraft.GUI {
 
         public MapGeneratorGui CreateGui() {
             return new DefaultMapGenGui();
-        }
-    }
-
-
-    public partial class DefaultMapGenGui : MapGeneratorGui {
-        MapGeneratorParameters args;
-
-        public DefaultMapGenGui() {
-            InitializeComponent();
-        }
-
-        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
-            args = generatorParameters;
-            pgGrid.SelectedObject = args;
-        }
-
-        public override MapGeneratorParameters GetParameters() {
-            return args;
-        }
-
-        public override void OnMapDimensionChange( int width, int length, int height ) {
-            args.MapWidth = width;
-            args.MapLength = length;
-            args.MapHeight = height;
         }
     }
 }
