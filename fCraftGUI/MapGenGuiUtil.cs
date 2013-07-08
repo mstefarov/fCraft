@@ -10,6 +10,7 @@ namespace fCraft.GUI {
 
         static MapGenGuiUtil() {
             RegisterGui( RealisticMapGenGuiProvider.Instance, RealisticMapGen.Instance.Name );
+            RegisterGui( FlatMapGenGuiProvider.Instance, FlatMapGen.Instance.Name );
         }
 
 

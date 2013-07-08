@@ -7,8 +7,7 @@ using fCraft.GUI.Properties;
 using JetBrains.Annotations;
 
 namespace fCraft.GUI {
-    /// <summary> Isometric map renderer.
-    /// Creates a bitmap of the map. Every IsoCat instance is single-use. </summary>
+    /// <summary> Isometric map renderer. Creates a bitmap of the map. </summary>
     public sealed unsafe class IsoCat {
         static readonly byte[] Tiles, ShadowTiles;
         static readonly int TileX, TileY;

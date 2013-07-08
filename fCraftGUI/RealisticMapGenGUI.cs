@@ -1,36 +1,10 @@
-﻿// Part of fCraft | Copyright (c) 2009-2012 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace fCraft.GUI {
-    public class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
-        RealisticMapGenGuiProvider() { }
-
-        public static readonly RealisticMapGenGuiProvider Instance = new RealisticMapGenGuiProvider();
-
-        public string Name {
-            get { return "RealisticMapGen GUI"; }
-        }
-
-        static readonly Version StaticVersion = new Version( 2, 1 );
-        public Version Version {
-            get { return StaticVersion; }
-        }
-
-        public bool IsCompatible( string generatorName, Version generatorVersion ) {
-            return generatorName == RealisticMapGen.Instance.Name &&
-                   generatorVersion.Major == 2 &&
-                   generatorVersion.Minor == 1;
-        }
-
-        public MapGeneratorGui CreateGui() {
-            return new RealisticMapGenGui();
-        }
-    }
-
-
     public partial class RealisticMapGenGui : MapGeneratorGui {
         int mapWidth,
             mapLength,
@@ -346,6 +320,32 @@ namespace fCraft.GUI {
 
         void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
             nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
+        }
+    }
+
+
+    public class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
+        RealisticMapGenGuiProvider() { }
+
+        public static readonly RealisticMapGenGuiProvider Instance = new RealisticMapGenGuiProvider();
+
+        public string Name {
+            get { return "RealisticMapGen GUI"; }
+        }
+
+        static readonly Version StaticVersion = new Version( 2, 1 );
+        public Version Version {
+            get { return StaticVersion; }
+        }
+
+        public bool IsCompatible( string generatorName, Version generatorVersion ) {
+            return generatorName == RealisticMapGen.Instance.Name &&
+                   generatorVersion.Major == 2 &&
+                   generatorVersion.Minor == 1;
+        }
+
+        public MapGeneratorGui CreateGui() {
+            return new RealisticMapGenGui();
         }
     }
 }

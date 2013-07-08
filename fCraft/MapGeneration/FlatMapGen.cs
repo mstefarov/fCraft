@@ -98,6 +98,7 @@ namespace fCraft {
 
 
     sealed class FlatMapGenParameters : MapGeneratorParameters {
+        [Browsable(false)]
         public string Preset { get; set; }
 
         [Category( "Layers" )]
