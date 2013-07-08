@@ -5,6 +5,32 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 
 namespace fCraft.GUI {
+    public class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
+        RealisticMapGenGuiProvider() { }
+
+        public static readonly RealisticMapGenGuiProvider Instance = new RealisticMapGenGuiProvider();
+
+        public string Name {
+            get { return "RealisticMapGen GUI"; }
+        }
+
+        static readonly Version StaticVersion = new Version( 2, 1 );
+        public Version Version {
+            get { return StaticVersion; }
+        }
+
+        public bool IsCompatible( string generatorName, Version generatorVersion ) {
+            return generatorName == RealisticMapGen.Instance.Name &&
+                   generatorVersion.Major == 2 &&
+                   generatorVersion.Minor == 1;
+        }
+
+        public MapGeneratorGui CreateGui() {
+            return new RealisticMapGenGui();
+        }
+    }
+
+
     public partial class RealisticMapGenGui : MapGeneratorGui {
         int mapWidth,
             mapLength,

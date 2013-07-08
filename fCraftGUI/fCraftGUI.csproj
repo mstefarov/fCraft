@@ -57,17 +57,16 @@
     <Compile Include="AboutWindow.Designer.cs">
       <DependentUpon>AboutWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="DefaultMapGenGuiProvider.cs" />
     <Compile Include="DefaultMapGenGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="DefaultMapGenGui.Designer.cs">
       <DependentUpon>DefaultMapGenGui.cs</DependentUpon>
     </Compile>
+    <Compile Include="IMapGeneratorGuiProvider.cs" />
     <Compile Include="MapGeneratorGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="IMapGeneratorGuiProvider.cs" />
     <Compile Include="IsoCat.cs" />
     <Compile Include="IsoCatMode.cs" />
     <Compile Include="IsoCatResult.cs" />
@@ -78,7 +77,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="RealisticMapGenGuiProvider.cs" />
     <Compile Include="RealisticMapGenGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
