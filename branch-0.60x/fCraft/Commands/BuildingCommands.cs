@@ -1379,10 +1379,11 @@ namespace fCraft {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             Map playerMap = player.WorldMap;
-            for( int x = selection.XMin; x <= selection.XMax; x++ ) {
-                for( int y = selection.YMin; y <= selection.YMax; y++ ) {
-                    for( int z = selection.ZMin; z <= selection.ZMax; z++ ) {
-                        DrawOneBlock( player, playerMap, map.GetBlock( x, y, z ), new Vector3I( x, y, z ),
+            Vector3I coord = new Vector3I();
+            for( coord.X = selection.XMin; coord.X <= selection.XMax; coord.X++ ) {
+                for( coord.Y = selection.YMin; coord.Y <= selection.YMax; coord.Y++ ) {
+                    for( coord.Z = selection.ZMin; coord.Z <= selection.ZMax; coord.Z++ ) {
+                        DrawOneBlock( player, playerMap, map.GetBlock( coord ), coord,
                                       RestoreContext,
                                       ref blocksDrawn, ref blocksSkipped, undoState );
                     }
