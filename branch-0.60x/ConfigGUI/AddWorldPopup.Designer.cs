@@ -69,7 +69,7 @@
             this.tabCopy = new System.Windows.Forms.TabPage();
             this.lWorldToCopy = new System.Windows.Forms.Label();
             this.tCopyInfo = new System.Windows.Forms.TextBox();
-            this.tabTerrain = new System.Windows.Forms.TabPage();
+            this.tabGenerate = new System.Windows.Forms.TabPage();
             this.tsGenPresets = new System.Windows.Forms.ToolStrip();
             this.tsbLoadPreset = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbDefaultPreset = new System.Windows.Forms.ToolStripMenuItem();
@@ -105,7 +105,7 @@
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
             this.tabCopy.SuspendLayout();
-            this.tabTerrain.SuspendLayout();
+            this.tabGenerate.SuspendLayout();
             this.tsGenPresets.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
@@ -409,7 +409,7 @@
             this.tabs.Controls.Add(this.tabExisting);
             this.tabs.Controls.Add(this.tabLoad);
             this.tabs.Controls.Add(this.tabCopy);
-            this.tabs.Controls.Add(this.tabTerrain);
+            this.tabs.Controls.Add(this.tabGenerate);
             this.tabs.Location = new System.Drawing.Point(12, 110);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
@@ -575,27 +575,27 @@
             this.tCopyInfo.Size = new System.Drawing.Size(384, 100);
             this.tCopyInfo.TabIndex = 3;
             // 
-            // tabTerrain
+            // tabGenerate
             // 
-            this.tabTerrain.BackColor = System.Drawing.SystemColors.Window;
-            this.tabTerrain.Controls.Add(this.tsGenPresets);
-            this.tabTerrain.Controls.Add(this.generatorParamsPanel);
-            this.tabTerrain.Controls.Add(this.bGenerate);
-            this.tabTerrain.Controls.Add(this.lGenerator);
-            this.tabTerrain.Controls.Add(this.cGenerator);
-            this.tabTerrain.Controls.Add(this.lDimensions);
-            this.tabTerrain.Controls.Add(this.nMapWidth);
-            this.tabTerrain.Controls.Add(this.lX1);
-            this.tabTerrain.Controls.Add(this.nMapLength);
-            this.tabTerrain.Controls.Add(this.lX2);
-            this.tabTerrain.Controls.Add(this.nMapHeight);
-            this.tabTerrain.Location = new System.Drawing.Point(4, 22);
-            this.tabTerrain.Name = "tabTerrain";
-            this.tabTerrain.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTerrain.Size = new System.Drawing.Size(396, 422);
-            this.tabTerrain.TabIndex = 5;
-            this.tabTerrain.Text = "Generator";
-            this.tabTerrain.UseVisualStyleBackColor = true;
+            this.tabGenerate.BackColor = System.Drawing.SystemColors.Window;
+            this.tabGenerate.Controls.Add(this.tsGenPresets);
+            this.tabGenerate.Controls.Add(this.generatorParamsPanel);
+            this.tabGenerate.Controls.Add(this.bGenerate);
+            this.tabGenerate.Controls.Add(this.lGenerator);
+            this.tabGenerate.Controls.Add(this.cGenerator);
+            this.tabGenerate.Controls.Add(this.lDimensions);
+            this.tabGenerate.Controls.Add(this.nMapWidth);
+            this.tabGenerate.Controls.Add(this.lX1);
+            this.tabGenerate.Controls.Add(this.nMapLength);
+            this.tabGenerate.Controls.Add(this.lX2);
+            this.tabGenerate.Controls.Add(this.nMapHeight);
+            this.tabGenerate.Location = new System.Drawing.Point(4, 22);
+            this.tabGenerate.Name = "tabGenerate";
+            this.tabGenerate.Padding = new System.Windows.Forms.Padding(3);
+            this.tabGenerate.Size = new System.Drawing.Size(396, 422);
+            this.tabGenerate.TabIndex = 5;
+            this.tabGenerate.Text = "Generate";
+            this.tabGenerate.UseVisualStyleBackColor = true;
             // 
             // tsGenPresets
             // 
@@ -922,8 +922,8 @@
             this.tabLoad.PerformLayout();
             this.tabCopy.ResumeLayout(false);
             this.tabCopy.PerformLayout();
-            this.tabTerrain.ResumeLayout(false);
-            this.tabTerrain.PerformLayout();
+            this.tabGenerate.ResumeLayout(false);
+            this.tabGenerate.PerformLayout();
             this.tsGenPresets.ResumeLayout(false);
             this.tsGenPresets.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
@@ -964,7 +964,7 @@
         private System.Windows.Forms.TabPage tabExisting;
         private System.Windows.Forms.TabPage tabLoad;
         private System.Windows.Forms.TabPage tabCopy;
-        private System.Windows.Forms.TabPage tabTerrain;
+        private System.Windows.Forms.TabPage tabGenerate;
         private CustomPictureBox preview;
         private System.Windows.Forms.Label lMapFileOptions;
         private System.Windows.Forms.TextBox tExistingMapInfo;
