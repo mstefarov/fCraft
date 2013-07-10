@@ -28,7 +28,6 @@
             System.Windows.Forms.ToolStripSeparator tsSeparator3;
             System.Windows.Forms.ToolStripSeparator tsSeparator4;
             System.Windows.Forms.ToolStripSeparator tsSeparator5;
-            this.bShow = new System.Windows.Forms.Button();
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
             this.tFile = new System.Windows.Forms.TextBox();
@@ -51,6 +50,7 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
@@ -73,9 +73,9 @@
             this.tsbLoadPreset = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbDefaultPreset = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbLoadPresetFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
             this.cGenerator = new System.Windows.Forms.ComboBox();
@@ -85,14 +85,12 @@
             this.nMapLength = new System.Windows.Forms.NumericUpDown();
             this.lX2 = new System.Windows.Forms.Label();
             this.nMapHeight = new System.Windows.Forms.NumericUpDown();
-            this.lMapFileOptions = new System.Windows.Forms.Label();
             this.lCreateMap = new System.Windows.Forms.Label();
             this.folderBrowser = new System.Windows.Forms.FolderBrowserDialog();
             this.lVisibility = new System.Windows.Forms.Label();
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             tsSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -100,6 +98,7 @@
             tsSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
@@ -109,7 +108,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // tsSeparator1
@@ -137,16 +135,6 @@
             tsSeparator5.Name = "tsSeparator5";
             tsSeparator5.Size = new System.Drawing.Size(127, 6);
             // 
-            // bShow
-            // 
-            this.bShow.Location = new System.Drawing.Point(316, 6);
-            this.bShow.Name = "bShow";
-            this.bShow.Size = new System.Drawing.Size(74, 23);
-            this.bShow.TabIndex = 2;
-            this.bShow.Text = "Show";
-            this.bShow.UseVisualStyleBackColor = true;
-            this.bShow.Click += new System.EventHandler(this.bShow_Click);
-            // 
             // bGenerate
             // 
             this.bGenerate.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -162,15 +150,15 @@
             // 
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cWorld.FormattingEnabled = true;
-            this.cWorld.Location = new System.Drawing.Point(120, 7);
+            this.cWorld.Location = new System.Drawing.Point(117, 6);
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size(190, 21);
+            this.cWorld.Size = new System.Drawing.Size(273, 21);
             this.cWorld.TabIndex = 1;
             this.cWorld.SelectedIndexChanged += new System.EventHandler(this.cWorld_SelectedIndexChanged);
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point(72, 87);
+            this.tFile.Location = new System.Drawing.Point(72, 90);
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
             this.tFile.Size = new System.Drawing.Size(238, 20);
@@ -178,7 +166,7 @@
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point(316, 85);
+            this.bBrowseFile.Location = new System.Drawing.Point(316, 88);
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFile.TabIndex = 4;
@@ -357,6 +345,20 @@
             this.previewLayout.Size = new System.Drawing.Size(550, 515);
             this.previewLayout.TabIndex = 12;
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan(this.preview, 3);
+            this.preview.Location = new System.Drawing.Point(3, 3);
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size(544, 481);
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // cPreviewMode
             // 
             this.cPreviewMode.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -396,10 +398,10 @@
             this.tabs.Controls.Add(this.tabLoad);
             this.tabs.Controls.Add(this.tabCopy);
             this.tabs.Controls.Add(this.tabGenerate);
-            this.tabs.Location = new System.Drawing.Point(12, 110);
+            this.tabs.Location = new System.Drawing.Point(12, 97);
             this.tabs.Name = "tabs";
             this.tabs.SelectedIndex = 0;
-            this.tabs.Size = new System.Drawing.Size(404, 448);
+            this.tabs.Size = new System.Drawing.Size(404, 461);
             this.tabs.TabIndex = 11;
             this.tabs.SelectedIndexChanged += new System.EventHandler(this.tabs_SelectedIndexChanged);
             // 
@@ -409,9 +411,9 @@
             this.tabExisting.Location = new System.Drawing.Point(4, 22);
             this.tabExisting.Name = "tabExisting";
             this.tabExisting.Padding = new System.Windows.Forms.Padding(3);
-            this.tabExisting.Size = new System.Drawing.Size(396, 422);
+            this.tabExisting.Size = new System.Drawing.Size(396, 435);
             this.tabExisting.TabIndex = 0;
-            this.tabExisting.Text = "Existing Map";
+            this.tabExisting.Text = "Keep Existing Map";
             this.tabExisting.UseVisualStyleBackColor = true;
             // 
             // tExistingMapInfo
@@ -424,7 +426,7 @@
             this.tExistingMapInfo.Multiline = true;
             this.tExistingMapInfo.Name = "tExistingMapInfo";
             this.tExistingMapInfo.ReadOnly = true;
-            this.tExistingMapInfo.Size = new System.Drawing.Size(384, 410);
+            this.tExistingMapInfo.Size = new System.Drawing.Size(384, 427);
             this.tExistingMapInfo.TabIndex = 0;
             this.tExistingMapInfo.TabStop = false;
             // 
@@ -443,15 +445,16 @@
             this.tabLoad.Location = new System.Drawing.Point(4, 22);
             this.tabLoad.Name = "tabLoad";
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
-            this.tabLoad.Size = new System.Drawing.Size(396, 422);
+            this.tabLoad.Size = new System.Drawing.Size(396, 435);
             this.tabLoad.TabIndex = 1;
-            this.tabLoad.Text = "Load Map File";
+            this.tabLoad.Text = "Load a Map File";
             this.tabLoad.UseVisualStyleBackColor = true;
             // 
             // lFileFormatList1
             // 
             this.lFileFormatList1.AutoSize = true;
-            this.lFileFormatList1.Location = new System.Drawing.Point(6, 3);
+            this.lFileFormatList1.Location = new System.Drawing.Point(6, 6);
+            this.lFileFormatList1.Margin = new System.Windows.Forms.Padding(3);
             this.lFileFormatList1.Name = "lFileFormatList1";
             this.lFileFormatList1.Size = new System.Drawing.Size(162, 78);
             this.lFileFormatList1.TabIndex = 0;
@@ -462,7 +465,8 @@
             // lFileFormatList2
             // 
             this.lFileFormatList2.AutoSize = true;
-            this.lFileFormatList2.Location = new System.Drawing.Point(211, 3);
+            this.lFileFormatList2.Location = new System.Drawing.Point(211, 6);
+            this.lFileFormatList2.Margin = new System.Windows.Forms.Padding(3);
             this.lFileFormatList2.Name = "lFileFormatList2";
             this.lFileFormatList2.Size = new System.Drawing.Size(151, 78);
             this.lFileFormatList2.TabIndex = 1;
@@ -472,7 +476,7 @@
             // lFile
             // 
             this.lFile.AutoSize = true;
-            this.lFile.Location = new System.Drawing.Point(6, 90);
+            this.lFile.Location = new System.Drawing.Point(19, 93);
             this.lFile.Name = "lFile";
             this.lFile.Size = new System.Drawing.Size(47, 13);
             this.lFile.TabIndex = 2;
@@ -481,7 +485,8 @@
             // lFolderList
             // 
             this.lFolderList.AutoSize = true;
-            this.lFolderList.Location = new System.Drawing.Point(6, 126);
+            this.lFolderList.Location = new System.Drawing.Point(6, 125);
+            this.lFolderList.Margin = new System.Windows.Forms.Padding(3);
             this.lFolderList.Name = "lFolderList";
             this.lFolderList.Size = new System.Drawing.Size(173, 26);
             this.lFolderList.TabIndex = 5;
@@ -490,7 +495,7 @@
             // lFolder
             // 
             this.lFolder.AutoSize = true;
-            this.lFolder.Location = new System.Drawing.Point(6, 162);
+            this.lFolder.Location = new System.Drawing.Point(6, 160);
             this.lFolder.Name = "lFolder";
             this.lFolder.Size = new System.Drawing.Size(60, 13);
             this.lFolder.TabIndex = 6;
@@ -498,7 +503,7 @@
             // 
             // tFolder
             // 
-            this.tFolder.Location = new System.Drawing.Point(72, 159);
+            this.tFolder.Location = new System.Drawing.Point(72, 157);
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
             this.tFolder.Size = new System.Drawing.Size(238, 20);
@@ -506,7 +511,7 @@
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point(316, 157);
+            this.bBrowseFolder.Location = new System.Drawing.Point(316, 155);
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFolder.TabIndex = 8;
@@ -520,11 +525,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tLoadFileInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 186);
+            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 184);
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size(387, 232);
+            this.tLoadFileInfo.Size = new System.Drawing.Size(387, 251);
             this.tLoadFileInfo.TabIndex = 9;
             this.tLoadFileInfo.TabStop = false;
             // 
@@ -532,33 +537,32 @@
             // 
             this.tabCopy.Controls.Add(this.lWorldToCopy);
             this.tabCopy.Controls.Add(this.cWorld);
-            this.tabCopy.Controls.Add(this.bShow);
             this.tabCopy.Controls.Add(this.tCopyInfo);
             this.tabCopy.Location = new System.Drawing.Point(4, 22);
             this.tabCopy.Name = "tabCopy";
             this.tabCopy.Padding = new System.Windows.Forms.Padding(3);
-            this.tabCopy.Size = new System.Drawing.Size(396, 422);
+            this.tabCopy.Size = new System.Drawing.Size(396, 435);
             this.tabCopy.TabIndex = 2;
-            this.tabCopy.Text = "Copy World";
+            this.tabCopy.Text = "Copy a World";
             this.tabCopy.UseVisualStyleBackColor = true;
             // 
             // lWorldToCopy
             // 
             this.lWorldToCopy.AutoSize = true;
-            this.lWorldToCopy.Location = new System.Drawing.Point(6, 11);
+            this.lWorldToCopy.Location = new System.Drawing.Point(6, 9);
             this.lWorldToCopy.Name = "lWorldToCopy";
-            this.lWorldToCopy.Size = new System.Drawing.Size(108, 13);
+            this.lWorldToCopy.Size = new System.Drawing.Size(105, 13);
             this.lWorldToCopy.TabIndex = 0;
-            this.lWorldToCopy.Text = "Copy map from world:";
+            this.lWorldToCopy.Text = "Copy map from world";
             // 
             // tCopyInfo
             // 
             this.tCopyInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tCopyInfo.Location = new System.Drawing.Point(6, 35);
+            this.tCopyInfo.Location = new System.Drawing.Point(6, 33);
             this.tCopyInfo.Multiline = true;
             this.tCopyInfo.Name = "tCopyInfo";
             this.tCopyInfo.ReadOnly = true;
-            this.tCopyInfo.Size = new System.Drawing.Size(384, 100);
+            this.tCopyInfo.Size = new System.Drawing.Size(384, 124);
             this.tCopyInfo.TabIndex = 3;
             // 
             // tabGenerate
@@ -578,9 +582,9 @@
             this.tabGenerate.Location = new System.Drawing.Point(4, 22);
             this.tabGenerate.Name = "tabGenerate";
             this.tabGenerate.Padding = new System.Windows.Forms.Padding(3);
-            this.tabGenerate.Size = new System.Drawing.Size(396, 422);
+            this.tabGenerate.Size = new System.Drawing.Size(396, 435);
             this.tabGenerate.TabIndex = 5;
-            this.tabGenerate.Text = "Generate";
+            this.tabGenerate.Text = "Generate a New Map";
             this.tabGenerate.UseVisualStyleBackColor = true;
             // 
             // tsGenPresets
@@ -590,10 +594,10 @@
             this.tsGenPresets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbLoadPreset,
             tsSeparator1,
-            this.tsbImportSettings,
+            this.tsbSavePreset,
             tsSeparator2,
-            this.tsbSavePreset});
-            this.tsGenPresets.Location = new System.Drawing.Point(3, 394);
+            this.tsbImportSettings});
+            this.tsGenPresets.Location = new System.Drawing.Point(3, 407);
             this.tsGenPresets.Name = "tsGenPresets";
             this.tsGenPresets.Size = new System.Drawing.Size(390, 25);
             this.tsGenPresets.TabIndex = 30;
@@ -624,24 +628,6 @@
             this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(130, 22);
             this.tsbLoadPresetFromFile.Text = "From file...";
             // 
-            // tsbImportSettings
-            // 
-            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            tsSeparator4,
-            this.tsbImportSettingsFromFile});
-            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
-            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImportSettings.Name = "tsbImportSettings";
-            this.tsbImportSettings.Size = new System.Drawing.Size(117, 22);
-            this.tsbImportSettings.Text = "Import Settings";
-            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
-            // 
-            // tsbImportSettingsFromFile
-            // 
-            this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
-            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
-            this.tsbImportSettingsFromFile.Text = "From mapfile...";
-            // 
             // tsbSavePreset
             // 
             this.tsbSavePreset.Image = global::fCraft.ConfigGUI.Properties.Resources.disk;
@@ -652,6 +638,24 @@
             this.tsbSavePreset.ToolTipText = "Save current map generator\'s settings to a file, as a custom preset.";
             this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
+            // tsbImportSettings
+            // 
+            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            tsSeparator4,
+            this.tsbImportSettingsFromFile});
+            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
+            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbImportSettings.Name = "tsbImportSettings";
+            this.tsbImportSettings.Size = new System.Drawing.Size(173, 22);
+            this.tsbImportSettings.Text = "Copy Settings from World";
+            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
+            // 
+            // tsbImportSettingsFromFile
+            // 
+            this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
+            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
+            this.tsbImportSettingsFromFile.Text = "From mapfile...";
+            // 
             // generatorParamsPanel
             // 
             this.generatorParamsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -660,7 +664,7 @@
             this.generatorParamsPanel.Location = new System.Drawing.Point(3, 59);
             this.generatorParamsPanel.Margin = new System.Windows.Forms.Padding(0, 3, 0, 3);
             this.generatorParamsPanel.Name = "generatorParamsPanel";
-            this.generatorParamsPanel.Size = new System.Drawing.Size(390, 332);
+            this.generatorParamsPanel.Size = new System.Drawing.Size(390, 345);
             this.generatorParamsPanel.TabIndex = 29;
             // 
             // lGenerator
@@ -795,15 +799,6 @@
             0,
             0});
             // 
-            // lMapFileOptions
-            // 
-            this.lMapFileOptions.AutoSize = true;
-            this.lMapFileOptions.Location = new System.Drawing.Point(12, 94);
-            this.lMapFileOptions.Name = "lMapFileOptions";
-            this.lMapFileOptions.Size = new System.Drawing.Size(47, 13);
-            this.lMapFileOptions.TabIndex = 10;
-            this.lMapFileOptions.Text = "Map file:";
-            // 
             // lCreateMap
             // 
             this.lCreateMap.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
@@ -867,20 +862,6 @@
             this.cBlockDB.TabIndex = 21;
             this.cBlockDB.SelectedIndexChanged += new System.EventHandler(this.cBlockDB_SelectedIndexChanged);
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan(this.preview, 3);
-            this.preview.Location = new System.Drawing.Point(3, 3);
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(544, 481);
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -898,7 +879,6 @@
             this.Controls.Add(this.cBuild);
             this.Controls.Add(this.lBackup);
             this.Controls.Add(this.cBackup);
-            this.Controls.Add(this.lMapFileOptions);
             this.Controls.Add(this.tabs);
             this.Controls.Add(this.previewLayout);
             this.Controls.Add(this.bSavePreview);
@@ -914,6 +894,7 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
             this.tabExisting.ResumeLayout(false);
             this.tabExisting.PerformLayout();
@@ -928,7 +909,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -958,7 +938,6 @@
         private System.Windows.Forms.ToolStripStatusLabel tStatus1;
         private System.Windows.Forms.ToolStripStatusLabel tStatus2;
         private System.Windows.Forms.TableLayoutPanel previewLayout;
-        private System.Windows.Forms.Button bShow;
         private System.Windows.Forms.Button bSavePreview;
         private System.Windows.Forms.TabControl tabs;
         private System.Windows.Forms.TabPage tabExisting;
@@ -966,7 +945,6 @@
         private System.Windows.Forms.TabPage tabCopy;
         private System.Windows.Forms.TabPage tabGenerate;
         private CustomPictureBox preview;
-        private System.Windows.Forms.Label lMapFileOptions;
         private System.Windows.Forms.TextBox tExistingMapInfo;
         private System.Windows.Forms.TextBox tLoadFileInfo;
         private System.Windows.Forms.Label lFile;
