@@ -104,7 +104,7 @@ namespace fCraft.ConfigGUI {
             cGenerator.SelectedIndex = 0;
 
             tsbLoadPreset.DropDownItemClicked += tsbLoadPreset_DropDownItemClicked;
-            tsbImportSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
+            tsbCopyGenSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
             Shown += LoadMap;
         }
         
@@ -120,7 +120,7 @@ namespace fCraft.ConfigGUI {
                 cWorld.Items.Add( otherWorld.Name + " (" + otherWorld.Description + ")" );
                 copyOptionsList.Add( otherWorld );
                 var item = new ToolStripMenuItem( otherWorld.Name ) {Tag = otherWorld};
-                tsbImportSettings.DropDownItems.Insert( 0, item );
+                tsbCopyGenSettings.DropDownItems.Insert( 0, item );
             }
 
             if( World == null ) {

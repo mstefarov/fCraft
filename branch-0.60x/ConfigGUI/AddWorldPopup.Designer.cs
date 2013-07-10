@@ -74,7 +74,7 @@
             this.tsbDefaultPreset = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbLoadPresetFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
-            this.tsbImportSettings = new System.Windows.Forms.ToolStripDropDownButton();
+            this.tsbCopyGenSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
@@ -123,7 +123,7 @@
             // tsSeparator3
             // 
             tsSeparator3.Name = "tsSeparator3";
-            tsSeparator3.Size = new System.Drawing.Size(127, 6);
+            tsSeparator3.Size = new System.Drawing.Size(149, 6);
             // 
             // tsSeparator4
             // 
@@ -133,7 +133,7 @@
             // tsSeparator5
             // 
             tsSeparator5.Name = "tsSeparator5";
-            tsSeparator5.Size = new System.Drawing.Size(127, 6);
+            tsSeparator5.Size = new System.Drawing.Size(149, 6);
             // 
             // bGenerate
             // 
@@ -594,9 +594,9 @@
             this.tsGenPresets.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.tsbLoadPreset,
             tsSeparator1,
-            this.tsbSavePreset,
+            this.tsbCopyGenSettings,
             tsSeparator2,
-            this.tsbImportSettings});
+            this.tsbSavePreset});
             this.tsGenPresets.Location = new System.Drawing.Point(3, 407);
             this.tsGenPresets.Name = "tsGenPresets";
             this.tsGenPresets.Size = new System.Drawing.Size(390, 25);
@@ -619,13 +619,13 @@
             // tsbDefaultPreset
             // 
             this.tsbDefaultPreset.Name = "tsbDefaultPreset";
-            this.tsbDefaultPreset.Size = new System.Drawing.Size(130, 22);
+            this.tsbDefaultPreset.Size = new System.Drawing.Size(152, 22);
             this.tsbDefaultPreset.Text = "Defaults";
             // 
             // tsbLoadPresetFromFile
             // 
             this.tsbLoadPresetFromFile.Name = "tsbLoadPresetFromFile";
-            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(130, 22);
+            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(152, 22);
             this.tsbLoadPresetFromFile.Text = "From file...";
             // 
             // tsbSavePreset
@@ -638,17 +638,17 @@
             this.tsbSavePreset.ToolTipText = "Save current map generator\'s settings to a file, as a custom preset.";
             this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
-            // tsbImportSettings
+            // tsbCopyGenSettings
             // 
-            this.tsbImportSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.tsbCopyGenSettings.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             tsSeparator4,
             this.tsbImportSettingsFromFile});
-            this.tsbImportSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
-            this.tsbImportSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbImportSettings.Name = "tsbImportSettings";
-            this.tsbImportSettings.Size = new System.Drawing.Size(173, 22);
-            this.tsbImportSettings.Text = "Copy Settings from World";
-            this.tsbImportSettings.ToolTipText = "Import generator settings from an existing map file";
+            this.tsbCopyGenSettings.Image = global::fCraft.ConfigGUI.Properties.Resources.map__arrow;
+            this.tsbCopyGenSettings.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbCopyGenSettings.Name = "tsbCopyGenSettings";
+            this.tsbCopyGenSettings.Size = new System.Drawing.Size(165, 22);
+            this.tsbCopyGenSettings.Text = "Copy Settings from Map";
+            this.tsbCopyGenSettings.ToolTipText = "Import generation settings from an existing world or map file.";
             // 
             // tsbImportSettingsFromFile
             // 
@@ -976,7 +976,7 @@
         private System.Windows.Forms.ToolStripButton tsbSavePreset;
         private System.Windows.Forms.ToolStripDropDownButton tsbLoadPreset;
         private System.Windows.Forms.ToolStripMenuItem tsbLoadPresetFromFile;
-        private System.Windows.Forms.ToolStripDropDownButton tsbImportSettings;
+        private System.Windows.Forms.ToolStripDropDownButton tsbCopyGenSettings;
         private System.Windows.Forms.ToolStripMenuItem tsbImportSettingsFromFile;
         private System.Windows.Forms.ToolStripMenuItem tsbDefaultPreset;
     }
