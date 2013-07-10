@@ -51,7 +51,6 @@
             this.tStatus1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tStatus2 = new System.Windows.Forms.ToolStripStatusLabel();
             this.previewLayout = new System.Windows.Forms.TableLayoutPanel();
-            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             this.cPreviewMode = new System.Windows.Forms.ComboBox();
             this.bSavePreview = new System.Windows.Forms.Button();
             this.tabs = new System.Windows.Forms.TabControl();
@@ -93,6 +92,7 @@
             this.cVisibility = new System.Windows.Forms.ComboBox();
             this.lBlockDB = new System.Windows.Forms.Label();
             this.cBlockDB = new System.Windows.Forms.ComboBox();
+            this.preview = new fCraft.ConfigGUI.CustomPictureBox();
             tsSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             tsSeparator3 = new System.Windows.Forms.ToolStripSeparator();
@@ -100,7 +100,6 @@
             tsSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.statusStrip.SuspendLayout();
             this.previewLayout.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.tabs.SuspendLayout();
             this.tabExisting.SuspendLayout();
             this.tabLoad.SuspendLayout();
@@ -110,6 +109,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.SuspendLayout();
             // 
             // tsSeparator1
@@ -162,9 +162,9 @@
             // 
             this.cWorld.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cWorld.FormattingEnabled = true;
-            this.cWorld.Location = new System.Drawing.Point(85, 7);
+            this.cWorld.Location = new System.Drawing.Point(120, 7);
             this.cWorld.Name = "cWorld";
-            this.cWorld.Size = new System.Drawing.Size(225, 21);
+            this.cWorld.Size = new System.Drawing.Size(190, 21);
             this.cWorld.TabIndex = 1;
             this.cWorld.SelectedIndexChanged += new System.EventHandler(this.cWorld_SelectedIndexChanged);
             // 
@@ -357,20 +357,6 @@
             this.previewLayout.Size = new System.Drawing.Size(550, 515);
             this.previewLayout.TabIndex = 12;
             // 
-            // preview
-            // 
-            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.preview.BackColor = System.Drawing.Color.Black;
-            this.previewLayout.SetColumnSpan(this.preview, 3);
-            this.preview.Location = new System.Drawing.Point(3, 3);
-            this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(544, 481);
-            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
-            this.preview.TabIndex = 17;
-            this.preview.TabStop = false;
-            // 
             // cPreviewMode
             // 
             this.cPreviewMode.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -459,7 +445,7 @@
             this.tabLoad.Padding = new System.Windows.Forms.Padding(3);
             this.tabLoad.Size = new System.Drawing.Size(396, 422);
             this.tabLoad.TabIndex = 1;
-            this.tabLoad.Text = "Load File";
+            this.tabLoad.Text = "Load Map File";
             this.tabLoad.UseVisualStyleBackColor = true;
             // 
             // lFileFormatList1
@@ -467,21 +453,21 @@
             this.lFileFormatList1.AutoSize = true;
             this.lFileFormatList1.Location = new System.Drawing.Point(6, 3);
             this.lFileFormatList1.Name = "lFileFormatList1";
-            this.lFileFormatList1.Size = new System.Drawing.Size(144, 78);
+            this.lFileFormatList1.Size = new System.Drawing.Size(162, 78);
             this.lFileFormatList1.TabIndex = 0;
-            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- MCSharp and MCZall (.l" +
-    "vl)\r\n- Creative (original .dat)\r\n- Survival Test (.mine)\r\n- Survival Indev (.mcl" +
-    "evel)";
+            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- Vanilla / Creative (.d" +
+    "at)\r\n- MCSharp, MCZall, MCLawl (.lvl)\r\n- Survival Test (.mine)\r\n- Survival Indev" +
+    " (.mclevel)";
             // 
             // lFileFormatList2
             // 
             this.lFileFormatList2.AutoSize = true;
             this.lFileFormatList2.Location = new System.Drawing.Point(211, 3);
             this.lFileFormatList2.Name = "lFileFormatList2";
-            this.lFileFormatList2.Size = new System.Drawing.Size(151, 65);
+            this.lFileFormatList2.Size = new System.Drawing.Size(151, 78);
             this.lFileFormatList2.TabIndex = 1;
             this.lFileFormatList2.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
-    "";
+    "\r\n- FemtoCraft (.lvl)";
             // 
             // lFile
             // 
@@ -561,9 +547,9 @@
             this.lWorldToCopy.AutoSize = true;
             this.lWorldToCopy.Location = new System.Drawing.Point(6, 11);
             this.lWorldToCopy.Name = "lWorldToCopy";
-            this.lWorldToCopy.Size = new System.Drawing.Size(73, 13);
+            this.lWorldToCopy.Size = new System.Drawing.Size(108, 13);
             this.lWorldToCopy.TabIndex = 0;
-            this.lWorldToCopy.Text = "World to copy";
+            this.lWorldToCopy.Text = "Copy map from world:";
             // 
             // tCopyInfo
             // 
@@ -881,6 +867,20 @@
             this.cBlockDB.TabIndex = 21;
             this.cBlockDB.SelectedIndexChanged += new System.EventHandler(this.cBlockDB_SelectedIndexChanged);
             // 
+            // preview
+            // 
+            this.preview.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.preview.BackColor = System.Drawing.Color.Black;
+            this.previewLayout.SetColumnSpan(this.preview, 3);
+            this.preview.Location = new System.Drawing.Point(3, 3);
+            this.preview.Name = "preview";
+            this.preview.Size = new System.Drawing.Size(544, 481);
+            this.preview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.preview.TabIndex = 17;
+            this.preview.TabStop = false;
+            // 
             // AddWorldPopup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -914,7 +914,6 @@
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();
             this.previewLayout.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.tabs.ResumeLayout(false);
             this.tabExisting.ResumeLayout(false);
             this.tabExisting.PerformLayout();
@@ -929,6 +928,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.nMapWidth)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapLength)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMapHeight)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
