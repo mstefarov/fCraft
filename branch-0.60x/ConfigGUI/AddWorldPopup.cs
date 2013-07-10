@@ -254,9 +254,6 @@ namespace fCraft.ConfigGUI {
                 tStatus2.Text = ", drawing...";
                 Redraw( true );
             }
-            if( tab == Tabs.CopyWorld ) {
-                bShow.Enabled = true;
-            }
         }
 
         #endregion Loading
@@ -268,6 +265,11 @@ namespace fCraft.ConfigGUI {
 
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
+                if( map == null ) {
+                    previewImage = null;
+                    preview.Image = null;
+                    return;
+                }
                 progressBar.Visible = true;
                 progressBar.Style = ProgressBarStyle.Continuous;
                 if( bwRenderer.IsBusy ) {
@@ -479,6 +481,7 @@ namespace fCraft.ConfigGUI {
         void cGenerator_SelectedIndexChanged( object sender, EventArgs e ) {
             string genName = cGenerator.SelectedItem.ToString();
             SelectGenerator( MapGenUtil.GetGeneratorByName( genName ) );
+            bGenerate.PerformClick();
         }
 
 
@@ -571,21 +574,23 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        void bShow_Click( object sender, EventArgs e ) {
-            if( cWorld.SelectedIndex != -1 && File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName ) ) {
-                bShow.Enabled = false;
-                fileToLoad = copyOptionsList[cWorld.SelectedIndex].FullFileName;
-                ShowMapDetails( tCopyInfo, fileToLoad );
-                StartLoadingMap();
-            }
-        }
-
-
         void cWorld_SelectedIndexChanged( object sender, EventArgs e ) {
+            if( tabs.SelectedTab != tabCopy ) return;
             if( cWorld.SelectedIndex != -1 ) {
                 string fileName = copyOptionsList[cWorld.SelectedIndex].FullFileName;
-                bShow.Enabled = File.Exists( fileName );
-                ShowMapDetails( tCopyInfo, fileName );
+                if( File.Exists( fileName ) ) {
+                    fileToLoad = fileName;
+                    ShowMapDetails( tCopyInfo, fileToLoad );
+                    StartLoadingMap();
+                } else {
+                    Map = null;
+                    tCopyInfo.Text = "Map file not found: " + fileName;
+                    Redraw( true );
+                }
+            } else {
+                Map = null;
+                tCopyInfo.Text = "There are no worlds to copy maps from.";
+                Redraw( true );
             }
         }
 
@@ -745,7 +750,8 @@ namespace fCraft.ConfigGUI {
 
             } else if( e.ClickedItem == tsbDefaultPreset ) {
                 SetGenParams( generator.CreateDefaultParameters() );
-                SetStatus( "Default preset applied. Click [Generate] to see changes." );
+                SetStatus( "Default preset applied." );
+                bGenerate.PerformClick();
 
             } else if( e.ClickedItem is ToolStripSeparator ) {
                 BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
@@ -759,7 +765,8 @@ namespace fCraft.ConfigGUI {
                         ShowPresetLoadError( "Preset \"{0}\" was not recognized by {1} map generator.", presetName, generator.Name );
                     } else {
                         SetGenParams( genParams );
-                        SetStatus( "Preset \"{0}\" applied. Click [Generate] to see changes.", presetName );
+                        SetStatus( "Preset \"{0}\" applied.", presetName );
+                        bGenerate.PerformClick();
                     }
 
                 } catch( Exception ex ) {
@@ -778,9 +785,9 @@ namespace fCraft.ConfigGUI {
 
         [StringFormatMethod( "message" )]
         void SetStatus( string message, params object[] formatParams ) {
-            tStatus1.Text = String.Format( message, formatParams );
-            tStatus1.Visible = true;
-            tStatus2.Visible = false;
+            tStatus1.Text = "";
+            tStatus2.Text = String.Format( message, formatParams );
+            tStatus2.Visible = true;
             progressBar.Visible = false;
         }
 
@@ -814,7 +821,8 @@ namespace fCraft.ConfigGUI {
             SelectGenerator( gen );
             MapGeneratorParameters genParams = gen.CreateParameters( root.Element( "Parameters" ) );
             SetGenParams( genParams );
-            SetStatus( "Generation parameters loaded. Click [Generate] to see changes." );
+            SetStatus( "Generation parameters loaded." );
+            bGenerate.PerformClick();
         }
 
         #endregion
@@ -839,20 +847,29 @@ namespace fCraft.ConfigGUI {
                     ShowMapDetails( tExistingMapInfo, fileToLoad );
                     StartLoadingMap();
                     return;
+
                 case Tabs.LoadFile:
                     if( !String.IsNullOrEmpty( tFile.Text ) ) {
                         tFile.SelectAll();
                         fileToLoad = tFile.Text;
                         ShowMapDetails( tLoadFileInfo, fileToLoad );
                         StartLoadingMap();
+                    } else {
+                        Map = null;
+                        Redraw( true );
                     }
                     return;
+
                 case Tabs.CopyWorld:
-                    if( cWorld.SelectedIndex != -1 ) {
-                        bShow.Enabled = File.Exists( copyOptionsList[cWorld.SelectedIndex].FullFileName );
-                    }
+                    Map = null;
+                    Redraw( true );
+                    cWorld_SelectedIndexChanged( cWorld, EventArgs.Empty );
                     return;
+
                 case Tabs.Generator:
+                    Map = null;
+                    Redraw( true );
+                    bGenerate.PerformClick();
                     return;
             }
         }

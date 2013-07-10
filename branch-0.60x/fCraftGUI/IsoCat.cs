@@ -110,16 +110,16 @@ namespace fCraft.GUI {
             dimY = map.Length;
             offsetY = Math.Max( 0, map.Width - map.Length );
             offsetX = Math.Max( 0, map.Length - map.Width );
-            dimX2 = dimX / 2 - 1;
-            dimY2 = dimY / 2 - 1;
+            dimX2 = dimX/2 - 1;
+            dimY2 = dimY/2 - 1;
             dimX1 = dimX - 1;
             dimY1 = dimY - 1;
 
-            blendDivisor = 255 * map.Height;
+            blendDivisor = 255*map.Height;
 
-            imageWidth = TileX * Math.Max( dimX, dimY ) + TileY / 2 * map.Height + TileX * 2;
-            imageHeight = TileY / 2 * map.Height + MaxTileDim / 2 * Math.Max( Math.Max( dimX, dimY ), map.Height ) +
-                          TileY * 2;
+            imageWidth = TileX*Math.Max( dimX, dimY ) + TileY/2*map.Height + TileX*2;
+            imageHeight = TileY/2*map.Height + MaxTileDim/2*Math.Max( Math.Max( dimX, dimY ), map.Height ) +
+                          TileY*2;
 
             imageBmp = new Bitmap( imageWidth, imageHeight, PixelFormat.Format32bppArgb );
             imageData = imageBmp.LockBits( new Rectangle( 0, 0, imageBmp.Width, imageBmp.Height ),
@@ -129,12 +129,12 @@ namespace fCraft.GUI {
             image = (byte*)imageData.Scan0;
             imageStride = imageData.Stride;
 
-            isoOffset = ( map.Height * TileY / 2 * imageStride + imageStride / 2 + TileX * 2 );
-            isoX = ( TileX / 4 * imageStride + TileX * 2 );
-            isoY = ( TileY / 4 * imageStride - TileY * 2 );
-            isoH = ( -TileY / 2 * imageStride );
+            isoOffset = (map.Height*TileY/2*imageStride + imageStride/2 + TileX*2);
+            isoX = (TileX/4*imageStride + TileX*2);
+            isoY = (TileY/4*imageStride - TileY*2);
+            isoH = (-TileY/2*imageStride);
 
-            mh34 = map.Height * 3 / 4;
+            mh34 = map.Height*3/4;
 
             short[][] shadows;
             if( DrawShadows ) {
@@ -157,39 +157,40 @@ namespace fCraft.GUI {
 
                             switch( Rotation ) {
                                 case 0:
-                                    ctp = ( z >= shadows[x][y] ? tp : stp );
+                                    ctp = (z >= shadows[x][y] ? tp : stp);
                                     break;
                                 case 1:
-                                    ctp = ( z >= shadows[dimX1 - y][x] ? tp : stp );
+                                    ctp = (z >= shadows[dimX1 - y][x] ? tp : stp);
                                     break;
                                 case 2:
-                                    ctp = ( z >= shadows[dimX1 - x][dimY1 - y] ? tp : stp );
+                                    ctp = (z >= shadows[dimX1 - x][dimY1 - y] ? tp : stp);
                                     break;
                                 case 3:
-                                    ctp = ( z >= shadows[y][dimY1 - x] ? tp : stp );
+                                    ctp = (z >= shadows[y][dimY1 - x] ? tp : stp);
                                     break;
                             }
 
-                            int blockRight, blockLeft, blockUp;
-
-                            if( x != ( Rotation == 1 || Rotation == 3 ? dimY1 : dimX1 ) )
-                                blockRight = GetBlock( x + 1, y, z );
-                            else blockRight = 0;
-                            if( y != ( Rotation == 1 || Rotation == 3 ? dimX1 : dimY1 ) )
-                                blockLeft = GetBlock( x, y + 1, z );
-                            else blockLeft = 0;
-                            if( z != map.Height - 1 ) blockUp = GetBlock( x, y, z + 1 );
-                            else blockUp = 0;
+                            int blockRight = (x != (Rotation == 1 || Rotation == 3 ? dimY1 : dimX1))
+                                                 ? GetBlock( x + 1, y, z )
+                                                 : 0;
+                            int blockLeft = (y != (Rotation == 1 || Rotation == 3 ? dimX1 : dimY1))
+                                                ? GetBlock( x, y + 1, z )
+                                                : 0;
+                            int blockUp = (z != map.Height - 1)
+                                              ? GetBlock( x, y, z + 1 )
+                                              : 0;
 
                             if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
 
-                                ( block != 8 && block != 9 || !SeeThroughWater ) &&
-                                ( blockUp == 8 || blockLeft == 8 || blockRight == 8 || blockUp == 9 || blockLeft == 9 || blockRight == 9 ) || // water
+                                (block != 8 && block != 9 || !SeeThroughWater) &&
+                                (blockUp == 8 || blockLeft == 8 || blockRight == 8 || blockUp == 9 || blockLeft == 9 ||
+                                 blockRight == 9) || // water
 
-                                ( block != 10 && block != 11 || !SeeThroughLava ) &&
-                                ( blockUp == 10 || blockLeft == 10 || blockRight == 10 || blockUp == 11 || blockLeft == 11 || blockRight == 11 ) || // lava
+                                (block != 10 && block != 11 || !SeeThroughLava) &&
+                                (blockUp == 10 || blockLeft == 10 || blockRight == 10 || blockUp == 11 ||
+                                 blockLeft == 11 || blockRight == 11) || // lava
 
-                                block != 20 && ( blockUp == 20 || blockLeft == 20 || blockRight == 20 ) || // glass
+                                block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20) || // glass
                                 blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
                                 blockLeft == 44 || blockRight == 44 || // step
 
@@ -203,28 +204,31 @@ namespace fCraft.GUI {
                         }
 
                         x++;
-                        if( x == ( Rotation == 1 || Rotation == 3 ? dimY : dimX ) ) {
+                        if( x == (Rotation == 1 || Rotation == 3 ? dimY : dimX) ) {
                             y++;
                             x = 0;
                         }
-                        if( y == ( Rotation == 1 || Rotation == 3 ? dimX : dimY ) ) {
+                        if( y == (Rotation == 1 || Rotation == 3 ? dimX : dimY) ) {
                             z++;
                             y = 0;
-                            if( z % 8 == 0 ) {
+                            if( z%8 == 0 ) {
                                 if( isCancelled ) return CancelledResult;
-                                ReportProgress( z / (float)map.Height );
+                                ReportProgress( z/(float)map.Height );
                             }
                         }
                     }
                 }
 
-                int xMin = 0, xMax = imageWidth - 1, yMin = 0, yMax = imageHeight - 1;
+                int xMin = 0,
+                    xMax = imageWidth - 1,
+                    yMin = 0,
+                    yMax = imageHeight - 1;
                 bool cont = true;
                 int offset;
 
                 // find left bound (xMin)
                 for( x = 0; cont && x < imageWidth; x++ ) {
-                    offset = x * 4 + 3;
+                    offset = x*4 + 3;
                     for( y = 0; y < imageHeight; y++ ) {
                         if( image[offset] > 0 ) {
                             xMin = x;
@@ -240,7 +244,7 @@ namespace fCraft.GUI {
                 // find top bound (yMin)
                 cont = true;
                 for( y = 0; cont && y < imageHeight; y++ ) {
-                    offset = imageStride * y + xMin * 4 + 3;
+                    offset = imageStride*y + xMin*4 + 3;
                     for( x = xMin; x < imageWidth; x++ ) {
                         if( image[offset] > 0 ) {
                             yMin = y;
@@ -256,7 +260,7 @@ namespace fCraft.GUI {
                 // find right bound (xMax)
                 cont = true;
                 for( x = imageWidth - 1; cont && x >= xMin; x-- ) {
-                    offset = x * 4 + 3 + yMin * imageStride;
+                    offset = x*4 + 3 + yMin*imageStride;
                     for( y = yMin; y < imageHeight; y++ ) {
                         if( image[offset] > 0 ) {
                             xMax = x + 1;
@@ -272,7 +276,7 @@ namespace fCraft.GUI {
                 // find bottom bound (yMax)
                 cont = true;
                 for( y = imageHeight - 1; cont && y >= yMin; y-- ) {
-                    offset = imageStride * y + 3 + xMin * 4;
+                    offset = imageStride*y + 3 + xMin*4;
                     for( x = xMin; x < xMax; x++ ) {
                         if( image[offset] > 0 ) {
                             yMax = y + 1;
@@ -293,16 +297,16 @@ namespace fCraft.GUI {
                 if( isCancelled && imageBmp != null ) {
                     try {
                         imageBmp.Dispose();
-                    } catch( ObjectDisposedException ) { }
+                    } catch( ObjectDisposedException ) {}
                 }
             }
         }
 
 
         void BlendTile() {
+            if( block > 49 ) return;
             int pos = ( x + ( Rotation == 1 || Rotation == 3 ? offsetY : offsetX ) ) * isoX +
                       ( y + ( Rotation == 1 || Rotation == 3 ? offsetX : offsetY ) ) * isoY + z * isoH + isoOffset;
-            if( block > 49 ) return;
             int tileOffset = block * TileStride;
             BlendPixel( pos, tileOffset );
             BlendPixel( pos + 4, tileOffset + 4 );
@@ -334,13 +338,13 @@ namespace fCraft.GUI {
             byte tA = ctp[tileOffset + 3];
 
             // Get final alpha channel.
-            int finalAlpha = tA + ( ( 255 - tA ) * image[imageOffset + 3] ) / 255;
+            int finalAlpha = tA + ((255 - tA)*image[imageOffset + 3])/255;
 
             // Get percentage (out of 256) of source alpha compared to final alpha
             if( finalAlpha == 0 ) {
                 sourceAlpha = 0;
             } else {
-                sourceAlpha = tA * 255 / finalAlpha;
+                sourceAlpha = tA*255/finalAlpha;
             }
 
             // Destination percentage is just the additive inverse.
@@ -348,30 +352,21 @@ namespace fCraft.GUI {
 
             if( Gradient ) {
                 // Apply shading
-                if( z < ( map.Height >> 1 ) ) {
-                    int shadow = ( z >> 1 ) + mh34;
-                    image[imageOffset] =
-                        (byte)( ( ctp[tileOffset] * sourceAlpha * shadow + image[imageOffset] * destAlpha * map.Height ) / blendDivisor );
-                    image[imageOffset + 1] =
-                        (byte)( ( ctp[tileOffset + 1] * sourceAlpha * shadow + image[imageOffset + 1] * destAlpha * map.Height ) / blendDivisor );
-                    image[imageOffset + 2] =
-                        (byte)( ( ctp[tileOffset + 2] * sourceAlpha * shadow + image[imageOffset + 2] * destAlpha * map.Height ) / blendDivisor );
+                if( z < (map.Height >> 1) ) {
+                    int shadow = (z >> 1) + mh34;
+                    image[imageOffset] = (byte)((ctp[tileOffset]*sourceAlpha*shadow + image[imageOffset]*destAlpha*map.Height)/blendDivisor);
+                    image[imageOffset + 1] = (byte)((ctp[tileOffset + 1]*sourceAlpha*shadow + image[imageOffset + 1]*destAlpha*map.Height)/blendDivisor);
+                    image[imageOffset + 2] = (byte)((ctp[tileOffset + 2]*sourceAlpha*shadow + image[imageOffset + 2]*destAlpha*map.Height)/blendDivisor);
                 } else {
-                    int shadow = ( z - ( map.Height >> 1 ) ) * 48;
-                    image[imageOffset] =
-                        (byte)Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + shadow + image[imageOffset] * destAlpha ) / 255 );
-                    image[imageOffset + 1] =
-                        (byte)Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + shadow + image[imageOffset + 1] * destAlpha ) / 255 );
-                    image[imageOffset + 2] =
-                        (byte)Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + shadow + image[imageOffset + 2] * destAlpha ) / 255 );
+                    int shadow = (z - (map.Height >> 1))*48;
+                    image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + shadow + image[imageOffset]*destAlpha)/255 );
+                    image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + shadow + image[imageOffset + 1]*destAlpha)/255 );
+                    image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + shadow + image[imageOffset + 2]*destAlpha)/255 );
                 }
             } else {
-                image[imageOffset] =
-                    (byte)Math.Min( 255, ( ctp[tileOffset] * sourceAlpha + image[imageOffset] * destAlpha ) / 255 );
-                image[imageOffset + 1] =
-                    (byte)Math.Min( 255, ( ctp[tileOffset + 1] * sourceAlpha + image[imageOffset + 1] * destAlpha ) / 255 );
-                image[imageOffset + 2] =
-                    (byte)Math.Min( 255, ( ctp[tileOffset + 2] * sourceAlpha + image[imageOffset + 2] * destAlpha ) / 255 );
+                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + image[imageOffset]*destAlpha)/255 );
+                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + image[imageOffset + 1]*destAlpha)/255 );
+                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + image[imageOffset + 2]*destAlpha)/255 );
             }
             image[imageOffset + 3] = (byte)finalAlpha;
         }
