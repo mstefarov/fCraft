@@ -211,6 +211,7 @@
             // 
             // nSeed
             // 
+            this.nSeed.Enabled = false;
             this.nSeed.Location = new System.Drawing.Point(271, 117);
             this.nSeed.Maximum = new decimal(new int[] {
             2147483647,
@@ -1162,6 +1163,7 @@
             // 
             // nWaterLevel
             // 
+            this.nWaterLevel.Enabled = false;
             this.nWaterLevel.Location = new System.Drawing.Point(165, 71);
             this.nWaterLevel.Name = "nWaterLevel";
             this.nWaterLevel.Size = new System.Drawing.Size(54, 20);
