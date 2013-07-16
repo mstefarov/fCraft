@@ -1,4 +1,4 @@
-﻿/* Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿/* Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
  * 
  * Based, in part, on SmartIrc4net code. Original license is reproduced below.
  * 

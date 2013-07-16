@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a simple cuboid. </summary>
