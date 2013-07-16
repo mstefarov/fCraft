@@ -10,7 +10,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft HeartbeatSaver" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2012 (matvei.org)" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2013 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

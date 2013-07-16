@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 
 #pragma warning disable 1591
 namespace fCraft {

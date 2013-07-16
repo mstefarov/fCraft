@@ -1,4 +1,5 @@
-﻿// Part of FemtoCraft | Copyright 2012 Matvei Stefarov <me@matvei.org> | See LICENSE.txt
+﻿// Part of FemtoCraft | Copyright 2012-213 Matvei Stefarov <me@matvei.org> | See LICENSE.txt
+// Original Java code copyright 2009 Markus Persson / Mojang AB
 using System;
 
 namespace fCraft {
