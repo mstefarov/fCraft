@@ -10,6 +10,7 @@ namespace fCraft {
 
         public int   Seed { get; set; }
 
+        // TODO: turn MaxHeight/MaxDepth/SnowAltitude into ratios
         public int   MaxHeight { get; set; }
         public int   MaxDepth { get; set; }
         public int   MaxHeightVariation { get; set; }

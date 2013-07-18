@@ -54,7 +54,7 @@ namespace fCraft {
             } else {
                 // If heartbeats are disabled, the server data is written
                 // to a text file instead (heartbeatdata.txt)
-                string[] data = new[] {
+                string[] data = {
                     Salt,
                     Server.InternalIP.ToString(),
                     Server.Port.ToStringInvariant(),

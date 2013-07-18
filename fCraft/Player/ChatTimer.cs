@@ -153,7 +153,7 @@ namespace fCraft {
         }
 
 
-        static readonly TimeSpan[] AnnounceIntervals = new[] {
+        static readonly TimeSpan[] AnnounceIntervals = {
             TimeSpan.FromSeconds( 1 ),
             TimeSpan.FromSeconds( 2 ),
             TimeSpan.FromSeconds( 3 ),

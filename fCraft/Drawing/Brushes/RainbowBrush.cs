@@ -45,7 +45,7 @@ namespace fCraft.Drawing {
             return this;
         }
 
-        static readonly Block[] Rainbow = new[]{
+        static readonly Block[] Rainbow = {
             Block.Red,
             Block.Orange,
             Block.Yellow,

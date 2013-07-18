@@ -444,7 +444,7 @@ namespace Mono.Options
         internal string[] Names { get { return names; } }
         internal string[] ValueSeparators { get; private set; }
 
-        static readonly char[] NameTerminator = new[] { '=', ':' };
+        static readonly char[] NameTerminator = { '=', ':' };
 
         private OptionValueType ParsePrototype() {
             char typeChar = '\0';
