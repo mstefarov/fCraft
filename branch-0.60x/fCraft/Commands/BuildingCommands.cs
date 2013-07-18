@@ -1146,7 +1146,7 @@ namespace fCraft {
             CopyState info = new CopyState( originalInfo, newBuffer );
 
             // construct the rotation matrix
-            int[,] matrix = new[,]{
+            int[,] matrix = {
                 {1,0,0},
                 {0,1,0},
                 {0,0,1}

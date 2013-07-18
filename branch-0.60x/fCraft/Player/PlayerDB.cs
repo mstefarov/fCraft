@@ -942,8 +942,8 @@ namespace fCraft {
 
         #region Escaping
 
-        static readonly char[] EscapableChars = new[] { ',', '\n', '\r' };
-        static readonly char[] EscapedChars = new[] { '\xFF', '\xFE', '\xFD' };
+        static readonly char[] EscapableChars = { ',', '\n', '\r' };
+        static readonly char[] EscapedChars = { '\xFF', '\xFE', '\xFD' };
 
         /// <summary> Escapes special characters (comma, newline, carriage return)
         /// and appends the processed string to the given StringBuilder. 

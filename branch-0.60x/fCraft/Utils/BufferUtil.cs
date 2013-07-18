@@ -12,7 +12,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> array is null. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
-            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
+            byte[] rawValue = { value, value, value, value, value, value, value, value };
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = array ) {
@@ -49,7 +49,7 @@ namespace fCraft {
                 throw new ArgumentOutOfRangeException( "startIndex" );
             }
 
-            byte[] rawValue = new[] { value, value, value, value, value, value, value, value };
+            byte[] rawValue = { value, value, value, value, value, value, value, value };
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = &array[startIndex] ) {

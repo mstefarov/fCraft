@@ -1,6 +1,5 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
-using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a filled ellipsoid. </summary>
