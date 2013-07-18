@@ -857,77 +857,18 @@ namespace fCraft {
 
         static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
-            string themeName = cmd.Next();
-            bool genOcean = false;
-            bool genEmpty = false;
-            bool noTrees = false;
 
-            if( themeName == null ) {
-                PrintCurrentGenerator( player, false );
+            // make sure the player has generator parameters set
+            MapGeneratorParameters genParams = player.GenParams;
+            if( genParams == null ) {
+                player.Message( "No gen parameters set. Use &H/SetGet&S to configure map generation." );
                 return;
-            }
-            MapGenTheme theme = MapGenTheme.Grass;
-            MapGenTemplate template = MapGenTemplate.Flat;
-
-            // parse special template names (which do not need a theme)
-            if( themeName.Equals( "ocean" ) ) {
-                genOcean = true;
-
-            } else if( themeName.Equals( "empty" ) ) {
-                genEmpty = true;
-
-            } else {
-                string templateName = cmd.Next();
-                if( templateName == null ) {
-                    CdGenerate.PrintUsage( player );
-                    return;
-                }
-
-                // parse theme
-                bool swapThemeAndTemplate = false;
-                if( themeName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
-                    theme = MapGenTheme.Grass;
-                    noTrees = true;
-
-                } else if( templateName.Equals( "grass", StringComparison.OrdinalIgnoreCase ) ) {
-                    theme = MapGenTheme.Grass;
-                    noTrees = true;
-                    swapThemeAndTemplate = true;
-
-                } else if( EnumUtil.TryParse( themeName, out theme, true ) ) {
-                    noTrees = (theme != MapGenTheme.Grass);
-
-                } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
-                    noTrees = (theme != MapGenTheme.Grass);
-                    swapThemeAndTemplate = true;
-
-                } else {
-                    player.Message( "Gen: Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
-                                    themeName,
-                                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
-                    return;
-                }
-
-                // parse template
-                if( swapThemeAndTemplate ) {
-                    if( !EnumUtil.TryParse( themeName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available terrain types: Empty, Ocean, {1}",
-                                        themeName,
-                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
-                        return;
-                    }
-                } else {
-                    if( !EnumUtil.TryParse( templateName, out template, true ) ) {
-                        player.Message( "Unrecognized template \"{0}\". Available terrain types: Empty, Ocean, {1}",
-                                        templateName,
-                                        Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
-                        return;
-                    }
-                }
             }
 
             // parse map dimensions
-            int mapWidth, mapLength, mapHeight;
+            int mapWidth,
+                mapLength,
+                mapHeight;
             if( cmd.HasNext ) {
                 int offset = cmd.Offset;
                 if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
@@ -969,50 +910,37 @@ namespace fCraft {
                 player.Message( "Cannot make map with height {0}. {1}", mapHeight, dimensionRecommendation );
                 return;
             }
-            long volume = (long)mapWidth * mapLength * mapHeight;
+            long volume = (long)mapWidth*mapLength*mapHeight;
             if( volume > Int32.MaxValue ) {
                 player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;
             }
 
-            if( !cmd.IsConfirmed && (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength ) || mapHeight % 16 != 0) ) {
+            if( !cmd.IsConfirmed &&
+                (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength ) ||
+                 mapHeight%16 != 0) ) {
                 player.Message( "&WThe map will have non-standard dimensions. " +
                                 "You may see glitched blocks or visual artifacts. " +
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
-            // figure out full template name
-            bool genFlatgrass = (theme == MapGenTheme.Grass && noTrees && template == MapGenTemplate.Flat);
-            string templateFullName;
-            if( genEmpty ) {
-                templateFullName = "Empty";
-            } else if( genOcean ) {
-                templateFullName = "Ocean";
-            } else if( genFlatgrass ) {
-                templateFullName = "Flatgrass";
-            } else {
-                if( theme == MapGenTheme.Grass && noTrees ) {
-                    templateFullName = "Grass " + template;
-                } else {
-                    templateFullName = theme + " " + template;
-                }
-            }
-
+            // TODO: detect world names
             // check file/world name
             string fileName = cmd.Next();
             string fullFileName = null;
             if( fileName == null ) {
                 // replacing current world
                 if( playerWorld == null ) {
-                    player.Message( "When used from console, /Gen requires FileName." );
+                    player.Message( "When used from console, /Gen requires a file or world name." );
                     CdGenerate.PrintUsage( player );
                     return;
                 }
                 if( !cmd.IsConfirmed ) {
                     Logger.Log( LogType.UserActivity,
                                 "Gen: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
-                                player.Name, playerWorld.Name );
-                    player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", templateFullName );
+                                player.Name,
+                                playerWorld.Name );
+                    player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", genParams );
                     return;
                 }
 
@@ -1042,57 +970,84 @@ namespace fCraft {
                 if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
                     Logger.Log( LogType.UserActivity,
                                 "Gen: Asked {0} to confirm overwriting map file \"{1}\"",
-                                player.Name, fileName );
+                                player.Name,
+                                fileName );
                     player.Confirm( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
                     return;
                 }
             }
 
             // generate the map
+            player.MessageNow( "Generating: {0}", genParams );
+
+            genParams.MapWidth = mapWidth;
+            genParams.MapLength = mapLength;
+            genParams.MapHeight = mapHeight;
+
+            GenTaskParams genTaskParams = new GenTaskParams {
+                Player = player,
+                World = player.World,
+                FileName = fileName,
+                FullFileName = fullFileName,
+                GenState = genParams.CreateGenerator()
+            };
+            Scheduler.NewBackgroundTask( GenTaskCallback, genTaskParams )
+                     .RunOnce();
+        }
+
+
+        class GenTaskParams {
+            public Player Player { get; set; }
+            public MapGeneratorState GenState { get; set; }
+            public World World { get; set; }
+            public string FileName { get; set; }
+            public string FullFileName { get; set; }
+        }
+
+
+        static void GenTaskCallback( SchedulerTask task ) {
+            GenTaskParams args = (GenTaskParams)task.UserState;
+
+            // generate!
             Map map;
-            player.MessageNow( "Generating {0}...", templateFullName );
+            try {
+                map = args.GenState.Generate();
 
-            if( genEmpty ) {
-                map = EmptyMapGen.Instance.CreateDefaultParameters().CreateGenerator().Generate();
-
-            } else if( genOcean ) {
-                map = FlatMapGen.Instance.CreateParameters( "Ocean" ).CreateGenerator().Generate();
-
-            } else if( genFlatgrass ) {
-                map = FlatMapGen.MakeFlatgrass( mapWidth, mapLength, mapHeight ).Generate();
-
-            } else {
-                RealisticMapGenParameters args = RealisticMapGen.CreateParameters( template );
-                if( theme == MapGenTheme.Desert ) {
-                    args.AddWater = false;
-                }
-                float ratio = mapHeight / (float)args.MapHeight;
-                args.MapWidth = mapWidth;
-                args.MapLength = mapLength;
-                args.MapHeight = mapHeight;
-                args.MaxHeight = (int)Math.Round( args.MaxHeight * ratio );
-                args.MaxDepth = (int)Math.Round( args.MaxDepth * ratio );
-                args.SnowAltitude = (int)Math.Round( args.SnowAltitude * ratio );
-                args.Theme = new RealisticMapGenTheme( theme );
-                args.AddTrees = !noTrees;
-
-                RealisticMapGenState generator = new RealisticMapGenState( args );
-                map = generator.Generate();
+            } catch( Exception ex ) {
+                // report a generator crash
+                Logger.LogAndReportCrash( "Generation error",
+                                          args.GenState.GetType().AssemblyQualifiedName,
+                                          ex,
+                                          false );
+                args.Player.Message( "&wAn error occured while trying to generate the map: {0} {1}",
+                                     ex.GetType().Name,
+                                     ex.Message );
+                return;
             }
-
             Server.RequestGC();
 
+            // make sure generator returned a proper map, as expected
+            if( map == null ) {
+                string message =
+                    String.Format( "{0}.Generate() returned null in GenTaskCallback for these parameters: {1}",
+                                   args.GenState.GetType(),
+                                   args.GenState.Parameters );
+                throw new NullReferenceException( message );
+            }
+
             // save map to file, or load it into a world
-            if( fileName != null ) {
-                if( map.Save( fullFileName ) ) {
-                    player.Message( "Generation done. Saved to {0}", fileName );
+            if( args.FullFileName != null ) {
+                if( map.Save( args.FullFileName ) ) {
+                    args.Player.Message( "Generation done. Saved to {0}", args.FileName );
                 } else {
-                    player.Message( "&WAn error occurred while saving generated map to {0}", fileName );
+                    args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
+            } else if( args.World != null ) {
+                args.Player.MessageNow( "Generation done. Changing map..." );
+                args.World.MapChangedBy = args.Player.Name;
+                args.World.ChangeMap( map );
             } else {
-                player.MessageNow( "Generation done. Changing map..." );
-                playerWorld.MapChangedBy = player.Name;
-                playerWorld.ChangeMap( map );
+                throw new Exception( "Neither FullFileName nor World were set in GenTaskParams" );
             }
         }
 
