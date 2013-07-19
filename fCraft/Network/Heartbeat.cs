@@ -210,7 +210,7 @@ namespace fCraft {
             HeartbeatUri = heartbeatUri;
         }
 
-        /// <summary> The heartbeat Uri sent to minecraft.net in order to remain on the server list. </summary>
+        /// <summary> The heartbeat URI sent to minecraft.net in order to remain on the server list. </summary>
         [NotNull]
         public Uri HeartbeatUri { get; private set; }
 
@@ -232,10 +232,10 @@ namespace fCraft {
         /// <summary> Name of the server to display on minecraft.net. </summary>
         public string ServerName { get; set; }
 
-        /// <summary> Wether or not the server should be listed on minecraft.net </summary>
+        /// <summary> Whether or not the server should be listed on minecraft.net </summary>
         public bool IsPublic { get; set; }
 
-        /// <summary> Version of the classice minecraft protocol that this server is using. </summary>
+        /// <summary> Version of the classic minecraft protocol that this server is using. </summary>
         public int ProtocolVersion { get; set; }
 
         /// <summary> Any other custom data that needs to be sent. </summary>
@@ -267,7 +267,7 @@ namespace fCraft {
 
 namespace fCraft.Events {
     /// <summary> Provides data for Heartbeat.Sending event. Cancelable. 
-    /// HeartbeatData may be modified, Uri and GetSercerUri may be changed. </summary>
+    /// HeartbeatData may be modified, Uri and GetServerUri may be changed. </summary>
     public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
         internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {
             HeartbeatData = data;

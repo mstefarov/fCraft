@@ -254,7 +254,7 @@ namespace fCraft {
         public bool IsFlushing { get; private set; }
 
 
-        /// <summary> Intiates a map flush, in which all block drawings are completed.
+        /// <summary> Initiates a map flush, in which all block drawings are completed.
         /// All users are held in limbo until completion, and then resent the map.  </summary>
         public void Flush() {
             lock( SyncRoot ) {
@@ -479,7 +479,7 @@ namespace fCraft {
 
 
         /// <summary> Locks the current world, which prevents blocks in the world from being updated. </summary>
-        /// <param name="player"> Player who is issueing the lock. </param>
+        /// <param name="player"> Player who is issuing the lock. </param>
         /// <returns> True if the world was locked, or false if the world was already locked. </returns>
         public bool Lock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -507,7 +507,7 @@ namespace fCraft {
 
 
         /// <summary> Unlocks the current world, which allows blocks in the world to be changed once more. </summary>
-        /// <param name="player"> Player who is issueing the unlock. </param>
+        /// <param name="player"> Player who is issuing the unlock. </param>
         /// <returns> True if the world was unlocked, or false if the world was already unlocked. </returns>
         public bool Unlock( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -537,7 +537,7 @@ namespace fCraft {
         static readonly TimeSpan MinPatrolInterval = TimeSpan.FromSeconds( 20 );
 
 
-        /// <summary> Selects the next player to teleport to while patroling.
+        /// <summary> Selects the next player to teleport to while patrolling.
         /// Sets target's LastPatrolTime automatically. </summary>
         /// <param name="observer"> Player who is patrolling. </param>
         /// <returns> Player who has been selected to be patrolled. </returns>
@@ -560,7 +560,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Selects the next player to teleport to while patroling.
+        /// <summary> Selects the next player to teleport to while patrolling.
         /// Includes additional inclusion check (predicate). </summary>
         /// <param name="observer"> Player who is patrolling. </param>
         /// <param name="predicate"> Additional inclusion check for patrol targets.
@@ -843,8 +843,8 @@ namespace fCraft {
 
             if( maxFileSize > 0 ) {
                 while( true ) {
-                    FileInfo[] fis = directory.GetFiles();
-                    long size = fis.Sum( fi => fi.Length );
+                    FileInfo[] files = directory.GetFiles();
+                    long size = files.Sum( fi => fi.Length );
 
                     if( size / 1024 / 1024 > maxFileSize ) {
                         FileInfo info = backupList[backupList.Count - 1];
@@ -887,7 +887,7 @@ namespace fCraft {
         public Block EdgeBlock = Block.Water;
 
 
-        /// <summary> Creates a WOM configuration string. </summary>
+        /// <summary> Creates a WoM configuration string. </summary>
         /// <param name="sendMotd"> Determines if the motd is sent with the configuration string. </param>
         /// <returns> Configuration settings string to send to client. </returns>
         [NotNull]

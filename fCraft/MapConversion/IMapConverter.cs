@@ -14,7 +14,7 @@ namespace fCraft.MapConversion {
         /// <summary> Whether this converter supports exporting/saving to the format. </summary>
         bool SupportsExport { get; }
 
-        /// <summary> File extension assiciated with this file.
+        /// <summary> File extension associated with this file.
         /// Throws NotSupportedException if this is a directory-based format. </summary>
         string FileExtension { get; }
 

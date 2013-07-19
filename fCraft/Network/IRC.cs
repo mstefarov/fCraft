@@ -642,7 +642,7 @@ namespace fCraft {
 
             if( useColor && useEmotes ) {
                 message = Color.IrcToMinecraftColors( message );
-                message = Chat.ReplaceUncodeWithEmotes( message );
+                message = Chat.ReplaceUnicodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
                 message = Chat.ReplacePercentColorCodes( message, false );
                 message = Chat.StripNewlines( message );
@@ -653,7 +653,7 @@ namespace fCraft {
                 message = Chat.StripNewlines( message );
             } else if( useEmotes ) {
                 message = IRCColorsAndNonStandardCharsExceptEmotes.Replace( message, "" );
-                message = Chat.ReplaceUncodeWithEmotes( message );
+                message = Chat.ReplaceUnicodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
                 // strips minecraft colors and newlines
                 message = Color.StripColors( message );
@@ -675,7 +675,7 @@ namespace fCraft {
             bool useEmotes = ConfigKey.IRCShowEmotesFromServer.Enabled();
 
             if( useEmotes ) {
-                message = Chat.ReplaceEmotesWithUncode( message );
+                message = Chat.ReplaceEmotesWithUnicode( message );
             } else {
                 message = Chat.StripEmotes( message );
             }
@@ -831,21 +831,21 @@ namespace fCraft {
         static readonly IRCReplyCode[] ReplyCodes = (IRCReplyCode[])Enum.GetValues( typeof( IRCReplyCode ) );
 
 
-        static IRCMessageType GetMessageType( [NotNull] string rawline, [NotNull] string actualBotNick ) {
-            if( rawline == null ) throw new ArgumentNullException( "rawline" );
+        static IRCMessageType GetMessageType( [NotNull] string rawLine, [NotNull] string actualBotNick ) {
+            if( rawLine == null ) throw new ArgumentNullException( "rawLine" );
             if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
 
-            Match found = ReplyCodeRegex.Match( rawline );
+            Match found = ReplyCodeRegex.Match( rawLine );
             if( found.Success ) {
                 string code = found.Groups[1].Value;
-                IRCReplyCode replycode = (IRCReplyCode)int.Parse( code );
+                IRCReplyCode replyCode = (IRCReplyCode)int.Parse( code );
 
-                // check if this replycode is known in the RFC
-                if( Array.IndexOf( ReplyCodes, replycode ) == -1 ) {
+                // check if this replyCode is known in the RFC
+                if( Array.IndexOf( ReplyCodes, replyCode ) == -1 ) {
                     return IRCMessageType.Unknown;
                 }
 
-                switch( replycode ) {
+                switch( replyCode ) {
                     case IRCReplyCode.Welcome:
                     case IRCReplyCode.YourHost:
                     case IRCReplyCode.Created:
@@ -897,8 +897,8 @@ namespace fCraft {
                     case IRCReplyCode.ChannelModeIs:
                         return IRCMessageType.ChannelMode;
                     default:
-                        if( ((int)replycode >= 400) &&
-                            ((int)replycode <= 599) ) {
+                        if( ((int)replyCode >= 400) &&
+                            ((int)replyCode <= 599) ) {
                             return IRCMessageType.ErrorMessage;
                         } else {
                             return IRCMessageType.Unknown;
@@ -906,17 +906,17 @@ namespace fCraft {
                 }
             }
 
-            found = PingRegex.Match( rawline );
+            found = PingRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Ping;
             }
 
-            found = ErrorRegex.Match( rawline );
+            found = ErrorRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Error;
             }
 
-            found = ActionRegex.Match( rawline );
+            found = ActionRegex.Match( rawLine );
             if( found.Success ) {
                 switch( found.Groups[1].Value ) {
                     case "#":
@@ -929,12 +929,12 @@ namespace fCraft {
                 }
             }
 
-            found = CtcpRequestRegex.Match( rawline );
+            found = CtcpRequestRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.CtcpRequest;
             }
 
-            found = MessageRegex.Match( rawline );
+            found = MessageRegex.Match( rawLine );
             if( found.Success ) {
                 switch( found.Groups[1].Value ) {
                     case "#":
@@ -947,12 +947,12 @@ namespace fCraft {
                 }
             }
 
-            found = CtcpReplyRegex.Match( rawline );
+            found = CtcpReplyRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.CtcpReply;
             }
 
-            found = NoticeRegex.Match( rawline );
+            found = NoticeRegex.Match( rawLine );
             if( found.Success ) {
                 switch( found.Groups[1].Value ) {
                     case "#":
@@ -965,37 +965,37 @@ namespace fCraft {
                 }
             }
 
-            found = InviteRegex.Match( rawline );
+            found = InviteRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Invite;
             }
 
-            found = JoinRegex.Match( rawline );
+            found = JoinRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Join;
             }
 
-            found = TopicRegex.Match( rawline );
+            found = TopicRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.TopicChange;
             }
 
-            found = NickRegex.Match( rawline );
+            found = NickRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.NickChange;
             }
 
-            found = KickRegex.Match( rawline );
+            found = KickRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Kick;
             }
 
-            found = PartRegex.Match( rawline );
+            found = PartRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Part;
             }
 
-            found = ModeRegex.Match( rawline );
+            found = ModeRegex.Match( rawLine );
             if( found.Success ) {
                 if( found.Groups[1].Value == actualBotNick ) {
                     return IRCMessageType.UserModeChange;
@@ -1004,18 +1004,18 @@ namespace fCraft {
                 }
             }
 
-            found = QuitRegex.Match( rawline );
+            found = QuitRegex.Match( rawLine );
             if( found.Success ) {
                 return IRCMessageType.Quit;
             }
 
-            found = KillRegex.Match( rawline );
+            found = KillRegex.Match( rawLine );
             return found.Success ? IRCMessageType.Kill : IRCMessageType.Unknown;
         }
 
 
-        static IRCMessage MessageParser( [NotNull] string rawline, [NotNull] string actualBotNick ) {
-            if( rawline == null ) throw new ArgumentNullException( "rawline" );
+        static IRCMessage MessageParser( [NotNull] string rawLine, [NotNull] string actualBotNick ) {
+            if( rawLine == null ) throw new ArgumentNullException( "rawLine" );
             if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
 
             string line;
@@ -1024,46 +1024,46 @@ namespace fCraft {
             string host = null;
             string channel = null;
             string message = null;
-            IRCReplyCode replycode;
+            IRCReplyCode replyCode;
 
-            if( rawline[0] == ':' ) {
-                line = rawline.Substring( 1 );
+            if( rawLine[0] == ':' ) {
+                line = rawLine.Substring( 1 );
             } else {
-                line = rawline;
+                line = rawLine;
             }
 
             string[] linear = line.Split( new[] { ' ' } );
 
             // conform to RFC 2812
             string from = linear[0];
-            string messagecode = linear[1];
-            int exclamationpos = from.IndexOf( '!' );
-            int atpos = from.IndexOf( '@' );
-            int colonpos = line.IndexOfOrdinal( " :" );
-            if( colonpos != -1 ) {
+            string messageCode = linear[1];
+            int exclamationPos = from.IndexOf( '!' );
+            int atPos = from.IndexOf( '@' );
+            int colonPos = line.IndexOfOrdinal( " :" );
+            if( colonPos != -1 ) {
                 // we want the exact position of ":" not beginning from the space
-                colonpos += 1;
+                colonPos += 1;
             }
-            if( exclamationpos != -1 ) {
-                nick = from.Substring( 0, exclamationpos );
+            if( exclamationPos != -1 ) {
+                nick = from.Substring( 0, exclamationPos );
             }
-            if( (atpos != -1) &&
-                (exclamationpos != -1) ) {
-                ident = from.Substring( exclamationpos + 1, (atpos - exclamationpos) - 1 );
+            if( (atPos != -1) &&
+                (exclamationPos != -1) ) {
+                ident = from.Substring( exclamationPos + 1, (atPos - exclamationPos) - 1 );
             }
-            if( atpos != -1 ) {
-                host = from.Substring( atpos + 1 );
+            if( atPos != -1 ) {
+                host = from.Substring( atPos + 1 );
             }
 
             int messageCodeInt;
-            if( Int32.TryParse( messagecode, out messageCodeInt ) ) {
-                replycode = (IRCReplyCode)messageCodeInt;
+            if( Int32.TryParse( messageCode, out messageCodeInt ) ) {
+                replyCode = (IRCReplyCode)messageCodeInt;
             } else {
-                replycode = IRCReplyCode.Null;
+                replyCode = IRCReplyCode.Null;
             }
-            IRCMessageType type = GetMessageType( rawline, actualBotNick );
-            if( colonpos != -1 ) {
-                message = line.Substring( colonpos + 1 );
+            IRCMessageType type = GetMessageType( rawLine, actualBotNick );
+            if( colonPos != -1 ) {
+                message = line.Substring( colonPos + 1 );
             }
 
             switch( type ) {
@@ -1094,7 +1094,7 @@ namespace fCraft {
                 channel = channel.Substring( 1 );
             }
 
-            return new IRCMessage( from, nick, ident, host, channel, message, rawline, type, replycode );
+            return new IRCMessage( from, nick, ident, host, channel, message, rawLine, type, replyCode );
         }
 
 
@@ -1231,7 +1231,7 @@ namespace fCraft {
         ErrorNoAdminInfo = 423,
         ErrorFileError = 424,
         ErrorNoNicknameGiven = 431,
-        ErrorErroneusNickname = 432,
+        ErrorErroneousNickname = 432,
         ErrorNicknameInUse = 433,
         ErrorNicknameCollision = 436,
         ErrorUnavailableResource = 437,

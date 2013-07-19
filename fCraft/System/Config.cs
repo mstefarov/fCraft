@@ -104,7 +104,7 @@ namespace fCraft {
      *              Relaxed range limits on many integer keys.
      *              Renamed ProcessPriority value "Low" to "Idle", to match WinAPI
      *              Renamed AutomaticUpdates key to UpdateMode
-     *              Renamde IRCBot key to IRCBotEnabled
+     *              Renamed IRCBot key to IRCBotEnabled
      *              
      * 132 - r477 - Added BackupBeforeUpdate, RunBeforeUpdate, and RunAfterUpdate config keys
      *              Renamed UpdateMode to UpdaterMode
@@ -353,7 +353,7 @@ namespace fCraft {
                     file.Add( new XElement( ConfigXmlRootName ) );
                 } else {
                     Logger.Log( LogType.Debug,
-                                "Config.Load: Config file {0} loaded succesfully.",
+                                "Config.Load: Config file {0} loaded successfully.",
                                 Paths.ConfigFileName );
                     fromFile = true;
                 }
@@ -405,7 +405,7 @@ namespace fCraft {
                 Logger.Log( LogType.Warning, "Config.Load: using default console options." );
             }
 
-            // read log options for logfiles
+            // read log options for log files
             XElement logFileOptions = config.Element( "LogFileOptions" );
             if( logFileOptions != null ){
                 LoadLogOptions( logFileOptions, Logger.LogFileOptions );

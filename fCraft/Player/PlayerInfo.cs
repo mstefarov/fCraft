@@ -309,7 +309,7 @@ namespace fCraft {
         /// Use Player.CanSee() method to check visibility to specific observers. </summary>
         public bool IsHidden;
 
-        /// <summary> For offline players, last IP used to succesfully log in.
+        /// <summary> For offline players, last IP used to successfully log in.
         /// For online players, current IP. </summary>
         [NotNull]
         public IPAddress LastIP;

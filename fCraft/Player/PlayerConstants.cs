@@ -27,8 +27,8 @@ namespace fCraft {
         [Obsolete]
         InvalidSetTileKick = 0x13,
 
-        /// <summary> Unknown opcode or packet </summary>
-        InvalidOpcodeKick = 0x14,
+        /// <summary> Unknown opCode or packet </summary>
+        InvalidOpCodeKick = 0x14,
 
         /// <summary> Triggered antigrief / block spam </summary>
         BlockSpamKick = 0x15,

@@ -264,7 +264,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "Torus",
-            Aliases = new[] { "donut", "bagel" },
+            Aliases = new[] { "doughnut", "donut", "bagel" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
             RepeatableSelection = true,
@@ -1517,7 +1517,7 @@ namespace fCraft {
             }
             int countLimit;
             TimeSpan ageLimit = TimeSpan.Zero;
-            if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimespan( out ageLimit ) ) {
+            if( !Int32.TryParse( range, out countLimit ) && !range.TryParseMiniTimeSpan( out ageLimit ) ) {
                 player.Message( "{0}: First parameter should be a number or a timespan.", cmdName );
                 return null;
             }

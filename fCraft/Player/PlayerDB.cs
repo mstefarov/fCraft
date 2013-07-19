@@ -995,7 +995,7 @@ namespace fCraft {
         /// <summary> Restores escaped special characters (comma, newline, carriage return). 
         /// Used on all string fields of PlayerInfo and IPBanInfo records, at load time. </summary>
         /// <param name="str"> String to unescape. </param>
-        /// <returns> Procesed string, with the escaped special character restored. </returns>
+        /// <returns> Processed string, with the escaped special character restored. </returns>
         /// <exception cref="ArgumentNullException"> str is null. </exception>
         [NotNull]
         public static string Unescape( [NotNull] string str ) {

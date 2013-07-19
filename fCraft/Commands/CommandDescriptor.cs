@@ -113,7 +113,7 @@ namespace fCraft {
         /// <param name="player"> Player who called the command. </param>
         /// <param name="cmd"> Command arguments. </param>
         /// <param name="raiseEvent"> Whether CommandCalling and CommandCalled events should be raised. </param>
-        /// <returns> True if the command was called succesfully.
+        /// <returns> True if the command was called successfully.
         /// False if the call was cancelled by the CommandCalling event. </returns>
         public bool Call( [NotNull] Player player, [NotNull] CommandReader cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -131,7 +131,7 @@ namespace fCraft {
 
 
         /// <summary> Returns a formatted name of the command,
-        /// colored and possibly prefixed according to MinRank requried to call this command. </summary>
+        /// colored and possibly prefixed according to MinRank required to call this command. </summary>
         public string ClassyName {
             get {
                 if( ConfigKey.RankColorsInChat.Enabled() ) {

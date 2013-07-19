@@ -202,7 +202,7 @@ namespace fCraft.MapConversion {
             Mapping[59] = (byte)Block.Leaves;   // crops
             Mapping[60] = (byte)Block.Dirt;     // soil
             Mapping[61] = (byte)Block.Stone;    // furnace
-            Mapping[62] = (byte)Block.Stone;    // burning furnance
+            Mapping[62] = (byte)Block.Stone;    // burning furnace
             Mapping[63] = (byte)Block.Air;      // sign post
             Mapping[64] = (byte)Block.Air;      // wooden door
             Mapping[65] = (byte)Block.Air;      // ladder

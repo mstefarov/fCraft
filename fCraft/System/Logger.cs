@@ -103,7 +103,7 @@ namespace fCraft {
             // occasionally \r\n newlines slip into the system, e.g. in stack traces
             message = message.Replace( "\r\n", "\n" );
             message = Chat.ReplaceNewlines( message );
-            message = Chat.ReplaceEmotesWithUncode( message );
+            message = Chat.ReplaceEmotesWithUnicode( message );
             message = Color.StripColors( message );
 
             string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
@@ -517,7 +517,7 @@ namespace fCraft {
 
 
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
-        /// Note that such occurences will not always cause shutdowns - check ShutdownImminent property.
+        /// Note that such occurrences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
         public static event EventHandler<CrashedEventArgs> Crashed;
 
@@ -633,7 +633,7 @@ namespace fCraft.Events {
     }
 
 
-    /// <summary> Provides for Logger.Crashed event. Crash reporting can be canceled. </summary>
+    /// <summary> Provides for Logger.Crashed event. Crash reporting can be cancelled. </summary>
     public sealed class CrashedEventArgs : EventArgs {
         internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
             Message = message;

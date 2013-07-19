@@ -73,7 +73,7 @@ namespace fCraft.MapConversion {
                 throw new MapFormatException();
             }
 
-            // Read in the map dimesions
+            // Read in the map dimensions
             int width = bs.ReadInt16();
             int length = bs.ReadInt16();
             int height = bs.ReadInt16();

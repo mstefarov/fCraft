@@ -191,7 +191,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Makes sure that the path format is valid, that it exists, that it is accessible and writeable. </summary>
+        /// <summary> Makes sure that the path format is valid, that it exists, that it is accessible and writable. </summary>
         /// <param name="pathLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
         /// <param name="path"> Full or partial path. </param>
         /// <param name="checkForWriteAccess"> If set, tries to write to the given directory. </param>
@@ -237,7 +237,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Makes sure that the path format is valid, and optionally whether it is readable/writeable. </summary>
+        /// <summary> Makes sure that the path format is valid, and optionally whether it is readable/writable. </summary>
         /// <param name="fileLabel"> Name of the path that's being tested (e.g. "map path"). Used for logging. </param>
         /// <param name="fileName"> Full or partial path of the file. </param>
         /// <param name="createIfDoesNotExist"> If target file is missing and this option is OFF, TestFile returns true.

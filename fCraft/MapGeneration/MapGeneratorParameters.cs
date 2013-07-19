@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Represets a set of map generator parameters.
+    /// <summary> Represents a set of map generator parameters.
     /// Provides a way to serialize these parameters to string, and a way to create single-use MapGeneratorState objects. 
     /// Must be mutable, should implement parameter range validation in property setters, and implement ICloneable,
     /// and pass a COPY to MapGeneratorState. </summary>

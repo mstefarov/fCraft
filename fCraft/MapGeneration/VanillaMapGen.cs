@@ -60,7 +60,7 @@ namespace fCraft {
         public int ShroomClusterDensity { get; set; }
         public int ShroomChainsPerCluster { get; set; }
         public int ShroomHopsPerChain { get; set; }
-        public int ShroomSpreadHozirontal { get; set; }
+        public int ShroomSpreadHorizontal { get; set; }
         public int ShroomSpreadVertical { get; set; }
 
         public int TreeClusterDensity { get; set; }
@@ -96,7 +96,7 @@ namespace fCraft {
             ShroomClusterDensity = 2000;
             ShroomChainsPerCluster = 20;
             ShroomHopsPerChain = 5;
-            ShroomSpreadHozirontal = 6;
+            ShroomSpreadHorizontal = 6;
             ShroomSpreadVertical = 2;
             TreeClusterDensity = 4000;
             TreeChainsPerCluster = 20;
@@ -415,10 +415,10 @@ namespace fCraft {
                     int y = clusterY;
                     int z = clusterZ;
                     for( int hop = 0; hop < genParams.ShroomHopsPerChain; hop++ ) {
-                        x += shroomRand.Next( genParams.ShroomSpreadHozirontal ) -
-                             shroomRand.Next( genParams.ShroomSpreadHozirontal );
-                        y += shroomRand.Next( genParams.ShroomSpreadHozirontal ) -
-                             shroomRand.Next( genParams.ShroomSpreadHozirontal );
+                        x += shroomRand.Next( genParams.ShroomSpreadHorizontal ) -
+                             shroomRand.Next( genParams.ShroomSpreadHorizontal );
+                        y += shroomRand.Next( genParams.ShroomSpreadHorizontal ) -
+                             shroomRand.Next( genParams.ShroomSpreadHorizontal );
                         z += shroomRand.Next( genParams.ShroomSpreadVertical ) -
                              shroomRand.Next( genParams.ShroomSpreadVertical );
                         if( (x < 0) || (y < 0) || (z < 1) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) ||

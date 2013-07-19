@@ -1242,7 +1242,7 @@ namespace fCraft {
                              (spectatedPlayer != null && spectatedPlayer == otherPlayer.spectatedPlayer);
 
             return otherPlayer == this || // players can always "see" self
-                   IsSuper ||             // superplayers have ALL permissions
+                   IsSuper ||             // super-players have ALL permissions
                    canSeeOther && !hideOther;
         }
 
@@ -1534,7 +1534,7 @@ namespace fCraft {
             get { return spectatedPlayer; }
         }
 
-        /// <summary> While spectating, currently-specated player.
+        /// <summary> While spectating, currently-spectated player.
         /// When not spectating, most-recently-spectated player. </summary>
         [CanBeNull]
         public PlayerInfo LastSpectatedPlayer { get; private set; }

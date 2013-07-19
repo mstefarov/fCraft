@@ -274,7 +274,7 @@ namespace fCraft {
                                             "Player {0} was kicked after sending an invalid opcode ({1}).",
                                             Name, opcode );
                                 KickNow( "Unknown packet opcode " + opcode,
-                                         LeaveReason.InvalidOpcodeKick );
+                                         LeaveReason.InvalidOpCodeKick );
                                 return;
                         }
 
@@ -867,7 +867,7 @@ namespace fCraft {
             HasFullyConnected = true;
             State = SessionState.Online;
 
-            // Add player to the userlist
+            // Add player to the central list
             lock( syncKickWaiter ) {
                 if( !useSyncKick ) {
                     Server.UpdatePlayerList();
@@ -1020,7 +1020,7 @@ namespace fCraft {
 
             ResetVisibleEntities();
 
-            ClearLowPriotityOutputQueue();
+            ClearLowPriorityOutputQueue();
 
             Map map;
 
@@ -1092,7 +1092,7 @@ namespace fCraft {
                 mapBytesSent += chunkSize;
             }
 
-            // Turn off Nagel's algorithm again for LowLatencyMode
+            // Turn off Nagle's algorithm again for LowLatencyMode
             client.NoDelay = ConfigKey.LowLatencyMode.Enabled();
 
             // Done sending over level copy
@@ -1174,7 +1174,7 @@ namespace fCraft {
         #endregion
 
 
-        public void ClearLowPriotityOutputQueue() {
+        public void ClearLowPriorityOutputQueue() {
             outputQueue.Clear();
         }
 
@@ -1200,7 +1200,7 @@ namespace fCraft {
             canQueue = false;
 
             // clear all pending output to be written to client (it won't matter after the kick)
-            ClearLowPriotityOutputQueue();
+            ClearLowPriorityOutputQueue();
             ClearPriorityOutputQueue();
 
             // bypassing Send() because canQueue is false

@@ -40,11 +40,11 @@ namespace fCraft {
         public IRCMessageType Type { get; private set; }
         public IRCReplyCode ReplyCode { get; private set; }
 
-        public IRCMessage( string from, string nick, string ident, string host, string channel, string message, string rawMessage, IRCMessageType type, IRCReplyCode replycode ) {
+        public IRCMessage( string from, string nick, string ident, string host, string channel, string message, string rawMessage, IRCMessageType type, IRCReplyCode replyCode ) {
             RawMessage = rawMessage;
             RawMessageArray = rawMessage.Split( new[] { ' ' } );
             Type = type;
-            ReplyCode = replycode;
+            ReplyCode = replyCode;
             From = from;
             Nick = nick;
             Ident = ident;

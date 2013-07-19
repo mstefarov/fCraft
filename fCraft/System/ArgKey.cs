@@ -24,14 +24,14 @@ namespace fCraft {
         /// Useful if you are using an auto-restart script/process monitor of some sort. </summary>
         NoRestart,
 
-        /// <summary> If ExitOnCrash flag is present, fCraft frontends will exit
+        /// <summary> If ExitOnCrash flag is present, fCraft front-ends will exit
         /// at once in the event of an unrecoverable crash, instead of showing a message. </summary>
         ExitOnCrash,
 
         /// <summary> Disables all logging. </summary>
         NoLog,
 
-        /// <summary> Disables colors in CLI frontends. </summary>
+        /// <summary> Disables colors in CLI front-ends. </summary>
         NoConsoleColor,
 
         /// <summary> Do not run the updater executable upon updating. </summary>

@@ -52,7 +52,7 @@ namespace System.IO.Compression {
             public bool EncodeUTF8;
 
 
-            /// <summary> Overriden method. </summary>
+            /// <summary> Overridden method. </summary>
             /// <returns> File name in Zip. </returns>
             public override string ToString() {
                 return FileNameInZip;
@@ -65,7 +65,7 @@ namespace System.IO.Compression {
         /// <summary> True if UTF8 encoding for filename and comments, false if default (CP 437). </summary>
         public bool EncodeUTF8 { get; set; }
 
-        /// <summary> Force deflate algotithm even if it inflates the stored file. Off by default. </summary>
+        /// <summary> Force deflate algorithm even if it inflates the stored file. Off by default. </summary>
         public bool ForceDeflating { get; set; }
 
         #endregion
@@ -181,15 +181,15 @@ namespace System.IO.Compression {
 
         /// <summary> Add full contents of a file into the Zip storage. </summary>
         /// <param name="method"> Compression method. </param>
-        /// <param name="pathname"> Full path of file to add to Zip storage. </param>
+        /// <param name="pathName"> Full path of file to add to Zip storage. </param>
         /// <param name="filenameInZip"> File name and path as desired in Zip directory. </param>
         /// <param name="fileComment"> Comment for stored file. </param>        
-        public void AddFile( Compression method, string pathname, string filenameInZip, string fileComment ) {
+        public void AddFile( Compression method, string pathName, string filenameInZip, string fileComment ) {
             if( access == FileAccess.Read )
-                throw new InvalidOperationException( "Writing is not alowed" );
+                throw new InvalidOperationException( "Writing is not allowed" );
 
-            FileStream stream = new FileStream( pathname, FileMode.Open, FileAccess.Read );
-            AddStream( method, filenameInZip, stream, File.GetLastWriteTime( pathname ), fileComment );
+            FileStream stream = new FileStream( pathName, FileMode.Open, FileAccess.Read );
+            AddStream( method, filenameInZip, stream, File.GetLastWriteTime( pathName ), fileComment );
             stream.Close();
         }
 
@@ -203,7 +203,7 @@ namespace System.IO.Compression {
         public void AddStream( Compression method, string fileNameInZip, Stream source, DateTime modTime,
                                string fileComment ) {
             if( access == FileAccess.Read )
-                throw new InvalidOperationException( "Writing is not alowed" );
+                throw new InvalidOperationException( "Writing is not allowed" );
 
             /*long offset;
             if( Files.Count == 0 )
@@ -738,7 +738,7 @@ namespace System.IO.Compression {
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     zipFileStream.Read( centralDirImage, 0, centralSize );
 
-                    // Leave the pointer at the begining of central dir, to append new files
+                    // Leave the pointer at the beginning of central dir, to append new files
                     zipFileStream.Seek( centralDirOffset, SeekOrigin.Begin );
                     return true;
                 } while( zipFileStream.Position > 0 );

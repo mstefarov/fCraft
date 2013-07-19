@@ -23,7 +23,7 @@ namespace fCraft {
         [CanBeNull]
         public string BanReason { get; private set; }
 
-        /// <summary> Name of the player associted with this IP (if given at the time of banning). May be null. </summary>
+        /// <summary> Name of the player associated with this IP (if given at the time of banning). May be null. </summary>
         [CanBeNull]
         public string PlayerName { get; private set; }
 
@@ -168,7 +168,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Decorated name of the player associted with this IP (if given at the time of banning).
+        /// <summary> Decorated name of the player associated with this IP (if given at the time of banning).
         /// Returns raw PlayerName value if it's not a recognized player name.
         /// Returns '?' if PlayerName is null or empty (no player associated with this ban). </summary>
         [NotNull]

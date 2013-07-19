@@ -289,7 +289,7 @@ namespace fCraft {
                             if( limitString.Equals( "none", StringComparison.OrdinalIgnoreCase ) ) {
                                 limit = TimeSpan.Zero;
 
-                            } else if( !limitString.TryParseMiniTimespan( out limit ) ) {
+                            } else if( !limitString.TryParseMiniTimeSpan( out limit ) ) {
                                 CdBlockDB.PrintUsage( player );
                                 return;
                             }
@@ -614,13 +614,13 @@ namespace fCraft {
                     Logger.Log( LogType.UserActivity,
                                 "Env: Player {0} reset environment settings for world {1}",
                                 player.Name, world.Name );
-                    player.Message( "Reset enviroment settings for world {0}", world.ClassyName );
+                    player.Message( "Reset environment settings for world {0}", world.ClassyName );
                     WorldManager.SaveWorldList();
                 } else {
                     Logger.Log( LogType.UserActivity,
-                                "Env: Asked {0} to confirm resetting enviroment settings for world {1}",
+                                "Env: Asked {0} to confirm resetting environment settings for world {1}",
                                 player.Name, world.Name );
-                    player.Confirm( cmd, "Reset enviroment settings for world {0}&S?", world.ClassyName );
+                    player.Confirm( cmd, "Reset environment settings for world {0}&S?", world.ClassyName );
                 }
                 return;
             }
@@ -1019,7 +1019,7 @@ namespace fCraft {
                                           args.GenState.GetType().AssemblyQualifiedName,
                                           ex,
                                           false );
-                args.Player.Message( "&wAn error occured while trying to generate the map: {0} {1}",
+                args.Player.Message( "&wAn error occurred while trying to generate the map: {0} {1}",
                                      ex.GetType().Name,
                                      ex.Message );
                 return;
@@ -2558,7 +2558,7 @@ namespace fCraft {
                     player.Message( mapSavingErrorMessage );
                 }
             } else if( map.Save( fullFileName ) ) {
-                player.Message( "Map saved succesfully." );
+                player.Message( "Map saved successfully." );
             } else {
                 Logger.Log( LogType.Error,
                             "WorldCommands.WorldSave: Saving world \"{0}\" failed.", world.Name );
@@ -2661,7 +2661,7 @@ namespace fCraft {
                             world.BackupEnabledState = YesNoAuto.Auto;
                         }
 
-                    } else if( value.TryParseMiniTimespan( out backupInterval ) ) {
+                    } else if( value.TryParseMiniTimeSpan( out backupInterval ) ) {
                         if( backupInterval == TimeSpan.Zero ) {
                             // Set world's backup interval to 0, which is equivalent to disabled
                             if( world.BackupEnabledState == YesNoAuto.No ) {

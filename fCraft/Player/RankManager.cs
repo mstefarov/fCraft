@@ -5,7 +5,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Manages all the ranks on a server. Controlls what ranks are avaliable and in what order they exist in. </summary>
+    /// <summary> Manages all the ranks on a server. Controls what ranks are available and in what order they exist in. </summary>
     public static class RankManager {
         internal static Dictionary<string, string> LegacyRankMapping { get; private set; }
 
@@ -30,7 +30,7 @@ namespace fCraft {
         /// <summary> Highest Rank available in the server. </summary>
         public static Rank HighestRank { get; set; }
 
-        /// <summary> Highest Rank that Patrol will consider when selecting canditates. </summary>
+        /// <summary> Highest Rank that /Patrol will consider when selecting candidates. </summary>
         public static Rank PatrolledRank { get; set; }
 
         /// <summary> The default minimum Rank required to build in newly created worlds. </summary>
@@ -134,7 +134,7 @@ namespace fCraft {
         /// <summary> Removes the specified rank from the list of available ranks </summary>
         /// <param name="deletedRank"> Rank to be deleted. </param>
         /// <param name="replacementRank"> Rank that will replace the deleted rank. </param>
-        /// <returns> Whether or not the rank was succesfully deleted/replaced. </returns>
+        /// <returns> Whether or not the rank was successfully deleted/replaced. </returns>
         /// <exception cref="ArgumentNullException"> deletedRank or replacementRank is null. </exception>
         /// <exception cref="InvalidOperationException"> PlayerDB is already loaded. </exception>
         public static bool DeleteRank( [NotNull] Rank deletedRank, [NotNull] Rank replacementRank ) {

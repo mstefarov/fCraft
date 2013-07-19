@@ -42,7 +42,7 @@ namespace fCraft {
 
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
-        /// A specified string conversion function is called on each item before contactenation. </summary>
+        /// A specified string conversion function is called on each item before concatenation. </summary>
         [NotNull, Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items,
                                               [NotNull] Func<T, string> stringConversionFunction ) {
@@ -60,7 +60,7 @@ namespace fCraft {
 
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
-        /// A specified string conversion function is called on each item before contactenation. </summary>
+        /// A specified string conversion function is called on each item before concatenation. </summary>
         [NotNull, Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator,
                                               [NotNull] Func<T, string> stringConversionFunction ) {

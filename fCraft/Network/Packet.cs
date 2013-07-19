@@ -14,7 +14,7 @@ namespace fCraft {
         /// <summary> Raw bytes of this packet. </summary>
         public readonly byte[] Bytes;
 
-        /// <summary> Opcode (first byte) of this packet. </summary>
+        /// <summary> OpCode (first byte) of this packet. </summary>
         public OpCode OpCode {
             get { return (OpCode)Bytes[0]; }
         }
@@ -27,11 +27,11 @@ namespace fCraft {
         }
 
 
-        /// <summary> Creates a packet of correct size for a given opcode,
-        /// and sets the first (opcode) byte. </summary>
-        public Packet( OpCode opcode ) {
-            Bytes = new byte[PacketSizes[(int)opcode]];
-            Bytes[0] = (byte)opcode;
+        /// <summary> Creates a packet of correct size for a given opCode,
+        /// and sets the first (opCode) byte. </summary>
+        public Packet( OpCode opCode ) {
+            Bytes = new byte[PacketSizes[(int)opCode]];
+            Bytes[0] = (byte)opCode;
         }
 
 
@@ -167,10 +167,10 @@ namespace fCraft {
         }
 
 
-        /// <summary> Returns packet size (in bytes) for a given opcode.
-        /// Size includes the opcode byte itself. </summary>
-        public static int GetSize( OpCode opcode ) {
-            return PacketSizes[(int)opcode];
+        /// <summary> Returns packet size (in bytes) for a given opCode.
+        /// Size includes the opCode byte itself. </summary>
+        public static int GetSize( OpCode opCode ) {
+            return PacketSizes[(int)opCode];
         }
 
 

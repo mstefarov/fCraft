@@ -894,7 +894,7 @@ namespace fCraft {
                 foreach( string ruleLine in ruleLines ) {
                     string ruleLineProc = Chat.ReplaceTextKeywords( player, ruleLine );
                     ruleLineProc = Chat.ReplaceEmoteKeywords( ruleLineProc );
-                    ruleLineProc = Chat.ReplaceUncodeWithEmotes( ruleLineProc );
+                    ruleLineProc = Chat.ReplaceUnicodeWithEmotes( ruleLineProc );
                     player.Message( "&R{0}", ruleLineProc );
                 }
             } catch( Exception ex ) {
