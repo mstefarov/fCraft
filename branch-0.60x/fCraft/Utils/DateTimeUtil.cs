@@ -60,7 +60,7 @@ namespace fCraft {
 
         #region To Date Time
 
-        /// <summary> Creates a DateTime from a Utc Unix Timestamp. </summary>
+        /// <summary> Creates a DateTime from a UTC Unix Timestamp. </summary>
         public static DateTime TryParseDateTime( long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
@@ -187,10 +187,10 @@ namespace fCraft {
         /// <param name="result"> Parsed TimeSpan. Set to TimeSpan.Zero if parsing failed. </param>
         /// <returns> True if parsing succeeded; otherwise false. </returns>
         /// <exception cref="ArgumentNullException"> text is null. </exception>
-        public static bool TryParseMiniTimespan( [NotNull] this string text, out TimeSpan result ) {
+        public static bool TryParseMiniTimeSpan( [NotNull] this string text, out TimeSpan result ) {
             if( text == null ) throw new ArgumentNullException( "text" );
             try {
-                result = ParseMiniTimespan( text );
+                result = ParseMiniTimeSpan( text );
                 return true;
             } catch( ArgumentException ) {
             } catch( OverflowException ) {
@@ -210,7 +210,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> text is null. </exception>
         /// <exception cref="OverflowException"> The resulting TimeSpan is greater than TimeSpan.MaxValue. </exception>
         /// <exception cref="FormatException"> input has an invalid format. </exception>
-        public static TimeSpan ParseMiniTimespan( [NotNull] this string text ) {
+        public static TimeSpan ParseMiniTimeSpan( [NotNull] this string text ) {
             if( text == null ) throw new ArgumentNullException( "text" );
 
             text = text.Trim();

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using JetBrains.Annotations;
 
-// ReSharper disable LoopCanBeConvertedToQuery
 namespace fCraft {
     /// <summary> Contains a set of utilities that simplify working with sets of players.
     /// All the utilities are implemented as extension methods,
@@ -502,7 +501,7 @@ namespace fCraft {
 
         /// <summary> Formats and broadcasts a message. </summary>
         /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="except"> Player to exclude from the recepient list. May be null (no one will be excluded). </param>
+        /// <param name="except"> Player to exclude from the recipient list. May be null (no one will be excluded). </param>
         /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
         /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
         /// <returns> Number of players who received the message. </returns>
@@ -608,7 +607,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a packet with normal priority. </summary>
         /// <param name="source"> List of players who will receive the packet. </param>
-        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="except"> Player to exclude from the recipient list. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         public static int Send( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, Packet packet ) {
@@ -640,7 +639,7 @@ namespace fCraft {
 
         /// <summary> Broadcasts a packet with low priority. </summary>
         /// <param name="source"> List of players who will receive the packet. </param>
-        /// <param name="except"> Player to exclude from the recepient list. </param>
+        /// <param name="except"> Player to exclude from the recipient list. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
         public static int SendLowPriority( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except,
@@ -658,4 +657,3 @@ namespace fCraft {
         #endregion
     }
 }
-// ReSharper restore LoopCanBeConvertedToQuery

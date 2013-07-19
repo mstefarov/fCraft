@@ -38,8 +38,8 @@ namespace fCraft {
             return "NICK " + nickname;
         }
 
-        public static string User( string username, int usermode, string realname ) {
-            return "USER " + username + " " + usermode + " * :" + realname;
+        public static string User( string username, int userMode, string realName ) {
+            return "USER " + username + " " + userMode + " * :" + realName;
         }
 
         public static string Oper( string name, string password ) {
@@ -59,8 +59,8 @@ namespace fCraft {
         }
 
         public static string Join( string[] channels ) {
-            string channellist = String.Join( ",", channels );
-            return "JOIN " + channellist;
+            string channelList = String.Join( ",", channels );
+            return "JOIN " + channelList;
         }
 
         public static string Join( string channel, string key ) {
@@ -68,9 +68,9 @@ namespace fCraft {
         }
 
         public static string Join( string[] channels, string[] keys ) {
-            string channellist = String.Join( ",", channels );
-            string keylist = String.Join( ",", keys );
-            return "JOIN " + channellist + " " + keylist;
+            string channelList = String.Join( ",", channels );
+            string keyList = String.Join( ",", keys );
+            return "JOIN " + channelList + " " + keyList;
         }
 
         public static string Part( string channel ) {
@@ -78,17 +78,17 @@ namespace fCraft {
         }
 
         public static string Part( string[] channels ) {
-            string channellist = String.Join( ",", channels );
-            return "PART " + channellist;
+            string channelList = String.Join( ",", channels );
+            return "PART " + channelList;
         }
 
-        public static string Part( string channel, string partmessage ) {
-            return "PART " + channel + " :" + partmessage;
+        public static string Part( string channel, string partMessage ) {
+            return "PART " + channel + " :" + partMessage;
         }
 
-        public static string Part( string[] channels, string partmessage ) {
-            string channellist = String.Join( ",", channels );
-            return "PART " + channellist + " :" + partmessage;
+        public static string Part( string[] channels, string partMessage ) {
+            string channelList = String.Join( ",", channels );
+            return "PART " + channelList + " :" + partMessage;
         }
 
         public static string Kick( string channel, string nickname ) {
@@ -100,35 +100,35 @@ namespace fCraft {
         }
 
         public static string Kick( string[] channels, string nickname ) {
-            string channellist = String.Join( ",", channels );
-            return "KICK " + channellist + " " + nickname;
+            string channelList = String.Join( ",", channels );
+            return "KICK " + channelList + " " + nickname;
         }
 
         public static string Kick( string[] channels, string nickname, string comment ) {
-            string channellist = String.Join( ",", channels );
-            return "KICK " + channellist + " " + nickname + " :" + comment;
+            string channelList = String.Join( ",", channels );
+            return "KICK " + channelList + " " + nickname + " :" + comment;
         }
 
         public static string Kick( string channel, string[] nicknames ) {
-            string nicknamelist = String.Join( ",", nicknames );
-            return "KICK " + channel + " " + nicknamelist;
+            string nicknameList = String.Join( ",", nicknames );
+            return "KICK " + channel + " " + nicknameList;
         }
 
         public static string Kick( string channel, string[] nicknames, string comment ) {
-            string nicknamelist = String.Join( ",", nicknames );
-            return "KICK " + channel + " " + nicknamelist + " :" + comment;
+            string nicknameList = String.Join( ",", nicknames );
+            return "KICK " + channel + " " + nicknameList + " :" + comment;
         }
 
         public static string Kick( string[] channels, string[] nicknames ) {
-            string channellist = String.Join( ",", channels );
-            string nicknamelist = String.Join( ",", nicknames );
-            return "KICK " + channellist + " " + nicknamelist;
+            string channelList = String.Join( ",", channels );
+            string nicknameList = String.Join( ",", nicknames );
+            return "KICK " + channelList + " " + nicknameList;
         }
 
         public static string Kick( string[] channels, string[] nicknames, string comment ) {
-            string channellist = String.Join( ",", channels );
-            string nicknamelist = String.Join( ",", nicknames );
-            return "KICK " + channellist + " " + nicknamelist + " :" + comment;
+            string channelList = String.Join( ",", channels );
+            string nicknameList = String.Join( ",", nicknames );
+            return "KICK " + channelList + " " + nicknameList + " :" + comment;
         }
 
         public static string Motd() {
@@ -175,12 +175,12 @@ namespace fCraft {
             return "LINKS";
         }
 
-        public static string Links( string servermask ) {
-            return "LINKS " + servermask;
+        public static string Links( string serverMask ) {
+            return "LINKS " + serverMask;
         }
 
-        public static string Links( string remoteserver, string servermask ) {
-            return "LINKS " + remoteserver + " " + servermask;
+        public static string Links( string remoteServer, string serverMask ) {
+            return "LINKS " + remoteServer + " " + serverMask;
         }
 
         public static string Time() {
@@ -191,12 +191,12 @@ namespace fCraft {
             return "TIME " + target;
         }
 
-        public static string Connect( string targetserver, string port ) {
-            return "CONNECT " + targetserver + " " + port;
+        public static string Connect( string targetServer, string port ) {
+            return "CONNECT " + targetServer + " " + port;
         }
 
-        public static string Connect( string targetserver, string port, string remoteserver ) {
-            return "CONNECT " + targetserver + " " + port + " " + remoteserver;
+        public static string Connect( string targetServer, string port, string remoteServer ) {
+            return "CONNECT " + targetServer + " " + port + " " + remoteServer;
         }
 
         public static string Trace() {
@@ -235,8 +235,8 @@ namespace fCraft {
             return "SERVLIST " + mask + " " + type;
         }
 
-        public static string Squery( string servicename, string servicetext ) {
-            return "SQUERY " + servicename + " :" + servicetext;
+        public static string Squery( string serviceName, string serviceText ) {
+            return "SQUERY " + serviceName + " :" + serviceText;
         }
 
         public static string List() {
@@ -248,8 +248,8 @@ namespace fCraft {
         }
 
         public static string List( string[] channels ) {
-            string channellist = String.Join( ",", channels );
-            return "LIST " + channellist;
+            string channelList = String.Join( ",", channels );
+            return "LIST " + channelList;
         }
 
         public static string List( string channel, string target ) {
@@ -257,8 +257,8 @@ namespace fCraft {
         }
 
         public static string List( string[] channels, string target ) {
-            string channellist = String.Join( ",", channels );
-            return "LIST " + channellist + " " + target;
+            string channelList = String.Join( ",", channels );
+            return "LIST " + channelList + " " + target;
         }
 
         public static string Names() {
@@ -270,8 +270,8 @@ namespace fCraft {
         }
 
         public static string Names( string[] channels ) {
-            string channellist = String.Join( ",", channels );
-            return "NAMES " + channellist;
+            string channelList = String.Join( ",", channels );
+            return "NAMES " + channelList;
         }
 
         public static string Names( string channel, string target ) {
@@ -279,24 +279,24 @@ namespace fCraft {
         }
 
         public static string Names( string[] channels, string target ) {
-            string channellist = String.Join( ",", channels );
-            return "NAMES " + channellist + " " + target;
+            string channelList = String.Join( ",", channels );
+            return "NAMES " + channelList + " " + target;
         }
 
         public static string Topic( string channel ) {
             return "TOPIC " + channel;
         }
 
-        public static string Topic( string channel, string newtopic ) {
-            return "TOPIC " + channel + " :" + newtopic;
+        public static string Topic( string channel, string newTopic ) {
+            return "TOPIC " + channel + " :" + newTopic;
         }
 
         public static string Mode( string target ) {
             return "MODE " + target;
         }
 
-        public static string Mode( string target, string newmode ) {
-            return "MODE " + target + " " + newmode;
+        public static string Mode( string target, string newMode ) {
+            return "MODE " + target + " " + newMode;
         }
 
         public static string Service( string nickname, string distribution, string info ) {
@@ -328,8 +328,8 @@ namespace fCraft {
         }
 
         public static string Whois( string[] masks ) {
-            string masklist = String.Join( ",", masks );
-            return "WHOIS " + masklist;
+            string maskList = String.Join( ",", masks );
+            return "WHOIS " + maskList;
         }
 
         public static string Whois( string target, string mask ) {
@@ -337,8 +337,8 @@ namespace fCraft {
         }
 
         public static string Whois( string target, string[] masks ) {
-            string masklist = String.Join( ",", masks );
-            return "WHOIS " + target + " " + masklist;
+            string maskList = String.Join( ",", masks );
+            return "WHOIS " + target + " " + maskList;
         }
 
         public static string Whowas( string nickname ) {
@@ -346,8 +346,8 @@ namespace fCraft {
         }
 
         public static string Whowas( string[] nicknames ) {
-            string nicknamelist = String.Join( ",", nicknames );
-            return "WHOWAS " + nicknamelist;
+            string nicknameList = String.Join( ",", nicknames );
+            return "WHOWAS " + nicknameList;
         }
 
         public static string Whowas( string nickname, string count ) {
@@ -355,8 +355,8 @@ namespace fCraft {
         }
 
         public static string Whowas( string[] nicknames, string count ) {
-            string nicknamelist = String.Join( ",", nicknames );
-            return "WHOWAS " + nicknamelist + " " + count + " ";
+            string nicknameList = String.Join( ",", nicknames );
+            return "WHOWAS " + nicknameList + " " + count + " ";
         }
 
         public static string Whowas( string nickname, string count, string target ) {
@@ -364,8 +364,8 @@ namespace fCraft {
         }
 
         public static string Whowas( string[] nicknames, string count, string target ) {
-            string nicknamelist = String.Join( ",", nicknames );
-            return "WHOWAS " + nicknamelist + " " + count + " " + target;
+            string nicknameList = String.Join( ",", nicknames );
+            return "WHOWAS " + nicknameList + " " + count + " " + target;
         }
 
         public static string Kill( string nickname, string comment ) {
@@ -388,16 +388,16 @@ namespace fCraft {
             return "PONG " + server + " " + server2;
         }
 
-        public static string Error( string errormessage ) {
-            return "ERROR :" + errormessage;
+        public static string Error( string errorMessage ) {
+            return "ERROR :" + errorMessage;
         }
 
         public static string Away() {
             return "AWAY";
         }
 
-        public static string Away( string awaytext ) {
-            return "AWAY :" + awaytext;
+        public static string Away( string awayText ) {
+            return "AWAY :" + awayText;
         }
 
         public static string Rehash() {
@@ -432,8 +432,8 @@ namespace fCraft {
             return "USERS " + target;
         }
 
-        public static string Wallops( string wallopstext ) {
-            return "WALLOPS :" + wallopstext;
+        public static string Wallops( string wallopsText ) {
+            return "WALLOPS :" + wallopsText;
         }
 
         public static string Userhost( string nickname ) {
@@ -441,8 +441,8 @@ namespace fCraft {
         }
 
         public static string Userhost( string[] nicknames ) {
-            string nicknamelist = String.Join( " ", nicknames );
-            return "USERHOST " + nicknamelist;
+            string nicknameList = String.Join( " ", nicknames );
+            return "USERHOST " + nicknameList;
         }
 
         public static string Ison( string nickname ) {
@@ -450,16 +450,16 @@ namespace fCraft {
         }
 
         public static string Ison( string[] nicknames ) {
-            string nicknamelist = String.Join( " ", nicknames );
-            return "ISON " + nicknamelist;
+            string nicknameList = String.Join( " ", nicknames );
+            return "ISON " + nicknameList;
         }
 
         public static string Quit() {
             return "QUIT";
         }
 
-        public static string Quit( string quitmessage ) {
-            return "QUIT :" + quitmessage;
+        public static string Quit( string quitMessage ) {
+            return "QUIT :" + quitMessage;
         }
 
         public static string Squit( string server, string comment ) {

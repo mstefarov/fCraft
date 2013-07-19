@@ -2,7 +2,7 @@
 using System;
 
 namespace fCraft.Drawing {
-    /// <summary> A self-contained DrawOperation that prodivides its own brush.
+    /// <summary> A self-contained DrawOperation that provides its own brush.
     /// Purpose of this class is mostly to take care of the boilerplate code. </summary>
     public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush, IBrushInstance {
 

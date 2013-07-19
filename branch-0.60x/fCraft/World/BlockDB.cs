@@ -24,14 +24,14 @@ namespace fCraft {
         public World World { get; internal set; }
 
 
-        /// <summary> Sets this BlockDB's enabled state to Yes (always on), No (aways off),
+        /// <summary> Sets this BlockDB's enabled state to Yes (always on), No (always off),
         /// or Auto (on or off depending on BlockDBAutoEnableRank config key and World's build permissions). </summary>
         public YesNoAuto EnabledState {
             get { return enabledState; }
             set {
                 IDisposable writeLockHandle = null;
                 try {
-                    // make sure we dont acquire the write lock twice
+                    // make sure we don't acquire the write lock twice
                     if( !locker.IsWriteLockHeld ) {
                         writeLockHandle = locker.WriteLock();
                     }
@@ -79,7 +79,7 @@ namespace fCraft {
 
 
         // BlockDB files are supposed to be aligned to 20 bytes.
-        // Misalignment might happen if writing didnt finish properly - e.g. power outage, or ungraceful shutdown.
+        // Misalignment might happen if writing didn't finish properly - e.g. power outage, or ungraceful shutdown.
         // If that's not the case, the last few bytes are trimmed off the BlockDB file.
         void CheckAlignment() {
             FileInfo fi = new FileInfo( FileName );
@@ -628,7 +628,7 @@ namespace fCraft {
         /// <exception cref="InvalidOperationException"> BlockDB is disabled. </exception>
         /// <exception cref="EndOfStreamException"> The end of FBDB file is reached prematurely (corrupted file, or outside interference). </exception>
         /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
+        /// <exception cref="IOException"> An I/O error occurs while trying to read FBDB file from disk. </exception>
         [NotNull]
         public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType,
                                       [NotNull, InstantHandle] Predicate<BlockDBEntry> selector ) {
@@ -666,7 +666,7 @@ namespace fCraft {
         /// <exception cref="InvalidOperationException"> BlockDB is disabled. </exception>
         /// <exception cref="EndOfStreamException"> The end of FBDB file is reached prematurely (corrupted file, or outside interference). </exception>
         /// <exception cref="DataMisalignedException"> FBDB file is not aligned to 20 bytes (likely corrupted). </exception>
-        /// <exception cref="IOException"> An I/O error occurrs while trying to read FBDB file from disk. </exception>
+        /// <exception cref="IOException"> An I/O error occurs while trying to read FBDB file from disk. </exception>
         public void Traverse( [NotNull] IBlockDBQueryProcessor processor ) {
             if( processor == null ) throw new ArgumentNullException( "processor" );
             if( !IsEnabled || !IsEnabledGlobally ) {

@@ -43,7 +43,7 @@ namespace fCraft {
         /// <summary> Creates parameters for a given preset name.
         /// Returns null if preset name was not recognized. Throws exceptions in case of other failures. </summary>
         /// <param name="presetName"> Name of preset. May be null (meaning "return defaults"). </param>
-        /// <returns> MapGeneratorParameters object for given preset; null if presetName was not recongized. </returns>
+        /// <returns> MapGeneratorParameters object for given preset; null if presetName was not recognized. </returns>
         [CanBeNull]
         public abstract MapGeneratorParameters CreateParameters( [NotNull] string presetName );
     }

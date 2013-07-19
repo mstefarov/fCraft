@@ -99,28 +99,28 @@ namespace fCraft {
         }
 
 
-        static void FindTrees( ForesterArgs args, ICollection<Tree> treelist ) {
-            int treeheight = args.Height;
+        static void FindTrees( ForesterArgs args, ICollection<Tree> treeList ) {
+            int treeHeight = args.Height;
 
             for( int x = 0; x < args.Map.Width; x++ ) {
                 for( int z = 0; z < args.Map.Length; z++ ) {
                     int y = args.Map.Height - 1;
                     while( true ) {
-                        int foliagetop = args.Map.SearchColumn( x, z, args.FoliageBlock, y );
-                        if( foliagetop < 0 ) break;
-                        y = foliagetop;
-                        Vector3I trunktop = new Vector3I( x, y - 1, z );
-                        int height = DistanceToBlock( args.Map, new Vector3F( trunktop ), Vector3F.Down, args.TrunkBlock, true );
+                        int foliageTop = args.Map.SearchColumn( x, z, args.FoliageBlock, y );
+                        if( foliageTop < 0 ) break;
+                        y = foliageTop;
+                        Vector3I trunkTop = new Vector3I( x, y - 1, z );
+                        int height = DistanceToBlock( args.Map, new Vector3F( trunkTop ), Vector3F.Down, args.TrunkBlock, true );
                         if( height == 0 ) {
                             y--;
                             continue;
                         }
                         y -= height;
                         if( args.Height > 0 ) {
-                            height = args.Rand.Next( treeheight - args.HeightVariation,
-                                                     treeheight + args.HeightVariation + 1 );
+                            height = args.Rand.Next( treeHeight - args.HeightVariation,
+                                                     treeHeight + args.HeightVariation + 1 );
                         }
-                        treelist.Add( new Tree {
+                        treeList.Add( new Tree {
                             Args = args,
                             Pos = new Vector3I( x, y, z ),
                             Height = height
@@ -132,19 +132,19 @@ namespace fCraft {
         }
 
 
-        static void PlantTrees( ForesterArgs args, ICollection<Tree> treelist ) {
-            int treeheight = args.Height;
+        static void PlantTrees( ForesterArgs args, ICollection<Tree> treeList ) {
+            int treeHeight = args.Height;
 
             int attempts = 0;
-            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
+            while( treeList.Count < args.TreeCount && attempts < MaxTries ) {
                 attempts++;
-                int height = args.Rand.Next( treeheight - args.HeightVariation,
-                                             treeheight + args.HeightVariation + 1 );
+                int height = args.Rand.Next( treeHeight - args.HeightVariation,
+                                             treeHeight + args.HeightVariation + 1 );
 
                 Vector3I treeLoc = FindRandomTreeLocation( args, height );
                 if( treeLoc.Y < 0 ) continue;
                 else treeLoc.Y++;
-                treelist.Add( new Tree {
+                treeList.Add( new Tree {
                     Args = args,
                     Height = height,
                     Pos = treeLoc
@@ -155,9 +155,9 @@ namespace fCraft {
 
         static Vector3I FindRandomTreeLocation( ForesterArgs args, int height ) {
             int padding = (int)(height / 3f + 1);
-            int mindim = Math.Min( args.Map.Width, args.Map.Length );
-            if( padding > mindim / 2.2 ) {
-                padding = (int)(mindim / 2.2);
+            int minDim = Math.Min( args.Map.Width, args.Map.Length );
+            if( padding > minDim / 2.2 ) {
+                padding = (int)(minDim / 2.2);
             }
             int x = args.Rand.Next( padding, args.Map.Width - padding - 1 );
             int z = args.Rand.Next( padding, args.Map.Length - padding - 1 );
@@ -192,9 +192,9 @@ namespace fCraft {
                 bool displaced = false;
                 foreach( Tree otherTree in treeList ) {
                     Vector3I otherLoc = otherTree.Pos;
-                    int tallx = otherLoc[0];
-                    int tallz = otherLoc[2];
-                    float dist = (float)Math.Sqrt( Sqr( tallx - xyz.X + .5 ) + Sqr( tallz - xyz.Z + .5 ) );
+                    int tallX = otherLoc[0];
+                    int tallZ = otherLoc[2];
+                    float dist = (float)Math.Sqrt( Sqr( tallX - xyz.X + .5 ) + Sqr( tallZ - xyz.Z + .5 ) );
                     float threshold = ( otherTree.Height + height ) * .193f;
                     if( dist < threshold ) {
                         displaced = true;
@@ -212,18 +212,18 @@ namespace fCraft {
         }
 
 
-        static void PlantMangroves( ForesterArgs args, ICollection<Tree> treelist ) {
-            int treeheight = args.Height;
+        static void PlantMangroves( ForesterArgs args, ICollection<Tree> treeList ) {
+            int treeHeight = args.Height;
 
             int attempts = 0;
-            while( treelist.Count < args.TreeCount && attempts < MaxTries ) {
+            while( treeList.Count < args.TreeCount && attempts < MaxTries ) {
                 attempts++;
-                int height = args.Rand.Next( treeheight - args.HeightVariation,
-                                             treeheight + args.HeightVariation + 1 );
+                int height = args.Rand.Next( treeHeight - args.HeightVariation,
+                                             treeHeight + args.HeightVariation + 1 );
                 int padding = (int)(height / 3f + 1);
-                int mindim = Math.Min( args.Map.Width, args.Map.Length );
-                if( padding > mindim / 2.2 ) {
-                    padding = (int)(mindim / 2.2);
+                int minDim = Math.Min( args.Map.Width, args.Map.Length );
+                if( padding > minDim / 2.2 ) {
+                    padding = (int)(minDim / 2.2);
                 }
                 int x = args.Rand.Next( padding, args.Map.Width - padding - 1 );
                 int z = args.Rand.Next( padding, args.Map.Length - padding - 1 );
@@ -237,7 +237,7 @@ namespace fCraft {
                 }
 
                 y += (int)Math.Sqrt( height - dist ) + 2;
-                treelist.Add( new Tree {
+                treeList.Add( new Tree {
                     Args = args,
                     Height = height,
                     Pos = new Vector3I( x, y, z )
@@ -246,7 +246,7 @@ namespace fCraft {
         }
 
 
-        static void ProcessTrees( ForesterArgs args, IList<Tree> treelist ) {
+        static void ProcessTrees( ForesterArgs args, IList<Tree> treeList ) {
             TreeShape[] shapeChoices;
             switch( args.Shape ) {
                 case TreeShape.Stickly:
@@ -263,10 +263,10 @@ namespace fCraft {
                     break;
             }
 
-            for( int i = 0; i < treelist.Count; i++ ) {
-                TreeShape newshape = shapeChoices[args.Rand.Next( 0, shapeChoices.Length )];
+            for( int i = 0; i < treeList.Count; i++ ) {
+                TreeShape newShape = shapeChoices[args.Rand.Next( 0, shapeChoices.Length )];
                 Tree newTree;
-                switch( newshape ) {
+                switch( newShape ) {
                     case TreeShape.Normal:
                         newTree = new NormalTree();
                         break;
@@ -291,11 +291,11 @@ namespace fCraft {
                     default:
                         throw new ArgumentException( "Unknown tree shape type" );
                 }
-                newTree.Copy( treelist[i] );
+                newTree.Copy( treeList[i] );
 
                 if( args.MapHeightLimit ) {
                     int height = newTree.Height;
-                    int ybase = newTree.Pos[1];
+                    int yBase = newTree.Pos[1];
                     int mapHeight = args.Map.Height;
                     int foliageHeight;
                     if( args.Shape == TreeShape.Rainforest ) {
@@ -303,14 +303,14 @@ namespace fCraft {
                     } else {
                         foliageHeight = 4;
                     }
-                    if( ybase + height + foliageHeight > mapHeight ) {
-                        newTree.Height = mapHeight - ybase - foliageHeight;
+                    if( yBase + height + foliageHeight > mapHeight ) {
+                        newTree.Height = mapHeight - yBase - foliageHeight;
                     }
                 }
 
                 if( newTree.Height < 1 ) newTree.Height = 1;
                 newTree.Prepare();
-                treelist[i] = newTree;
+                treeList[i] = newTree;
             }
         }
 
@@ -347,9 +347,9 @@ namespace fCraft {
 
         sealed class NormalTree : StickTree {
             public override void MakeFoliage() {
-                int topy = Pos[1] + Height - 1;
-                int start = topy - 2;
-                int end = topy + 2;
+                int topY = Pos[1] + Height - 1;
+                int start = topY - 2;
+                int end = topY + 2;
 
                 for( int y = start; y < end; y++ ) {
                     int rad;
@@ -358,14 +358,14 @@ namespace fCraft {
                     } else {
                         rad = 2;
                     }
-                    for( int xoff = -rad; xoff < rad + 1; xoff++ ) {
-                        for( int zoff = -rad; zoff < rad + 1; zoff++ ) {
+                    for( int xOff = -rad; xOff < rad + 1; xOff++ ) {
+                        for( int zOff = -rad; zOff < rad + 1; zOff++ ) {
                             if( Args.Rand.NextDouble() > .618 &&
-                                Math.Abs( xoff ) == Math.Abs( zoff ) &&
-                                Math.Abs( xoff ) == rad ) {
+                                Math.Abs( xOff ) == Math.Abs( zOff ) &&
+                                Math.Abs( xOff ) == rad ) {
                                 continue;
                             }
-                            Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                            Args.PlaceBlock( Pos[0] + xOff, Pos[2] + zOff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -379,9 +379,9 @@ namespace fCraft {
                 int end = start + Height + 1;
                 for( int y = start; y < end; y++ ) {
                     for( int i = 0; i < 2; i++ ) {
-                        int xoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
-                        int zoff = Args.Rand.Next( 0, 2 ) * 2 - 1;
-                        Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                        int xOff = Args.Rand.Next( 0, 2 ) * 2 - 1;
+                        int zOff = Args.Rand.Next( 0, 2 ) * 2 - 1;
+                        Args.PlaceBlock( Pos[0] + xOff, Pos[2] + zOff, y, Args.FoliageBlock );
                     }
                 }
             }
@@ -391,10 +391,10 @@ namespace fCraft {
         sealed class PalmTree : StickTree {
             public override void MakeFoliage() {
                 int y = Pos[1] + Height;
-                for( int xoff = -2; xoff < 3; xoff++ ) {
-                    for( int zoff = -2; zoff < 3; zoff++ ) {
-                        if( Math.Abs( xoff ) == Math.Abs( zoff ) ) {
-                            Args.PlaceBlock( Pos[0] + xoff, Pos[2] + zoff, y, Args.FoliageBlock );
+                for( int xOff = -2; xOff < 3; xOff++ ) {
+                    for( int zOff = -2; zOff < 3; zOff++ ) {
+                        if( Math.Abs( xOff ) == Math.Abs( zOff ) ) {
+                            Args.PlaceBlock( Pos[0] + xOff, Pos[2] + zOff, y, Args.FoliageBlock );
                         }
                     }
                 }
@@ -410,25 +410,25 @@ namespace fCraft {
             protected float[] FoliageShape { get; set; }
             Vector3I[] FoliageCoords { get; set; }
 
-            void CrossSection( Vector3I center, float radius, int diraxis, Block matidx ) {
+            void CrossSection( Vector3I center, float radius, int dirAxis, Block matIndex ) {
                 int rad = (int)(radius + .618);
-                int secidx1 = (diraxis - 1) % 3;
-                int secidx2 = (diraxis + 1) % 3;
+                int secIndex1 = (dirAxis - 1) % 3;
+                int secIndex2 = (dirAxis + 1) % 3;
 
                 Vector3I coord = new Vector3I();
 
                 for( int off1 = -rad; off1 <= rad; off1++ ) {
                     for( int off2 = -rad; off2 <= rad; off2++ ) {
-                        float thisdist = (float)Math.Sqrt( Sqr( Math.Abs( off1 ) + .5 ) +
+                        float thisDist = (float)Math.Sqrt( Sqr( Math.Abs( off1 ) + .5 ) +
                                                            Sqr( Math.Abs( off2 ) + .5 ) );
-                        if( thisdist > radius ) continue;
-                        int pri = center[diraxis];
-                        int sec1 = center[secidx1] + off1;
-                        int sec2 = center[secidx2] + off2;
-                        coord[diraxis] = pri;
-                        coord[secidx1] = sec1;
-                        coord[secidx2] = sec2;
-                        Args.PlaceBlock( coord, matidx );
+                        if( thisDist > radius ) continue;
+                        int pri = center[dirAxis];
+                        int sec1 = center[secIndex1] + off1;
+                        int sec2 = center[secIndex2] + off2;
+                        coord[dirAxis] = pri;
+                        coord[secIndex1] = sec1;
+                        coord[secIndex2] = sec2;
+                        Args.PlaceBlock( coord, matIndex );
                     }
                 }
             }
@@ -452,33 +452,33 @@ namespace fCraft {
 
             void TaperedLimb( Vector3I start, Vector3I end, float startSize, float endSize ) {
                 Vector3I delta = end - start;
-                int primidx = (int)delta.LongestAxis;
-                int maxdist = delta[primidx];
-                if( maxdist == 0 ) return;
-                int primsign = (maxdist > 0 ? 1 : -1);
+                int primIndex = (int)delta.LongestAxis;
+                int maxDist = delta[primIndex];
+                if( maxDist == 0 ) return;
+                int primSign = (maxDist > 0 ? 1 : -1);
 
-                int secidx1 = (primidx - 1) % 3;
-                int secidx2 = (primidx + 1) % 3;
+                int secIndex1 = (primIndex - 1) % 3;
+                int secIndex2 = (primIndex + 1) % 3;
 
-                int secdelta1 = delta[secidx1];
-                float secfac1 = secdelta1 / (float)delta[primidx];
-                int secdelta2 = delta[secidx2];
-                float secfac2 = secdelta2 / (float)delta[primidx];
+                int secDelta1 = delta[secIndex1];
+                float secFac1 = secDelta1 / (float)delta[primIndex];
+                int secDelta2 = delta[secIndex2];
+                float secFac2 = secDelta2 / (float)delta[primIndex];
 
                 Vector3I coord = new Vector3I();
-                int endoffset = delta[primidx] + primsign;
+                int endOffset = delta[primIndex] + primSign;
 
-                for( int primoffset = 0; primoffset < endoffset; primoffset += primsign ) {
-                    int primloc = start[primidx] + primoffset;
-                    int secloc1 = (int)(start[secidx1] + primoffset * secfac1);
-                    int secloc2 = (int)(start[secidx2] + primoffset * secfac2);
-                    coord[primidx] = primloc;
-                    coord[secidx1] = secloc1;
-                    coord[secidx2] = secloc2;
-                    float primdist = Math.Abs( delta[primidx] );
-                    float radius = endSize + (startSize - endSize) * Math.Abs( delta[primidx] - primoffset ) / primdist;
+                for( int primOffset = 0; primOffset < endOffset; primOffset += primSign ) {
+                    int primLoc = start[primIndex] + primOffset;
+                    int secLoc1 = (int)(start[secIndex1] + primOffset * secFac1);
+                    int secLoc2 = (int)(start[secIndex2] + primOffset * secFac2);
+                    coord[primIndex] = primLoc;
+                    coord[secIndex1] = secLoc1;
+                    coord[secIndex2] = secLoc2;
+                    float primDist = Math.Abs( delta[primIndex] );
+                    float radius = endSize + (startSize - endSize) * Math.Abs( delta[primIndex] - primOffset ) / primDist;
 
-                    CrossSection( coord, radius, primidx, Args.TrunkBlock );
+                    CrossSection( coord, radius, primIndex, Args.TrunkBlock );
                 }
             }
 
@@ -492,46 +492,46 @@ namespace fCraft {
             }
 
             void MakeBranches() {
-                int topy = Pos[1] + (int)(TrunkHeight + .5);
-                float endrad = TrunkRadius * (1 - TrunkHeight / Height);
-                if( endrad < 1 ) endrad = 1;
+                int topY = Pos[1] + (int)(TrunkHeight + .5);
+                float endRad = TrunkRadius * (1 - TrunkHeight / Height);
+                if( endRad < 1 ) endRad = 1;
 
                 foreach( Vector3I coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord.X - Pos.X ) + Sqr( coord.Z - Pos.Z ) );
-                    float ydist = coord[1] - Pos[1];
-                    float value = (BranchDensity * 220 * Height) / Cub( ydist + dist );
+                    float distY = coord[1] - Pos[1];
+                    float value = (BranchDensity * 220 * Height) / Cub( distY + dist );
 
                     if( value < Args.Rand.NextDouble() ) continue;
 
                     int posy = coord[1];
                     float slope = (float)(BranchSlope + (.5 - Args.Rand.NextDouble()) * .16);
 
-                    float branchy, basesize;
-                    if( coord[1] - dist * slope > topy ) {
+                    float branchY, baseSize;
+                    if( coord[1] - dist * slope > topY ) {
                         float threshold = 1 / (float)Height;
                         if( Args.Rand.NextDouble() < threshold ) continue;
-                        branchy = topy;
-                        basesize = endrad;
+                        branchY = topY;
+                        baseSize = endRad;
                     } else {
-                        branchy = posy - dist * slope;
-                        basesize = endrad + (TrunkRadius - endrad) *
-                                   (topy - branchy) / TrunkHeight;
+                        branchY = posy - dist * slope;
+                        baseSize = endRad + (TrunkRadius - endRad) *
+                                   (topY - branchY) / TrunkHeight;
                     }
 
-                    float startsize = (float)(basesize * (1 + Args.Rand.NextDouble()) *
+                    float startSize = (float)(baseSize * (1 + Args.Rand.NextDouble()) *
                                               .618 * Math.Pow( dist / Height, .618 ));
-                    float rndr = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * basesize * .618);
-                    float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
-                    int rndx = (int)(rndr * Math.Sin( rndang ) + .5);
-                    int rndz = (int)(rndr * Math.Cos( rndang ) + .5);
-                    Vector3I startcoord = new Vector3I {
-                        X = Pos[0] + rndx,
-                        Z = Pos[2] + rndz,
-                        Y = (int)branchy
+                    float randR = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * baseSize * .618);
+                    float randAng = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
+                    int randX = (int)(randR * Math.Sin( randAng ) + .5);
+                    int randZ = (int)(randR * Math.Cos( randAng ) + .5);
+                    Vector3I startCoord = new Vector3I {
+                        X = Pos[0] + randX,
+                        Z = Pos[2] + randZ,
+                        Y = (int)branchY
                     };
-                    if( startsize < 1 ) startsize = 1;
-                    const float endsize = 1;
-                    TaperedLimb( startcoord, coord, startsize, endsize );
+                    if( startSize < 1 ) startSize = 1;
+                    const float endSize = 1;
+                    TaperedLimb( startCoord, coord, startSize, endSize );
                 }
             }
 
@@ -540,48 +540,46 @@ namespace fCraft {
                 public float Radius;
             }
 
-            void MakeRoots( IList<RootBase> rootbases ) {
-                if( rootbases.Count == 0 ) return;
+            void MakeRoots( IList<RootBase> rootBases ) {
+                if( rootBases.Count == 0 ) return;
                 foreach( Vector3I coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord[0] - Pos[0] ) + Sqr( coord[2] - Pos[2] ) );
-                    float ydist = coord[1] - Pos[1];
-                    float value = (BranchDensity * 220 * Height) / Cub( ydist + dist );
+                    float distY = coord[1] - Pos[1];
+                    float value = (BranchDensity * 220 * Height) / Cub( distY + dist );
                     if( value < Args.Rand.NextDouble() ) continue;
 
-                    RootBase rootbase = rootbases[Args.Rand.Next( 0, rootbases.Count )];
-                    int rootx = rootbase.X;
-                    int rootz = rootbase.Z;
-                    float rootbaseradius = rootbase.Radius;
+                    RootBase rootBase = rootBases[Args.Rand.Next( 0, rootBases.Count )];
+                    float rootBaseRadius = rootBase.Radius;
 
-                    float rndr = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * rootbaseradius * .618);
-                    float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
-                    int rndx = (int)(rndr * Math.Sin( rndang ) + .5);
-                    int rndz = (int)(rndr * Math.Cos( rndang ) + .5);
-                    int rndy = (int)(Args.Rand.NextDouble() * rootbaseradius * .5);
-                    Vector3I startcoord = new Vector3I {
-                        X = rootx + rndx,
-                        Z = rootz + rndz,
-                        Y = Pos[1] + rndy
+                    float randR = (float)(Math.Sqrt( Args.Rand.NextDouble() ) * rootBaseRadius * .618);
+                    float randAng = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
+                    int randX = (int)(randR * Math.Sin( randAng ) + .5);
+                    int randZ = (int)(randR * Math.Cos( randAng ) + .5);
+                    int randY = (int)(Args.Rand.NextDouble() * rootBaseRadius * .5);
+                    Vector3I startCoord = new Vector3I {
+                        X = rootBase.X + randX,
+                        Z = rootBase.Z + randZ,
+                        Y = Pos[1] + randY
                     };
-                    Vector3F offset = new Vector3F( startcoord - coord );
+                    Vector3F offset = new Vector3F( startCoord - coord );
 
                     if( Args.Shape == TreeShape.Mangrove ) {
                         // offset = [int(val * 1.618 - 1.5) for val in offset]
                         offset = offset * 1.618f - HalfBlock * 3;
                     }
 
-                    Vector3I endcoord = startcoord + offset.RoundDown();
-                    float rootstartsize = (float)(rootbaseradius * .618 * Math.Abs( offset[1] ) / (Height * .618));
+                    Vector3I endCoord = startCoord + offset.RoundDown();
+                    float rootStartSize = (float)(rootBaseRadius * .618 * Math.Abs( offset[1] ) / (Height * .618));
 
-                    if( rootstartsize < 1 ) rootstartsize = 1;
-                    const float endsize = 1;
+                    if( rootStartSize < 1 ) rootStartSize = 1;
+                    const float endSize = 1;
 
                     if( Args.Roots == RootMode.ToStone ||
                         Args.Roots == RootMode.Hanging ) {
-                        float offlength = offset.Length;
-                        if( offlength < 1 ) continue;
-                        float rootmid = endsize;
-                        Vector3F vec = offset / offlength;
+                        float offLength = offset.Length;
+                        if( offLength < 1 ) continue;
+                        float rootMid = endSize;
+                        Vector3F vec = offset / offLength;
 
                         Block searchIndex = Block.Air;
                         if( Args.Roots == RootMode.ToStone ) {
@@ -590,86 +588,84 @@ namespace fCraft {
                             searchIndex = Block.Air;
                         }
 
-                        int startdist = (int)(Args.Rand.NextDouble() * 6 * Math.Sqrt( rootstartsize ) + 2.8);
-                        Vector3I searchstart = new Vector3I( startcoord + vec * startdist );
+                        int startDist = (int)(Args.Rand.NextDouble() * 6 * Math.Sqrt( rootStartSize ) + 2.8);
+                        Vector3I searchStart = new Vector3I( startCoord + vec * startDist );
 
-                        dist = startdist + DistanceToBlock( Args.Map, new Vector3F( searchstart ), vec, searchIndex );
+                        dist = startDist + DistanceToBlock( Args.Map, new Vector3F( searchStart ), vec, searchIndex );
 
-                        if( dist < offlength ) {
-                            rootmid += (rootstartsize - endsize) * (1 - dist / offlength);
-                            endcoord = new Vector3I( startcoord + vec * dist );
+                        if( dist < offLength ) {
+                            rootMid += (rootStartSize - endSize) * (1 - dist / offLength);
+                            endCoord = new Vector3I( startCoord + vec * dist );
                             if( Args.Roots == RootMode.Hanging ) {
-                                float remainingDist = offlength - dist;
-                                Vector3I bottomcord = endcoord;
-                                bottomcord[1] -= (int)remainingDist;
-                                TaperedLimb( endcoord, bottomcord, rootmid, endsize );
+                                float remainingDist = offLength - dist;
+                                Vector3I bottomCord = endCoord;
+                                bottomCord[1] -= (int)remainingDist;
+                                TaperedLimb( endCoord, bottomCord, rootMid, endSize );
                             }
                         }
-                        TaperedLimb( startcoord, endcoord, rootstartsize, rootmid );
+                        TaperedLimb( startCoord, endCoord, rootStartSize, rootMid );
                     } else {
-                        TaperedLimb( startcoord, endcoord, rootstartsize, endsize );
+                        TaperedLimb( startCoord, endCoord, rootStartSize, endSize );
                     }
                 }
             }
 
             public override void MakeTrunk() {
-                int starty = Pos[1];
-                int midy = (int)(Pos[1] + TrunkHeight * .382);
-                int topy = (int)(Pos[1] + TrunkHeight + .5);
+                int startY = Pos[1];
+                int midY = (int)(Pos[1] + TrunkHeight * .382);
+                int topY = (int)(Pos[1] + TrunkHeight + .5);
 
-                int x = Pos[0];
-                int z = Pos[2];
-                float midrad = TrunkRadius * .8f;
-                float endrad = TrunkRadius * (1 - TrunkHeight / Height);
+                float midRad = TrunkRadius * .8f;
+                float endRad = TrunkRadius * (1 - TrunkHeight / Height);
 
-                if( endrad < 1 ) endrad = 1;
-                if( midrad < endrad ) midrad = endrad;
+                if( endRad < 1 ) endRad = 1;
+                if( midRad < endRad ) midRad = endRad;
 
-                float startrad;
-                List<RootBase> rootbases = new List<RootBase>();
+                float startRad;
+                List<RootBase> rootBases = new List<RootBase>();
                 if( Args.RootButtresses || Args.Shape == TreeShape.Mangrove ) {
-                    startrad = TrunkRadius * .8f;
-                    rootbases.Add( new RootBase {
-                        X = x,
-                        Z = z,
-                        Radius = startrad
+                    startRad = TrunkRadius * .8f;
+                    rootBases.Add( new RootBase {
+                        X = Pos[0],
+                        Z = Pos[2],
+                        Radius = startRad
                     } );
                     float buttressRadius = TrunkRadius * .382f;
-                    float posradius = TrunkRadius;
+                    float posRadius = TrunkRadius;
                     if( Args.Shape == TreeShape.Mangrove ) {
-                        posradius *= 2.618f;
+                        posRadius *= 2.618f;
                     }
-                    int numOfButtresss = (int)(Math.Sqrt( TrunkRadius ) + 3.5);
-                    for( int i = 0; i < numOfButtresss; i++ ) {
-                        float rndang = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
-                        float thisposradius = (float)(posradius * (.9 + Args.Rand.NextDouble() * .2));
-                        int thisx = x + (int)(thisposradius * Math.Sin( rndang ));
-                        int thisz = z + (int)(thisposradius * Math.Cos( rndang ));
+                    int munOfButtresses = (int)(Math.Sqrt( TrunkRadius ) + 3.5);
+                    for( int i = 0; i < munOfButtresses; i++ ) {
+                        float randAng = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
+                        float thisPosRadius = (float)(posRadius * (.9 + Args.Rand.NextDouble() * .2));
+                        int thisX = Pos[0] + (int)(thisPosRadius * Math.Sin( randAng ));
+                        int thisZ = Pos[2] + (int)(thisPosRadius * Math.Cos( randAng ));
 
-                        float thisbuttressradius = (float)(buttressRadius * (.618 + Args.Rand.NextDouble()));
-                        if( thisbuttressradius < 1 ) thisbuttressradius = 1;
+                        float thisButtressRadius = (float)(buttressRadius * (.618 + Args.Rand.NextDouble()));
+                        if( thisButtressRadius < 1 ) thisButtressRadius = 1;
 
-                        TaperedLimb( new Vector3I( thisx, starty, thisz ), new Vector3I( x, midy, z ),
-                                     thisbuttressradius, thisbuttressradius );
-                        rootbases.Add( new RootBase {
-                            X = thisx,
-                            Z = thisz,
-                            Radius = thisbuttressradius
+                        TaperedLimb( new Vector3I( thisX, startY, thisZ ), new Vector3I( Pos[0], midY, Pos[2] ),
+                                     thisButtressRadius, thisButtressRadius );
+                        rootBases.Add( new RootBase {
+                            X = thisX,
+                            Z = thisZ,
+                            Radius = thisButtressRadius
                         } );
                     }
                 } else {
-                    startrad = TrunkRadius;
-                    rootbases.Add( new RootBase {
-                        X = x,
-                        Z = z,
-                        Radius = startrad
+                    startRad = TrunkRadius;
+                    rootBases.Add( new RootBase {
+                        X = Pos[0],
+                        Z = Pos[2],
+                        Radius = startRad
                     } );
                 }
-                TaperedLimb( new Vector3I( x, starty, z ), new Vector3I( x, midy, z ), startrad, midrad );
-                TaperedLimb( new Vector3I( x, midy, z ), new Vector3I( x, topy, z ), midrad, endrad );
+                TaperedLimb( new Vector3I( Pos[0], startY, Pos[2] ), new Vector3I( Pos[0], midY, Pos[2] ), startRad, midRad );
+                TaperedLimb( new Vector3I( Pos[0], midY, Pos[2] ), new Vector3I( Pos[0], topY, Pos[2] ), midRad, endRad );
                 MakeBranches();
                 if( Args.Roots != RootMode.None ) {
-                    MakeRoots( rootbases.ToArray() );
+                    MakeRoots( rootBases.ToArray() );
                 }
             }
 
@@ -681,17 +677,17 @@ namespace fCraft {
                 TrunkHeight = Height * .618f;
                 BranchDensity = (Args.BranchDensity / Args.FoliageDensity);
 
-                int ystart = Pos[1];
-                int yend = (Pos[1] + Height);
+                int startY = Pos[1];
+                int endY = (Pos[1] + Height);
                 int numOfClustersPerY = (int)(1.5 + Sqr( Args.FoliageDensity * Height / 19f ));
                 if( numOfClustersPerY < 1 ) numOfClustersPerY = 1;
 
                 List<Vector3I> foliageCoords = new List<Vector3I>();
-                for( int y = yend - 1; y >= ystart; y-- ) {
+                for( int y = endY - 1; y >= startY; y-- ) {
                     for( int i = 0; i < numOfClustersPerY; i++ ) {
-                        float shapefac = ShapeFunc( y - ystart );
-                        if( shapefac < 0 ) continue;
-                        float r = (float)((Math.Sqrt( Args.Rand.NextDouble() ) + .328) * shapefac);
+                        float shapeFac = ShapeFunc( y - startY );
+                        if( shapeFac < 0 ) continue;
+                        float r = (float)((Math.Sqrt( Args.Rand.NextDouble() ) + .328) * shapeFac);
                         float theta = (float)(Args.Rand.NextDouble() * 2 * Math.PI);
                         int x = (int)(r * Math.Sin( theta )) + Pos[0];
                         int z = (int)(r * Math.Cos( theta )) + Pos[2];
@@ -781,8 +777,8 @@ namespace fCraft {
                     return -1;
                 } else {
                     float width = Height * .382f;
-                    float topdist = (Height - y) / (Height * .2f);
-                    float dist = (float)(width * (.618 + topdist) * (.618 + Args.Rand.NextDouble()) * .382);
+                    float topDist = (Height - y) / (Height * .2f);
+                    float dist = (float)(width * (.618 + topDist) * (.618 + Args.Rand.NextDouble()) * .382);
                     return dist;
                 }
             }

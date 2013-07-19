@@ -31,7 +31,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Gets a list of all commands (includding hidden ones). </summary>
+        /// <summary> Gets a list of all commands (including hidden ones). </summary>
         public static CommandDescriptor[] GetCommands() {
             return Commands.Values.ToArray();
         }
@@ -72,7 +72,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> descriptor is null. </exception>
         /// <exception cref="CommandRegistrationException"> Command descriptor could not be registered.
         /// Check exception message for details. Possible reasons include:
-        /// No category/name/handler was set; a command with the same name has already been registed; command name is reserved;
+        /// No category/name/handler was set; a command with the same name has already been registered; command name is reserved;
         /// or one of the aliases of given command matches the name of another registered command. </exception>
         public static void RegisterCustomCommand( [NotNull] CommandDescriptor descriptor ) {
             if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
@@ -167,7 +167,7 @@ namespace fCraft {
         /// Case-insensitive, but no autocompletion. </summary>
         /// <param name="commandName"> Command to find. </param>
         /// <param name="alsoCheckAliases"> Whether to check command aliases. </param>
-        /// <returns> Relevant CommandDesriptor object if found, null if not found. </returns>
+        /// <returns> Relevant CommandDescriptor object if found, null if not found. </returns>
         /// <exception cref="ArgumentNullException"> commandName is null. </exception>
         [CanBeNull]
         public static CommandDescriptor GetDescriptor( [NotNull] string commandName, bool alsoCheckAliases ) {
@@ -245,7 +245,7 @@ namespace fCraft {
         #region Events
 
         /// <summary> Occurs when a command is being registered (cancelable). </summary>
-        public static event EventHandler<CommandRegistringEventArgs> CommandRegistering;
+        public static event EventHandler<CommandRegisteringEventArgs> CommandRegistering;
 
         /// <summary> Occurs when a command has been registered. </summary>
         public static event EventHandler<CommandRegisteredEventArgs> CommandRegistered;
@@ -260,7 +260,7 @@ namespace fCraft {
         static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
             var h = CommandRegistering;
             if( h == null ) return false;
-            var e = new CommandRegistringEventArgs( descriptor );
+            var e = new CommandRegisteringEventArgs( descriptor );
             h( null, e );
             return e.Cancel;
         }
@@ -328,8 +328,8 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for CommandManager.CommandRegistering event. Cancelable. </summary>
-    public sealed class CommandRegistringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
-        internal CommandRegistringEventArgs( CommandDescriptor descriptor )
+    public sealed class CommandRegisteringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
+        internal CommandRegisteringEventArgs( CommandDescriptor descriptor )
             : base( descriptor ) {
         }
 

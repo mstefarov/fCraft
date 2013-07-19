@@ -459,7 +459,7 @@ namespace fCraft.ConfigGUI {
         void AsyncGenCompleted( object sender, RunWorkerCompletedEventArgs e ) {
             stopwatch.Stop();
             if( genState.Canceled ) {
-                tStatus1.Text = "Generation canceled!";
+                tStatus1.Text = "Generation cancelled!";
                 progressBar.Visible = false;
             } else if( Map == null ) {
                 tStatus1.Text = "Generation failed!";

@@ -76,7 +76,7 @@ namespace fCraft.MapConversion {
                 throw new MapFormatException( "MapMinerCPP: Map header is incorrect." );
             }
 
-            // Read in the map dimesions
+            // Read in the map dimensions
             // Saved in big endian for who-knows-what reason.
             // XYZ(?)
             int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

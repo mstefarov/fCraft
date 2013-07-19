@@ -34,7 +34,7 @@ namespace fCraft.Drawing {
         /// Set by DrawOperation.Prepare() </summary>
         public Vector3I[] Marks { get; protected set; }
 
-        /// <summary> Time when the draw operatation began. Set by DrawOperation.Begin() </summary>
+        /// <summary> Time when the draw operation began. Set by DrawOperation.Begin() </summary>
         public DateTime StartTime { get; protected set; }
 
         /// <summary> Area that bounds the DrawOperation's extent, if possible to estimate in advance.
@@ -97,7 +97,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Whether the brush should use alternate block (if available)
         /// for filling insides of hollow DrawOps. Currently only supported by NormalBrush. 
-        /// Used with CuboidH/CuboidW/EllipsoidH drawops. </summary>
+        /// Used with CuboidH/CuboidW/EllipsoidH draw ops. </summary>
         public int AlternateBlockIndex { get; set; }
 
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
@@ -147,7 +147,7 @@ namespace fCraft.Drawing {
         /// <summary> Prepares DrawOperation to start. Called after the player made a selection,
         /// usually on player's I/O thread. Brush property must be set before calling Prepare. </summary>
         /// <param name="marks"> Array of marks given by the player. </param>
-        /// <returns> True if both DrawOperation and Brush have been prepared succesfully.
+        /// <returns> True if both DrawOperation and Brush have been prepared successfully.
         /// False if either of them failed. </returns>
         /// <exception cref="ArgumentNullException"> marks is null. </exception>
         /// <exception cref="ArgumentException"> Wrong number of marks is given. </exception>
@@ -172,8 +172,8 @@ namespace fCraft.Drawing {
 
         /// <summary> Begins the execution of this DrawOperation.
         /// Raises DrawOperation.Beginning (cancelable) and DrawOperation.Began events. </summary>
-        /// <returns> True if operation started succesfully.
-        /// False if operation was canceled by an event callback. </returns>
+        /// <returns> True if operation started successfully.
+        /// False if operation was cancelled by an event callback. </returns>
         public virtual bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );

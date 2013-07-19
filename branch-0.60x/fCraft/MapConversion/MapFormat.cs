@@ -30,7 +30,7 @@ namespace fCraft.MapConversion {
         /// <summary> Map format used by JTE's server. </summary>
         JTE,
 
-        /// <summary> Map foramt used by D3 server. </summary>
+        /// <summary> Map format used by D3 server. </summary>
         D3,
 
         /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>

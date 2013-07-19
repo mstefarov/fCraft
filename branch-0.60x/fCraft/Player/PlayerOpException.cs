@@ -6,12 +6,12 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Exception that is thrown when a player's action or command could not be completed. </summary>
     public sealed class PlayerOpException : Exception {
-        /// <summary> Initialises a new instance of fCraft.PlayerOpException, using the specified information. </summary>
+        /// <summary> Initializes a new instance of fCraft.PlayerOpException, using the specified information. </summary>
         /// <param name="player"> The player executing the command. </param>
         /// <param name="target"> The target of the command, null if no target. </param>
         /// <param name="errorCode"> Specific error code. </param>
         /// <param name="message"> Message to display. </param>
-        /// <param name="messageColored"> Message to display with colour codes applied. </param>
+        /// <param name="messageColored"> Message to display with color codes applied. </param>
         public PlayerOpException( [NotNull] Player player, PlayerInfo target,
                                   PlayerOpExceptionCode errorCode,
                                   [NotNull] string message, [NotNull] string messageColored )

@@ -19,7 +19,7 @@ namespace fCraft {
                       backgroundThread;
 
 
-        // Numeber of background tasks marked as critical,
+        // Number of background tasks marked as critical,
         // that need to be finished before the server shutdown completes.
         internal static int CriticalTaskCount {
             get {

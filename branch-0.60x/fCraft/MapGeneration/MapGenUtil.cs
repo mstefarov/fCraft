@@ -25,7 +25,7 @@ namespace fCraft {
         /// <param name="map"> Map from which parameters will be read. </param>
         /// <returns> IMapGeneratorParameters if parsing successful; null if no data is embedded. </returns>
         /// <exception cref="ArgumentNullException"> mapGen or map is null. </exception>
-        /// <exception cref="UnknownMapGeneratorException"> Unrecongized map generator was specified by the map. </exception>
+        /// <exception cref="UnknownMapGeneratorException"> Unrecognized map generator was specified by the map. </exception>
         [CanBeNull]
         public static MapGeneratorParameters LoadParamsFromMap( [NotNull] Map map ) {
             if( map == null ) {

@@ -24,7 +24,7 @@ namespace fCraft {
 
 
         const int MaxPrefixSize = 48;
-        const int PacketSize = 66; // opcode + id + 64
+        const int PacketSize = 66; // opCode + id + 64
         const byte DefaultColor = (byte)'f';
         const byte EmotePostfix = (byte)'.';
 
@@ -37,7 +37,7 @@ namespace fCraft {
         bool endsWithSymbol; // used to guarantee suffixes for symbols ("emotes")
 
         bool hadColor,      // used to see if white (&f) colorcodes should be inserted
-             canWrap;       // used to see if a word needs to be forcefully wrapped (i.e. doesnt fit in one line)
+             canWrap;       // used to see if a word needs to be forcefully wrapped (i.e. doesn't fit in one line)
 
         int spaceCount,     // used to track spacing between words
             wordLength;     // used to see whether to wrap at hyphens
@@ -131,7 +131,7 @@ namespace fCraft {
 
             wordLength = 0;
             wrapInputIndex = inputIndex;
-            canWrap = false; // to prevent linewrapping at prefix
+            canWrap = false; // to prevent line-wrapping at prefix
 
             // Append as much of the remaining input as possible
             while( inputIndex < input.Length ) {
@@ -234,7 +234,7 @@ namespace fCraft {
                                 outputIndex = wrapOutputIndex;
                                 color = wrapColor;
                                 endsWithSymbol = wrapEndsWithSymbol;
-                            } // else word is too long, dont backtrack to wrap
+                            } // else word is too long, don't backtrack to wrap
                             return true;
                         }
                     }

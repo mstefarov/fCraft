@@ -724,7 +724,7 @@ namespace fCraft {
                 case "tt":
                     TimeSpan newTotalTime;
                     TimeSpan oldTotalTime = info.TotalTime;
-                    if( valName.TryParseMiniTimespan( out newTotalTime ) ) {
+                    if( valName.TryParseMiniTimeSpan( out newTotalTime ) ) {
                         if( newTotalTime > DateTimeUtil.MaxTimeSpan ) {
                             player.MessageMaxTimeSpan();
                             return;
@@ -1007,7 +1007,7 @@ namespace fCraft {
                         player.MessageNow( "Cannot abort shutdown - too late." );
                     }
                     return;
-                } else if( !delayString.TryParseMiniTimespan( out delayTime ) ) {
+                } else if( !delayString.TryParseMiniTimeSpan( out delayTime ) ) {
                     CdShutdown.PrintUsage( player );
                     return;
                 }
@@ -1071,7 +1071,7 @@ namespace fCraft {
                         player.MessageNow( "Cannot abort restart - too late." );
                     }
                     return;
-                } else if( !delayString.TryParseMiniTimespan( out delayTime ) ) {
+                } else if( !delayString.TryParseMiniTimeSpan( out delayTime ) ) {
                     CdShutdown.PrintUsage( player );
                     return;
                 }

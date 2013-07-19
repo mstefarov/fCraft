@@ -79,7 +79,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Produces a string containing all recognized arguments that wereset/passed to this instance of fCraft. </summary>
+        /// <summary> Produces a string containing all recognized arguments that were set/passed to this instance of fCraft. </summary>
         /// <returns> A string containing all given arguments, or an empty string if none were set. </returns>
         public static string GetArgString() {
             return String.Join( " ", GetArgList() );
@@ -233,7 +233,7 @@ namespace fCraft {
         /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
         /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
         /// Throws exceptions on failure. </summary>
-        /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialzied. </exception>
+        /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialized. </exception>
         public static void InitServer() {
             if( serverInitialized ) {
                 throw new InvalidOperationException( "Server is already initialized" );
@@ -254,7 +254,7 @@ namespace fCraft {
                 Logger.Log( LogType.Warning,
                             "You are using an unreleased developer version of fCraft. " +
                             "Do not use this version unless you are ready to deal with bugs and potential data loss. " +
-                            "Consider using the lastest stable version instead, available from www.fcraft.net" );
+                            "Consider using the latest stable version instead, available from www.fCraft.net" );
             }
 
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Unstable ) ) {
@@ -314,7 +314,7 @@ namespace fCraft {
         /// Raises Server.Starting and Server.Started events.
         /// May throw an exception on hard failure. </summary>
         /// <returns> True if server started normally, false on soft failure. </returns>
-        /// <exception cref="System.InvalidOperationException"> Server is already running, or server/library have not been initailized. </exception>
+        /// <exception cref="System.InvalidOperationException"> Server is already running, or server/library have not been initialized. </exception>
         public static bool StartServer() {
             if( IsRunning ) {
                 throw new InvalidOperationException( "Server is already running" );
@@ -779,7 +779,7 @@ namespace fCraft {
             foreach( Player player in Players.Where( player => player.World != null ) ) {
                 string announcementLine = Chat.ReplaceTextKeywords( player, line );
                 announcementLine = Chat.ReplaceEmoteKeywords( announcementLine );
-                announcementLine = Chat.ReplaceUncodeWithEmotes( announcementLine );
+                announcementLine = Chat.ReplaceUnicodeWithEmotes( announcementLine );
                 player.Message( "&R" + announcementLine );
             }
         }
@@ -963,7 +963,7 @@ namespace fCraft {
         /// <summary> List of online players.
         /// This property is volatile and can change when players connect/disconnect,
         /// so cache a reference if you need to refer to the same snapshot of the
-        /// playerlist more than once. </summary>
+        /// player list more than once. </summary>
         public static Player[] Players { get; private set; }
 
         // list of all player sessions currently registered with the server
@@ -975,7 +975,7 @@ namespace fCraft {
 
         // Registers a player and checks if the server is full.
         // Also kicks any existing connections for this player account.
-        // Returns true if player was registered succesfully.
+        // Returns true if player was registered successfully.
         // Returns false if the server was full.
         internal static bool RegisterPlayer( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );

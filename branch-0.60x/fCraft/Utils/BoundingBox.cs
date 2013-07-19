@@ -52,7 +52,7 @@ namespace fCraft {
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
         /// <exception cref="ArgumentNullException"> other is null. </exception>
         [Pure]
-        public bool Insersects( [NotNull] BoundingBox other ) {
+        public bool Intersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             return !( XMax < other.XMin || XMin > other.XMax ||
                       YMax < other.YMin || YMin > other.YMax ||
@@ -99,7 +99,7 @@ namespace fCraft {
                 return other;
             } else if( other.Contains( this ) ) {
                 return this;
-            } else if( Insersects( other ) ) {
+            } else if( Intersects( other ) ) {
                 return new BoundingBox( Math.Max( XMin, other.XMin ),
                                         Math.Max( YMin, other.YMin ),
                                         Math.Max( ZMin, other.ZMin ),

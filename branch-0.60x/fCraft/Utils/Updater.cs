@@ -39,7 +39,7 @@ namespace fCraft {
         static Updater() {
             UserAgent = "fCraft " + CurrentRelease.VersionString;
             UpdateCheckTimeout = TimeSpan.FromMilliseconds( 4000 );
-            UpdateUri = "http://www.fcraft.net/UpdateCheck.php?r={0}";
+            UpdateUri = "http://www.fCraft.net/UpdateCheck.php?r={0}";
         }
 
 

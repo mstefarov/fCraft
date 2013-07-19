@@ -247,7 +247,7 @@ namespace fCraft.MapConversion {
                 MemoryStream serializationStream = new MemoryStream();
                 DataContractJsonSerializer serializer = new DataContractJsonSerializer( typeof( OpticraftMetaData ) );
                 // Create and serialize core meta data
-                OpticraftMetaData oMetadate = new OpticraftMetaData {
+                OpticraftMetaData oMetadata = new OpticraftMetaData {
                     X = mapToSave.Width,
                     Y = mapToSave.Length,
                     Z = mapToSave.Height,
@@ -260,16 +260,16 @@ namespace fCraft.MapConversion {
                 };
                 // World related values.
                 if( mapToSave.World != null ) {
-                    oMetadate.Hidden = mapToSave.World.IsHidden;
-                    oMetadate.MinimumJoinRank = mapToSave.World.AccessSecurity.MinRank.Name;
-                    oMetadate.MinimumBuildRank = mapToSave.World.BuildSecurity.MinRank.Name;
+                    oMetadata.Hidden = mapToSave.World.IsHidden;
+                    oMetadata.MinimumJoinRank = mapToSave.World.AccessSecurity.MinRank.Name;
+                    oMetadata.MinimumBuildRank = mapToSave.World.BuildSecurity.MinRank.Name;
                 } else {
-                    oMetadate.Hidden = false;
-                    oMetadate.MinimumJoinRank = oMetadate.MinimumBuildRank = "guest";
+                    oMetadata.Hidden = false;
+                    oMetadata.MinimumJoinRank = oMetadata.MinimumBuildRank = "guest";
                 }
 
-                oMetadate.CreationDate = 0; // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
-                serializer.WriteObject( serializationStream, oMetadate );
+                oMetadata.CreationDate = 0; // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
+                serializer.WriteObject( serializationStream, oMetadata );
                 byte[] jsonMetaData = serializationStream.ToArray();
                 writer.Write( jsonMetaData.Length );
                 writer.Write( jsonMetaData );

@@ -57,7 +57,7 @@ namespace fCraft {
                 if( tempHead.Ptr == tempTail.Ptr ) {
                     // is the queue empty?
                     if( null == next.Ptr ) {
-                        // queue is empty cannnot dequeue
+                        // queue is empty cannot dequeue
                         return false;
                     }
 

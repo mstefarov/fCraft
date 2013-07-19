@@ -13,8 +13,8 @@ namespace fCraft {
         [NotNull]
         public MapGeneratorParameters Parameters { get; protected set; }
 
-        /// <summary> Flag indicating whether this generation task has been canceled. 
-        /// Should be set by CancelAsync(), regardless of whether async cancelation is supported. </summary>
+        /// <summary> Flag indicating whether this generation task has been cancelled. 
+        /// Should be set by CancelAsync(), regardless of whether async cancellation is supported. </summary>
         public bool Canceled { get; protected set; }
 
         /// <summary> Flag indicating whether this generation task has finished.

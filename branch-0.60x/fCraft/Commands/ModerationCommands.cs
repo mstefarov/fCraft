@@ -1265,7 +1265,7 @@ namespace fCraft {
 
             // validate command parameters
             if( targetName == null || timeString == null ||
-                !timeString.TryParseMiniTimespan( out duration ) || duration <= TimeSpan.Zero ) {
+                !timeString.TryParseMiniTimeSpan( out duration ) || duration <= TimeSpan.Zero ) {
                 CdMute.PrintUsage( player );
                 return;
             }

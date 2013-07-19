@@ -90,7 +90,7 @@ namespace fCraft {
 
         /// <summary> Sets the name and ID of this Rank. </summary>
         /// <param name="name"> Name to assign to this Rank. </param>
-        /// <param name="id"> Unique ID to assing to this Rank. Use RankManager.GenerateID to generate. </param>
+        /// <param name="id"> Unique ID to assign to this Rank. Use RankManager.GenerateID to generate. </param>
         /// <exception cref="ArgumentNullException"> name or id is null. </exception>
         public Rank( [NotNull] string name, [NotNull] string id )
             : this() {
@@ -382,7 +382,7 @@ namespace fCraft {
 
         #region Rank Comparison Operators
 
-        // Somewhat counterintuitive, but lower index number = higher up on the list = higher rank
+        // Somewhat counter-intuitive, but lower index number = higher up on the list = higher rank
 
         public int CompareTo( [NotNull] Rank other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
@@ -446,7 +446,7 @@ namespace fCraft {
 
 
         /// <summary> Returns the highest rank that is allowed to be affected by this rank,
-        /// in the conext of the given permission. If no limit was explicitly specified, returns this/own rank. </summary>
+        /// in the context of the given permission. If no limit was explicitly specified, returns this/own rank. </summary>
         [NotNull]
         public Rank GetLimit( Permission permission ) {
             return PermissionLimits[(int)permission] ?? this;
@@ -530,7 +530,7 @@ namespace fCraft {
 
 
         /// <summary> Fully qualified name of the rank. Format: "Name#ID".
-        /// Should be used whereever rank name needs to be serialized. </summary>
+        /// Should be used whenever rank name needs to be serialized. </summary>
         public string FullName { get; internal set; }
 
 
@@ -566,7 +566,7 @@ namespace fCraft {
 
 
         /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
-        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomple.
+        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomplete.
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>

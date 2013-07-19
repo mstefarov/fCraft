@@ -30,7 +30,7 @@ namespace fCraft {
         /// <summary> Map height, in blocks. Equivalent to Notch's Y (vertical). </summary>
         public readonly int Height;
 
-        /// <summary> Map boundaries. Can be useful for calculating volume or interesections. </summary>
+        /// <summary> Map boundaries. Can be useful for calculating volume or intersections. </summary>
         public readonly BoundingBox Bounds;
 
         /// <summary> Map volume, in terms of blocks. </summary>
@@ -743,10 +743,10 @@ namespace fCraft {
 
         /// <summary> Finds Block corresponding to given blockName. </summary>
         /// <param name="blockName"> Given block name to parse. </param>
-        /// <param name="allowNoneBlock"> Whether "none" block type is acceptible. </param>
+        /// <param name="allowNoneBlock"> Whether "none" block type is acceptable. </param>
         /// <param name="block"> Block corresponding to given blockName;
         /// Block.Undefined if value could not be parsed. </param>
-        /// <returns> True if given blockName was parsed as an acceptible block type. </returns>
+        /// <returns> True if given blockName was parsed as an acceptable block type. </returns>
         /// <exception cref="ArgumentNullException"> blockName is null. </exception>
         public static bool GetBlockByName( [NotNull] string blockName, bool allowNoneBlock, out Block block ) {
             if( blockName == null ) throw new ArgumentNullException( "blockName" );

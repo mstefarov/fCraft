@@ -3,7 +3,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
 
-    /// <summary> Class that desribes a type of brush in general, and allows creating new brushes with /Brush.
+    /// <summary> Class that describes a type of brush in general, and allows creating new brushes with /Brush.
     /// One instance of IBrushFactory for each type of brush is kept by the BrushManager. </summary>
     public interface IBrushFactory {
         /// <summary> Name of the brush. Should be unique. </summary>

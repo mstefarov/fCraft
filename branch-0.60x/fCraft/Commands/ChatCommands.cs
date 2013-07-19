@@ -387,7 +387,7 @@ namespace fCraft {
             }
             if( player.DetectChatSpam() ) return;
             TimeSpan duration;
-            if( !param.TryParseMiniTimespan( out duration ) ) {
+            if( !param.TryParseMiniTimeSpan( out duration ) ) {
                 CdTimer.PrintUsage( player );
                 return;
             }

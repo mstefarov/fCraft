@@ -82,7 +82,7 @@ namespace fCraft.MapConversion {
                 L = bs.ReadByte()
             };
 
-            // Read in the map dimesions
+            // Read in the map dimensions
             int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

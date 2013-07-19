@@ -275,7 +275,7 @@ namespace fCraft {
         /// Otherwise (if "off" or "0" is given, if nothing was given,
         /// or if an unrecognized string was given) this is set to false. </param>
         /// <returns> true if a valid string ("on"/"1" or "off"/"0") was given;
-        /// false if nothing or an unregnized string was given. </returns>
+        /// false if nothing or an unrecognized string was given. </returns>
         public bool NextOnOff( out bool param ) {
             string token = Next();
             if( token == null ) {
