@@ -184,8 +184,9 @@ namespace fCraft {
         /// <summary> Creates a new World for the given Map, with same properties as this world. </summary>
         /// <returns> Newly-created World object, with the new map. </returns>
         [NotNull]
-        public World ChangeMap( [NotNull] Map newMap ) {
+        public World ChangeMap( [NotNull] Map newMap, [NotNull] string newMapChangedBy ) {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
+            if( newMapChangedBy == null ) throw new ArgumentNullException( "newMapChangedBy" );
             lock( SyncRoot ) {
                 World newWorld = new World( Name ) {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
@@ -201,7 +202,7 @@ namespace fCraft {
                     UnlockedOn = UnlockedOn,
                     LoadedBy = LoadedBy,
                     LoadedOn = LoadedOn,
-                    MapChangedBy = MapChangedBy,
+                    MapChangedBy = newMapChangedBy,
                     MapChangedOn = DateTime.UtcNow,
                     FogColor = FogColor,
                     CloudColor = CloudColor,

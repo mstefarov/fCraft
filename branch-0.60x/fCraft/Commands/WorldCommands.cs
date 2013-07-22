@@ -990,7 +990,7 @@ namespace fCraft {
                 }
             }
 
-            // Warn players on map if we're doing SameWorld or OtherWorld
+            // Warn players on the affected world, if applicable
             if( world != null ) {
                 world.Players
                      .Except( player )
@@ -1057,10 +1057,10 @@ namespace fCraft {
             // Save the map file, either into a world or a file.
             if( args.World != null ) {
                 args.Player.Message( "Generation done. Changing map on {0}&S...", args.World.ClassyName );
-                args.World.MapChangedBy = args.Player.Name;
-                args.World.ChangeMap( map );
-                args.World.Players.Except( args.Player )
-                    .Message( "&SPlayer {0}&S generated a new map for this world.", args.Player.ClassyName );
+                var playersToAlert = args.World.Players.Except( args.Player );
+                args.World.ChangeMap( map, args.Player.Name );
+
+                playersToAlert.Message( "&SPlayer {0}&S generated a new map for this world.", args.Player.ClassyName );
                 Logger.Log( LogType.UserActivity,
                             "Player {0} generated a new map for world {1}: {2}",
                             args.Player.Name,
@@ -2093,7 +2093,8 @@ namespace fCraft {
                 if( !cmd.IsConfirmed ) {
                     Logger.Log( LogType.UserActivity,
                                 "WLoad: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
-                                player.Name, player.World.Name );
+                                player.Name,
+                                player.World.Name );
                     player.Confirm( cmd, "Replace THIS MAP with \"{0}\"?", fileName );
                     return;
                 }
@@ -2105,25 +2106,29 @@ namespace fCraft {
                     return;
                 }
                 World world = player.World;
+                var affectedPlayers = world.Players.Except( player );
 
                 // Loading to current world
                 try {
-                    world.MapChangedBy = player.Name;
-                    world.ChangeMap( map );
+                    world.ChangeMap( map, player.Name );
                 } catch( WorldOpException ex ) {
                     Logger.Log( LogType.Error,
-                                "Could not complete WorldLoad operation: {0}", ex.Message );
+                                "Could not complete WorldLoad operation: {0}",
+                                ex.Message );
                     player.Message( "&WWLoad: {0}", ex.Message );
                     return;
                 }
 
-                world.Players.Message( player, "{0}&S loaded a new map for this world.",
-                                              player.ClassyName );
+                affectedPlayers.Message( player,
+                                         "{0}&S loaded a new map for this world.",
+                                         player.ClassyName );
                 player.MessageNow( "New map loaded for the world {0}", world.ClassyName );
 
                 Logger.Log( LogType.UserActivity,
                             "Player {0} loaded new map for world \"{1}\" from \"{2}\"",
-                            player.Name, world.Name, fileName );
+                            player.Name,
+                            world.Name,
+                            fileName );
 
 
             } else {
@@ -2170,9 +2175,12 @@ namespace fCraft {
                         if( !cmd.IsConfirmed ) {
                             Logger.Log( LogType.UserActivity,
                                         "WLoad: Asked {0} to confirm replacing the map of world {1}",
-                                        player.Name, world.Name );
-                            player.Confirm( cmd, "Replace map for {0}&S with \"{1}\"?",
-                                            world.ClassyName, fileName );
+                                        player.Name,
+                                        world.Name );
+                            player.Confirm( cmd,
+                                            "Replace map for {0}&S with \"{1}\"?",
+                                            world.ClassyName,
+                                            fileName );
                             return;
                         }
 
@@ -2184,22 +2192,27 @@ namespace fCraft {
                             return;
                         }
 
+                        var affectedPlayers = world.Players.Except( player );
                         try {
-                            world.MapChangedBy = player.Name;
-                            world.ChangeMap( map );
+                            world.ChangeMap( map, player.Name );
                         } catch( WorldOpException ex ) {
                             Logger.Log( LogType.Error,
-                                        "Could not complete WorldLoad operation: {0}", ex.Message );
+                                        "Could not complete WorldLoad operation: {0}",
+                                        ex.Message );
                             player.Message( "&WWLoad: {0}", ex.Message );
                             return;
                         }
 
-                        world.Players.Message( player, "{0}&S loaded a new map for the world {1}",
-                                               player.ClassyName, world.ClassyName );
+                        affectedPlayers.Message( player,
+                                                 "{0}&S loaded a new map for the world {1}",
+                                                 player.ClassyName,
+                                                 world.ClassyName );
                         player.MessageNow( "New map for the world {0}&S has been loaded.", world.ClassyName );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} loaded new map for world \"{1}\" from \"{2}\"",
-                                    player.Name, world.Name, fullFileName );
+                                    player.Name,
+                                    world.Name,
+                                    fullFileName );
 
                     } else {
                         // Adding a new world
@@ -2209,10 +2222,13 @@ namespace fCraft {
                             !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
                             Logger.Log( LogType.UserActivity,
                                         "WLoad: Asked {0} to confirm replacing map file \"{1}\" with \"{2}\"",
-                                        player.Name, targetFullFileName, fullFileName );
+                                        player.Name,
+                                        targetFullFileName,
+                                        fullFileName );
                             player.Confirm( cmd,
                                             "A map named \"{0}\" already exists, and will be overwritten with \"{1}\".",
-                                            Path.GetFileName( targetFullFileName ), Path.GetFileName( fullFileName ) );
+                                            Path.GetFileName( targetFullFileName ),
+                                            Path.GetFileName( fullFileName ) );
                             return;
                         }
 
@@ -2221,7 +2237,9 @@ namespace fCraft {
                             map = MapUtility.Load( fullFileName, true );
                         } catch( Exception ex ) {
                             player.MessageNow( "Could not load \"{0}\": {1}: {2}",
-                                               fileName, ex.GetType().Name, ex.Message );
+                                               fileName,
+                                               ex.GetType().Name,
+                                               ex.Message );
                             return;
                         }
 
@@ -2247,10 +2265,13 @@ namespace fCraft {
                         newWorld.LoadedBy = player.Name;
                         newWorld.LoadedOn = DateTime.UtcNow;
                         Server.Message( "{0}&S created a new world named {1}",
-                                        player.ClassyName, newWorld.ClassyName );
+                                        player.ClassyName,
+                                        newWorld.ClassyName );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} created a new world named \"{1}\" (loaded from \"{2}\")",
-                                    player.Name, worldName, fileName );
+                                    player.Name,
+                                    worldName,
+                                    fileName );
                         WorldManager.SaveWorldList();
                         player.MessageNow( "Access is {0}+&S, and building is {1}+&S on {2}",
                                            newWorld.AccessSecurity.MinRank.ClassyName,
