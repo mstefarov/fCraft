@@ -174,7 +174,7 @@ namespace fCraft.ConfigGUI {
                 tabs.TabPages.Remove( tabCopy );
             }
 
-            // Disable "existing map" tab if mapfile does not exist
+            // Disable "existing map" tab if map file does not exist
             fileToLoad = World.FullFileName;
             if( File.Exists( fileToLoad ) ) {
                 ShowMapDetails( tExistingMapInfo, fileToLoad );

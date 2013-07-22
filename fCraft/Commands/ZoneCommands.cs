@@ -432,7 +432,7 @@ namespace fCraft {
             Map map = world.Map;
             if( map == null ) {
                 if( !MapUtility.TryLoadHeader( world.MapFileName, true, out map ) ) {
-                    player.Message( "&WERROR:Could not load mapfile for world {0}.",
+                    player.Message( "&WERROR:Could not load map file for world {0}.",
                                     world.ClassyName );
                     return;
                 }
