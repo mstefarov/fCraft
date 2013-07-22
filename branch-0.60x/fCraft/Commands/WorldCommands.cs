@@ -1070,12 +1070,23 @@ namespace fCraft {
                 args.Player.Message( "Generation done. Changing map on {0}&S...", args.World.ClassyName );
                 args.World.MapChangedBy = args.Player.Name;
                 args.World.ChangeMap( map );
-                args.World.Players.Message( "&SPlayer {0}&S generated a new map for this world.", args.Player.ClassyName );
+                args.World.Players.Except( args.Player )
+                    .Message( "&SPlayer {0}&S generated a new map for this world.", args.Player.ClassyName );
+                Logger.Log( LogType.UserActivity,
+                            "Player {0} generated a new map for world {1}: {2}",
+                            args.Player.Name,
+                            args.World.Name,
+                            args.GenState.Parameters );
 
             } else {
                 if( map.Save( args.FullFileName ) ) {
                     args.Player.Message( "Generation done. Saved to {0}", args.FileName );
                     args.Player.Message( "You may now use &H/WLoad&S to create a world from this map file." );
+                    Logger.Log( LogType.UserActivity,
+                                "Player {0} saved a newly-generated new map to file \"{1}\": {2}",
+                                args.Player.Name,
+                                args.FullFileName,
+                                args.GenState.Parameters );
                 } else {
                     args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
