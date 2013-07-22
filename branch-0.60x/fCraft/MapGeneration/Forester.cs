@@ -904,12 +904,15 @@ namespace fCraft {
 
         internal void PlaceBlock( int x, int y, int z, Block block ) {
             var h = BlockPlacing;
-            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I( x, y, z ), block ) );
+            if( h != null )
+                h( this, new ForesterBlockPlacingEventArgs( new Vector3I( x, y, z ), block ) );
         }
 
         internal void PlaceBlock( Vector3I coord, Block block ) {
+            // todo: rewrite the whole thing to use XYZ coords
             var h = BlockPlacing;
-            if( h != null ) h( this, new ForesterBlockPlacingEventArgs( new Vector3I(coord.X,coord.Z,coord.Y), block ) ); // todo: rewrite the whole thing to use XYZ coords
+            if( h != null )
+                h( this, new ForesterBlockPlacingEventArgs( new Vector3I( coord.X, coord.Z, coord.Y ), block ) );
         }
 
         internal void Validate() {

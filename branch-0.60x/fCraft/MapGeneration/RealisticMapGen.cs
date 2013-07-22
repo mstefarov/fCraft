@@ -10,7 +10,7 @@ namespace fCraft {
             Instance = new RealisticMapGen {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
-                Presets = Enum.GetNames( typeof( MapGenTemplate ) )
+                Presets = Enum.GetNames( typeof( RealisticMapGenTemplate ) )
             };
         }
 
@@ -32,7 +32,7 @@ namespace fCraft {
             }
 
             MapGenTheme theme = MapGenTheme.Grass;
-            MapGenTemplate template = MapGenTemplate.Flat;
+            RealisticMapGenTemplate template = RealisticMapGenTemplate.Flat;
 
             string templateName = cmd.Next();
             if( templateName == null ) {
@@ -75,7 +75,7 @@ namespace fCraft {
         static void MessageTemplateList( string templateName, Player player ) {
             player.Message( "SetGen: Unrecognized template \"{0}\". Available terrain types: {1}",
                 templateName,
-                Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
+                Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() );
         }
 
 
@@ -83,7 +83,7 @@ namespace fCraft {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
-            MapGenTemplate template;
+            RealisticMapGenTemplate template;
             if( EnumUtil.TryParse( presetName, out template, true ) ) {
                 return CreateParameters( template );
             } else {
@@ -92,9 +92,9 @@ namespace fCraft {
         }
 
 
-        public static RealisticMapGenParameters CreateParameters( MapGenTemplate template ) {
+        public static RealisticMapGenParameters CreateParameters( RealisticMapGenTemplate template ) {
             switch( template ) {
-                case MapGenTemplate.Archipelago:
+                case RealisticMapGenTemplate.Archipelago:
                     return new RealisticMapGenParameters {
                         MaxHeight = 8,
                         MaxDepth = 20,
@@ -104,7 +104,7 @@ namespace fCraft {
                         WaterCoverage = .85f
                     };
 
-                case MapGenTemplate.Atoll:
+                case RealisticMapGenTemplate.Atoll:
                     return new RealisticMapGenParameters {
                         Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
                         MaxHeight = 2,
@@ -121,7 +121,7 @@ namespace fCraft {
                         WaterCoverage = .95f
                     };
 
-                case MapGenTemplate.Bay:
+                case RealisticMapGenTemplate.Bay:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
@@ -136,7 +136,7 @@ namespace fCraft {
                         DelayBias = true
                     };
 
-                case MapGenTemplate.Dunes:
+                case RealisticMapGenTemplate.Dunes:
                     return new RealisticMapGenParameters {
                         AddTrees = false,
                         AddWater = false,
@@ -150,7 +150,7 @@ namespace fCraft {
                         InvertHeightmap = true
                     };
 
-                case MapGenTemplate.Hills:
+                case RealisticMapGenTemplate.Hills:
                     return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 8,
@@ -160,7 +160,7 @@ namespace fCraft {
                         TreeSpacingMax = 13
                     };
 
-                case MapGenTemplate.Ice:
+                case RealisticMapGenTemplate.Ice:
                     return new RealisticMapGenParameters {
                         AddTrees = false,
                         Theme = new RealisticMapGenTheme( MapGenTheme.Arctic ),
@@ -175,7 +175,7 @@ namespace fCraft {
                         MaxHeightVariation = 0
                     };
 
-                case MapGenTemplate.Island:
+                case RealisticMapGenTemplate.Island:
                     return new RealisticMapGenParameters {
                         MaxHeight = 16,
                         MaxDepth = 39,
@@ -191,7 +191,7 @@ namespace fCraft {
                         Roughness = 0.45f
                     };
 
-                case MapGenTemplate.Lake:
+                case RealisticMapGenTemplate.Lake:
                     return new RealisticMapGenParameters {
                         MaxHeight = 14,
                         MaxDepth = 20,
@@ -205,7 +205,7 @@ namespace fCraft {
                         WaterCoverage = .3f
                     };
 
-                case MapGenTemplate.Mountains:
+                case RealisticMapGenTemplate.Mountains:
                     return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 40,
@@ -220,10 +220,10 @@ namespace fCraft {
                         CliffThreshold = .9f
                     };
 
-                case MapGenTemplate.Defaults:
+                case RealisticMapGenTemplate.Defaults:
                     return new RealisticMapGenParameters();
 
-                case MapGenTemplate.River:
+                case RealisticMapGenTemplate.River:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 8,
@@ -234,7 +234,7 @@ namespace fCraft {
                         WaterCoverage = .31f
                     };
 
-                case MapGenTemplate.Streams:
+                case RealisticMapGenTemplate.Streams:
                     return new RealisticMapGenParameters {
                         MaxHeight = 5,
                         MaxDepth = 4,
@@ -248,7 +248,7 @@ namespace fCraft {
                         TreeSpacingMax = 14
                     };
 
-                case MapGenTemplate.Peninsula:
+                case RealisticMapGenTemplate.Peninsula:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
@@ -263,7 +263,7 @@ namespace fCraft {
                         WaterCoverage = .5f
                     };
 
-                case MapGenTemplate.Flat:
+                case RealisticMapGenTemplate.Flat:
                     return new RealisticMapGenParameters {
                         MaxHeight = 0,
                         MaxDepth = 0,

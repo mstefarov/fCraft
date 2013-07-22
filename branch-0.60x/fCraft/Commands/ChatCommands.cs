@@ -114,9 +114,11 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
+                    // too many parameters given
                     CdIgnore.PrintUsage( player );
                     return;
                 }
+                // A name was given -- let's find the target
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfNoMatches );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
@@ -131,12 +133,7 @@ namespace fCraft {
                 }
 
             } else {
-                PlayerInfo[] ignoreList = player.IgnoreList;
-                if( ignoreList.Length > 0 ) {
-                    player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
-                } else {
-                    player.MessageNow( "You are not currently ignoring anyone." );
-                }
+                ListIgnoredPlayers( player );
             }
         }
 
@@ -154,9 +151,11 @@ namespace fCraft {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
+                    // too many parameters given
                     CdUnignore.PrintUsage( player );
                     return;
                 }
+                // A name was given -- let's find the target
                 PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfNoMatches );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
@@ -170,12 +169,17 @@ namespace fCraft {
                     player.MessageNow( "You are not currently ignoring {0}", targetInfo.ClassyName );
                 }
             } else {
-                PlayerInfo[] ignoreList = player.IgnoreList;
-                if( ignoreList.Length > 0 ) {
-                    player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
-                } else {
-                    player.MessageNow( "You are not currently ignoring anyone." );
-                }
+                ListIgnoredPlayers( player );
+            }
+        }
+
+
+        static void ListIgnoredPlayers( Player player ) {
+            PlayerInfo[] ignoreList = player.IgnoreList;
+            if( ignoreList.Length > 0 ) {
+                player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
+            } else {
+                player.MessageNow( "You are not currently ignoring anyone." );
             }
         }
 

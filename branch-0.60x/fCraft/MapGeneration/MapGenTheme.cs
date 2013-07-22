@@ -3,9 +3,9 @@
     public enum MapGenTheme {
         Arctic,
         Desert,
+        Forest, // just like "Grass", but with trees (when available)
         Grass,
-        Forest,
         Hell,
-        Swamp
+        Swamp // also with trees
     }
 }

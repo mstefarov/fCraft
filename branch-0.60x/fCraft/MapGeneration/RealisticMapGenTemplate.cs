@@ -1,6 +1,6 @@
 ﻿namespace fCraft {
     /// <summary> Map generator template. Templates define landscape shapes and features. </summary>
-    public enum MapGenTemplate {
+    public enum RealisticMapGenTemplate {
         Defaults, // Random
         Archipelago,
         Atoll,
