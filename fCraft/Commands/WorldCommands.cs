@@ -874,20 +874,9 @@ namespace fCraft {
 
             if( cmd.HasNext ) {
                 // Something's given, assume that it's map dimensions.
-                int offset = cmd.Offset;
                 if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
-                    if( playerWorld != null ) {
-                        Map oldMap = player.WorldMap;
-                        // If map dimensions were not given, use current map's dimensions
-                        mapWidth = oldMap.Width;
-                        mapLength = oldMap.Length;
-                        mapHeight = oldMap.Height;
-                    } else {
-                        player.Message( "When used from console, /Gen requires map dimensions." );
-                        CdGenerate.PrintUsage( player );
-                        return;
-                    }
-                    cmd.Offset = offset;
+                    CdGenerate.PrintUsage( player );
+                    return;
                 }
 
             } else if( playerWorld != null ) {
