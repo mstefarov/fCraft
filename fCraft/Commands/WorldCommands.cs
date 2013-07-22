@@ -834,11 +834,12 @@ namespace fCraft {
         static void PrintCurrentGenerator( Player player, bool isNew ) {
             MapGeneratorParameters genParams = player.GenParams;
             if( genParams == null ) {
-                player.Message( "No gen parameters set. Use &H/SetGet&S to configure map generation." );
+                player.Message( "No map generator chosen. Available generators: " +
+                                MapGenUtil.GeneratorList.JoinToString( gen => gen.Name ) );
             } else if( isNew ) {
-                player.Message( "New gen parameters: {0}", genParams );
+                player.Message( "SetGen: New map generation parameters: {0}", genParams );
             } else {
-                player.Message( "Current gen parameters: {0}", genParams );
+                player.Message( "Current map generation parameters: {0}", genParams );
             }
         }
 
@@ -1004,7 +1005,7 @@ namespace fCraft {
             if( world != null ) {
                 world.Players
                      .Except( player )
-                     .Message( "Incoming map change!" );
+                     .Message( "&SIncoming map change!" );
             }
 
             // Prepare to generate
@@ -1018,7 +1019,7 @@ namespace fCraft {
                 FullFileName = fileName,
                 GenState = genParams.CreateGenerator()
             };
-            player.MessageNow( "Generating: {0}", genParams );
+            player.MessageNow( "Generating (please wait): {0}", genParams );
 
             // Do the rest in a background thread
             Scheduler.NewBackgroundTask( GenTaskCallback, genTaskParams )
@@ -1066,13 +1067,15 @@ namespace fCraft {
 
             // Save the map file, either into a world or a file.
             if( args.World != null ) {
-                args.Player.Message( "Generation done. Changing map..." );
+                args.Player.Message( "Generation done. Changing map on {0}&S...", args.World.ClassyName );
                 args.World.MapChangedBy = args.Player.Name;
                 args.World.ChangeMap( map );
+                args.World.Players.Message( "&SPlayer {0}&S generated a new map for this world.", args.Player.ClassyName );
 
             } else {
                 if( map.Save( args.FullFileName ) ) {
                     args.Player.Message( "Generation done. Saved to {0}", args.FileName );
+                    args.Player.Message( "You may now use &H/WLoad&S to create a world from this map file." );
                 } else {
                     args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
