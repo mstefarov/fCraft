@@ -4,6 +4,7 @@
         Arctic,
         Desert,
         Grass,
+        Forest,
         Hell,
         Swamp
     }

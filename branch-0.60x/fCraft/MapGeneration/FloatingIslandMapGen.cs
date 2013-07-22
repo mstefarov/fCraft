@@ -10,7 +10,7 @@ namespace fCraft {
 
         static FloatingIslandMapGen() {
             Instance = new FloatingIslandMapGen {
-                Name = "Floating Island"
+                Name = "FloatingIsland"
             };
         }
 
@@ -23,7 +23,10 @@ namespace fCraft {
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            return new FloatingIslandMapGenParameters(); // TODO: command parsing
+            if( cmd.HasNext ) {
+                player.Message( "FloatingIsland map generator goes not take any parameters; using defaults." );
+            }
+            return new FloatingIslandMapGenParameters();
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
@@ -32,8 +35,7 @@ namespace fCraft {
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
                 return CreateDefaultParameters();
             } else {
-                // TODO: presets
-                throw new NotImplementedException();
+                return null; // TODO: make some presets
             }
         }
     }

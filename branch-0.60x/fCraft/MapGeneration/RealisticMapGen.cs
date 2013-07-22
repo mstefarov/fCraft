@@ -26,8 +26,56 @@ namespace fCraft {
 
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            // todo: /Gen parameter parsing
-            throw new NotImplementedException();
+            string themeName = cmd.Next();
+            if( themeName == null ) {
+                return CreateDefaultParameters();
+            }
+
+            MapGenTheme theme = MapGenTheme.Grass;
+            MapGenTemplate template = MapGenTemplate.Flat;
+
+            string templateName = cmd.Next();
+            if( templateName == null ) {
+                player.Message( "SetGen: Realistic MapGen requires both a theme and a template. " +
+                                "See &H/Help SetGen Realistic&S or check wiki.fCraft.net for details" );
+                return null;
+            }
+
+            // parse theme
+            bool swapThemeAndTemplate = false;
+            if( EnumUtil.TryParse( themeName, out theme, true ) ) {} else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+                swapThemeAndTemplate = true;
+
+            } else {
+                player.Message( "SetGen: Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
+                    themeName,
+                    Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                return null;
+            }
+
+            // parse template
+            if( swapThemeAndTemplate ) {
+                if( !EnumUtil.TryParse( themeName, out template, true ) ) {
+                    MessageTemplateList( themeName, player );
+                    return null;
+                }
+            } else {
+                if( !EnumUtil.TryParse( templateName, out template, true ) ) {
+                    MessageTemplateList( templateName, player );
+                    return null;
+                }
+            }
+
+            RealisticMapGenParameters param = CreateParameters( template );
+            param.Theme = new RealisticMapGenTheme( theme );
+            return param;
+        }
+
+
+        static void MessageTemplateList( string templateName, Player player ) {
+            player.Message( "SetGen: Unrecognized template \"{0}\". Available terrain types: {1}",
+                templateName,
+                Enum.GetNames( typeof( MapGenTemplate ) ).JoinToString() );
         }
 
 

@@ -24,7 +24,10 @@ namespace fCraft {
         }
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            throw new NotImplementedException(); // TODO
+            if( cmd.HasNext ) {
+                player.Message( "Vanilla map generator goes not take any parameters; using defaults." );
+            }
+            return new VanillaMapGenParameters();
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
@@ -33,7 +36,7 @@ namespace fCraft {
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
                 return CreateDefaultParameters();
             } else {
-                return null;
+                return null; // TODO: make some presets
             }
         }
     }
