@@ -858,6 +858,11 @@ namespace fCraft {
 
         static void GenHandler( Player player, CommandReader cmd ) {
             World playerWorld = player.World;
+            World world = null;
+            string fileName = null;
+            int mapWidth,
+                mapLength,
+                mapHeight;
 
             // make sure the player has generator parameters set
             MapGeneratorParameters genParams = player.GenParams;
@@ -866,13 +871,6 @@ namespace fCraft {
                 return;
             }
 
-            World world = null;
-            string fileName = null;
-
-            // parse map dimensions
-            int mapWidth,
-                mapLength,
-                mapHeight;
             if( cmd.HasNext ) {
                 // Something's given, assume that it's map dimensions.
                 int offset = cmd.Offset;
@@ -924,6 +922,7 @@ namespace fCraft {
                 player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;
             }
+
             // Print dimension warning, if applicable.
             if( !cmd.IsConfirmed && // Only print once -- before confirmation is given.
                 (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength ) ||
@@ -935,7 +934,6 @@ namespace fCraft {
 
             // See what else the player has given us...
             string givenName = cmd.Next();
-
             if( givenName == null ) {
                 // No name given. Assume that we're replacing the current world.
                 if( playerWorld != null ) {
@@ -950,7 +948,7 @@ namespace fCraft {
                     }
 
                 } else {
-                    player.Message( "When used from console, /Gen requires a world name or mapfile name." );
+                    player.Message( "When used from console, /Gen requires a world name or map file name." );
                     CdGenerate.PrintUsage( player );
                     return;
                 }
@@ -995,7 +993,7 @@ namespace fCraft {
                                         "Gen: Asked {0} to confirm overwriting map file \"{1}\"",
                                         player.Name,
                                         givenName );
-                            player.Confirm( cmd, "Gen: The mapfile \"{0}\" already exists. Overwrite?", givenName );
+                            player.Confirm( cmd, "Gen: The map file \"{0}\" already exists. Overwrite?", givenName );
                             return;
                         }
                     }
@@ -1009,7 +1007,7 @@ namespace fCraft {
                      .Message( "Incoming map change!" );
             }
 
-            // prepare to generate
+            // Prepare to generate
             genParams.MapWidth = mapWidth;
             genParams.MapLength = mapLength;
             genParams.MapHeight = mapHeight;
@@ -1022,7 +1020,7 @@ namespace fCraft {
             };
             player.MessageNow( "Generating: {0}", genParams );
 
-            // do the rest in a background thread
+            // Do the rest in a background thread
             Scheduler.NewBackgroundTask( GenTaskCallback, genTaskParams )
                      .RunOnce();
         }
@@ -1040,13 +1038,13 @@ namespace fCraft {
         static void GenTaskCallback( SchedulerTask task ) {
             GenTaskParams args = (GenTaskParams)task.UserState;
 
-            // generate!
+            // Generate!
             Map map;
             try {
                 map = args.GenState.Generate();
 
             } catch( Exception ex ) {
-                // report a generator crash
+                // Report a generator crash
                 Logger.LogAndReportCrash( "Generation error",
                                           args.GenState.GetType().AssemblyQualifiedName,
                                           ex,
@@ -1056,9 +1054,8 @@ namespace fCraft {
                                      ex.Message );
                 return;
             }
-            Server.RequestGC();
 
-            // make sure generator returned a proper map, as expected
+            // Make sure generator returned a proper map, as expected.
             if( map == null ) {
                 string message =
                     String.Format( "{0}.Generate() returned null in GenTaskCallback for these parameters: {1}",
@@ -1067,10 +1064,12 @@ namespace fCraft {
                 throw new NullReferenceException( message );
             }
 
+            // Save the map file, either into a world or a file.
             if( args.World != null ) {
                 args.Player.Message( "Generation done. Changing map..." );
                 args.World.MapChangedBy = args.Player.Name;
                 args.World.ChangeMap( map );
+
             } else {
                 if( map.Save( args.FullFileName ) ) {
                     args.Player.Message( "Generation done. Saved to {0}", args.FileName );
@@ -1078,6 +1077,7 @@ namespace fCraft {
                     args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
             }
+            Server.RequestGC();
         }
 
         #endregion

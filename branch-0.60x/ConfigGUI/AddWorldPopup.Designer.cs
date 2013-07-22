@@ -654,7 +654,7 @@
             // 
             this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
             this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
-            this.tsbImportSettingsFromFile.Text = "From mapfile...";
+            this.tsbImportSettingsFromFile.Text = "From map file...";
             // 
             // generatorParamsPanel
             // 

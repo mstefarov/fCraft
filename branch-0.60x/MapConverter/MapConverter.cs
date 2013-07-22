@@ -199,12 +199,12 @@ namespace fCraft.MapConverter {
             if( relativeName == null ) throw new ArgumentNullException( "relativeName" );
 
             try {
-                // if output directory was not given, save to same directory as the mapfile
+                // if output directory was not given, save to same directory as the map file
                 if( !outputDirGiven ) {
                     outputDirName = Paths.GetDirectoryNameOrRoot( fileSystemInfo.FullName );
                 }
 
-                // load the mapfile
+                // load the map file
                 Map map;
                 if( importer != null ) {
                     if( !importer.ClaimsName( fileSystemInfo.FullName ) ) {
@@ -218,7 +218,7 @@ namespace fCraft.MapConverter {
                     map = MapUtility.Load( fileSystemInfo.FullName, tryHard );
                 }
 
-                // select target mapfile name
+                // select target map file name
                 string targetFileName;
                 if( (fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory ) {
                     targetFileName = fileSystemInfo.Name + '.' + exporter.FileExtension;
@@ -227,7 +227,7 @@ namespace fCraft.MapConverter {
                                      exporter.FileExtension;
                 }
 
-                // get full target mapfile name, check if it already exists
+                // get full target map file name, check if it already exists
                 string targetPath = Path.Combine( outputDirName, targetFileName );
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();

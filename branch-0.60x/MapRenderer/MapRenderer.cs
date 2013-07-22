@@ -262,7 +262,7 @@ namespace fCraft.MapRenderer {
                 return;
             }
 
-            // if output directory was not given, save to same directory as the mapfile
+            // if output directory was not given, save to same directory as the map file
             if( !p.OutputDirGiven ) {
                 p.OutputDirName = Paths.GetDirectoryNameOrRoot( fileSystemInfo.FullName );
             }

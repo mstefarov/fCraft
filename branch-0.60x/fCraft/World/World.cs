@@ -112,7 +112,7 @@ namespace fCraft {
 
 
         /// <summary> Loads the map file, if needed.
-        /// Generates a default map if mapfile is missing or not loadable.
+        /// Generates a default map if map file is missing or not loadable.
         /// Guaranteed to return a Map object. </summary>
         [NotNull]
         public Map LoadMap() {
