@@ -290,9 +290,8 @@ namespace fCraft {
 
                 // Actually ban
                 IPBanInfo banInfo = new IPBanInfo( targetAddress, null, player.Name, reason );
-                bool result = Add( banInfo, raiseEvents );
 
-                if( result ) {
+                if( Add( banInfo, raiseEvents ) ) {
                     Logger.Log( LogType.UserActivity,
                                 "{0} banned {1} (BanIP {1}). Reason: {2}",
                                 player.Name, targetAddress, reason ?? "" );
@@ -316,7 +315,7 @@ namespace fCraft {
                     }
                     foreach( Player other in Server.Players.FromIP( targetAddress ) ) {
                         if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
-                            other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
+                            other.Kick( kickReason, LeaveReason.BanIP );
                         }
                     }
 

@@ -118,7 +118,7 @@
     <Compile Include="MapGeneration\EmptyMapGen.cs" />
     <Compile Include="MapGeneration\FloatingIslandMapGen.cs" />
     <Compile Include="MapGeneration\FlatMapGen.cs" />
-    <Compile Include="MapGeneration\MapGenTemplate.cs" />
+    <Compile Include="MapGeneration\RealisticMapGenTemplate.cs" />
     <Compile Include="MapGeneration\MapGenTheme.cs" />
     <Compile Include="MapGeneration\MapGenUtil.cs" />
     <Compile Include="MapGeneration\PerlinNoise.cs" />
