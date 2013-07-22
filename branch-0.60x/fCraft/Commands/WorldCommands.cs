@@ -848,9 +848,10 @@ namespace fCraft {
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.ManageWorlds },
-            Usage = "/Gen [Width Length Height] [FileName]",
-            Help = "Generates a new map. If no dimensions are given, uses current world's dimensions. " +
-                   "If no file name is given, loads generated world into current world.\n" +
+            Usage = "/Gen [Width Length Height [FileName|WorldName]]",
+            Help = "Generates a new map and either saves it to file, or loads it into a world. " +
+                   "If no FileName or WorldName is given, replaces the current world. " +
+                   "If no dimensions are given either, uses existing map's dimensions. " +
                    "Select the generator using &H/SetGen&S command before calling &H/Gen&S.",
             Handler = GenHandler
         };
@@ -865,11 +866,15 @@ namespace fCraft {
                 return;
             }
 
+            World world = null;
+            string fileName = null;
+
             // parse map dimensions
             int mapWidth,
                 mapLength,
                 mapHeight;
             if( cmd.HasNext ) {
+                // Something's given, assume that it's map dimensions.
                 int offset = cmd.Offset;
                 if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
                     if( playerWorld != null ) {
@@ -885,19 +890,23 @@ namespace fCraft {
                     }
                     cmd.Offset = offset;
                 }
+
             } else if( playerWorld != null ) {
-                Map oldMap = player.WorldMap;
-                // If map dimensions were not given, use current map's dimensions
+                // Nothing is given. Assume that we're replacing the current world.
+                // Use dimensions of the currently-loaded map.
+                Map oldMap = playerWorld.LoadMap();
                 mapWidth = oldMap.Width;
                 mapLength = oldMap.Length;
                 mapHeight = oldMap.Height;
+                world = playerWorld;
+
             } else {
                 player.Message( "When used from console, /Gen requires map dimensions." );
                 CdGenerate.PrintUsage( player );
                 return;
             }
 
-            // Check map dimensions
+            // Check map dimensions and volume
             const string dimensionRecommendation = "Dimensions must be between 16 and 2047. " +
                                                    "Recommended values: 16, 32, 64, 128, 256, 512, and 1024.";
             if( !Map.IsValidDimension( mapWidth ) ) {
@@ -915,8 +924,8 @@ namespace fCraft {
                 player.Message( "Map volume may not exceed {0}", Int32.MaxValue );
                 return;
             }
-
-            if( !cmd.IsConfirmed &&
+            // Print dimension warning, if applicable.
+            if( !cmd.IsConfirmed && // Only print once -- before confirmation is given.
                 (!Map.IsRecommendedDimension( mapWidth ) || !Map.IsRecommendedDimension( mapLength ) ||
                  mapHeight%16 != 0) ) {
                 player.Message( "&WThe map will have non-standard dimensions. " +
@@ -924,73 +933,96 @@ namespace fCraft {
                                 "The only recommended map dimensions are: 16, 32, 64, 128, 256, 512, and 1024." );
             }
 
-            // TODO: detect world names
-            // check file/world name
-            string fileName = cmd.Next();
-            string fullFileName = null;
-            if( fileName == null ) {
-                // replacing current world
-                if( playerWorld == null ) {
-                    player.Message( "When used from console, /Gen requires a file or world name." );
+            // See what else the player has given us...
+            string givenName = cmd.Next();
+
+            if( givenName == null ) {
+                // No name given. Assume that we're replacing the current world.
+                if( playerWorld != null ) {
+                    world = playerWorld;
+                    if( !cmd.IsConfirmed ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "Gen: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
+                                    player.Name,
+                                    playerWorld.Name );
+                        player.Confirm( cmd, "Gen: Replace THIS MAP with a generated one ({0})?", genParams );
+                        return;
+                    }
+
+                } else {
+                    player.Message( "When used from console, /Gen requires a world name or mapfile name." );
                     CdGenerate.PrintUsage( player );
-                    return;
-                }
-                if( !cmd.IsConfirmed ) {
-                    Logger.Log( LogType.UserActivity,
-                                "Gen: Asked {0} to confirm replacing the map of world {1} (\"this map\")",
-                                player.Name,
-                                playerWorld.Name );
-                    player.Confirm( cmd, "Replace THIS MAP with a generated one ({0})?", genParams );
                     return;
                 }
 
             } else {
-                if( cmd.HasNext ) {
-                    CdGenerate.PrintUsage( player );
-                    return;
-                }
-                // saving to file
-                fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
-                if( !fileName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
-                    fileName += ".fcm";
-                }
-                if( !Paths.IsValidPath( fileName ) ) {
-                    player.Message( "Invalid file name." );
-                    return;
-                }
-                fullFileName = Path.Combine( Paths.MapPath, fileName );
-                if( !Paths.Contains( Paths.MapPath, fullFileName ) ) {
-                    player.MessageUnsafePath();
-                    return;
-                }
-                string dirName = fullFileName.Substring( 0, fullFileName.LastIndexOf( Path.DirectorySeparatorChar ) );
-                if( !Directory.Exists( dirName ) ) {
-                    Directory.CreateDirectory( dirName );
-                }
-                if( !cmd.IsConfirmed && File.Exists( fullFileName ) ) {
-                    Logger.Log( LogType.UserActivity,
-                                "Gen: Asked {0} to confirm overwriting map file \"{1}\"",
-                                player.Name,
-                                fileName );
-                    player.Confirm( cmd, "The mapfile \"{0}\" already exists. Overwrite?", fileName );
-                    return;
+                // Either a world name or a filename was given. Check worlds first.
+                World existingWorld = WorldManager.FindWorldExact( givenName );
+
+                if( existingWorld != null ) {
+                    // A matching world name found. Assume that we're replacing it.
+                    if( !cmd.IsConfirmed ) {
+                        Logger.Log( LogType.UserActivity,
+                                    "Gen: Asked {0} to confirm replacing the map of world {1}",
+                                    player.Name,
+                                    existingWorld.Name );
+                        player.Confirm( cmd,
+                                        "Gen: Replace the map of world {0}&S with a generated one ({1})?",
+                                        existingWorld.ClassyName,
+                                        genParams );
+                        return;
+                    }
+                    world = existingWorld;
+
+                } else {
+                    // No world with this name found. Assume that we were given a filename.
+                    givenName = givenName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
+                    if( !givenName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
+                        givenName += ".fcm";
+                    }
+                    if( !Paths.IsValidPath( givenName ) ) {
+                        player.Message( "Gen: Invalid file name given." );
+                        return;
+                    }
+                    fileName = Path.Combine( Paths.MapPath, givenName );
+                    if( !Paths.Contains( Paths.MapPath, fileName ) ) {
+                        player.MessageUnsafePath();
+                        return;
+                    }
+                    if( File.Exists( fileName ) ) {
+                        if( !cmd.IsConfirmed ) {
+                            Logger.Log( LogType.UserActivity,
+                                        "Gen: Asked {0} to confirm overwriting map file \"{1}\"",
+                                        player.Name,
+                                        givenName );
+                            player.Confirm( cmd, "Gen: The mapfile \"{0}\" already exists. Overwrite?", givenName );
+                            return;
+                        }
+                    }
                 }
             }
 
-            // generate the map
-            player.MessageNow( "Generating: {0}", genParams );
+            // Warn players on map if we're doing SameWorld or OtherWorld
+            if( world != null ) {
+                world.Players
+                     .Except( player )
+                     .Message( "Incoming map change!" );
+            }
 
+            // prepare to generate
             genParams.MapWidth = mapWidth;
             genParams.MapLength = mapLength;
             genParams.MapHeight = mapHeight;
-
             GenTaskParams genTaskParams = new GenTaskParams {
                 Player = player,
-                World = player.World,
-                FileName = fileName,
-                FullFileName = fullFileName,
+                World = world,
+                FileName = givenName,
+                FullFileName = fileName,
                 GenState = genParams.CreateGenerator()
             };
+            player.MessageNow( "Generating: {0}", genParams );
+
+            // do the rest in a background thread
             Scheduler.NewBackgroundTask( GenTaskCallback, genTaskParams )
                      .RunOnce();
         }
@@ -1035,19 +1067,16 @@ namespace fCraft {
                 throw new NullReferenceException( message );
             }
 
-            // save map to file, or load it into a world
-            if( args.FullFileName != null ) {
+            if( args.World != null ) {
+                args.Player.Message( "Generation done. Changing map..." );
+                args.World.MapChangedBy = args.Player.Name;
+                args.World.ChangeMap( map );
+            } else {
                 if( map.Save( args.FullFileName ) ) {
                     args.Player.Message( "Generation done. Saved to {0}", args.FileName );
                 } else {
                     args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
-            } else if( args.World != null ) {
-                args.Player.MessageNow( "Generation done. Changing map..." );
-                args.World.MapChangedBy = args.Player.Name;
-                args.World.ChangeMap( map );
-            } else {
-                throw new Exception( "Neither FullFileName nor World were set in GenTaskParams" );
             }
         }
 
