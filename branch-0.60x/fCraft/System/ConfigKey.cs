@@ -275,9 +275,14 @@ A higher setting (120+ seconds) is recommended for busy servers with many maps."
         BackupOnStartup,
 
         [BoolKey( ConfigSection.SavingAndBackup, false,
-@"Create backups any time a player joins a map.
+@"Create backups every time a player joins a map.
 Both a timestamp and player's name are included in the file name." )]
         BackupOnJoin,
+
+        [BoolKey( ConfigSection.SavingAndBackup, true,
+@"Create backups every time a world's map is replaced, by /Gen or /WLoad.
+A timestamp and command's name are included in the filename." )]
+        BackupOnMapChange,
 
         [BoolKey( ConfigSection.SavingAndBackup, true,
 @"Only create backups if the map was modified since last backup." )]
@@ -293,13 +298,15 @@ Set to 0 to disable periodic backups by default.",
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
 @"Maximum number of backup files that fCraft should keep.
-If exceeded, oldest backups will be deleted first.",
+If exceeded, oldest backups will be deleted first.
+Set to 0 to keep unlimited number of files (default).",
             MinValue = 0 )]
         MaxBackups,
 
         [IntKey( ConfigSection.SavingAndBackup, 0,
-@"Maximum combined filesize of all backups, in MB.
-If exceeded, oldest backups will be deleted first.",
+@"Maximum combined file size of all backups, in MB.
+If exceeded, oldest backups will be deleted first.
+Set to 0 to keep unlimited number of backups (default).",
             MinValue = 0 )]
         MaxBackupSize,
 
