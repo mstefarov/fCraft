@@ -295,6 +295,9 @@ namespace fCraft {
             // prepare the brushes
             BrushManager.Init();
 
+            // prepare list of map generators
+            MapGenUtil.Init();
+
             // Init IRC
             IRC.Init();
 

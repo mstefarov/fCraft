@@ -810,7 +810,7 @@ namespace fCraft {
             Help = "Selects and configures a generator to use for &H/Gen&S. " +
                    "Defaults to \"Flat\" generator. " +
                    "See &H/Help SetGen <GenName>&S for generator-specific information. " +
-                   "List of available generators: ", // list is filled in by MapGenUtil
+                   "List of available generators:", // list is filled in by MapGenUtil
             HelpSections = new Dictionary<string, string>(), // sections are filled in by MapGenUtil
             Handler = SetGenHandler
         };

@@ -12,8 +12,9 @@ namespace fCraft {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
                 Presets = Enum.GetNames( typeof( RealisticMapGenTemplate ) ),
-                Help = "Creates realistic looking landscapes. " +
-                       "Defaults settings produce a random forested landscape. " +
+                Help = "\"Realistic\" map generator:\n" +
+                       "Creates realistic looking landscapes. " +
+                       "Default settings produce a random forested landscape. " +
                        "You can specify two parameters, in either order: a terrain type, and a block theme. " +
                        "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() +
                        ". " +
