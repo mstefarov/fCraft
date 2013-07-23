@@ -676,7 +676,7 @@ namespace fCraft.ConfigGUI {
                 } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
                     XDocument doc = XDocument.Load( fullFileName );
                     XElement root = doc.Root;
-                    MessageBox.Show( "TODO" ); // TODO
+                    MessageBox.Show( "TODO" ); // TODO: legacy templates
 
                 } else {
                     MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
@@ -707,7 +707,7 @@ namespace fCraft.ConfigGUI {
             string oldData;
             if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
                 // load legacy (pre-0.640) embedded generation parameters
-                MessageBox.Show( "TODO: legacy map loading" ); // TODO
+                MessageBox.Show( "TODO: legacy map loading" ); // TODO: legacy templates
 
             } else {
                 // load modern (0.640+) embedded generation parameters

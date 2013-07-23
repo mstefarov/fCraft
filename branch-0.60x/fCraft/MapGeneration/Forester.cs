@@ -877,7 +877,7 @@ namespace fCraft {
         #endregion
     }
 
-    // TODO: Add a UI to ConfigGUI.AddWorldPopup to set these
+    // TODO: Add a UI to RealisticMapGenGui to set these
     public sealed class ForesterArgs {
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant
