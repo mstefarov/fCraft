@@ -65,6 +65,7 @@ namespace fCraft.ConfigGUI {
 
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
+            MapGenUtil.Init();
 
             dgvWorlds.DataError += WorldListErrorHandler;
 

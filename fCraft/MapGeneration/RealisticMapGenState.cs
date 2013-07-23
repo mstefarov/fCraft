@@ -193,9 +193,19 @@ namespace fCraft {
 
         #region Map Processing
 
+        int maxHeightScaled;
+        int maxDepthScaled;
+        int snowAltitudeScaled;
+
         Map GenerateMap() {
             Map map = new Map( null, genParams.MapWidth, genParams.MapLength, genParams.MapHeight, true );
             theme = genParams.Theme;
+
+            // scale features vertically based on map height
+            double verticalScale = (genParams.MapHeight / 96.0) / 2 + 0.5;
+            maxHeightScaled = (int)Math.Round( genParams.MaxHeight * verticalScale );
+            maxDepthScaled = (int)Math.Round( genParams.MaxDepth * verticalScale );
+            snowAltitudeScaled = (int)Math.Round( genParams.SnowAltitude * verticalScale );
 
             // Match water coverage
             float desiredWaterLevel = .5f;
@@ -211,7 +221,7 @@ namespace fCraft {
             // Calculate above/below water multipliers
             float aboveWaterMultiplier = 0;
             if( desiredWaterLevel < 1 ) {
-                aboveWaterMultiplier = (genParams.MaxHeight / (1 - desiredWaterLevel));
+                aboveWaterMultiplier = (maxHeightScaled / (1 - desiredWaterLevel));
             }
 
 
@@ -256,8 +266,8 @@ namespace fCraft {
                 Noise.Normalize( altmap, -1, 1 );
             }
 
-            int snowStartThreshold = genParams.SnowAltitude - genParams.SnowTransition;
-            int snowThreshold = genParams.SnowAltitude;
+            int snowStartThreshold = snowAltitudeScaled - genParams.SnowTransition;
+            int snowThreshold = snowAltitudeScaled;
 
             ReportRelativeProgress( 10, "Filling" );
             if( theme.AirBlock != Block.Air ) {
@@ -269,7 +279,7 @@ namespace fCraft {
                     float slope;
                     if( heightmap[x, y] < desiredWaterLevel ) {
                         // for blocks below "sea level"
-                        float depth = genParams.MaxDepth;
+                        float depth = maxDepthScaled;
                         if( altmap != null ) {
                             depth += altmap[x, y] * genParams.MaxDepthVariation;
                         }
@@ -324,13 +334,15 @@ namespace fCraft {
                         // for blocks above "sea level"
                         float height;
                         if( altmap != null ) {
-                            height = genParams.MaxHeight + altmap[x, y] * genParams.MaxHeightVariation;
+                            height = maxHeightScaled + altmap[x, y] * genParams.MaxHeightVariation;
                         } else {
-                            height = genParams.MaxHeight;
+                            height = maxHeightScaled;
                         }
                         slope = slopemap[x, y] * height;
                         if( height != 0 ) {
-                            level = genParams.WaterLevel + (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, genParams.AboveFuncExponent ) * aboveWaterMultiplier / genParams.MaxHeight * height );
+                            level = genParams.WaterLevel +
+                                    (int)Math.Round( Math.Pow( heightmap[x, y] - desiredWaterLevel, genParams.AboveFuncExponent )*
+                                                     aboveWaterMultiplier/maxHeightScaled*height );
                         } else {
                             level = genParams.WaterLevel;
                         }
