@@ -194,6 +194,8 @@ namespace fCraft {
      * 165 - r1896 - Added RankPrefixesOnDisplayedNames key
      * 
      * 166 - r1910 - Added BypassHttpsCertificateValidation and MoveEmoteDotToEndOfMessage keys
+     * 
+     * 167 - r2083 - Added BackupOnMapChange key
      */
 
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
@@ -204,7 +206,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 166;
+        public const int CurrentVersion = 167;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
