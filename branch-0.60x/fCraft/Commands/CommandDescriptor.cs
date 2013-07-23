@@ -13,7 +13,7 @@ namespace fCraft {
 
     /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.
     /// Specifies a handler method. </summary>
-    public sealed class CommandDescriptor : IClassy {
+    public class CommandDescriptor : IClassy {
 
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
         [CanBeNull]
@@ -29,7 +29,7 @@ namespace fCraft {
         public CommandHandler Handler { get; set; }
 
         /// <summary> Full text of the help message. Default: null </summary>
-        public string Help { get; set; }
+        public virtual string Help { get; set; }
 
         /// <summary> Whether the command is hidden from command list (/cmds). Default: false </summary>
         public bool IsHidden { get; set; }
@@ -60,14 +60,14 @@ namespace fCraft {
         public string Usage { get; set; }
 
         /// <summary> Help sub-sections. </summary>
-        public Dictionary<string, string> HelpSections { get; set; }
+        public virtual Dictionary<string, string> HelpSections { get; set; }
 
         /// <summary> Whether this command involves a selection that can be repeated with /static. Default: false </summary>
         public bool RepeatableSelection { get; set; }
 
 
         /// <summary> Checks whether this command may be called by players of a given rank. </summary>
-        public bool CanBeCalledBy( [NotNull] Rank rank ) {
+        public virtual bool CanBeCalledBy( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Permissions == null ||
                    Permissions.All( rank.Can ) ||
@@ -92,14 +92,14 @@ namespace fCraft {
 
         /// <summary> Checks whether players of the given rank should see this command in /cmds list.
         /// Takes permissions and the hidden flag into account. </summary>
-        public bool IsVisibleTo( [NotNull] Rank rank ) {
+        public virtual bool IsVisibleTo( [NotNull] Rank rank ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return !IsHidden && CanBeCalledBy( rank );
         }
 
 
         /// <summary> Prints command usage syntax to the given player. </summary>
-        public void PrintUsage( [NotNull] Player player ) {
+        public virtual void PrintUsage( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( Usage != null ) {
                 player.Message( "Usage: &H{0}", Usage );
@@ -132,7 +132,7 @@ namespace fCraft {
 
         /// <summary> Returns a formatted name of the command,
         /// colored and possibly prefixed according to MinRank required to call this command. </summary>
-        public string ClassyName {
+        public virtual string ClassyName {
             get {
                 if( ConfigKey.RankColorsInChat.Enabled() ) {
                     Rank minRank;
