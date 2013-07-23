@@ -12,7 +12,7 @@ namespace fCraft {
         const string GenVersionMetaKey = "MapGeneratorVersion";
         static readonly Dictionary<string, MapGenerator> Generators = new Dictionary<string, MapGenerator>();
 
-        static MapGenUtil() {
+        public static void Init() {
             RegisterGenerator( FlatMapGen.Instance );
             RegisterGenerator( EmptyMapGen.Instance );
             RegisterGenerator( RealisticMapGen.Instance );

@@ -11,7 +11,8 @@ namespace fCraft {
         static FloatingIslandMapGen() {
             Instance = new FloatingIslandMapGen {
                 Name = "FloatingIsland",
-                Help = "Creates a map with floating islands. " +
+                Help = "\"FloatingIsland\" map generator:\n" + 
+                       "Creates a map with floating islands. " +
                        "Does not have any parameters or presets yet. " +
                        "Note that this generator is currently quite slow."
             };
