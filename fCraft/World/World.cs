@@ -91,6 +91,9 @@ namespace fCraft {
 
         #region Map
 
+        // flag to prevent double ChangeMap() calls on the same World instance
+        bool mapWasChanged;
+
         /// <summary> Map of this world. May be null if world is not loaded. </summary>
         [CanBeNull]
         public Map Map {
@@ -134,7 +137,7 @@ namespace fCraft {
 
                 // or generate a default one
                 if( Map == null ) {
-                    Server.Message( "&WMapfile is missing for world {0}&W. A new map has been created.", ClassyName );
+                    Server.Message( "&WMap file is missing for world {0}&W. A new map has been created.", ClassyName );
                     Logger.Log( LogType.Warning,
                                 "World.LoadMap: Map file missing for world {0}. Generating default flatgrass map.",
                                 Name );
@@ -188,6 +191,10 @@ namespace fCraft {
             if( newMap == null ) throw new ArgumentNullException( "newMap" );
             if( newMapChangedBy == null ) throw new ArgumentNullException( "newMapChangedBy" );
             lock( SyncRoot ) {
+                if( mapWasChanged ) {
+                    throw new InvalidOperationException( "A map change is already pending!" );
+                }
+
                 World newWorld = new World( Name ) {
                     AccessSecurity = (SecurityController)AccessSecurity.Clone(),
                     BuildSecurity = (SecurityController)BuildSecurity.Clone(),
@@ -213,11 +220,25 @@ namespace fCraft {
                 newMap.World = newWorld;
                 newWorld.Map = newMap;
                 newWorld.Preload = preload;
+
+                // save a backup, just in case
+                if( ConfigKey.BackupOnMapChange.Enabled() ) {
+                    SaveMap();
+                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                    SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
+                }
+
+                // register the new world, and unregister this one
                 WorldManager.ReplaceWorld( this, newWorld );
+                mapWasChanged = true;
+
+                // clear BlockDB for the old map
                 using( BlockDB.GetWriteLock() ) {
                     BlockDB.Clear();
                     BlockDB.World = newWorld;
                 }
+
+                // tell players to go ahead
                 foreach( Player player in Players ) {
                     player.JoinWorld( newWorld, WorldChangeReason.Rejoin );
                 }
@@ -640,10 +661,6 @@ namespace fCraft {
         }
 
 
-        internal const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm",
-                              JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
-
-
         void SaveTask( SchedulerTask task ) {
             if( !IsLoaded ) return;
             lock( SyncRoot ) {
@@ -675,6 +692,8 @@ namespace fCraft {
 
         #region Backups
 
+        internal const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm";
+        const string JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
         DateTime lastBackup = DateTime.UtcNow;
         static readonly object BackupLock = new object();
 
@@ -705,8 +724,8 @@ namespace fCraft {
                 lock( BackupLock ) {
                     if( value == backupEnabledState ) return;
                     if( value == YesNoAuto.Yes && backupInterval <= TimeSpan.Zero ) {
-                        throw new InvalidOperationException(
-                            "To set BackupEnabledState to 'Yes,' set BackupInterval to the desired time interval." );
+                        throw new InvalidOperationException( "To set BackupEnabledState to 'Yes,' " +
+                                                             "set BackupInterval to the desired time interval." );
                     }
                     backupEnabledState = value;
                 }
