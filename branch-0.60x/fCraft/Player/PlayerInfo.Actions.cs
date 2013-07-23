@@ -266,7 +266,7 @@ namespace fCraft {
                 }
                 foreach( Player other in Server.Players.FromIP( address ) ) {
                     if( other.Info.BanStatus != BanStatus.IPBanExempt ) {
-                        other.Kick( kickReason, LeaveReason.BanIP ); // TODO: check side effects of not using DoKick
+                        other.Kick( kickReason, LeaveReason.BanIP );
                     }
                 }
             }

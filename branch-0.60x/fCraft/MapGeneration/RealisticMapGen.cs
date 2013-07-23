@@ -2,6 +2,7 @@
 using System.Xml.Linq;
 
 namespace fCraft {
+    /// <summary> Map generator that creates realistic-looking landscapes. </summary>
     public class RealisticMapGen : MapGenerator {
         public static RealisticMapGen Instance { get; private set; }
         RealisticMapGen() {}
@@ -10,7 +11,14 @@ namespace fCraft {
             Instance = new RealisticMapGen {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
-                Presets = Enum.GetNames( typeof( RealisticMapGenTemplate ) )
+                Presets = Enum.GetNames( typeof( RealisticMapGenTemplate ) ),
+                Help = "Creates realistic looking landscapes. " +
+                       "Defaults settings produce a random forested landscape. " +
+                       "You can specify two parameters, in either order: a terrain type, and a block theme. " +
+                       "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() +
+                       ". " +
+                       "Block themes are: " + Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() +
+                       ". For example: &H/SetGen Realistic Forest River&S. More options coming soon."
             };
         }
 
@@ -31,8 +39,8 @@ namespace fCraft {
                 return CreateDefaultParameters();
             }
 
-            MapGenTheme theme = MapGenTheme.Grass;
-            RealisticMapGenTemplate template = RealisticMapGenTemplate.Flat;
+            MapGenTheme theme;
+            RealisticMapGenTemplate template;
 
             string templateName = cmd.Next();
             if( templateName == null ) {
@@ -43,11 +51,13 @@ namespace fCraft {
 
             // parse theme
             bool swapThemeAndTemplate = false;
-            if( EnumUtil.TryParse( themeName, out theme, true ) ) {} else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+            if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+
+            } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
                 swapThemeAndTemplate = true;
 
             } else {
-                player.Message( "SetGen: Unrecognized theme \"{0}\". Available themes are: Grass, {1}",
+                player.Message( "SetGen: Unrecognized theme \"{0}\". Available themes are: {1}",
                     themeName,
                     Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
                 return null;

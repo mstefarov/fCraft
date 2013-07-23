@@ -10,7 +10,10 @@ namespace fCraft {
 
         static FloatingIslandMapGen() {
             Instance = new FloatingIslandMapGen {
-                Name = "FloatingIsland"
+                Name = "FloatingIsland",
+                Help = "Creates a map with floating islands. " +
+                       "Does not have any parameters or presets yet. " +
+                       "Note that this generator is currently quite slow."
             };
         }
 
@@ -24,7 +27,7 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
-                player.Message( "FloatingIsland map generator goes not take any parameters; using defaults." );
+                player.Message( "SetGen: FloatingIsland map generator goes not take any parameters; using defaults." );
             }
             return new FloatingIslandMapGenParameters();
         }

@@ -25,6 +25,9 @@ namespace fCraft {
         [NotNull]
         public string[] Presets { get; protected set; }
 
+        /// <summary> Help string, printed when players call "/Help Gen ThisMapGensName" </summary>
+        public string Help { get; set; }
+
         /// <summary> Creates a IMapGeneratorParameters object containing default parameters. </summary>
         [NotNull]
         public abstract MapGeneratorParameters CreateDefaultParameters();

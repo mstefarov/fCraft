@@ -18,7 +18,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdEnv );
 
             CommandManager.RegisterCommand( CdSetGen );
-            CommandManager.RegisterCommand( CdGenerate );
+            CommandManager.RegisterCommand( CdGen );
 
             CommandManager.RegisterCommand( CdJoin );
 
@@ -799,7 +799,7 @@ namespace fCraft {
 
         #region Gen
 
-        static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
+        internal static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
             Name = "SetGen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -807,7 +807,11 @@ namespace fCraft {
                 Permission.ManageWorlds
             },
             Usage = "/SetGen GenName [Options]",
-            Help = "TODO", // TODO
+            Help = "Selects and configures a generator to use for &H/Gen&S. " +
+                   "Defaults to \"Flat\" generator. " +
+                   "See &H/Help SetGen <GenName>&S for generator-specific information. " +
+                   "List of available generators: ", // list is filled in by MapGenUtil
+            HelpSections = new Dictionary<string, string>(), // sections are filled in by MapGenUtil
             Handler = SetGenHandler
         };
 
@@ -844,7 +848,7 @@ namespace fCraft {
         }
 
 
-        static readonly CommandDescriptor CdGenerate = new CommandDescriptor {
+        internal static readonly CommandDescriptor CdGen = new CommandDescriptor {
             Name = "Gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
@@ -854,6 +858,7 @@ namespace fCraft {
                    "If no FileName or WorldName is given, replaces the current world. " +
                    "If no dimensions are given either, uses existing map's dimensions. " +
                    "Select the generator using &H/SetGen&S command before calling &H/Gen&S.",
+            HelpSections = new Dictionary<string, string>(), // sections are filled in by MapGenUtil
             Handler = GenHandler
         };
 
@@ -875,7 +880,7 @@ namespace fCraft {
             if( cmd.HasNext ) {
                 // Something's given, assume that it's map dimensions.
                 if( !(cmd.NextInt( out mapWidth ) && cmd.NextInt( out mapLength ) && cmd.NextInt( out mapHeight )) ) {
-                    CdGenerate.PrintUsage( player );
+                    CdGen.PrintUsage( player );
                     return;
                 }
 
@@ -890,7 +895,7 @@ namespace fCraft {
 
             } else {
                 player.Message( "When used from console, /Gen requires map dimensions." );
-                CdGenerate.PrintUsage( player );
+                CdGen.PrintUsage( player );
                 return;
             }
 
@@ -939,7 +944,7 @@ namespace fCraft {
 
                 } else {
                     player.Message( "When used from console, /Gen requires a world name or map file name." );
-                    CdGenerate.PrintUsage( player );
+                    CdGen.PrintUsage( player );
                     return;
                 }
 

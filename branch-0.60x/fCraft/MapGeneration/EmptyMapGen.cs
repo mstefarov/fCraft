@@ -9,7 +9,8 @@ namespace fCraft {
 
         static EmptyMapGen() {
             Instance = new EmptyMapGen {
-                Name = "Empty"
+                Name = "Empty",
+                Help = "Creates an empty map. Does not take any parameters."
             };
         }
 
@@ -24,10 +25,8 @@ namespace fCraft {
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
                 player.Message( "Empty map generator does not take any parameters." );
-                return null;
-            } else {
-                return CreateDefaultParameters();
             }
+            return CreateDefaultParameters();
         }
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {

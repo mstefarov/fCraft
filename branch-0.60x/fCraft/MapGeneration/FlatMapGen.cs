@@ -17,13 +17,14 @@ namespace fCraft {
                 "Default",
                 "Ocean"
             };
-            foreach( string themeName in Enum.GetNames( typeof( MapGenTheme ) ) ) {
-                presetList.Add( themeName );
-            }
+            presetList.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
 
             Instance = new FlatMapGen {
                 Name = "Flat",
-                Presets = presetList.ToArray()
+                Presets = presetList.ToArray(),
+                Help = "Creates a flat, featureless, layered map. " +
+                       "Takes an optional preset name. Presets are: " +
+                       presetList.JoinToString()
             };
         }
 
