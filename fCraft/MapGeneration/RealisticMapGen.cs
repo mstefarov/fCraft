@@ -11,14 +11,14 @@ namespace fCraft {
             Instance = new RealisticMapGen {
                 Name = "Realistic",
                 Version = new Version( 2, 1 ),
-                Presets = Enum.GetNames( typeof( RealisticMapGenTemplate ) ),
+                Presets = Enum.GetNames( typeof( RealisticMapGenTerrainType ) ),
                 Help = "\"Realistic\" map generator:\n" +
                        "Creates realistic looking landscapes. " +
                        "Default settings produce a random forested landscape. " +
                        "You can specify two parameters, in either order: a terrain type, and a block theme. " +
-                       "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() +
+                       "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() +
                        ". " +
-                       "Block themes are: " + Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() +
+                       "Block themes are: " + Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() +
                        ". For example: &H/SetGen Realistic Forest River&S. More options coming soon."
             };
         }
@@ -41,11 +41,11 @@ namespace fCraft {
             }
 
             MapGenTheme theme;
-            RealisticMapGenTemplate template;
+            RealisticMapGenTerrainType terrainType;
 
             string templateName = cmd.Next();
             if( templateName == null ) {
-                player.Message( "SetGen: Realistic MapGen requires both a theme and a template. " +
+                player.Message( "SetGen: Realistic MapGen requires both a theme and a terrainType. " +
                                 "See &H/Help SetGen Realistic&S or check wiki.fCraft.net for details" );
                 return null;
             }
@@ -64,29 +64,29 @@ namespace fCraft {
                 return null;
             }
 
-            // parse template
+            // parse terrainType
             if( swapThemeAndTemplate ) {
-                if( !EnumUtil.TryParse( themeName, out template, true ) ) {
+                if( !EnumUtil.TryParse( themeName, out terrainType, true ) ) {
                     MessageTemplateList( themeName, player );
                     return null;
                 }
             } else {
-                if( !EnumUtil.TryParse( templateName, out template, true ) ) {
+                if( !EnumUtil.TryParse( templateName, out terrainType, true ) ) {
                     MessageTemplateList( templateName, player );
                     return null;
                 }
             }
 
-            RealisticMapGenParameters param = CreateParameters( template );
+            RealisticMapGenParameters param = CreateParameters( terrainType );
             param.Theme = new RealisticMapGenTheme( theme );
             return param;
         }
 
 
         static void MessageTemplateList( string templateName, Player player ) {
-            player.Message( "SetGen: Unrecognized template \"{0}\". Available terrain types: {1}",
+            player.Message( "SetGen: Unrecognized terrainType \"{0}\". Available terrain types: {1}",
                 templateName,
-                Enum.GetNames( typeof( RealisticMapGenTemplate ) ).JoinToString() );
+                Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() );
         }
 
 
@@ -94,18 +94,18 @@ namespace fCraft {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
             }
-            RealisticMapGenTemplate template;
-            if( EnumUtil.TryParse( presetName, out template, true ) ) {
-                return CreateParameters( template );
+            RealisticMapGenTerrainType terrainType;
+            if( EnumUtil.TryParse( presetName, out terrainType, true ) ) {
+                return CreateParameters( terrainType );
             } else {
                 return null;
             }
         }
 
 
-        public static RealisticMapGenParameters CreateParameters( RealisticMapGenTemplate template ) {
-            switch( template ) {
-                case RealisticMapGenTemplate.Archipelago:
+        public static RealisticMapGenParameters CreateParameters( RealisticMapGenTerrainType terrainType ) {
+            switch( terrainType ) {
+                case RealisticMapGenTerrainType.Archipelago:
                     return new RealisticMapGenParameters {
                         MaxHeight = 8,
                         MaxDepth = 20,
@@ -115,7 +115,7 @@ namespace fCraft {
                         WaterCoverage = .85f
                     };
 
-                case RealisticMapGenTemplate.Atoll:
+                case RealisticMapGenTerrainType.Atoll:
                     return new RealisticMapGenParameters {
                         Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
                         MaxHeight = 2,
@@ -132,7 +132,7 @@ namespace fCraft {
                         WaterCoverage = .95f
                     };
 
-                case RealisticMapGenTemplate.Bay:
+                case RealisticMapGenTerrainType.Bay:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
@@ -147,7 +147,7 @@ namespace fCraft {
                         DelayBias = true
                     };
 
-                case RealisticMapGenTemplate.Dunes:
+                case RealisticMapGenTerrainType.Dunes:
                     return new RealisticMapGenParameters {
                         AddTrees = false,
                         AddWater = false,
@@ -161,7 +161,7 @@ namespace fCraft {
                         InvertHeightmap = true
                     };
 
-                case RealisticMapGenTemplate.Hills:
+                case RealisticMapGenTerrainType.Hills:
                     return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 8,
@@ -171,7 +171,7 @@ namespace fCraft {
                         TreeSpacingMax = 13
                     };
 
-                case RealisticMapGenTemplate.Ice:
+                case RealisticMapGenTerrainType.Ice:
                     return new RealisticMapGenParameters {
                         AddTrees = false,
                         Theme = new RealisticMapGenTheme( MapGenTheme.Arctic ),
@@ -186,7 +186,7 @@ namespace fCraft {
                         MaxHeightVariation = 0
                     };
 
-                case RealisticMapGenTemplate.Island:
+                case RealisticMapGenTerrainType.Island:
                     return new RealisticMapGenParameters {
                         MaxHeight = 16,
                         MaxDepth = 39,
@@ -202,7 +202,7 @@ namespace fCraft {
                         Roughness = 0.45f
                     };
 
-                case RealisticMapGenTemplate.Lake:
+                case RealisticMapGenTerrainType.Lake:
                     return new RealisticMapGenParameters {
                         MaxHeight = 14,
                         MaxDepth = 20,
@@ -216,7 +216,7 @@ namespace fCraft {
                         WaterCoverage = .3f
                     };
 
-                case RealisticMapGenTemplate.Mountains:
+                case RealisticMapGenTerrainType.Mountains:
                     return new RealisticMapGenParameters {
                         AddWater = false,
                         MaxHeight = 40,
@@ -231,10 +231,10 @@ namespace fCraft {
                         CliffThreshold = .9f
                     };
 
-                case RealisticMapGenTemplate.Defaults:
+                case RealisticMapGenTerrainType.Defaults:
                     return new RealisticMapGenParameters();
 
-                case RealisticMapGenTemplate.River:
+                case RealisticMapGenTerrainType.River:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 8,
@@ -245,7 +245,7 @@ namespace fCraft {
                         WaterCoverage = .31f
                     };
 
-                case RealisticMapGenTemplate.Streams:
+                case RealisticMapGenTerrainType.Streams:
                     return new RealisticMapGenParameters {
                         MaxHeight = 5,
                         MaxDepth = 4,
@@ -259,7 +259,7 @@ namespace fCraft {
                         TreeSpacingMax = 14
                     };
 
-                case RealisticMapGenTemplate.Peninsula:
+                case RealisticMapGenTerrainType.Peninsula:
                     return new RealisticMapGenParameters {
                         MaxHeight = 22,
                         MaxDepth = 12,
@@ -274,7 +274,7 @@ namespace fCraft {
                         WaterCoverage = .5f
                     };
 
-                case RealisticMapGenTemplate.Flat:
+                case RealisticMapGenTerrainType.Flat:
                     return new RealisticMapGenParameters {
                         MaxHeight = 0,
                         MaxDepth = 0,
@@ -286,7 +286,7 @@ namespace fCraft {
                     };
 
                 default:
-                    throw new ArgumentOutOfRangeException( "template" );
+                    throw new ArgumentOutOfRangeException( "terrainType" );
             }
         }
     }

@@ -1347,7 +1347,7 @@ namespace fCraft {
 
             Map playerMap = player.WorldMap;
             if( playerMap.Width != map.Width || playerMap.Length != map.Length || playerMap.Height != map.Height ) {
-                player.Message( "Mapfile dimensions must match your current world's dimensions ({0}x{1}x{2})",
+                player.Message( "Map file dimensions must match your current world's dimensions ({0}x{1}x{2})",
                                 playerMap.Width,
                                 playerMap.Length,
                                 playerMap.Height );
