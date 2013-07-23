@@ -121,13 +121,13 @@ namespace fCraft {
      * 
      * 137 - r556 - Added BandwidthUseMode key.
      * 
-     * 138 - r578 - Removed SaveOnShutdown key.
+     * 138 - r577 - Removed SaveOnShutdown key.
      *              Tweaked range checks on some keys.
      *              Grouped key tags into section tags.
      *              When saving, keys with default values are now commented out.
      *              CONFIGS SAVED WITH THIS VERSION ARE NOT LOADABLE. It is obsolete.
      *              
-     * 139 - r579 - Fixed XML structure messed up by 138. Sections are now saved into <Section> elements.
+     * 139 - r578 - Fixed XML structure messed up by 138. Sections are now saved into <Section> elements.
      * 
      * 140 - r616 - Added Spectate permission.
      * 
@@ -141,9 +141,9 @@ namespace fCraft {
      * 
      * 145 - r794 - Added UndoOthersActions permission.
      * 
-     * 146 - r910 - Renamed BackupInterval to DefaultBackupInterval
+     * 146 - r910 - Renamed BackupInterval key to DefaultBackupInterval
      * 
-     * 147 - r926 - Renamed EnableBlockDB to BlockDBEnabled
+     * 147 - r926 - Renamed EnableBlockDB key to BlockDBEnabled
      * 
      * 148 - r1014 - Added BlockDBAutoEnable and BlockDBAutoEnableRank keys
      *               Moved BlockDBEnabled to Security ConfigSection
@@ -159,11 +159,12 @@ namespace fCraft {
      *                  WomEnableEnvExtensions to "false"
      *                  IRCBotAnnounceServerEvents to "true"
      *                  
-     * 152 - r1243 - Changed the way fCraft stores config keys.
+     * 152 - r1242 - Removed LoadPlugins key
+     *               Changed the way fCraft stores config keys.
      *               Before: <fCraftConfig><Section name="blah"><KeyName>Value</KeyName></Section></fCraftConfig>
      *               After: <fCraftConfig><Settings><ConfigKey key="KeyName" value="Value" default="DefaultValue" /></Settings></fCraftConfig>
      *               
-     * 153 - r1246 - Added PlayerDBProvider data (0.700_dev)
+     * 153 - r1284 - Added PlayerDBProvider data (0.700_dev)
      *               Removed BackupDataOnStartup key (0.700_dev)
      *               
      * 154 - r1312 - Added SeparateWorldAndGlobalChat key (default: false) (0.700_dev)
