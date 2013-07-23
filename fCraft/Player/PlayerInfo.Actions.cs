@@ -113,7 +113,6 @@ namespace fCraft {
                             } else {
                                 kickReason = String.Format( "Banned by {0}", player.Name );
                             }
-                            // TODO: check side effects of not using DoKick
                             target.Kick( kickReason, LeaveReason.Ban );
                         }
                     } else {
