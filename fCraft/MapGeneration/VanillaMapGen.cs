@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace fCraft {
+    /// <summary> Map generator that creates landscapes identical to
+    /// Notch's original ("vanilla") implementation of Minecraft. </summary>
     public class VanillaMapGen : MapGenerator {
         public static VanillaMapGen Instance { get; private set; }
 
@@ -10,7 +12,10 @@ namespace fCraft {
 
         static VanillaMapGen() {
             Instance = new VanillaMapGen {
-                Name = "Vanilla"
+                Name = "Vanilla",
+                Help = "\"Vanilla\" map generator:\n" +
+                       "Creates landscapes identical to Notch's original (\"vanilla\") implementation of Minecraft. " +
+                       "Does not take any parameters (yet)."
             };
         }
 

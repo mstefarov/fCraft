@@ -37,7 +37,7 @@ namespace fCraft {
         /// <summary> Whether the command is not part of fCraft core (set automatically). </summary>
         public bool IsCustom { get; internal set; }
 
-        /// <summary> Whether the command should be repeated by the "/" shortcut. Default: false </summary>
+        /// <summary> Whether the command shouldn't be repeated by the "/" shortcut. Default: false </summary>
         public bool NotRepeatable { get; set; }
 
         /// <summary> Whether the command should be usable by frozen players. Default: false </summary>

@@ -93,6 +93,9 @@ namespace fCraft {
                 throw new ArgumentException( "A generator with the same name has already been registered." );
             }
             Generators.Add( gen.Name.ToLowerInvariant(), gen );
+            WorldCommands.CdSetGen.Help += " " + gen.Name;
+            WorldCommands.CdSetGen.HelpSections.Add( gen.Name.ToLowerInvariant(), gen.Help );
+            WorldCommands.CdGen.HelpSections.Add( gen.Name.ToLowerInvariant(), gen.Help );
         }
 
 
