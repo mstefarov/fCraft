@@ -710,9 +710,14 @@ namespace fCraft {
                 WorldIndex[oldWorld.Name.ToLower()] = newWorld;
                 oldWorld.Map = null;
 
-                // change the main world, if needed
+                // change the main worlds, if needed
                 if( oldWorld == MainWorld ) {
                     MainWorld = newWorld;
+                }
+                foreach( Rank rank in RankManager.Ranks ) {
+                    if( rank.MainWorld == oldWorld ) {
+                        rank.MainWorld = newWorld;
+                    }
                 }
 
                 SaveWorldList();
