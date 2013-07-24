@@ -676,7 +676,8 @@ namespace fCraft.ConfigGUI {
                 } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
                     XDocument doc = XDocument.Load( fullFileName );
                     XElement root = doc.Root;
-                    MessageBox.Show( "TODO" ); // TODO: legacy templates
+                    // TODO: legacy templates
+                    MessageBox.Show( LegacyTemplateMessage );
 
                 } else {
                     MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
@@ -701,13 +702,16 @@ namespace fCraft.ConfigGUI {
         }
 
 
+        const string LegacyTemplateMessage = "This version of fCraft does not [yet] support loading legacy .ftpl files.";
+
         void MapGenParamsFromMap( string fileName, Map ourMap ) {
             tStatus2.Text = "";
 
             string oldData;
             if( ourMap.Metadata.TryGetValue( "_Origin", "GeneratorParams", out oldData ) ) {
                 // load legacy (pre-0.640) embedded generation parameters
-                MessageBox.Show( "TODO: legacy map loading" ); // TODO: legacy templates
+                // TODO: legacy templates
+                MessageBox.Show( LegacyTemplateMessage );
 
             } else {
                 // load modern (0.640+) embedded generation parameters
@@ -898,7 +902,7 @@ namespace fCraft.ConfigGUI {
                 DirectoryInfo dirInfo = new DirectoryInfo( fileName );
                 creationTime = dirInfo.CreationTime;
                 modificationTime = dirInfo.LastWriteTime;
-                fileSize = dirInfo.GetFiles().Sum( finfo => finfo.Length );
+                fileSize = dirInfo.GetFiles().Sum( fileInfo => fileInfo.Length );
 
             } else {
                 textBox.Text = "File or directory \"" + fileName + "\" does not exist.";

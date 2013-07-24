@@ -598,7 +598,7 @@ Affected commands:
 
             toolTip.SetToolTip( xBackupOnStartup, ConfigKey.BackupOnStartup.GetDescription() );
 
-            toolTip.SetToolTip( xBackupOnJoin, ConfigKey.BackupOnJoin.GetDescription() );
+            toolTip.SetToolTip( xBackupOnMapChange, ConfigKey.BackupOnMapChange.GetDescription() );
 
             toolTip.SetToolTip( xBackupInterval, ConfigKey.DefaultBackupInterval.GetDescription() );
             toolTip.SetToolTip( nBackupInterval, ConfigKey.DefaultBackupInterval.GetDescription() );
