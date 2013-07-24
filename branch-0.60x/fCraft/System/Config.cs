@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class that handles loading/saving configuration, contains config defaults,
     /// and various configuration-related utilities.
-    /// See http://www.fcraft.net/wiki/Config_version_history for format history. </summary>
+    /// See http://www.fCraft.net/wiki/Config_version_history for format history. </summary>
     public static class Config {
         /// <summary>  Supported version of the Minecraft classic protocol. </summary>
         public const int ProtocolVersion = 7;

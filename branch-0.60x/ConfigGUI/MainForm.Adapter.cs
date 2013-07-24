@@ -304,7 +304,7 @@ namespace fCraft.ConfigGUI {
             if( !xSaveInterval.Checked ) nSaveInterval.Enabled = false;
 
             xBackupOnStartup.Checked = ConfigKey.BackupOnStartup.Enabled();
-            xBackupOnJoin.Checked = ConfigKey.BackupOnJoin.Enabled();
+            xBackupOnMapChange.Checked = ConfigKey.BackupOnMapChange.Enabled();
             xBackupOnlyWhenChanged.Checked = ConfigKey.BackupOnlyWhenChanged.Enabled();
 
             xBackupInterval.Checked = (ConfigKey.DefaultBackupInterval.GetInt() > 0);
@@ -553,7 +553,7 @@ namespace fCraft.ConfigGUI {
             if( xSaveInterval.Checked ) ConfigKey.SaveInterval.TrySetValue( nSaveInterval.Value );
             else ConfigKey.SaveInterval.TrySetValue( 0 );
             ConfigKey.BackupOnStartup.TrySetValue( xBackupOnStartup.Checked );
-            ConfigKey.BackupOnJoin.TrySetValue( xBackupOnJoin.Checked );
+            ConfigKey.BackupOnMapChange.TrySetValue( xBackupOnMapChange.Checked );
             ConfigKey.BackupOnlyWhenChanged.TrySetValue( xBackupOnlyWhenChanged.Checked );
 
             if( xBackupInterval.Checked ) ConfigKey.DefaultBackupInterval.TrySetValue( nBackupInterval.Value );

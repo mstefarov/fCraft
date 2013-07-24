@@ -223,8 +223,10 @@ namespace fCraft {
 
                 // save a backup, just in case
                 if( ConfigKey.BackupOnMapChange.Enabled() ) {
-                    SaveMap();
-                    string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
+                    if( Map != null && Map.HasChangedSinceSave ) {
+                        SaveMap();
+                    }
+                    string backupFileName = String.Format( MapChangeBackupFormat, Name, DateTime.Now ); // localized
                     SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
                 }
 
@@ -352,13 +354,6 @@ namespace fCraft {
                 // load the map, if it's not yet loaded
                 IsPendingMapUnload = false;
                 Map = LoadMap();
-
-                if( ConfigKey.BackupOnJoin.Enabled() &&
-                    ( HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
-                    string backupFileName = String.Format( JoinBackupFormat,
-                                                           Name, DateTime.Now, player.Name ); // localized
-                    SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
-                }
 
                 UpdatePlayerList();
 
@@ -693,7 +688,8 @@ namespace fCraft {
         #region Backups
 
         internal const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm";
-        const string JoinBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_{2}.fcm";
+        const string MapChangeBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_MapChange.fcm";
+
         DateTime lastBackup = DateTime.UtcNow;
         static readonly object BackupLock = new object();
 
@@ -793,7 +789,8 @@ namespace fCraft {
 
 
         /// <summary> Makes a copy of the current map file associated with this world.
-        /// This does NOT save map to disk, and does NOT guarantee that the most up-to-date copy of the map was backed up. </summary>
+        /// This does NOT save map to disk, and does NOT guarantee that the most up-to-date copy of the map was backed up. 
+        /// To make sure that the most current map is backed up, call SaveMap() just before SaveBackup() </summary>
         /// <param name="targetName"> Target file name. </param>
         /// <returns> Whether a backup was created or not. </returns>
         /// <exception cref="ArgumentNullException"> targetName is null. </exception>
@@ -813,7 +810,8 @@ namespace fCraft {
                         return false;
                     }
                 }
-
+                
+                // TODO: if the target file already exists, do something smart
                 try {
                     HasChangedSinceBackup = false;
                     File.Copy( MapFileName, targetName, true );

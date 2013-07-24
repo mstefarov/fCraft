@@ -274,11 +274,6 @@ A higher setting (120+ seconds) is recommended for busy servers with many maps."
 @"Whether to create a backup of every map when the server starts." )]
         BackupOnStartup,
 
-        [BoolKey( ConfigSection.SavingAndBackup, false,
-@"Create backups every time a player joins a map.
-Both a timestamp and player's name are included in the file name." )]
-        BackupOnJoin,
-
         [BoolKey( ConfigSection.SavingAndBackup, true,
 @"Create backups every time a world's map is replaced, by /Gen or /WLoad.
 A timestamp and command's name are included in the filename." )]
