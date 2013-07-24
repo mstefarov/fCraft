@@ -640,6 +640,7 @@ namespace fCraft {
                 if( ConfigKey.SaveInterval.GetInt() > 0 ) {
                     saveTask = Scheduler.NewBackgroundTask( SaveTask );
                     saveTask.IsCritical = true;
+                    saveTask.AdjustForExecutionTime = true;
                     saveTask.RunForever( this,
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ),
                                          TimeSpan.FromSeconds( ConfigKey.SaveInterval.GetInt() ) );
