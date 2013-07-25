@@ -574,6 +574,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void xIRCRegisteredNick_CheckedChanged( object sender, EventArgs e ) {
             tIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
             tIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
+            lIRCNickServ.Enabled = xIRCRegisteredNick.Checked;
+            lIRCNickServMessage.Enabled = xIRCRegisteredNick.Checked;
         }
 
         #endregion
