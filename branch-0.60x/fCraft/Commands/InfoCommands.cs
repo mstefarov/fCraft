@@ -70,7 +70,7 @@ namespace fCraft {
             } else if( name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                 // own name given
                 if( player.IsSuper ) {
-                    player.Message( "PlayerDB does not store information about virtual players (e.g. console). " + 
+                    player.Message( "Console does not have an &H/Info&S entry. " +
                                     "Please specify some search criteria to view other players' info." );
                     return;
                 }
@@ -323,14 +323,14 @@ namespace fCraft {
                     if( altNames.Count > MaxAltsToPrint ) {
                         if( bannedAltCount > 0 ) {
                             player.MessagePrefixed( "&S  ",
-                                                    "&S  Over {0} accounts ({1} banned) on IP: {2}  &Setc",
-                                                    MaxAltsToPrint,
+                                                    "&S  {0} accounts ({1} banned) on IP: {2}  &Setc",
+                                                    altNames.Count,
                                                     bannedAltCount,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         } else {
                             player.MessagePrefixed( "&S  ",
-                                                    "&S  Over {0} accounts on IP: {1} &Setc",
-                                                    MaxAltsToPrint,
+                                                    "&S  {0} accounts on IP: {1} &Setc",
+                                                    altNames.Count,
                                                     altNames.Take( 15 ).ToArray().JoinToClassyString() );
                         }
                     } else {
@@ -464,6 +464,11 @@ namespace fCraft {
             PlayerInfo info = null;
 
             if( name == null ) {
+                if( player.IsSuper ) {
+                    player.Message( "Console cannot have a &H/BanInfo&S entry. " +
+                                    "Please specify some search criteria to view other players' ban info." );
+                    return;
+                }
                 name = player.Name;
             } else if( !player.Can( Permission.ViewOthersInfo ) ) {
                 player.MessageNoAccess( Permission.ViewOthersInfo );
