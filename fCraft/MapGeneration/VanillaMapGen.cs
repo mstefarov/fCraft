@@ -13,7 +13,7 @@ namespace fCraft {
         static VanillaMapGen() {
             Instance = new VanillaMapGen {
                 Name = "Vanilla",
-                Help = "\"Vanilla\" map generator:\n" +
+                Help = "&S\"Vanilla\" map generator:\n" +
                        "Creates landscapes identical to Notch's original (\"vanilla\") implementation of Minecraft. " +
                        "Does not take any parameters (yet)."
             };

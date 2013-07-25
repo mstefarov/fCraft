@@ -10,7 +10,7 @@ namespace fCraft {
         static EmptyMapGen() {
             Instance = new EmptyMapGen {
                 Name = "Empty",
-                Help = "\"Empty\" map generator:\n" +
+                Help = "&S\"Empty\" map generator:\n" +
                        "Creates an empty map. Does not take any parameters."
             };
         }
