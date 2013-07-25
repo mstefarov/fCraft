@@ -497,13 +497,13 @@ namespace fCraft {
 
 
         bool LoginSequence() {
-            byte opcode = reader.ReadByte();
+            byte opCode = reader.ReadByte();
 
 #if DEBUG_NETWORKING
             Logger.Log( LogType.Trace, "from {0} [{1}] {2}", IP, outPacketNumber++, (OpCode)opcode );
 #endif
 
-            switch( opcode ) {
+            switch( opCode ) {
                 case (byte)OpCode.Handshake:
                     break;
 
@@ -522,7 +522,7 @@ namespace fCraft {
                 default:
                     Logger.Log( LogType.Error,
                                 "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.",
-                                IP, opcode );
+                                IP, opCode );
                     KickNow( "Incompatible client, or a network error.", LeaveReason.ProtocolViolation );
                     return false;
             }
@@ -569,8 +569,8 @@ namespace fCraft {
 
             if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
-                // update capitalization of player's name
-                if( !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
+                // update capitalization of player's account name
+                if( !isEmailAccount && !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
                     Info.Name = givenName;
                 }
 
