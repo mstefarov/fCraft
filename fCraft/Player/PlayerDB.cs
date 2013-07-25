@@ -359,9 +359,7 @@ namespace fCraft {
             // handle email accounts
             if( name.Contains( '@' ) ) {
                 isEmail = true;
-                name = Player.StripInvalidCharacters( name.Substring( 0, name.LastIndexOf( '@' ) ) );
-                if( name.Length == 0 ) name = "_";
-                else if( name.Length > 14 ) name = name.Substring( 0, 14 );
+                name = EmailToPlayerName( name );
             }
 
             lock( AddLocker ) {
@@ -387,7 +385,7 @@ namespace fCraft {
                             }
                         }
                     }
-                }else{
+                } else {
                     info = Trie.Get( name );
                 }
 
@@ -684,7 +682,7 @@ namespace fCraft {
         /// Returns '?' if name is empty or null. </summary>
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string name ) {
-            if( string.IsNullOrEmpty( name ) ) return "?";
+            if( String.IsNullOrEmpty( name ) ) return "?";
             PlayerInfo info = FindPlayerInfoExact( name );
             if( info == null ) return name;
             else return info.ClassyName;
@@ -754,7 +752,7 @@ namespace fCraft {
 
         public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( from == null ) throw new ArgumentNullException( "from" );
+            if( @from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
             if( reason == null ) throw new ArgumentNullException( "reason" );
             CheckIfLoaded();
@@ -762,7 +760,7 @@ namespace fCraft {
             string fullReason = reason + "~MassRank";
             lock( AddLocker ) {
                 for( int i = 0; i < PlayerInfoList.Length; i++ ) {
-                    if( PlayerInfoList[i].Rank == from ) {
+                    if( PlayerInfoList[i].Rank == @from ) {
                         try {
                             list[i].ChangeRank( player, to, fullReason, true, true, false );
                         } catch( PlayerOpException ex ) {
@@ -1010,5 +1008,37 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        /// <summary> Creates a regular expression pattern from a wildcard pattern (like the one /Info takes).
+        /// Accepts single-character ("?") and zero-or-more-characters ("*") wildcards. </summary>
+        public static Regex WildcardToRegex( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            string regexString = "^" +
+                                 WildcardStripRegex.Replace( name, "" )
+                                                   .Replace( ".", "\\." )
+                                                   .Replace( "*", ".*" )
+                                                   .Replace( "?", "." ) +
+                                 "$";
+            return new Regex( regexString, RegexOptions.IgnoreCase );
+        }
+
+        static readonly Regex WildcardStripRegex = new Regex( @"[^a-zA-Z0-9_\.\*\?@]", RegexOptions.Compiled );
+
+
+        // Extracts name from an email address, replaces non-printable characters with underscores,
+        // and truncates name to 14 characters. Used on Mojang accounts.
+        static string EmailToPlayerName( string email ) {
+            string name = email.Substring( 0, email.LastIndexOf( '@' ) );
+            name = NonNameCharsRegex.Replace( name, "_" );
+            if( name.Length == 0 ) {
+                name = "_";
+            } else if( name.Length > 14 ) {
+                name = name.Substring( 0, 14 );
+            }
+            return name;
+        }
+
+        static readonly Regex NonNameCharsRegex = new Regex( @"[^a-zA-Z0-9_.]", RegexOptions.Compiled );
     }
 }

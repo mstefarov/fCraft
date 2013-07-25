@@ -521,7 +521,7 @@ namespace fCraft {
                     player.MessageNoPlayer( name );
                     return;
                 }
-                if( !Player.IsValidName( name ) ) {
+                if( !Player.IsValidPlayerName( name ) ) {
                     player.MessageInvalidPlayerName( name );
                     CdRank.PrintUsage( player );
                     return;

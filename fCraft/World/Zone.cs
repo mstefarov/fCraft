@@ -120,7 +120,7 @@ namespace fCraft {
                 // Part 2:
                 if( parts[1].Length > 0 ) {
                     foreach( string playerName in parts[1].Split( ' ' ) ) {
-                        if( !Player.IsValidName( playerName ) ) {
+                        if( !Player.IsValidPlayerName( playerName ) ) {
                             Logger.Log( LogType.Warning,
                                         "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
                             continue;
@@ -138,7 +138,7 @@ namespace fCraft {
                 // Part 3: excluded list
                 if( parts[2].Length > 0 ) {
                     foreach( string playerName in parts[2].Split( ' ' ) ) {
-                        if( !Player.IsValidName( playerName ) ) {
+                        if( !Player.IsValidPlayerName( playerName ) ) {
                             Logger.Log( LogType.Warning,
                                         "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
                             continue;

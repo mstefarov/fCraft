@@ -230,13 +230,13 @@ namespace fCraft {
 
             if( parseExceptions ) {
                 foreach( XElement player in el.Elements( "included" ) ) {
-                    if( !Player.IsValidName( player.Value ) ) continue;
+                    if( !Player.IsValidPlayerName( player.Value ) ) continue;
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
                     if( info != null ) Include( info );
                 }
 
                 foreach( XElement player in el.Elements( "excluded" ) ) {
-                    if( !Player.IsValidName( player.Value ) ) continue;
+                    if( !Player.IsValidPlayerName( player.Value ) ) continue;
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
                     if( info != null ) Exclude( info );
                 }
