@@ -12,7 +12,7 @@ namespace fCraft {
         float[,] heightmap,
                  blendmap,
                  slopemap;
-        RealisticMapGenTheme theme;
+        RealisticMapGenBlockTheme theme;
 
         const float CliffsideBlockThreshold = 0.01f;
 

@@ -67,7 +67,7 @@ namespace fCraft {
         public bool  AddFloodBarrier { get; set; }
 
         // block selection for voxelization
-        public RealisticMapGenTheme Theme { get; set; }
+        public RealisticMapGenBlockTheme Theme { get; set; }
 
 
         /// <summary> Checks constraints on all the parameters' values, throws ArgumentException if there are any violations. </summary>
@@ -141,7 +141,7 @@ namespace fCraft {
 
 
         public void ApplyDefaults() {
-            Theme = new RealisticMapGenTheme( MapGenTheme.Grass );
+            Theme = new RealisticMapGenBlockTheme( MapGenTheme.Forest );
             Seed = (new Random()).Next();
 
             // default map dimensions
@@ -236,10 +236,10 @@ namespace fCraft {
                 MapGenTheme theme;
                 if( EnumUtil.TryParse( themeVal, out theme, true ) ) {
                     // for old versions of MapGen templates, use enum
-                    Theme = new RealisticMapGenTheme( theme );
+                    Theme = new RealisticMapGenBlockTheme( theme );
                 } else {
                     // for newer versions, use the whole custom thing
-                    Theme = new RealisticMapGenTheme( el );
+                    Theme = new RealisticMapGenBlockTheme( el );
                 }
             }
 
@@ -421,7 +421,7 @@ namespace fCraft {
                 Seed = Seed,
                 SnowAltitude = SnowAltitude,
                 SnowTransition = SnowTransition,
-                Theme = Theme,
+                Theme = new RealisticMapGenBlockTheme( Theme ),
                 TreeHeightMax = TreeHeightMax,
                 TreeHeightMin = TreeHeightMin,
                 TreeSpacingMax = TreeSpacingMax,

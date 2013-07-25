@@ -123,7 +123,7 @@
     <Compile Include="MapGeneration\MapGenUtil.cs" />
     <Compile Include="MapGeneration\PerlinNoise.cs" />
     <Compile Include="MapGeneration\RealisticMapGen.cs" />
-    <Compile Include="MapGeneration\RealisticMapGenTheme.cs" />
+    <Compile Include="MapGeneration\RealisticMapGenBlockTheme.cs" />
     <Compile Include="MapGeneration\VanillaMapGen.cs" />
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />

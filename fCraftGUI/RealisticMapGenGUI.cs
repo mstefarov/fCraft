@@ -129,7 +129,7 @@ namespace fCraft.GUI {
                 AddGiantTrees = xGiantTrees.Checked,
                 Roughness = sRoughness.Value/100f,
                 Seed = (int)nSeed.Value,
-                Theme = new RealisticMapGenTheme( (MapGenTheme)cTheme.SelectedIndex ),
+                Theme = new RealisticMapGenBlockTheme( (MapGenTheme)cTheme.SelectedIndex ),
                 TreeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
                 TreeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
                 TreeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
