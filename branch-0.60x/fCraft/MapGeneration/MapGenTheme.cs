@@ -6,6 +6,12 @@
         Forest, // just like "Grass", but with trees (when available)
         Grass,
         Hell,
-        Swamp // also with trees
+        Swamp, // also with trees
+        /* TODO:
+        Winter,
+        Tropical,
+        Jungle,
+        Wasteland
+        */
     }
 }

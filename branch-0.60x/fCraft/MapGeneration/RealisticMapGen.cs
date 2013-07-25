@@ -77,8 +77,10 @@ namespace fCraft {
                 }
             }
 
+            // TODO: optional parameters for preset customization
+
             RealisticMapGenParameters param = CreateParameters( terrainType );
-            param.Theme = new RealisticMapGenTheme( theme );
+            param.Theme = new RealisticMapGenBlockTheme( theme );
             return param;
         }
 
@@ -117,7 +119,7 @@ namespace fCraft {
 
                 case RealisticMapGenTerrainType.Atoll:
                     return new RealisticMapGenParameters {
-                        Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
+                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Desert ),
                         MaxHeight = 2,
                         MaxDepth = 39,
                         UseBias = true,
@@ -151,7 +153,7 @@ namespace fCraft {
                     return new RealisticMapGenParameters {
                         AddTrees = false,
                         AddWater = false,
-                        Theme = new RealisticMapGenTheme( MapGenTheme.Desert ),
+                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Desert ),
                         MaxHeight = 12,
                         MaxDepth = 7,
                         FeatureScale = 2,
@@ -173,8 +175,8 @@ namespace fCraft {
 
                 case RealisticMapGenTerrainType.Ice:
                     return new RealisticMapGenParameters {
+                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Arctic ),
                         AddTrees = false,
-                        Theme = new RealisticMapGenTheme( MapGenTheme.Arctic ),
                         MaxHeight = 2,
                         MaxDepth = 2032,
                         FeatureScale = 2,
