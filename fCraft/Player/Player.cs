@@ -1635,8 +1635,8 @@ namespace fCraft {
 
         static readonly Regex
             EmailRegex = new Regex( @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$", RegexOptions.Compiled ),
-            AccountRegex = new Regex( @"^[a-zA-Z._]{2,16}$", RegexOptions.Compiled ),
-            PlayerNameRegex = new Regex( @"^([a-zA-Z._]{2,16}|{[a-zA-Z._]{1,14}@\d+)$", RegexOptions.Compiled );
+            AccountRegex = new Regex( @"^[a-zA-Z0-9._]{2,16}$", RegexOptions.Compiled ),
+            PlayerNameRegex = new Regex( @"^([a-zA-Z0-9._]{2,16}|{[a-zA-Z0-9._]{1,14}@\d+)$", RegexOptions.Compiled );
 
 
         /// <summary> Checks if given string could be an email address.
@@ -1661,7 +1661,8 @@ namespace fCraft {
             return PlayerNameRegex.IsMatch( name );
         }
         
-        /// <summary> Checks if all characters in a string are admissible in a player name. </summary>
+        /// <summary> Checks if all characters in a string are admissible in a player name.
+        /// Allows '@' (for Mojang accounts) and '.' (for those really old rare accounts). </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             for( int i = 0; i < name.Length; i++ ) {
@@ -1672,7 +1673,6 @@ namespace fCraft {
             }
             return true;
         }
-
 
         #endregion
 

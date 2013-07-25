@@ -540,6 +540,7 @@ namespace fCraft {
             string givenName = reader.ReadString();
             string verificationCode = reader.ReadString();
             reader.ReadByte(); // unused
+            BytesReceived += 131;
 
             bool isEmailAccount = false;
             if( IsValidEmail( givenName ) ) {
@@ -555,8 +556,6 @@ namespace fCraft {
                 KickNow( "Unacceptable player name!", LeaveReason.ProtocolViolation );
                 return false;
             }
-
-            BytesReceived += 131;
 
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
             if( isEmailAccount ) {
