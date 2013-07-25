@@ -128,7 +128,6 @@
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\BlockingQueue.cs" />
-    <Compile Include="Utils\fNbt.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />
