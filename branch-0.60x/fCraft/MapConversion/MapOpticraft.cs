@@ -209,7 +209,7 @@ namespace fCraft.MapConversion {
 
                 foreach( string playerName in optiZone.Builders ) {
                     // These are all lower case names
-                    if( !Player.IsValidName( playerName ) ) {
+                    if( !Player.IsValidPlayerName( playerName ) ) {
                         continue;
                     }
                     PlayerInfo pInfo = PlayerDB.FindPlayerInfoExact( playerName );
@@ -222,7 +222,7 @@ namespace fCraft.MapConversion {
                 if( optiZone.Excluded != null ) {
                     foreach( string playerName in optiZone.Excluded ) {
                         // These are all lower case names
-                        if( !Player.IsValidName( playerName ) ) {
+                        if( !Player.IsValidPlayerName( playerName ) ) {
                             continue;
                         }
                         PlayerInfo pInfo = PlayerDB.FindPlayerInfoExact( playerName );

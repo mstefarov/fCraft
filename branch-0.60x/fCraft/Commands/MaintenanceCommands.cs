@@ -1245,7 +1245,7 @@ namespace fCraft {
                             IPAddress ip;
                             if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
                                 ip.BanIP( player, reason, true, true );
-                            } else if( Player.IsValidName( name ) ) {
+                            } else if( Player.IsValidPlayerName( name ) ) {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                                   PlayerDB.AddFakeEntry( name, RankChangeType.Default );
                                 info.Ban( player, reason, true, true );

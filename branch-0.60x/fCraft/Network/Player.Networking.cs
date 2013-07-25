@@ -538,23 +538,24 @@ namespace fCraft {
             }
 
             string givenName = reader.ReadString();
+            string verificationCode = reader.ReadString();
+            reader.ReadByte(); // unused
 
             bool isEmailAccount = false;
-            if( givenName.Contains( '@' ) ) {
-                // Mojang account
+            if( IsValidEmail( givenName ) ) {
+                // Mojang account, accept it
                 isEmailAccount = true;
 
-            } else if( !IsValidName( givenName ) ) {
-                // Check name for nonstandard characters
+            } else if( !IsValidAccountName( givenName ) ) {
+                // Neither Mojang nor a normal account -- kick it!
                 Logger.Log( LogType.SuspiciousActivity,
                             "Player.LoginSequence: Unacceptable player name: {0} ({1})",
-                            givenName, IP );
-                KickNow( "Invalid characters in player name!", LeaveReason.ProtocolViolation );
+                            givenName,
+                            IP );
+                KickNow( "Unacceptable player name!", LeaveReason.ProtocolViolation );
                 return false;
             }
 
-            string verificationCode = reader.ReadString();
-            reader.ReadByte(); // unused
             BytesReceived += 131;
 
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );

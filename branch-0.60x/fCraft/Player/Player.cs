@@ -1633,14 +1633,35 @@ namespace fCraft {
         }
 
 
-        /// <summary> Ensures that a player name has the correct length and character set. </summary>
-        public static bool IsValidName( [NotNull] string name ) {
+        static readonly Regex
+            EmailRegex = new Regex( @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$", RegexOptions.Compiled ),
+            AccountRegex = new Regex( @"^[a-zA-Z._]{2,16}$", RegexOptions.Compiled ),
+            PlayerNameRegex = new Regex( @"^([a-zA-Z._]{2,16}|{[a-zA-Z._]{1,14}@\d+)$", RegexOptions.Compiled );
+
+
+        /// <summary> Checks if given string could be an email address.
+        /// Matches 99.9% of emails. We don't care about the last 0.1% (and neither does Mojang).
+        /// Regex courtesy of http://www.regular-expressions.info/email.html </summary>
+        public static bool IsValidEmail( [NotNull] string email ) {
+            if( email == null ) throw new ArgumentNullException( "email" );
+            return EmailRegex.IsMatch( email );
+        }
+
+
+        /// <summary> Ensures that a player name has the correct length and character set for a Minecraft account.
+        /// Does not permit email addresses. </summary>
+        public static bool IsValidAccountName( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
-            if( name.Length < 2 || name.Length > 16 ) return false;
-            return ContainsValidCharacters(name);
+            return AccountRegex.IsMatch( name );
+        }
+
+        /// <summary> Ensures that a player name has the correct length and character set. </summary>
+        public static bool IsValidPlayerName( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            return PlayerNameRegex.IsMatch( name );
         }
         
-        /// <summary> Ensures that a player name has the correct length and character set. </summary>
+        /// <summary> Checks if all characters in a string are admissible in a player name. </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             for( int i = 0; i < name.Length; i++ ) {
@@ -1652,14 +1673,6 @@ namespace fCraft {
             return true;
         }
 
-        static readonly Regex RegexNonNameChars = new Regex( @"[^a-zA-Z0-9_\.\*\?@]", RegexOptions.Compiled );
-        /// <summary> Strips invalid characters from a name. </summary>
-        public static string StripInvalidCharacters( [NotNull] string name ) {
-            if( name == null ) {
-                throw new ArgumentNullException( "name" );
-            }
-            return RegexNonNameChars.Replace( name, "" );
-        }
 
         #endregion
 

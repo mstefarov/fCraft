@@ -115,13 +115,7 @@ namespace fCraft {
 
             } else if( name.Contains( "*" ) || name.Contains( "?" ) ) {
                 // find players by regex/wildcard
-                string regexString = "^" +
-                                     Player.StripInvalidCharacters( name )
-                                           .Replace( ".", "\\." )
-                                           .Replace( "*", ".*" )
-                                           .Replace( "?", "." ) +
-                                     "$";
-                Regex regex = new Regex( regexString, RegexOptions.IgnoreCase | RegexOptions.Compiled );
+                Regex regex = PlayerDB.WildcardToRegex( name );
                 infos = PlayerDB.FindPlayers( regex );
 
             } else if( name.StartsWith( "@" ) ) {
