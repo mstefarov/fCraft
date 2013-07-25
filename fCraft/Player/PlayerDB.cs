@@ -367,20 +367,22 @@ namespace fCraft {
                     // special treatment for email accounts
                     int i = 1;
                     while( true ) {
-                        info = Trie.Get( name + '@' + i );
+                        string newName = name + (i > 1 ? ("@" + i) : "@");
+                        info = Trie.Get( newName );
                         if( info == null ) {
                             // found a new player, not in the database
-                            name = name + '@' + i;
+                            name = newName;
                             break;
 
-                        } else if( info.Email == givenName ) {
+                        } else if( givenName.Equals( info.Email, StringComparison.OrdinalIgnoreCase ) ) {
                             // player with matching email found
+                            info.Name = newName; // correct capitalization
                             return info;
 
                         } else {
                             // increment number and retry
                             i++;
-                            if( (name + '@' + i).Length > 16 ) {
+                            if( (name + "@" + i).Length > 16 ) {
                                 name = name.Substring( 0, name.Length - 1 );
                             }
                         }
@@ -1033,8 +1035,8 @@ namespace fCraft {
             name = NonNameCharsRegex.Replace( name, "_" );
             if( name.Length == 0 ) {
                 name = "_";
-            } else if( name.Length > 14 ) {
-                name = name.Substring( 0, 14 );
+            } else if( name.Length > 15 ) {
+                name = name.Substring( 0, 15 );
             }
             return name;
         }
