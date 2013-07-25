@@ -652,9 +652,6 @@ namespace fCraft {
         }
 
 
-
-
-
         int Index( int x, int y, int z ) {
             return (z*genParams.MapLength + y)*genParams.MapWidth + x;
         }

@@ -45,7 +45,7 @@ namespace fCraft {
                 newParams = CreateParameters( themeName );
                 if( newParams == null ) {
                     player.Message( "SetGen: \"{0}\" is not a recognized flat theme name. Available themes are: {1}",
-                                    themeName, Presets );
+                                    themeName, Presets.JoinToString() );
                     return null;
                 }
             } else {
@@ -188,6 +188,7 @@ namespace fCraft {
                     SurfaceBlock = Block.Dirt;
                     break;
             }
+            // TODO: actually add trees in "Forest" mode
         }
 
 
