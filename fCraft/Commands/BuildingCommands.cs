@@ -465,7 +465,7 @@ namespace fCraft {
         static void WaterHandler( Player player, CommandReader cmd ) {
             bool turnWaterOn = (player.GetBind( Block.Aqua ) != Block.Water ||
                                 player.GetBind( Block.Cyan ) != Block.Water ||
-                                player.GetBind( Block.Blue ) == Block.Water);
+                                player.GetBind( Block.Blue ) != Block.Water);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnWaterOn ) ) {
                 CdWater.PrintUsage( player );
