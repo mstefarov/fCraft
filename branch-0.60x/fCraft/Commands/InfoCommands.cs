@@ -69,6 +69,11 @@ namespace fCraft {
 
             } else if( name.Equals( player.Name, StringComparison.OrdinalIgnoreCase ) ) {
                 // own name given
+                if( player.IsSuper ) {
+                    player.Message( "PlayerDB does not store information about virtual players (e.g. console). " + 
+                                    "Please specify some search criteria to view other players' info." );
+                    return;
+                }
                 player.LastUsedPlayerName = player.Name;
                 PrintPlayerInfo( player, player.Info );
                 return;
