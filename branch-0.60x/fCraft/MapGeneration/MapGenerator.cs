@@ -15,6 +15,7 @@ namespace fCraft {
         /// <summary> Name of the map generator. Uses same rules as command and world names. </summary>
         [NotNull]
         public string Name { get; protected set; }
+        // TODO: name aliases/shortcuts
 
         /// <summary> Current version of the map generator. </summary>
         [NotNull]

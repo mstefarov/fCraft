@@ -22,7 +22,7 @@ namespace fCraft {
             Instance = new FlatMapGen {
                 Name = "Flat",
                 Presets = presetList.ToArray(),
-                Help = "\"Flat\" map generator:\n" + 
+                Help = "&S\"Flat\" map generator:\n" + 
                        "Creates a flat, featureless, layered map. " +
                        "Takes an optional preset name. Presets are: " +
                        presetList.JoinToString()
