@@ -28,7 +28,7 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
-                player.Message( "SetGen: FloatingIsland map generator goes not take any parameters; using defaults." );
+                player.Message( "SetGen: FloatingIsland map generator does not take any parameters; using defaults." );
             }
             return new FloatingIslandMapGenParameters();
         }

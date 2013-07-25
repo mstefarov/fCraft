@@ -30,7 +30,7 @@ namespace fCraft {
 
         public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
             if( cmd.HasNext ) {
-                player.Message( "Vanilla map generator goes not take any parameters; using defaults." );
+                player.Message( "Vanilla map generator does not take any parameters; using defaults." );
             }
             return new VanillaMapGenParameters();
         }
