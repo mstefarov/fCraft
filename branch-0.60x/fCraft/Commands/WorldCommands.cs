@@ -801,6 +801,7 @@ namespace fCraft {
 
         internal static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
             Name = "SetGen",
+            Aliases = new[] { "sg" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {
