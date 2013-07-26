@@ -376,7 +376,6 @@ namespace fCraft {
 
                         } else if( givenName.Equals( info.Email, StringComparison.OrdinalIgnoreCase ) ) {
                             // player with matching email found
-                            info.Name = newName; // correct capitalization
                             return info;
 
                         } else {
