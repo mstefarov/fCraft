@@ -879,6 +879,7 @@ namespace fCraft {
 
             owner.Add( new XElement( Permission.ViewOthersInfo.ToString() ) );
             owner.Add( new XElement( Permission.ViewPlayerIPs.ToString() ) );
+            owner.Add( new XElement( Permission.ViewEmails.ToString() ) );
             owner.Add( new XElement( Permission.EditPlayerDB.ToString() ) );
 
             owner.Add( new XElement( Permission.Teleport.ToString() ) );
