@@ -1636,7 +1636,7 @@ namespace fCraft {
         static readonly Regex
             EmailRegex = new Regex( @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$", RegexOptions.Compiled ),
             AccountRegex = new Regex( @"^[a-zA-Z0-9._]{2,16}$", RegexOptions.Compiled ),
-            PlayerNameRegex = new Regex( @"^([a-zA-Z0-9._]{2,16}|{[a-zA-Z0-9._]{1,15}@\d*)$", RegexOptions.Compiled );
+            PlayerNameRegex = new Regex( @"^([a-zA-Z0-9._]{2,16}|[a-zA-Z0-9._]{1,15}@\d*)$", RegexOptions.Compiled );
 
 
         /// <summary> Checks if given string could be an email address.
