@@ -59,7 +59,7 @@ namespace fCraft.ConfigGUI {
 
         public AddWorldPopup( WorldListEntry world ) {
             InitializeComponent();
-            renderer = new IsoCat();
+
             fileBrowser.Filter = MapLoadFilter;
 
             cBackup.Items.AddRange( WorldListEntry.BackupEnumNames );
@@ -67,16 +67,21 @@ namespace fCraft.ConfigGUI {
             bwLoader.DoWork += AsyncLoad;
             bwLoader.RunWorkerCompleted += AsyncLoadCompleted;
 
-            bwGenerator.DoWork += AsyncGen;
             bwGenerator.WorkerReportsProgress = true;
+            bwGenerator.DoWork += AsyncGen;
             bwGenerator.ProgressChanged += AsyncGenProgress;
             bwGenerator.RunWorkerCompleted += AsyncGenCompleted;
 
             bwRenderer.WorkerReportsProgress = true;
-            bwRenderer.WorkerSupportsCancellation = true;
             bwRenderer.DoWork += AsyncDraw;
             bwRenderer.ProgressChanged += AsyncDrawProgress;
             bwRenderer.RunWorkerCompleted += AsyncDrawCompleted;
+
+            renderer = new IsoCat();
+            // event routed through BackgroundWorker to avoid cross-thread invocation issues
+            renderer.ProgressChanged +=
+                ( progressSender, progressArgs ) =>
+                bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
 
             nMapWidth.Validating += MapDimensionValidating;
             nMapHeight.Validating += MapDimensionValidating;
@@ -249,6 +254,7 @@ namespace fCraft.ConfigGUI {
             stopwatch.Stop();
             if( Map == null ) {
                 tStatus1.Text = "Load failed!";
+                ClearPreview();
             } else {
                 tStatus1.Text = "Load successful (" + stopwatch.Elapsed.TotalSeconds.ToString( "0.000" ) + "s)";
                 tStatus2.Text = ", drawing...";
@@ -263,11 +269,22 @@ namespace fCraft.ConfigGUI {
 
         readonly IsoCat renderer;
 
+        void ClearPreview() {
+            string stack = Environment.StackTrace;
+            Debug.WriteLine( "ClearPreview() @ " + stack.Substring( 0, stack.IndexOf( "at System.Windows.Forms.Control.WndProc" ) ) );
+            renderer.CancelAsync();
+            lock( redrawLock ) {
+                previewImage = null;
+                preview.Image = null;
+            }
+        }
+
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
+                string stack = Environment.StackTrace;
+                Debug.WriteLine( "Redraw(" + drawAgain + ") @ " + stack.Substring(0,stack.IndexOf("at System.Windows.Forms.Control.WndProc")) );
                 if( map == null ) {
-                    previewImage = null;
-                    preview.Image = null;
+                    ClearPreview();
                     return;
                 }
                 progressBar.Visible = true;
@@ -277,7 +294,6 @@ namespace fCraft.ConfigGUI {
                     bwRenderer.CancelAsync();
                     while( bwRenderer.IsBusy ) {
                         Thread.Sleep( 1 );
-                        Application.DoEvents();
                     }
                 }
                 if( drawAgain ) {
@@ -311,9 +327,6 @@ namespace fCraft.ConfigGUI {
 
             if( bwRenderer.CancellationPending ) return;
 
-            renderer.ProgressChanged +=
-                ( progressSender, progressArgs ) =>
-                bwRenderer.ReportProgress( progressArgs.ProgressPercentage, progressArgs.UserState );
             IsoCatResult result = renderer.Draw( map );
             if( result.Cancelled || bwRenderer.CancellationPending ) return;
 
@@ -585,12 +598,12 @@ namespace fCraft.ConfigGUI {
                 } else {
                     Map = null;
                     tCopyInfo.Text = "Map file not found: " + fileName;
-                    Redraw( true );
+                    ClearPreview();
                 }
             } else {
                 Map = null;
                 tCopyInfo.Text = "There are no worlds to copy maps from.";
-                Redraw( true );
+                ClearPreview();
             }
         }
 
@@ -860,19 +873,19 @@ namespace fCraft.ConfigGUI {
                         StartLoadingMap();
                     } else {
                         Map = null;
-                        Redraw( true );
+                        ClearPreview();
                     }
                     return;
 
                 case Tabs.CopyWorld:
                     Map = null;
-                    Redraw( true );
+                    ClearPreview();
                     cWorld_SelectedIndexChanged( cWorld, EventArgs.Empty );
                     return;
 
                 case Tabs.Generator:
                     Map = null;
-                    Redraw( true );
+                    ClearPreview();
                     bGenerate.PerformClick();
                     return;
             }
@@ -954,12 +967,11 @@ Could not load more information:
 
 
         void AddWorldPopup_FormClosing( object sender, FormClosingEventArgs e ) {
-            Redraw( false );
             if( DialogResult == DialogResult.OK ) {
                 if( Map == null ) {
                     e.Cancel = true;
                 } else {
-                    bwRenderer.CancelAsync();
+                    ClearPreview();
                     Enabled = false;
                     progressBar.Visible = true;
                     progressBar.Style = ProgressBarStyle.Marquee;
