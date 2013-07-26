@@ -569,10 +569,6 @@ namespace fCraft {
 
             if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
-                // update capitalization of player's account name
-                if( !isEmailAccount && !Info.Name.Equals( givenName, StringComparison.Ordinal ) ) {
-                    Info.Name = givenName;
-                }
 
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();

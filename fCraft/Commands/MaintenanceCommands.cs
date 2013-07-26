@@ -606,8 +606,9 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Allows direct editing of players' database records. List of editable properties: " +
-                   "BanReason, DisplayedName, KickReason, PreviousRank, RankChangeType, " +
-                   "RankReason, TimesKicked, TotalTime, UnbanReason. For detailed help see &H/Help SetInfo <Property>",
+                   "Bandwidth, BanReason, DisplayedName, KickReason, Name (capitalization only), " +
+                   "PreviousRank, RankChangeType, RankReason, TimesKicked, TotalTime, UnbanReason. " +
+                   "For detailed help see &H/Help SetInfo <Property>",
             HelpSections = new Dictionary<string, string>{
                 { "bandwidth",      "&H/SetInfo <PlayerName> Bandwidth <Mode>\n&S" +
                                     "Sets custom bandwidth use mode for given player. " +
@@ -624,6 +625,10 @@ namespace fCraft {
                 { "kickreason",     "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
                                     "Changes reason of most-recent kick for the given player. " +
                                     "Original kick reason is preserved in the logs. Shortcut: KR" },
+                { "name",           "&H/SetInfo <PlayerName> Name <Name>\n&S" +
+                                    "Changes capitalization of player's name. " +
+                                    "No spelling changes are allowed (use DisplayedName for those, if you must). " +
+                                    "Shortcut: N" },
                 { "previousrank",   "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
                                     "Changes previous rank held by the player. " +
                                     "To reset previous rank to \"none\" (will show as \"default\" in &H/Info&S), " +
@@ -849,6 +854,18 @@ namespace fCraft {
                                         info.Name,
                                         oldDisplayedName,
                                         valName );
+                    }
+                    break;
+
+                case "name":
+                case "n":
+                    if( valName.Equals( info.Name, StringComparison.OrdinalIgnoreCase ) ) {
+                        info.Name = valName;
+                    } else {
+                        player.Message( "SetInfo: Only capitalization changes are allowed in the name. " +
+                                        "Type out the whole name ({0}) please.",
+                                        info.Name );
+                        return;
                     }
                     break;
 
