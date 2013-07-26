@@ -98,6 +98,7 @@ namespace fCraft.GUI {
         [Pure]
         public IsoCatResult Draw( [NotNull] Map mapToDraw ) {
             if( mapToDraw == null ) throw new ArgumentNullException( "mapToDraw" );
+            isCancelled = false;
             map = mapToDraw;
 
             if( Mode == IsoCatMode.Chunk && Chunk == null ) {

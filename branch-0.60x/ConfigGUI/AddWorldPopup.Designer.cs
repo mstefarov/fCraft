@@ -73,9 +73,9 @@
             this.tsbLoadPreset = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbDefaultPreset = new System.Windows.Forms.ToolStripMenuItem();
             this.tsbLoadPresetFromFile = new System.Windows.Forms.ToolStripMenuItem();
-            this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.tsbCopyGenSettings = new System.Windows.Forms.ToolStripDropDownButton();
             this.tsbImportSettingsFromFile = new System.Windows.Forms.ToolStripMenuItem();
+            this.tsbSavePreset = new System.Windows.Forms.ToolStripButton();
             this.generatorParamsPanel = new System.Windows.Forms.Panel();
             this.lGenerator = new System.Windows.Forms.Label();
             this.cGenerator = new System.Windows.Forms.ComboBox();
@@ -123,17 +123,17 @@
             // tsSeparator3
             // 
             tsSeparator3.Name = "tsSeparator3";
-            tsSeparator3.Size = new System.Drawing.Size(149, 6);
+            tsSeparator3.Size = new System.Drawing.Size(127, 6);
             // 
             // tsSeparator4
             // 
             tsSeparator4.Name = "tsSeparator4";
-            tsSeparator4.Size = new System.Drawing.Size(151, 6);
+            tsSeparator4.Size = new System.Drawing.Size(154, 6);
             // 
             // tsSeparator5
             // 
             tsSeparator5.Name = "tsSeparator5";
-            tsSeparator5.Size = new System.Drawing.Size(149, 6);
+            tsSeparator5.Size = new System.Drawing.Size(127, 6);
             // 
             // bGenerate
             // 
@@ -199,6 +199,7 @@
             // 
             // cBackup
             // 
+            this.cBackup.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cBackup.FormattingEnabled = true;
             this.cBackup.Location = new System.Drawing.Point(334, 66);
             this.cBackup.Name = "cBackup";
@@ -619,24 +620,14 @@
             // tsbDefaultPreset
             // 
             this.tsbDefaultPreset.Name = "tsbDefaultPreset";
-            this.tsbDefaultPreset.Size = new System.Drawing.Size(152, 22);
+            this.tsbDefaultPreset.Size = new System.Drawing.Size(130, 22);
             this.tsbDefaultPreset.Text = "Defaults";
             // 
             // tsbLoadPresetFromFile
             // 
             this.tsbLoadPresetFromFile.Name = "tsbLoadPresetFromFile";
-            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(152, 22);
+            this.tsbLoadPresetFromFile.Size = new System.Drawing.Size(130, 22);
             this.tsbLoadPresetFromFile.Text = "From file...";
-            // 
-            // tsbSavePreset
-            // 
-            this.tsbSavePreset.Image = global::fCraft.ConfigGUI.Properties.Resources.disk;
-            this.tsbSavePreset.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbSavePreset.Name = "tsbSavePreset";
-            this.tsbSavePreset.Size = new System.Drawing.Size(86, 22);
-            this.tsbSavePreset.Text = "Save Preset";
-            this.tsbSavePreset.ToolTipText = "Save current map generator\'s settings to a file, as a custom preset.";
-            this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
             // tsbCopyGenSettings
             // 
@@ -653,8 +644,18 @@
             // tsbImportSettingsFromFile
             // 
             this.tsbImportSettingsFromFile.Name = "tsbImportSettingsFromFile";
-            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(154, 22);
+            this.tsbImportSettingsFromFile.Size = new System.Drawing.Size(157, 22);
             this.tsbImportSettingsFromFile.Text = "From map file...";
+            // 
+            // tsbSavePreset
+            // 
+            this.tsbSavePreset.Image = global::fCraft.ConfigGUI.Properties.Resources.disk;
+            this.tsbSavePreset.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSavePreset.Name = "tsbSavePreset";
+            this.tsbSavePreset.Size = new System.Drawing.Size(86, 22);
+            this.tsbSavePreset.Text = "Save Preset";
+            this.tsbSavePreset.ToolTipText = "Save current map generator\'s settings to a file, as a custom preset.";
+            this.tsbSavePreset.Click += new System.EventHandler(this.tsbSavePreset_Click);
             // 
             // generatorParamsPanel
             // 
