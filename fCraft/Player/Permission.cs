@@ -43,6 +43,9 @@ namespace fCraft {
         /// <summary> Ability to see any players' IP addresses. </summary>
         ViewPlayerIPs,
 
+        /// <summary> Ability to see full emails of players with Mojang'ed accounts. </summary>
+        ViewEmails,
+
         /// <summary> Ability to edit the player database directly.
         /// This also adds the ability to promote/demote/ban players by name,
         /// even if they have not visited the server yet. Also allows to

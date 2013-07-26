@@ -248,7 +248,7 @@ namespace fCraft {
                 }
                 player.Message( firstLine.ToString() );
 
-                if( info.Email != null && (player.Can( Permission.ViewPlayerIPs ) || player.Info == info) ) {
+                if( info.Email != null && (player.Can( Permission.ViewEmails ) || player.Info == info) ) {
                     // Show login information
                     player.Message( "  <{0}> {1} logins since {2:d MMM yyyy}.",
                                     Color.StripColors( info.Email ),
