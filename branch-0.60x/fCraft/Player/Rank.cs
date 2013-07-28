@@ -608,11 +608,11 @@ namespace fCraft {
                 string id = name.Substring( hashIndex + 1 );
 
                 if( RankManager.RanksByID.TryGetValue( id, out parsedRank ) ) {
-                    // current class
+                    // current rank
                     return parsedRank;
 
                 } else {
-                    // unknown class
+                    // unknown rank
                     int tries = 0;
                     while( RankManager.LegacyRankMapping.TryGetValue( id, out id ) ) {
                         if( RankManager.RanksByID.TryGetValue( id, out parsedRank ) ) {
