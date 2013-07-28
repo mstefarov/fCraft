@@ -79,7 +79,7 @@ namespace fCraft {
 
         #region Constructors
 
-        private Rank() {
+        Rank() {
             Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
             PermissionLimits = new Rank[Permissions.Length];
             permissionLimitStrings = new string[Permissions.Length];
@@ -112,10 +112,11 @@ namespace fCraft {
                 throw new RankDefinitionException( null, "Rank definition with no name was ignored." );
 
             } else if( !IsValidRankName( attr.Value.Trim() ) ) {
-                throw new RankDefinitionException( Name, 
+                throw new RankDefinitionException( Name,
                                                    "Invalid name specified for rank \"{0}\". " +
                                                    "Rank names can only contain letters, digits, and underscores. " +
-                                                   "Rank definition was ignored.", Name );
+                                                   "Rank definition was ignored.",
+                                                   Name );
 
             } else {
                 // duplicate Name check is done in RankManager.AddRank()
@@ -129,13 +130,15 @@ namespace fCraft {
                 ID = RankManager.GenerateID();
                 Logger.Log( LogType.Warning,
                             "Rank({0}): No ID specified; issued a new unique ID: {1}",
-                            Name, ID );
+                            Name,
+                            ID );
 
             } else if( !IsValidID( attr.Value.Trim() ) ) {
                 ID = RankManager.GenerateID();
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Invalid ID specified (must be alphanumeric, and exactly 16 characters long); issued a new unique ID: {1}",
-                            Name, ID );
+                            Name,
+                            ID );
 
             } else {
                 ID = attr.Value.Trim();
@@ -146,11 +149,12 @@ namespace fCraft {
 
 
             // Color (optional)
-            if( ( attr = el.Attribute( "color" ) ) != null ) {
+            if( (attr = el.Attribute( "color" )) != null ) {
                 string color = fCraft.Color.Parse( attr.Value );
                 if( color == null ) {
                     Logger.Log( LogType.Warning,
-                                "Rank({0}): Could not parse rank color. Assuming default (none).", Name );
+                                "Rank({0}): Could not parse rank color. Assuming default (none).",
+                                Name );
                     Color = fCraft.Color.White;
                 } else {
                     Color = color;
@@ -161,12 +165,13 @@ namespace fCraft {
 
 
             // Prefix (optional)
-            if( ( attr = el.Attribute( "prefix" ) ) != null ) {
+            if( (attr = el.Attribute( "prefix" )) != null ) {
                 if( IsValidPrefix( attr.Value ) ) {
                     Prefix = attr.Value;
                 } else {
                     Logger.Log( LogType.Warning,
-                                "Rank({0}): Invalid prefix format. Expecting 1 character.",Name );
+                                "Rank({0}): Invalid prefix format. Expecting 1 character.",
+                                Name );
                 }
             }
 
@@ -183,12 +188,14 @@ namespace fCraft {
                     } else {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for antiGriefBlocks is not within valid range (0-1000). Assuming default ({1}).",
-                                    Name, AntiGriefBlocks );
+                                    Name,
+                                    AntiGriefBlocks );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for antiGriefBlocks. Assuming default ({1}).",
-                                Name, AntiGriefBlocks );
+                                Name,
+                                AntiGriefBlocks );
                 }
 
                 if( Int32.TryParse( agSeconds.Value, out value ) ) {
@@ -197,36 +204,40 @@ namespace fCraft {
                     } else {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for antiGriefSeconds is not within valid range (0-100). Assuming default ({1}).",
-                                    Name, AntiGriefSeconds );
+                                    Name,
+                                    AntiGriefSeconds );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for antiGriefSeconds. Assuming default ({1}).",
-                                Name, AntiGriefSeconds );
+                                Name,
+                                AntiGriefSeconds );
                 }
             }
 
 
             // Draw command limit, in number-of-blocks (assuming unlimited if not given)
-            if( ( attr = el.Attribute( "drawLimit" ) ) != null ) {
+            if( (attr = el.Attribute( "drawLimit" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value >= 0 && value < 100000000 ) {
                         DrawLimit = value;
                     } else {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for drawLimit is not within valid range (0-100000000). Assuming default ({1}).",
-                                    Name, DrawLimit );
+                                    Name,
+                                    DrawLimit );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for drawLimit. Assuming default ({1}).",
-                                Name, DrawLimit );
+                                Name,
+                                DrawLimit );
                 }
             }
 
 
             // Idle kick timer, in minutes. (assuming 'never' if not given)
-            if( ( attr = el.Attribute( "idleKickAfter" ) ) != null ) {
+            if( (attr = el.Attribute( "idleKickAfter" )) != null ) {
                 if( !Int32.TryParse( attr.Value, out IdleKickTimer ) ) {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for idleKickAfter. Assuming 0 (never).",
@@ -239,10 +250,11 @@ namespace fCraft {
 
 
             // Reserved slot. (assuming 'no' if not given)
-            if( ( attr = el.Attribute( "reserveSlot" ) ) != null ) {
+            if( (attr = el.Attribute( "reserveSlot" )) != null ) {
                 if( !Boolean.TryParse( attr.Value, out HasReservedSlot ) ) {
                     Logger.Log( LogType.Warning,
-                                "Rank({0}): Could not parse value for reserveSlot. Assuming \"false\".", Name );
+                                "Rank({0}): Could not parse value for reserveSlot. Assuming \"false\".",
+                                Name );
                     HasReservedSlot = false;
                 }
             } else {
@@ -251,7 +263,7 @@ namespace fCraft {
 
 
             // Security circumvention. (assuming 'no' if not given)
-            if( ( attr = el.Attribute( "allowSecurityCircumvention" ) ) != null ) {
+            if( (attr = el.Attribute( "allowSecurityCircumvention" )) != null ) {
                 if( !Boolean.TryParse( attr.Value, out AllowSecurityCircumvention ) ) {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for allowSecurityCircumvention. Assuming \"false\".",
@@ -264,29 +276,32 @@ namespace fCraft {
 
 
             // Copy slots (assuming default 2 if not given)
-            if( ( attr = el.Attribute( "copySlots" ) ) != null ) {
+            if( (attr = el.Attribute( "copySlots" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value > 0 && value < 256 ) {
                         CopySlots = value;
                     } else {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for copySlots is not within valid range (1-255). Assuming default ({1}).",
-                                    Name, CopySlots );
+                                    Name,
+                                    CopySlots );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for copySlots. Assuming default ({1}).",
-                                Name, CopySlots );
+                                Name,
+                                CopySlots );
                 }
             }
 
             // Fill limit (assuming default 32 if not given)
-            if( ( attr = el.Attribute( "fillLimit" ) ) != null ) {
+            if( (attr = el.Attribute( "fillLimit" )) != null ) {
                 if( Int32.TryParse( attr.Value, out value ) ) {
                     if( value < 1 ) {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for fillLimit may not be negative. Assuming default ({1}).",
-                                    Name, FillLimit );
+                                    Name,
+                                    FillLimit );
                     } else if( value > 2048 ) {
                         FillLimit = 2048;
                     } else {
@@ -295,27 +310,29 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse the value for fillLimit. Assuming default ({1}).",
-                                Name, FillLimit );
+                                Name,
+                                FillLimit );
                 }
             }
 
             // Permissions
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
-                string permission = ( (Permission)i ).ToString();
+                string permission = ((Permission)i).ToString();
                 XElement temp;
-                if( ( temp = el.Element( permission ) ) != null ) {
+                if( (temp = el.Element( permission )) != null ) {
                     Permissions[i] = true;
-                    if( ( attr = temp.Attribute( "max" ) ) != null ) {
+                    if( (attr = temp.Attribute( "max" )) != null ) {
                         permissionLimitStrings[i] = attr.Value;
                     }
                 }
             }
 
             // check consistency of ban permissions
-            if( !Can( Permission.Ban ) && ( Can( Permission.BanAll ) || Can( Permission.BanIP ) ) ) {
+            if( !Can( Permission.Ban ) && (Can( Permission.BanAll ) || Can( Permission.BanIP )) ) {
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Rank is allowed to BanIP and/or BanAll but not allowed to Ban. " +
-                            "Assuming that all ban permissions were meant to be off.", Name );
+                            "Assuming that all ban permissions were meant to be off.",
+                            Name );
                 Permissions[(int)Permission.BanIP] = false;
                 Permissions[(int)Permission.BanAll] = false;
             }
@@ -324,7 +341,8 @@ namespace fCraft {
             if( !Can( Permission.Teleport ) && Can( Permission.Patrol ) ) {
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Rank is allowed to Patrol but not allowed to Teleport. " +
-                            "Assuming that Patrol permission was meant to be off.", Name );
+                            "Assuming that Patrol permission was meant to be off.",
+                            Name );
                 Permissions[(int)Permission.Patrol] = false;
             }
 
@@ -332,7 +350,8 @@ namespace fCraft {
             if( !Can( Permission.Draw ) && Can( Permission.DrawAdvanced ) ) {
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Rank is allowed to DrawAdvanced but not allowed to Draw. " +
-                            "Assuming that DrawAdvanced permission was meant to be off.", Name );
+                            "Assuming that DrawAdvanced permission was meant to be off.",
+                            Name );
                 Permissions[(int)Permission.DrawAdvanced] = false;
             }
 
@@ -340,7 +359,8 @@ namespace fCraft {
             if( !Can( Permission.UndoOthersActions ) && Can( Permission.UndoAll ) ) {
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Rank is allowed to UndoAll but not allowed to UndoOthersActions. " +
-                            "Assuming that UndoAll permission was meant to be off.", Name );
+                            "Assuming that UndoAll permission was meant to be off.",
+                            Name );
                 Permissions[(int)Permission.UndoAll] = false;
             }
         }
@@ -362,13 +382,14 @@ namespace fCraft {
             if( DrawLimit > 0 ) rankTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
             if( HasReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", HasReservedSlot ) );
-            if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
+            if( AllowSecurityCircumvention )
+                rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
             for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
                 if( Permissions[i] ) {
-                    XElement temp = new XElement( ( (Permission)i ).ToString() );
+                    XElement temp = new XElement( ((Permission)i).ToString() );
 
                     if( PermissionLimits[i] != null ) {
                         temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );
@@ -454,7 +475,7 @@ namespace fCraft {
 
         /// <summary> Checks whether this rank has a rank limit explicitly set for the given permission. </summary>
         public bool HasLimitSet( Permission permission ) {
-            return ( PermissionLimits[(int)permission] != null );
+            return (PermissionLimits[(int)permission] != null);
         }
 
         /// <summary> Sets the rank limit for the given permission. </summary>
@@ -476,7 +497,9 @@ namespace fCraft {
                 if( limit == null ) {
                     Logger.Log( LogType.Warning,
                                 "Could not parse \"{0}\" as a {1} permission limit for rank \"{2}\". Reset to default (same rank).",
-                                permissionLimitStrings[i], (Permission)i, Name );
+                                permissionLimitStrings[i],
+                                (Permission)i,
+                                Name );
                 }
                 SetLimit( (Permission)i, limit );
             }
@@ -492,7 +515,7 @@ namespace fCraft {
             if( rankName.Length < 1 || rankName.Length > 16 ) return false;
             for( int i = 0; i < rankName.Length; i++ ) {
                 char ch = rankName[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) || ( ch > '_' && ch < 'a' ) ||
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') ||
                     ch > 'z' ) {
                     return false;
                 }
@@ -506,7 +529,7 @@ namespace fCraft {
             if( id.Length != 16 ) return false;
             for( int i = 0; i < id.Length; i++ ) {
                 char ch = id[i];
-                if( ch < '0' || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < 'a' ) || ch > 'z' ) {
+                if( ch < '0' || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
@@ -574,25 +597,26 @@ namespace fCraft {
         public static Rank Parse( string name ) {
             if( name == null ) return null;
 
-            if( RankManager.RanksByFullName.ContainsKey( name ) ) {
-                return RankManager.RanksByFullName[name];
+            Rank parsedRank;
+            if( RankManager.RanksByFullName.TryGetValue( name, out parsedRank ) ) {
+                return parsedRank;
             }
 
-            if( name.Contains( "#" ) ) {
+            int hashIndex = name.IndexOf( '#' );
+            if( hashIndex > 0 ) {
                 // new format
-                string id = name.Substring( name.IndexOf( '#' ) + 1 );
+                string id = name.Substring( hashIndex + 1 );
 
-                if( RankManager.RanksByID.ContainsKey( id ) ) {
+                if( RankManager.RanksByID.TryGetValue( id, out parsedRank ) ) {
                     // current class
-                    return RankManager.RanksByID[id];
+                    return parsedRank;
 
                 } else {
                     // unknown class
                     int tries = 0;
-                    while( RankManager.LegacyRankMapping.ContainsKey( id ) ) {
-                        id = RankManager.LegacyRankMapping[id];
-                        if( RankManager.RanksByID.ContainsKey( id ) ) {
-                            return RankManager.RanksByID[id];
+                    while( RankManager.LegacyRankMapping.TryGetValue( id, out id ) ) {
+                        if( RankManager.RanksByID.TryGetValue( id, out parsedRank ) ) {
+                            return parsedRank;
                         }
                         // avoid infinite loops due to recursive definitions
                         tries++;
@@ -600,15 +624,18 @@ namespace fCraft {
                             throw new RankDefinitionException( name, "Recursive legacy rank definition" );
                         }
                     }
-                    string plainName = name.Substring( 0, name.IndexOf( '#' ) ).ToLower();
+                    string plainName = name.Substring( 0, hashIndex ).ToLowerInvariant();
                     // try to fall back to name-only
-                    return RankManager.RanksByName.ContainsKey( plainName ) ?
-                           RankManager.RanksByName[plainName] : null;
+                    if( RankManager.RanksByName.TryGetValue( plainName, out parsedRank ) ) {
+                        return parsedRank;
+                    } else {
+                        return null;
+                    }
                 }
 
-            } else if( RankManager.RanksByName.ContainsKey( name.ToLower() ) ) {
+            } else if( RankManager.RanksByName.TryGetValue( name.ToLowerInvariant(), out parsedRank ) ) {
                 // old format
-                return RankManager.RanksByName[name.ToLower()]; // LEGACY
+                return parsedRank; // LEGACY
 
             } else {
                 // totally unknown rank
