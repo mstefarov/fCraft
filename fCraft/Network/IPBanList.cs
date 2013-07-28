@@ -154,13 +154,14 @@ namespace fCraft {
             if( ban == null ) throw new ArgumentNullException( "ban" );
             lock( BanListLock ) {
                 CheckIfLoaded();
-                if( Bans.ContainsKey( ban.Address.ToString() ) ) return false;
+                string addressString = ban.Address.ToString();
+                if( Bans.ContainsKey( addressString ) ) return false;
                 if( raiseEvent ) {
                     if( RaiseAddingIPBanEvent( ban ) ) return false;
-                    Bans.Add( ban.Address.ToString(), ban );
+                    Bans.Add( addressString, ban );
                     RaiseAddedIPBanEvent( ban );
                 } else {
-                    Bans.Add( ban.Address.ToString(), ban );
+                    Bans.Add( addressString, ban );
                 }
                 Save();
                 return true;
@@ -206,15 +207,16 @@ namespace fCraft {
             if( address == null ) throw new ArgumentNullException( "address" );
             lock( BanListLock ) {
                 CheckIfLoaded();
-                if( !Bans.ContainsKey( address.ToString() ) ) {
+                string addressString = address.ToString();
+                IPBanInfo banInfo;
+                if( !Bans.TryGetValue( addressString, out banInfo ) ) {
                     return false;
                 }
-                IPBanInfo info = Bans[address.ToString()];
                 if( raiseEvents ) {
-                    if( RaiseRemovingIPBanEvent( info ) ) return false;
+                    if( RaiseRemovingIPBanEvent( banInfo ) ) return false;
                 }
-                if( Bans.Remove( address.ToString() ) ) {
-                    if( raiseEvents ) RaiseRemovedIPBanEvent( info );
+                if( Bans.Remove( addressString ) ) {
+                    if( raiseEvents ) RaiseRemovedIPBanEvent( banInfo );
                     Save();
                     return true;
                 } else {

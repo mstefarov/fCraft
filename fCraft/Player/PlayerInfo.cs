@@ -393,7 +393,7 @@ namespace fCraft {
 
             info.Rank = Rank.Parse( fields[2] ) ?? RankManager.DefaultRank;
             DateTimeUtil.TryParseDateTime( fields[3], ref info.RankChangeDate );
-            if( fields[4].Length > 0 ) info.RankChangedBy = fields[4];
+            if( fields[4].Length > 0 ) info.RankChangedBy = PlayerDB.Unescape( fields[4] );
 
             switch( fields[5] ) {
                 case "b":
@@ -517,6 +517,7 @@ namespace fCraft {
                 }
             }
 
+            // date consistency checks
             if( info.LastSeen < info.FirstLoginDate ) {
                 info.LastSeen = info.FirstLoginDate;
             }
@@ -639,6 +640,7 @@ namespace fCraft {
                 }
             }
 
+            // date consistency checks
             if( info.LastSeen < info.FirstLoginDate ) {
                 info.LastSeen = info.FirstLoginDate;
             }
@@ -767,6 +769,7 @@ namespace fCraft {
                 }
             }
 
+            // date consistency checks
             if( info.LastSeen < info.FirstLoginDate ) {
                 info.LastSeen = info.FirstLoginDate;
             }
@@ -866,7 +869,7 @@ namespace fCraft {
             if( BlocksDeleted > 0 ) sb.Digits( BlocksDeleted ); // 19
             sb.Append( ',' );
 
-            sb.Append( TimesVisited ).Append( ',' ); // 20
+            sb.Digits( TimesVisited ).Append( ',' ); // 20
 
 
             if( MessagesWritten > 0 ) sb.Digits( MessagesWritten ); // 21
@@ -927,7 +930,7 @@ namespace fCraft {
             if( IsOnline ) sb.Append( 'o' ); // 43
             sb.Append( ',' );
 
-            if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (int)BandwidthUseMode ); // 44
+            if( BandwidthUseMode != BandwidthUseMode.Default ) sb.Append( (byte)BandwidthUseMode ); // 44
             sb.Append( ',' );
 
             if( IsHidden ) sb.Append( 'h' ); // 45
@@ -967,6 +970,7 @@ namespace fCraft {
             IsOnline = true;
             PlayerObject = player;
             LastModified = DateTime.UtcNow;
+            if( FirstLoginDate == DateTime.MinValue ) FirstLoginDate = DateTime.UtcNow;
         }
 
 
