@@ -695,7 +695,7 @@ namespace fCraft {
 
                 } else {
                     // Check if an existing record needs updating
-                    if( info.Rank <= rank && // don't demote anyone
+                    if( info.Rank < rank && // don't demote anyone
                         !info.IsBanned && // don't promote banned players
                         info.RankChangeType != RankChangeType.Demoted && // don't re-promote demoted players
                         info.RankChangeType != RankChangeType.AutoDemoted ) {
