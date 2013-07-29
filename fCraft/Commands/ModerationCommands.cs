@@ -528,9 +528,9 @@ namespace fCraft {
                 }
                 if( cmd.IsConfirmed ) {
                     if( newRank > RankManager.DefaultRank ) {
-                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                        targetInfo = PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
                     } else {
-                        targetInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Demoted );
+                        targetInfo = PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Demoted );
                     }
                 } else {
                     Logger.Log( LogType.UserActivity,

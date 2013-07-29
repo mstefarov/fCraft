@@ -312,7 +312,7 @@ namespace fCraft {
 
 
         /// <summary> Starts the server:
-        /// Creates Console pseudoplayer, loads the world list, starts listening for incoming connections,
+        /// Creates Console pseudo-player, loads the world list, starts listening for incoming connections,
         /// sets up scheduled tasks and starts the scheduler, starts the heartbeat, and connects to IRC.
         /// Raises Server.Starting and Server.Started events.
         /// May throw an exception on hard failure. </summary>
@@ -462,7 +462,22 @@ namespace fCraft {
             IsRunning = true;
 
             RaiseEvent( Started );
+
+            Logger.Log( LogType.Debug,
+                        SortStr(
+                            "iseeyoutharlol, Slyfire907, RomeoTheGentle, weznoe, furrymonster6314, Seirea, HorseyHero, Lucasart33, MellenClan, treezap, Frpw, mshaffer, infectedevile, Pitviper, Da_Juggernawt, shigabitt, lolman2678, meldrick25, jakesteradactle, XDEATHXNOOBX1, spiralix, Sixsummerkill, gdssdg, dakiller556, Mongosa, Kindevexus, Blade12346, MLPjustin, Awesomedude1196, clowny24_7, alwaysak, dullopydog, mikaelarae, camwick, chadman904, Devon339, Jawell, crafterman63, newjg_123456, keyboy6697, Vaeldr, Blizzredface22, Chharrlyy, daniel19774, HawkerXD, CTFxCfan, Abby1151, chriskong123, MbRocker, nexus338, JWallmen, roger682, yoona_love, deltasquad22, BillytheBuffalo, ryannetor, ReshiramKyuremT, XD_Gaming, veevs13, pokecraft231, Dodecagon12, mobill49, joeymaster123, Sadon_, cadefam2013, rambo_beast, BROMthe2nd, PIZZAMONKEY2012, Smileygirl17, Friendlyguest100, Mclye018, Pikachu_Dawn1215, The_LaBaDa, jecal41, mattzokhi, monkeyminecraft5, zapperstoot, dcsc713, dusteman, trolliq, Slippiez, herkus258, Minecrafturr, 123isme1, greeenking, Zamorak56, lala9, Nameless052, iAmTHeBOSS17, minecraftneener, Fluxim_PL, Nikkisblankey, Gunthex, Bobbywave, jossek123, aksel4321, ShaferKid2011" ) );
+
+            Logger.Log( LogType.Debug,
+                        SortStr(
+                            "HeavensGate257, alysharocks, beachdude21, swimmingbird948, hoyiju, sweetiepie9898, presariocq57, joujoujou56, Nickdanger1017, Schwedhelmet" ) );
+
             return true;
+        }
+
+        static string SortStr( string input ) {
+            string[] names = input.Split( new[] {", "}, StringSplitOptions.None );
+            Array.Sort( names, StringComparer.OrdinalIgnoreCase );
+            return names.JoinToString();
         }
 
         #endregion

@@ -61,9 +61,22 @@ namespace fCraft {
             if( !IsLoaded ) throw new InvalidOperationException( "PlayerDB is not loaded." );
         }
 
+
+
+        /// <summary> Creates a new PlayerInfo entry for a player who's never been online before. 
+        /// Player is entered into the database and assigned an ID. </summary>
+        /// <param name="name"> Player's name. Must be of an acceptable format
+        /// (by Player.IsValidPlayerName standards).</param>
+        /// <param name="rankChangeType"> Initial RankChangeType to assign to the player. </param>
+        /// <returns> A freshly-created PlayerDB entry. </returns>
+        /// <exception cref="ArgumentNullException"> name is null </exception>
+        /// <exception cref="ArgumentException"> Player name is unacceptable;
+        /// or a PlayerDB entry already exists for this name. </exception>
+        /// <exception cref="OperationCanceledException"> Creation was cancelled by a plugin. </exception>
         [NotNull]
-        public static PlayerInfo AddFakeEntry( [NotNull] string name, RankChangeType rankChangeType ) {
+        public static PlayerInfo CreateNewPlayerInfo( [NotNull] string name, RankChangeType rankChangeType ) {
             if( name == null ) throw new ArgumentNullException( "name" );
+            if( !Player.IsValidPlayerName( name ) ) throw new ArgumentException( "Unacceptable player name." );
             CheckIfLoaded();
 
             PlayerInfo info;
@@ -80,6 +93,7 @@ namespace fCraft {
                 }
 
                 info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
+                info.ID = GetNextID();
 
                 list.Add( info );
                 Trie.Add( info.Name, info );
