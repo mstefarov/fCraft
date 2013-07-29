@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Text;
 using fCraft.AutoRank;
 using JetBrains.Annotations;
 
@@ -25,6 +26,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPruneDB );
 
             CommandManager.RegisterCommand( CdImport );
+            //CommandManager.RegisterCommand( CdImportRankList );
+            CommandManager.RegisterCommand( CdExport );
 
             CommandManager.RegisterCommand( CdInfoSwap );
 
@@ -546,7 +549,7 @@ namespace fCraft {
             IsHidden = true,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            Help = "",
+            Help = "", // TODO
             Usage = "/MassRank FromRank ToRank Reason",
             Handler = MassRankHandler
         };
@@ -593,6 +596,199 @@ namespace fCraft {
 
             int affected = PlayerDB.MassRankChange( player, fromRank, toRank, reason );
             player.Message( "MassRank: done, {0} records affected.", affected );
+        }
+
+
+        static readonly CommandDescriptor CdImportRankList = new CommandDescriptor {
+            Name = "ImportRankList",
+            Category = CommandCategory.Maintenance,
+            IsHidden = true,
+            IsConsoleSafe = true,
+            Permissions = new[] {Permission.Import},
+            Help = "", // TODO
+            Usage = "/ImportRankList FileName ToRank Reason",
+            Handler = ImportRankListHandler
+        };
+
+        static void ImportRankListHandler( Player player, CommandReader cmd ) {
+            string fileName = cmd.Next();
+            string rankName = cmd.Next();
+            string reason = cmd.Next();
+
+            if( fileName == null || rankName == null || reason == null ) {
+                CdImportRankList.PrintUsage( player );
+                return;
+            }
+
+            if( !File.Exists( fileName ) ) {
+                player.Message( "Rank list file not found: " + fileName );
+                return;
+            }
+
+            Rank rank = RankManager.FindRank( rankName );
+            if( rank == null ) {
+                player.MessageNoRank( rankName );
+                return;
+            }
+
+            // Read list of names from file.
+            // Using List list to preserve capitalization and a HashSet to avoid duplicates.
+            List<string> nameList = new List<string>();
+            using( StreamReader reader = new StreamReader( fileName ) ) {
+                HashSet<string> lowerNameSet = new HashSet<string>();
+                while( true ) {
+                    string nextName = reader.ReadLine();
+                    if( nextName == null ) break;
+                    if( !Player.IsValidPlayerName( nextName ) ) {
+                        player.Message( "ImportRankList: Invalid player name skipped: {0}", nextName );
+                        continue;
+                    }
+                    string nameToLower = nextName.ToLowerInvariant();
+                    if( lowerNameSet.Contains( nameToLower ) ) {
+                        player.Message( "ImportRankList: Skipping a duplicate name: {0}", nextName );
+                        continue;
+                    }
+                    nameList.Add( nextName );
+                    lowerNameSet.Add( nameToLower );
+                }
+            }
+
+            if( !cmd.IsConfirmed ) {
+                Logger.Log( LogType.UserActivity,
+                            "Import: Asked {0} to confirm importing {1} ranks from {2}",
+                            player.Name,
+                            nameList.Count,
+                            fileName );
+                player.Confirm( cmd,
+                                "ImportRankList: Are you sure you want to rank {0} players to {1}&S?",
+                                nameList.Count,
+                                rank.ClassyName );
+                return;
+            }
+
+            int newPlayers = 0,
+                promotedPlayers = 0,
+                skippedPlayers = 0;
+            foreach( string name in nameList ) {
+                PlayerInfo info = PlayerDB.FindPlayerInfoExact( name );
+                if( info == null ) {
+                    // Create and promote a new record
+                    newPlayers++;
+                    PlayerInfo newInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                    newInfo.ChangeRank( player, rank, reason, true, true, false );
+                    Logger.Log( LogType.UserActivity, "ImportRankList: Created a new player record for {0}", name );
+
+                } else {
+                    // Check if an existing record needs updating
+                    if( info.Rank < rank && // don't demote anyone
+                        !info.IsBanned && // don't promote banned players
+                        info.RankChangeType != RankChangeType.Demoted && // don't re-promote demoted players
+                        info.RankChangeType != RankChangeType.AutoDemoted ) {
+                        // Promote!
+                        info.ChangeRank( player, rank, reason, true, true, false );
+                        promotedPlayers++;
+
+                    } else {
+                        skippedPlayers++;
+                    }
+                }
+            }
+            string successMsg = String.Format(
+                "ImportRankList: Created {0} new records, promoted {1} players, " +
+                "skipped {2} records from file \"{3}\"",
+                newPlayers,
+                promotedPlayers,
+                skippedPlayers,
+                Path.GetFileName( fileName ) );
+            Logger.Log( LogType.UserActivity, successMsg );
+            player.Message( successMsg );
+        }
+
+
+        static readonly CommandDescriptor CdExport = new CommandDescriptor {
+            Name = "Export",
+            Category = CommandCategory.Maintenance,
+            IsHidden = true,
+            IsConsoleSafe = true,
+            Permissions = new[] {Permission.Import},
+            Usage = "/Export Bans FileName&S or &H/Export Ranks FileName RankName",
+            Handler = ExportHandler
+        };
+
+        static void ExportHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            string actionType = cmd.Next();
+            string fileName = cmd.Next();
+            if( actionType == null || fileName == null ) {
+                CdExport.PrintUsage( player );
+                return;
+            }
+
+            // Make sure the given filename is valid
+            if( !Paths.IsValidPath( fileName ) ) {
+                player.Message( "Export: Unacceptable filename given: \"{0}\"", fileName );
+                return;
+            }
+
+            // Make sure that the target file is legit
+            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Export: Player {0} tried to export to \"{1}\"",
+                            player.Name,
+                            fileName );
+                player.MessageUnsafePath();
+                return;
+            }
+
+            IEnumerable<PlayerInfo> playerList;
+            if( "Ranks".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
+                // Read and check the rank name
+                string rankName = cmd.Next();
+                if( rankName == null ) {
+                    CdExport.PrintUsage( player );
+                    return;
+                }
+                Rank rank = RankManager.FindRank( rankName );
+                if( rank == null ) {
+                    player.MessageNoRank( rankName );
+                    return;
+                }
+
+                // Get a list of players of given rank
+                playerList = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank );
+
+            } else if( "Bans".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
+                // Get a list of banned players
+                playerList = PlayerDB.PlayerInfoList
+                                            .Where( p => p.BanStatus == BanStatus.Banned );
+
+            } else {
+                player.Message( "Export: Action must be \"ranks\" or \"bans\"." );
+                CdExport.PrintUsage( player );
+                return;
+            }
+
+            // If file already exists, require confirmation
+            if( !cmd.IsConfirmed && File.Exists( fileName ) ) {
+                Logger.Log( LogType.UserActivity,
+                            "Export: Asked {0} to confirm overwriting \"{1}\"",
+                            player.Name,
+                            fileName );
+                player.Confirm( cmd, "Export: File \"{0}\" already exists. Overwrite?", fileName );
+                return;
+            }
+
+            // Save the list to file. If file is not writable, explodes!
+            int playerCount = 0;
+            using( StreamWriter writer = new StreamWriter( fileName ) ) {
+                foreach( PlayerInfo info in playerList ) {
+                    writer.WriteLine( info.Name );
+                    playerCount++;
+                }
+            }
+
+            // report success
+            player.Message( "Export: Written {0} names to \"{1}\"",
+                            playerCount, Path.GetFileName( fileName ) );
         }
 
         #endregion
@@ -1172,11 +1368,11 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdImport = new CommandDescriptor {
             Name = "Import",
-            Aliases = new[] { "importbans", "importranks" },
+            Aliases = new[] { "ImportBans", "ImportRanks" },
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             Permissions = new[] { Permission.Import },
-            Usage = "/Import bans Software File&S or &H/Import ranks Software File Rank",
+            Usage = "/Import Bans Software File&S or &H/Import Ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall/MCLawl/MCForge files are supported.",
             Handler = ImportHandler

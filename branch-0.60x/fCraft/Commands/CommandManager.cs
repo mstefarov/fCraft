@@ -113,7 +113,7 @@ namespace fCraft {
             }
 
             if( descriptor.Aliases != null ) {
-                if( descriptor.Aliases.Any( alias => Commands.ContainsKey( alias ) ) ) {
+                if( descriptor.Aliases.Any( alias => Commands.ContainsKey( alias.ToLowerInvariant() ) ) ) {
                     throw new CommandRegistrationException( descriptor,
                                                             "One of the aliases for \"{0}\" is using the name of an already-defined command.",
                                                             descriptor.Name );
@@ -140,7 +140,7 @@ namespace fCraft {
 
             if( descriptor.Aliases != null ) {
                 foreach( string alias in descriptor.Aliases ) {
-                    string normalizedAlias = alias.ToLower();
+                    string normalizedAlias = alias.ToLowerInvariant();
                     if( ReservedCommandNames.Contains( normalizedAlias ) &&
                         !( descriptor.Name == "Cancel" && alias == "Nvm" ) ) { // special case for cancel/nvm aliases
                         Logger.Log( LogType.Warning,

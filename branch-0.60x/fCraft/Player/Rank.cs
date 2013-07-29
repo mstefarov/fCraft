@@ -589,7 +589,8 @@ namespace fCraft {
 
 
         /// <summary> Parses serialized rank. Accepts either the "name" or "name#ID" format.
-        /// Uses legacy rank mapping table for unrecognized ranks. Does not autocomplete.
+        /// Uses legacy rank mapping table for unrecognized ranks.
+        /// Does not autocomplete (use RankManager.FindRank for autocompletion).
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
