@@ -257,7 +257,7 @@ Thanks to people who supported fCraft development through donations:
 
 Thanks to people whose code has been ported to fCraft:
     Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
-    Paul Bourke
+    Paul Bourke, Chris Wilson
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,

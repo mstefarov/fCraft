@@ -26,7 +26,7 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPruneDB );
 
             CommandManager.RegisterCommand( CdImport );
-            //CommandManager.RegisterCommand( CdImportRankList );
+            CommandManager.RegisterCommand( CdImportRankList );
             CommandManager.RegisterCommand( CdExport );
 
             CommandManager.RegisterCommand( CdInfoSwap );
@@ -610,24 +610,37 @@ namespace fCraft {
             Handler = ImportRankListHandler
         };
 
+        // TODO: document the fact that this only promotes (unlike "/Import Ranks")
         static void ImportRankListHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
             string rankName = cmd.Next();
-            string reason = cmd.Next();
+            string reason = cmd.NextAll();
 
-            if( fileName == null || rankName == null || reason == null ) {
+            if( fileName == null || rankName == null ) {
                 CdImportRankList.PrintUsage( player );
                 return;
             }
 
-            if( !File.Exists( fileName ) ) {
-                player.Message( "Rank list file not found: " + fileName );
-                return;
-            }
-
+            // parse rank name
             Rank rank = RankManager.FindRank( rankName );
             if( rank == null ) {
                 player.MessageNoRank( rankName );
+                return;
+            }
+            
+            // Make sure that the target file is legit
+            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
+                Logger.Log( LogType.SuspiciousActivity,
+                            "ImportRankList: Player {0} tried to import from \"{1}\"",
+                            player.Name,
+                            fileName );
+                player.MessageUnsafePath();
+                return;
+            }
+
+            // Make sure file exists
+            if( !File.Exists( fileName ) ) {
+                player.Message( "Rank list file not found: " + fileName );
                 return;
             }
 
@@ -653,6 +666,7 @@ namespace fCraft {
                 }
             }
 
+            // Ask player to confirm before continuing
             if( !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
                             "Import: Asked {0} to confirm importing {1} ranks from {2}",
@@ -666,6 +680,7 @@ namespace fCraft {
                 return;
             }
 
+            // Carry out the promotions
             int newPlayers = 0,
                 promotedPlayers = 0,
                 skippedPlayers = 0;
@@ -702,93 +717,6 @@ namespace fCraft {
                 Path.GetFileName( fileName ) );
             Logger.Log( LogType.UserActivity, successMsg );
             player.Message( successMsg );
-        }
-
-
-        static readonly CommandDescriptor CdExport = new CommandDescriptor {
-            Name = "Export",
-            Category = CommandCategory.Maintenance,
-            IsHidden = true,
-            IsConsoleSafe = true,
-            Permissions = new[] {Permission.Import},
-            Usage = "/Export Bans FileName&S or &H/Export Ranks FileName RankName",
-            Handler = ExportHandler
-        };
-
-        static void ExportHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            string actionType = cmd.Next();
-            string fileName = cmd.Next();
-            if( actionType == null || fileName == null ) {
-                CdExport.PrintUsage( player );
-                return;
-            }
-
-            // Make sure the given filename is valid
-            if( !Paths.IsValidPath( fileName ) ) {
-                player.Message( "Export: Unacceptable filename given: \"{0}\"", fileName );
-                return;
-            }
-
-            // Make sure that the target file is legit
-            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
-                Logger.Log( LogType.SuspiciousActivity,
-                            "Export: Player {0} tried to export to \"{1}\"",
-                            player.Name,
-                            fileName );
-                player.MessageUnsafePath();
-                return;
-            }
-
-            IEnumerable<PlayerInfo> playerList;
-            if( "Ranks".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
-                // Read and check the rank name
-                string rankName = cmd.Next();
-                if( rankName == null ) {
-                    CdExport.PrintUsage( player );
-                    return;
-                }
-                Rank rank = RankManager.FindRank( rankName );
-                if( rank == null ) {
-                    player.MessageNoRank( rankName );
-                    return;
-                }
-
-                // Get a list of players of given rank
-                playerList = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank );
-
-            } else if( "Bans".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
-                // Get a list of banned players
-                playerList = PlayerDB.PlayerInfoList
-                                            .Where( p => p.BanStatus == BanStatus.Banned );
-
-            } else {
-                player.Message( "Export: Action must be \"ranks\" or \"bans\"." );
-                CdExport.PrintUsage( player );
-                return;
-            }
-
-            // If file already exists, require confirmation
-            if( !cmd.IsConfirmed && File.Exists( fileName ) ) {
-                Logger.Log( LogType.UserActivity,
-                            "Export: Asked {0} to confirm overwriting \"{1}\"",
-                            player.Name,
-                            fileName );
-                player.Confirm( cmd, "Export: File \"{0}\" already exists. Overwrite?", fileName );
-                return;
-            }
-
-            // Save the list to file. If file is not writable, explodes!
-            int playerCount = 0;
-            using( StreamWriter writer = new StreamWriter( fileName ) ) {
-                foreach( PlayerInfo info in playerList ) {
-                    writer.WriteLine( info.Name );
-                    playerCount++;
-                }
-            }
-
-            // report success
-            player.Message( "Export: Written {0} names to \"{1}\"",
-                            playerCount, Path.GetFileName( fileName ) );
         }
 
         #endregion
@@ -1364,7 +1292,7 @@ namespace fCraft {
         #endregion
 
 
-        #region Importing
+        #region Import / Export
 
         static readonly CommandDescriptor CdImport = new CommandDescriptor {
             Name = "Import",
@@ -1599,7 +1527,6 @@ namespace fCraft {
         }
 
 
-
         static void ImportRanks( Player player, CommandReader cmd ) {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
@@ -1627,7 +1554,7 @@ namespace fCraft {
 
             string[] names;
 
-            switch( serverName.ToLower() ) {
+            switch( serverName.ToLowerInvariant() ) {
                 case "mcsharp":
                 case "mczall":
                 case "mclawl":
@@ -1671,6 +1598,93 @@ namespace fCraft {
             }
 
             PlayerDB.Save();
+        }
+
+
+        static readonly CommandDescriptor CdExport = new CommandDescriptor {
+            Name = "Export",
+            Category = CommandCategory.Maintenance,
+            IsHidden = true,
+            IsConsoleSafe = true,
+            Permissions = new[] { Permission.Import },
+            Usage = "/Export Bans FileName&S or &H/Export Ranks FileName RankName",
+            Handler = ExportHandler
+        };
+
+        static void ExportHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            string actionType = cmd.Next();
+            string fileName = cmd.Next();
+            if( actionType == null || fileName == null ) {
+                CdExport.PrintUsage( player );
+                return;
+            }
+
+            // Make sure the given filename is valid
+            if( !Paths.IsValidPath( fileName ) ) {
+                player.Message( "Export: Unacceptable filename given: \"{0}\"", fileName );
+                return;
+            }
+
+            // Make sure that the target file is legit
+            if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
+                Logger.Log( LogType.SuspiciousActivity,
+                            "Export: Player {0} tried to export to \"{1}\"",
+                            player.Name,
+                            fileName );
+                player.MessageUnsafePath();
+                return;
+            }
+
+            IEnumerable<PlayerInfo> playerList;
+            if( "Ranks".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
+                // Read and check the rank name
+                string rankName = cmd.Next();
+                if( rankName == null ) {
+                    CdExport.PrintUsage( player );
+                    return;
+                }
+                Rank rank = RankManager.FindRank( rankName );
+                if( rank == null ) {
+                    player.MessageNoRank( rankName );
+                    return;
+                }
+
+                // Get a list of players of given rank
+                playerList = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank );
+
+            } else if( "Bans".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
+                // Get a list of banned players
+                playerList = PlayerDB.PlayerInfoList
+                                            .Where( p => p.BanStatus == BanStatus.Banned );
+
+            } else {
+                player.Message( "Export: Action must be \"ranks\" or \"bans\"." );
+                CdExport.PrintUsage( player );
+                return;
+            }
+
+            // If file already exists, require confirmation
+            if( !cmd.IsConfirmed && File.Exists( fileName ) ) {
+                Logger.Log( LogType.UserActivity,
+                            "Export: Asked {0} to confirm overwriting \"{1}\"",
+                            player.Name,
+                            fileName );
+                player.Confirm( cmd, "Export: File \"{0}\" already exists. Overwrite?", fileName );
+                return;
+            }
+
+            // Save the list to file. If file is not writable, explodes!
+            int playerCount = 0;
+            using( StreamWriter writer = new StreamWriter( fileName ) ) {
+                foreach( PlayerInfo info in playerList ) {
+                    writer.WriteLine( info.Name );
+                    playerCount++;
+                }
+            }
+
+            // report success
+            player.Message( "Export: Written {0} names to \"{1}\"",
+                            playerCount, Path.GetFileName( fileName ) );
         }
 
         #endregion
