@@ -689,7 +689,7 @@ namespace fCraft {
                 if( info == null ) {
                     // Create and promote a new record
                     newPlayers++;
-                    PlayerInfo newInfo = PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                    PlayerInfo newInfo = PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
                     newInfo.ChangeRank( player, rank, reason, true, true, false );
                     Logger.Log( LogType.UserActivity, "ImportRankList: Created a new player record for {0}", name );
 
@@ -1388,7 +1388,7 @@ namespace fCraft {
                                 ip.BanIP( player, reason, true, true );
                             } else if( Player.IsValidPlayerName( name ) ) {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                                  PlayerDB.AddFakeEntry( name, RankChangeType.Default );
+                                                  PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Default );
                                 info.Ban( player, reason, true, true );
                                 playersBanned++;
 
@@ -1444,7 +1444,7 @@ namespace fCraft {
                                                           DateTime.UtcNow.ToCompactString() ).Trim();
 
                         PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName ) ??
-                                          PlayerDB.AddFakeEntry( playerName, RankChangeType.Default );
+                                          PlayerDB.CreateNewPlayerInfo( playerName, RankChangeType.Default );
 
                         try {
                             info.Ban( player, banReason, true, true );
@@ -1585,7 +1585,7 @@ namespace fCraft {
             foreach( string name in names ) {
                 try {
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
-                                      PlayerDB.AddFakeEntry( name, RankChangeType.Promoted );
+                                      PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
                     try {
                         info.ChangeRank( player, targetRank, reason, !silent, true, false );
                     } catch( PlayerOpException ex ) {

@@ -261,7 +261,8 @@ Thanks to people whose code has been ported to fCraft:
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
-    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official
+    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official,
+    Red Solidus Freebuild, Platinum Moon Freebuild
 
 Thanks to people who submitted bug reports and feature requests:
     Astelyn, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
