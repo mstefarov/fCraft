@@ -140,6 +140,7 @@ namespace fCraft {
         /// If there is nothing to return (i.e. if string ends at the current offset),
         /// returns empty string. </summary>
         /// <returns> The rest of the command, or an empty string. </returns>
+        [NotNull]
         [DebuggerStepThrough]
         public string NextAll() {
             for( ; Offset < RawMessage.Length; Offset++ ) {
