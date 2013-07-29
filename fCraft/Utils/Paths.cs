@@ -327,7 +327,10 @@ namespace fCraft {
                 new FileInfo( path );
                 // ReSharper restore ObjectCreationAsStatement
                 return true;
-            } catch( ArgumentException ) {} catch( PathTooLongException ) {} catch( NotSupportedException ) {} catch( UnauthorizedAccessException ) {}
+            } catch( ArgumentException ) {
+            } catch( PathTooLongException ) {
+            } catch( NotSupportedException ) {
+            } catch( UnauthorizedAccessException ) {}
             return false;
         }
 
