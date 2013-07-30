@@ -56,7 +56,9 @@ namespace fCraft.Drawing {
                         }
                     }
                     if( TimeToEndBatch ) return blocksDone;
+                    Coords.Z = Bounds.ZMin;
                 }
+                Coords.Y = Bounds.YMin;
             }
             IsDone = true;
             return blocksDone;
