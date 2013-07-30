@@ -15,7 +15,7 @@ For more information, see http://fCraft.net/wiki/Installation_Instructions
 
 === Installation (Linux, Unix, MacOS X) =======================================
 
-fCraft requires Mono 2.6.4+ (minumum) or Mono 2.10+ (recommended). You can
+fCraft requires Mono 2.8+ (minumum) or Mono 3.0+ (recommended). You can
 download it from www.mono-project.org, or (on some Linux distributions) install
 it through your package manager. To be able to use graphical fCraft components
 (ServerGUI and ConfigGUI) you will also need GDI+ library (libgdiplus).
@@ -25,8 +25,8 @@ fCraft directory. Working directory and other paths can be set via command-
 line options (see below).
 
 To run ".exe" files with Mono, use the following syntax:
-Mono 2.6.4: "mono SomeFile.exe"
-Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
+    Mono 2.8+:  "mono --gc=sgen SomeFile.exe"
+    Mono 3.0+:  "mono SomeFile.exe"
 
 Also check out "fcraftd", unofficial script by Hellenion that makes fCraft
 easier to deploy and maintain under Linux: http://fCraft.net/wiki/fcraftd
