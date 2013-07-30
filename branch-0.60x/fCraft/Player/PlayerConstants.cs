@@ -66,7 +66,7 @@ namespace fCraft {
         UnverifiedName = 0x42,
 
         /// <summary> Login denied for some other reason </summary>
-        LoginFailed = 0x43,
+        LoginFailed = 0x43
     }
 
 

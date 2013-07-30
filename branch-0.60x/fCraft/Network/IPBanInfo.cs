@@ -105,34 +105,6 @@ namespace fCraft {
         }
 
 
-        internal static IPBanInfo LoadFormat0( [NotNull] string[] fields, bool convertDatesToUtc ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
-            IPBanInfo info = new IPBanInfo {
-                Address = IPAddress.Parse( fields[0] ),
-                BannedBy = PlayerDB.UnescapeOldFormat( fields[1] )
-            };
-
-            DateTimeUtil.TryParseLocalDate( fields[2], out info.BanDate );
-            info.BanReason = PlayerDB.UnescapeOldFormat( fields[3] );
-            if( fields[4].Length > 1 ) {
-                info.PlayerName = PlayerDB.UnescapeOldFormat( fields[4] );
-            }
-
-            info.Attempts = Int32.Parse( fields[5] );
-            info.LastAttemptName = PlayerDB.UnescapeOldFormat( fields[6] );
-            if( info.LastAttemptName.Length == 0 ) info.LastAttemptName = null;
-            DateTimeUtil.TryParseLocalDate( fields[7], out info.LastAttemptDate );
-
-            if( convertDatesToUtc ) {
-                if( info.BanDate != DateTime.MinValue ) info.BanDate = info.BanDate.ToUniversalTime();
-                if( info.LastAttemptDate != DateTime.MinValue ) info.LastAttemptDate = info.LastAttemptDate.ToUniversalTime();
-            }
-
-            return info;
-        }
-
-
         internal string Serialize() {
             string[] fields = new string[FieldCount];
 

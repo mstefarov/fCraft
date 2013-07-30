@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -19,7 +18,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 167;
+        public const int CurrentVersion = 168;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -41,10 +40,6 @@ namespace fCraft {
 
         // List of renamed/remapped keys.
         static readonly Dictionary<string, ConfigKey> LegacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
-
-        // List of renamed/remapped key values.
-        static readonly Dictionary<ConfigKey, KeyValuePair<string, string>> LegacyConfigValues =
-                    new Dictionary<ConfigKey, KeyValuePair<string, string>>(); // LEGACY
 
 
         static Config() {
@@ -74,18 +69,10 @@ namespace fCraft {
             LoadDefaults();
 
             // These keys were renamed at some point. LEGACY
-            LegacyConfigKeys.Add( "SendRedundantBlockUpdates".ToLower(), ConfigKey.RelayAllBlockUpdates );
-            LegacyConfigKeys.Add( "AutomaticUpdates".ToLower(), ConfigKey.UpdaterMode );
-            LegacyConfigKeys.Add( "IRCBot".ToLower(), ConfigKey.IRCBotEnabled );
-            LegacyConfigKeys.Add( "UpdateMode".ToLower(), ConfigKey.UpdaterMode );
             LegacyConfigKeys.Add( "BackupInterval".ToLower(), ConfigKey.DefaultBackupInterval );
             LegacyConfigKeys.Add( "EnableBlockDB".ToLower(), ConfigKey.BlockDBEnabled );
             LegacyConfigKeys.Add( "IRCUseColor".ToLower(), ConfigKey.IRCShowColorsFromServer );
             LegacyConfigKeys.Add( "IRCAllowMinecraftEmotes".ToLower(), ConfigKey.IRCShowEmotesFromIRC );
-
-            // These values have been renamed at some point. LEGACY
-            LegacyConfigValues.Add( ConfigKey.ProcessPriority,
-                                    new KeyValuePair<string, string>( "Low", ProcessPriorityClass.Idle.ToString() ) );
         }
 
 
@@ -705,15 +692,6 @@ namespace fCraft {
 
             if( value == null ) {
                 throw new NullReferenceException( key + ": rawValue.ToString() returned null." );
-            }
-
-            if( LegacyConfigValues.ContainsKey( key ) ) {
-                foreach( var pair in LegacyConfigValues.Values ) {
-                    if( pair.Key.Equals( value, StringComparison.OrdinalIgnoreCase ) ) {
-                        value = pair.Value;
-                        break;
-                    }
-                }
             }
 
             // throws various exceptions (most commonly FormatException) if invalid
