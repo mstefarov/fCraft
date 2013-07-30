@@ -1,5 +1,33 @@
 0.640
-
+ Feature: Mojang account (email) support. Added ViewEmails permission and a config option to disallow email users.
+ Feature: Overhauled map generation! Improved /Gen, new /SetGen command, more options, preset loading/saving, redesigned ConfigGUI interface, and two new map generation modes: Vanilla (from FemtoCraft) and FloatingIsland.
+ Feature: Optional RegEx filtering of filenames for MapRenderer and MapConverter, enabled by --regex flag.
+ Feature: Added "Player ___ logged in from an IP shared by frozen players..." announcement.
+ Feature: Added an optional parameter to toggle commands (grass, water, lava, solid, paint, static) — "on"/"1" or "off"/"0".
+ Feature: Added BackupOnMapChange config key, which automates backups when a world's map is replaced by /Gen or /WLoad (enabled by default).
+ Feature: Added caret (^) and tilde (~) emotes.
+ Feature: Added /To as an alias of /TP, and /Flush as an alias for /WFlush.
+ Feature: MapRenderer is now much quicker, thanks to optimization and multithreading.
+ Fix: Fixed MapGenerator sometimes locking up when working with tiny 16x16 maps (thanks 123DMWM).
+ Fix: Fixed world greetings not being saved between restarts (thanks Jonty800).
+ Fix: Fixed /WLoad showing incorrect map file names when prompting to replace files (thanks Smokeybacon).
+ Fix: Fixed online-only name prefix revealing hidden players in some commands (thanks Intertoothh and recon).
+ Fix: When a spectating player gets frozen, they are no longer stuck spectating (thanks ruggedbear and NuclearWaffle121).
+ Fix: IRC now handles two-number color codes and reset codes correctly (thanks Liam).
+ Fix: Fixed map changes sometimes leaving behind "ghost maps" for players with rank-specific main maps set (thanks Jonty800).
+ Fix: PlayerDB name autocompletion now correctly handles players with '.' in their names.
+ Fix: Timed backups no longer drift slightly every hour.
+ Fix: Players can now /Clear their chat even while deaf.
+ Fix: Fixed a rare serialization issue with PlayerDB's RankChangedBy field.
+ Fix: Players who were added to the database manually now correctly have FirstLoginDate and ID set on first login.
+ Change: MapRenderer/MapConverter: Now only allow either one directory, or one-or-more files to be specified. Multiple directories, and mixed directories/files are no longer allowed.
+ Change: MapRenderer/MapConverter: Disabled slow fallback conversion by default (which caused non-map files to take forever to skip in recursive mode). Old behavior can be reenabled with --tryhard flag.
+ Change: When auto-updating or restarting under Mono, fCraft no longer tries to use "mono-sgen", now just using "mono" and assuming that runtime is properly configured.
+ Change: /WBuild and /WAccess can optionally now take "@" in front of rank name.
+ Change: Removed BackupOnJoin config key.
+ Change: UpdateInstaller's --restart parameter is more flexible.
+ Change: Dropped Mono 2.6 support.
+ Change: Optimizations in player movement code, PlayerDB loading/saving, IP ban list loading, map generation, map rendering, /Ellipsoid, and /Sphere.
 
 0.639
  Feature: Added RankPrefixesOnDisplayedNames config key (default: false), which controls whether to prepend rank prefixes to names of players with a custom DisplayedName set.
