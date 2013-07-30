@@ -26,8 +26,8 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdPruneDB );
 
             CommandManager.RegisterCommand( CdImport );
-            CommandManager.RegisterCommand( CdImportRankList );
-            CommandManager.RegisterCommand( CdExport );
+            //CommandManager.RegisterCommand( CdImportRankList );
+            //CommandManager.RegisterCommand( CdExport );
 
             CommandManager.RegisterCommand( CdInfoSwap );
 
