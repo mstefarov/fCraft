@@ -545,6 +545,10 @@ namespace fCraft {
             bool isEmailAccount = false;
             if( IsValidEmail( givenName ) ) {
                 // Mojang account, accept it
+                if( !ConfigKey.AllowEmailAccounts.Enabled() ) {
+                    KickNow( "Email accounts now allowed, sorry!", LeaveReason.LoginFailed );
+                    return false;
+                }
                 isEmailAccount = true;
 
             } else if( !IsValidAccountName( givenName ) ) {

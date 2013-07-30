@@ -1783,5 +1783,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 return null;
             }
         }
+
+        private void xAllowFreePlayers_CheckedChanged( object sender, EventArgs e ) {
+            xAllowEmailAccounts.Enabled = xAllowFreePlayers.Checked;
+        }
     }
 }
