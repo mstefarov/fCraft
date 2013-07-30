@@ -276,37 +276,5 @@ namespace fCraft {
         }
 
         #endregion
-
-
-        static CultureInfo cultureInfo = CultureInfo.CurrentCulture;
-
-        // Tries to parse a data in a culture-specific ways.
-        // This method is, unfortunately, necessary because in versions 0.520-0.522,
-        // fCraft saved dates in a culture-specific format. This means that if the
-        // server's culture settings were changed, or if the PlayerDB and IPBanList
-        // files were moved between machines, all dates became unparseable.
-        // Returns true if date string could be parsed and was not empty/MinValue.
-        internal static bool TryParseLocalDate( [NotNull] string dateString, out DateTime date ) {
-            if( dateString == null ) throw new ArgumentNullException( "dateString" );
-            if( dateString.Length <= 1 ) {
-                date = DateTime.MinValue;
-                return false;
-            } else {
-                if( !DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
-                    CultureInfo[] cultureList = CultureInfo.GetCultures( CultureTypes.FrameworkCultures );
-                    foreach( CultureInfo otherCultureInfo in cultureList ) {
-                        cultureInfo = otherCultureInfo;
-                        try {
-                            if( DateTime.TryParse( dateString, cultureInfo, DateTimeStyles.None, out date ) ) {
-                                return true;
-                            }
-                        } catch( NotSupportedException ) { }
-                    }
-                    throw new Exception( "Could not find a culture that would be able to parse date/time formats." );
-                } else {
-                    return true;
-                }
-            }
-        }
     }
 }

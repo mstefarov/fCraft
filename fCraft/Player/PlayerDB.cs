@@ -140,14 +140,18 @@ namespace fCraft {
 
         static void LoadInternal( StreamReader reader, string header ) {
             int version = IdentifyFormatVersion( header );
-            if( version > FormatVersion ) {
+            if( version == 0 ) {
+                throw new Exception( "PlayerDB.Load: Unsupported PlayerDB file format. " +
+                                     "Try loading it in an older version of fCraft (before 0.640)." );
+            } else if( version > FormatVersion ) {
                 Logger.Log( LogType.Warning,
                             "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
                             version );
             } else if( version < FormatVersion ) {
                 Logger.Log( LogType.Warning,
                             "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                            version, FormatVersion );
+                            version,
+                            FormatVersion );
             }
 
             int emptyRecords = 0;
@@ -160,30 +164,26 @@ namespace fCraft {
                     try {
 #endif
                         PlayerInfo info;
-                        switch( version ) {
-                            case 0:
-                                info = PlayerInfo.LoadFormat0( fields, true );
-                                break;
-                            case 1:
-                                info = PlayerInfo.LoadFormat1( fields );
-                                break;
-                            default:
-                                // Versions 2-5 differ in semantics only, not in actual serialization format.
-                                info = PlayerInfo.LoadFormat2( fields );
-                                break;
+                        if( version == 1 ) {
+                            info = PlayerInfo.LoadFormat1( fields );
+                        } else {
+                            // Versions 2-5 differ in semantics only, not in actual serialization format.
+                            info = PlayerInfo.LoadFormat2( fields );
                         }
 
                         if( info.ID > maxID ) {
                             Logger.Log( LogType.Warning,
                                         "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
-                                        maxID, info.ID );
+                                        maxID,
+                                        info.ID );
                             maxID = info.ID;
                         }
 
                         // A record is considered "empty" if the player has never logged in.
                         // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
                         // Deleting such records should have no negative impact on DB completeness.
-                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) || info.TimesVisited == 0) &&
+                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) ||
+                             info.TimesVisited == 0) &&
                             !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
 
                             Logger.Log( LogType.SystemActivity,
@@ -213,13 +213,15 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.Error,
                                 "PlayerDB.Load: Unexpected field count ({0}), expecting at least {1} fields for a PlayerDB entry.",
-                                fields.Length, PlayerInfo.MinFieldCount );
+                                fields.Length,
+                                PlayerInfo.MinFieldCount );
                 }
             }
 
             if( emptyRecords > 0 ) {
                 Logger.Log( LogType.Warning,
-                            "PlayerDB.Load: Skipped {0} empty records.", emptyRecords );
+                            "PlayerDB.Load: Skipped {0} empty records.",
+                            emptyRecords );
             }
 
             RunCompatibilityChecks( version );
@@ -995,13 +997,6 @@ namespace fCraft {
             } else {
                 return str;
             }
-        }
-
-
-        [NotNull]
-        internal static string UnescapeOldFormat( [NotNull] string str ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            return str.Replace( '\xFF', ',' ).Replace( "\'", "'" ).Replace( @"\\", @"\" );
         }
 
 

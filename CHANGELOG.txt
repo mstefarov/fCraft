@@ -1,3 +1,6 @@
+0.640
+
+
 0.639
  Feature: Added RankPrefixesOnDisplayedNames config key (default: false), which controls whether to prepend rank prefixes to names of players with a custom DisplayedName set.
  Feature: Added BypassHttpsCertificateValidation config key (default: false), to ease HTTPS-related pains under Mono.

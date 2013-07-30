@@ -35,14 +35,18 @@ namespace fCraft {
                         }
 
                         int version = ParseHeader( headerText );
-                        if( version > FormatVersion ) {
+                        if( version == 0 ) {
+                            throw new Exception( "IPBanList.Load: Unsupported PlayerDB file format. " +
+                                                 "Try loading it in an older version of fCraft (before 0.640)." );
+                        } else if( version > FormatVersion ) {
                             Logger.Log( LogType.Warning,
                                         "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.",
                                         version );
                         } else if( version < FormatVersion ) {
                             Logger.Log( LogType.Warning,
                                         "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).",
-                                        version, FormatVersion );
+                                        version,
+                                        FormatVersion );
                         }
 
                         while( !reader.EndOfStream ) {
@@ -52,18 +56,10 @@ namespace fCraft {
                             if( fields.Length == IPBanInfo.FieldCount ) {
                                 try {
                                     IPBanInfo ban;
-                                    switch( version ) {
-                                        case 0:
-                                            ban = IPBanInfo.LoadFormat0( fields, true );
-                                            break;
-                                        case 1:
-                                            ban = IPBanInfo.LoadFormat1( fields );
-                                            break;
-                                        case 2:
-                                            ban = IPBanInfo.LoadFormat2( fields );
-                                            break;
-                                        default:
-                                            return;
+                                    if( version == 1 ) {
+                                        ban = IPBanInfo.LoadFormat1( fields );
+                                    } else {
+                                        ban = IPBanInfo.LoadFormat2( fields );
                                     }
 
                                     if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
