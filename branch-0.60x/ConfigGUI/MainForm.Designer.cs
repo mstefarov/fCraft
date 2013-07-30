@@ -31,8 +31,8 @@ namespace fCraft.ConfigGUI {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -164,7 +164,7 @@ namespace fCraft.ConfigGUI {
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
             this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
             this.xRequireKickReason = new System.Windows.Forms.CheckBox();
-            this.xPaidPlayersOnly = new System.Windows.Forms.CheckBox();
+            this.xAllowFreePlayers = new System.Windows.Forms.CheckBox();
             this.lPatrolledRankAndBelow = new System.Windows.Forms.Label();
             this.cPatrolledRank = new System.Windows.Forms.ComboBox();
             this.lPatrolledRank = new System.Windows.Forms.Label();
@@ -299,6 +299,7 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.xAllowEmailAccounts = new System.Windows.Forms.CheckBox();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -1299,8 +1300,8 @@ namespace fCraft.ConfigGUI {
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 325);
             this.dgvWorlds.TabIndex = 0;
@@ -1358,8 +1359,8 @@ namespace fCraft.ConfigGUI {
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1881,9 +1882,10 @@ namespace fCraft.ConfigGUI {
             // 
             // gSecurityMisc
             // 
+            this.gSecurityMisc.Controls.Add(this.xAllowEmailAccounts);
             this.gSecurityMisc.Controls.Add(this.xAnnounceRankChangeReasons);
             this.gSecurityMisc.Controls.Add(this.xRequireKickReason);
-            this.gSecurityMisc.Controls.Add(this.xPaidPlayersOnly);
+            this.gSecurityMisc.Controls.Add(this.xAllowFreePlayers);
             this.gSecurityMisc.Controls.Add(this.lPatrolledRankAndBelow);
             this.gSecurityMisc.Controls.Add(this.cPatrolledRank);
             this.gSecurityMisc.Controls.Add(this.lPatrolledRank);
@@ -1901,7 +1903,7 @@ namespace fCraft.ConfigGUI {
             // xAnnounceRankChangeReasons
             // 
             this.xAnnounceRankChangeReasons.AutoSize = true;
-            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point(336, 109);
+            this.xAnnounceRankChangeReasons.Location = new System.Drawing.Point(368, 133);
             this.xAnnounceRankChangeReasons.Name = "xAnnounceRankChangeReasons";
             this.xAnnounceRankChangeReasons.Size = new System.Drawing.Size(253, 19);
             this.xAnnounceRankChangeReasons.TabIndex = 6;
@@ -1911,28 +1913,28 @@ namespace fCraft.ConfigGUI {
             // xRequireKickReason
             // 
             this.xRequireKickReason.AutoSize = true;
-            this.xRequireKickReason.Location = new System.Drawing.Point(42, 59);
+            this.xRequireKickReason.Location = new System.Drawing.Point(42, 83);
             this.xRequireKickReason.Name = "xRequireKickReason";
             this.xRequireKickReason.Size = new System.Drawing.Size(135, 19);
             this.xRequireKickReason.TabIndex = 1;
             this.xRequireKickReason.Text = "Require kick reason";
             this.xRequireKickReason.UseVisualStyleBackColor = true;
             // 
-            // xPaidPlayersOnly
+            // xAllowFreePlayers
             // 
-            this.xPaidPlayersOnly.AutoSize = true;
-            this.xPaidPlayersOnly.Location = new System.Drawing.Point(42, 20);
-            this.xPaidPlayersOnly.Name = "xPaidPlayersOnly";
-            this.xPaidPlayersOnly.Size = new System.Drawing.Size(489, 19);
-            this.xPaidPlayersOnly.TabIndex = 0;
-            this.xPaidPlayersOnly.Text = "Only allow players with paid Minecraft accounts to join the server (not recommend" +
-    "ed).";
-            this.xPaidPlayersOnly.UseVisualStyleBackColor = true;
+            this.xAllowFreePlayers.AutoSize = true;
+            this.xAllowFreePlayers.Location = new System.Drawing.Point(42, 20);
+            this.xAllowFreePlayers.Name = "xAllowFreePlayers";
+            this.xAllowFreePlayers.Size = new System.Drawing.Size(226, 19);
+            this.xAllowFreePlayers.TabIndex = 0;
+            this.xAllowFreePlayers.Text = "Allow free accounts (recommended).";
+            this.xAllowFreePlayers.UseVisualStyleBackColor = true;
+            this.xAllowFreePlayers.CheckedChanged += new System.EventHandler(this.xAllowFreePlayers_CheckedChanged);
             // 
             // lPatrolledRankAndBelow
             // 
             this.lPatrolledRankAndBelow.AutoSize = true;
-            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point(282, 145);
+            this.lPatrolledRankAndBelow.Location = new System.Drawing.Point(548, 23);
             this.lPatrolledRankAndBelow.Name = "lPatrolledRankAndBelow";
             this.lPatrolledRankAndBelow.Size = new System.Drawing.Size(72, 15);
             this.lPatrolledRankAndBelow.TabIndex = 9;
@@ -1942,7 +1944,7 @@ namespace fCraft.ConfigGUI {
             // 
             this.cPatrolledRank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cPatrolledRank.FormattingEnabled = true;
-            this.cPatrolledRank.Location = new System.Drawing.Point(153, 142);
+            this.cPatrolledRank.Location = new System.Drawing.Point(419, 20);
             this.cPatrolledRank.Name = "cPatrolledRank";
             this.cPatrolledRank.Size = new System.Drawing.Size(123, 23);
             this.cPatrolledRank.TabIndex = 8;
@@ -1951,7 +1953,7 @@ namespace fCraft.ConfigGUI {
             // lPatrolledRank
             // 
             this.lPatrolledRank.AutoSize = true;
-            this.lPatrolledRank.Location = new System.Drawing.Point(64, 145);
+            this.lPatrolledRank.Location = new System.Drawing.Point(330, 23);
             this.lPatrolledRank.Name = "lPatrolledRank";
             this.lPatrolledRank.Size = new System.Drawing.Size(83, 15);
             this.lPatrolledRank.TabIndex = 7;
@@ -1960,7 +1962,7 @@ namespace fCraft.ConfigGUI {
             // xAnnounceRankChanges
             // 
             this.xAnnounceRankChanges.AutoSize = true;
-            this.xAnnounceRankChanges.Location = new System.Drawing.Point(304, 84);
+            this.xAnnounceRankChanges.Location = new System.Drawing.Point(336, 108);
             this.xAnnounceRankChanges.Name = "xAnnounceRankChanges";
             this.xAnnounceRankChanges.Size = new System.Drawing.Size(231, 19);
             this.xAnnounceRankChanges.TabIndex = 5;
@@ -1971,7 +1973,7 @@ namespace fCraft.ConfigGUI {
             // xAnnounceKickAndBanReasons
             // 
             this.xAnnounceKickAndBanReasons.AutoSize = true;
-            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point(304, 59);
+            this.xAnnounceKickAndBanReasons.Location = new System.Drawing.Point(336, 83);
             this.xAnnounceKickAndBanReasons.Name = "xAnnounceKickAndBanReasons";
             this.xAnnounceKickAndBanReasons.Size = new System.Drawing.Size(244, 19);
             this.xAnnounceKickAndBanReasons.TabIndex = 4;
@@ -1981,7 +1983,7 @@ namespace fCraft.ConfigGUI {
             // xRequireRankChangeReason
             // 
             this.xRequireRankChangeReason.AutoSize = true;
-            this.xRequireRankChangeReason.Location = new System.Drawing.Point(42, 109);
+            this.xRequireRankChangeReason.Location = new System.Drawing.Point(42, 133);
             this.xRequireRankChangeReason.Name = "xRequireRankChangeReason";
             this.xRequireRankChangeReason.Size = new System.Drawing.Size(236, 19);
             this.xRequireRankChangeReason.TabIndex = 3;
@@ -1991,7 +1993,7 @@ namespace fCraft.ConfigGUI {
             // xRequireBanReason
             // 
             this.xRequireBanReason.AutoSize = true;
-            this.xRequireBanReason.Location = new System.Drawing.Point(42, 84);
+            this.xRequireBanReason.Location = new System.Drawing.Point(42, 108);
             this.xRequireBanReason.Name = "xRequireBanReason";
             this.xRequireBanReason.Size = new System.Drawing.Size(184, 19);
             this.xRequireBanReason.TabIndex = 2;
@@ -3503,6 +3505,16 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
+            // xAllowEmailAccounts
+            // 
+            this.xAllowEmailAccounts.AutoSize = true;
+            this.xAllowEmailAccounts.Location = new System.Drawing.Point(76, 45);
+            this.xAllowEmailAccounts.Name = "xAllowEmailAccounts";
+            this.xAllowEmailAccounts.Size = new System.Drawing.Size(201, 19);
+            this.xAllowEmailAccounts.TabIndex = 10;
+            this.xAllowEmailAccounts.Text = "Allow emails / Mojang accounts.";
+            this.xAllowEmailAccounts.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3811,7 +3823,7 @@ namespace fCraft.ConfigGUI {
         private Label lLogConsoleOptionsDescription;
         private CheckBox xIRCBotAnnounceServerEvents;
         private CheckBox xIRCShowColorsFromServer;
-        private CheckBox xPaidPlayersOnly;
+        private CheckBox xAllowFreePlayers;
         private Button bMapPath;
         private CheckBox xMapPath;
         private TextBox tMapPath;
@@ -3876,5 +3888,6 @@ namespace fCraft.ConfigGUI {
         private CheckBox xIRCShowEmotesFromServer;
         private Button bColorIRC;
         private Label lColorIRC;
+        private CheckBox xAllowEmailAccounts;
     }
 }

@@ -62,6 +62,7 @@ server's URL will change if you change the port number.",
             MinValue = 1, MaxValue = 65535 )]
         Port,
 
+
         [IntKey( ConfigSection.General, 100,
 @"Total available upload bandwidth, in kilobytes. This number
 is used to pace drawing commands to prevent server from
@@ -212,13 +213,17 @@ before the player is kicked. Set this to 0 to disable automatic kicks.",
             AlwaysAllowZero = true, MinValue = 0, MaxValue = 64 )]
         AntispamMaxWarnings,
 
-
         [BoolKey( ConfigSection.Security, false,
 @"Only allow players who have a paid Minecraft account (not recommended).
 This will help filter out griefers with throwaway accounts,
 but will also prevent many legitimate players from joining." )]
         PaidPlayersOnly,
 
+        [BoolKey( ConfigSection.Security, true,
+@"Whether to allow email (Mojang account) players, who do not have
+a regular Minecraft player name. These players' names can still be reliably
+verified, but their player name has to be created from their email." )]
+        AllowEmailAccounts,
 
         [BoolKey( ConfigSection.Security, false,
 @"Require players to specify a reason/memo when banning or unbanning someone." )]
