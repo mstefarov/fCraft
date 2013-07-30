@@ -577,29 +577,31 @@ namespace fCraft {
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
-                string standardMessage =
-                    String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
-                                   Name, IP );
+                string stdMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
+                                                        Name, IP );
                 if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
+                    // Player is connecting from localhost
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} Player was identified as connecting from localhost and allowed in.",
-                                standardMessage );
+                                stdMessage );
                     IsVerified = true;
 
                 } else if( IP.IsLocal() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
+                    // Players is connecting from LAN
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} Player was identified as connecting from LAN and allowed in.",
-                                standardMessage );
+                                stdMessage );
                     IsVerified = true;
 
                 } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
+                    // Player has been here before, and is reconnecting from same IP
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                             Info.ProcessFailedLogin( this );
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP matched previous records for that name. " +
                                         "Player was kicked anyway because VerifyNames is set to Always.",
-                                        standardMessage );
+                                        stdMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
@@ -607,26 +609,27 @@ namespace fCraft {
                         case NameVerificationMode.Never:
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP matched previous records for that name. Player was allowed in.",
-                                        standardMessage );
+                                        stdMessage );
                             IsVerified = true;
                             break;
                     }
 
                 } else {
+                    // All other modes of verification failed.
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
                             Info.ProcessFailedLogin( this );
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP did not match. Player was kicked.",
-                                        standardMessage );
+                                        stdMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
                         case NameVerificationMode.Never:
                             Logger.Log( LogType.SuspiciousActivity,
                                         "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
-                                        standardMessage );
+                                        stdMessage );
                             Message( "&WYour name could not be verified." );
                             break;
                     }
