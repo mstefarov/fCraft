@@ -22,7 +22,45 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdClear );
 
             CommandManager.RegisterCommand( CdTimer );
+            CommandManager.RegisterCommand( CdReply );
         }
+
+
+        #region Reply
+
+        static readonly CommandDescriptor CdReply = new CommandDescriptor {
+            Name = "Reply",
+            Aliases = new[] {"re"},
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
+            Usage = "/Re <Message>",
+            Help = "Replies to the last message that was sent TO you. "+
+                   "To follow up on the last message that YOU sent, use &H@-&S instead.",
+            Handler = ReplyHandler
+        };
+
+        static void ReplyHandler( Player player, CommandReader cmd ) {
+            string msg = cmd.NextAll();
+            if( msg.Length == 0 ) {
+                player.Message( "Reply: No message to send!" );
+                return;
+            }
+            string targetName = player.lastPrivateMessageSender;
+            if( targetName != null ) {
+                Player targetPlayer = Server.FindPlayerExact( player,
+                                                              targetName,
+                                                              SearchOptions.IncludeHidden );
+                if( targetPlayer != null && player.CanSee( targetPlayer ) ) {
+                    Chat.SendPM( player, targetPlayer, msg );
+                } else {
+                    player.Message( "Reply: Cannot send message; player {0} is offline!", targetName );
+                }
+            } else {
+                player.Message( "Reply: You have not sent any messages yet." );
+            }
+        }
+
+        #endregion
 
 
         #region Say
