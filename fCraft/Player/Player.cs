@@ -171,6 +171,9 @@ namespace fCraft {
         [CanBeNull]
         string partialMessage;
 
+        [CanBeNull]
+        internal string lastPrivateMessageSender;
+
 
         /// <summary> Parses a message on behalf of this player. </summary>
         /// <param name="rawMessage"> Message to parse. </param>

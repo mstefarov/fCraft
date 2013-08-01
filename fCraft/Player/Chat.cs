@@ -87,6 +87,7 @@ namespace fCraft {
                                               recipientList );
 
             if( !SendInternal( e ) ) return false;
+            to.lastPrivateMessageSender = from.Name;
 
             Logger.Log( LogType.PrivateChat,
                         "{0} to {1}: {2}",
