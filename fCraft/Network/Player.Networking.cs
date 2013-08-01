@@ -508,6 +508,7 @@ namespace fCraft {
                     break;
 
                 case 2:
+                case 250:
                     GentlyKickSMPClients();
                     return false;
 
@@ -521,7 +522,7 @@ namespace fCraft {
 
                 default:
                     Logger.Log( LogType.Error,
-                                "Player.LoginSequence: Unexpected opcode in the first packet from {0}: {1}.",
+                                "Player.LoginSequence: Unexpected op code in the first packet from {0}: {1}.",
                                 IP, opCode );
                     KickNow( "Incompatible client, or a network error.", LeaveReason.ProtocolViolation );
                     return false;
@@ -890,8 +891,8 @@ namespace fCraft {
                 string smpPlayerName = Encoding.BigEndianUnicode.GetString( reader.ReadBytes( strLen * 2 ) );
 
                 Logger.Log( LogType.Warning,
-                            "Player.LoginSequence: Player \"{0}\" tried connecting with Minecraft Beta client from {1}. " +
-                            "fCraft does not support Minecraft Beta.",
+                            "Player.LoginSequence: Player \"{0}\" tried connecting with premium Minecraft client from {1}. " +
+                            "fCraft does not support premium Minecraft clients.",
                             smpPlayerName, IP );
 
                 // send SMP KICK packet
