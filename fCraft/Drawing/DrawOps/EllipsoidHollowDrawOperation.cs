@@ -98,7 +98,7 @@ namespace fCraft.Drawing {
 
                             case State.AfterOuterBlock:
                                 state = State.AfterOuterBlock;
-                                if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) return blocksDone;
+                                if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                                 delta.Z = (++Coords.Z - center.Z);
                                 if( Coords.Z <= (int)center.Z &&
                                     ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
@@ -127,7 +127,7 @@ namespace fCraft.Drawing {
                                 if( DrawOneBlock() ) {
                                     blocksDone++;
                                     Coords.Z++;
-                                    if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
+                                    if( blocksDone >= maxBlocksToDraw ) {
                                         return blocksDone;
                                     }
                                 } else {
