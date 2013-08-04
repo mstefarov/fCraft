@@ -1,5 +1,5 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
-//#define DEBUG_CHECK_DUPLICATE_COORDS
+#define DEBUG_CHECK_DUPLICATE_COORDS
 using System;
 using System.Collections.Generic;
 using fCraft.Drawing;
@@ -214,12 +214,14 @@ namespace fCraft.Drawing {
                 return false;
             }
 
-#if DEBUG_CHECK_DUPLICATE_COORDS
-            TestForDuplicateModification();
-#endif
-
             Block newBlock = Brush.NextBlock( this );
             if( newBlock == Block.None ) return false;
+
+#if DEBUG_CHECK_DUPLICATE_COORDS
+            if( TestForDuplicateModification() ) {
+                newBlock = Block.Lava;
+            }
+#endif
 
             int blockIndex = Map.Index( Coords );
 
@@ -296,7 +298,6 @@ namespace fCraft.Drawing {
         }
 
 
-
         void OnCompletion() {
             if( AnnounceCompletion ) {
                 if( BlocksUpdated > 0 ) {
@@ -360,12 +361,13 @@ namespace fCraft.Drawing {
 
         // Single modification per block policy enforcement
         readonly HashSet<int> modifiedBlockIndices = new HashSet<int>();
-        void TestForDuplicateModification() {
+        bool TestForDuplicateModification() {
             int index = Map.Index( Coords );
             if( modifiedBlockIndices.Contains( index ) ) {
-                throw new InvalidOperationException( "Duplicate block modification at " + Coords );
+                return true;
             }
             modifiedBlockIndices.Add( index );
+            return false;
         }
 #endif
 
