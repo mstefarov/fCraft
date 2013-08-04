@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a hollow ellipsoid,
@@ -23,39 +24,50 @@ namespace fCraft.Drawing {
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
 
-            double rx = Bounds.Width/2d;
-            double ry = Bounds.Length/2d;
-            double rz = Bounds.Height/2d;
-
-            radius.X = (float)(1/(rx*rx));
-            radius.Y = (float)(1/(ry*ry));
-            radius.Z = (float)(1/(rz*rz));
-
-            center.X = (Bounds.XMin + Bounds.XMax)/2f;
-            center.Y = (Bounds.YMin + Bounds.YMax)/2f;
-            center.Z = (Bounds.ZMin + Bounds.ZMax)/2f;
-
-            fillInner = Brush.AlternateBlocks > 1 &&
-                        Bounds.Width > 2 &&
-                        Bounds.Length > 2 &&
-                        Bounds.Height > 2;
-
-            Coords = Bounds.MinVertex;
-
-            if( fillInner ) {
-                BlocksTotalEstimate = (int)(4/3d*Math.PI*rx*ry*rz);
-            } else {
-                // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
-                BlocksTotalEstimate = (int)(4/3d*Math.PI*((rx + .5)*(ry + .5)*(rz + .5) -
-                                                          (rx - .5)*(ry - .5)*(rz - .5))*0.85);
-            }
-
             if( Bounds.Height == 1 ) {
                 if( Bounds.Width == 1 || Bounds.Length == 1 ) {
+                    // 1D ellipsoid degenerates into a line
                     ellipseEnumerator = LineEnumerator( Bounds.MinVertex, Bounds.MaxVertex ).GetEnumerator();
+                    BlocksTotalEstimate = Math.Max( Bounds.Width, Bounds.Length );
                 } else {
+                    // 2D ellipsoid degenerates into a flat ellipse
+                    fillInner = (Brush.AlternateBlocks > 1 && Bounds.Width > 2 && Bounds.Length > 2);
                     ellipseEnumerator = EllipseEnumeratorXY( Bounds ).GetEnumerator();
+                    if( fillInner ) {
+                        BlocksTotalEstimate = (int)(Bounds.Width*Bounds.Length*Math.PI/4);
+                    } else {
+                        BlocksTotalEstimate = Math.Max( Bounds.Width, Bounds.Length )*2;
+                    }
                 }
+
+            } else {
+                // 3D ellipsoid
+                double rx = Bounds.Width / 2d;
+                double ry = Bounds.Length / 2d;
+                double rz = Bounds.Height / 2d;
+
+                radius.X = (float)(1 / (rx * rx));
+                radius.Y = (float)(1 / (ry * ry));
+                radius.Z = (float)(1 / (rz * rz));
+
+                center.X = (Bounds.XMin + Bounds.XMax) / 2f;
+                center.Y = (Bounds.YMin + Bounds.YMax) / 2f;
+                center.Z = (Bounds.ZMin + Bounds.ZMax) / 2f;
+
+                fillInner = Brush.AlternateBlocks > 1 &&
+                            Bounds.Width > 2 &&
+                            Bounds.Length > 2 &&
+                            Bounds.Height > 2;
+
+                if( fillInner ) {
+                    BlocksTotalEstimate = (int)(4/3d*Math.PI*rx*ry*rz);
+                } else {
+                    // rougher estimation than the non-hollow form, a voxelized surface is a bit funky
+                    BlocksTotalEstimate = (int)(4/3d*Math.PI*
+                                                ((rx + .5)*(ry + .5)*(rz + .5) - (rx - .5)*(ry - .5)*(rz - .5))*0.85);
+                }
+
+                Coords = Bounds.MinVertex;
             }
             return true;
         }
@@ -189,42 +201,58 @@ namespace fCraft.Drawing {
                 throw new ArgumentOutOfRangeException( "bounds" );
             }
 
+            // figure out what we're doing
             int z = bounds.ZMax;
-            float centerX = (bounds.XMax + bounds.XMin)/2f;
-            float centerY = (bounds.YMax + bounds.YMin)/2f;
-            float rX = (bounds.XMax - bounds.XMin)/2f;
-            float rY = (bounds.YMax - bounds.YMin)/2f;
+            float centerX = (bounds.XMax + bounds.XMin)/2f,
+                  centerY = (bounds.YMax + bounds.YMin)/2f,
+                  rX = (bounds.XMax - bounds.XMin)/2f,
+                  rY = (bounds.YMax - bounds.YMin)/2f;
+            
+            // x/y coordinates need to be biased by 0.5 for even radii
+            float startX = (bounds.Width%2 == 1) ? 0 : 0.5f,
+                  startY = (bounds.Length%2 == 1) ? 0 : 0.5f;
 
-            bool oddX = (bounds.Width%2 == 1),
-                 oddY = (bounds.Length%2 == 1);
-
-            if( oddX ) {
-                // for odd horizontal diameters, manually set the blocks that lie on the vertical axis line
-                int midX = (bounds.XMax + bounds.XMin)/2;
-                AlternateBlockIndex = 0;
-                yield return new Vector3I( midX, bounds.YMin, z );
-                yield return new Vector3I( midX, bounds.YMax, z );
-            }
-
-            if( oddY ) {
-                // for odd vertical diameters, manually set the blocks that lie on the horizontal axis line
-                int midY = (bounds.YMax + bounds.YMin)/2;
-                yield return new Vector3I( bounds.XMin, midY, z );
-                yield return new Vector3I( bounds.XMax, midY, z );
-            }
+            // used to stop drawing second half-quadrant before it overlaps the first
+            int maxY = Bounds.YMax,
+                maxX = Bounds.XMax;
 
             // draw first half-quadrant, stepping x by 1 until slope reaches 1
             {
                 float dy = 0,
                       y = rY,
-                      x = (oddX ? 1 : 0.5f),
+                      x = startX,
                       rYrX = rY/rX,
                       rX2 = rX*rX;
-                while( dy <= 1 ) {
-                    yield return new Vector3I( (int)(centerX + x), (int)Math.Round( centerY + y ), z );
-                    yield return new Vector3I( (int)(centerX + x), (int)Math.Round( centerY - y ), z );
-                    yield return new Vector3I( (int)Math.Ceiling( centerX - x ), (int)Math.Round( centerY + y ), z );
-                    yield return new Vector3I( (int)Math.Ceiling( centerX - x ), (int)Math.Round( centerY - y ), z );
+
+                // Used to prevent filling the same row twice
+                int oldTopY = -1;
+
+                while( dy <= 1 && y > 0 ) {
+                    int topY = (int)Math.Round( centerY + y ),
+                        bottomY = (int)Math.Round( centerY - y ),
+                        rightX = (int)Math.Ceiling( centerX + x ),
+                        leftX = (int)( centerX - x );
+
+                    // Set up to 4 blocks, using ellipse's 4-way symmetry
+                    yield return new Vector3I( rightX, topY, z );
+                    if( topY != bottomY ) yield return new Vector3I( rightX, bottomY, z );
+                    if( rightX != leftX ) {
+                        yield return new Vector3I( leftX, topY, z );
+                        if( topY != bottomY ) yield return new Vector3I( leftX, bottomY, z );
+                    }
+                    maxY = topY;
+                    maxX = rightX;
+
+                    // fill inside as we go, in horizontal rows
+                    if( fillInner && topY < Bounds.YMax && topY != oldTopY ) {
+                        AlternateBlockIndex = 1;
+                        for( int ix = leftX + 1; ix < rightX; ix++ ) {
+                            yield return new Vector3I( ix, topY, z );
+                            if( topY != bottomY ) yield return new Vector3I( ix, bottomY, z );
+                        }
+                        AlternateBlockIndex = 0;
+                    }
+                    oldTopY = topY;
 
                     // compute next point
                     x += 1;
@@ -238,14 +266,40 @@ namespace fCraft.Drawing {
             {
                 float dx = 0,
                       x = rX,
-                      y = (oddY ? 1 : 0.5f),
+                      y = startY,
                       rXrY = rX/rY,
-                      rY2 = rY*rY;
+                      rY2 = rY * rY;
+
+                // Used to prevent filling the same row twice
+                int oldTopY = -1;
+
                 while( dx < 1 ) {
-                    yield return new Vector3I( (int)Math.Round( centerX + x ), (int)(centerY + y), z );
-                    yield return new Vector3I( (int)Math.Round( centerX + x ), (int)Math.Ceiling( centerY - y ), z );
-                    yield return new Vector3I( (int)Math.Round( centerX - x ), (int)(centerY + y), z );
-                    yield return new Vector3I( (int)Math.Round( centerX - x ), (int)Math.Ceiling( centerY - y ), z );
+                    int topY = (int)Math.Ceiling( centerY + y ),
+                        bottomY = (int)( centerY - y ),
+                        rightX = (int)Math.Round( centerX + x ),
+                        leftX = (int)Math.Round( centerX - x );
+
+                    // stop if we've reached the top half-quadrant
+                    if( topY >= maxY && rightX <= maxX ) break;
+
+                    // Set up to 4 blocks, using ellipse's 4-way symmetry
+                    yield return new Vector3I( rightX, topY, z );
+                    if( rightX != leftX ) yield return new Vector3I( leftX, topY, z );
+                    if( topY != bottomY ) {
+                        yield return new Vector3I( rightX, bottomY, z );
+                        if( rightX != leftX ) yield return new Vector3I( leftX, bottomY, z );
+                    }
+
+                    // fill inside as we go, in horizontal rows
+                    if( fillInner && topY != oldTopY && topY < maxY ) {
+                        AlternateBlockIndex = 1;
+                        for( int ix = leftX + 1; ix < rightX; ix++ ) {
+                            yield return new Vector3I( ix, topY, z );
+                            if( topY != bottomY ) yield return new Vector3I( ix, bottomY, z );
+                        }
+                        AlternateBlockIndex = 0;
+                    }
+                    oldTopY = topY;
 
                     // compute next point
                     y += 1;
