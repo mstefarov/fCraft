@@ -158,7 +158,7 @@ namespace fCraft.MapConversion {
         static Map LoadHeaderInternal( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
-                throw new MapFormatException();
+                throw new MapFormatException( "FCMv3: Unexpected file identifier" );
             }
 
             // read dimensions
