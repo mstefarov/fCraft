@@ -477,7 +477,7 @@ namespace fCraft {
             if( results.Length > 0 ) {
                 Array.Reverse( results );
                 foreach( BlockDBEntry entry in results ) {
-                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.TryParseDateTime( entry.Timestamp ) ).ToMiniString();
+                    string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
                     PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
                     string playerName;

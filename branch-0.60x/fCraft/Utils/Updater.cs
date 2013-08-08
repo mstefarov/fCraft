@@ -83,7 +83,7 @@ namespace fCraft {
                                     new ReleaseInfo(
                                         Int32.Parse( el.Attribute( "v" ).Value ),
                                         Int32.Parse( el.Attribute( "r" ).Value ),
-                                        DateTimeUtil.TryParseDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
+                                        DateTimeUtil.ToDateTime( Int64.Parse( el.Attribute( "date" ).Value ) ),
                                         el.Element( "Summary" ).Value,
                                         el.Element( "ChangeLog" ).Value,
                                         ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )

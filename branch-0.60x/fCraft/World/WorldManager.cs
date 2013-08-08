@@ -283,13 +283,13 @@ namespace fCraft {
             if( tempEl != null ) world.LoadedBy = tempEl.Value;
             tempEl = el.Element( "LoadedOn" );
             if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                world.LoadedOn = DateTimeUtil.TryParseDateTime( timestamp );
+                world.LoadedOn = DateTimeUtil.ToDateTime( timestamp );
             }
             tempEl = el.Element( "MapChangedBy" );
             if( tempEl != null ) world.MapChangedBy = tempEl.Value;
             tempEl = el.Element( "MapChangedOn" );
             if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                world.MapChangedOn = DateTimeUtil.TryParseDateTime( timestamp );
+                world.MapChangedOn = DateTimeUtil.ToDateTime( timestamp );
             }
 
             // load lock information
@@ -302,14 +302,14 @@ namespace fCraft {
                 if( tempEl != null ) world.LockedBy = tempEl.Value;
                 tempEl = el.Element( "LockedOn" );
                 if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                    world.LockedOn = DateTimeUtil.TryParseDateTime( timestamp );
+                    world.LockedOn = DateTimeUtil.ToDateTime( timestamp );
                 }
             } else {
                 tempEl = el.Element( "UnlockedBy" );
                 if( tempEl != null ) world.UnlockedBy = tempEl.Value;
                 tempEl = el.Element( "UnlockedOn" );
                 if( tempEl != null && Int64.TryParse( tempEl.Value, out timestamp ) ) {
-                    world.UnlockedOn = DateTimeUtil.TryParseDateTime( timestamp );
+                    world.UnlockedOn = DateTimeUtil.ToDateTime( timestamp );
                 }
             }
 
