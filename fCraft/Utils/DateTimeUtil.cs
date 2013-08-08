@@ -8,15 +8,11 @@ namespace fCraft {
     /// <summary> Provides utility functions for working with DateTime and TimeSpan. </summary>
     public static class DateTimeUtil {
         static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
-        static readonly long TicksToUnixEpoch;
         const long TicksPerMillisecond = 10000;
 
         /// <summary> UTC Unix epoch (1970-01-01, 00:00:00). </summary>
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
-
-        static DateTimeUtil() {
-            TicksToUnixEpoch = UnixEpoch.Ticks;
-        }
+        static readonly long TicksToUnixEpoch = UnixEpoch.Ticks;
 
 
         #region Conversion to/from Unix timestamps
@@ -28,7 +24,7 @@ namespace fCraft {
 
 
         // Converts a DateTime to UTC Unix Timestamp, with millisecond precision. Used in FCMv3 saving.
-        internal static long ToUnixTimeLegacy( this DateTime date ) {
+        public static long ToUnixTimeLegacy( this DateTime date ) {
             return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
         }
 
@@ -61,7 +57,7 @@ namespace fCraft {
         #region To Date Time
 
         /// <summary> Creates a DateTime from a UTC Unix Timestamp. </summary>
-        public static DateTime TryParseDateTime( long timestamp ) {
+        public static DateTime ToDateTime( long timestamp ) {
             return UnixEpoch.AddSeconds( timestamp );
         }
 
