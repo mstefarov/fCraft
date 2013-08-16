@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
-        static readonly Uri MinecraftNetUri;
+        internal static Uri MinecraftNetUri;
 
         /// <summary> Delay between sending heartbeats. Default: 20s </summary>
         public static TimeSpan Delay { get; set; }
@@ -25,7 +25,6 @@ namespace fCraft {
 
 
         static Heartbeat() {
-            MinecraftNetUri = new Uri( "https://minecraft.net/heartbeat.jsp" );
             Delay = TimeSpan.FromSeconds( 20 );
             Timeout = TimeSpan.FromSeconds( 10 );
             Salt = Server.GetRandomString( 32 );
@@ -61,7 +60,8 @@ namespace fCraft {
                     Server.CountPlayers( false ).ToStringInvariant(),
                     ConfigKey.MaxPlayers.GetString(),
                     ConfigKey.ServerName.GetString(),
-                    ConfigKey.IsPublic.GetString()
+                    ConfigKey.IsPublic.GetString(),
+                    ConfigKey.HeartbeatUrl.GetString()
                 };
                 const string tempFile = Paths.HeartbeatDataFileName + ".tmp";
                 File.WriteAllLines( tempFile, data, Encoding.ASCII );

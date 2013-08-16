@@ -18,7 +18,7 @@ namespace fCraft {
 
         /// <summary> Latest version of config.xml available at the time of building this copy of fCraft.
         /// Config.xml files saved with this build will have this version number embedded. </summary>
-        public const int CurrentVersion = 168;
+        public const int CurrentVersion = 169;
 
         const int LowestSupportedVersion = 111,
                   FirstVersionWithMaxPlayersKey = 134, // LEGACY
@@ -415,6 +415,10 @@ namespace fCraft {
 
                 case ConfigKey.DefaultBackupInterval:
                     World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute * key.GetInt() );
+                    break;
+
+                case ConfigKey.HeartbeatUrl:
+                    Heartbeat.MinecraftNetUri = new Uri( key.GetString() );
                     break;
 
                 case ConfigKey.HelpColor:
