@@ -312,9 +312,9 @@ namespace fCraft {
             int packetsSent = 0;
             bool canFlush = false;
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
-            BlockUpdate update = new BlockUpdate();
             while( packetsSent < maxPacketsPerUpdate ) {
-                if( !updates.Dequeue( ref update ) ) {
+                BlockUpdate update;
+                if( !updates.Dequeue( out update ) ) {
                     if( World.IsFlushing ) {
                         canFlush = true;
                     }
