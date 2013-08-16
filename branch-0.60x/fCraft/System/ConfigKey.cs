@@ -350,7 +350,7 @@ Note that encrypted IRC (via SSL) is not supported." )]
         [StringKey( ConfigSection.IRC, "MinecraftBot",
 @"IRC bot's nickname. If the nickname is taken, fCraft will append
 an underscore (_) to the name and retry.",
-            MinLength = 1, MaxLength = 30 )]
+            MinLength = 1, MaxLength = 30, RegexString=@"\A[a-zA-Z_\-\[\]\\^{}|`][a-zA-Z0-9_\-\[\]\\^{}|`]*\z" )]
         IRCBotNick,
 
         [StringKey( ConfigSection.IRC, "irc.esper.net",
