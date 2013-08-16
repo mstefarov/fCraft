@@ -138,12 +138,14 @@ namespace fCraft {
                         // register
                         Send( IRCCommands.Nick( ActualBotNick ) );
                         Send( IRCCommands.User( ActualBotNick, 8, ConfigKey.ServerName.GetString() ) );
+                        lastNickAttempt = DateTime.UtcNow;
                         nickTry = 0;
 
                         while( isConnected && !reconnect ) {
                             Thread.Sleep( 20 );
 
-                            if( DateTime.UtcNow.Subtract( lastMessageSent ) >= SendDelay ) {
+                            DateTime now = DateTime.UtcNow;
+                            if( now.Subtract( lastMessageSent ) >= SendDelay ) {
                                 string outputLine;
                                 if( localQueue.Length > 0 && localQueue.Dequeue( out outputLine ) ) {
 #if DEBUG_IRC
@@ -152,7 +154,7 @@ namespace fCraft {
                                     writer.Write( outputLine );
                                     writer.Write( '\r' );
                                     writer.Write( '\n' );
-                                    lastMessageSent = DateTime.UtcNow;
+                                    lastMessageSent = now;
                                     writer.Flush();
                                     if( outputLine.StartsWith( "QUIT" ) ) {
                                         isConnected = false;
@@ -166,8 +168,17 @@ namespace fCraft {
                                     writer.Write( outputLine );
                                     writer.Write( '\r' );
                                     writer.Write( '\n' );
-                                    lastMessageSent = DateTime.UtcNow;
+                                    lastMessageSent = now;
                                     writer.Flush();
+                                } else if( ActualBotNick != desiredBotNick &&
+                                           now.Subtract( lastNickAttempt ) >= NickRetryDelay ) {
+                                    Logger.Log( LogType.IRCStatus,
+                                                "Retrying for desired IRC bot nick ({0} to {1})",
+                                                ActualBotNick,
+                                                desiredBotNick );
+                                    Send( IRCCommands.Nick( desiredBotNick ) );
+                                    lastNickAttempt = DateTime.UtcNow;
+                                    lastMessageSent = now;
                                 }
                             }
 
@@ -200,6 +211,8 @@ namespace fCraft {
             }
 
 
+            static DateTime lastNickAttempt;
+
             static void LogDisconnectWarning( Exception ex ) {
                 Logger.Log( LogType.Warning,
                             "IRC: Disconnected ({0}: {1}). Will retry in {2} seconds.",
@@ -222,10 +235,7 @@ namespace fCraft {
                 switch( msg.Type ) {
                     case IRCMessageType.Login:
                         if( msg.ReplyCode == IRCReplyCode.Welcome ) {
-                            if( ConfigKey.IRCRegisteredNick.Enabled() ) {
-                                Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
-                                                           ConfigKey.IRCNickServMessage.GetString() ) );
-                            }
+                            AuthWithNickServ();
                             foreach( string channel in channelNames ) {
                                 Send( IRCCommands.Join( channel ) );
                             }
@@ -346,14 +356,17 @@ namespace fCraft {
                             ActualBotNick = msg.Message;
                             nickTry = 0;
                             Logger.Log( LogType.IRCStatus,
-                                        "Bot was forcefully renamed from {0} to {1}",
+                                        "Bot was renamed from {0} to {1}",
                                         msg.Nick, msg.Message );
+                            AuthWithNickServ();
                         } else {
                             if( !ResponsibleForInputParsing ) return;
                             Server.Message( "&i(IRC) {0} is now known as {1}",
-                                            msg.Nick, msg.Message );
+                                            msg.Nick,
+                                            msg.Message );
                         }
                         return;
+
 
                     case IRCMessageType.ErrorMessage:
                     case IRCMessageType.Error:
@@ -361,13 +374,27 @@ namespace fCraft {
                         switch( msg.ReplyCode ) {
                             case IRCReplyCode.ErrorNicknameInUse:
                             case IRCReplyCode.ErrorNicknameCollision:
+                                // Possibility 1: we tried to go for primary nick, but it's still taken
+                                string currentName = msg.RawMessageArray[2];
+                                string desiredName = msg.RawMessageArray[3];
+                                if( currentName == ActualBotNick && desiredName == desiredBotNick ) {
+                                    Logger.Log( LogType.IRCStatus,
+                                                "Error: Desired nick \"{0}\" is still in use. Will retry shortly.",
+                                                desiredBotNick );
+                                    break;
+                                }
+
+                                // Possibility 2: We don't have any nick yet, the one we wanted is in use
                                 string oldActualBotNick = ActualBotNick;
                                 if( ActualBotNick.Length < maxNickLength ) {
+                                    // append '_' to the end of desired nick, if we can
                                     ActualBotNick += "_";
                                 } else {
+                                    // if resulting nick is too long, add a number to the end instead
                                     nickTry++;
-                                    if( desiredBotNick.Length + nickTry / 10 + 1 > maxNickLength ) {
-                                        ActualBotNick = desiredBotNick.Substring( 0, maxNickLength - nickTry / 10 - 1 ) + nickTry;
+                                    if( desiredBotNick.Length + nickTry/10 + 1 > maxNickLength ) {
+                                        ActualBotNick = desiredBotNick.Substring( 0, maxNickLength - nickTry/10 - 1 ) +
+                                                        nickTry;
                                     } else {
                                         ActualBotNick = desiredBotNick + nickTry;
                                     }
@@ -389,7 +416,8 @@ namespace fCraft {
 
                             case IRCReplyCode.ErrorBadChannelKey:
                                 Logger.Log( LogType.IRCStatus,
-                                            "Error: Channel password required for {0}. fCraft does not currently support passworded channels.",
+                                            "Error: Channel password required for {0}. " +
+                                            "fCraft does not currently support password-protected channels.",
                                             msg.Channel );
                                 die = true;
                                 break;
@@ -406,7 +434,6 @@ namespace fCraft {
                             reconnect = false;
                             DisconnectThread( null );
                         }
-
                         return;
 
 
@@ -433,6 +460,13 @@ namespace fCraft {
                             }
                         }
                         return;
+                }
+            }
+
+            void AuthWithNickServ() {
+                if( ConfigKey.IRCRegisteredNick.Enabled() ) {
+                    Send( IRCCommands.Privmsg( ConfigKey.IRCNickServ.GetString(),
+                                               ConfigKey.IRCNickServMessage.GetString() ) );
                 }
             }
 
@@ -498,9 +532,13 @@ namespace fCraft {
         /// Set by Config.ApplyConfig, based on value of IRCDelay config key. </summary>
         public static TimeSpan SendDelay { get; internal set; }
 
+        /// <summary> Minimum delay between retrying for desired nick. </summary>
+        public static TimeSpan NickRetryDelay { get; internal set; }
+
         static IRC() {
             Timeout = new TimeSpan( 0, 0, 15 );
             ReconnectDelay = new TimeSpan( 0, 0, 15 );
+            NickRetryDelay = new TimeSpan( 0, 0, 30 );
         }
 
         static IRCThread[] threads;
