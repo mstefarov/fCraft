@@ -117,7 +117,6 @@ namespace fCraft {
                 BandwidthUseMode = Info.BandwidthUseMode;
 
                 // set up some temp variables
-                Packet packet = new Packet();
 
                 int pollCounter = 0,
                     pingCounter = 0;
@@ -163,9 +162,10 @@ namespace fCraft {
                     }
 
                     // send output to player
+                    Packet packet;
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( ref packet ) ) {
-                            if( !outputQueue.Dequeue( ref packet ) ) {
+                        if( !priorityOutputQueue.Dequeue( out packet ) ) {
+                            if( !outputQueue.Dequeue( out packet ) ) {
                                 // nothing more to send!
                                 break;
                             }
@@ -207,7 +207,7 @@ namespace fCraft {
                     if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
-                                while( priorityOutputQueue.Dequeue( ref packet ) ) {
+                                while( priorityOutputQueue.Dequeue( out packet ) ) {
 #if DEBUG_NETWORKING
                                     Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
 #endif

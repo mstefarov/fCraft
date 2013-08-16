@@ -37,7 +37,8 @@ namespace fCraft {
         }
 
 
-        public bool Dequeue( ref T t ) {
+        public bool Dequeue( out T t ) {
+            t = default( T );
             // Keep trying until deque is done
             bool bDequeNotDone = true;
             while( bDequeNotDone ) {
@@ -119,8 +120,8 @@ namespace fCraft {
 
 
         public void Clear() {
-            T t = default( T );
-            while( Dequeue( ref t ) ) { }
+            T t;
+            while( Dequeue( out t ) ) { }
         }
     }
 }
