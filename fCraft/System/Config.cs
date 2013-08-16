@@ -426,7 +426,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.IRCDelay:
-                    IRC.SendDelay = key.GetInt();
+                    IRC.SendDelay = TimeSpan.FromMilliseconds( key.GetInt() );
                     break;
 
                 case ConfigKey.IRCMessageColor:

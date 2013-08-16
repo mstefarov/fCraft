@@ -32,6 +32,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
@@ -42,9 +43,9 @@ namespace fCraft {
     /// <summary> IRC control class. </summary>
     public static class IRC {
         internal const string ResetReplacement = "\u0003\u000F",
-                              BoldReplacement = "\u0002";
-        public const string ResetCode = "\u211C",
-                            BoldCode = "\u212C";
+                              BoldReplacement = "\u0002",
+                              ResetCode = "\u211C",
+                              BoldCode = "\u212C";
         static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z", RegexOptions.IgnoreCase ),
                               UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$", RegexOptions.IgnoreCase ),
                               MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
@@ -62,14 +63,15 @@ namespace fCraft {
             StreamWriter writer;
             Thread thread;
             bool isConnected;
-            public bool IsReady;
             bool reconnect;
-            public bool ResponsibleForInputParsing;
-            public string ActualBotNick;
             string desiredBotNick;
             DateTime lastMessageSent;
             int nickTry;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
+
+            public bool IsReady { get; private set; }
+            public bool ResponsibleForInputParsing { get; set; }
+            public string ActualBotNick { get; private set; }
 
 
             public bool Start( [NotNull] string botNick, bool parseInput ) {
@@ -99,8 +101,8 @@ namespace fCraft {
                 IPEndPoint localEndPoint = new IPEndPoint( ipToBindTo, 0 );
                 client = new TcpClient( localEndPoint ) {
                     NoDelay = true,
-                    ReceiveTimeout = Timeout,
-                    SendTimeout = Timeout
+                    ReceiveTimeout = (int)Timeout.TotalMilliseconds,
+                    SendTimeout = (int)Timeout.TotalMilliseconds
                 };
                 client.Client.SetSocketOption( SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1 );
 
@@ -108,8 +110,8 @@ namespace fCraft {
                 client.Connect( hostName, port );
 
                 // prepare to read/write
-                reader = new StreamReader( client.GetStream() );
-                writer = new StreamWriter( client.GetStream() );
+                reader = new StreamReader( client.GetStream(), Encoding.ASCII, false );
+                writer = new StreamWriter( client.GetStream(), Encoding.ASCII, 512 );
                 isConnected = true;
             }
 
@@ -122,7 +124,6 @@ namespace fCraft {
 
             // runs in its own thread, started from Connect()
             void IoThread() {
-                string outputLine = "";
                 lastMessageSent = DateTime.UtcNow;
 
                 do {
@@ -140,33 +141,34 @@ namespace fCraft {
                         nickTry = 0;
 
                         while( isConnected && !reconnect ) {
-                            Thread.Sleep( 10 );
+                            Thread.Sleep( 20 );
 
-                            if( localQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                localQueue.Dequeue( ref outputLine ) ) {
+                            if( DateTime.UtcNow.Subtract( lastMessageSent ) >= SendDelay ) {
+                                string outputLine;
+                                if( localQueue.Length > 0 && localQueue.Dequeue( out outputLine ) ) {
 #if DEBUG_IRC
-                                Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
+                                    Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
 #endif
-                                writer.Write( outputLine + "\r\n" );
-                                lastMessageSent = DateTime.UtcNow;
-                                writer.Flush();
-                                if( outputLine.StartsWith( "QUIT" ) ) {
-                                    isConnected = false;
-                                    reconnect = false;
-                                    break;
+                                    writer.Write( outputLine );
+                                    writer.Write( '\r' );
+                                    writer.Write( '\n' );
+                                    lastMessageSent = DateTime.UtcNow;
+                                    writer.Flush();
+                                    if( outputLine.StartsWith( "QUIT" ) ) {
+                                        isConnected = false;
+                                        reconnect = false;
+                                        break;
+                                    }
+                                } else if( OutputQueue.Length > 0 && OutputQueue.Dequeue( out outputLine ) ) {
+#if DEBUG_IRC
+                                    Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
+#endif
+                                    writer.Write( outputLine );
+                                    writer.Write( '\r' );
+                                    writer.Write( '\n' );
+                                    lastMessageSent = DateTime.UtcNow;
+                                    writer.Flush();
                                 }
-                            }
-
-                            if( OutputQueue.Length > 0 &&
-                                DateTime.UtcNow.Subtract( lastMessageSent ).TotalMilliseconds >= SendDelay &&
-                                OutputQueue.Dequeue( ref outputLine ) ) {
-#if DEBUG_IRC
-                                Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
-#endif
-                                writer.Write( outputLine + "\r\n" );
-                                lastMessageSent = DateTime.UtcNow;
-                                writer.Flush();
                             }
 
                             if( client.Client.Available > 0 ) {
@@ -179,14 +181,12 @@ namespace fCraft {
                             }
                         }
 
-                    } catch( SocketException ) {
-                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
-                                    ReconnectDelay / 1000 );
+                    } catch( SocketException ex ) {
+                        LogDisconnectWarning(ex);
                         reconnect = true;
 
-                    } catch( IOException ) {
-                        Logger.Log( LogType.Warning, "IRC: Disconnected. Will retry in {0} seconds.",
-                                    ReconnectDelay / 1000 );
+                    } catch( IOException ex ) {
+                        LogDisconnectWarning(ex);
                         reconnect = true;
 #if !DEBUG
                     } catch( Exception ex ) {
@@ -197,6 +197,15 @@ namespace fCraft {
 
                     if( reconnect ) Thread.Sleep( ReconnectDelay );
                 } while( reconnect );
+            }
+
+
+            static void LogDisconnectWarning( Exception ex ) {
+                Logger.Log( LogType.Warning,
+                            "IRC: Disconnected ({0}: {1}). Will retry in {2} seconds.",
+                            ex.GetType().Name,
+                            ex.Message,
+                            ReconnectDelay.TotalSeconds );
             }
 
 
@@ -223,6 +232,7 @@ namespace fCraft {
                             IsReady = true;
                             Send( IRCCommands.Userhost( ActualBotNick ) );
                             AssignBotForInputParsing(); // bot should be ready to receive input after joining
+
                         } else if( msg.ReplyCode == IRCReplyCode.Bounce ) {
                             Match nickLenMatch = MaxNickLengthRegex.Match( msg.Message );
                             int maxNickLengthTemp;
@@ -476,12 +486,24 @@ namespace fCraft {
         }
 
 
+
+        /// <summary> Read/write timeout for IRC connections. Default is 15s. </summary>
+        public static TimeSpan Timeout { get; set; }
+
+        /// <summary> Delay between reconnect attempts,
+        /// in case bot gets kicked or loses connection to IRC network. Default is 15s. </summary>
+        public static TimeSpan ReconnectDelay { get; set; }
+
+        /// <summary> Minimum delay between sending messages to IRC.
+        /// Set by Config.ApplyConfig, based on value of IRCDelay config key. </summary>
+        public static TimeSpan SendDelay { get; internal set; }
+
+        static IRC() {
+            Timeout = new TimeSpan( 0, 0, 15 );
+            ReconnectDelay = new TimeSpan( 0, 0, 15 );
+        }
+
         static IRCThread[] threads;
-
-        const int Timeout = 10000; // socket timeout (ms)
-        internal static int SendDelay; // set by ApplyConfig
-        const int ReconnectDelay = 15000;
-
         static string hostName;
         static int port;
         static string[] channelNames;
