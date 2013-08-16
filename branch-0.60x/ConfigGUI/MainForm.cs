@@ -141,7 +141,7 @@ namespace fCraft.ConfigGUI {
                 listener.Start();
 
                 HttpWebRequest request =
-                    (HttpWebRequest)WebRequest.Create( "http://www.utorrent.com/testport?plain=1&port=" + nPort.Value );
+                    (HttpWebRequest)WebRequest.Create( "http://www.fcraft.net/portcheck.php?port=" + nPort.Value );
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                 if( response.StatusCode == HttpStatusCode.OK ) {
@@ -149,7 +149,7 @@ namespace fCraft.ConfigGUI {
                         if( stream != null ) {
                             StreamReader reader = new StreamReader( stream );
                             string returnMessage = reader.ReadLine();
-                            if( returnMessage != null && returnMessage.StartsWith( "ok" ) ) {
+                            if( returnMessage != null && returnMessage[0]=='1' ) {
                                 MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
                                 return;
                             }
