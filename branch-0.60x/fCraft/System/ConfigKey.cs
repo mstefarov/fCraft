@@ -70,6 +70,12 @@ overwhelming the Internet connection with data.",
             MinValue = 1, MaxValue = short.MaxValue )]
         UploadBandwidth,
 
+
+        [StringKey( ConfigSection.General, "https://minecraft.net/heartbeat.jsp",
+@"URL to send heartbeats to. Default is minecraft.net.
+This config key is added in case alternative login/heartbeat services arise.")]
+        HeartbeatUrl,
+
         #endregion
 
 
