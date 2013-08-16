@@ -291,7 +291,6 @@ namespace fCraft.ConfigGUI {
                 progressBar.Style = ProgressBarStyle.Continuous;
                 if( bwRenderer.IsBusy ) {
                     renderer.CancelAsync();
-                    bwRenderer.CancelAsync();
                     while( bwRenderer.IsBusy ) {
                         Thread.Sleep( 1 );
                     }
