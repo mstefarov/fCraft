@@ -1202,7 +1202,7 @@ namespace fCraft {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
             bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;
             bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
-            if( target != null && includeHidden && !player.CanSee( target ) || // hide players whom player cant see
+            if( target != null && !includeHidden && !player.CanSee( target ) || // hide players whom player cant see
                 target == player && !includeSelf ) { // hide self, if applicable
                 target = null;
             }
