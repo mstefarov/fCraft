@@ -547,8 +547,10 @@ namespace fCraft {
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsHidden = true,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.EditPlayerDB, Permission.Promote, Permission.Demote },
-            Help = "", // TODO
+            Permissions = new[] {Permission.EditPlayerDB, Permission.Promote, Permission.Demote},
+            Help = "Demotes/promotes all existing players of a certain rank. " +
+                   "Rank reason will be \"~MassRank\". You will be asked to confirm before proceeding. " +
+                   "Be careful with this command, as it can not be undone.",
             Usage = "/MassRank FromRank ToRank Reason",
             Handler = MassRankHandler
         };
