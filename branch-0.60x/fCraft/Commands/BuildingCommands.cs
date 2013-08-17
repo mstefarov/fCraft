@@ -358,8 +358,10 @@ namespace fCraft {
 
         static void Fill2DConfirmCallback( Player player, object tag, bool fromConsole ) {
             Fill2DDrawOperation op = (Fill2DDrawOperation)tag;
-            player.Message( "{0}: Filling in a {1}x{1} area...",
-                            op.Description, player.Info.Rank.FillLimit );
+            int maxDim = Math.Max( op.Bounds.Width, Math.Max( op.Bounds.Length, op.Bounds.Height ) );
+            int otherDim = op.Bounds.Volume/maxDim;
+            player.Message( "{0}: Filling in a {1}x{2} area...",
+                            op.Description, maxDim, otherDim );
             op.Begin();
         }
 
