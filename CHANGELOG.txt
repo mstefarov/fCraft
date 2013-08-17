@@ -1,3 +1,15 @@
+0.641
+ Feature: Improved the way /EllipsoidH works on flat surfaces. Instead of filled ellipses, it now makes rings.
+ Feature: Added a /Reply (/re) command.
+ Feature: /Fill2D can now fill with any brush, not just solid color.
+ Feature: Added HeartbeatUrl config key, to allow alternative heartbeat/authentication services. Note: HeartbeatSaver only needs to be updated IF you plan on using something other than minecraft.net
+ Fix: Fixed a InvalidOperationException in ConfigGUI when re-drawing the map preview (thanks Jonty800).
+ Fix: Fixed "Realistic" MapGen help (thanks Jonty800).
+ Fix: Now correctly kicking custom premium-MC clients.
+ Fix: Fixed usage help in HeartbeatSaver.
+ Change: ConfigGUI's port checker works again.
+ Change: IRC bot will now retry for its primary nick every 30 seconds.
+
 0.640
  Feature: Mojang account (email) support. Added ViewEmails permission and a config option to disallow email users.
  Feature: Overhauled map generation! Improved /Gen, new /SetGen command, more options, preset loading/saving, redesigned ConfigGUI interface, and two new map generation modes: Vanilla (from FemtoCraft) and FloatingIsland.
