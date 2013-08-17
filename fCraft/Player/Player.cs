@@ -351,7 +351,7 @@ namespace fCraft {
                                         MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
                                     }
                                 } else if( target.IsDeaf ) {
-                                    MessageNow( "&SCannot PM {0}&S: they are currently deaf.", target.ClassyName );
+                                    MessageNow( "Cannot PM {0}&S: they are currently deaf.", target.ClassyName );
                                 } else {
                                     MessageNow( "&Pto {0}: {1}",
                                                 target.Name, messageText );
