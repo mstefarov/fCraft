@@ -818,6 +818,12 @@ namespace fCraft {
         }
 
 
+        public void DecrementMessageWritten() {
+            Interlocked.Decrement( ref MessagesWritten );
+            LastModified = DateTime.UtcNow;
+        }
+
+
         public void ProcessLogin( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             LastIP = player.IP;
