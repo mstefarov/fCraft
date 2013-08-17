@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace fCraft.Drawing {
     /// <summary> Draw operation that performs a 2D flood fill. 
     /// Uses player's position to determine plane of filling. </summary>
-    public sealed class Fill2DDrawOperation : DrawOpWithBrush {
+    public sealed class Fill2DDrawOperation : DrawOperation {
         int maxFillExtent;
 
         public override string Name {
@@ -19,57 +19,30 @@ namespace fCraft.Drawing {
         public override string Description {
             get {
                 if( SourceBlock == Block.None ) {
-                    if( ReplacementBlock == Block.None ) {
-                        return Name;
-                    } else {
-                        return String.Format( "{0}({1})",
-                                              Name, ReplacementBlock );
-                    }
+                    return String.Format( "{0}({1})",
+                                          Name,
+                                          Brush.InstanceDescription );
                 } else {
-                    return String.Format( "{0}({1} -> {2} @{3})",
-                                          Name, SourceBlock, ReplacementBlock, Axis );
+                    return String.Format( "{0}({1} @{2} -> {3})",
+                                          Name, SourceBlock, Axis, Brush.InstanceDescription );
                 }
             }
         }
 
         public Block SourceBlock { get; private set; }
-        public Block ReplacementBlock { get; private set; }
         public Axis Axis { get; private set; }
         public Vector3I Origin { get; private set; }
 
         public Fill2DDrawOperation( Player player )
             : base( player ) {
             SourceBlock = Block.None;
-            ReplacementBlock = Block.None;
-        }
-
-
-        public override bool ReadParams( CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                Block replacement;
-                if( cmd.NextBlock( Player, false, out replacement ) ) {
-                    ReplacementBlock = replacement;
-                } else {
-                    return false;
-                }
-            }
-            Brush = this;
-            return true;
         }
 
 
         public override bool Prepare( Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length < 1 ) throw new ArgumentException( "At least one mark needed.", "marks" );
-
-            if( ReplacementBlock == Block.None ) {
-                if( Player.LastUsedBlockType == Block.None ) {
-                    Player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
-                    return false;
-                } else {
-                    ReplacementBlock = Player.GetBind( Player.LastUsedBlockType );
-                }
-            }
+            if( !base.Prepare( marks ) ) return false;
 
             Marks = marks;
             Origin = marks[0];
@@ -98,17 +71,13 @@ namespace fCraft.Drawing {
                     coordEnumerator = BlockEnumeratorZ().GetEnumerator();
                     break;
             }
-            if( SourceBlock == ReplacementBlock ) {
-                Bounds = new BoundingBox( Origin, Origin );
-            } else {
-                Bounds = new BoundingBox( Origin - maxDelta, Origin + maxDelta );
-            }
+
+            Bounds = new BoundingBox( Origin - maxDelta, Origin + maxDelta );
 
             // Clip bounds to the map, used to limit fill extent
             Bounds = Bounds.GetIntersection( Map.Bounds );
 
             // Set everything up for filling
-            Brush = this;
             Coords = Origin;
 
             StartTime = DateTime.UtcNow;
@@ -119,12 +88,40 @@ namespace fCraft.Drawing {
         }
 
 
-        IEnumerator<Vector3I> coordEnumerator;
-        public override int DrawBatch( int maxBlocksToDraw ) {
-            if( SourceBlock == ReplacementBlock ) {
-                IsDone = true;
-                return 0;
+        // fields to accommodate non-standard brushes (which require caching)
+        bool nonStandardBrush;
+        HashSet<Vector3I> allCoords;
+
+        public override bool Begin() {
+            if( !RaiseBeginningEvent( this ) ) return false;
+            UndoState = Player.DrawBegin( this );
+            StartTime = DateTime.UtcNow;
+
+            if( !(Brush is NormalBrush) ) {
+                // for nonstandard brushes, cache all coordinates up front
+                nonStandardBrush = true;
+
+                // Generate a list if all coordinates
+                allCoords = new HashSet<Vector3I>();
+                while( coordEnumerator.MoveNext() ) {
+                    allCoords.Add( coordEnumerator.Current );
+                }
+                coordEnumerator.Dispose();
+
+                // Replace our F2D enumerator with a HashSet enumerator
+                coordEnumerator = allCoords.GetEnumerator();
             }
+
+            HasBegun = true;
+            Map.QueueDrawOp( this );
+            RaiseBeganEvent( this );
+            return true;
+        }
+
+
+        IEnumerator<Vector3I> coordEnumerator;
+
+        public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             while( coordEnumerator.MoveNext() ) {
                 Coords = coordEnumerator.Current;
@@ -140,8 +137,11 @@ namespace fCraft.Drawing {
 
 
         bool CanPlace( Vector3I coords ) {
+            if( nonStandardBrush && allCoords.Contains( coords ) ) {
+                return false;
+            }
             return (Map.GetBlock( coords ) == SourceBlock) &&
-                   Player.CanPlace( Map, coords, ReplacementBlock, Context ) == CanPlaceResult.Allowed;
+                   (Player.CanPlace( Map, coords, Brush.NextBlock( this ), Context ) == CanPlaceResult.Allowed);
         }
 
 
@@ -256,11 +256,6 @@ namespace fCraft.Drawing {
                     coords.Y++;
                 }
             }
-        }
-
-
-        protected override Block NextBlock() {
-            return ReplacementBlock;
         }
     }
 }
