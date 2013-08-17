@@ -329,7 +329,11 @@ namespace fCraft {
 
         static void Fill2DHandler( Player player, CommandReader cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
-            if( !op.ReadParams( cmd ) ) return;
+
+            IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
+            if( brush == null ) return;
+            op.Brush = brush;
+
             player.SelectionStart( 1, Fill2DCallback, op, Permission.Draw );
             player.Message( "{0}: Click a block to start filling.", op.Description );
         }
