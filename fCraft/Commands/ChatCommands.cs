@@ -63,7 +63,7 @@ namespace fCraft {
                             player.MessageNow( "&Pto {0}: {1}", targetPlayer.Name, messageText );
                         }
                     } else {
-                        player.Message( "Reply: Cannot send message; player {0} is offline.",
+                        player.Message( "Reply: Cannot send message; player {0}&S is offline.",
                                         PlayerDB.FindExactClassyName( targetName ) );
                         if( targetPlayer.CanHear( player ) ) {
                             Chat.SendPM( player, targetPlayer, messageText );
@@ -71,7 +71,7 @@ namespace fCraft {
                         }
                     }
                 } else {
-                    player.Message( "Reply: Cannot send message; player {0} is offline.",
+                    player.Message( "Reply: Cannot send message; player {0}&S is offline.",
                                     PlayerDB.FindExactClassyName( targetName ) );
                 }
 
