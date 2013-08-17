@@ -32,16 +32,18 @@ namespace fCraft {
             Name = "Reply",
             Aliases = new[] {"re"},
             Category = CommandCategory.Chat,
+            Permissions = new[] {Permission.Chat},
             IsConsoleSafe = true,
+            UsableByFrozenPlayers = true,
             Usage = "/Re <Message>",
-            Help = "Replies to the last message that was sent TO you. "+
+            Help = "Replies to the last message that was sent TO you. " +
                    "To follow up on the last message that YOU sent, use &H@-&S instead.",
             Handler = ReplyHandler
         };
 
         static void ReplyHandler( Player player, CommandReader cmd ) {
-            string msg = cmd.NextAll();
-            if( msg.Length == 0 ) {
+            string messageText = cmd.NextAll();
+            if( messageText.Length == 0 ) {
                 player.Message( "Reply: No message to send!" );
                 return;
             }
@@ -50,11 +52,25 @@ namespace fCraft {
                 Player targetPlayer = Server.FindPlayerExact( player,
                                                               targetName,
                                                               SearchOptions.IncludeHidden );
-                if( targetPlayer != null && player.CanSee( targetPlayer ) ) {
-                    Chat.SendPM( player, targetPlayer, msg );
-                } else {
-                    player.Message( "Reply: Cannot send message; player {0} is offline!", targetName );
+                if( targetPlayer != null ) {
+                    if( player.CanSee( targetPlayer ) ) {
+                        if( targetPlayer.IsDeaf ) {
+                            player.Message( "&SCannot PM {0}&S: they are currently deaf.", targetPlayer.ClassyName );
+                        } else if( targetPlayer.IsIgnoring( player.Info ) ) {
+                            player.Message( "&WCannot PM {0}&W: you are ignored.", targetPlayer.ClassyName );
+                        } else {
+                            Chat.SendPM( player, targetPlayer, messageText );
+                            player.MessageNow( "&Pto {0}: {1}", targetPlayer.Name, messageText );
+                        }
+                    } else {
+                        player.Message( "Reply: Cannot send message; player {0} is offline!", targetName );
+                        if( targetPlayer.CanHear( player ) ) {
+                            Chat.SendPM( player, targetPlayer, messageText );
+                            player.Info.DecrementMessageWritten();
+                        }
+                    }
                 }
+
             } else {
                 player.Message( "Reply: You have not sent any messages yet." );
             }
@@ -65,7 +81,8 @@ namespace fCraft {
 
         #region Say
 
-        static readonly CommandDescriptor CdSay = new CommandDescriptor {
+        static readonly
+            CommandDescriptor CdSay = new CommandDescriptor {
             Name = "Say",
             Aliases = new[] { "broadcast" },
             Category = CommandCategory.Chat,

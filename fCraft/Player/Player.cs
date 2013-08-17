@@ -330,14 +330,18 @@ namespace fCraft {
                                 Message( "Trying to talk to yourself?" );
                                 return;
                             }
-                            if( !target.IsIgnoring( Info ) && !target.IsDeaf ) {
-                                Chat.SendPM( this, target, messageText );
+                            bool messageSent = false;
+                            if( target.CanHear( this ) ) {
+                                messageSent = Chat.SendPM( this, target, messageText );
                                 SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
                             }
 
                             if( !CanSee( target ) ) {
                                 // message was sent to a hidden player
                                 MessageNoPlayer( otherPlayerName );
+                                if( messageSent ) {
+                                    Info.DecrementMessageWritten();
+                                }
 
                             } else {
                                 // message was sent normally
@@ -355,9 +359,11 @@ namespace fCraft {
                             }
 
                         } else if( allPlayers.Length == 0 ) {
+                            // Cannot PM: target player not found/offline
                             MessageNoPlayer( otherPlayerName );
 
                         } else {
+                            // Cannot PM: more than one player matched
                             MessageManyMatches( "player", allPlayers );
                         }
                     } break;
@@ -569,6 +575,15 @@ namespace fCraft {
             }
         }
 
+
+        /// <summary> Checks whether this player can hear messages from given sender. 
+        /// Deaf and ignoring players will not hear the messages. </summary>
+        /// <returns> True if this player will see messages from sender; otherwise false. </returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public bool CanHear( [NotNull] Player sender ) {
+            if( sender == null ) throw new ArgumentNullException( "sender" );
+            return !IsDeaf && !IsIgnoring( sender.Info );
+        }
 
         #region Macros
 
