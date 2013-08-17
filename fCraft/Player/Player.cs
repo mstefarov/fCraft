@@ -1155,13 +1155,9 @@ namespace fCraft {
             }
 
             // check special blocktypes
-            if( newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete ) ) {
-                result = CanPlaceResult.BlocktypeDenied;
-                goto eventCheck;
-            } else if( (newBlock == Block.Water || newBlock == Block.StillWater) && !Can( Permission.PlaceWater ) ) {
-                result = CanPlaceResult.BlocktypeDenied;
-                goto eventCheck;
-            } else if( (newBlock == Block.Lava || newBlock == Block.StillLava) && !Can( Permission.PlaceLava ) ) {
+            if( (newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete )) ||
+                (newBlock == Block.Water || newBlock == Block.StillWater) && !Can( Permission.PlaceWater ) ||
+                (newBlock == Block.Lava || newBlock == Block.StillLava) && !Can( Permission.PlaceLava ) ) {
                 result = CanPlaceResult.BlocktypeDenied;
                 goto eventCheck;
             }
