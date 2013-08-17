@@ -42,7 +42,6 @@ namespace fCraft.Drawing {
         public override bool Prepare( Vector3I[] marks ) {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length < 1 ) throw new ArgumentException( "At least one mark needed.", "marks" );
-            if( !base.Prepare( marks ) ) return false;
 
             Marks = marks;
             Origin = marks[0];
@@ -84,7 +83,8 @@ namespace fCraft.Drawing {
             Context = BlockChangeContext.Drawn | BlockChangeContext.Filled;
             BlocksTotalEstimate = Bounds.Volume;
 
-            return true;
+            if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
+            return Brush.Begin( Player, this );
         }
 
 
