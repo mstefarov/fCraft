@@ -55,7 +55,7 @@ namespace fCraft {
                 if( targetPlayer != null ) {
                     if( player.CanSee( targetPlayer ) ) {
                         if( targetPlayer.IsDeaf ) {
-                            player.Message( "&SCannot PM {0}&S: they are currently deaf.", targetPlayer.ClassyName );
+                            player.Message( "Cannot PM {0}&S: they are currently deaf.", targetPlayer.ClassyName );
                         } else if( targetPlayer.IsIgnoring( player.Info ) ) {
                             player.Message( "&WCannot PM {0}&W: you are ignored.", targetPlayer.ClassyName );
                         } else {
@@ -63,12 +63,16 @@ namespace fCraft {
                             player.MessageNow( "&Pto {0}: {1}", targetPlayer.Name, messageText );
                         }
                     } else {
-                        player.Message( "Reply: Cannot send message; player {0} is offline!", targetName );
+                        player.Message( "Reply: Cannot send message; player {0} is offline.",
+                                        PlayerDB.FindExactClassyName( targetName ) );
                         if( targetPlayer.CanHear( player ) ) {
                             Chat.SendPM( player, targetPlayer, messageText );
                             player.Info.DecrementMessageWritten();
                         }
                     }
+                } else {
+                    player.Message( "Reply: Cannot send message; player {0} is offline.",
+                                    PlayerDB.FindExactClassyName( targetName ) );
                 }
 
             } else {
