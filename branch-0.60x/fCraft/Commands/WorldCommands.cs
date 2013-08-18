@@ -874,7 +874,7 @@ namespace fCraft {
             // make sure the player has generator parameters set
             MapGeneratorParameters genParams = player.GenParams;
             if( genParams == null ) {
-                player.Message( "No gen parameters set. Use &H/SetGet&S to configure map generation." );
+                player.Message( "No gen parameters set. Use &H/SetGen&S to configure map generation." );
                 return;
             }
 

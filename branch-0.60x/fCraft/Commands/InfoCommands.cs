@@ -1312,7 +1312,7 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Help = "Shows a list of all available emotes and their keywords. "+
-                   "There are 31 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
+                   "There are 33 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
             Handler = EmotesHandler
         };
 
