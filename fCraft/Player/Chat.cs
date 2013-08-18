@@ -434,6 +434,9 @@ namespace fCraft {
 
             {"tilde", '~'},
             {"wave", '~'},
+
+            {"grave", '`'},
+            {"'", '`'}
         };
 
 
