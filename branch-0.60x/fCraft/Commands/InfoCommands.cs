@@ -1312,9 +1312,11 @@ namespace fCraft {
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Help = "Shows a list of all available emotes and their keywords. "+
-                   "There are 33 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
+                   "There are 34 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
             Handler = EmotesHandler
         };
+
+        const int EmotesPerPage = 12;
 
         static void EmotesHandler( Player player, CommandReader cmd ) {
             int page = 1;
@@ -1332,8 +1334,8 @@ namespace fCraft {
             var emoteChars = Chat.EmoteKeywords
                                  .Values
                                  .Distinct()
-                                 .Skip( ( page - 1 ) * 11 )
-                                 .Take( 11 );
+                                 .Skip( (page - 1)*EmotesPerPage )
+                                 .Take( EmotesPerPage );
 
             player.Message( "List of emotes, page {0} of 3:", page );
             foreach( char ch in emoteChars ) {
@@ -1351,7 +1353,7 @@ namespace fCraft {
                     player.Message( "&SNote: None of the ranks have permission to use emotes." );
                 } else {
                     player.Message( "&SNote: only {0}+&S can use emotes in chat.",
-                             reqRank.ClassyName );
+                                    reqRank.ClassyName );
                 }
             }
         }
