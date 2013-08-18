@@ -1086,7 +1086,7 @@ namespace fCraft {
 
                     case "autorank":
                         success = AutoRankManager.Init();
-                        AutoRankManager.DoAutoRankAll( player, PlayerDB.PlayerInfoList, false, "(AutoRanked)" );
+                        AutoRankManager.DoAutoRankAll( player, PlayerDB.PlayerInfoList, "(AutoRanked)", false );
                         break;
 
                     case "salt":

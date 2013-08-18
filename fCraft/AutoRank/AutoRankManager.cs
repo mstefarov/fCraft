@@ -24,7 +24,8 @@ namespace fCraft.AutoRank {
         //  Adds a new criterion to the list. Throws an ArgumentException on duplicates.
         static void Add( [NotNull] Criterion criterion ) {
             if( criterion == null ) throw new ArgumentNullException( "criterion" );
-            if( Criteria.Contains( criterion ) ) throw new ArgumentException( "This criterion has already been added." );
+            if( Criteria.Contains( criterion ) )
+                throw new ArgumentException( "This criterion has already been added." );
             Criteria.Add( criterion );
         }
 
@@ -50,7 +51,7 @@ namespace fCraft.AutoRank {
         internal static void TaskCallback( SchedulerTask schedulerTask ) {
             if( !ConfigKey.AutoRankEnabled.Enabled() ) return;
             PlayerInfo[] onlinePlayers = Server.Players.Select( p => p.Info ).ToArray();
-            DoAutoRankAll( Player.AutoRank, onlinePlayers, false, "(AutoRanked)" );
+            DoAutoRankAll( Player.AutoRank, onlinePlayers, "(AutoRanked)", true );
         }
 
 
@@ -66,7 +67,8 @@ namespace fCraft.AutoRank {
                             Add( new Criterion( el ) );
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error,
-                                        "AutoRank.Init: Could not parse an AutoRank criterion: {0}", ex );
+                                        "AutoRank.Init: Could not parse an AutoRank criterion: {0}",
+                                        ex );
                         }
                     }
                     if( Criteria.Count == 0 ) {
@@ -75,29 +77,35 @@ namespace fCraft.AutoRank {
                     return true;
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "AutoRank.Init: Could not parse the AutoRank file: {0}", ex );
+                                "AutoRank.Init: Could not parse the AutoRank file: {0}",
+                                ex );
                     return false;
                 }
             } else {
-                Logger.Log( LogType.Warning, "AutoRank.Init: autorank.xml not found. No criteria loaded." );
+                Logger.Log( LogType.Warning, "AutoRank.Init: {0} not found. No criteria loaded.", Paths.AutoRankFileName );
                 return false;
             }
         }
 
 
-        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, bool silent, string message ) {
+        internal static void DoAutoRankAll( [NotNull] Player player, [NotNull] PlayerInfo[] list, string message, bool auto ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( list == null ) throw new ArgumentNullException( "list" );
 
             if( !HasCriteria ) {
-                player.Message( "AutoRankAll: No criteria found." );
+                if( !auto ) {
+                    player.Message( "AutoRankAll: No criteria found." );
+                }
                 return;
             }
 
-            player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
+            if( !auto ) {
+                player.Message( "AutoRankAll: Evaluating {0} players...", list.Length );
+            }
 
             Stopwatch sw = Stopwatch.StartNew();
-            int promoted = 0, demoted = 0;
+            int promoted = 0,
+                demoted = 0;
             for( int i = 0; i < list.Length; i++ ) {
                 Rank newRank = Check( list[i] );
                 if( newRank != null ) {
@@ -107,14 +115,28 @@ namespace fCraft.AutoRank {
                         demoted++;
                     }
                     try {
-                        list[i].ChangeRank( player, newRank, message, !silent, true, true );
+                        list[i].ChangeRank( player, newRank, message, true, true, true );
                     } catch( PlayerOpException ex ) {
-                        player.Message( ex.MessageColored );
+                        if( auto ) {
+                            Logger.Log( LogType.Error, "AutoRank: Could not change player's rank: {0}", ex.Message );
+                        } else {
+                            player.Message( ex.MessageColored );
+                        }
                     }
                 }
             }
             sw.Stop();
-            player.Message( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.", sw.ElapsedMilliseconds, promoted, demoted );
+            String resultMsg = String.Format( "AutoRankAll: Worked for {0}ms, {1} players promoted, {2} demoted.",
+                                              sw.ElapsedMilliseconds,
+                                              promoted,
+                                              demoted );
+            if( auto ) {
+                if( promoted > 0 || demoted > 0 ) {
+                    Logger.Log( LogType.SystemActivity, resultMsg );
+                }
+            } else {
+                player.Message( resultMsg );
+            }
         }
     }
 
