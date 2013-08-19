@@ -68,6 +68,7 @@ namespace fCraft {
             DateTime lastMessageSent;
             int nickTry;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
+            static readonly Encoding Encoding = new UTF8Encoding( false );
 
             public bool IsReady { get; private set; }
             public bool ResponsibleForInputParsing { get; set; }
@@ -110,8 +111,8 @@ namespace fCraft {
                 client.Connect( hostName, port );
 
                 // prepare to read/write
-                reader = new StreamReader( client.GetStream(), Encoding.ASCII, false );
-                writer = new StreamWriter( client.GetStream(), Encoding.ASCII, 512 );
+                reader = new StreamReader( client.GetStream(), Encoding, false );
+                writer = new StreamWriter( client.GetStream(), Encoding, 512 );
                 isConnected = true;
             }
 
