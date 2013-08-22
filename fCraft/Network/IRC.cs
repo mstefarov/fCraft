@@ -66,6 +66,7 @@ namespace fCraft {
             bool reconnect;
             string desiredBotNick;
             DateTime lastMessageSent;
+            DateTime lastNickAttempt;
             int nickTry;
             readonly ConcurrentQueue<string> localQueue = new ConcurrentQueue<string>();
             static readonly Encoding Encoding = new UTF8Encoding( false );
@@ -173,13 +174,7 @@ namespace fCraft {
                                     writer.Flush();
                                 } else if( ActualBotNick != desiredBotNick &&
                                            now.Subtract( lastNickAttempt ) >= NickRetryDelay ) {
-                                    Logger.Log( LogType.IRCStatus,
-                                                "Retrying for desired IRC bot nick ({0} to {1})",
-                                                ActualBotNick,
-                                                desiredBotNick );
-                                    Send( IRCCommands.Nick( desiredBotNick ) );
-                                    lastNickAttempt = DateTime.UtcNow;
-                                    lastMessageSent = now;
+                                    RetryForDesiredNick();
                                 }
                             }
 
@@ -211,8 +206,16 @@ namespace fCraft {
                 } while( reconnect );
             }
 
+            void RetryForDesiredNick() {
+                Logger.Log( LogType.IRCStatus,
+                            "Retrying for desired IRC bot nick ({0} to {1})",
+                            ActualBotNick,
+                            desiredBotNick );
+                Send( IRCCommands.Nick( desiredBotNick ) );
+                lastNickAttempt = DateTime.UtcNow;
+                lastMessageSent = lastNickAttempt;
+            }
 
-            static DateTime lastNickAttempt;
 
             static void LogDisconnectWarning( Exception ex ) {
                 Logger.Log( LogType.Warning,
@@ -320,6 +323,7 @@ namespace fCraft {
                     case IRCMessageType.Kick:
                         string kicked = msg.RawMessageArray[3];
                         if( kicked == ActualBotNick ) {
+                            // If we got kicked, attempt to rejoin
                             Logger.Log( LogType.IRCStatus,
                                         "IRC Bot was kicked from {0} by {1} ({2}), rejoining.",
                                         msg.Channel, msg.Nick, msg.Message );
@@ -327,6 +331,7 @@ namespace fCraft {
                             Send( IRCCommands.Join( msg.Channel ) );
                         } else {
                             if( !ResponsibleForInputParsing ) return;
+                            // Someone else got kicked -- announce it
                             string kickMessage = ProcessMessageFromIRC( msg.Message );
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
                                             msg.Nick, kicked, msg.Channel, kickMessage );
@@ -340,13 +345,23 @@ namespace fCraft {
 
                     case IRCMessageType.Part:
                     case IRCMessageType.Quit:
+                        // If someone using our desired nick just quit, retry for that nick
+                        if( msg.Type == IRCMessageType.Quit &&
+                            msg.Nick == desiredBotNick &&
+                            ActualBotNick != desiredBotNick ) {
+                            RetryForDesiredNick();
+                            return;
+                        }
                         if( !ResponsibleForInputParsing ) return;
-                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
+                        // Announce parts/quits of IRC people (except the bots)
+                        if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() && !IsBotNick( msg.Nick ) ) {
                             Server.Message( "&i(IRC) {0} left {1}",
-                                            msg.Nick, msg.Channel );
+                                            msg.Nick,
+                                            msg.Channel );
                             Logger.Log( LogType.IRCChat,
                                         "{0} left {1} ({2})",
-                                        msg.Nick, msg.Channel,
+                                        msg.Nick,
+                                        msg.Channel,
                                         IRCColorsAndNonStandardCharsExceptEmotes.Replace( msg.Message, "" ) );
                         }
                         return;
