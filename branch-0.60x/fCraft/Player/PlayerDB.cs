@@ -414,6 +414,7 @@ namespace fCraft {
                     info = new PlayerInfo( name, lastIP, e.StartingRank );
                     if( isEmail ) {
                         info.Email = givenName;
+                        info.AccountType = AccountType.Free;
                     }
                     Trie.Add( name, info );
                     list.Add( info );
