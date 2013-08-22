@@ -785,9 +785,7 @@ namespace fCraft {
 
             // Announce join
             if( ConfigKey.ShowConnectionMessages.Enabled() ) {
-                // ReSharper disable AssignNullToNotNullAttribute
                 string message = Server.MakePlayerConnectedMessage( this, firstTime, World );
-                // ReSharper restore AssignNullToNotNullAttribute
                 canSee.Message( message );
             }
 
