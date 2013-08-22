@@ -62,7 +62,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Tries to create a DateTime from a string containing a Utc Unix Timestamp.
+        /// <summary> Tries to create a DateTime from a string containing a UTC Unix Timestamp.
         /// If the string was empty, returns false and does not affect result. </summary>
         public static bool TryParseDateTime( [NotNull] string str, ref DateTime result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
