@@ -239,13 +239,13 @@ namespace fCraft {
     public enum AccountType : byte {
         /// <summary> Unknown (could be free or paid).
         /// Default value for players whose accounts haven't been checked. </summary>
-        Unknown,
+        Unknown = 0,
 
-        /// <summary> Free minecraft.net account. A
+        /// <summary> Free minecraft.net account.
         /// Keep in mind that any free account can become paid some time in the future. </summary>
-        Free,
+        Free = 1,
 
         /// <summary> Paid minecraft.net account. </summary>
-        Paid
+        Paid = 2
     }
 }

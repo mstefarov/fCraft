@@ -13,7 +13,7 @@ namespace fCraft {
         internal const int MinFieldCount = 24;
 
 
-        /// <summary> Player's Minecraft account name. </summary>
+        /// <summary> Player's account name. </summary>
         [NotNull]
         public string Name { get; internal set; }
 
@@ -204,7 +204,7 @@ namespace fCraft {
         /// <summary> Number of sessions/logins. </summary>
         public int TimesVisited;
 
-        /// <summary> Total number of messages written. </summary>
+        /// <summary> Total number of chat messages written. </summary>
         public int MessagesWritten;
 
         /// <summary> Number of kicks issues by this player. </summary>
@@ -251,7 +251,7 @@ namespace fCraft {
         /// <summary> Whether this player is currently frozen. </summary>
         public bool IsFrozen;
 
-        /// <summary> Date of the most recent freezing.
+        /// <summary> Date of the most recent freezing of this player.
         /// May be DateTime.MinValue of the player has never been frozen. </summary>
         public DateTime FrozenOn;
 
@@ -385,6 +385,9 @@ namespace fCraft {
                                            "This record, or maybe the whole file, may be corrupted." );
             }
 
+            if( !Player.IsValidPlayerName( fields[0] ) ) {
+                throw new FormatException( "Unacceptable player name" );
+            }
             PlayerInfo info = new PlayerInfo { Name = fields[0] };
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
@@ -437,8 +440,8 @@ namespace fCraft {
             // stats
             if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
             if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
-            Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[20], out info.TimesVisited );
+            if( fields[21].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
@@ -489,12 +492,8 @@ namespace fCraft {
                 info.BandwidthUseMode = BandwidthUseMode.Default;
             }
 
-            if( fields.Length > 45 ) {
-                if( fields[45].Length == 0 ) {
-                    info.IsHidden = false;
-                } else {
-                    info.IsHidden = info.Rank.Can( Permission.Hide );
-                }
+            if( fields.Length > 45 && fields[45] == "h" ) {
+                info.IsHidden = info.Rank.Can( Permission.Hide );
             }
             if( fields.Length > 46 ) {
                 DateTimeUtil.TryParseDateTime( fields[46], ref info.LastModified );
@@ -511,10 +510,8 @@ namespace fCraft {
                     }
                 }
             }
-            if( fields.Length > 49 ) {
-                if( fields[49].Length > 0 ) {
-                    info.Email = PlayerDB.Unescape( fields[49] );
-                }
+            if( fields.Length > 49 && fields[49].Length > 0 ) {
+                info.Email = PlayerDB.Unescape( fields[49] );
             }
 
             // date consistency checks
