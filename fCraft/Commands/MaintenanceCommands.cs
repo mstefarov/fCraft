@@ -80,8 +80,9 @@ namespace fCraft {
             IsHidden = true,
             Permissions = new[] { Permission.EditPlayerDB },
             Help = "Writes out a number of statistics about the server. " +
-                   "Only non-banned players active in the last 30 days are counted.",
-            Usage = "/DumpStats FileName",
+                   "Only recently-active non-banned players are counted. " +
+                   "If InactivityTime is not given, players from last 31 days are counted.",
+            Usage = "/DumpStats FileName [InactivityTime]",
             Handler = DumpStatsHandler
         };
 
@@ -89,6 +90,7 @@ namespace fCraft {
 
         static void DumpStatsHandler( Player player, CommandReader cmd ) {
             string fileName = cmd.Next();
+            string time = cmd.Next();
             if( fileName == null ) {
                 CdDumpStats.PrintUsage( player );
                 return;
@@ -104,16 +106,14 @@ namespace fCraft {
                 return;
             }
 
-            // ReSharper disable AssignNullToNotNullAttribute
             if( Paths.IsProtectedFileName( Path.GetFileName( fileName ) ) ) {
-                // ReSharper restore AssignNullToNotNullAttribute
-                player.Message( "You may not use this file." );
+                player.Message( "DumpStats: You may not use this file." );
                 return;
             }
 
             string extension = Path.GetExtension( fileName );
-            if( extension == null || !extension.Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
-                player.Message( "Stats file name must end with .txt" );
+            if( !extension.Equals( ".txt", StringComparison.OrdinalIgnoreCase ) ) {
+                player.Message( "DumpStats: File name must end with .txt" );
                 return;
             }
 
@@ -125,8 +125,16 @@ namespace fCraft {
                 return;
             }
 
+            TimeSpan inactivityTime = TimeSpan.FromDays( 31 );
+            if( time != null ) {
+                if( !time.TryParseMiniTimeSpan( out inactivityTime ) ) {
+                    CdDumpStats.PrintUsage( player );
+                    return;
+                }
+            }
+
             if( !Paths.TestFile( "DumpStats file", fileName, false, FileAccess.Write ) ) {
-                player.Message( "Cannot create specified file. See log for details." );
+                player.Message( "DumpStats: Cannot create specified file. See log for details." );
                 return;
             }
 
@@ -137,7 +145,7 @@ namespace fCraft {
                         writer.WriteLine( "(TOTAL) (0 players)" );
                         writer.WriteLine();
                     } else {
-                        DumpPlayerGroupStats( writer, infos, "(TOTAL)" );
+                        DumpPlayerGroupStats( writer, infos, "(TOTAL)", inactivityTime );
                     }
 
                     List<PlayerInfo> rankPlayers = new List<PlayerInfo>();
@@ -147,17 +155,17 @@ namespace fCraft {
                             writer.WriteLine( "{0}: 0 players, 0 banned, 0 inactive", rank.Name );
                             writer.WriteLine();
                         } else {
-                            DumpPlayerGroupStats( writer, rankPlayers, rank.Name );
+                            DumpPlayerGroupStats( writer, rankPlayers, rank.Name, inactivityTime );
                         }
                         rankPlayers.Clear();
                     }
                 }
             }
 
-            player.Message( "Stats saved to \"{0}\"", fileName );
+            player.Message( "DumpStats: Saved to \"{0}\"", fileName );
         }
 
-        static void DumpPlayerGroupStats( TextWriter writer, IList<PlayerInfo> infos, string groupName ) {
+        static void DumpPlayerGroupStats( TextWriter writer, IList<PlayerInfo> infos, string groupName, TimeSpan inactivityTime ) {
             RankStats stat = new RankStats();
             foreach( Rank rank2 in RankManager.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
@@ -165,8 +173,8 @@ namespace fCraft {
 
             int totalCount = infos.Count;
             int bannedCount = infos.Count( info => info.IsBanned );
-            int inactiveCount = infos.Count( info => info.TimeSinceLastSeen.TotalDays >= 30 );
-            infos = infos.Where( info => (info.TimeSinceLastSeen.TotalDays < 30 && !info.IsBanned) ).ToList();
+            int inactiveCount = infos.Count( info => info.TimeSinceLastSeen >= inactivityTime );
+            infos = infos.Where( info => (info.TimeSinceLastSeen < inactivityTime && !info.IsBanned) ).ToList();
 
             if( infos.Count == 0 ) {
                 writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
