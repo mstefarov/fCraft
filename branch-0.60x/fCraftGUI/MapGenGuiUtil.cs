@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 
 namespace fCraft.GUI {

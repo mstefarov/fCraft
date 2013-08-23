@@ -16,6 +16,7 @@ using System.Threading;
 using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 using ThreadState = System.Threading.ThreadState;
 

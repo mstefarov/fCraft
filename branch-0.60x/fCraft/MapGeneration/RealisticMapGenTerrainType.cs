@@ -1,4 +1,4 @@
-﻿namespace fCraft {
+﻿namespace fCraft.MapGeneration {
     /// <summary> Map generator terrain type template. 
     /// These define landscape shapes and features. </summary>
     public enum RealisticMapGenTerrainType {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     public class RealisticMapGenBlockTheme : IEquatable<RealisticMapGenBlockTheme>, ICloneable {
 
         static readonly Dictionary<MapGenTheme, RealisticMapGenBlockTheme> StandardThemes =

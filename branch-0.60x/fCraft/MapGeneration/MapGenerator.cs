@@ -3,7 +3,7 @@ using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> Represents a type of map generator.
     /// Provides general information about this generator, and ways to create IMapGeneratorParameters objects. </summary>
     public abstract class MapGenerator {

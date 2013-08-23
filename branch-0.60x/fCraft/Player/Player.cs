@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Drawing;
 using fCraft.Events;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 
 namespace fCraft {

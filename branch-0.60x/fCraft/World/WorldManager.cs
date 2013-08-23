@@ -6,6 +6,7 @@ using System.Linq;
 using System.Xml.Linq;
 using fCraft.Events;
 using fCraft.MapConversion;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 
 namespace fCraft {

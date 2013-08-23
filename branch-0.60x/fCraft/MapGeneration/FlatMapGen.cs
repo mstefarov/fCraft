@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> MapGenerator that creates a flat, featureless, layered map.
     /// This is a singleton class -- use FlatMapGen.Instance. </summary>
     public sealed class FlatMapGen : MapGenerator {
