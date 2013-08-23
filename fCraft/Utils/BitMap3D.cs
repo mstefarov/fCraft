@@ -8,8 +8,10 @@ namespace fCraft {
         const int BitCoordMask = 31;
 
         readonly uint[] store;
+
         readonly Vector3I offset,
                           dimensions;
+
         int version;
 
 
@@ -37,7 +39,7 @@ namespace fCraft {
         void Index( Vector3I coord, out int intIndex, out uint bitMask ) {
             Vector3I localCoord = coord - offset;
             int index = (localCoord.Z*dimensions.Y + localCoord.Y)*dimensions.X + localCoord.X;
-            intIndex = index & (int.MaxValue ^ BitCoordMask);
+            intIndex = (index >> 5);
             int bitIndex = index & BitCoordMask;
             bitMask = 1u << (bitIndex + 1);
         }
@@ -112,10 +114,18 @@ namespace fCraft {
 
         class BitMap3DEnumerator : IEnumerator<Vector3I> {
             readonly BitMap3D bitmap;
-            readonly int startingVersion;
-            int intIndex,
-                bitIndex;
-            uint currentBlock;
+            int startingVersion;
+
+            int x,
+                y,
+                z,
+                intIndex,
+                bitIndex,
+                dimX,
+                dimY,
+                dimZ;
+
+            uint storeInt;
 
 
             public Vector3I Current { get; private set; }
@@ -131,57 +141,57 @@ namespace fCraft {
                 }
                 this.bitmap = bitmap;
                 startingVersion = bitmap.version;
-                currentBlock = bitmap.store[0];
+                dimX = bitmap.dimensions.X;
+                dimY = bitmap.dimensions.Y;
+                dimZ = bitmap.dimensions.Z;
+                Reset();
             }
 
 
             public bool MoveNext() {
-                // Make sure bitmap has not been modified
+                // make sure bitmap has not been modified since Reset()
                 if( bitmap.version != startingVersion ) {
-                    throw new InvalidOperationException( "BitMap3D collection modified while enumerating." );
+                    throw new InvalidOperationException( "BitMap3D modified while enumerating." );
                 }
-                // If we're reached the end already, abort.
-                if( intIndex >= bitmap.store.Length ) return false;
-
-                bitIndex++;
-                ITriedToAvoidGotoButICannotThinkOfABetterWayRightNow:
-                // If we reached the end of block, look for next non-zero block
-                if( bitIndex > 31 ) {
-                    bitIndex = 0;
-                    intIndex++;
-                    // Look for the next non-zero blocks
-                    while( intIndex < bitmap.store.Length && bitmap.store[intIndex] == 0 ) {
-                        intIndex++;
+                while( true ) {
+                    // advance real coordinates
+                    x++;
+                    if( x >= dimX ) {
+                        x = 0;
+                        y++;
+                        if( y > dimY ) {
+                            y = 0;
+                            z++;
+                            if( z > dimZ ) {
+                                return false;
+                            }
+                        }
                     }
-                    // If we're reached the end, abort.
-                    if( intIndex >= bitmap.store.Length ) return false;
-                    currentBlock = bitmap.store[intIndex];
-                }
-
-                // Look for next set bit.
-                uint bitMask = (1u << bitIndex);
-                while( bitIndex > 31 && (currentBlock & bitMask) == 0 ) {
+                    // advance array coordinates
                     bitIndex++;
-                    bitMask <<= 1;
+                    if( bitIndex > 31 ) {
+                        bitIndex = 0;
+                        intIndex++;
+                        if( intIndex >= bitmap.store.Length ) {
+                            return false;
+                        }
+                        storeInt = bitmap.store[intIndex];
+                    }
+                    // check if current bit is set
+                    uint bitMask = 1u << (bitIndex + 1);
+                    if( (storeInt & bitMask) != 0 ) {
+                        Current = new Vector3I( x, y, z );
+                        return true;
+                    }
                 }
-
-                if( bitIndex > 31 ) goto ITriedToAvoidGotoButICannotThinkOfABetterWayRightNow;
-                // we're guaranteed to have found the right bit by now
-                int globalBitIndex = intIndex*sizeof( uint ) + bitIndex;
-
-                // derive (x,y,z) coordinates from current block index
-                int x = globalBitIndex%bitmap.dimensions.X + bitmap.offset.X;
-                int y = (globalBitIndex/bitmap.dimensions.X)%bitmap.dimensions.Y + bitmap.offset.Y;
-                int z = y/(bitmap.dimensions.X*bitmap.dimensions.Y) + bitmap.offset.Z;
-                Current = new Vector3I( x, y, z );
-                return true;
             }
 
 
             public void Reset() {
                 intIndex = 0;
                 bitIndex = -1;
-                currentBlock = bitmap.store[0];
+                startingVersion = bitmap.version;
+                storeInt = bitmap.store[0];
             }
 
             public void Dispose() {}
