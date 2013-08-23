@@ -12,6 +12,7 @@ using System.Windows.Forms;
 using System.Xml.Linq;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 
 

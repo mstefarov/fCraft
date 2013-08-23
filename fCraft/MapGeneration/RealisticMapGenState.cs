@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> Provides functionality for generating map files. </summary>
     sealed class RealisticMapGenState : MapGeneratorState {
         readonly RealisticMapGenParameters genParams;

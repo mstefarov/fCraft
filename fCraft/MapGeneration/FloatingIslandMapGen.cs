@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     public class FloatingIslandMapGen : MapGenerator {
         public static FloatingIslandMapGen Instance { get; private set; }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> Map generator that creates landscapes identical to
     /// Notch's original ("vanilla") implementation of Minecraft. </summary>
     public class VanillaMapGen : MapGenerator {

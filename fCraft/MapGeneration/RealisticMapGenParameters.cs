@@ -3,7 +3,7 @@ using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> Contains parameters for advanced map generation. </summary>
     public sealed class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;

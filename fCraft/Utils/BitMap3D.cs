@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 
 namespace fCraft {
+    /// <summary> Specialized set data structure. Holds 1 bit of information per coordinate,
+    /// with an easy way to enumerate all set coords. Used by /Fill3D and related commands. </summary>
     public class BitMap3D : IEnumerable<Vector3I> {
         const int BitCoordMask = 31;
 

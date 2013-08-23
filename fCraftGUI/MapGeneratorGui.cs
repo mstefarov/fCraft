@@ -2,6 +2,7 @@
 using System;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using fCraft.MapGeneration;
 
 namespace fCraft.GUI {
     /// <summary> Class that provides a GUI (UserControl) for adjusting map parameters. </summary>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Xml.Linq;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     /// <summary> Map generator that creates realistic-looking landscapes. </summary>
     public class RealisticMapGen : MapGenerator {
         public static RealisticMapGen Instance { get; private set; }

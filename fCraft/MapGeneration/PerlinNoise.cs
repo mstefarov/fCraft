@@ -2,7 +2,7 @@
 // Original Java code copyright 2009 Markus Persson / Mojang AB
 using System;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     // Based on Minecraft Classic's "com.mojang.minecraft.level.a.a.a"
     public sealed class FilteredNoise {
         readonly PerlinNoise noise1, noise2;

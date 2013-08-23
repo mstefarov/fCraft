@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Windows.Forms;
 using fCraft.GUI;
+using fCraft.MapGeneration;
 using JetBrains.Annotations;
 
 

@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using fCraft.MapGeneration;
 
 namespace fCraft.GUI {
     public partial class DefaultMapGenGui : MapGeneratorGui {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Xml.Linq;
 using JetBrains.Annotations;
 
-namespace fCraft {
+namespace fCraft.MapGeneration {
     public static class MapGenUtil {
         const string ParamsMetaGroup = "_Origin";
         const string ParamsMetaKey = "MapGeneratorParameters";
