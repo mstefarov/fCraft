@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Originally part of FemtoCraft | Copyright 2012-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// Based in part on Minecraft 0.30 bytecode, copyright 2009 Markus Persson / Mojang AB
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
