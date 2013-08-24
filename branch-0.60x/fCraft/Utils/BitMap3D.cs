@@ -10,10 +10,8 @@ namespace fCraft {
         const int BitCoordMask = 31;
 
         readonly uint[] store;
-
         readonly Vector3I offset,
                           dimensions;
-
         int version;
 
 
@@ -31,7 +29,7 @@ namespace fCraft {
             offset = bounds.MinVertex;
             Bounds = bounds;
 
-            // round width up to nearest multiple of 32
+            // round capacity up to nearest multiple of 32
             int bitCapacity = (int)((bounds.Volume + sizeof( uint ) - 1) & (uint.MaxValue ^ BitCoordMask));
             int intCapacity = bitCapacity/sizeof( uint );
             store = new uint[intCapacity];
@@ -43,7 +41,7 @@ namespace fCraft {
             int index = (localCoord.Z*dimensions.Y + localCoord.Y)*dimensions.X + localCoord.X;
             intIndex = (index >> 5);
             int bitIndex = index & BitCoordMask;
-            bitMask = 1u << (bitIndex + 1);
+            bitMask = 1u << bitIndex;
         }
 
 
@@ -116,17 +114,11 @@ namespace fCraft {
 
         class BitMap3DEnumerator : IEnumerator<Vector3I> {
             readonly BitMap3D bitmap;
-            int startingVersion;
-
-            int x,
-                y,
-                z,
+            readonly int dimX, dimY, dimZ;
+            int startingVersion,
+                x, y, z,
                 intIndex,
-                bitIndex,
-                dimX,
-                dimY,
-                dimZ;
-
+                bitIndex;
             uint storeInt;
 
 
@@ -161,10 +153,10 @@ namespace fCraft {
                     if( x >= dimX ) {
                         x = 0;
                         y++;
-                        if( y > dimY ) {
+                        if( y >= dimY ) {
                             y = 0;
                             z++;
-                            if( z > dimZ ) {
+                            if( z >= dimZ ) {
                                 return false;
                             }
                         }
@@ -180,7 +172,7 @@ namespace fCraft {
                         storeInt = bitmap.store[intIndex];
                     }
                     // check if current bit is set
-                    uint bitMask = 1u << (bitIndex + 1);
+                    uint bitMask = 1u << bitIndex;
                     if( (storeInt & bitMask) != 0 ) {
                         Current = new Vector3I( x, y, z );
                         return true;
@@ -194,6 +186,9 @@ namespace fCraft {
                 bitIndex = -1;
                 startingVersion = bitmap.version;
                 storeInt = bitmap.store[0];
+                x = -1;
+                y = 0;
+                z = 0;
             }
 
             public void Dispose() {}

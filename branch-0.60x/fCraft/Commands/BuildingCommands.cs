@@ -81,7 +81,9 @@ namespace fCraft {
             CdTorus.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdFill2D );
+            CommandManager.RegisterCommand( CdFill3D );
             CdFill2D.Help += GeneralDrawingHelp;
+            CdFill3D.Help += GeneralDrawingHelp;
 
             CommandManager.RegisterCommand( CdUndoArea );
             CommandManager.RegisterCommand( CdUndoPlayer );
@@ -364,6 +366,56 @@ namespace fCraft {
                             op.Description, maxDim, otherDim );
             op.Begin();
         }
+
+
+
+
+        static readonly CommandDescriptor CdFill3D = new CommandDescriptor {
+            Name = "Fill3D",
+            Aliases = new[] { "f3d" },
+            Category = CommandCategory.Building,
+            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            RepeatableSelection = true,
+            Help = "Fills a continuous volume with blocks, in 3D. " +
+                   "Takes just 1 mark, and replaces blocks of the same type as the block you clicked.",
+            Handler = Fill3DHandler
+        };
+
+        static void Fill3DHandler( Player player, CommandReader cmd ) {
+            Fill3DDrawOperation op = new Fill3DDrawOperation( player );
+
+            IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
+            if( brush == null ) return;
+            op.Brush = brush;
+
+            player.SelectionStart( 1, Fill3DCallback, op, Permission.Draw );
+            player.Message( "{0}: Click a block to start filling.", op.Description );
+        }
+
+
+        static void Fill3DCallback( Player player, Vector3I[] marks, object tag ) {
+            DrawOperation op = (DrawOperation)tag;
+            if( !op.Prepare( marks ) ) return;
+            if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
+                Logger.Log( LogType.UserActivity,
+                            "Fill3D: Asked {0} to confirm replacing air on world {1}",
+                            player.Name,
+                            player.World.Name );
+                player.Confirm( Fill3DConfirmCallback, op, "{0}: Replace air?", op.Description );
+            } else {
+                Fill3DConfirmCallback( player, op, false );
+            }
+        }
+
+
+        static void Fill3DConfirmCallback( Player player, object tag, bool fromConsole ) {
+            Fill3DDrawOperation op = (Fill3DDrawOperation)tag;
+            player.Message( "{0}: Filling in a {1}x{2}x{3} area...",
+                            op.Description, op.Bounds.Width, op.Bounds.Length, op.Bounds.Height );
+            op.Begin();
+        }
+
+
 
         #endregion
 
