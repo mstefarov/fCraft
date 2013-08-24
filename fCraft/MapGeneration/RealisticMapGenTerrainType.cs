@@ -1,4 +1,6 @@
-﻿namespace fCraft.MapGeneration {
+﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
+namespace fCraft.MapGeneration {
     /// <summary> Map generator terrain type template. 
     /// These define landscape shapes and features. </summary>
     public enum RealisticMapGenTerrainType {
