@@ -44,7 +44,8 @@ namespace fCraft {
         /// dimensions are (32 * 2 + 1), which is 65 x 65 </summary>
         public int FillLimit = 32;
 
-        /// <summary> Maximum number of blocks that player is allowed to draw at a time using draw commands. </summary>
+        /// <summary> Maximum number of blocks that player is allowed to draw at a time using draw commands. 
+        /// Value of 0 means "unlimited". </summary>
         public int DrawLimit;
 
         /// <summary> Time until the idle kicker will kick this Rank from the server. </summary>
