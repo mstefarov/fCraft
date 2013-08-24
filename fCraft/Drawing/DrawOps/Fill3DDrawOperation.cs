@@ -50,7 +50,8 @@ namespace fCraft.Drawing {
 
             } else {
                 // Our fill limit is cube root of DrawLimit
-                int maxLimit = (int)Math.Ceiling( Math.Pow( Player.Info.Rank.DrawLimit, 1/3 )/2 );
+                double pow = Math.Pow( Player.Info.Rank.DrawLimit, 1/3d );
+                int maxLimit = (int)Math.Ceiling( pow / 2 );
 
                 // Compute the largest possible extent
                 if( maxLimit < 1 || maxLimit > 2048 ) maxLimit = 2048;
@@ -84,6 +85,7 @@ namespace fCraft.Drawing {
             StartTime = DateTime.UtcNow;
 
             if( !(Brush is NormalBrush) ) {
+                long membef = GC.GetTotalMemory( true );
                 // for nonstandard brushes, cache all coordinates up front
                 nonStandardBrush = true;
 
@@ -91,12 +93,18 @@ namespace fCraft.Drawing {
                 allCoords = new BitMap3D( Bounds );
                 while( coordEnumerator.MoveNext() ) {
                     allCoords.Set( coordEnumerator.Current );
-                    Console.WriteLine( "allCoords.Set("+coordEnumerator.Current+")" );
                 }
                 coordEnumerator.Dispose();
 
                 // Replace our F3D enumerator with a HashSet enumerator
                 coordEnumerator = allCoords.GetEnumerator();
+                long memaf = GC.GetTotalMemory( true );
+                Logger.Log( LogType.Debug,
+                            "Mem use delta: {0} KB / blocks drawn: {1} / blocks checked: {2} / ratio: {3}%",
+                            (memaf - membef)/1024,
+                            allCoords.Count,
+                            blocksProcessed,
+                            (allCoords.Count * 100 ) / blocksProcessed);
             }
 
             HasBegun = true;
@@ -112,7 +120,6 @@ namespace fCraft.Drawing {
             int blocksDone = 0;
             while( coordEnumerator.MoveNext() ) {
                 Coords = coordEnumerator.Current;
-                Console.WriteLine( "coordEnumerator.MoveNext -> " + Coords );
                 if( DrawOneBlock() ) {
                     blocksDone++;
                     if( blocksDone >= maxBlocksToDraw ) return blocksDone;
@@ -120,7 +127,6 @@ namespace fCraft.Drawing {
                 if( TimeToEndBatch ) return blocksDone;
             }
             IsDone = true;
-            Console.WriteLine( "TotalPopped: "+blocksProcessed );
             return blocksDone;
         }
 
@@ -134,7 +140,7 @@ namespace fCraft.Drawing {
         }
 
 
-        int blocksProcessed = 0;
+        int blocksProcessed;
         IEnumerable<Vector3I> BlockEnumerator() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );

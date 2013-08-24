@@ -174,7 +174,7 @@ namespace fCraft {
                     // check if current bit is set
                     uint bitMask = 1u << bitIndex;
                     if( (storeInt & bitMask) != 0 ) {
-                        Current = new Vector3I( x, y, z );
+                        Current = new Vector3I( x, y, z ) + bitmap.offset;
                         return true;
                     }
                 }

@@ -37,16 +37,6 @@ namespace fCraft.ServerCLI {
 
 
         static void Main( string[] args ) {
-
-            BitMap3D b = new BitMap3D( new BoundingBox( 0, 0, 0, 128, 64, 32 ) );
-            Vector3I vi = new Vector3I( 10, 20, 30 );
-            Console.WriteLine( vi );
-            b.Set( vi );
-            var bi = b.GetEnumerator();
-            bi.MoveNext();
-            Console.WriteLine( bi.Current );
-            Console.ReadLine();
-
             // Check fCraft.dll version
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 Console.Error.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
