@@ -163,7 +163,7 @@ namespace fCraft {
         public static string ToMiniString( this TimeSpan span ) {
             if( span.Ticks < 0 ) {
                 throw new ArgumentOutOfRangeException( "span", "ToMiniString cannot be used on negative time spans." );
-            }else if( span.TotalSeconds < 60 ) {
+            } else if( span.TotalSeconds < 60 ) {
                 return String.Format( "{0}s", span.Seconds );
             } else if( span.TotalMinutes < 60 ) {
                 return String.Format( "{0}m{1}s", span.Minutes, span.Seconds );
@@ -172,7 +172,7 @@ namespace fCraft {
             } else if( span.TotalDays < 15 ) {
                 return String.Format( "{0}d{1}h", span.Days, span.Hours );
             } else {
-                return String.Format( "{0:0}w{1:0}d", Math.Floor( span.TotalDays / 7 ), Math.Floor( span.TotalDays ) % 7 );
+                return String.Format( "{0:0}w{1:0}d", Math.Floor( span.TotalDays/7 ), Math.Floor( span.TotalDays )%7 );
             }
         }
 
@@ -201,7 +201,7 @@ namespace fCraft {
 
 
         /// <summary> Parses the given string as a TimeSpan in compact representation. Throws exceptions on failure. </summary>
-        /// <param name="text"> String to parse. </param>
+        /// <param name="text"> String to parse. Must contain at least one digit followed by at least one unit. </param>
         /// <returns> Parsed TimeSpan. </returns>
         /// <exception cref="ArgumentNullException"> text is null. </exception>
         /// <exception cref="OverflowException"> The resulting TimeSpan is greater than TimeSpan.MaxValue. </exception>
