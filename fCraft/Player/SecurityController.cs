@@ -220,10 +220,9 @@ namespace fCraft {
 
         public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
             if( el == null ) throw new ArgumentNullException( "el" );
-            if( el.Element( "minRank" ) != null ) {
-                // ReSharper disable PossibleNullReferenceException
-                minRank = Rank.Parse( el.Element( "minRank" ).Value );
-                // ReSharper restore PossibleNullReferenceException
+            XElement minRankEl = el.Element( "minRank" );
+            if( minRankEl != null ) {
+                minRank = Rank.Parse( minRankEl.Value );
             } else {
                 minRank = null;
             }
