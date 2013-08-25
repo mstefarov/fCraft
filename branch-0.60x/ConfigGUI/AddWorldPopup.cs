@@ -280,6 +280,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
+
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
                 string stack = Environment.StackTrace;
@@ -293,7 +294,8 @@ namespace fCraft.ConfigGUI {
                 if( bwRenderer.IsBusy ) {
                     renderer.CancelAsync();
                     while( bwRenderer.IsBusy ) {
-                        Thread.Sleep( 1 );
+                        Application.DoEvents();
+                        Thread.Sleep( 10 );
                     }
                 }
                 if( drawAgain ) {
