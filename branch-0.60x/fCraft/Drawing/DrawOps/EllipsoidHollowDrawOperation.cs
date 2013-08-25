@@ -1,7 +1,6 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a hollow ellipsoid,
@@ -115,7 +114,6 @@ namespace fCraft.Drawing {
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
 
-            // TODO: unroll enumerator block into as a state machine
             if( ellipseEnumerator != null ) {
                 // Simple flat ellipse/ring
                 while( ellipseEnumerator.MoveNext() ) {

@@ -810,13 +810,13 @@ namespace fCraft {
                         player.Message( "Coordinates are outside the valid range!" );
 
                     } else {
-                        player.TeleportTo( new Position {
-                            X = (short)(x * 32 + 16),
-                            Y = (short)(y * 32 + 16),
-                            Z = (short)(z * 32 + 16),
-                            R = player.Position.R,
-                            L = player.Position.L
-                        } );
+                        Position newPos = new Position(
+                            (short)(x*32 + 16),
+                            (short)(y*32 + 16),
+                            (short)(z*32 + 16),
+                            player.Position.R,
+                            player.Position.L );
+                        player.TeleportTo( newPos );
                     }
                 } else {
                     CdTeleport.PrintUsage( player );

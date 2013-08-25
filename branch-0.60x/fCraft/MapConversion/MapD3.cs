@@ -79,28 +79,24 @@ namespace fCraft.MapConversion {
 
             Map map = new Map( null, width, length, height, false );
 
-            Position spawn = new Position();
-
             switch( formatVersion ) {
                 case 1000:
                 case 1010:
                     break;
                 case 1020:
-                    spawn.X = (short)( bs.ReadInt16() * 32 );
-                    spawn.Y = (short)( bs.ReadInt16() * 32 );
-                    spawn.Z = (short)( bs.ReadInt16() * 32 );
-                    map.Spawn = spawn;
+                    map.Spawn = new Position( (short)(bs.ReadInt16()*32),
+                                              (short)(bs.ReadInt16()*32),
+                                              (short)(bs.ReadInt16()*32) );
                     break;
                 //case 1030:
                 //case 1040:
                 //case 1050:
                 default:
-                    spawn.X = (short)( bs.ReadInt16() * 32 );
-                    spawn.Y = (short)( bs.ReadInt16() * 32 );
-                    spawn.Z = (short)( bs.ReadInt16() * 32 );
-                    spawn.R = (byte)bs.ReadInt16();
-                    spawn.L = (byte)bs.ReadInt16();
-                    map.Spawn = spawn;
+                    map.Spawn = new Position( (short)(bs.ReadInt16()*32),
+                                              (short)(bs.ReadInt16()*32),
+                                              (short)(bs.ReadInt16()*32),
+                                              (byte)bs.ReadInt16(),
+                                              (byte)bs.ReadInt16() );
                     break;
             }
 
