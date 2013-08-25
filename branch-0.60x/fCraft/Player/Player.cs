@@ -1080,7 +1080,7 @@ namespace fCraft {
 
         #region Binding
 
-        readonly Block[] bindings = new Block[50];
+        readonly Block[] bindings = new Block[256];
 
         public void Bind( Block type, Block replacement ) {
             bindings[(byte)type] = replacement;
