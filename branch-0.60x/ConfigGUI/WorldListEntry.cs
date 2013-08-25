@@ -424,7 +424,6 @@ namespace fCraft.ConfigGUI {
 
 
         // Comparison method used to customize sorting
-        [UsedImplicitly]
         public static object Compare( string propertyName, object a, object b ) {
             WorldListEntry entry1 = (WorldListEntry)a;
             WorldListEntry entry2 = (WorldListEntry)b;
