@@ -74,13 +74,10 @@ namespace fCraft.MapConversion {
             if( version != 1 && version != 2 ) throw new MapFormatException();
 
             // read spawn location and orientation
-            Position spawn = new Position {
-                X = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
-                Z = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
-                Y = (short)( IPAddress.NetworkToHostOrder( bs.ReadInt16() ) * 32 ),
-                R = bs.ReadByte(),
-                L = bs.ReadByte()
-            };
+            short x = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
+            short z = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
+            short y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
+            Position spawn = new Position( x, y, z, bs.ReadByte(), bs.ReadByte() );
 
             // Read in the map dimensions
             int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );

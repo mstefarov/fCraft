@@ -357,24 +357,22 @@ namespace fCraft {
         void ProcessMovementPacket() {
             BytesReceived += 10;
             reader.ReadByte();
-            Position newPos = new Position {
-                X = reader.ReadInt16(),
-                Z = reader.ReadInt16(),
-                Y = reader.ReadInt16(),
-                R = reader.ReadByte(),
-                L = reader.ReadByte()
-            };
+            short x = reader.ReadInt16();
+            short z = reader.ReadInt16();
+            short y = reader.ReadInt16();
+            Position newPos = new Position( x, y, z,
+                                            reader.ReadByte(),
+                                            reader.ReadByte() );
 
             Position oldPos = Position;
 
             // calculate difference between old and new positions
-            Position delta = new Position {
-                X = (short)( newPos.X - oldPos.X ),
-                Y = (short)( newPos.Y - oldPos.Y ),
-                Z = (short)( newPos.Z - oldPos.Z ),
-                R = (byte)Math.Abs( newPos.R - oldPos.R ),
-                L = (byte)Math.Abs( newPos.L - oldPos.L )
-            };
+            Position delta = new Position(
+                (short)(newPos.X - oldPos.X),
+                (short)(newPos.Y - oldPos.Y),
+                (short)(newPos.Z - oldPos.Z),
+                (byte)Math.Abs( newPos.R - oldPos.R ),
+                (byte)Math.Abs( newPos.L - oldPos.L ) );
 
             // skip everything if player hasn't moved
             if( delta.IsZero ) return;
@@ -391,17 +389,11 @@ namespace fCraft {
                     Math.Abs( delta.Z ) > 40 ) {
                     SendNow( Packet.MakeSelfTeleport( Position ) );
                 }
-                newPos.X = Position.X;
-                newPos.Y = Position.Y;
-                newPos.Z = Position.Z;
-
-                // recalculate deltas
-                delta.X = 0;
-                delta.Y = 0;
-                delta.Z = 0;
+                newPos = new Position( Position, newPos.R, newPos.L );
 
             } else if( Can( Permission.UseSpeedHack ) ) {
                 lastValidPosition = Position;
+
             } else {
                 int distSquared = delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z;
                 // speedhack detection
@@ -1464,14 +1456,12 @@ namespace fCraft {
             Position oldPos = entity.LastKnownPosition;
 
             // calculate difference between old and new positions
-            Position delta = new Position {
-                X = (short)( newPos.X - oldPos.X ),
-                Y = (short)( newPos.Y - oldPos.Y ),
-                Z = (short)( newPos.Z - oldPos.Z ),
-                R = (byte)( newPos.R - oldPos.R ),
-                L = (byte)( newPos.L - oldPos.L )
-            };
-
+            Position delta = new Position(
+                (short)(newPos.X - oldPos.X),
+                (short)(newPos.Y - oldPos.Y),
+                (short)(newPos.Z - oldPos.Z),
+                (byte)(newPos.R - oldPos.R),
+                (byte)(newPos.L - oldPos.L) );
             bool posChanged = ( delta.X != 0 ) || ( delta.Y != 0 ) || ( delta.Z != 0 );
             bool rotChanged = ( delta.R != 0 ) || ( delta.L != 0 );
 
@@ -1493,13 +1483,8 @@ namespace fCraft {
             if( partialUpdates && delta.FitsIntoMoveRotatePacket && fullUpdateCounter < FullPositionUpdateInterval ) {
                 if( posChanged && rotChanged ) {
                     // incremental position + absolute rotation update
-                    packet = Packet.MakeMoveRotate( entity.Id, new Position {
-                        X = delta.X,
-                        Y = delta.Y,
-                        Z = delta.Z,
-                        R = newPos.R,
-                        L = newPos.L
-                    } );
+                    Position incPos = new Position( delta, newPos.R, newPos.L );
+                    packet = Packet.MakeMoveRotate( entity.Id, incPos );
 
                 } else if( posChanged ) {
                     // incremental position update

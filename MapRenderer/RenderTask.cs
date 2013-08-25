@@ -1,4 +1,5 @@
-﻿using System;
+﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System;
 
 namespace fCraft.MapRenderer {
     /// <summary> Holds all information related to a single map-rendering task. </summary>

@@ -83,13 +83,11 @@ namespace fCraft.MapConversion {
             // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
-            map.Spawn = new Position {
-                X = reader.ReadInt16(),
-                Y = reader.ReadInt16(),
-                Z = reader.ReadInt16(),
-                R = reader.ReadByte(),
-                L = reader.ReadByte()
-            };
+            map.Spawn = new Position( reader.ReadInt16(),
+                                      reader.ReadInt16(),
+                                      reader.ReadInt16(),
+                                      reader.ReadByte(),
+                                      reader.ReadByte() );
 
             return map;
         }

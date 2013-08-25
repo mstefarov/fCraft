@@ -74,13 +74,9 @@ namespace fCraft.MapConversion {
                                    mapTag["Height"].GetShort(),
                                    false );
                 // ReSharper restore UseObjectOrCollectionInitializer
-                map.Spawn = new Position {
-                    X = mapTag["Spawn"][0].GetShort(),
-                    Z = mapTag["Spawn"][1].GetShort(),
-                    Y = mapTag["Spawn"][2].GetShort(),
-                    R = 0,
-                    L = 0
-                };
+                map.Spawn = new Position( mapTag["Spawn"][0].GetShort(),
+                                          mapTag["Spawn"][2].GetShort(),
+                                          mapTag["Spawn"][1].GetShort() );
 
                 map.Blocks = mapTag["Blocks"].GetBytes();
                 map.RemoveUnknownBlocktypes();

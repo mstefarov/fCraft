@@ -13,8 +13,6 @@ namespace fCraft.AutoRank {
 
         static readonly List<Criterion> Criteria = new List<Criterion>();
 
-        public const string TagName = "fCraftAutoRankConfig";
-
         // Whether any criteria are defined.
         static bool HasCriteria {
             get { return Criteria.Count > 0; }

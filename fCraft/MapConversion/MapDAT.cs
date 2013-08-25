@@ -117,6 +117,9 @@ namespace fCraft.MapConversion {
                     int offset = 0;
                     int width = 0, length = 0, height = 0;
                     Position spawn = new Position();
+                    short x=0,
+                          y=0,
+                          z=0;
                     while( pointer < headerEnd ) {
                         switch( (char)data[pointer] ) {
                             case 'Z':
@@ -145,17 +148,19 @@ namespace fCraft.MapConversion {
                         } else if( BufferUtil.MemCmp( data, pointer, "height" ) ) {
                             length = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
                         } else if( BufferUtil.MemCmp( data, pointer, "xSpawn" ) ) {
-                            spawn.X = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
+                            x = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( BufferUtil.MemCmp( data, pointer, "ySpawn" ) ) {
-                            spawn.Z = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
+                            y = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         } else if( BufferUtil.MemCmp( data, pointer, "zSpawn" ) ) {
-                            spawn.Y = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
+                            z = (short)( IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) ) * 32 + 16 );
                         }
 
                         pointer += skip;
                     }
 
-                    map = new Map( null, width, length, height, false ) { Spawn = spawn };
+                    map = new Map( null, width, length, height, false ) {
+                        Spawn = new Position( x, y, z )
+                    };
 
                     // find the start of the block array
                     bool foundBlockArray = false;

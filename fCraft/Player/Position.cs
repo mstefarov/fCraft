@@ -13,8 +13,17 @@ namespace fCraft {
         /// <summary> Position at (0,0,0) with R=0 and L=0. </summary>
         public static readonly Position Zero = new Position( 0, 0, 0 );
 
-        public short X, Y, Z;
-        public byte R, L;
+        public readonly short X, Y, Z;
+        public readonly byte R, L;
+
+
+        public Position( Position other, byte r, byte l ) {
+            X = other.X;
+            Y = other.Y;
+            Z = other.Z;
+            R = r;
+            L = l;
+        }
 
 
         public Position( short x, short y, short z, byte r, byte l ) {
@@ -51,13 +60,7 @@ namespace fCraft {
 
         // adjust for bugs in position-reporting in Minecraft client
         public Position GetFixed() {
-            return new Position {
-                X = ( X ),
-                Y = ( Y ),
-                Z = (short)( Z - 22 ),
-                R = R,
-                L = L
-            };
+            return new Position( X, Y, (short)(Z - 22), R, L );
         }
 
 

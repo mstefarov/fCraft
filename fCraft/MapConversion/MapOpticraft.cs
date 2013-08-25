@@ -141,13 +141,12 @@ namespace fCraft.MapConversion {
             // ReSharper disable UseObjectOrCollectionInitializer
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
             // ReSharper restore UseObjectOrCollectionInitializer
-            mapFile.Spawn = new Position {
-                X = (short)( metaData.SpawnX ),
-                Y = (short)( metaData.SpawnY ),
-                Z = (short)( metaData.SpawnZ ),
-                R = metaData.SpawnOrientation,
-                L = metaData.SpawnPitch
-            };
+            mapFile.Spawn = new Position(
+                (short)(metaData.SpawnX),
+                (short)(metaData.SpawnY),
+                (short)(metaData.SpawnZ),
+                metaData.SpawnOrientation,
+                metaData.SpawnPitch );
             return mapFile;
         }
 

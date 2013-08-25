@@ -88,14 +88,12 @@ namespace fCraft.MapConversion {
             // ReSharper restore UseObjectOrCollectionInitializer
 
             // Read in the spawn location
-            // XYZ(?)
-            map.Spawn = new Position {
-                X = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
-                Z = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
-                Y = IPAddress.NetworkToHostOrder( bs.ReadInt16() ),
-                R = bs.ReadByte(),
-                L = bs.ReadByte()
-            };
+            short x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            short z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            short y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            map.Spawn = new Position( x, y, z,
+                                      bs.ReadByte(),
+                                      bs.ReadByte() );
 
             // Skip over the block count, totally useless
             bs.ReadInt32();
