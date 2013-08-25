@@ -116,7 +116,6 @@ namespace fCraft.MapConversion {
                     // start parsing serialization listing
                     int offset = 0;
                     int width = 0, length = 0, height = 0;
-                    Position spawn = new Position();
                     short x=0,
                           y=0,
                           z=0;

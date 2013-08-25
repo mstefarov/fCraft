@@ -10,8 +10,6 @@ namespace fCraft.AutoRank {
         public Rank ToRank { get; set; }
         public ConditionSet Condition { get; set; }
 
-        public Criterion() { }
-
         public Criterion( [NotNull] Criterion other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             FromRank = other.FromRank;
