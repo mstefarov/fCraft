@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System.Collections.Generic;
 using System.Threading;
 
-namespace fCraft {
+namespace fCraft.MapRenderer {
     /// <summary> Multiple-producer, single-consumer queue.
     /// Dequeue blocks calling thread (consumer) until it has something to return. </summary>
     public class BlockingQueue<T> {
