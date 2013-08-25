@@ -101,6 +101,7 @@ namespace fCraft {
 
 
         void Announce( TimeSpan timeLeft ) {
+            if( timeLeft.Ticks < 0 ) return;
             if( String.IsNullOrEmpty( Message ) ) {
                 Chat.SendSay( Player.Console, "(Timer) " + timeLeft.ToMiniString() );
             } else {
