@@ -20,9 +20,9 @@ namespace fCraft {
 
         /// <summary> This flag controls what search methods do when IncludeSelf flag is not set, and player's
         /// own info is the only result. By default, search methods print "no results" message and return null.
-        /// This flag changes that behavior. When ReturnSelfIfNoMatches is set, search methods do not
+        /// This flag changes that behavior. When ReturnSelfIfOnlyMatch is set, search methods do not
         /// print any message, and return player's own PlayerInfo. This is useful if you want to make a custom
         /// "you cannot do this to yourself" message - just check if returned PlayerInfo is player's own. </summary>
-        ReturnSelfIfNoMatches = 8
+        ReturnSelfIfOnlyMatch = 8
     }
 }

@@ -76,7 +76,7 @@ namespace fCraft {
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Ban&S yourself." );
@@ -127,7 +127,7 @@ namespace fCraft {
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                            targetNameOrIP,
-                                                                           SearchOptions.ReturnSelfIfNoMatches );
+                                                                           SearchOptions.ReturnSelfIfOnlyMatch );
                 if( target == null ) return;
                 if( target == player.Info ) {
                     player.Message( "You cannot &H/BanIP&S yourself." );
@@ -181,7 +181,7 @@ namespace fCraft {
             } else {
                 PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                            targetNameOrIP,
-                                                                           SearchOptions.ReturnSelfIfNoMatches );
+                                                                           SearchOptions.ReturnSelfIfOnlyMatch );
                 if( target == null ) return;
                 if( target == player.Info ) {
                     player.Message( "You cannot &H/BanAll&S yourself." );
@@ -223,7 +223,7 @@ namespace fCraft {
             }
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Unban&S yourself." );
@@ -266,7 +266,7 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                                targetNameOrIP,
-                                                                               SearchOptions.ReturnSelfIfNoMatches );
+                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
                     if( target == null ) return;
                     if( target == player.Info ) {
                         player.Message( "You cannot &H/UnbanIP&S yourself." );
@@ -312,7 +312,7 @@ namespace fCraft {
                 } else {
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                                targetNameOrIP,
-                                                                               SearchOptions.ReturnSelfIfNoMatches );
+                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
                     if( target == null ) return;
                     if( target == player.Info ) {
                         player.Message( "You cannot &H/UnbanAll&S yourself." );
@@ -729,7 +729,7 @@ namespace fCraft {
 
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Freeze&S yourself." );
@@ -764,7 +764,7 @@ namespace fCraft {
 
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Unfreeze&S yourself." );
@@ -976,7 +976,7 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches( player,
                                                              playerName,
-                                                             SearchOptions.ReturnSelfIfNoMatches );
+                                                             SearchOptions.ReturnSelfIfOnlyMatch );
             World world = WorldManager.FindWorldOrPrintMatches( player, worldName );
 
             if( target == null || world == null ) return;
@@ -1279,7 +1279,7 @@ namespace fCraft {
             // find the target
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Mute&S yourself." );
@@ -1315,7 +1315,7 @@ namespace fCraft {
             // find target
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player,
                                                                        targetName,
-                                                                       SearchOptions.ReturnSelfIfNoMatches );
+                                                                       SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
             if( target == player.Info ) {
                 player.Message( "You cannot &H/Unmute&S yourself." );
@@ -1362,7 +1362,7 @@ namespace fCraft {
 
             Player target = Server.FindPlayerOrPrintMatches( player,
                                                              targetName,
-                                                             SearchOptions.ReturnSelfIfNoMatches );
+                                                             SearchOptions.ReturnSelfIfOnlyMatch );
             if( target == null ) return;
 
             if( target == player ) {

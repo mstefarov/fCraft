@@ -1119,7 +1119,7 @@ namespace fCraft {
         /// Used to determine which hidden players to show in results. </param>
         /// <param name="name"> Full or partial name of the search target. </param>
         /// <param name="options"> Search options.
-        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoMatches) are applicable. </param>
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfOnlyMatch) are applicable. </param>
         /// <returns> An array of matches. Array length of 0 means "no matches";
         /// 1 means an exact match or a single partial match; over 1 means multiple matches. </returns>
         [NotNull]
@@ -1130,7 +1130,7 @@ namespace fCraft {
             bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;
             bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
             bool suppressEvent = (options & SearchOptions.SuppressEvent) != 0;
-            bool returnSelf = (options & SearchOptions.ReturnSelfIfNoMatches) != 0;
+            bool returnSelf = (options & SearchOptions.ReturnSelfIfOnlyMatch) != 0;
 
             // Repeat last-used player name
             if( name == "-" ) {
@@ -1185,7 +1185,7 @@ namespace fCraft {
                 }
             }
 
-            // special behavior for ReturnSelfIfNoMatches flag
+            // special behavior for ReturnSelfIfOnlyMatch flag
             if( results.Count == 0 && !includeSelf && foundSelf && returnSelf ) {
                 results.Add( player );
             }
@@ -1217,7 +1217,7 @@ namespace fCraft {
         /// <param name="player"> Player who initiated the search. This is where messages are sent. </param>
         /// <param name="namePart"> Full or partial name of the search target. </param>
         /// <param name="options"> Search options.
-        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfNoMatches) are applicable. </param>
+        /// All flags (IncludeHidden, IncludeSelf, SuppressEvent, and ReturnSelfIfOnlyMatch) are applicable. </param>
         /// <returns> Player object, or null if no player was found. </returns>
         [CanBeNull]
         public static Player FindPlayerOrPrintMatches( [NotNull] Player player,
