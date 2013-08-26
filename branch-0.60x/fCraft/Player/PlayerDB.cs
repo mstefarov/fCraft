@@ -613,7 +613,7 @@ namespace fCraft {
         /// <param name="player"> Player to print feedback to. Also used to determine visibility, for sorting. </param>
         /// <param name="namePart"> Partial or full player name. </param>
         /// <param name="options"> Search options.
-        /// IncludeSelf and ReturnSelfIfNoMatches flags are applicable, other flags are ignored. </param>
+        /// IncludeSelf and ReturnSelfIfOnlyMatch flags are applicable, other flags are ignored. </param>
         /// <returns> PlayerInfo object if one player was found. Null if no or multiple matches were found. 
         /// Results are sorted using PlayerInfoComparer. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="player"/> or <paramref name="namePart"/> is null. </exception>
@@ -625,7 +625,7 @@ namespace fCraft {
             CheckIfLoaded();
 
             bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
-            bool returnSelf = (options & SearchOptions.ReturnSelfIfNoMatches) != 0;
+            bool returnSelf = (options & SearchOptions.ReturnSelfIfOnlyMatch) != 0;
 
             // If name starts with '!', return matches for online players only
             if( namePart.Length > 1 && namePart[0] == '!' ) {
@@ -667,7 +667,7 @@ namespace fCraft {
                     if( targets.Length > 1 ) {
                         targets = targets.Where( p => p != player.Info ).ToArray();
                     } else if( !returnSelf && targets.Length == 1 && targets[0] == player.Info ) {
-                        // special handling if ReturnSelfIfNoMatches flag is not set
+                        // special handling if ReturnSelfIfOnlyMatch flag is not set
                         targets = new PlayerInfo[0];
                     }
                 }

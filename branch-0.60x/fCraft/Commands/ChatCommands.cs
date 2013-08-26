@@ -178,7 +178,7 @@ namespace fCraft {
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfNoMatches );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfOnlyMatch );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
                     player.Message( "You cannot &H/Ignore&S yourself." );
@@ -215,7 +215,7 @@ namespace fCraft {
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfNoMatches );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfOnlyMatch );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
                     player.Message( "You cannot &H/Ignore&S (or &H/Unignore&S) yourself." );

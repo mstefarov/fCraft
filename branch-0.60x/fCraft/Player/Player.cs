@@ -322,7 +322,7 @@ namespace fCraft {
 
                         // if there is more than 1 target player, exclude hidden players
                         if( allPlayers.Length > 1 ) {
-                            allPlayers = Server.FindPlayers( this, otherPlayerName, SearchOptions.ReturnSelfIfNoMatches );
+                            allPlayers = Server.FindPlayers( this, otherPlayerName, SearchOptions.ReturnSelfIfOnlyMatch );
                         }
 
                         if( allPlayers.Length == 1 ) {
