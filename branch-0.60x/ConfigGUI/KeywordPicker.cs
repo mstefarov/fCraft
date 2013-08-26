@@ -6,7 +6,7 @@ namespace fCraft.ConfigGUI {
         public string Result;
 
         readonly ToolTip tips;
-        static readonly KeywordInfo[] Keywords = new[]{
+        static readonly KeywordInfo[] Keywords = {
             new KeywordInfo("{SERVER_NAME}", "Server name", "Name of your server, as specified in config." ),
             new KeywordInfo("{RANK}", "Player's rank", "Player's rank, including prefix and colors (if applicable)." ),
             new KeywordInfo("{PLAYER_NAME}", "Player's name", "Name of the player, including prefix and colors (if applicable)." ),

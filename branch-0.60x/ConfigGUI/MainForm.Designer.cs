@@ -31,8 +31,8 @@ namespace fCraft.ConfigGUI {
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
@@ -162,6 +162,7 @@ namespace fCraft.ConfigGUI {
             this.xBlockDBAutoEnable = new System.Windows.Forms.CheckBox();
             this.xBlockDBEnabled = new System.Windows.Forms.CheckBox();
             this.gSecurityMisc = new System.Windows.Forms.GroupBox();
+            this.xAllowEmailAccounts = new System.Windows.Forms.CheckBox();
             this.xAnnounceRankChangeReasons = new System.Windows.Forms.CheckBox();
             this.xRequireKickReason = new System.Windows.Forms.CheckBox();
             this.xAllowFreePlayers = new System.Windows.Forms.CheckBox();
@@ -299,7 +300,10 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.xAllowEmailAccounts = new System.Windows.Forms.CheckBox();
+            this.gHeartbeatUrl = new System.Windows.Forms.GroupBox();
+            this.cHeartbeatUrl = new System.Windows.Forms.ComboBox();
+            this.lHeartbeatUrl = new System.Windows.Forms.Label();
+            this.lHeartbeatUrlWarning = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
@@ -362,6 +366,7 @@ namespace fCraft.ConfigGUI {
             this.gAdvancedMisc.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
+            this.gHeartbeatUrl.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -387,6 +392,7 @@ namespace fCraft.ConfigGUI {
             // 
             // tabGeneral
             // 
+            this.tabGeneral.Controls.Add(this.gHeartbeatUrl);
             this.tabGeneral.Controls.Add(this.gUpdaterSettings);
             this.tabGeneral.Controls.Add(this.groupBox2);
             this.tabGeneral.Controls.Add(this.gHelpAndSupport);
@@ -1300,8 +1306,8 @@ namespace fCraft.ConfigGUI {
             this.dgvWorlds.MultiSelect = false;
             this.dgvWorlds.Name = "dgvWorlds";
             this.dgvWorlds.RowHeadersVisible = false;
-            dataGridViewCellStyle4.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
-            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(0, 1, 0, 1);
+            this.dgvWorlds.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvWorlds.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvWorlds.Size = new System.Drawing.Size(636, 325);
             this.dgvWorlds.TabIndex = 0;
@@ -1359,8 +1365,8 @@ namespace fCraft.ConfigGUI {
             // dgvcBlockDB
             // 
             this.dgvcBlockDB.DataPropertyName = "BlockDBEnabled";
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            this.dgvcBlockDB.DefaultCellStyle = dataGridViewCellStyle1;
             this.dgvcBlockDB.HeaderText = "BlockDB";
             this.dgvcBlockDB.Name = "dgvcBlockDB";
             this.dgvcBlockDB.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
@@ -1899,6 +1905,16 @@ namespace fCraft.ConfigGUI {
             this.gSecurityMisc.TabIndex = 3;
             this.gSecurityMisc.TabStop = false;
             this.gSecurityMisc.Text = "Misc";
+            // 
+            // xAllowEmailAccounts
+            // 
+            this.xAllowEmailAccounts.AutoSize = true;
+            this.xAllowEmailAccounts.Location = new System.Drawing.Point(76, 45);
+            this.xAllowEmailAccounts.Name = "xAllowEmailAccounts";
+            this.xAllowEmailAccounts.Size = new System.Drawing.Size(201, 19);
+            this.xAllowEmailAccounts.TabIndex = 10;
+            this.xAllowEmailAccounts.Text = "Allow emails / Mojang accounts.";
+            this.xAllowEmailAccounts.UseVisualStyleBackColor = true;
             // 
             // xAnnounceRankChangeReasons
             // 
@@ -3505,15 +3521,47 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // xAllowEmailAccounts
+            // gHeartbeatUrl
             // 
-            this.xAllowEmailAccounts.AutoSize = true;
-            this.xAllowEmailAccounts.Location = new System.Drawing.Point(76, 45);
-            this.xAllowEmailAccounts.Name = "xAllowEmailAccounts";
-            this.xAllowEmailAccounts.Size = new System.Drawing.Size(201, 19);
-            this.xAllowEmailAccounts.TabIndex = 10;
-            this.xAllowEmailAccounts.Text = "Allow emails / Mojang accounts.";
-            this.xAllowEmailAccounts.UseVisualStyleBackColor = true;
+            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrlWarning);
+            this.gHeartbeatUrl.Controls.Add(this.cHeartbeatUrl);
+            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrl);
+            this.gHeartbeatUrl.Location = new System.Drawing.Point(8, 307);
+            this.gHeartbeatUrl.Name = "gHeartbeatUrl";
+            this.gHeartbeatUrl.Size = new System.Drawing.Size(636, 89);
+            this.gHeartbeatUrl.TabIndex = 5;
+            this.gHeartbeatUrl.TabStop = false;
+            this.gHeartbeatUrl.Text = "Heartbeat Service Provider";
+            // 
+            // cHeartbeatUrl
+            // 
+            this.cHeartbeatUrl.FormattingEnabled = true;
+            this.cHeartbeatUrl.Items.AddRange(new object[] {
+            "https://minecraft.net/heartbeat.jsp",
+            "http://www.classicube.net/server/heartbeat"});
+            this.cHeartbeatUrl.Location = new System.Drawing.Point(123, 22);
+            this.cHeartbeatUrl.Name = "cHeartbeatUrl";
+            this.cHeartbeatUrl.Size = new System.Drawing.Size(507, 23);
+            this.cHeartbeatUrl.TabIndex = 1;
+            // 
+            // lHeartbeatUrl
+            // 
+            this.lHeartbeatUrl.AutoSize = true;
+            this.lHeartbeatUrl.Location = new System.Drawing.Point(25, 25);
+            this.lHeartbeatUrl.Name = "lHeartbeatUrl";
+            this.lHeartbeatUrl.Size = new System.Drawing.Size(92, 15);
+            this.lHeartbeatUrl.TabIndex = 0;
+            this.lHeartbeatUrl.Text = "Heartbeat URL:";
+            // 
+            // lHeartbeatUrlWarning
+            // 
+            this.lHeartbeatUrlWarning.AutoSize = true;
+            this.lHeartbeatUrlWarning.Location = new System.Drawing.Point(120, 48);
+            this.lHeartbeatUrlWarning.Name = "lHeartbeatUrlWarning";
+            this.lHeartbeatUrlWarning.Size = new System.Drawing.Size(427, 30);
+            this.lHeartbeatUrlWarning.TabIndex = 2;
+            this.lHeartbeatUrlWarning.Text = "Use caution. Note that different providers may use different player databases.\r\nI" +
+    "t\'s recommended to wipe your PlayerDB completely after switching providers.";
             // 
             // MainForm
             // 
@@ -3617,6 +3665,8 @@ namespace fCraft.ConfigGUI {
             this.gAdvancedMisc.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
+            this.gHeartbeatUrl.ResumeLayout(false);
+            this.gHeartbeatUrl.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -3889,5 +3939,9 @@ namespace fCraft.ConfigGUI {
         private Button bColorIRC;
         private Label lColorIRC;
         private CheckBox xAllowEmailAccounts;
+        private GroupBox gHeartbeatUrl;
+        private Label lHeartbeatUrlWarning;
+        private ComboBox cHeartbeatUrl;
+        private Label lHeartbeatUrl;
     }
 }
