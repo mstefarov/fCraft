@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Windows.Forms;
 using System.Xml.Linq;
@@ -13,6 +14,7 @@ namespace fCraft.ConfigGUI {
     partial class MainForm {
         #region Loading & Applying Config
 
+        bool ranksLoaded;
         void LoadConfig() {
             string missingFileMsg = null;
             if( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
@@ -45,6 +47,7 @@ namespace fCraft.ConfigGUI {
             ApplyTabGeneral();
             ApplyTabChat();
             ApplyTabWorlds(); // also reloads world list
+            ranksLoaded = true;
             ApplyTabRanks();
             ApplyTabSecurity();
             ApplyTabSavingAndBackup();
@@ -138,6 +141,8 @@ namespace fCraft.ConfigGUI {
             } else {
                 nAnnouncements.Value = 1;
             }
+
+            cHeartbeatUrl.Text = ConfigKey.HeartbeatUrl.GetString();
 
             // UpdaterSettingsWindow
             updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.Enabled();
@@ -466,6 +471,9 @@ namespace fCraft.ConfigGUI {
             if( xAnnouncements.Checked ) ConfigKey.AnnouncementInterval.TrySetValue( nAnnouncements.Value );
             else ConfigKey.AnnouncementInterval.TrySetValue( 0 );
 
+            ConfigKey.HeartbeatUrl.TrySetValue( cHeartbeatUrl.Text );
+
+
             // UpdaterSettingsWindow
             ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
             ConfigKey.BackupBeforeUpdate.TrySetValue( updaterWindow.BackupBeforeUpdate );
@@ -671,7 +679,7 @@ namespace fCraft.ConfigGUI {
             if( box == null ) throw new ArgumentNullException( "box" );
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
             try {
-                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString(), true );
+                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString( CultureInfo.InvariantCulture ), true );
                 key.TrySetValue( val );
             } catch( ArgumentException ) {
                 Logger.Log( LogType.Error,

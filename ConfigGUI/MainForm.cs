@@ -622,6 +622,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void SelectRank( Rank rank ) {
             if( rank == null ) {
+                if( selectedRank == null ) return;
                 if( vRanks.SelectedIndex != -1 ) {
                     vRanks.ClearSelected();
                     return;
@@ -648,12 +649,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             xKickIdle.Checked = rank.IdleKickTimer > 0;
             nKickIdle.Value = rank.IdleKickTimer;
             nKickIdle.Enabled = xKickIdle.Checked;
-            xAntiGrief.Checked = ( rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0 );
+            xAntiGrief.Checked = (rank.AntiGriefBlocks > 0 && rank.AntiGriefSeconds > 0);
             nAntiGriefBlocks.Value = rank.AntiGriefBlocks;
             nAntiGriefBlocks.Enabled = xAntiGrief.Checked;
             nAntiGriefSeconds.Value = rank.AntiGriefSeconds;
             nAntiGriefSeconds.Enabled = xAntiGrief.Checked;
-            xDrawLimit.Checked = ( rank.DrawLimit > 0 );
+            xDrawLimit.Checked = (rank.DrawLimit > 0);
             nDrawLimit.Value = rank.DrawLimit;
             nCopyPasteSlots.Value = rank.CopySlots;
             nFillLimit.Value = rank.FillLimit;
@@ -682,8 +683,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             vPermissions.Enabled = true;
 
             bDeleteRank.Enabled = true;
-            bRaiseRank.Enabled = ( selectedRank != RankManager.HighestRank );
-            bLowerRank.Enabled = ( selectedRank != RankManager.LowestRank );
+            bRaiseRank.Enabled = (selectedRank != RankManager.HighestRank);
+            bLowerRank.Enabled = (selectedRank != RankManager.LowestRank);
         }
 
 
@@ -1360,7 +1361,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #region Change Detection
 
+        bool pauseTrackingSomethingChanged = false;
         void SomethingChanged( object sender, EventArgs args ) {
+            if( pauseTrackingSomethingChanged ) return;
             bApply.Enabled = true;
         }
 
@@ -1691,7 +1694,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
 
-        public static bool usePrefixes;
+        static bool usePrefixes;
 
 
         public static string ToComboBoxOption( Rank rank ) {
@@ -1707,7 +1710,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             usePrefixes = xRankPrefixesInChat.Checked;
             tPrefix.Enabled = usePrefixes;
             lPrefix.Enabled = usePrefixes;
-            RebuildRankList();
+            if( ranksLoaded ) RebuildRankList();
         }
 
 
@@ -1784,6 +1787,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 return null;
             }
         }
+
 
         private void xAllowFreePlayers_CheckedChanged( object sender, EventArgs e ) {
             xAllowEmailAccounts.Enabled = xAllowFreePlayers.Checked;

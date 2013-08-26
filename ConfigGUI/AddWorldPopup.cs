@@ -271,8 +271,6 @@ namespace fCraft.ConfigGUI {
         readonly IsoCat renderer;
 
         void ClearPreview() {
-            string stack = Environment.StackTrace;
-            Debug.WriteLine( "ClearPreview() @ " + stack.Substring( 0, stack.IndexOf( "at System.Windows.Forms.Control.WndProc" ) ) );
             renderer.CancelAsync();
             lock( redrawLock ) {
                 previewImage = null;
@@ -283,8 +281,6 @@ namespace fCraft.ConfigGUI {
 
         void Redraw( bool drawAgain ) {
             lock( redrawLock ) {
-                string stack = Environment.StackTrace;
-                Debug.WriteLine( "Redraw(" + drawAgain + ") @ " + stack.Substring(0,stack.IndexOf("at System.Windows.Forms.Control.WndProc")) );
                 if( map == null ) {
                     ClearPreview();
                     return;

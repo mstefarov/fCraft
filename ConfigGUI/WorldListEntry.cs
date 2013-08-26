@@ -367,7 +367,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        public static readonly string[] BackupEnumNames = new[] {
+        public static readonly string[] BackupEnumNames = {
             "(default)",
             "Never",
             "5 Minutes",
@@ -387,7 +387,7 @@ namespace fCraft.ConfigGUI {
             "48 Hours"
         };
 
-        static readonly TimeSpan[] BackupEnumValues = new[] {
+        static readonly TimeSpan[] BackupEnumValues = {
             TimeSpan.FromSeconds( -1 ), // default
             TimeSpan.Zero,
             TimeSpan.FromMinutes( 5 ),

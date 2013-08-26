@@ -150,7 +150,7 @@ namespace fCraft.ConfigGUI {
                     result = 0;
                 }
                     /* Values don't implement IComparer and are not equivalent, so compare as string values */
-                else result = xValue.ToString().CompareTo( yValue.ToString() );
+                else result = String.Compare(xValue.ToString(), yValue.ToString(), StringComparison.Ordinal);
 
                 /* Return result */
                 return result;
@@ -186,7 +186,7 @@ namespace fCraft.ConfigGUI {
 
         readonly MethodInfo method;
         public int Compare( string propertyName, object a, object b ) {
-            object[] methodArgs = new[] { propertyName, a, b };
+            object[] methodArgs = { propertyName, a, b };
             return (int)method.Invoke( null, methodArgs );
         }
     }
