@@ -46,7 +46,7 @@ namespace fCraft {
         [NotNull]
         public static StringBuilder ToUnixTimeString( this DateTime date, [NotNull] StringBuilder sb ) {
             if( date != DateTime.MinValue ) {
-                sb.Append( date.ToUnixTime() );
+                sb.Append( date.ToUnixTime().ToString( NumberFormatter ) );
             }
             return sb;
         }
@@ -104,18 +104,6 @@ namespace fCraft {
                 return "";
             } else {
                 return (time.Ticks / TimeSpan.TicksPerSecond).ToString( NumberFormatter );
-            }
-        }
-
-
-        /// <summary> Serializes the given TimeSpan to the given StringBuilder, as the number of seconds. </summary>
-        /// <param name="time"> TimeSpan to serialize. </param>
-        /// <param name="sb"> StringBuilder to which time will be saved. </param>
-        /// <exception cref="ArgumentNullException"> sb is null. </exception>
-        public static void ToSecondsString( this TimeSpan time, [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            if( time != TimeSpan.Zero ) {
-                sb.Append( time.Ticks / TimeSpan.TicksPerSecond );
             }
         }
 
