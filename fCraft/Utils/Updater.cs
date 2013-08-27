@@ -16,11 +16,11 @@ namespace fCraft {
         /// <summary> The current release information of this version/revision. </summary>
         public static readonly ReleaseInfo CurrentRelease = new ReleaseInfo(
             642,
-            2174,
+            2180,
             new DateTime( 2013, 8, 26, 11, 0, 0, DateTimeKind.Utc ),
             "",
             "",
-            ReleaseFlags.Bugfix | ReleaseFlags.Feature
+            ReleaseFlags.Bugfix | ReleaseFlags.Feature | ReleaseFlags.Optimized
 #if DEBUG
             | ReleaseFlags.Dev
 #endif
@@ -31,7 +31,7 @@ namespace fCraft {
         public static string UserAgent { get; set; }
 
         /// <summary> The latest stable branch/version of fCraft. </summary>
-        public const string LatestStable = "0.641_r2123";
+        public const string LatestStable = "0.642_r2180";
 
         /// <summary> Url to update fCraft from. Use "{0}" as a placeholder for CurrentRelease.Version.Revision </summary>
         public static string UpdateUri { get; set; }
