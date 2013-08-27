@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Threading;
@@ -379,6 +380,7 @@ namespace fCraft {
 
         #region Loading
 
+        static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
         internal static PlayerInfo LoadFormat2( string[] fields ) {
             if( fields.Length < 44 ) {
                 throw new FormatException( "PlayerInfo record did not contain all the expected information. " +
@@ -438,17 +440,17 @@ namespace fCraft {
             DateTimeUtil.TryParseTimeSpan( fields[17], out info.TotalTime );
 
             // stats
-            if( fields[18].Length > 0 ) Int32.TryParse( fields[18], out info.BlocksBuilt );
-            if( fields[19].Length > 0 ) Int32.TryParse( fields[19], out info.BlocksDeleted );
-            if( fields[20].Length > 0 ) Int32.TryParse( fields[20], out info.TimesVisited );
-            if( fields[21].Length > 0 ) Int32.TryParse( fields[21], out info.MessagesWritten );
+            if( fields[18].Length > 0 ) Int32.TryParse( fields[18], NumberStyles.Integer, NumberFormatter, out info.BlocksBuilt );
+            if( fields[19].Length > 0 ) Int32.TryParse( fields[19], NumberStyles.Integer, NumberFormatter, out info.BlocksDeleted );
+            if( fields[20].Length > 0 ) Int32.TryParse( fields[20], NumberStyles.Integer, NumberFormatter, out info.TimesVisited );
+            if( fields[21].Length > 0 ) Int32.TryParse( fields[21], NumberStyles.Integer, NumberFormatter, out info.MessagesWritten );
             // fields 22-23 are no longer in use
 
             if( fields[24].Length > 0 ) info.PreviousRank = Rank.Parse( fields[24] );
             if( fields[25].Length > 0 ) info.RankChangeReason = PlayerDB.Unescape( fields[25] );
-            Int32.TryParse( fields[26], out info.TimesKicked );
-            Int32.TryParse( fields[27], out info.TimesKickedOthers );
-            Int32.TryParse( fields[28], out info.TimesBannedOthers );
+            Int32.TryParse( fields[26], NumberStyles.Integer, NumberFormatter, out info.TimesKicked );
+            Int32.TryParse( fields[27], NumberStyles.Integer, NumberFormatter, out info.TimesKickedOthers );
+            Int32.TryParse( fields[28], NumberStyles.Integer, NumberFormatter, out info.TimesBannedOthers );
 
             info.ID = Int32.Parse( fields[29] );
             if( info.ID < 256 )
@@ -476,7 +478,7 @@ namespace fCraft {
             if( !DateTimeUtil.TryParseDateTime( fields[32], ref info.LastSeen ) || info.LastSeen < info.LastLoginDate ) {
                 info.LastSeen = info.LastLoginDate;
             }
-            Int64.TryParse( fields[33], out info.BlocksDrawn );
+            Int64.TryParse( fields[33], NumberStyles.Integer, NumberFormatter, out info.BlocksDrawn );
 
             if( fields[34].Length > 0 ) info.LastKickBy = PlayerDB.Unescape( fields[34] );
             if( fields[35].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
@@ -491,7 +493,7 @@ namespace fCraft {
             // fields[43] is "online", and is ignored
 
             byte bandwidthUseModeCode;
-            if( Byte.TryParse( fields[44], out bandwidthUseModeCode ) ) {
+            if( Byte.TryParse( fields[44], NumberStyles.Integer, NumberFormatter, out bandwidthUseModeCode ) ) {
                 info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
                 switch( info.BandwidthUseMode ) {
                     case BandwidthUseMode.High:
@@ -519,7 +521,7 @@ namespace fCraft {
             }
             if( fields.Length > 48 ) {
                 byte accountTypeCode;
-                if( Byte.TryParse( fields[48], out accountTypeCode ) ) {
+                if( Byte.TryParse( fields[48], NumberStyles.Integer, NumberFormatter, out accountTypeCode ) ) {
                     info.AccountType = (AccountType)accountTypeCode;
                     if( !Enum.IsDefined( typeof( AccountType ), accountTypeCode ) ) {
                         info.AccountType = AccountType.Unknown;
