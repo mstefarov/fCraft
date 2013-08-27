@@ -427,7 +427,7 @@ namespace fCraft {
             // failed logins
             DateTimeUtil.TryParseDateTime( fields[12], ref info.LastFailedLoginDate );
 
-            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) {
+            if( fields[13].Length < 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) {
                 // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
