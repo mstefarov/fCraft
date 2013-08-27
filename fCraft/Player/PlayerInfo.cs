@@ -457,8 +457,16 @@ namespace fCraft {
             byte rankChangeTypeCode;
             if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
                 info.RankChangeType = (RankChangeType)rankChangeTypeCode;
-                if( !Enum.IsDefined( typeof( RankChangeType ), rankChangeTypeCode ) ) {
-                    info.GuessRankChangeType();
+                switch( info.RankChangeType ) {
+                    case RankChangeType.AutoDemoted:
+                    case RankChangeType.AutoPromoted:
+                    case RankChangeType.Default:
+                    case RankChangeType.Demoted:
+                    case RankChangeType.Promoted:
+                        break;
+                    default:
+                        info.GuessRankChangeType();
+                        break;
                 }
             } else {
                 info.GuessRankChangeType();
@@ -485,8 +493,16 @@ namespace fCraft {
             byte bandwidthUseModeCode;
             if( Byte.TryParse( fields[44], out bandwidthUseModeCode ) ) {
                 info.BandwidthUseMode = (BandwidthUseMode)bandwidthUseModeCode;
-                if( !Enum.IsDefined( typeof( BandwidthUseMode ), bandwidthUseModeCode ) ) {
-                    info.BandwidthUseMode = BandwidthUseMode.Default;
+                switch( info.BandwidthUseMode ) {
+                    case BandwidthUseMode.High:
+                    case BandwidthUseMode.Low:
+                    case BandwidthUseMode.Normal:
+                    case BandwidthUseMode.VeryHigh:
+                    case BandwidthUseMode.VeryLow:
+                        break;
+                    default:
+                        info.BandwidthUseMode = BandwidthUseMode.Default;
+                        break;
                 }
             } else {
                 info.BandwidthUseMode = BandwidthUseMode.Default;
@@ -711,9 +727,9 @@ namespace fCraft {
 
             Player pObject = PlayerObject;
             if( pObject != null ) {
-                (TotalTime.Add( TimeSinceLastLogin )).ToSecondsString( sb ); // 17
+                sb.Append( TotalTime.Add( TimeSinceLastLogin ).ToSecondsString() ); // 17
             } else {
-                TotalTime.ToSecondsString( sb ); // 17
+                sb.Append( TotalTime.ToSecondsString() ); // 17
             }
             sb.Append( ',' );
 
