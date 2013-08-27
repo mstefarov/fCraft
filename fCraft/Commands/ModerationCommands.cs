@@ -582,7 +582,11 @@ namespace fCraft {
             }
 
             player.Info.IsHidden = true;
-            player.Message( "&8You are now hidden." );
+            if( silent ) {
+                player.Message( "&8You are now hidden (silent)." );
+            } else {
+                player.Message( "&8You are now hidden." );
+            }
 
             // to make it look like player just logged out in /Info
             player.Info.LastSeen = DateTime.UtcNow;
@@ -637,7 +641,11 @@ namespace fCraft {
                 }
             }
             player.Info.IsHidden = false;
-            player.Message( "&8You are no longer hidden." );
+            if( silent ) {
+                player.Message( "&8You are no longer hidden (silent)." );
+            } else {
+                player.Message( "&8You are no longer hidden." );
+            }
 
             Player.RaisePlayerHideChangedEvent( player, false, silent );
         }
