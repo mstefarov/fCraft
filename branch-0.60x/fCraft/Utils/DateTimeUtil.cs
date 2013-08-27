@@ -67,7 +67,7 @@ namespace fCraft {
         public static bool TryParseDateTime( [NotNull] string str, ref DateTime result ) {
             if( str == null ) throw new ArgumentNullException( "str" );
             long t;
-            if( str.Length > 1 && Int64.TryParse( str, out t ) ) {
+            if( str.Length > 1 && Int64.TryParse( str, NumberStyles.Integer, NumberFormatter, out t ) ) {
                 result = UnixEpoch.AddSeconds( t );
                 return true;
             }
@@ -118,7 +118,7 @@ namespace fCraft {
                 return true;
             }
             long ticks;
-            if( Int64.TryParse( str, out ticks ) ) {
+            if( Int64.TryParse( str, NumberStyles.Integer, NumberFormatter, out ticks ) ) {
                 result = new TimeSpan( ticks * TimeSpan.TicksPerSecond );
                 return true;
             } else {
