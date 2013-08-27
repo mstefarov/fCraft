@@ -19,8 +19,8 @@ namespace fCraft.ConfigGUI {
         static MainForm instance;
         readonly Font bold;
         Rank selectedRank;
-        readonly UpdaterSettingsPopup updaterWindow = new UpdaterSettingsPopup();
-        internal static readonly SortableBindingList<WorldListEntry> Worlds = new SortableBindingList<WorldListEntry>();
+        UpdaterSettingsPopup updaterWindow;
+        internal static SortableBindingList<WorldListEntry> Worlds;
 
 
         #region Initialization
@@ -199,13 +199,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void bShowAdvancedUpdaterSettings_Click( object sender, EventArgs e ) {
+            if( updaterWindow == null ) {
+                updaterWindow = new UpdaterSettingsPopup();
+                ApplyUpdaterWindow();
+            }
+            updaterWindow.UpdaterMode = (UpdaterMode)cUpdaterMode.SelectedIndex;
             updaterWindow.ShowDialog();
             cUpdaterMode.SelectedIndex = (int)updaterWindow.UpdaterMode;
-        }
-
-
-        void cUpdaterMode_SelectedIndexChanged( object sender, EventArgs e ) {
-            updaterWindow.UpdaterMode = (UpdaterMode)cUpdaterMode.SelectedIndex;
         }
 
 
