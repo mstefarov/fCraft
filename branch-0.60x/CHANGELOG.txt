@@ -1,3 +1,14 @@
+0.642
+ Feature: Added /Fill3D command.
+ Feature: Added caret (^), tilde (~), and grave accent (`) to emotes.
+ Fix: Emotes work via IRC once again.
+ Fix: ConfigGUI: Fixed "Add world" and "Edit world" popups sometimes locking up.
+ Fix: Fixed PlayerDB not saving LastFailedLoginIP properly.
+ Change: Made it easy to switch heartbeat servers (minecraft.net to classicube or back) via ConfigGUI.
+ Change: Added an optional second parameter to /DumpStats, which allows specifying period of inactivity for filtering players.
+ Change: Improved startup and shutdown times, and reduced CPU use.
+ Change: /Hide and /Unhide now indicate when they are silent or not.
+
 0.641
  Feature: Improved the way /EllipsoidH works on flat surfaces. Instead of filled ellipses, it now makes rings.
  Feature: Added a /Reply (/re) command.
