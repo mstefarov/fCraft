@@ -62,7 +62,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Creates a new PlayerInfo entry for a player who's never been online before. 
         /// Player is entered into the database and assigned an ID. </summary>
         /// <param name="name"> Player's name. Must be of an acceptable format
@@ -1034,7 +1033,7 @@ namespace fCraft {
             return new Regex( regexString, RegexOptions.IgnoreCase );
         }
 
-        static readonly Regex WildcardStripRegex = new Regex( @"[^a-zA-Z0-9_\.\*\?@]", RegexOptions.Compiled );
+        static readonly Regex WildcardStripRegex = new Regex( @"[^a-zA-Z0-9_\.\*\?@]" );
 
 
         // Extracts name from an email address, replaces non-printable characters with underscores,
@@ -1050,6 +1049,6 @@ namespace fCraft {
             return name;
         }
 
-        static readonly Regex NonNameCharsRegex = new Regex( @"[^a-zA-Z0-9_.]", RegexOptions.Compiled );
+        static readonly Regex NonNameCharsRegex = new Regex( @"[^a-zA-Z0-9_.]" );
     }
 }

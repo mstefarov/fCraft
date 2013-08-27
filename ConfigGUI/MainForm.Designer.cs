@@ -441,7 +441,6 @@ namespace fCraft.ConfigGUI {
             this.cUpdaterMode.Name = "cUpdaterMode";
             this.cUpdaterMode.Size = new System.Drawing.Size(189, 23);
             this.cUpdaterMode.TabIndex = 1;
-            this.cUpdaterMode.SelectedIndexChanged += new System.EventHandler(this.cUpdaterMode_SelectedIndexChanged);
             // 
             // lUpdater
             // 

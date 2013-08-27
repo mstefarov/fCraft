@@ -68,7 +68,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        static readonly Regex SplitByColorRegex = new Regex( "(&[0-9a-zA-Z])", RegexOptions.Compiled );
+        static readonly Regex SplitByColorRegex = new Regex( "(&[0-9a-zA-Z])" );
         TextSegment[] segments;
 
         public void SetText( string[] lines ) {

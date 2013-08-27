@@ -80,10 +80,11 @@ namespace fCraft {
 
         #region Constructors
 
+        static readonly string[] PermissionNames = Enum.GetNames( typeof( Permission ) );
         Rank() {
-            Permissions = new bool[Enum.GetValues( typeof( Permission ) ).Length];
-            PermissionLimits = new Rank[Permissions.Length];
-            permissionLimitStrings = new string[Permissions.Length];
+            Permissions = new bool[PermissionNames.Length];
+            PermissionLimits = new Rank[PermissionNames.Length];
+            permissionLimitStrings = new string[PermissionNames.Length];
             Color = fCraft.Color.White;
             Prefix = "";
         }
@@ -317,8 +318,8 @@ namespace fCraft {
             }
 
             // Permissions
-            for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
-                string permission = ((Permission)i).ToString();
+            for( int i = 0; i < PermissionNames.Length; i++ ) {
+                string permission = PermissionNames[i];
                 XElement temp;
                 if( (temp = el.Element( permission )) != null ) {
                     Permissions[i] = true;
@@ -388,9 +389,9 @@ namespace fCraft {
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
-            for( int i = 0; i < Enum.GetValues( typeof( Permission ) ).Length; i++ ) {
+            for( int i = 0; i < PermissionNames.Length; i++ ) {
                 if( Permissions[i] ) {
-                    XElement temp = new XElement( ((Permission)i).ToString() );
+                    XElement temp = new XElement( PermissionNames[i] );
 
                     if( PermissionLimits[i] != null ) {
                         temp.Add( new XAttribute( "max", GetLimit( (Permission)i ).FullName ) );

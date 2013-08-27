@@ -46,6 +46,7 @@ namespace fCraft.ConfigGUI {
 
             ApplyTabGeneral();
             ApplyTabChat();
+            Worlds = new SortableBindingList<WorldListEntry>();
             ApplyTabWorlds(); // also reloads world list
             ranksLoaded = true;
             ApplyTabRanks();
@@ -145,11 +146,16 @@ namespace fCraft.ConfigGUI {
             cHeartbeatUrl.Text = ConfigKey.HeartbeatUrl.GetString();
 
             // UpdaterSettingsWindow
+
+            cUpdaterMode.SelectedIndex = (int)ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+        }
+
+
+        void ApplyUpdaterWindow() {
             updaterWindow.BackupBeforeUpdate = ConfigKey.BackupBeforeUpdate.Enabled();
             updaterWindow.RunBeforeUpdate = ConfigKey.RunBeforeUpdate.GetString();
             updaterWindow.RunAfterUpdate = ConfigKey.RunAfterUpdate.GetString();
             updaterWindow.UpdaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-            cUpdaterMode.SelectedIndex = (int)updaterWindow.UpdaterMode;
         }
 
 
@@ -475,10 +481,12 @@ namespace fCraft.ConfigGUI {
 
 
             // UpdaterSettingsWindow
-            ConfigKey.UpdaterMode.TrySetValue( updaterWindow.UpdaterMode );
-            ConfigKey.BackupBeforeUpdate.TrySetValue( updaterWindow.BackupBeforeUpdate );
-            ConfigKey.RunBeforeUpdate.TrySetValue( updaterWindow.RunBeforeUpdate );
-            ConfigKey.RunAfterUpdate.TrySetValue( updaterWindow.RunAfterUpdate );
+            ConfigKey.UpdaterMode.TrySetValue( cUpdaterMode.SelectedIndex );
+            if( updaterWindow != null ) {
+                ConfigKey.BackupBeforeUpdate.TrySetValue( updaterWindow.BackupBeforeUpdate );
+                ConfigKey.RunBeforeUpdate.TrySetValue( updaterWindow.RunBeforeUpdate );
+                ConfigKey.RunAfterUpdate.TrySetValue( updaterWindow.RunAfterUpdate );
+            }
 
 
             // Chat
