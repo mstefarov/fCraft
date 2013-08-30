@@ -358,11 +358,14 @@ namespace fCraft {
                             Server.Message( "&i(IRC) {0} left {1}",
                                             msg.Nick,
                                             msg.Channel );
+                            string quitMsg = (msg.Message == null)
+                                                 ? "Quit"
+                                                 : IRCColorsAndNonStandardCharsExceptEmotes.Replace( msg.Message, "" );
                             Logger.Log( LogType.IRCChat,
                                         "{0} left {1} ({2})",
                                         msg.Nick,
                                         msg.Channel,
-                                        IRCColorsAndNonStandardCharsExceptEmotes.Replace( msg.Message, "" ) );
+                                        quitMsg );
                         }
                         return;
 
