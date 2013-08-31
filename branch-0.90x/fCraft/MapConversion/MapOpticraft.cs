@@ -1,5 +1,5 @@
-﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
-// Contributed by Jared Klopper. Opticraft is copyright (c) 2011, Jared Klopper
+﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// Contributed by Jared Klopper. Opticraft is copyright (c) 2011 Jared Klopper
 using System;
 using System.IO;
 using System.IO.Compression;

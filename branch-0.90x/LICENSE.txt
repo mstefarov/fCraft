@@ -1,0 +1,56 @@
+fCraft is open-source and provided free of charge. fCraft code and binaries
+are licensed and distributed under the BSD 3-Clause License:
+
+----
+
+Copyright (c) 2009-2013, Matvei Stefarov <me@matvei.org>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1.  Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimer.
+2.  Redistributions in binary form must reproduce the above copyright notice,
+    this list of conditions and the following disclaimer in the documentation
+    and/or other materials provided with the distribution.
+3.  Neither the name of fCraft nor the names of its contributors may be used
+    to endorse or promote products derived from this software without specific
+    prior written permission.
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+----
+
+If you create fCraft plugins that do not include any substantial portions of
+fCraft's original code, they belong to you and you are free to do absolutely
+anything with them. However, if you would like to distribute whole modified
+copies of fCraft, please follow the MIT License terms.
+
+Original Minecraft was developed by Markus "Notch" Persson of Mojang, and is 
+not affiliated with fCraft in any way. fCraft does not use any code, assets,
+or any other files from Minecraft.
+
+----
+
+fCraft includes code used with permission or under license from:
+    Dudecon (Forester), Osici (Omen), Paul Bourke (spline interpolation),
+    Mirco Bauer (SmartIrc4net), Chris Wilson (ParseCsvRow), vLK (MinerCPP), 
+    Tim Van Wassenhove (SortableBindingList), Rene Schulte (PerlinNoise3D),
+    Federico Di Gregorio (Mono.Options).
+
+fCraft includes code contributed by:
+    M1_Abrams (/Torus), Jared "LgZ-optical" Klopper (Opticraft map support),
+    Conrad "Redshift" Morgan (/Line, /Triangle, Vector3I, Vector3F),
+    and Tyler "TkTech" Kennedy (MCSharp and MinerCPP map support).
+
+Appropriate copyright, patent, trademark, and attribution notes can be
+found in fCraft's source code.

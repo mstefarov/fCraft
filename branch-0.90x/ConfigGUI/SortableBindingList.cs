@@ -1,4 +1,5 @@
-﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -7,7 +8,6 @@ using System.Reflection;
 namespace fCraft.ConfigGUI {
 
     [Serializable]
-    // SortableBindingList by Tim Van Wassenhove, http://www.timvw.be/presenting-the-sortablebindinglistt/
     public sealed class SortableBindingList<T> : BindingList<T> {
         private bool isSorted;
         private ListSortDirection dir = ListSortDirection.Ascending;

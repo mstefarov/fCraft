@@ -1,4 +1,5 @@
-﻿//
+﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 // Options.cs
 //
 // Authors:

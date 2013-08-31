@@ -204,74 +204,36 @@ fCraft.
 
 
 
-=== Licensing =================================================================
-
-fCraft is open-source and free for all uses. fCraft code and binaries are
-licensed and distributed under the permissive MIT License, reproduced here:
-
-----
-Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-----
-
-If you create fCraft plugins that do not include any substantial portions of
-fCraft's original code, they belong to you and you are free to do absolutely
-anything with them. However, if you would like to distribute whole modified
-copies of fCraft, please follow the MIT License terms.
-
-Original Minecraft was developed by Markus "Notch" Persson of Mojang, and is 
-not affiliated with fCraft in any way. fCraft does not use any code, assets,
-or any other files from Minecraft.
-
-
-
 === Credits ===================================================================
 
 fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Dankirk, Destroyer, FontPeg, Hellenion, Jonty800,
-    M1_Abrams, Optical-Lza, Redshift, SystemX17, TkTech, Wootalyzer.
+    M1_Abrams, LgZ-optical, Redshift, SystemX17, TkTech, Wootalyzer.
 
 Thanks to people who supported fCraft development through donations:
     fCraft.net community, Allie, D3M0N, Destoned, DreamPhreak, Pandorum,
     Redshift, TkTech, ven000m, wtfmejt, Team9000 and SpecialAttack.net
     communities, and others who donated anonymously.
 
-Thanks to people whose code has been ported to fCraft:
-    Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove,
-    Paul Bourke, Chris Wilson.
+Thanks to people whose code is used with permission or under license:
+    Dudecon, Osici, vLK, Tim Van Wassenhove, Paul Bourke, Chris Wilson,
+    Federico Di Gregorio, Rene Schulte, and Mirco Bauer.
 
 Thanks to Minecraft servers that helped test and improve fCraft:
     TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
     D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official,
-    Red Solidus Freebuild, Platinum Moon Freebuild.
+    Red Solidus Freebuild, Platinum Moon Freebuild, Au70 Galaxy.
 
 Thanks to people who submitted bug reports and feature requests:
     Allie, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
-    Gamma-Metroid, Hellenion, Sunfall, maintrain97, Mavinstar, Sukinorules,
-    Unison, and all others.
+    Gamma-Metroid, Hellenion, Jonty800, Sunfall, maintrain97, Mark-b,
+    Mavinstar, PhoneBook_, Ruggedbear, Sukinorules, Unison, and all others.
 
 Special thanks for inspiration and suggestions:
-    CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames, LG_Legacy,
-    PyroPyro, Revenant, Varriount, Voziv, Wallbraker, Zaneo,
+    AndrewPH, CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames,
+    LG_Legacy, PyroPyro, Revenant, Varriount, Voziv, Wallbraker, Zaneo,
     #mcc on Esper.net, HyveBuild/iCraft team, MinerCPP team, OpenCraft team.
 
 And thank You for using fCraft!
