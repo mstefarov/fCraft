@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a solid sphere. </summary>
@@ -8,7 +9,8 @@ namespace fCraft.Drawing {
             get { return "Sphere"; }
         }
 
-        public SphereDrawOperation( Player player )
+        /// <summary> Creates a new SphereDrawOperation for given player. </summary>
+        public SphereDrawOperation( [NotNull] Player player )
             : base( player ) {
         }
 

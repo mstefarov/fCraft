@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Constructs CloudyBrush. </summary>
     public sealed class CloudyBrushFactory : IBrushFactory {
+        /// <summary> Global singleton instance of CloudyBrushFactory. </summary>
         public static readonly CloudyBrushFactory Instance = new CloudyBrushFactory();
 
         CloudyBrushFactory() {}
@@ -75,9 +76,9 @@ namespace fCraft.Drawing {
                             player.Message( "Cloudy brush: Turbulence has been specified twice." );
                             return null;
                         }
-                        if( turbulence < 1 || tempTurbulence > CloudyBrush.MaxScale ) {
+                        if( turbulence < 1 || tempTurbulence > CloudyBrush.MaxTurbulence ) {
                             player.Message( "Cloudy brush: Invalid turbulence ({0}). Must be between 1 and {1}",
-                                            turbulence, CloudyBrush.MaxScale );
+                                            turbulence, CloudyBrush.MaxTurbulence );
                             return null;
                         }
                         turbulence = tempTurbulence;
@@ -123,7 +124,7 @@ namespace fCraft.Drawing {
             }
 
             madeBrush.Frequency /= ( scale / 100f );
-            madeBrush.Persistence *= ( turbulence / 100f );
+            madeBrush.Turbulence *= ( turbulence / 100f );
             madeBrush.Seed = seed;
 
             return madeBrush;
@@ -133,36 +134,52 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that uses 3D perlin noise to create "cloudy" patterns. </summary>
     public sealed class CloudyBrush : IBrush, IBrushInstance {
-        public UInt16 Seed { get; set; }
-        public float Frequency { get; set; }
-        public int Octaves { get; set; }
-        public float Persistence { get; set; }
-
-        public Block[] Blocks { get; private set; }
-        public int[] BlockRatios { get; private set; }
-
-        float[] computedThresholds;
-        float normMultiplier, normConstant;
-        PerlinNoise3D noise3D;
-
         static readonly object SeedGenLock = new object();
         static readonly Random SeedGenerator = new Random();
 
+        const int ExtraLargeThreshold = 20 * 20 * 20;
 
         public const int MaxRatio = 10000,
-                         ExtraLargeThreshold = 20 * 20 * 20,
                          MaxTurbulence = Int32.MaxValue,
                          MaxScale = Int32.MaxValue;
 
-
-        public const float PersistenceDefault = 0.75f,
+        public const float TurbulenceDefault = 0.75f,
                            FrequencyDefault = 0.08f;
+
+
+        /// <summary> Seed of the random generator (unsigned short). </summary>
+        public UInt16 Seed { get; set; }
+
+        /// <summary> Number of octaves in the perlin noise generator. Defaults to 3. </summary>
+        public int Octaves { get; set; }
+
+        /// <summary> Frequency of the perlin noise generator.
+        /// Higher frequency = lower "scale" of the brush. </summary>
+        public float Frequency { get; set; }
+
+        /// <summary> Turbulence of the perlin noise generator. </summary>
+        public float Turbulence { get; set; }
+
+        /// <summary> Array of blocks (at least one) used in the brush pattern. </summary>
+        public Block[] Blocks { get; private set; }
+
+        /// <summary> Corresponding ratios of each block type in Blocks array.
+        /// A block with ratio of N will fill (N / SumOfRatios) of the drawn volume. 
+        /// Thus, higher ratio means more a abundant block type. </summary>
+        public int[] BlockRatios { get; private set; }
+
+
+        float[] computedThresholds;
+        float normMultiplier,
+              normConstant;
+        PerlinNoise3D noise3D;
+
 
         public CloudyBrush() {
             Seed = NextSeed();
             Blocks = new Block[0];
             BlockRatios = new int[0];
-            Persistence = PersistenceDefault;
+            Turbulence = TurbulenceDefault;
             Frequency = FrequencyDefault;
             Octaves = 3;
         }
@@ -188,7 +205,7 @@ namespace fCraft.Drawing {
             Seed = other.Seed;
             Frequency = other.Frequency;
             Octaves = other.Octaves;
-            Persistence = other.Persistence;
+            Turbulence = other.Turbulence;
         }
 
 
@@ -206,7 +223,7 @@ namespace fCraft.Drawing {
                 Amplitude = 1,
                 Frequency = Frequency,
                 Octaves = Octaves,
-                Persistence = Persistence
+                Persistence = Turbulence
             };
 
             BoundingBox samplerBox = op.Bounds;
@@ -302,8 +319,8 @@ namespace fCraft.Drawing {
                     sb.AppendFormat( " {0:0}%", scale );
                 }
 
-                if( Math.Abs( Persistence - PersistenceDefault ) > 0.00001f ) {
-                    int turbulence = (int)Math.Round( ( Persistence * 100 ) / PersistenceDefault );
+                if( Math.Abs( Turbulence - TurbulenceDefault ) > 0.00001f ) {
+                    int turbulence = (int)Math.Round( ( Turbulence * 100 ) / TurbulenceDefault );
                     sb.AppendFormat( " {0:0}T", turbulence );
                 }
 
