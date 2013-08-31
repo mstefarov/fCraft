@@ -1,5 +1,6 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -278,7 +279,7 @@ namespace fCraft {
 
         /// <summary> Number of blocks that are waiting to be processed. </summary>
         public int UpdateQueueLength {
-            get { return updates.Length; }
+            get { return updates.Count; }
         }
 
 
@@ -292,7 +293,9 @@ namespace fCraft {
 
         /// <summary> Clears all pending updates. </summary>
         public void ClearUpdateQueue() {
-            updates.Clear();
+            BlockUpdate ignored;
+            while( updates.TryDequeue( out ignored ) ) {
+            }
         }
 
 
@@ -314,7 +317,7 @@ namespace fCraft {
             int maxPacketsPerUpdate = Server.CalculateMaxPacketsPerUpdate( World );
             while( packetsSent < maxPacketsPerUpdate ) {
                 BlockUpdate update;
-                if( !updates.Dequeue( out update ) ) {
+                if( !updates.TryDequeue( out update ) ) {
                     if( World.IsFlushing ) {
                         canFlush = true;
                     }
