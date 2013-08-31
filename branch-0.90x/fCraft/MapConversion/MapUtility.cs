@@ -270,14 +270,12 @@ namespace fCraft.MapConversion {
 
             if( Exporters.ContainsKey( mapFormat ) ) {
                 IMapExporter converter = Exporters[mapFormat];
-                if( converter.SupportsExport ) {
-                    try {
-                        converter.Save( mapToSave, fileName );
-                        return true;
-                    } catch( Exception ex ) {
-                        Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
-                        return false;
-                    }
+                try {
+                    converter.Save( mapToSave, fileName );
+                    return true;
+                } catch( Exception ex ) {
+                    Logger.LogAndReportCrash( "Map failed to save", "MapConversion", ex, false );
+                    return false;
                 }
             }
 
@@ -301,9 +299,7 @@ namespace fCraft.MapConversion {
 
             if( Exporters.ContainsKey( mapFormat ) ) {
                 IMapExporter converter = Exporters[mapFormat];
-                if( converter.SupportsExport ) {
-                    converter.Save( mapToSave, fileName );
-                }
+                converter.Save( mapToSave, fileName );
             }
 
             throw new NoMapConverterFoundException( "No exporter could be found for the given format." );

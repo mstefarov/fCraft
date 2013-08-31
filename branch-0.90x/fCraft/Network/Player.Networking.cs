@@ -1167,7 +1167,7 @@ namespace fCraft {
         #endregion
 
 
-        public void ClearQueue( ConcurrentQueue<Packet> queue ) {
+        static void ClearQueue( ConcurrentQueue<Packet> queue ) {
             Packet ignored;
             while( queue.TryDequeue( out ignored ) ) {
             }

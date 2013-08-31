@@ -23,12 +23,6 @@ namespace fCraft {
         }
 
 
-        // Converts a DateTime to UTC Unix Timestamp, with millisecond precision. Used in FCMv3 saving.
-        public static long ToUnixTimeLegacy( this DateTime date ) {
-            return (date.Ticks - TicksToUnixEpoch) / TicksPerMillisecond;
-        }
-
-
         /// <summary> Converts a DateTime to a string containing the UTC Unix Timestamp.
         /// If the date equals DateTime.MinValue, returns an empty string. </summary>
         [NotNull]

@@ -12,14 +12,6 @@ namespace fCraft.MapConversion {
             get { return "MCSharp, MCLawl, MCForge, FemtoCraft"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "lvl"; }
         }

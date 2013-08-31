@@ -12,14 +12,6 @@ namespace fCraft.MapConversion {
             get { return "Classic/Vanilla"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return false; }
-        }
-
         public string FileExtension {
             get { return "dat"; }
         }

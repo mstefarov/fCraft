@@ -10,14 +10,6 @@ namespace fCraft.MapConversion {
             get { return "Raw"; }
         }
 
-        public bool SupportsImport {
-            get { return false; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "raw"; }
         }

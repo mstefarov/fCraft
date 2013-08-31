@@ -59,105 +59,7 @@ namespace fCraft.MapConversion {
         #endregion
 
 
-        #region Shorthand Contructors
-
-        [CanBeNull]
-        public NBTag Append( NBTag tag ) {
-            if( !( this is NBTCompound ) ) {
-                return null;
-            }
-            tag.Parent = this;
-            ( this )[tag.Name] = tag;
-            return tag;
-        }
-
-
-        public NBTag Append( string name, byte value ) {
-            return Append( new NBTag( NBTType.Byte, name, value, this ) );
-        }
-        public NBTag Append( string name, short value ) {
-            return Append( new NBTag( NBTType.Short, name, value, this ) );
-        }
-        public NBTag Append( string name, int value ) {
-            return Append( new NBTag( NBTType.Int, name, value, this ) );
-        }
-        public NBTag Append( string name, long value ) {
-            return Append( new NBTag( NBTType.Long, name, value, this ) );
-        }
-        public NBTag Append( string name, float value ) {
-            return Append( new NBTag( NBTType.Float, name, value, this ) );
-        }
-        public NBTag Append( string name, double value ) {
-            return Append( new NBTag( NBTType.Double, name, value, this ) );
-        }
-        public NBTag Append( string name, byte[] value ) {
-            return Append( new NBTag( NBTType.Bytes, name, value, this ) );
-        }
-        public NBTag Append( string name, [NotNull] string value ) {
-            if( value == null ) throw new ArgumentNullException( "value" );
-            return Append( new NBTag( NBTType.String, name, value, this ) );
-        }
-        public NBTag Append( string name, params NBTag[] tags ) {
-            NBTCompound compound = new NBTCompound { Name = name };
-            foreach( NBTag tag in tags ) {
-                compound.Tags.Add( tag.Name, tag );
-            }
-            return Append( compound );
-        }
-        public NBTag Append( params NBTag[] tags ) {
-            foreach( NBTag tag in tags ) {
-                Append( tag );
-            }
-            return this;
-        }
-
-        #endregion
-
-
-        #region Child Tag Manipulation
-
-        public bool Contains( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( this is NBTCompound ) {
-                return ( (NBTCompound)this ).Tags.ContainsKey( name );
-            } else {
-                return false;
-            }
-        }
-
-        public NBTag Remove( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            if( this is NBTCompound ) {
-                NBTag tag = ( this )[name];
-                ( (NBTCompound)this ).Tags.Remove( name );
-                return tag;
-            } else {
-                throw new NotSupportedException( "Can only Remove() from compound tags." );
-            }
-        }
-
-        public NBTag Remove() {
-            if( Parent is NBTCompound ) {
-                Parent.Remove( Name );
-                return this;
-            } else {
-                throw new NotSupportedException( "Cannot Remove() - no parent tag." );
-            }
-        }
-
-        #endregion
-
-
         #region Loading
-
-        public static NBTCompound ReadFile( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream fs = File.OpenRead( fileName ) ) {
-                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
-                    return ReadStream( gs );
-                }
-            }
-        }
 
         public static NBTCompound ReadStream( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
@@ -285,102 +187,6 @@ namespace fCraft.MapConversion {
         #endregion
 
 
-        #region Saving
-
-        public void WriteTag( [NotNull] string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream fs = File.OpenWrite( fileName ) ) {
-                using( GZipStream gs = new GZipStream( fs, CompressionMode.Compress ) ) {
-                    WriteTag( gs );
-                }
-            }
-        }
-
-        public void WriteTag( [NotNull] Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            using( BinaryWriter writer = new BinaryWriter( stream ) ) {
-                WriteTag( writer, true );
-            }
-        }
-
-        public void WriteTag( [NotNull] BinaryWriter writer ) {
-            if( writer == null ) throw new ArgumentNullException( "writer" );
-            WriteTag( writer, true );
-        }
-
-        public void WriteTag( [NotNull] BinaryWriter writer, bool writeType ) {
-            if( writer == null ) throw new ArgumentNullException( "writer" );
-            if( writeType ) writer.Write( (byte)Type );
-            if( Type == NBTType.End ) return;
-            if( writeType ) WriteString( Name, writer );
-            switch( Type ) {
-                case NBTType.Byte:
-                    writer.Write( (byte)Payload );
-                    return;
-
-                case NBTType.Short:
-                    writer.Write( IPAddress.HostToNetworkOrder( (short)Payload ) );
-                    return;
-
-                case NBTType.Int:
-                    writer.Write( IPAddress.HostToNetworkOrder( (int)Payload ) );
-                    return;
-
-                case NBTType.Long:
-                    writer.Write( IPAddress.HostToNetworkOrder( (long)Payload ) );
-                    return;
-
-                case NBTType.Float:
-                    writer.Write( (float)Payload );
-                    return;
-
-                case NBTType.Double:
-                    writer.Write( (double)Payload );
-                    return;
-
-                case NBTType.Bytes:
-                    writer.Write( IPAddress.HostToNetworkOrder( ( (byte[])Payload ).Length ) );
-                    writer.Write( (byte[])Payload );
-                    return;
-
-                case NBTType.String:
-                    WriteString( (string)Payload, writer );
-                    return;
-
-
-                case NBTType.List:
-                    NBTList list = (NBTList)this;
-                    writer.Write( (byte)list.ListType );
-                    writer.Write( IPAddress.HostToNetworkOrder( list.Tags.Length ) );
-
-                    for( int i = 0; i < list.Tags.Length; i++ ) {
-                        list.Tags[i].WriteTag( writer, false );
-                    }
-                    return;
-
-                case NBTType.Compound:
-                    foreach( NBTag tag in this ) {
-                        tag.WriteTag( writer );
-                    }
-                    writer.Write( (byte)NBTType.End );
-                    return;
-
-                default:
-                    return;
-            }
-        }
-
-        static void WriteString( [NotNull] string str, [NotNull] BinaryWriter writer ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            if( writer == null ) throw new ArgumentNullException( "writer" );
-            byte[] stringBytes = Encoding.UTF8.GetBytes( str );
-            writer.Write( IPAddress.NetworkToHostOrder( (short)stringBytes.Length ) );
-            writer.Write( stringBytes );
-        }
-
-        #endregion
-
-
         #region Accessors
 
         public void Set( object payload ) { Payload = payload; }
@@ -393,20 +199,6 @@ namespace fCraft.MapConversion {
         public double GetDouble() { return (double)Payload; }
         public byte[] GetBytes() { return (byte[])Payload; }
         public string GetString() { return (string)Payload; }
-
-
-        object GetChild( string name, object defaultValue ) {
-            return Contains( name ) ? this[name].Payload : defaultValue;
-        }
-
-        public byte Get( string name, byte defaultValue ) { return (byte)GetChild( name, defaultValue ); }
-        public short Get( string name, short defaultValue ) { return (short)GetChild( name, defaultValue ); }
-        public int Get( string name, int defaultValue ) { return (int)GetChild( name, defaultValue ); }
-        public long Get( string name, long defaultValue ) { return (long)GetChild( name, defaultValue ); }
-        public float Get( string name, float defaultValue ) { return (float)GetChild( name, defaultValue ); }
-        public double Get( string name, double defaultValue ) { return (double)GetChild( name, defaultValue ); }
-        public byte[] Get( string name, byte[] defaultValue ) { return (byte[])GetChild( name, defaultValue ); }
-        public string Get( string name, string defaultValue ) { return (string)GetChild( name, defaultValue ); }
 
         #endregion
 
@@ -507,22 +299,6 @@ namespace fCraft.MapConversion {
         public NBTList() {
             Type = NBTType.List;
         }
-        public NBTList( string name, NBTType type, int count ) {
-            Name = name;
-            Type = NBTType.List;
-            ListType = type;
-            Tags = new NBTag[count];
-        }
-        public NBTList( string name, NBTType type, ICollection payloads ) {
-            Name = name;
-            Type = NBTType.List;
-            ListType = type;
-            Tags = new NBTag[payloads.Count];
-            int i = 0;
-            foreach( object payload in payloads ) {
-                Tags[i++] = new NBTag( ListType, null, payload, this );
-            }
-        }
         public NBTag[] Tags;
         public NBTType ListType;
     }
@@ -530,10 +306,6 @@ namespace fCraft.MapConversion {
 
     public sealed class NBTCompound : NBTag {
         public NBTCompound() {
-            Type = NBTType.Compound;
-        }
-        public NBTCompound( string name ) {
-            Name = name;
             Type = NBTType.Compound;
         }
         public readonly Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();

@@ -588,52 +588,57 @@ namespace System.IO.Compression {
 
         // Copies all source file into storage file
         void Store( ref ZipFileEntry zfe, Stream source ) {
-            byte[] buffer = new byte[16384];
-            int bytesRead;
-            uint totalRead = 0;
-            Stream outStream;
+            while( true ) {
+                byte[] buffer = new byte[16384];
+                int bytesRead;
+                uint totalRead = 0;
+                Stream outStream;
 
-            long posStart = zipFileStream.Position;
-            long sourceStart = source.Position;
+                long posStart = zipFileStream.Position;
+                long sourceStart = source.Position;
 
-            if( zfe.Method == Compression.Store )
-                outStream = zipFileStream;
-            else
-                outStream = new DeflateStream( zipFileStream, CompressionMode.Compress, true );
-
-            zfe.Crc32 = 0 ^ 0xffffffff;
-
-            do {
-                bytesRead = source.Read( buffer, 0, buffer.Length );
-                totalRead += (uint)bytesRead;
-                if( bytesRead > 0 ) {
-                    outStream.Write( buffer, 0, bytesRead );
-
-                    for( uint i = 0; i < bytesRead; i++ ) {
-                        zfe.Crc32 = CrcTable[( zfe.Crc32 ^ buffer[i] ) & 0xFF] ^ ( zfe.Crc32 >> 8 );
-                    }
+                if( zfe.Method == Compression.Store ) {
+                    outStream = zipFileStream;
+                } else {
+                    outStream = new DeflateStream( zipFileStream, CompressionMode.Compress, true );
                 }
-            } while( bytesRead == buffer.Length );
 
-            if( totalRead > 0 )
-                outStream.Flush(); // fix for "Internal error Flush" under Mono
+                zfe.Crc32 = 0 ^ 0xffffffff;
 
-            if( zfe.Method == Compression.Deflate )
-                outStream.Dispose();
+                do {
+                    bytesRead = source.Read( buffer, 0, buffer.Length );
+                    totalRead += (uint)bytesRead;
+                    if( bytesRead > 0 ) {
+                        outStream.Write( buffer, 0, bytesRead );
 
-            zfe.Crc32 ^= 0xffffffff;
-            zfe.FileSize = totalRead;
-            zfe.CompressedSize = (uint)( zipFileStream.Position - posStart );
+                        for( uint i = 0; i < bytesRead; i++ ) {
+                            zfe.Crc32 = CrcTable[( zfe.Crc32 ^ buffer[i] ) & 0xFF] ^ ( zfe.Crc32 >> 8 );
+                        }
+                    }
+                } while( bytesRead == buffer.Length );
 
-            // Verify for real compression
-            if( zfe.Method == Compression.Deflate && !ForceDeflating && source.CanSeek &&
-                zfe.CompressedSize > zfe.FileSize ) {
-                // Start operation again with Store algorithm
-                zfe.Method = Compression.Store;
-                zipFileStream.Position = posStart;
-                zipFileStream.SetLength( posStart );
-                source.Position = sourceStart;
-                Store( ref zfe, source );
+                if( totalRead > 0 ) {
+                    outStream.Flush(); // fix for "Internal error Flush" under Mono
+                }
+
+                if( zfe.Method == Compression.Deflate ) {
+                    outStream.Dispose();
+                }
+
+                zfe.Crc32 ^= 0xffffffff;
+                zfe.FileSize = totalRead;
+                zfe.CompressedSize = (uint)( zipFileStream.Position - posStart );
+
+                // Verify for real compression
+                if( zfe.Method == Compression.Deflate && !ForceDeflating && source.CanSeek && zfe.CompressedSize > zfe.FileSize ) {
+                    // Start operation again with Store algorithm
+                    zfe.Method = Compression.Store;
+                    zipFileStream.Position = posStart;
+                    zipFileStream.SetLength( posStart );
+                    source.Position = sourceStart;
+                    continue;
+                }
+                break;
             }
         }
 
