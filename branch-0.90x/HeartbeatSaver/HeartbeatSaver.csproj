@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>fCraft.HeartbeatSaver</RootNamespace>
     <AssemblyName>HeartbeatSaver</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <StartupObject>fCraft.HeartbeatSaver.HeartbeatSaver</StartupObject>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
