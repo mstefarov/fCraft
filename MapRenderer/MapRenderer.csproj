@@ -46,7 +46,6 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlockingQueue.cs" />
     <Compile Include="MapRenderer.cs" />
     <Compile Include="MapRendererParams.cs" />
     <Compile Include="RenderTask.cs" />

@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using System.Collections.Concurrent;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -11,13 +12,14 @@ namespace fCraft.MapRenderer {
     /// <summary> Class responsible for rendering map files, in a dedicated thread. </summary>
     class RenderWorker {
         static int threadCount;
-        readonly BlockingQueue<RenderTask> inQueue, outQueue;
+        readonly BlockingCollection<RenderTask> inQueue, outQueue;
         readonly MapRendererParams p;
         readonly int threadNumber;
         IsoCat renderer;
         readonly Thread thread;
 
-        public RenderWorker( BlockingQueue<RenderTask> inputQueue, BlockingQueue<RenderTask> outputQueue,
+        public RenderWorker( BlockingCollection<RenderTask> inputQueue,
+                             BlockingCollection<RenderTask> outputQueue,
                              MapRendererParams taskParams ) {
             inQueue = inputQueue;
             outQueue = outputQueue;
@@ -42,7 +44,7 @@ namespace fCraft.MapRenderer {
                 // loop terminates with the rest of the program (this is a background thread)
                 while( true ) {
                     // wait (block) until a map is available for drawing
-                    RenderTask task = inQueue.WaitDequeue();
+                    RenderTask task = inQueue.Take();
                     try {
                         // render the map
                         IsoCatResult result = renderer.Draw( task.Map );
@@ -79,7 +81,7 @@ namespace fCraft.MapRenderer {
                     }
 
                     // send stack to the results queue
-                    outQueue.Enqueue( task );
+                    outQueue.Add( task );
                     ms.SetLength( 0 );
                 }
             }
