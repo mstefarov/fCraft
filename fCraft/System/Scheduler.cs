@@ -100,7 +100,7 @@ namespace fCraft {
                     }
                 }
 
-                Thread.Sleep( 10 );
+                Thread.Sleep( 0 );
             }
         }
 
