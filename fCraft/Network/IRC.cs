@@ -37,6 +37,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
 using JetBrains.Annotations;
+using System.Collections.Concurrent;
 
 namespace fCraft {
 
@@ -149,7 +150,7 @@ namespace fCraft {
                             DateTime now = DateTime.UtcNow;
                             if( now.Subtract( lastMessageSent ) >= SendDelay ) {
                                 string outputLine;
-                                if( localQueue.Length > 0 && localQueue.Dequeue( out outputLine ) ) {
+                                if( localQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
                                     Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
 #endif
@@ -163,7 +164,7 @@ namespace fCraft {
                                         reconnect = false;
                                         break;
                                     }
-                                } else if( OutputQueue.Length > 0 && OutputQueue.Dequeue( out outputLine ) ) {
+                                } else if( OutputQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
                                     Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
 #endif
@@ -492,7 +493,7 @@ namespace fCraft {
 
             public void DisconnectThread( [CanBeNull] string quitMsg ) {
                 if( isConnected && quitMsg != null ) {
-                    localQueue.Clear();
+                    ClearLocalQueue();
                     Send( IRCCommands.Quit( quitMsg ) );
                 } else {
                     isConnected = false;
@@ -516,6 +517,11 @@ namespace fCraft {
                 } catch( ObjectDisposedException ) { }
             }
 
+            void ClearLocalQueue() {
+                string ignored;
+                while( localQueue.TryDequeue( out ignored ) ) {
+                }
+            }
 
             #region IDisposable members
 

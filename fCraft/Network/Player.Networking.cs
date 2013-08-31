@@ -1,6 +1,7 @@
 ﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
 //#define DEBUG_MOVEMENT
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -164,8 +165,8 @@ namespace fCraft {
                     // send output to player
                     Packet packet;
                     while( canSend && packetsSent < Server.MaxSessionPacketsPerTick ) {
-                        if( !priorityOutputQueue.Dequeue( out packet ) ) {
-                            if( !outputQueue.Dequeue( out packet ) ) {
+                        if( !priorityOutputQueue.TryDequeue( out packet ) ) {
+                            if( !outputQueue.TryDequeue( out packet ) ) {
                                 // nothing more to send!
                                 break;
                             }
@@ -207,7 +208,7 @@ namespace fCraft {
                     if( canSend ) {
                         lock( joinWorldLock ) {
                             if( forcedWorldToJoin != null ) {
-                                while( priorityOutputQueue.Dequeue( out packet ) ) {
+                                while( priorityOutputQueue.TryDequeue( out packet ) ) {
 #if DEBUG_NETWORKING
                                     Logger.Log( LogType.Trace, "to {0} [{1}] {2}", IP, outPacketNumber++, packet.OpCode );
 #endif
@@ -1013,12 +1014,10 @@ namespace fCraft {
             }
 
             ResetVisibleEntities();
-
-            ClearLowPriorityOutputQueue();
-
-            Map map;
+            ClearQueue( outputQueue );
 
             // try to join the new world
+            Map map;
             if( oldWorld != newWorld ) {
                 bool announce = ( oldWorld != null ) && ( oldWorld.Name != newWorld.Name );
                 map = newWorld.AcceptPlayer( this, announce );
@@ -1168,13 +1167,10 @@ namespace fCraft {
         #endregion
 
 
-        public void ClearLowPriorityOutputQueue() {
-            outputQueue.Clear();
-        }
-
-
-        public void ClearPriorityOutputQueue() {
-            priorityOutputQueue.Clear();
+        public void ClearQueue( ConcurrentQueue<Packet> queue ) {
+            Packet ignored;
+            while( queue.TryDequeue( out ignored ) ) {
+            }
         }
 
 
@@ -1194,8 +1190,8 @@ namespace fCraft {
             canQueue = false;
 
             // clear all pending output to be written to client (it won't matter after the kick)
-            ClearLowPriorityOutputQueue();
-            ClearPriorityOutputQueue();
+            ClearQueue(outputQueue);
+            ClearQueue(priorityOutputQueue);
 
             // bypassing Send() because canQueue is false
             priorityOutputQueue.Enqueue( Packet.MakeKick( message ) );

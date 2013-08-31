@@ -155,7 +155,6 @@
     <Compile Include="Network\IRCMessage.cs" />
     <Compile Include="Player\PlayerConstants.cs" />
     <Compile Include="Utils\BoundingBox.cs" />
-    <Compile Include="Utils\ConcurrentQueue.cs" />
     <Compile Include="System\ConfigKey.cs" />
     <Compile Include="Utils\Noise.cs" />
     <Compile Include="Utils\Updater.cs" />
