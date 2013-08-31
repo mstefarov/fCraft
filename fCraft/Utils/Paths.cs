@@ -44,7 +44,10 @@ namespace fCraft {
                 GreetingFileName,
                 HeartbeatDataFileName,
                 WorldListFileName,
-                AutoRankFileName
+                AutoRankFileName,
+                "CHANGELOG.txt",
+                "README.txt",
+                "LICENSE.txt"
             };
 
             DataFilesToBackup = new[] {

@@ -14,7 +14,8 @@ namespace fCraft.UpdateBuilder {
             "MapConverter.exe",
             "MapRenderer.exe",
             "../../CHANGELOG.txt",
-            "../../README.txt"
+            "../../README.txt",
+            "../../LICENSE.txt"
         };
 
         const string BinariesFileName = "../../UpdateInstaller/Resources/Payload.zip";
