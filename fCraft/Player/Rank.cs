@@ -104,6 +104,11 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates a new Rank object from given XML definition.
+        /// XML schema is expected to match the output of Rank.Serialize() </summary>
+        /// <param name="el"> XML element to parse as a rank. </param>
+        /// <exception cref="ArgumentNullException"> el is null </exception>
+        /// <exception cref="RankDefinitionException"> Given XML element could not be parsed as a rank definition. </exception>
         public Rank( [NotNull] XElement el )
             : this() {
             if( el == null ) throw new ArgumentNullException( "el" );
@@ -370,6 +375,7 @@ namespace fCraft {
         #endregion
 
 
+        /// <summary> Saves this rank definition to XML. </summary>
         public XElement Serialize() {
             XElement rankTag = new XElement( "Rank" );
             rankTag.Add( new XAttribute( "name", Name ) );
@@ -383,9 +389,8 @@ namespace fCraft {
             rankTag.Add( new XAttribute( "antiGriefSeconds", AntiGriefSeconds ) );
             if( DrawLimit > 0 ) rankTag.Add( new XAttribute( "drawLimit", DrawLimit ) );
             if( IdleKickTimer > 0 ) rankTag.Add( new XAttribute( "idleKickAfter", IdleKickTimer ) );
-            if( HasReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", HasReservedSlot ) );
-            if( AllowSecurityCircumvention )
-                rankTag.Add( new XAttribute( "allowSecurityCircumvention", AllowSecurityCircumvention ) );
+            if( HasReservedSlot ) rankTag.Add( new XAttribute( "reserveSlot", true ) );
+            if( AllowSecurityCircumvention ) rankTag.Add( new XAttribute( "allowSecurityCircumvention", true ) );
             rankTag.Add( new XAttribute( "copySlots", CopySlots ) );
             rankTag.Add( new XAttribute( "fillLimit", FillLimit ) );
 
