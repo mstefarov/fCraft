@@ -16,14 +16,6 @@ namespace fCraft.MapConversion {
             get { return "fCraft"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "fcm"; }
         }

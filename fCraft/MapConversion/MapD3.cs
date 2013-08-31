@@ -11,14 +11,6 @@ namespace fCraft.MapConversion {
             get { return "D3"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "map"; }
         }

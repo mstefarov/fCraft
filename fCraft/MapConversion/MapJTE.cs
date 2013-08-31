@@ -13,14 +13,6 @@ namespace fCraft.MapConversion {
             get { return "JTE's"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "gz"; }
         }

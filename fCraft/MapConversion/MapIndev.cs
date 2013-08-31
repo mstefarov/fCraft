@@ -14,14 +14,6 @@ namespace fCraft.MapConversion {
             get { return "mclevel"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return false; }
-        }
-
 
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }

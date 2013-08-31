@@ -18,18 +18,6 @@ namespace fCraft {
 
         public int X, Y, Z;
 
-        public int X2 {
-            get { return X * X; }
-        }
-
-        public int Y2 {
-            get { return Y * Y; }
-        }
-
-        public int Z2 {
-            get { return Z * Z; }
-        }
-
 
         public Vector3I( int x, int y, int z ) {
             X = x;

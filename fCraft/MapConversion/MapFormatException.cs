@@ -15,10 +15,6 @@ namespace fCraft.MapConversion {
             : base( message ) {}
 
 
-        internal MapFormatException( [NotNull] string message, Exception innerException )
-            : base( message, innerException ) {}
-
-
         MapFormatException( SerializationInfo info, StreamingContext context )
             : base( info, context ) {}
     }
@@ -28,16 +24,8 @@ namespace fCraft.MapConversion {
     /// be found for the given map format, or a map format could not be identified at all. </summary>
     [Serializable]
     public sealed class NoMapConverterFoundException : Exception {
-        internal NoMapConverterFoundException() {}
-
-
         internal NoMapConverterFoundException( [NotNull] string message )
             : base( message ) {}
-
-
-        internal NoMapConverterFoundException( [NotNull] string message, Exception innerException )
-            : base( message, innerException ) {}
-
 
         NoMapConverterFoundException( SerializationInfo info, StreamingContext context )
             : base( info, context ) {}

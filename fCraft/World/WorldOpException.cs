@@ -15,18 +15,8 @@ namespace fCraft {
             ErrorCode = errorCode;
         }
 
-        public WorldOpException( WorldOpExceptionCode errorCode, string message )
-            : base( message ) {
-            ErrorCode = errorCode;
-        }
-
         public WorldOpException( string worldName, WorldOpExceptionCode errorCode, Exception innerException )
             : base( GetMessage( worldName, errorCode ), innerException ) {
-            ErrorCode = errorCode;
-        }
-
-        public WorldOpException( WorldOpExceptionCode errorCode, string message, Exception innerException )
-            : base( message, innerException ) {
             ErrorCode = errorCode;
         }
 

@@ -17,14 +17,6 @@ namespace fCraft.MapConversion {
             get { return "Myne/MyneCraft/HyveBuild/iCraft"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return false; }
-        }
-
         public string FileExtension {
             get { throw new NotSupportedException(); }
         }

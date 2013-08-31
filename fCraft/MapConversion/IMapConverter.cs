@@ -8,12 +8,6 @@ namespace fCraft.MapConversion {
         [NotNull]
         string ServerName { get; }
 
-        /// <summary> Whether this converter supports importing/loading from the format. </summary>
-        bool SupportsImport { get; }
-
-        /// <summary> Whether this converter supports exporting/saving to the format. </summary>
-        bool SupportsExport { get; }
-
         /// <summary> File extension associated with this file.
         /// Throws NotSupportedException if this is a directory-based format. </summary>
         string FileExtension { get; }

@@ -14,14 +14,6 @@ namespace fCraft.MapConversion {
             get { return "MinerCPP/LuaCraft"; }
         }
 
-        public bool SupportsImport {
-            get { return true; }
-        }
-
-        public bool SupportsExport {
-            get { return true; }
-        }
-
         public string FileExtension {
             get { return "dat"; }
         }
