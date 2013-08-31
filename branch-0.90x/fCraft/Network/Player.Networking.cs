@@ -1102,7 +1102,7 @@ namespace fCraft {
 #if DEBUG_NETWORKING
             Logger.Log( LogType.Trace, "to {0} [{1}] AddEntity", IP, outPacketNumber++ );
 #endif
-            writer.Write( Packet.MakeAddEntity( Packet.SelfID, ListName, map.Spawn ).Bytes );
+            writer.Write( Packet.MakeAddEntity( Packet.SelfId, ListName, map.Spawn ).Bytes );
             BytesSent += 74;
 
             // Teleport player to the target location
@@ -1111,7 +1111,7 @@ namespace fCraft {
 #if DEBUG_NETWORKING
             Logger.Log( LogType.Trace, "to {0} [{1}] Teleport", IP, outPacketNumber++ );
 #endif
-            writer.Write( Packet.MakeTeleport( Packet.SelfID, Position ).Bytes );
+            writer.Write( Packet.MakeTeleport( Packet.SelfId, Position ).Bytes );
             BytesSent += 10;
 
             if( oldWorld == newWorld ) {

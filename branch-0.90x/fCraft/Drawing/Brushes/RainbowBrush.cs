@@ -5,6 +5,7 @@ namespace fCraft.Drawing {
     /// <summary> Brush that creates a diagonal rainbow pattern, using
     /// Red, Orange, Yellow, Green, Aqua, Blue, and Violet blocks. </summary>
     public sealed class RainbowBrush : IBrushFactory, IBrush, IBrushInstance {
+        /// <summary> Global singleton instance of RainbowBrush. </summary>
         public static readonly RainbowBrush Instance = new RainbowBrush();
 
         RainbowBrush() { }

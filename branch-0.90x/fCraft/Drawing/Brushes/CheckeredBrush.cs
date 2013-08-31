@@ -38,16 +38,22 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that alternates between two block types, in a checkered pattern. </summary>
     public sealed class CheckeredBrush : IBrushInstance, IBrush {
+        /// <summary> First block in the alternating pattern. </summary>
         public Block Block1 { get; private set; }
+        /// <summary> Second block in the alternating pattern. </summary>
         public Block Block2 { get; private set; }
 
 
+        /// <summary> Initializes a new instance of CheckeredBrush. </summary>
         public CheckeredBrush( Block block1, Block block2 ) {
             Block1 = block1;
             Block2 = block2;
         }
 
 
+        /// <summary> Creates a copy of the given CheckeredBrush. </summary>
+        /// <param name="other"> Brush to clone. May not be null. </param>
+        /// <exception cref="ArgumentNullException"> other is null </exception>
         public CheckeredBrush( [NotNull] CheckeredBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             Block1 = other.Block1;
