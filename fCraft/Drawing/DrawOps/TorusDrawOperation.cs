@@ -1,5 +1,5 @@
-﻿// fCraft is Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
-// original TorusDrawOperation written and contributed by M1_Abrams
+﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// original TorusDrawOperation contributed by M1_Abrams
 using System;
 using System.Collections.Generic;
 

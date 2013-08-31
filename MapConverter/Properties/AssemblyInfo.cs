@@ -10,7 +10,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft MapConverter" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2013 (matvei.org)" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright 2009-2013 Matvei Stefarov (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 

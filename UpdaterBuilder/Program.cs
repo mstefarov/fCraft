@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+using System.IO;
 using System.IO.Compression;
 
 namespace fCraft.UpdateBuilder {

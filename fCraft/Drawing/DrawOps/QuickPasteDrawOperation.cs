@@ -1,4 +1,4 @@
-﻿// Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
+﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that handles non-aligned (single-mark) pasting for /Paste and /PasteNot.

@@ -1,4 +1,5 @@
-﻿// Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares, zipstorer.codeplex.com
+﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+// Based on ZipStorer 2.35 (March 14, 2010), by Jaime Olivares, zipstorer.codeplex.com
 using System.Collections.Generic;
 using System.Text;
 using fCraft;

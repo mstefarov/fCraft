@@ -1,6 +1,5 @@
-﻿/* Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
- * 
- * Based, in part, on SmartIrc4net code. Original license is reproduced below.
+﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+/* Based, in part, on SmartIrc4net code. Original license is reproduced below.
  * 
  *
  *

@@ -112,36 +112,39 @@
     <value>2.0</value>
   </resheader>
   <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="tCredits.Text" xml:space="preserve">
     <value>Thanks to fCraft code contributors and modders:
-    Asiekierka, Dag10, Destroyer, FontPeg, Jonty800, LgZ-optical, Redshift, SystemX17,
-    TkTech, Wootalyzer .
+    Asiekierka, Dag10, Dankirk, Destroyer, FontPeg, Hellenion, Jonty800,
+    M1_Abrams, LgZ-optical, Redshift, SystemX17, TkTech, Wootalyzer.
 
 Thanks to people who supported fCraft development through donations:
-    fCraft.net community, Ardyarde, Astelyn, Cueball, D3M0N, Destoned, DreamPhreak, Pandorum,
-    Redshift, TkTech, Ven000m, Wtfmejt, Zaneo, Team9000 and SpecialAttack.net communities,
-    and others who donated anonymously.
+    fCraft.net community, Allie, D3M0N, Destoned, DreamPhreak, Pandorum,
+    Redshift, TkTech, ven000m, wtfmejt, Team9000 and SpecialAttack.net
+    communities, and others who donated anonymously.
 
-Thanks to people whose code has been ported to fCraft:
-    Dudecon (Forester), Osici (Omen), vLK (MinerCPP), Tim Van Wassenhove, Paul Bourke.
+Thanks to people whose code is used with permission or under license:
+    Dudecon, Osici, vLK, Tim Van Wassenhove, Paul Bourke, Chris Wilson,
+    Federico Di Gregorio, Rene Schulte, and Mirco Bauer.
 
 Thanks to Minecraft servers that helped test and improve fCraft:
-    TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild, D3M0Ns
-    FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official, Red Solidus Server.
+    TheOne's Zombie Survival, SpecialAttack.net Freebuild, Team9000 Freebuild,
+    D3M0Ns FreeBuild, ~The Best Freebuild 24/7~, fCraft Freebuild Official,
+    Red Solidus Freebuild, Platinum Moon Freebuild, Au70 Galaxy.
 
-Thanks to people who submitted bug reports and suggestions:
-    Beeriebeer, Bloody_Llama, BobKare, Boblol0909, Clhdrums87, David00143, Dogwatch,
-    Epiclolwut, Fehzor, Gamma-Metroid, Goldenhart88, Hellenion, Sunfall, Maintrain97, Mavinstar,
-    nope__avi, xN8Gx, and all others.
+Thanks to people who submitted bug reports and feature requests:
+    Allie, Clhdrums87, Darklight, David00143, Dogwatch, Epiclolwut, Fehzor,
+    Gamma-Metroid, Hellenion, Jonty800, Sunfall, maintrain97, Mark-b,
+    Mavinstar, PhoneBook_, Ruggedbear, Sukinorules, Unison, and all others.
 
 Special thanks for inspiration and suggestions:
-    CO2, Descension, Exe, Hearty0, iKJames, LG_Legacy, PyroPyro, Revenant, Varriount, Voziv,
-    Zaneo, EsperNet's #mcc and #fCraft, MinerCPP team, OpenCraft team, HyveBuild/iCraft team.
+    AndrewPH, CO2, Descension, ElectricFuzzball, Exe, Hearty0, iKJames,
+    LG_Legacy, PyroPyro, Revenant, Varriount, Voziv, Wallbraker, Zaneo,
+    #mcc on Esper.net, HyveBuild/iCraft team, MinerCPP team, OpenCraft team.
 
 And thank You for using fCraft!</value>
   </data>
