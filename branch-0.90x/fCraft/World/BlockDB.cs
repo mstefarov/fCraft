@@ -400,6 +400,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Limit on the number of changes tracked by this BlockDB instance.
+        /// Set to 0 for "unlimited". Value may not be negative. </summary>
+        /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public int Limit {
             get { return limit; }
             set {
@@ -460,6 +463,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Time limit on the age of changes tracked by this BlockDB instance.
+        /// Set to TimeSpan.Zero for "unlimited". Value may not be negative. </summary>
+        /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public TimeSpan TimeLimit {
             get { return timeLimit; }
             set {
@@ -494,6 +500,7 @@ namespace fCraft {
 
         TimeSpan timeLimit;
 
+        /// <summary> Whether this BlockDB instance has a limit on the age of entries. </summary>
         public bool HasTimeLimit {
             get { return timeLimit > TimeSpan.Zero; }
         }

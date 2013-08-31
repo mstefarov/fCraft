@@ -308,6 +308,7 @@ namespace fCraft {
         readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
 
 
+        /// <summary> List of players currently in this world. </summary>
         [NotNull]
         public Player[] Players { get; private set; }
 

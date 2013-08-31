@@ -1277,18 +1277,6 @@ namespace fCraft {
         readonly LinkedList<UndoState> redoStack = new LinkedList<UndoState>();
 
 
-        [CanBeNull]
-        internal UndoState RedoPop() {
-            if( redoStack.Count > 0 ) {
-                var lastNode = redoStack.Last;
-                redoStack.RemoveLast();
-                return lastNode.Value;
-            } else {
-                return null;
-            }
-        }
-
-
         [NotNull]
         internal UndoState RedoBegin( [CanBeNull] DrawOperation op ) {
             LastDrawOp = op;
@@ -1308,7 +1296,19 @@ namespace fCraft {
 
 
         [CanBeNull]
-        public UndoState UndoPop() {
+        internal UndoState RedoPop() {
+            if( redoStack.Count > 0 ) {
+                var lastNode = redoStack.Last;
+                redoStack.RemoveLast();
+                return lastNode.Value;
+            } else {
+                return null;
+            }
+        }
+
+
+        [CanBeNull]
+        internal UndoState UndoPop() {
             if( undoStack.Count > 0 ) {
                 var lastNode = undoStack.Last;
                 undoStack.RemoveLast();
@@ -1331,10 +1331,14 @@ namespace fCraft {
             return newState;
         }
 
+
+        /// <summary> Clears all the undo states saved for this player. </summary>
         public void UndoClear() {
             undoStack.Clear();
         }
 
+
+        /// <summary> Clears all the redo states saved for this player. </summary>
         public void RedoClear() {
             redoStack.Clear();
         }
@@ -1344,9 +1348,11 @@ namespace fCraft {
 
         #region Drawing, Selection
 
+        /// <summary> Draw brush currently used by the player. Defaults to NormalBrush. May not be null. </summary>
         [NotNull]
         public IBrush Brush { get; set; }
 
+        /// <summary> Last DrawOperation executed by this player this session. May be null (if nothing has been executed yet). </summary>
         [CanBeNull]
         public DrawOperation LastDrawOp { get; set; }
 
@@ -1384,25 +1390,45 @@ namespace fCraft {
         Permission[] selectionPermissions;
 
 
-        public void SelectionAddMark( Vector3I pos, bool announce, bool executeCallbackIfNeeded ) {
+        /// <summary> Adds a mark to the current selection. </summary>
+        /// <param name="coord"> Coordinate of the new mark. </param>
+        /// <param name="announce"> Whether to message this player about the mark. </param>
+        /// <param name="executeCallbackIfNeeded"> Whether to execute the selection callback right away,
+        /// if required number of marks is reached. </param>
+        /// <returns> Whether selection callback has been executed. </returns>
+        /// <exception cref="InvalidOperationException"> No selection is in progress. </exception>
+        public bool SelectionAddMark( Vector3I coord, bool announce, bool executeCallbackIfNeeded ) {
             if( !IsMakingSelection ) throw new InvalidOperationException( "No selection in progress." );
-            selectionMarks.Enqueue( pos );
+            selectionMarks.Enqueue( coord );
             if( SelectionMarkCount >= SelectionMarksExpected ) {
                 if( executeCallbackIfNeeded ) {
                     SelectionExecute();
+                    return true;
                 } else if( announce ) {
-                    Message( "Last block marked at {0}. Type &H/Mark&S or click any block to continue.", pos );
+                    Message( "Last block marked at {0}. Type &H/Mark&S or click any block to continue.", coord );
                 }
             } else if( announce ) {
                 Message( "Block #{0} marked at {1}. Place mark #{2}.",
-                         SelectionMarkCount, pos, SelectionMarkCount + 1 );
+                         SelectionMarkCount, coord, SelectionMarkCount + 1 );
             }
+            return false;
         }
 
 
-        public void SelectionExecute() {
+        /// <summary> Try to execute the current selection.
+        /// If player fails the permission check, player receives "insufficient permissions" message,
+        /// and the callback is never invoked. </summary>
+        /// <returns> Whether selection callback has been executed. </returns>
+        /// <exception cref="InvalidOperationException"> No selection is in progress OR too few marks given. </exception>
+        public bool SelectionExecute() {
             if( !IsMakingSelection || selectionCallback == null ) {
                 throw new InvalidOperationException( "No selection in progress." );
+            }
+            if( SelectionMarkCount < SelectionMarksExpected ) {
+                string exMsg = String.Format( "Not enough marks (expected {0}, got {1})",
+                                              SelectionMarksExpected,
+                                              SelectionMarkCount );
+                throw new InvalidOperationException( exMsg );
             }
             SelectionMarksExpected = 0;
             // check if player still has the permissions required to complete the selection.
@@ -1412,23 +1438,36 @@ namespace fCraft {
                     selectionRepeatCommand.Rewind();
                     CommandManager.ParseCommand( this, selectionRepeatCommand, this == Console );
                 }
-                selectionMarks.Clear();
+                SelectionResetMarks();
+                return true;
             } else {
                 // More complex permission checks can be done in the callback function itself.
                 Message( "&WYou are no longer allowed to complete this action." );
                 MessageNoAccess( selectionPermissions );
+                return false;
             }
         }
 
 
+        /// <summary> Initiates a new selection. Clears any previous selection. </summary>
+        /// <param name="marksExpected"> Expected number of marks. Must be 1 or more. </param>
+        /// <param name="callback"> Callback to invoke when player makes the requested number of marks. 
+        /// Callback will be executed player's thread. </param>
+        /// <param name="args"> Optional argument to pass to the callback. May be null. </param>
+        /// <param name="requiredPermissions"> Optional array of permissions to check when selection completes.
+        /// If player fails the permission check, player receives "insufficient permissions" message,
+        /// and the callback is never invoked. </param>
+        /// <exception cref="ArgumentOutOfRangeException"> marksExpected is less than 1 </exception>
+        /// <exception cref="ArgumentNullException"> callback is null </exception>
         public void SelectionStart( int marksExpected,
                                     [NotNull] SelectionCallback callback,
                                     [CanBeNull] object args,
                                     [CanBeNull] params Permission[] requiredPermissions ) {
+            if( marksExpected < 1 ) throw new ArgumentOutOfRangeException( "marksExpected" );
             if( callback == null ) throw new ArgumentNullException( "callback" );
+            SelectionResetMarks();
             selectionArgs = args;
             SelectionMarksExpected = marksExpected;
-            selectionMarks.Clear();
             selectionCallback = callback;
             selectionPermissions = requiredPermissions;
             if( DisableClickToMark ) {
@@ -1437,13 +1476,16 @@ namespace fCraft {
         }
 
 
+        /// <summary> Resets any marks for the current selection.
+        /// Does not cancel the selection process (use SelectionCancel for that). </summary>
         public void SelectionResetMarks() {
             selectionMarks.Clear();
         }
 
 
+        /// <summary> Cancels any in-progress selection. </summary>
         public void SelectionCancel() {
-            selectionMarks.Clear();
+            SelectionResetMarks();
             SelectionMarksExpected = 0;
             selectionCallback = null;
             selectionArgs = null;
