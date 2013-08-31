@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright (c) 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -15,8 +16,8 @@ using Mono.Options;
 
 namespace fCraft.MapRenderer {
     static class MapRenderer {
-        static readonly BlockingQueue<RenderTask> ResultQueue = new BlockingQueue<RenderTask>();
-        static readonly BlockingQueue<RenderTask> WorkQueue = new BlockingQueue<RenderTask>();
+        static readonly BlockingCollection<RenderTask> ResultQueue = new BlockingCollection<RenderTask>(),
+                                                  WorkQueue = new BlockingCollection<RenderTask>();
         static readonly Queue<RenderTask> InputPaths = new Queue<RenderTask>();
 
         static readonly DateTime StartTime = DateTime.UtcNow;
@@ -152,7 +153,7 @@ namespace fCraft.MapRenderer {
                         if( WorkQueue.Count < actualThreadCount ) {
                             RenderTask newTask = InputPaths.Dequeue();
                             if( LoadMap( newTask ) ) {
-                                WorkQueue.Enqueue( newTask );
+                                WorkQueue.Add( newTask );
                             } else {
                                 resultsProcessed++;
                             }
@@ -163,16 +164,16 @@ namespace fCraft.MapRenderer {
 
                         // try dequeue a rendered image for saving
                         RenderTask resultTask;
-                        if( ResultQueue.TryDequeue( out resultTask ) ) {
-                            int percent = (resultsProcessed*100+100)/totalFiles;
+                        if( ResultQueue.TryTake( out resultTask ) ) {
+                            int percent = ( resultsProcessed*100 + 100 )/totalFiles;
                             SaveImage( percent, resultTask );
                             resultsProcessed++;
                         }
 
                     } else {
                         // no more maps to load -- just wait for results
-                        int percent = (resultsProcessed * 100 + 100) / totalFiles;
-                        SaveImage( percent, ResultQueue.WaitDequeue() );
+                        int percent = ( resultsProcessed*100 + 100 )/totalFiles;
+                        SaveImage( percent, ResultQueue.Take() );
                         resultsProcessed++;
                     }
                 }
