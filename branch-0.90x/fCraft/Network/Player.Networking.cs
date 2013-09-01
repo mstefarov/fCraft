@@ -239,8 +239,8 @@ namespace fCraft {
 
                     // get input from player
                     while( canReceive && stream.DataAvailable ) {
-                        byte opcode = reader.ReadByte();
-                        switch( (OpCode)opcode ) {
+                        byte opCode = reader.ReadByte();
+                        switch( (OpCode)opCode ) {
 
                             case OpCode.Message:
 #if DEBUG_NETWORKING
@@ -272,9 +272,9 @@ namespace fCraft {
 
                             default:
                                 Logger.Log( LogType.SuspiciousActivity,
-                                            "Player {0} was kicked after sending an invalid opcode ({1}).",
-                                            Name, opcode );
-                                KickNow( "Unknown packet opcode " + opcode,
+                                            "Player {0} was kicked after sending an invalid opCode ({1}).",
+                                            Name, opCode );
+                                KickNow( "Unknown packet opCode " + opCode,
                                          LeaveReason.InvalidOpCodeKick );
                                 return;
                         }
@@ -903,7 +903,6 @@ namespace fCraft {
         }
 
 
-
         static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
 
 
@@ -1139,7 +1138,7 @@ namespace fCraft {
         /// <summary> Send packet to player (not thread safe, sync, immediate).
         /// Should NEVER be used from any thread other than this session's ioThread.
         /// Not thread-safe (for performance reason). </summary>
-        public void SendNow( Packet packet ) {
+        internal void SendNow( Packet packet ) {
             if( Thread.CurrentThread != ioThread ) {
                 throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
             }
@@ -1653,6 +1652,16 @@ namespace fCraft {
         int inPacketNumber,
             outPacketNumber;
 #endif
+
+        #endregion
+
+
+        #region Protocol Extensions
+
+        readonly HashSet<CpeExtension> supportedExtensions = new HashSet<CpeExtension>();
+        public bool Supports( CpeExtension extension ) {
+            return supportedExtensions.Contains( extension );
+        }
 
         #endregion
     }
