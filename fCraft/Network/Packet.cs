@@ -35,7 +35,7 @@ namespace fCraft {
         }
 
 
-        #region Packet Making
+        #region Making regular packets
 
         /// <summary> Creates a new Handshake (0x00) packet. </summary>
         /// <param name="serverName"> Server name, to be shown on recipient's loading screen. May not be null. </param>
@@ -206,11 +206,164 @@ namespace fCraft {
         #endregion
 
 
-        static void ToNetOrder( short number, byte[] arr, int offset ) {
+        #region Making extended packets
+
+        [Pure]
+        public static Packet MakeExtInfo( short extCount ) {
+            Packet packet = new Packet( OpCode.ExtInfo );
+            Encoding.ASCII.GetBytes( "fCraft " + Updater.CurrentRelease.VersionString, 0, 64, packet.Bytes, 1 );
+            ToNetOrder( extCount, packet.Bytes, 65 );
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeExtEntry( [NotNull] string name, int version ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            Packet packet = new Packet( OpCode.ExtEntry );
+            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
+            ToNetOrder( version, packet.Bytes, 65 );
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeSetClickDistance( short distance ) {
+            if( distance < 0 ) throw new ArgumentOutOfRangeException( "distance" );
+            Packet packet = new Packet( OpCode.SetClickDistance );
+            ToNetOrder( distance, packet.Bytes, 1 );
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeCustomBlockSupportLevel( byte level ) {
+            Packet packet = new Packet( OpCode.CustomBlockSupportLevel );
+            packet.Bytes[1] = level;
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeHoldThis( Block block, bool preventChange ) {
+            Packet packet = new Packet( OpCode.HoldThis );
+            packet.Bytes[1] = (byte)block;
+            packet.Bytes[2] = (byte)(preventChange ? 1 : 0);
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeSetTextHotKey( [NotNull] string label, [NotNull] string action, int keyCode, byte keyMods ) {
+            if( label == null ) throw new ArgumentNullException( "label" );
+            if( action == null ) throw new ArgumentNullException( "action" );
+            Packet packet = new Packet( OpCode.SetTextHotKey );
+            Encoding.ASCII.GetBytes( label.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
+            Encoding.ASCII.GetBytes( action.PadRight( 64 ), 0, 64, packet.Bytes, 65 );
+            ToNetOrder( keyCode, packet.Bytes, 129 );
+            packet.Bytes[133] = keyMods;
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeExtAddPlayerName( short nameId, string playerName, string listName, string groupName, byte groupRank ) {
+            if( playerName == null ) throw new ArgumentNullException( "playerName" );
+            if( listName == null ) throw new ArgumentNullException( "listName" );
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
+            Packet packet = new Packet( OpCode.ExtAddPlayerName );
+            ToNetOrder( nameId, packet.Bytes, 1 );
+            Encoding.ASCII.GetBytes( playerName.PadRight( 64 ), 0, 64, packet.Bytes, 3 );
+            Encoding.ASCII.GetBytes( listName.PadRight( 64 ), 0, 64, packet.Bytes, 67 );
+            Encoding.ASCII.GetBytes( groupName.PadRight( 64 ), 0, 64, packet.Bytes, 131 );
+            packet.Bytes[195] = groupRank;
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet ExtAddEntity( byte entityId, [NotNull] string inGameName, [NotNull] string skinName ) {
+            if( inGameName == null ) throw new ArgumentNullException( "inGameName" );
+            if( skinName == null ) throw new ArgumentNullException( "skinName" );
+            Packet packet = new Packet( OpCode.ExtAddEntity );
+            packet.Bytes[1] = entityId;
+            Encoding.ASCII.GetBytes( inGameName.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
+            Encoding.ASCII.GetBytes( skinName.PadRight( 64 ), 0, 64, packet.Bytes, 66 );
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeExtRemovePlayerName( short nameId ) {
+            Packet packet = new Packet( OpCode.ExtRemovePlayerName );
+            ToNetOrder( nameId, packet.Bytes, 1 );
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeEnvSetColor( EnvVariable variable, int color ) {
+            Packet packet = new Packet( OpCode.EnvSetColor );
+            packet.Bytes[1] = (byte)variable;
+            packet.Bytes[2] = (byte)((color >> 16) & 0xFF);
+            packet.Bytes[3] = (byte)((color >> 8) & 0xFF);
+            packet.Bytes[4] = (byte)(color & 0xFF);
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeMakeSelection( byte selectionId, [NotNull] string label, [NotNull] BoundingBox bounds, int color, byte opacity ) {
+            if( label == null ) throw new ArgumentNullException( "label" );
+            if( bounds == null ) throw new ArgumentNullException( "bounds" );
+            Packet packet = new Packet( OpCode.MakeSelection );
+            packet.Bytes[1] = selectionId;
+            Encoding.ASCII.GetBytes( label.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
+            ToNetOrder( bounds.XMin, packet.Bytes, 66 );
+            ToNetOrder( bounds.ZMin, packet.Bytes, 68 );
+            ToNetOrder( bounds.YMin, packet.Bytes, 70 );
+            ToNetOrder( bounds.XMax, packet.Bytes, 72 );
+            ToNetOrder( bounds.ZMax, packet.Bytes, 74 );
+            ToNetOrder( bounds.YMax, packet.Bytes, 76 );
+            packet.Bytes[78] = (byte)((color >> 16) & 0xFF);
+            packet.Bytes[79] = (byte)((color >> 8) & 0xFF);
+            packet.Bytes[81] = (byte)(color & 0xFF);
+            packet.Bytes[82] = opacity;
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeRemoveSelection( byte selectionId ) {
+            Packet packet = new Packet( OpCode.RemoveSelection );
+            packet.Bytes[1] = selectionId;
+            return packet;
+        }
+
+
+        [Pure]
+        public static Packet MakeSetBlockPermission( Block block, bool canPlace, bool canDelete ) {
+            Packet packet = new Packet( OpCode.SetBlockPermission );
+            packet.Bytes[1] = (byte)block;
+            packet.Bytes[2] = (byte)(canPlace ? 1 : 0);
+            packet.Bytes[3] = (byte)(canDelete ? 1 : 0);
+            return packet;
+        }
+
+        #endregion
+
+
+        static void ToNetOrder( short number, [NotNull] byte[] arr, int offset ) {
             arr[offset] = (byte)( ( number & 0xff00 ) >> 8 );
             arr[offset + 1] = (byte)( number & 0x00ff );
         }
 
+        static void ToNetOrder( int number, [NotNull] byte[] arr, int offset ) {
+            arr[offset] = (byte)((number & 0xff000000) >> 24);
+            arr[offset + 1] = (byte)((number & 0x00ff0000) >> 16);
+            arr[offset + 2] = (byte)((number & 0x0000ff00) >> 8);
+            arr[offset + 3] = (byte)(number & 0x000000ff);
+        }
 
         static readonly int[] PacketSizes = {
             131, // Handshake

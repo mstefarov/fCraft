@@ -39,4 +39,13 @@ namespace fCraft {
         /// types are allowed/disallowed to be placed or deleted. </summary>
         BlockPermissions
     }
+
+
+    public enum EnvVariable : byte {
+        SkyColor = 0,
+        CloudColor = 1,
+        FogColor = 2,
+        Shadow = 3,
+        Sunlight = 4
+    }
 }
