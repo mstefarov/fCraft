@@ -489,6 +489,8 @@ namespace fCraft {
         }
 
 
+        #region Login sequence
+
         bool LoginSequence() {
             byte opCode = reader.ReadByte();
 
@@ -533,14 +535,14 @@ namespace fCraft {
 
             string givenName = reader.ReadString();
             string verificationCode = reader.ReadString();
-            reader.ReadByte(); // unused
+            bool supportsCpe = (reader.ReadByte() == 0x42);
             BytesReceived += 131;
 
             bool isEmailAccount = false;
             if( IsValidEmail( givenName ) ) {
                 // Mojang account, accept it
                 if( !ConfigKey.AllowEmailAccounts.Enabled() ) {
-                    KickNow( "Email accounts now allowed, sorry!", LeaveReason.LoginFailed );
+                    KickNow( "Email accounts not allowed, sorry!", LeaveReason.LoginFailed );
                     return false;
                 }
                 isEmailAccount = true;
@@ -556,6 +558,7 @@ namespace fCraft {
             }
 
             Info = PlayerDB.FindOrCreateInfoForPlayer( givenName, IP );
+
             if( isEmailAccount ) {
                 Logger.Log( LogType.SystemActivity,
                             "Mojang account <{0}> connected as {1}",
@@ -563,128 +566,18 @@ namespace fCraft {
                             Info.Name );
             }
 
-            ResetAllBinds();
-
-            if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
-                IsVerified = true;
-
-            } else {
-                NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
-
-                string stdMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
-                                                        Name, IP );
-                if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
-                    // Player is connecting from localhost
-                    Logger.Log( LogType.SuspiciousActivity,
-                                "{0} Player was identified as connecting from localhost and allowed in.",
-                                stdMessage );
-                    IsVerified = true;
-
-                } else if( IP.IsLocal() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
-                    // Players is connecting from LAN
-                    Logger.Log( LogType.SuspiciousActivity,
-                                "{0} Player was identified as connecting from LAN and allowed in.",
-                                stdMessage );
-                    IsVerified = true;
-
-                } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
-                    // Player has been here before, and is reconnecting from same IP
-                    switch( nameVerificationMode ) {
-                        case NameVerificationMode.Always:
-                            Info.ProcessFailedLogin( this );
-                            Logger.Log( LogType.SuspiciousActivity,
-                                        "{0} IP matched previous records for that name. " +
-                                        "Player was kicked anyway because VerifyNames is set to Always.",
-                                        stdMessage );
-                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
-                            return false;
-
-                        case NameVerificationMode.Balanced:
-                        case NameVerificationMode.Never:
-                            Logger.Log( LogType.SuspiciousActivity,
-                                        "{0} IP matched previous records for that name. Player was allowed in.",
-                                        stdMessage );
-                            IsVerified = true;
-                            break;
-                    }
-
-                } else {
-                    // All other modes of verification failed.
-                    switch( nameVerificationMode ) {
-                        case NameVerificationMode.Always:
-                        case NameVerificationMode.Balanced:
-                            Info.ProcessFailedLogin( this );
-                            Logger.Log( LogType.SuspiciousActivity,
-                                        "{0} IP did not match. Player was kicked.",
-                                        stdMessage );
-                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
-                            return false;
-
-                        case NameVerificationMode.Never:
-                            Logger.Log( LogType.SuspiciousActivity,
-                                        "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
-                                        stdMessage );
-                            Message( "&WYour name could not be verified." );
-                            break;
-                    }
-                }
-            }
-
-
-            // Check if player is banned
-            if( Info.IsBanned ) {
-                Info.ProcessFailedLogin( this );
-                Logger.Log( LogType.SuspiciousActivity,
-                            "Banned player {0} tried to log in from {1}",
-                            Name, IP );
-                string bannedMessage;
-                if( Info.BannedBy != null ) {
-                    if( Info.BanReason != null ) {
-                        bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
-                                                       Info.TimeSinceBan.ToMiniString(),
-                                                       Info.BannedBy,
-                                                       Info.BanReason );
-                    } else {
-                        bannedMessage = String.Format( "Banned {0} ago by {1}",
-                                                       Info.TimeSinceBan.ToMiniString(),
-                                                       Info.BannedBy );
-                    }
-                } else {
-                    if( Info.BanReason != null ) {
-                        bannedMessage = String.Format( "Banned {0} ago: {1}",
-                                                       Info.TimeSinceBan.ToMiniString(),
-                                                       Info.BanReason );
-                    } else {
-                        bannedMessage = String.Format( "Banned {0} ago",
-                                                       Info.TimeSinceBan.ToMiniString() );
-                    }
-                }
-                KickNow( bannedMessage, LeaveReason.LoginFailed );
+            // verify player name
+            if( !VerifyName( givenName, verificationCode ) )
                 return false;
-            }
+            
 
-
-            // Check if player's IP is banned
-            IPBanInfo ipBanInfo = IPBanList.Get( IP );
-            if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
-                Info.ProcessFailedLogin( this );
-                ipBanInfo.ProcessAttempt( this );
-                Logger.Log( LogType.SuspiciousActivity,
-                            "{0} tried to log in from a banned IP.", Name );
-                string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
-                                                      DateTime.UtcNow.Subtract( ipBanInfo.BanDate ).ToMiniString(),
-                                                      ipBanInfo.BannedBy,
-                                                      ipBanInfo.BanReason );
-                KickNow( bannedMessage, LeaveReason.LoginFailed );
+            // check if player is banned or IP-banned
+            if( !CheckBans() )
                 return false;
-            }
 
 
             // Check if player is paid (if required)
             if( ConfigKey.PaidPlayersOnly.Enabled() && Info.AccountType != AccountType.Paid ) {
-                SendNow( Packet.MakeHandshake( this,
-                                               ConfigKey.ServerName.GetString(),
-                                               "Please wait; Checking paid status..." ) );
                 writer.Flush();
 
                 Info.AccountType = CheckPaidStatus( Name );
@@ -705,6 +598,12 @@ namespace fCraft {
 
 
             // ----==== beyond this point, player is considered connecting (allowed to join) ====----
+
+
+            // negotiate protocol extensions
+            if( supportsCpe && !NegotiateCpe() ) {
+                return false;
+            }
 
             // Register player for future block updates
             if( !Server.RegisterPlayer( this ) ) {
@@ -835,21 +734,7 @@ namespace fCraft {
             }
 
             // Welcome message
-            if( File.Exists( Paths.GreetingFileName ) ) {
-                string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
-                foreach( string greetingLine in greetingText ) {
-                    MessageNow( Chat.ReplaceTextKeywords( this, greetingLine ) );
-                }
-            } else {
-                if( firstTime ) {
-                    MessageNow( "Welcome to {0}", ConfigKey.ServerName.GetString() );
-                } else {
-                    MessageNow( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
-                }
-
-                MessageNow( "Your rank is {0}&S. Type &H/Help&S for help.",
-                            Info.Rank.ClassyName );
-            }
+            SendWelcomeMessage( firstTime );
 
             // A reminder for first-time users
             if( PlayerDB.Size == 1 && Info.Rank != RankManager.HighestRank ) {
@@ -858,6 +743,7 @@ namespace fCraft {
             }
 
             MaxCopySlots = Info.Rank.CopySlots;
+            ResetAllBinds();
 
             HasFullyConnected = true;
             State = SessionState.Online;
@@ -891,7 +777,7 @@ namespace fCraft {
                 byte[] stringData = Encoding.BigEndianUnicode.GetBytes( NoSmpMessage );
                 writer.Write( (short)NoSmpMessage.Length );
                 writer.Write( stringData );
-                BytesSent += ( 1 + stringData.Length );
+                BytesSent += (1 + stringData.Length);
                 writer.Flush();
 
             } else {
@@ -903,8 +789,131 @@ namespace fCraft {
         }
 
 
-        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
+        bool CheckBans() {
+            // Check if player is banned
+            if( Info.IsBanned ) {
+                Info.ProcessFailedLogin( this );
+                Logger.Log( LogType.SuspiciousActivity, "Banned player {0} tried to log in from {1}", Name, IP );
+                string bannedMessage;
+                if( Info.BannedBy != null ) {
+                    if( Info.BanReason != null ) {
+                        bannedMessage = String.Format( "Banned {0} ago by {1}: {2}",
+                                                       Info.TimeSinceBan.ToMiniString(),
+                                                       Info.BannedBy,
+                                                       Info.BanReason );
+                    } else {
+                        bannedMessage = String.Format( "Banned {0} ago by {1}", Info.TimeSinceBan.ToMiniString(), Info.BannedBy );
+                    }
+                } else {
+                    if( Info.BanReason != null ) {
+                        bannedMessage = String.Format( "Banned {0} ago: {1}", Info.TimeSinceBan.ToMiniString(), Info.BanReason );
+                    } else {
+                        bannedMessage = String.Format( "Banned {0} ago", Info.TimeSinceBan.ToMiniString() );
+                    }
+                }
+                KickNow( bannedMessage, LeaveReason.LoginFailed );
+                return false;
+            }
 
+
+            // Check if player's IP is banned
+            IPBanInfo ipBanInfo = IPBanList.Get( IP );
+            if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
+                Info.ProcessFailedLogin( this );
+                ipBanInfo.ProcessAttempt( this );
+                Logger.Log( LogType.SuspiciousActivity, "{0} tried to log in from a banned IP.", Name );
+                string bannedMessage = String.Format( "IP-banned {0} ago by {1}: {2}",
+                                                      DateTime.UtcNow.Subtract( ipBanInfo.BanDate ).ToMiniString(),
+                                                      ipBanInfo.BannedBy,
+                                                      ipBanInfo.BanReason );
+                KickNow( bannedMessage, LeaveReason.LoginFailed );
+                return false;
+            }
+            return true;
+        }
+
+
+        bool VerifyName( string givenName, string verificationCode ) {
+            if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
+                IsVerified = true;
+            } else {
+                NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
+
+                string stdMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).", Name, IP );
+                if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
+                    // Player is connecting from localhost
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "{0} Player was identified as connecting from localhost and allowed in.",
+                                stdMessage );
+                    IsVerified = true;
+                } else if( IP.IsLocal() && ConfigKey.AllowUnverifiedLAN.Enabled() ) {
+                    // Players is connecting from LAN
+                    Logger.Log( LogType.SuspiciousActivity,
+                                "{0} Player was identified as connecting from LAN and allowed in.",
+                                stdMessage );
+                    IsVerified = true;
+                } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
+                    // Player has been here before, and is reconnecting from same IP
+                    switch( nameVerificationMode ) {
+                        case NameVerificationMode.Always:
+                            Info.ProcessFailedLogin( this );
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP matched previous records for that name. " +
+                                        "Player was kicked anyway because VerifyNames is set to Always.",
+                                        stdMessage );
+                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
+                            return false;
+
+                        case NameVerificationMode.Balanced:
+                        case NameVerificationMode.Never:
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP matched previous records for that name. Player was allowed in.",
+                                        stdMessage );
+                            IsVerified = true;
+                            break;
+                    }
+                } else {
+                    // All other modes of verification failed.
+                    switch( nameVerificationMode ) {
+                        case NameVerificationMode.Always:
+                        case NameVerificationMode.Balanced:
+                            Info.ProcessFailedLogin( this );
+                            Logger.Log( LogType.SuspiciousActivity, "{0} IP did not match. Player was kicked.", stdMessage );
+                            KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
+                            return false;
+
+                        case NameVerificationMode.Never:
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP did not match. Player was allowed in anyway because VerifyNames is set to Never.",
+                                        stdMessage );
+                            Message( "&WYour name could not be verified." );
+                            break;
+                    }
+                }
+            }
+            return true;
+        }
+
+
+        void SendWelcomeMessage( bool firstTime ) {
+            if( File.Exists( Paths.GreetingFileName ) ) {
+                string[] greetingText = File.ReadAllLines( Paths.GreetingFileName );
+                foreach( string greetingLine in greetingText ) {
+                    MessageNow( Chat.ReplaceTextKeywords( this, greetingLine ) );
+                }
+            } else {
+                if( firstTime ) {
+                    MessageNow( "Welcome to {0}", ConfigKey.ServerName.GetString() );
+                } else {
+                    MessageNow( "Welcome back to {0}", ConfigKey.ServerName.GetString() );
+                }
+
+                MessageNow( "Your rank is {0}&S. Type &H/Help&S for help.", Info.Rank.ClassyName );
+            }
+        }
+
+
+        static readonly Regex HttpFirstLine = new Regex( "GET /([a-zA-Z0-9_]{1,16})(~motd)? .+", RegexOptions.Compiled );
 
         void ServeCfg() {
             using( StreamReader textReader = new StreamReader( stream ) ) {
@@ -933,6 +942,8 @@ namespace fCraft {
                 }
             }
         }
+
+        #endregion
 
 
         #region Joining Worlds
@@ -1661,6 +1672,46 @@ namespace fCraft {
         readonly HashSet<CpeExtension> supportedExtensions = new HashSet<CpeExtension>();
         public bool Supports( CpeExtension extension ) {
             return supportedExtensions.Contains( extension );
+        }
+
+
+        string ClientName { get; set; }
+
+        private bool NegotiateCpe() {
+            writer.Write( Packet.MakeExtInfo( 0 ).Bytes );
+            OpCode extInfoReply = reader.ReadOpCode();
+            if( extInfoReply != OpCode.ExtInfo ) {
+                Logger.Log( LogType.Warning,
+                            "Player {0} from {1}: Unexpected ExtInfo reply ({2})",
+                            Name, IP, extInfoReply );
+                return false;
+            }
+            ClientName = reader.ReadString();
+            int expectedEntries = reader.ReadInt16();
+            // TODO: send our supported extensions here
+
+            List<string> clientExts = new List<string>();
+            for( int i = 0; i < expectedEntries; i++ ) {
+                // Expect ExtEntry replies (0 or more)
+                OpCode extEntryReply = reader.ReadOpCode();
+                //Logger.Log( "Expected: {0} / Received: {1}", OpCode.ExtEntry, extEntryReply );
+                if( extEntryReply != OpCode.ExtEntry ) {
+                    Logger.Log( LogType.Warning, "Player {0} from {1}: Unexpected ExtEntry reply ({2})", Name, IP, extInfoReply );
+                    return false;
+                }
+                string extName = reader.ReadString();
+                int extVersion = reader.ReadInt32();
+                clientExts.Add( extName + " " + extVersion );
+            }
+
+            if( clientExts.Count > 0 ) {
+                Logger.Log( LogType.Debug,
+                            "Player {0} is using \"{1}\", supporting: {2}",
+                            Name,
+                            ClientName,
+                            clientExts.JoinToString( ", " ) );
+            }
+            return true;
         }
 
         #endregion
