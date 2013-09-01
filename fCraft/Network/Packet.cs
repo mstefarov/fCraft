@@ -228,7 +228,20 @@ namespace fCraft {
             2, // RemoveEntity
             66, // Message
             65, // Kick
-            2 // SetPermission
+            2, // SetPermission
+            67, // ExtInfo
+            69, // ExtEntry
+            3, // SetClickDistance
+            2, // CustomBlockSupportLevel
+            2, // HoldThis
+            134, // SetTextHotKey
+            196, // ExtAddPlayerName
+            130, // ExtAddEntity
+            3, // ExtRemovePlayerName
+            5, // EnvSetColor
+            82, // MakeSelection
+            2, // RemoveSelection
+            4 // SetBlockPermission
         };
     }
 }

@@ -51,7 +51,46 @@ namespace fCraft {
         /// <summary> Server packet. Tells client that they're being kicked. </summary>
         Kick = 14,
 
-        /// <summary> Server packet. Sent when a player is opped/deopped. </summary>
-        SetPermission = 15
+        /// <summary> Server packet. Sets permission to delete admincrete. </summary>
+        SetPermission = 15,
+
+        /// <summary> Extended client/server packet. Initiates CPE negotiation. </summary>
+        ExtInfo = 16,
+
+        /// <summary> Extended client/server packet. Lists supported extensions. </summary>
+        ExtEntry = 17,
+
+        /// <summary> Extended server packet. Changes player's allowed click distance. </summary>
+        SetClickDistance = 18,
+
+        /// <summary> Extended client/server packet. Declares CustomBlocks support level. </summary>
+        CustomBlockSupportLevel = 19,
+
+        /// <summary> Extended server packet. Tells client which block to hold. </summary>
+        HoldThis = 20,
+
+        /// <summary> Extended server packet. Defines chat macros ties to hotkeys. </summary>
+        SetTextHotKey = 21,
+
+        /// <summary> Extended server packet. Adds or updates a name to the player list. </summary>
+        ExtAddPlayerName = 22,
+
+        /// <summary> Extended server packet. Adds or updates an entity (replaces AddEntity). </summary>
+        ExtAddEntity = 23,
+
+        /// <summary> Extended server packet. Removes a name from the player list. </summary>
+        ExtRemovePlayerName = 24,
+
+        /// <summary> Extended server packet. Sets environmental colors (sky/cloud/fog/ambient/diffuse color). </summary>
+        EnvSetColor = 25,
+
+        /// <summary> Extended server packet. Adds or updates a selection cuboid. </summary>
+        MakeSelection = 26,
+
+        /// <summary> Extended server packet. Removes a selection cuboid. </summary>
+        RemoveSelection = 27,
+
+        /// <summary> Extended server packet. Sets permission to place/delete a block type (replaces SetPermission). </summary>
+        SetBlockPermission = 28
     }
 }
