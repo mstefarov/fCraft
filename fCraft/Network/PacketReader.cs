@@ -10,8 +10,18 @@ namespace fCraft {
             base( stream ) { }
 
 
+        public OpCode ReadOpCode() {
+            return (OpCode)ReadByte();
+        }
+
+
         public override short ReadInt16() {
             return IPAddress.NetworkToHostOrder( base.ReadInt16() );
+        }
+
+
+        public override int ReadInt32() {
+            return IPAddress.NetworkToHostOrder( base.ReadInt32() );
         }
 
 
