@@ -323,7 +323,7 @@ namespace fCraft {
 
 
     /// <summary> A list of release flags/attributes.
-    /// Use binary flag logic (value & flag == flag) or Release.IsFlagged() to test for flags. </summary>
+    /// Use binary flag logic (value &amp; flag == flag) or Release.IsFlagged() to test for flags. </summary>
     [Flags]
     public enum ReleaseFlags {
         None = 0,
