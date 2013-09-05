@@ -282,7 +282,7 @@ namespace fCraft {
 
 
         [Pure]
-        public static Packet ExtAddEntity( byte entityId, [NotNull] string inGameName, [NotNull] string skinName ) {
+        public static Packet MakeExtAddEntity( byte entityId, [NotNull] string inGameName, [NotNull] string skinName ) {
             if( inGameName == null ) throw new ArgumentNullException( "inGameName" );
             if( skinName == null ) throw new ArgumentNullException( "skinName" );
             Packet packet = new Packet( OpCode.ExtAddEntity );
@@ -305,9 +305,9 @@ namespace fCraft {
         public static Packet MakeEnvSetColor( EnvVariable variable, int color ) {
             Packet packet = new Packet( OpCode.EnvSetColor );
             packet.Bytes[1] = (byte)variable;
-            packet.Bytes[2] = (byte)((color >> 16) & 0xFF);
-            packet.Bytes[3] = (byte)((color >> 8) & 0xFF);
-            packet.Bytes[4] = (byte)(color & 0xFF);
+            ToNetOrder( (short)((color >> 16) & 0xFF), packet.Bytes, 2 );
+            ToNetOrder( (short)((color >> 8) & 0xFF), packet.Bytes, 4 );
+            ToNetOrder( (short)(color & 0xFF), packet.Bytes, 6 );
             return packet;
         }
 
@@ -350,6 +350,26 @@ namespace fCraft {
             return packet;
         }
 
+        [Pure]
+        public static Packet MakeChangeModel( byte entityId, [NotNull] string modelName ) {
+            if( modelName == null ) throw new ArgumentNullException( "modelName" );
+            Packet packet = new Packet( OpCode.ChangeModel );
+            packet.Bytes[1] = entityId;
+            Encoding.ASCII.GetBytes( modelName.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
+            return packet;
+        }
+
+        [Pure]
+        public static Packet MakeEnvSetMapAppearance( [NotNull] string textureUrl, Block sideBlock, Block edgeBlock, short sideLevel ) {
+            if( textureUrl == null ) throw new ArgumentNullException( "textureUrl" );
+            Packet packet = new Packet( OpCode.EnvMapAppearance );
+            Encoding.ASCII.GetBytes( textureUrl.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
+            packet.Bytes[65] = (byte)sideBlock;
+            packet.Bytes[66] = (byte)edgeBlock;
+            ToNetOrder( sideLevel, packet.Bytes, 67 );
+            return packet;
+        }
+
         #endregion
 
 
@@ -384,6 +404,7 @@ namespace fCraft {
             2, // SetPermission
             67, // ExtInfo
             69, // ExtEntry
+
             3, // SetClickDistance
             2, // CustomBlockSupportLevel
             2, // HoldThis
@@ -391,10 +412,12 @@ namespace fCraft {
             196, // ExtAddPlayerName
             130, // ExtAddEntity
             3, // ExtRemovePlayerName
-            5, // EnvSetColor
+            8, // EnvSetColor
             82, // MakeSelection
             2, // RemoveSelection
-            4 // SetBlockPermission
+            4, // SetBlockPermission
+            66, // ChangeModel
+            69 // EnvMapAppearance
         };
     }
 }

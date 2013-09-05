@@ -91,6 +91,12 @@ namespace fCraft {
         RemoveSelection = 27,
 
         /// <summary> Extended server packet. Sets permission to place/delete a block type (replaces SetPermission). </summary>
-        SetBlockPermission = 28
+        SetBlockPermission = 28,
+
+        /// <summary> Allows changing the 3D model that entity/player shows up as. </summary>
+        ChangeModel = 29,
+
+        /// <summary> This extension allows the server to specify custom terrain textures, and tweak appearance of map edges. </summary>
+        EnvMapAppearance = 30
     }
 }

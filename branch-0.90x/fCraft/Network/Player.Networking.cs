@@ -815,7 +815,6 @@ namespace fCraft {
                 return false;
             }
 
-
             // Check if player's IP is banned
             IPBanInfo ipBanInfo = IPBanList.Get( IP );
             if( ipBanInfo != null && Info.BanStatus != BanStatus.IPBanExempt ) {
@@ -836,6 +835,7 @@ namespace fCraft {
         bool VerifyName( string givenName, string verificationCode ) {
             if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
+
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
@@ -852,6 +852,7 @@ namespace fCraft {
                                 "{0} Player was identified as connecting from LAN and allowed in.",
                                 stdMessage );
                     IsVerified = true;
+
                 } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
                     // Player has been here before, and is reconnecting from same IP
                     switch( nameVerificationMode ) {
@@ -872,6 +873,7 @@ namespace fCraft {
                             IsVerified = true;
                             break;
                     }
+
                 } else {
                     // All other modes of verification failed.
                     switch( nameVerificationMode ) {
@@ -901,6 +903,7 @@ namespace fCraft {
                 foreach( string greetingLine in greetingText ) {
                     MessageNow( Chat.ReplaceTextKeywords( this, greetingLine ) );
                 }
+
             } else {
                 if( firstTime ) {
                     MessageNow( "Welcome to {0}", ConfigKey.ServerName.GetString() );
