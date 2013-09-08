@@ -132,7 +132,7 @@ namespace fCraft {
                     try {
                         ActualBotNick = desiredBotNick;
                         reconnect = false;
-                        Logger.Log( LogType.IRCStatus,
+                        Logger.Log( LogType.IrcStatus,
                                     "Connecting to {0}:{1} as {2}",
                                     hostName, port, ActualBotNick );
                         Connect();
@@ -151,7 +151,7 @@ namespace fCraft {
                                 string outputLine;
                                 if( localQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
-                                    Logger.Log( LogType.IRCStatus, "[Out.Local] {0}", outputLine );
+                                    Logger.Log( LogType.IrcStatus, "[Out.Local] {0}", outputLine );
 #endif
                                     writer.Write( outputLine );
                                     writer.Write( '\r' );
@@ -165,7 +165,7 @@ namespace fCraft {
                                     }
                                 } else if( OutputQueue.TryDequeue( out outputLine ) ) {
 #if DEBUG_IRC
-                                    Logger.Log( LogType.IRCStatus, "[Out.Global] {0}", outputLine );
+                                    Logger.Log( LogType.IrcStatus, "[Out.Global] {0}", outputLine );
 #endif
                                     writer.Write( outputLine );
                                     writer.Write( '\r' );
@@ -207,7 +207,7 @@ namespace fCraft {
             }
 
             void RetryForDesiredNick() {
-                Logger.Log( LogType.IRCStatus,
+                Logger.Log( LogType.IrcStatus,
                             "Retrying for desired IRC bot nick ({0} to {1})",
                             ActualBotNick,
                             desiredBotNick );
@@ -231,7 +231,7 @@ namespace fCraft {
 
                 IRCMessage msg = MessageParser( message, ActualBotNick );
 #if DEBUG_IRC
-                Logger.Log( LogType.IRCStatus,
+                Logger.Log( LogType.IrcStatus,
                             "[{0}.{1}] {2}",
                             msg.Type, msg.ReplyCode, msg.RawMessage );
 #endif
@@ -284,14 +284,14 @@ namespace fCraft {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
                                         Server.Message( "&i(IRC) * {0} {1}",
                                                         msg.Nick, processedMessage );
-                                        Logger.Log( LogType.IRCChat,
+                                        Logger.Log( LogType.IrcChat,
                                                     "{0}: * {1} {2}",
                                                     msg.Channel, msg.Nick,
                                                     IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                     } else {
                                         Server.Message( "&i(IRC) {0}{1}: {2}",
                                                         msg.Nick, Color.White, processedMessage );
-                                        Logger.Log( LogType.IRCChat,
+                                        Logger.Log( LogType.IrcChat,
                                                     "{0}: {1}: {2}",
                                                     msg.Channel, msg.Nick,
                                                     IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
@@ -299,7 +299,7 @@ namespace fCraft {
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
                                                     msg.Nick, Color.White, processedMessage.Substring( 1 ) );
-                                    Logger.Log( LogType.IRCChat,
+                                    Logger.Log( LogType.IrcChat,
                                                 "{0}: {1}: {2}",
                                                 msg.Channel, msg.Nick,
                                                 IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
@@ -314,7 +314,7 @@ namespace fCraft {
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "&i(IRC) {0} joined {1}",
                                             msg.Nick, msg.Channel );
-                            Logger.Log( LogType.IRCChat,
+                            Logger.Log( LogType.IrcChat,
                                         "{0} joined {1}", msg.Nick, msg.Channel );
                         }
                         return;
@@ -324,7 +324,7 @@ namespace fCraft {
                         string kicked = msg.RawMessageArray[3];
                         if( kicked == ActualBotNick ) {
                             // If we got kicked, attempt to rejoin
-                            Logger.Log( LogType.IRCStatus,
+                            Logger.Log( LogType.IrcStatus,
                                         "IRC Bot was kicked from {0} by {1} ({2}), rejoining.",
                                         msg.Channel, msg.Nick, msg.Message );
                             Thread.Sleep( ReconnectDelay );
@@ -335,7 +335,7 @@ namespace fCraft {
                             string kickMessage = ProcessMessageFromIRC( msg.Message );
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
                                             msg.Nick, kicked, msg.Channel, kickMessage );
-                            Logger.Log( LogType.IRCChat,
+                            Logger.Log( LogType.IrcChat,
                                         "{0} kicked {1} from {2} ({3})",
                                         msg.Nick, kicked, msg.Channel,
                                         IRCColorsAndNonStandardCharsExceptEmotes.Replace( kickMessage, "" ) );
@@ -361,7 +361,7 @@ namespace fCraft {
                             string quitMsg = (msg.Message == null)
                                                  ? "Quit"
                                                  : IRCColorsAndNonStandardCharsExceptEmotes.Replace( msg.Message, "" );
-                            Logger.Log( LogType.IRCChat,
+                            Logger.Log( LogType.IrcChat,
                                         "{0} left {1} ({2})",
                                         msg.Nick,
                                         msg.Channel,
@@ -374,7 +374,7 @@ namespace fCraft {
                         if( msg.Nick == ActualBotNick ) {
                             ActualBotNick = msg.Message;
                             nickTry = 0;
-                            Logger.Log( LogType.IRCStatus,
+                            Logger.Log( LogType.IrcStatus,
                                         "Bot was renamed from {0} to {1}",
                                         msg.Nick, msg.Message );
                             AuthWithNickServ();
@@ -397,7 +397,7 @@ namespace fCraft {
                                 string currentName = msg.RawMessageArray[2];
                                 string desiredName = msg.RawMessageArray[3];
                                 if( currentName == ActualBotNick && desiredName == desiredBotNick ) {
-                                    Logger.Log( LogType.IRCStatus,
+                                    Logger.Log( LogType.IrcStatus,
                                                 "Error: Desired nick \"{0}\" is still in use. Will retry shortly.",
                                                 desiredBotNick );
                                     break;
@@ -418,7 +418,7 @@ namespace fCraft {
                                         ActualBotNick = desiredBotNick + nickTry;
                                     }
                                 }
-                                Logger.Log( LogType.IRCStatus,
+                                Logger.Log( LogType.IrcStatus,
                                             "Error: Nickname \"{0}\" is already in use. Trying \"{1}\"",
                                             oldActualBotNick, ActualBotNick );
                                 Send( IRCCommands.Nick( ActualBotNick ) );
@@ -427,14 +427,14 @@ namespace fCraft {
 
                             case IRCReplyCode.ErrorBannedFromChannel:
                             case IRCReplyCode.ErrorNoSuchChannel:
-                                Logger.Log( LogType.IRCStatus,
+                                Logger.Log( LogType.IrcStatus,
                                             "Error: {0} ({1})",
                                             msg.ReplyCode, msg.Channel );
                                 die = true;
                                 break;
 
                             case IRCReplyCode.ErrorBadChannelKey:
-                                Logger.Log( LogType.IRCStatus,
+                                Logger.Log( LogType.IrcStatus,
                                             "Error: Channel password required for {0}. " +
                                             "fCraft does not currently support password-protected channels.",
                                             msg.Channel );
@@ -442,14 +442,14 @@ namespace fCraft {
                                 break;
 
                             default:
-                                Logger.Log( LogType.IRCStatus,
+                                Logger.Log( LogType.IrcStatus,
                                             "Error ({0}): {1}",
                                             msg.ReplyCode, msg.RawMessage );
                                 break;
                         }
 
                         if( die ) {
-                            Logger.Log( LogType.IRCStatus, "Error: Disconnecting." );
+                            Logger.Log( LogType.IrcStatus, "Error: Disconnecting." );
                             reconnect = false;
                             DisconnectThread( null );
                         }
@@ -458,13 +458,13 @@ namespace fCraft {
 
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
-                        Logger.Log( LogType.IRCStatus,
+                        Logger.Log( LogType.IrcStatus,
                                     "Query: {0}", msg.RawMessage );
                         break;
 
 
                     case IRCMessageType.Kill:
-                        Logger.Log( LogType.IRCStatus,
+                        Logger.Log( LogType.IrcStatus,
                                     "Bot was killed from {0} by {1} ({2}), reconnecting.",
                                     hostName, msg.Nick, msg.Message );
                         reconnect = true;
@@ -586,13 +586,13 @@ namespace fCraft {
                 for( int i = 0; i < threads.Length; i++ ) {
                     if( threads[i].IsReady ) {
                         threads[i].ResponsibleForInputParsing = true;
-                        Logger.Log( LogType.IRCStatus,
+                        Logger.Log( LogType.IrcStatus,
                                     "Bot \"{0}\" is now responsible for parsing input.",
                                     threads[i].ActualBotNick );
                         return;
                     }
                 }
-                Logger.Log( LogType.IRCStatus, "All IRC bots have disconnected." );
+                Logger.Log( LogType.IrcStatus, "All IRC bots have disconnected." );
             }
         }
 
@@ -642,7 +642,7 @@ namespace fCraft {
                 HookUpHandlers();
                 return true;
             } else {
-                Logger.Log( LogType.IRCStatus, "IRC: Set IRCThreads to 1." );
+                Logger.Log( LogType.IrcStatus, "IRC: Set IRCThreads to 1." );
                 return false;
             }
         }

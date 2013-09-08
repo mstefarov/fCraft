@@ -106,7 +106,7 @@ namespace fCraft {
             message = Chat.ReplaceEmotesWithUnicode( message );
             message = Color.StripColors( message );
 
-            string line = DateTime.Now.ToString( TimeFormat ) + " > " + GetPrefix( type ) + message; // localized
+            string line = DateTime.Now.ToString( TimeFormat ) + GetPrefix( type ) + " > " + message; // localized
 
             lock( LogLock ) {
                 RaiseLoggedEvent( message, line, type );
@@ -122,7 +122,7 @@ namespace fCraft {
                                             line + Environment.NewLine );
                     } catch( Exception ex ) {
                         string errorMessage = "Logger.Log: " + ex;
-                        line = String.Format( "{0} > {1}{2}",
+                        line = String.Format( "{0} {1} > {2}",
                                               DateTime.Now.ToString( TimeFormat ),// localized
                                               GetPrefix( LogType.Error ),
                                               errorMessage );
@@ -134,20 +134,43 @@ namespace fCraft {
             }
         }
 
-
         [DebuggerStepThrough]
         static string GetPrefix( LogType level ) {
             switch( level ) {
-                case LogType.SeriousError:
+                case LogType.ConsoleInput:
+                    return "CI";
+                case LogType.ConsoleOutput:
+                    return "CO";
+                case LogType.Debug:
+                    return "DD";
                 case LogType.Error:
-                    return "ERROR: ";
+                    return "EE";
+                case LogType.GlobalChat:
+                    return "GC";
+                case LogType.IrcChat:
+                    return "IC";
+                case LogType.IrcStatus:
+                    return "IS";
+                case LogType.PrivateChat:
+                    return "PC";
+                case LogType.RankChat:
+                    return "RC";
+                case LogType.SeriousError:
+                    return "SE";
+                case LogType.SuspiciousActivity:
+                    return "SA";
+                case LogType.SystemActivity:
+                    return "SS";
+                case LogType.Trace:
+                    return "TT";
+                case LogType.UserActivity:
+                    return "UA";
+                case LogType.UserCommand:
+                    return "UC";
                 case LogType.Warning:
-                    return "Warning: ";
-                case LogType.IRCStatus:
-                case LogType.IRCChat:
-                    return "IRC: ";
+                    return "WW";
                 default:
-                    return String.Empty;
+                    throw new ArgumentOutOfRangeException( "level" );
             }
         }
 
@@ -585,10 +608,10 @@ namespace fCraft {
         ConsoleOutput,
 
         /// <summary> Information related to IRC activity. </summary>
-        IRCStatus,
+        IrcStatus,
 
         /// <summary> IRC chatter and join/part messages. </summary>
-        IRCChat,
+        IrcChat,
 
         /// <summary> Information useful for debugging (error details, routine events, system information). </summary>
         Debug,
@@ -618,13 +641,15 @@ namespace fCraft.Events {
     /// <summary> Provides data for Logger.Logged event. Immutable. </summary>
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
-        internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile, bool writeToConsole ) {
+        internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile,
+                               bool writeToConsole ) {
             RawMessage = rawMessage;
             Message = message;
             MessageType = messageType;
             WriteToFile = writeToFile;
             WriteToConsole = writeToConsole;
         }
+
         public string RawMessage { get; private set; }
         public string Message { get; private set; }
         public LogType MessageType { get; private set; }
@@ -635,7 +660,8 @@ namespace fCraft.Events {
 
     /// <summary> Provides for Logger.Crashed event. Crash reporting can be cancelled. </summary>
     public sealed class CrashedEventArgs : EventArgs {
-        internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
+        internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport,
+                                   bool isCommonProblem, bool shutdownImminent ) {
             Message = message;
             Location = location;
             Exception = exception;
@@ -643,6 +669,7 @@ namespace fCraft.Events {
             IsCommonProblem = isCommonProblem;
             ShutdownImminent = shutdownImminent;
         }
+
         public string Message { get; private set; }
         public string Location { get; private set; }
         public Exception Exception { get; private set; }
