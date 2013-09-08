@@ -18,6 +18,7 @@ namespace fCraft {
         internal static void Init() {
             ModerationCommands.Init();
             BuildingCommands.Init();
+            DrawCommands.Init();
             InfoCommands.Init();
             WorldCommands.Init();
             ZoneCommands.Init();

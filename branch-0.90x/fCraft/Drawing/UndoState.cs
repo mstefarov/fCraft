@@ -1,4 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
@@ -6,6 +8,8 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Object used to store </summary>
     public sealed class UndoState {
+        public static int MaxUndoCount = 2000000;
+
         /// <summary> Creates a new UndoState for the given DrawOperation. <param name="op"/> can be null. </summary>
         public UndoState( [CanBeNull] DrawOperation op ) {
             Op = op;
@@ -34,7 +38,7 @@ namespace fCraft.Drawing {
         /// Changes will not be recorded if undo is disabled, or if max undo size was exceeded. </returns>
         public bool Add( Vector3I coord, Block block ) {
             lock( SyncRoot ) {
-                if( BuildingCommands.MaxUndoCount < 1 || Buffer.Count <= BuildingCommands.MaxUndoCount ) {
+                if( MaxUndoCount < 1 || Buffer.Count <= MaxUndoCount ) {
                     Buffer.Add( new UndoBlock( coord, block ) );
                     return true;
                 } else if( !IsTooLargeToUndo ) {
@@ -61,8 +65,8 @@ namespace fCraft.Drawing {
         public BoundingBox CalculateBounds() {
             lock( SyncRoot ) {
                 if( Buffer.Count == 0 ) return BoundingBox.Empty;
-                Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );
-                Vector3I max = new Vector3I( int.MinValue, int.MinValue, int.MinValue );
+                Vector3I min = new Vector3I( Int32.MaxValue, Int32.MaxValue, Int32.MaxValue );
+                Vector3I max = new Vector3I( Int32.MinValue, Int32.MinValue, Int32.MinValue );
                 for( int i = 0; i < Buffer.Count; i++ ) {
                     if( Buffer[i].X < min.X ) min.X = Buffer[i].X;
                     if( Buffer[i].Y < min.Y ) min.Y = Buffer[i].Y;

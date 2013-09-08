@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Xml.Linq;
+using fCraft.Drawing;
 using fCraft.Events;
 using JetBrains.Annotations;
 
@@ -446,7 +447,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.MaxUndo:
-                    BuildingCommands.MaxUndoCount = key.GetInt();
+                    UndoState.MaxUndoCount = key.GetInt();
                     break;
 
                 case ConfigKey.MeColor:

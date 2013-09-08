@@ -106,6 +106,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\DrawCommands.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
