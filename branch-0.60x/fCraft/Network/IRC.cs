@@ -197,7 +197,7 @@ namespace fCraft {
                         reconnect = true;
 #if !DEBUG
                     } catch( Exception ex ) {
-                        Logger.Log( LogType.Error, "IRC: {0}", ex );
+                        Logger.LogAndReportCrash( "IRC bot crashed", "fCraft", ex, false );
                         reconnect = true;
 #endif
                     }
