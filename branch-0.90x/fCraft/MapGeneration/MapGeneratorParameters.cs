@@ -37,9 +37,7 @@ namespace fCraft.MapGeneration {
         /// <param name="baseElement"> Element onto which the parameters should be attached.
         /// Each property will correspond to a child element. </param>
         public virtual void Save( [NotNull] XElement baseElement ) {
-            if( baseElement == null ) {
-                throw new ArgumentNullException( "baseElement" );
-            }
+            if( baseElement == null ) throw new ArgumentNullException( "baseElement" );
             foreach( PropertyInfo pi in ListProperties() ) {
                 baseElement.Add( new XElement( pi.Name, pi.GetValue( this, null ) ) );
             }

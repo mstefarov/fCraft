@@ -371,7 +371,7 @@ namespace fCraft {
             Handler = ZoneInfoHandler
         };
 
-        static void ZoneInfoHandler( Player player, CommandReader cmd ) {
+        static void ZoneInfoHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string zoneName = cmd.Next();
             if( zoneName == null ) {
                 player.Message( "No zone name specified. See &H/Help ZInfo" );
@@ -386,14 +386,16 @@ namespace fCraft {
 
             player.Message( "About zone \"{0}\": size {1} x {2} x {3}, contains {4} blocks, editable by {5}+.",
                             zone.Name,
-                            zone.Bounds.Width, zone.Bounds.Length, zone.Bounds.Height,
+                            zone.Bounds.Width,
+                            zone.Bounds.Length,
+                            zone.Bounds.Height,
                             zone.Bounds.Volume,
                             zone.Controller.MinRank.ClassyName );
 
             player.Message( "  Zone center is at ({0},{1},{2}).",
-                            (zone.Bounds.XMin + zone.Bounds.XMax) / 2,
-                            (zone.Bounds.YMin + zone.Bounds.YMax) / 2,
-                            (zone.Bounds.ZMin + zone.Bounds.ZMax) / 2 );
+                            ( zone.Bounds.XMin + zone.Bounds.XMax )/2,
+                            ( zone.Bounds.YMin + zone.Bounds.YMax )/2,
+                            ( zone.Bounds.ZMin + zone.Bounds.ZMax )/2 );
 
             if( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",
@@ -404,10 +406,10 @@ namespace fCraft {
 
             if( zone.EditedBy != null ) {
                 player.Message( "  Zone last edited by {0}&S on {1:MMM d} at {1:h:mm} ({2}d {3}h ago).",
-                zone.EditedByClassy,
-                zone.EditedDate,
-                DateTime.UtcNow.Subtract( zone.EditedDate ).Days,
-                DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
+                                zone.EditedByClassy,
+                                zone.EditedDate,
+                                DateTime.UtcNow.Subtract( zone.EditedDate ).Days,
+                                DateTime.UtcNow.Subtract( zone.EditedDate ).Hours );
             }
 
             PlayerExceptions zoneExceptions = zone.ExceptionList;
@@ -492,26 +494,31 @@ namespace fCraft {
         };
 
         static void ZoneMarkHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( player.SelectionMarksExpected == 0 ) {
-                player.MessageNow( "Cannot use ZMark - no selection in progress." );
-            } else if( player.SelectionMarksExpected == 2 ) {
-                string zoneName = cmd.Next();
-                if( zoneName == null ) {
-                    CdZoneMark.PrintUsage( player );
-                    return;
-                }
+            switch( player.SelectionMarksExpected ) {
+                case 0:
+                    player.MessageNow( "Cannot use ZMark - no selection in progress." );
+                    break;
+                case 2: {
+                    string zoneName = cmd.Next();
+                    if( zoneName == null ) {
+                        CdZoneMark.PrintUsage( player );
+                        return;
+                    }
 
-                Zone zone = player.WorldMap.Zones.Find( zoneName );
-                if( zone == null ) {
-                    player.MessageNoZone( zoneName );
-                    return;
-                }
+                    Zone zone = player.WorldMap.Zones.Find( zoneName );
+                    if( zone == null ) {
+                        player.MessageNoZone( zoneName );
+                        return;
+                    }
 
-                player.SelectionResetMarks();
-                player.SelectionAddMark( zone.Bounds.MinVertex, false, false );
-                player.SelectionAddMark( zone.Bounds.MaxVertex, false, true );
-            } else {
-                player.MessageNow( "ZMark can only be used with 2-block/2-click selections." );
+                    player.SelectionResetMarks();
+                    player.SelectionAddMark( zone.Bounds.MinVertex, false, false );
+                    player.SelectionAddMark( zone.Bounds.MaxVertex, false, true );
+                }
+                    break;
+                default:
+                    player.MessageNow( "ZMark can only be used with 2-block/2-click selections." );
+                    break;
             }
         }
 

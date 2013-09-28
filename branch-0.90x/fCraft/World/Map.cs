@@ -486,7 +486,7 @@ namespace fCraft {
 
         /// <summary> Replaces all nonstandard (50-255) blocks with air. </summary>
         /// <returns> True if any blocks needed replacement. </returns>
-        public bool RemoveUnknownBlocktypes() {
+        public bool RemoveUnknownBlockTypes() {
             return ConvertBlockTypes( ZeroMapping );
         }
 
@@ -769,7 +769,7 @@ namespace fCraft {
 
 
         /// <summary> Tries to find WoM file hashes for edge textures. </summary>
-        /// <param name="block"> Blocktype to find edge texture hash for. </param>
+        /// <param name="block"> Block type to find edge texture hash for. </param>
         /// <returns> Hash string if found, or null if not found. </returns>
         [CanBeNull]
         internal static string GetEdgeTexture( Block block ) {
@@ -810,8 +810,8 @@ namespace fCraft {
         /// <param name="x"> X coordinate (width). </param>
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
         /// <param name="id"> Block type to search for. </param>
-        /// <returns> Height (Z coordinate; Notch's X) of the blocktype's first appearance.
-        /// -1 if given blocktype was not found. </returns>
+        /// <returns> Height (Z coordinate; Notch's X) of the block type's first appearance.
+        /// -1 if given block type was not found. </returns>
         public int SearchColumn( int x, int y, Block id ) {
             return SearchColumn( x, y, id, Height - 1 );
         }
@@ -822,8 +822,8 @@ namespace fCraft {
         /// <param name="y"> Y coordinate (length, Notch's Z). </param>
         /// <param name="id"> Block type to search for. </param>
         /// <param name="zStart"> Starting height. No blocks above this point will be checked. </param>
-        /// <returns> Height (Z coordinate; Notch's X) of the blocktype's first appearance.
-        /// -1 if given blocktype was not found. </returns>
+        /// <returns> Height (Z coordinate; Notch's X) of the block type's first appearance.
+        /// -1 if given block type was not found. </returns>
         public int SearchColumn( int x, int y, Block id, int zStart ) {
             for( int z = zStart; z > 0; z-- ) {
                 if( GetBlock( x, y, z ) == id ) {

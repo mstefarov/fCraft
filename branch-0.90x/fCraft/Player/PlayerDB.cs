@@ -92,8 +92,9 @@ namespace fCraft {
                     throw new OperationCanceledException( "Cancelled by a plugin." );
                 }
 
-                info = new PlayerInfo( name, e.StartingRank, false, rankChangeType );
-                info.ID = GetNextID();
+                info = new PlayerInfo( name, e.StartingRank, false, rankChangeType ) {
+                    ID = GetNextID()
+                };
 
                 list.Add( info );
                 Trie.Add( info.Name, info );

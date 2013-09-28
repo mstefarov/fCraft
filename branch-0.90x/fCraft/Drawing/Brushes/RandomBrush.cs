@@ -46,19 +46,20 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                return new RandomBrush();
-            } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    return new RandomBrush();
+                case 1:
+                    return new RandomBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
     }
 
 
     /// <summary> Brush that creates a random pattern,
-    /// with individually adjustable probabilities for each blocktype. </summary>
+    /// with individually adjustable probabilities for each block type. </summary>
     public sealed class RandomBrush : IBrushInstance, IBrush {
         public const int MaxRatio = 10000;
 
@@ -154,17 +155,18 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                if( Blocks.Length == 0 ) {
-                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                    return null;
-                } else {
-                    return new RandomBrush( this );
-                }
-            } else if( blocks.Count == 1 ) {
-                return new RandomBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    if( Blocks.Length == 0 ) {
+                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                        return null;
+                    } else {
+                        return new RandomBrush( this );
+                    }
+                case 1:
+                    return new RandomBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
 

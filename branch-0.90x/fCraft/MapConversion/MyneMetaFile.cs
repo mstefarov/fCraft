@@ -17,15 +17,6 @@ namespace fCraft.MapConversion {
                 if( key == null ) throw new ArgumentNullException( "key" );
                 return contents[section][key];
             }
-            set {
-                if( section == null ) throw new ArgumentNullException( "section" );
-                if( key == null ) throw new ArgumentNullException( "key" );
-                if( value == null ) throw new ArgumentNullException( "value" );
-                if( !contents.ContainsKey( section ) ) {
-                    contents[section] = new Dictionary<string, string>();
-                }
-                contents[section][key] = value;
-            }
         }
 
         public MyneMetaFile( [NotNull] Stream fileStream ) {
@@ -60,11 +51,6 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ContainsSection( [NotNull] string section ) {
-            if( section == null ) throw new ArgumentNullException( "section" );
-            return contents.ContainsKey( section.ToLower() );
-        }
-
         public bool Contains( [NotNull] string section, [NotNull] params string[] keys ) {
             if( section == null ) throw new ArgumentNullException( "section" );
             if( keys == null ) throw new ArgumentNullException( "keys" );
@@ -74,6 +60,7 @@ namespace fCraft.MapConversion {
                 return false;
             }
         }
+
 
         public bool IsEmpty {
             get {

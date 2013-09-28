@@ -53,7 +53,6 @@ namespace System.IO.Compression {
             /// <summary> True if UTF8 encoding for filename and comments, false if default (CP 437). </summary>
             public bool EncodeUTF8;
 
-
             /// <summary> Overridden method. </summary>
             /// <returns> File name in Zip. </returns>
             public override string ToString() {
@@ -375,12 +374,15 @@ namespace System.IO.Compression {
 
             // Select input stream for inflating or just reading
             Stream inStream;
-            if( zfe.Method == Compression.Store ) {
-                inStream = zipFileStream;
-            } else if( zfe.Method == Compression.Deflate ) {
-                inStream = new DeflateStream( zipFileStream, CompressionMode.Decompress, true );
-            } else {
-                return false;
+            switch( zfe.Method ) {
+                case Compression.Store:
+                    inStream = zipFileStream;
+                    break;
+                case Compression.Deflate:
+                    inStream = new DeflateStream( zipFileStream, CompressionMode.Decompress, true );
+                    break;
+                default:
+                    return false;
             }
 
             // Buffered copy

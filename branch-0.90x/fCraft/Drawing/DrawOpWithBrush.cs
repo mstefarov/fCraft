@@ -52,11 +52,7 @@ namespace fCraft.Drawing {
         }
 
         IBrushInstance IBrush.MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
-            if( ReadParams( cmd ) ) {
-                return this;
-            } else {
-                return null;
-            }
+            return ReadParams( cmd ) ? this : null;
         }
 
         #endregion

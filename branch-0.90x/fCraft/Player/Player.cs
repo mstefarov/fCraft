@@ -326,47 +326,49 @@ namespace fCraft {
                             allPlayers = Server.FindPlayers( this, otherPlayerName, SearchOptions.ReturnSelfIfOnlyMatch );
                         }
 
-                        if( allPlayers.Length == 1 ) {
-                            Player target = allPlayers[0];
-                            if( target == this ) {
-                                Message( "Trying to talk to yourself?" );
-                                return;
-                            }
-                            bool messageSent = false;
-                            if( target.CanHear( this ) ) {
-                                messageSent = Chat.SendPM( this, target, messageText );
-                                SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
-                            }
-
-                            if( !CanSee( target ) ) {
-                                // message was sent to a hidden player
+                        switch( allPlayers.Length ) {
+                            case 0:
                                 MessageNoPlayer( otherPlayerName );
-                                if( messageSent ) {
-                                    Info.DecrementMessageWritten();
+                                break;
+                            case 1: {
+                                Player target = allPlayers[0];
+                                if( target == this ) {
+                                    Message( "Trying to talk to yourself?" );
+                                    return;
+                                }
+                                bool messageSent = false;
+                                if( target.CanHear( this ) ) {
+                                    messageSent = Chat.SendPM( this, target, messageText );
+                                    SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
                                 }
 
-                            } else {
-                                // message was sent normally
-                                LastUsedPlayerName = target.Name;
-                                if( target.IsIgnoring( Info ) ) {
-                                    if( CanSee( target ) ) {
-                                        MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
+                                if( !CanSee( target ) ) {
+                                    // message was sent to a hidden player
+                                    MessageNoPlayer( otherPlayerName );
+                                    if( messageSent ) {
+                                        Info.DecrementMessageWritten();
                                     }
-                                } else if( target.IsDeaf ) {
-                                    MessageNow( "Cannot PM {0}&S: they are currently deaf.", target.ClassyName );
+
                                 } else {
-                                    MessageNow( "&Pto {0}: {1}",
-                                                target.Name, messageText );
+                                    // message was sent normally
+                                    LastUsedPlayerName = target.Name;
+                                    if( target.IsIgnoring( Info ) ) {
+                                        if( CanSee( target ) ) {
+                                            MessageNow( "&WCannot PM {0}&W: you are ignored.", target.ClassyName );
+                                        }
+                                    } else if( target.IsDeaf ) {
+                                        MessageNow( "Cannot PM {0}&S: they are currently deaf.", target.ClassyName );
+                                    } else {
+                                        MessageNow( "&Pto {0}: {1}",
+                                                    target.Name, messageText );
+                                    }
                                 }
+
                             }
-
-                        } else if( allPlayers.Length == 0 ) {
-                            // Cannot PM: target player not found/offline
-                            MessageNoPlayer( otherPlayerName );
-
-                        } else {
-                            // Cannot PM: more than one player matched
-                            MessageManyMatches( "player", allPlayers );
+                                break;
+                            default:
+                                MessageManyMatches( "player", allPlayers );
+                                break;
                         }
                     } break;
 
@@ -896,7 +898,7 @@ namespace fCraft {
         // for grief/spam detection
         readonly Queue<DateTime> spamBlockLog = new Queue<DateTime>();
 
-        /// <summary> Last blocktype used by the player.
+        /// <summary> Last block type used by the player.
         /// Make sure to use in conjunction with Player.GetBind() to ensure that bindings are properly applied. </summary>
         public Block LastUsedBlockType { get; private set; }
 
@@ -973,7 +975,7 @@ namespace fCraft {
                         blockUpdate = new BlockUpdate( this, coordBelow, Block.DoubleSlab );
                         Info.ProcessBlockPlaced( (byte)Block.DoubleSlab );
                         map.QueueUpdate( blockUpdate );
-                        RaisePlayerPlacedBlockEvent( this, World.Map, coordBelow, Block.Slab, Block.DoubleSlab, context );
+                        RaisePlayerPlacedBlockEvent( this, map, coordBelow, Block.Slab, Block.DoubleSlab, context );
                         RevertBlockNow( coord );
                         SendNow( Packet.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
 
@@ -983,14 +985,14 @@ namespace fCraft {
                         Info.ProcessBlockPlaced( (byte)type );
                         Block old = map.GetBlock( coord );
                         map.QueueUpdate( blockUpdate );
-                        RaisePlayerPlacedBlockEvent( this, World.Map, coord, old, type, context );
+                        RaisePlayerPlacedBlockEvent( this, map, coord, old, type, context );
                         if( requiresUpdate || RelayAllUpdates ) {
                             SendNow( Packet.MakeSetBlock( coord, type ) );
                         }
                     }
                     break;
 
-                case CanPlaceResult.BlocktypeDenied:
+                case CanPlaceResult.BlockTypeDenied:
                     Message( "&WYou are not permitted to affect this block type." );
                     RevertBlockNow( coord );
                     break;
@@ -1172,17 +1174,17 @@ namespace fCraft {
                 goto eventCheck;
             }
 
-            // check special blocktypes
+            // check special block types
             if( (newBlock == Block.Admincrete && !Can( Permission.PlaceAdmincrete )) ||
                 (newBlock == Block.Water || newBlock == Block.StillWater) && !Can( Permission.PlaceWater ) ||
                 (newBlock == Block.Lava || newBlock == Block.StillLava) && !Can( Permission.PlaceLava ) ) {
-                result = CanPlaceResult.BlocktypeDenied;
+                result = CanPlaceResult.BlockTypeDenied;
                 goto eventCheck;
             }
 
             // check admincrete-related permissions
             if( oldBlock == Block.Admincrete && !Can( Permission.DeleteAdmincrete ) ) {
-                result = CanPlaceResult.BlocktypeDenied;
+                result = CanPlaceResult.BlockTypeDenied;
                 goto eventCheck;
             }
 

@@ -42,10 +42,10 @@ namespace fCraft {
 
     /// <summary> IRC control class. </summary>
     public static class IRC {
-        internal const string ResetReplacement = "\u0003\u000F",
-                              BoldReplacement = "\u0002",
-                              ResetCode = "\u211C",
-                              BoldCode = "\u212C";
+        const string ResetReplacement = "\u0003\u000F",
+                     BoldReplacement = "\u0002",
+                     ResetCode = "\u211C",
+                     BoldCode = "\u212C";
         static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z", RegexOptions.IgnoreCase ),
                               UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$", RegexOptions.IgnoreCase ),
                               MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
@@ -54,10 +54,10 @@ namespace fCraft {
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
-        /// messages between multiple bots. If that's the case, several IRCThread objects
+        /// messages between multiple bots. If that's the case, several IrcThread objects
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
         /// not on cooldown (a bit of an intentional race condition). </summary>
-        sealed class IRCThread : IDisposable {
+        sealed class IrcThread : IDisposable {
             TcpClient client;
             StreamReader reader;
             StreamWriter writer;
@@ -566,7 +566,7 @@ namespace fCraft {
             NickRetryDelay = new TimeSpan( 0, 0, 30 );
         }
 
-        static IRCThread[] threads;
+        static IrcThread[] threads;
         static string hostName;
         static int port;
         static string[] channelNames;
@@ -623,15 +623,15 @@ namespace fCraft {
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
             if( threadCount == 1 ) {
-                IRCThread thread = new IRCThread();
+                IrcThread thread = new IrcThread();
                 if( thread.Start( botNick, true ) ) {
                     threads = new[] { thread };
                 }
 
             } else {
-                List<IRCThread> threadTemp = new List<IRCThread>();
+                List<IrcThread> threadTemp = new List<IrcThread>();
                 for( int i = 0; i < threadCount; i++ ) {
-                    IRCThread temp = new IRCThread();
+                    IrcThread temp = new IrcThread();
                     if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
                         threadTemp.Add( temp );
                     }
@@ -708,7 +708,7 @@ namespace fCraft {
 
         internal static void Disconnect( [CanBeNull] string quitMsg ) {
             if( threads != null && threads.Length > 0 ) {
-                foreach( IRCThread thread in threads ) {
+                foreach( IrcThread thread in threads ) {
                     thread.DisconnectThread( quitMsg );
                 }
             }

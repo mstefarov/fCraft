@@ -36,19 +36,21 @@ namespace fCraft.Drawing {
                 if( !cmd.NextBlock( player, false, out block ) ) return null;
                 blocks.Push( block );
             }
-            if( blocks.Count == 0 ) {
-                return new ReplaceBrush();
-            } else if( blocks.Count == 1 ) {
-                return new ReplaceBrush( blocks.ToArray(), Block.None );
-            } else {
-                Block replacement = blocks.Pop();
-                return new ReplaceBrush( blocks.ToArray(), replacement );
+            switch( blocks.Count ) {
+                case 0:
+                    return new ReplaceBrush();
+                case 1:
+                    return new ReplaceBrush( blocks.ToArray(), Block.None );
+                default: {
+                    Block replacement = blocks.Pop();
+                    return new ReplaceBrush( blocks.ToArray(), replacement );
+                }
             }
         }
     }
 
 
-    /// <summary> Brush that replaces all blocks of given type(s) with a replacement blocktype. </summary>
+    /// <summary> Brush that replaces all blocks of given type(s) with a replacement block type. </summary>
     public sealed class ReplaceBrush : IBrushInstance, IBrush {
         public Block[] Blocks { get; private set; }
         public Block Replacement { get; private set; }

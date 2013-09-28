@@ -6,7 +6,6 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
-using fCraft.Drawing;
 using fCraft.Events;
 
 namespace fCraft.ServerCLI {

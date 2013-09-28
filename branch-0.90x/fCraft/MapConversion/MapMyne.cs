@@ -89,7 +89,7 @@ namespace fCraft.MapConversion {
 
             map.Blocks = new byte[blockCount];
             bs.Read( map.Blocks, 0, map.Blocks.Length );
-            map.RemoveUnknownBlocktypes();
+            map.RemoveUnknownBlockTypes();
         }
 
 

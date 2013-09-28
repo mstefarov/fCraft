@@ -367,13 +367,10 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.BandwidthUseMode:
-                    Player[] playerListCache = Server.Players;
-                    if( playerListCache != null ) {
-                        foreach( Player p in playerListCache ) {
-                            if( p.BandwidthUseMode == BandwidthUseMode.Default ) {
-                                // resets the use tweaks
-                                p.BandwidthUseMode = BandwidthUseMode.Default;
-                            }
+                    foreach( Player p in Server.Players ) {
+                        if( p.BandwidthUseMode == BandwidthUseMode.Default ) {
+                            // resets the use tweaks
+                            p.BandwidthUseMode = BandwidthUseMode.Default;
                         }
                     }
                     break;
@@ -386,10 +383,12 @@ namespace fCraft {
                             if( world.BlockDB.AutoToggleIfNeeded() ) {
                                 if( world.BlockDB.IsEnabled ) {
                                     Logger.Log( LogType.SystemActivity,
-                                                "BlockDB is now auto-enabled on world {0}", world.Name );
+                                                "BlockDB is now auto-enabled on world {0}",
+                                                world.Name );
                                 } else {
                                     Logger.Log( LogType.SystemActivity,
-                                                "BlockDB is now auto-disabled on world {0}", world.Name );
+                                                "BlockDB is now auto-disabled on world {0}",
+                                                world.Name );
                                 }
                             }
                         }
@@ -415,7 +414,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.DefaultBackupInterval:
-                    World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute * key.GetInt() );
+                    World.DefaultBackupInterval = new TimeSpan( TimeSpan.TicksPerMinute*key.GetInt() );
                     break;
 
                 case ConfigKey.HeartbeatUrl:
@@ -483,7 +482,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.TickInterval:
-                    Server.TicksPerSecond = 1000 / (float)key.GetInt();
+                    Server.TicksPerSecond = 1000/(float)key.GetInt();
                     break;
 
                 case ConfigKey.UploadBandwidth:

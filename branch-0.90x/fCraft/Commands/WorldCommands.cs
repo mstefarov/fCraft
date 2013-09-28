@@ -489,7 +489,7 @@ namespace fCraft {
         }
 
         const int MaxBlockChangesToList = 15;
-        static void BlockInfoSchedulerCallback( SchedulerTask task ) {
+        static void BlockInfoSchedulerCallback( [NotNull] SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
             if( !args.World.BlockDB.IsEnabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
@@ -536,13 +536,23 @@ namespace fCraft {
 
                     if( entry.OldBlock == (byte)Block.Air ) {
                         args.Player.Message( "&S  {0} ago: {1}&S placed {2}{3}",
-                                             date, playerName, entry.NewBlock, contextString );
+                                             date,
+                                             playerName,
+                                             entry.NewBlock,
+                                             contextString );
                     } else if( entry.NewBlock == (byte)Block.Air ) {
                         args.Player.Message( "&S  {0} ago: {1}&S deleted {2}{3}",
-                                             date, playerName, entry.OldBlock, contextString );
+                                             date,
+                                             playerName,
+                                             entry.OldBlock,
+                                             contextString );
                     } else {
                         args.Player.Message( "&S  {0} ago: {1}&S replaced {2} with {3}{4}",
-                                             date, playerName, entry.OldBlock, entry.NewBlock, contextString );
+                                             date,
+                                             playerName,
+                                             entry.OldBlock,
+                                             entry.NewBlock,
+                                             contextString );
                     }
                 }
             } else {

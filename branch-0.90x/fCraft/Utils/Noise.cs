@@ -237,20 +237,7 @@ namespace fCraft {
         }
 
 
-        public float PerlinNoiseMax( int startOctave, int endOctave, float decay ) {
-            if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
-            if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
-            float amplitude = (float)Math.Pow( decay, startOctave );
-            float total = 0;
-
-            for( int n = startOctave; n <= endOctave; n++ ) {
-                total += amplitude;
-                amplitude *= decay;
-            }
-            return total;
-        }
-
-        public float PerlinNoiseMax2( int startOctave, int endOctave, float decay ) {
+        public static float PerlinNoiseMax( int startOctave, int endOctave, float decay ) {
             if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
             if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             return (float)(Math.Pow( decay, startOctave ) - Math.Pow( decay, endOctave + 1 ))/(1 - decay);
@@ -297,7 +284,7 @@ namespace fCraft {
             if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f / Math.Max( map.GetLength( 0 ), map.GetLength( 1 ) );
-            float divisor = PerlinNoiseMax2( startOctave, endOctave, decay );
+            float divisor = PerlinNoiseMax( startOctave, endOctave, decay );
 
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
@@ -314,7 +301,7 @@ namespace fCraft {
             if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
             if( map == null ) throw new ArgumentNullException( "map" );
             float maxDim = 1f/Math.Max( map.GetLength( 0 ), Math.Max( map.GetLength( 2 ), map.GetLength( 1 ) ) );
-            float divisor = PerlinNoiseMax2( startOctave, endOctave, decay );
+            float divisor = PerlinNoiseMax( startOctave, endOctave, decay );
             for( int x = map.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = map.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     for( int z = map.GetLength( 2 ) - 1; z >= 0; z-- ) {
@@ -352,21 +339,7 @@ namespace fCraft {
         }
 
 
-        public unsafe static void CalculateNormalizationParams( float[,,] map, float low, float high, out float multiplier, out float constant ) {
-            fixed( float* ptr = map ) {
-                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
-            }
-        }
-
-
-        public unsafe static void CalculateNormalizationParams( float[,] map, float low, float high, out float multiplier, out float constant ) {
-            fixed( float* ptr = map ) {
-                CalculateNormalizationParams( ptr, map.Length, low, high, out multiplier, out constant );
-            }
-        }
-
-
-        public unsafe static void CalculateNormalizationParams( float* ptr, int length, float low, float high, out float multiplier, out float constant ) {
+        unsafe static void CalculateNormalizationParams( float* ptr, int length, float low, float high, out float multiplier, out float constant ) {
             float min = float.MaxValue,
                   max = float.MinValue;
 

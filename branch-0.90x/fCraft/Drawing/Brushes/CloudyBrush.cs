@@ -114,12 +114,16 @@ namespace fCraft.Drawing {
             }
 
             CloudyBrush madeBrush;
-            if( blocks.Count == 0 ) {
-                madeBrush = new CloudyBrush();
-            } else if( blocks.Count == 1 ) {
-                madeBrush = new CloudyBrush( blocks[0], blockRatios[0] );
-            } else {
-                madeBrush = new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    madeBrush = new CloudyBrush();
+                    break;
+                case 1:
+                    madeBrush = new CloudyBrush( blocks[0], blockRatios[0] );
+                    break;
+                default:
+                    madeBrush = new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+                    break;
             }
 
             madeBrush.Frequency /= ( scale / 100f );
@@ -357,17 +361,18 @@ namespace fCraft.Drawing {
                 blockRatios.Add( ratio );
             }
 
-            if( blocks.Count == 0 ) {
-                if( Blocks.Length == 0 ) {
-                    player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                    return null;
-                } else {
-                    return new CloudyBrush( this );
-                }
-            } else if( blocks.Count == 1 ) {
-                return new CloudyBrush( blocks[0], blockRatios[0] );
-            } else {
-                return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+            switch( blocks.Count ) {
+                case 0:
+                    if( Blocks.Length == 0 ) {
+                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
+                        return null;
+                    } else {
+                        return new CloudyBrush( this );
+                    }
+                case 1:
+                    return new CloudyBrush( blocks[0], blockRatios[0] );
+                default:
+                    return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
 

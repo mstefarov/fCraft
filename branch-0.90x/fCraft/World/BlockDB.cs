@@ -1224,13 +1224,12 @@ namespace fCraft {
 
         public const string XmlRootName = "BlockDB";
 
-
         public XElement SaveSettings() {
             return SaveSettings( XmlRootName );
         }
 
-
-        public XElement SaveSettings( string rootName ) {
+        public XElement SaveSettings( [NotNull] string rootName ) {
+            if( rootName == null ) throw new ArgumentNullException( "rootName" );
             XElement root = new XElement( rootName );
             root.Add( new XAttribute( "enabled", EnabledState ) );
             root.Add( new XAttribute( "preload", IsPreloaded ) );
@@ -1244,7 +1243,8 @@ namespace fCraft {
         }
 
 
-        public void LoadSettings( XElement el ) {
+        public void LoadSettings( [NotNull] XElement el ) {
+            if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
             if( ( temp = el.Attribute( "enabled" ) ) != null ) {
                 YesNoAuto enabledStateTemp;

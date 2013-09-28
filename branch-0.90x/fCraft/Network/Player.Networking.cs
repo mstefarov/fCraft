@@ -287,19 +287,22 @@ namespace fCraft {
                     Thread.Sleep( SleepDelay );
                 }
 
+#if DEBUG_NETWORKING
             } catch( IOException ex ) {
-#if DEBUG_NETWORKING
                 Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
-#endif
                 LeaveReason = LeaveReason.ClientQuit;
-
             } catch( SocketException ex ) {
-#if DEBUG_NETWORKING
                 Logger.Log( LogType.Trace, "disconnected {0}: {1}", IP, ex.Message );
-#endif
                 LeaveReason = LeaveReason.ClientQuit;
+#else
+            } catch( IOException ) {
+                LeaveReason = LeaveReason.ClientQuit;
+            } catch( SocketException ) {
+                LeaveReason = LeaveReason.ClientQuit;
+#endif
 #if !DEBUG
             } catch( Exception ex ) {
+                // When we're not debugging, catch and report ALL exceptions
                 LeaveReason = LeaveReason.ServerError;
                 Logger.LogAndReportCrash( "Error in Player.IoLoop", "fCraft", ex, false );
 #endif

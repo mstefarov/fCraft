@@ -29,9 +29,7 @@ namespace fCraft.MapGeneration {
         /// <exception cref="UnknownMapGeneratorException"> Unrecognized map generator was specified by the map. </exception>
         [CanBeNull]
         public static MapGeneratorParameters LoadParamsFromMap( [NotNull] Map map ) {
-            if( map == null ) {
-                throw new ArgumentNullException( "map" );
-            }
+            if( map == null ) throw new ArgumentNullException( "map" );
             string genNameString;
             if( !map.Metadata.TryGetValue( ParamsMetaGroup, GenNameMetaKey, out genNameString ) ) {
                 return null;
@@ -55,12 +53,9 @@ namespace fCraft.MapGeneration {
         /// <param name="map"> Map to embed parameters in. </param>
         /// <exception cref="ArgumentNullException"> mapGenParams or map is null. </exception>
         public static void SaveToMap( [NotNull] this MapGeneratorParameters mapGenParams, [NotNull] Map map ) {
-            if( mapGenParams == null ) {
-                throw new ArgumentNullException( "mapGenParams" );
-            }
-            if( map == null ) {
-                throw new ArgumentNullException( "map" );
-            }
+            if( mapGenParams == null ) throw new ArgumentNullException( "mapGenParams" );
+            if( map == null ) throw new ArgumentNullException( "map" );
+
             XElement el = new XElement( ParamsMetaKey );
             mapGenParams.Save( el );
             map.Metadata[ParamsMetaGroup, ParamsMetaKey] = el.ToString( SaveOptions.DisableFormatting );
@@ -74,9 +69,7 @@ namespace fCraft.MapGeneration {
         /// <returns> True if map has embedded map generation parameters; otherwise false. </returns>
         /// <exception cref="ArgumentNullException"> map is null. </exception>
         public static bool ContainsMapGenParams( [NotNull] Map map ) {
-            if( map == null ) {
-                throw new ArgumentNullException( "map" );
-            }
+            if( map == null ) throw new ArgumentNullException( "map" );
             return map.Metadata.ContainsKey( ParamsMetaGroup, GenNameMetaKey ) &&
                    map.Metadata.ContainsKey( ParamsMetaGroup, ParamsMetaKey );
         }
@@ -87,9 +80,7 @@ namespace fCraft.MapGeneration {
         /// <exception cref="ArgumentNullException"> gen is null. </exception>
         /// <exception cref="ArgumentException"> A generator with the same name has already been registered. </exception>
         public static void RegisterGenerator( [NotNull] MapGenerator gen ) {
-            if( gen == null ) {
-                throw new ArgumentNullException( "gen" );
-            }
+            if( gen == null ) throw new ArgumentNullException( "gen" );
             if( GetGeneratorByName( gen.Name ) != null ) {
                 throw new ArgumentException( "A generator with the same name has already been registered." );
             }
@@ -106,9 +97,7 @@ namespace fCraft.MapGeneration {
         /// <exception cref="ArgumentNullException"> genName is null. </exception>
         [CanBeNull]
         public static MapGenerator GetGeneratorByName( [NotNull] string genName ) {
-            if( genName == null ) {
-                throw new ArgumentNullException( "genName" );
-            }
+            if( genName == null ) throw new ArgumentNullException( "genName" );
             MapGenerator gen;
             if( Generators.TryGetValue( genName.ToLowerInvariant(), out gen ) ) {
                 return gen;

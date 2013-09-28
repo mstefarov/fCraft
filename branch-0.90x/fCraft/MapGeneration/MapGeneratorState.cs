@@ -56,10 +56,8 @@ namespace fCraft.MapGeneration {
         }
 
 
-        protected virtual void ReportProgress( int progressPercent, [NotNull] string statusString ) {
-            if( statusString == null ) {
-                throw new ArgumentNullException( "statusString" );
-            }
+        protected void ReportProgress( int progressPercent, [NotNull] string statusString ) {
+            if( statusString == null ) throw new ArgumentNullException( "statusString" );
             Progress = progressPercent;
             StatusString = statusString;
             var handler = ProgressChanged;

@@ -407,7 +407,7 @@ namespace fCraft {
         static void KickHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
-                player.Message( "Usage: &H/Kick PlayerName [Message]" );
+                CdKick.PrintUsage( player );
                 return;
             }
 

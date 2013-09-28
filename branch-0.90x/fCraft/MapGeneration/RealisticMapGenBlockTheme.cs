@@ -151,9 +151,7 @@ namespace fCraft.MapGeneration {
 
         public RealisticMapGenBlockTheme( [NotNull] XElement root )
             : this( MapGenTheme.Forest ) {
-            if( root == null ) {
-                throw new ArgumentNullException( "root" );
-            }
+            if( root == null ) throw new ArgumentNullException( "root" );
 
             Block block;
             XElement xElement = root.Element( "AirBlock" );
