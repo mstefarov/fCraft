@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Standard NBT data types. </summary>
-    public enum NBTType : byte { // TODO: replace with fNBT
+    enum NbtType : byte { // TODO: replace with fNBT
         /// <summary> End of tag </summary>
         End,
         /// <summary> 8 bit integer </summary>
@@ -32,8 +32,8 @@ namespace fCraft.MapConversion {
     }
 
 
-    public class NBTag : IEnumerable<NBTag> {
-        public NBTType Type { get; protected set; }
+    class NBTag : IEnumerable<NBTag> {
+        public NbtType Type { get; protected set; }
         public string Name { get; set; }
         public object Payload { get; set; }
         [CanBeNull]
@@ -44,12 +44,12 @@ namespace fCraft.MapConversion {
 
         protected NBTag() { }
 
-        NBTag( NBTType type, NBTag parent ) {
+        NBTag( NbtType type, NBTag parent ) {
             Type = type;
             Parent = parent;
         }
 
-        public NBTag( NBTType type, string name, object payload, NBTag parent ) {
+        public NBTag( NbtType type, string name, object payload, NBTag parent ) {
             Type = type;
             Name = name;
             Payload = payload;
@@ -64,50 +64,50 @@ namespace fCraft.MapConversion {
         public static NBTCompound ReadStream( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );
-            return (NBTCompound)ReadTag( reader, (NBTType)reader.ReadByte(), null, null );
+            return (NBTCompound)ReadTag( reader, (NbtType)reader.ReadByte(), null, null );
         }
 
-        public static NBTag ReadTag( [NotNull] BinaryReader reader, NBTType type, string name, NBTag parent ) {
+        public static NBTag ReadTag( [NotNull] BinaryReader reader, NbtType type, string name, NBTag parent ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
-            if( name == null && type != NBTType.End ) {
+            if( name == null && type != NbtType.End ) {
                 name = ReadString( reader );
             }
             switch( type ) {
-                case NBTType.End:
-                    return new NBTag( NBTType.End, parent );
+                case NbtType.End:
+                    return new NBTag( NbtType.End, parent );
 
-                case NBTType.Byte:
-                    return new NBTag( NBTType.Byte, name, reader.ReadByte(), parent );
+                case NbtType.Byte:
+                    return new NBTag( NbtType.Byte, name, reader.ReadByte(), parent );
 
-                case NBTType.Short:
-                    return new NBTag( NBTType.Short, name, IPAddress.NetworkToHostOrder( reader.ReadInt16() ), parent );
+                case NbtType.Short:
+                    return new NBTag( NbtType.Short, name, IPAddress.NetworkToHostOrder( reader.ReadInt16() ), parent );
 
-                case NBTType.Int:
-                    return new NBTag( NBTType.Int, name, IPAddress.NetworkToHostOrder( reader.ReadInt32() ), parent );
+                case NbtType.Int:
+                    return new NBTag( NbtType.Int, name, IPAddress.NetworkToHostOrder( reader.ReadInt32() ), parent );
 
-                case NBTType.Long:
-                    return new NBTag( NBTType.Long, name, IPAddress.NetworkToHostOrder( reader.ReadInt64() ), parent );
+                case NbtType.Long:
+                    return new NBTag( NbtType.Long, name, IPAddress.NetworkToHostOrder( reader.ReadInt64() ), parent );
 
-                case NBTType.Float:
-                    return new NBTag( NBTType.Float, name, reader.ReadSingle(), parent );
+                case NbtType.Float:
+                    return new NBTag( NbtType.Float, name, reader.ReadSingle(), parent );
 
-                case NBTType.Double:
-                    return new NBTag( NBTType.Double, name, reader.ReadDouble(), parent );
+                case NbtType.Double:
+                    return new NBTag( NbtType.Double, name, reader.ReadDouble(), parent );
 
-                case NBTType.Bytes:
+                case NbtType.Bytes:
                     int bytesLength = IPAddress.NetworkToHostOrder( reader.ReadInt32() );
-                    return new NBTag( NBTType.Bytes, name, reader.ReadBytes( bytesLength ), parent );
+                    return new NBTag( NbtType.Bytes, name, reader.ReadBytes( bytesLength ), parent );
 
-                case NBTType.String:
-                    return new NBTag( NBTType.String, name, ReadString( reader ), parent );
+                case NbtType.String:
+                    return new NBTag( NbtType.String, name, ReadString( reader ), parent );
 
 
-                case NBTType.List:
+                case NbtType.List:
                     NBTList list = new NBTList {
-                        Type = NBTType.List,
+                        Type = NbtType.List,
                         Name = name,
                         Parent = parent,
-                        ListType = (NBTType)reader.ReadByte()
+                        ListType = (NbtType)reader.ReadByte()
                     };
                     int listLength = IPAddress.NetworkToHostOrder( reader.ReadInt32() );
                     list.Tags = new NBTag[listLength];
@@ -116,15 +116,15 @@ namespace fCraft.MapConversion {
                     }
                     return list;
 
-                case NBTType.Compound:
+                case NbtType.Compound:
                     NBTCompound compound = new NBTCompound {
-                        Type = NBTType.Compound,
+                        Type = NbtType.Compound,
                         Name = name,
                         Parent = parent
                     };
                     while( true ) {
-                        NBTag childTag = ReadTag( reader, (NBTType)reader.ReadByte(), null, compound );
-                        if( childTag.Type == NBTType.End ) break;
+                        NBTag childTag = ReadTag( reader, (NbtType)reader.ReadByte(), null, compound );
+                        if( childTag.Type == NbtType.End ) break;
                         if( childTag.Name == null )
                             continue;
                         if( compound.Tags.ContainsKey( childTag.Name ) ) {
@@ -189,16 +189,8 @@ namespace fCraft.MapConversion {
 
         #region Accessors
 
-        public void Set( object payload ) { Payload = payload; }
-
-        public byte GetByte() { return (byte)Payload; }
         public short GetShort() { return (short)Payload; }
-        public int GetInt() { return (int)Payload; }
-        public long GetLong() { return (long)Payload; }
-        public float GetFloat() { return (float)Payload; }
-        public double GetDouble() { return (double)Payload; }
         public byte[] GetBytes() { return (byte[])Payload; }
-        public string GetString() { return (string)Payload; }
 
         #endregion
 
@@ -213,26 +205,12 @@ namespace fCraft.MapConversion {
                     throw new NotSupportedException();
                 }
             }
-            set {
-                if( this is NBTList ) {
-                    ( (NBTList)this ).Tags[index] = value;
-                } else {
-                    throw new NotSupportedException();
-                }
-            }
         }
 
         public NBTag this[string key] {
             get {
                 if( this is NBTCompound ) {
                     return ( (NBTCompound)this ).Tags[key];
-                } else {
-                    throw new NotSupportedException();
-                }
-            }
-            set {
-                if( this is NBTCompound ) {
-                    ( (NBTCompound)this ).Tags[key] = value;
                 } else {
                     throw new NotSupportedException();
                 }
@@ -295,18 +273,18 @@ namespace fCraft.MapConversion {
     }
 
 
-    public sealed class NBTList : NBTag {
+    sealed class NBTList : NBTag {
         public NBTList() {
-            Type = NBTType.List;
+            Type = NbtType.List;
         }
         public NBTag[] Tags;
-        public NBTType ListType;
+        public NbtType ListType;
     }
 
 
-    public sealed class NBTCompound : NBTag {
+    sealed class NBTCompound : NBTag {
         public NBTCompound() {
-            Type = NBTType.Compound;
+            Type = NbtType.Compound;
         }
         public readonly Dictionary<string, NBTag> Tags = new Dictionary<string, NBTag>();
     }

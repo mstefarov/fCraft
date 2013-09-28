@@ -22,7 +22,6 @@ namespace fCraft {
         /// <summary> Type of block to set at the given coordinates. </summary>
         public readonly Block BlockType;
 
-
         /// <summary> Creates a new BlockUpdate struct. </summary>
         public BlockUpdate( [CanBeNull] Player origin, Vector3I coord, Block blockType ) {
             Origin = origin;

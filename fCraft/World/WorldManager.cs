@@ -12,6 +12,10 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Manages the world list. Handles loading/unloading, renaming, map changes, and more. </summary>
     public static class WorldManager {
+        static WorldManager() {
+            Worlds = new World[0];
+        }
+
         public const string BuildSecurityXmlTagName = "BuildSecurity",
                             AccessSecurityXmlTagName = "AccessSecurity",
                             EnvironmentXmlTagName = "Environment",
@@ -55,7 +59,8 @@ namespace fCraft {
         static World mainWorld;
 
 
-        public static World FindMainWorld( Player player ) {
+        public static World FindMainWorld( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             World rankMain = player.Info.Rank.MainWorld;
             if( rankMain != null && player.CanJoin( rankMain ) ) {
                 return rankMain;
@@ -227,45 +232,50 @@ namespace fCraft {
             // load environment settings
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
-                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "cloud" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
                         world.CloudColor = -1;
                         Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"cloud\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    "WorldManager: Could not parse \"cloud\" attribute " +
+                                    "of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "fog" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
                         world.FogColor = -1;
                         Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"fog\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    "WorldManager: Could not parse \"fog\" attribute " +
+                                    "of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "sky" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
                         world.SkyColor = -1;
                         Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"sky\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    "WorldManager: Could not parse \"sky\" attribute " +
+                                    "of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "level" ) ) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
                         world.EdgeLevel = -1;
                         Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"level\" attribute of Environment settings for world \"{0}\", assuming default (normal).",
+                                    "WorldManager: Could not parse \"level\" attribute " +
+                                    "of Environment settings for world \"{0}\", assuming default (normal).",
                                     worldName );
                     }
                 }
-                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
+                if( ( tempAttr = envEl.Attribute( "edge" ) ) != null ) {
                     Block block;
                     if( Map.GetBlockByName( tempAttr.Value, false, out block ) ) {
                         if( Map.GetEdgeTexture( block ) == null ) {
                             world.EdgeBlock = Block.Water;
                             Logger.Log( LogType.Warning,
-                                        "WorldManager: Unacceptable blocktype given for \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                        "WorldManager: Unacceptable block type given for \"edge\" attribute " +
+                                        "of Environment settings for world \"{0}\", assuming default (Water).",
                                         worldName );
                         } else {
                             world.EdgeBlock = block;
@@ -273,7 +283,8 @@ namespace fCraft {
                     } else {
                         world.EdgeBlock = Block.Water;
                         Logger.Log( LogType.Warning,
-                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings for world \"{0}\", assuming default (Water).",
+                                    "WorldManager: Could not parse \"edge\" attribute of Environment settings " +
+                                    "for world \"{0}\", assuming default (Water).",
                                     worldName );
                     }
                 }
@@ -783,14 +794,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> List of all the worlds that are currently loaded. </summary>
-        /// <returns> List of all loaded worlds. </returns>
-        [NotNull]
-        public static IEnumerable<World> ListLoadedWorlds() {
-            return Worlds.Where( world => world.IsLoaded );
-        }
-
-
         /// <summary> List of worlds that are currently loaded and can be seen by the specified observer. </summary>
         /// <param name="observer"> Player to observe as. </param>
         /// <returns> List of worlds the specified player has permission to observe. </returns>
@@ -841,15 +844,17 @@ namespace fCraft {
                             candidates = Paths.FindFiles( sourceFullFileName );
                         }
 
-                        if( candidates.Length == 0 ) {
-                            player.Message( "File/directory not found: {0}", fileName );
-
-                        } else if( candidates.Length == 1 ) {
-                            player.Message( "File names are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
-
-                        } else {
-                            player.Message( "File names are case-sensitive! Did you mean to load one of these: {0}",
-                                            String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                        switch( candidates.Length ) {
+                            case 0:
+                                player.Message( "File/directory not found: {0}", fileName );
+                                break;
+                            case 1:
+                                player.Message( "File names are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+                                break;
+                            default:
+                                player.Message( "File names are case-sensitive! Did you mean to load one of these: {0}",
+                                                String.Join( ", ", candidates.Select( c => c.Name ).ToArray() ) );
+                                break;
                         }
                     } catch( DirectoryNotFoundException ex ) {
                         player.Message( ex.Message );

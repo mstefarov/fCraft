@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     // Helper methods for working with strings and for serialization/parsing
-    static unsafe class FormatUtil {
+    static class FormatUtil {
         // Quicker StringBuilder.Append(int) by Sam Allen of http://www.dotnetperls.com
         [NotNull]
         public static StringBuilder Digits( [NotNull] this StringBuilder builder, int number ) {
@@ -66,20 +66,6 @@ namespace fCraft {
                 builder.Append( (char)( copy + 48 ) );
             }
             return builder;
-        }
-
-
-        // Quicker Int32.Parse(string) by Karl Seguin
-        public static int Parse( [NotNull] string stringToConvert ) { // TODO: benchmark and integrate
-            if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
-            int value = 0;
-            int length = stringToConvert.Length;
-            fixed( char* characters = stringToConvert ) {
-                for( int i = 0; i < length; ++i ) {
-                    value = 10 * value + ( characters[i] - 48 );
-                }
-            }
-            return value;
         }
 
 

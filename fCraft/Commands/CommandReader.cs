@@ -189,13 +189,13 @@ namespace fCraft {
         /// <summary> Parses next parameter as a Minecraft block name.
         /// Messages warnings directly to the player in case of problems. </summary>
         /// <param name="player"> Player to send warnings to (if any come up). </param>
-        /// <param name="allowNoneBlock"> Whether "none"/"skip" blocktype is allowed. </param>
+        /// <param name="allowNoneBlock"> Whether "none"/"skip" block type is allowed. </param>
         /// <param name="block"> On success, this is set to the given block type.
         /// On failure, this is set to Block.None </param>
         /// <returns> True on success.
         /// False if no more parameters were given;
         /// if next parameter could not be parsed as a block name;
-        /// or if "none" blocktype was given and allowNoneBlock is false. </returns>
+        /// or if "none" block type was given and allowNoneBlock is false. </returns>
         [DebuggerStepThrough]
         public bool NextBlock( [CanBeNull] Player player, bool allowNoneBlock, out Block block ) {
             string blockName = Next();
@@ -208,7 +208,7 @@ namespace fCraft {
                         player.Message( "The \"none\" block is not allowed here" );
                     }
                 } else if( player != null ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", blockName );
+                    player.Message( "Unrecognized block type \"{0}\"", blockName );
                 }
             }
             return false;
@@ -219,7 +219,7 @@ namespace fCraft {
         /// Allows an optional integer parameter to follow the block name after a slash, e.g. "BlockName/#"
         /// Messages warnings directly to the player in case of problems. </summary>
         /// <param name="player"> Player to send warnings to (if any come up). </param>
-        /// <param name="allowNoneBlock"> Whether "none"/"skip" blocktype is allowed. </param>
+        /// <param name="allowNoneBlock"> Whether "none"/"skip" block type is allowed. </param>
         /// <param name="block"> On success, this is set to the given block type.
         /// On failure, this is set to Block.None </param>
         /// <param name="param"> Optional integer parameter. Set to 1 if not given. </param>
@@ -227,7 +227,7 @@ namespace fCraft {
         /// False if no more parameters were given;
         /// if next parameter could not be parsed as a block name;
         /// if optional parameter was given but was not an integer;
-        /// or if "none" blocktype was given and allowNoneBlock is false. </returns>
+        /// or if "none" block type was given and allowNoneBlock is false. </returns>
         public bool NextBlockWithParam( [CanBeNull] Player player, bool allowNoneBlock, out Block block, out int param ) {
             block = Block.None;
             param = 1;
@@ -253,7 +253,7 @@ namespace fCraft {
                         player.Message( "Could not parse \"{0}\" as an integer.", paramString );
                     }
                 } else if( player != null ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", blockName );
+                    player.Message( "Unrecognized block type \"{0}\"", blockName );
                 }
 
             } else {
@@ -264,7 +264,7 @@ namespace fCraft {
                         player.Message( "The \"none\" block is not allowed here" );
                     }
                 } else if( player != null ) {
-                    player.Message( "Unrecognized blocktype \"{0}\"", jointString );
+                    player.Message( "Unrecognized block type \"{0}\"", jointString );
                 }
             }
             return false;

@@ -647,11 +647,10 @@ namespace fCraft {
         }
 
 
-        object IDictionary.this[ object key] {
+        [NotNull]
+        object IDictionary.this[ object key ] {
             get {
-                if( key == null ) {
-                    throw new ArgumentNullException( "key" );
-                }
+                if( key == null ) throw new ArgumentNullException( "key" );
                 string castKey = key as string;
                 if( castKey == null ) {
                     throw new ArgumentException( "Key must be of type String.", "key" );
@@ -659,15 +658,12 @@ namespace fCraft {
                 return this[castKey];
             }
             set {
-                if( key == null ) {
-                    throw new ArgumentNullException( "key" );
-                }
+                if( value == null ) throw new ArgumentNullException( "value" );
+                if( key == null ) throw new ArgumentNullException( "key" );
+                if( value == null ) throw new ArgumentNullException( "value" );
                 string castKey = key as string;
                 if( castKey == null ) {
                     throw new ArgumentException( "Key must be of type String.", "key" );
-                }
-                if( value == null ) {
-                    throw new ArgumentNullException( "value" );
                 }
                 T castValue = value as T;
                 if( castValue == null ) {
@@ -679,9 +675,7 @@ namespace fCraft {
 
 
         void IDictionary.Remove( object key ) {
-            if( key == null ) {
-                throw new ArgumentNullException( "key" );
-            }
+            if( key == null ) throw new ArgumentNullException( "key" );
             string castKey = key as string;
             if( castKey == null ) {
                 throw new ArgumentException( "Key must be of type String.", "key" );
@@ -691,9 +685,7 @@ namespace fCraft {
 
 
         void IDictionary.Add( object key, [NotNull] object value ) {
-            if( key == null ) {
-                throw new ArgumentNullException( "key" );
-            }
+            if( key == null ) throw new ArgumentNullException( "key" );
             string castKey = key as string;
             if( castKey == null ) {
                 throw new ArgumentException( "Key must be of type String.", "key" );
@@ -710,9 +702,7 @@ namespace fCraft {
 
 
         bool IDictionary.Contains( object key ) {
-            if( key == null ) {
-                throw new ArgumentNullException( "key" );
-            }
+            if( key == null ) throw new ArgumentNullException( "key" );
             string castKey = key as string;
             if( castKey == null ) {
                 throw new ArgumentException( "Key must be of type String.", "key" );
@@ -788,7 +778,7 @@ namespace fCraft {
         #region ValueCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public sealed class TrieValueCollection : ICollection<T>, ICollection {
+        sealed class TrieValueCollection : ICollection<T>, ICollection {
             readonly Trie<T> trie;
 
 
@@ -864,7 +854,7 @@ namespace fCraft {
 
             #endregion
 
-
+            [NotNull]
             public IEnumerable<T> StartingWith( [NotNull] string prefix ) {
                 return new TrieValueSubset( trie, prefix );
             }
@@ -1036,7 +1026,7 @@ namespace fCraft {
             }
 
 
-            public sealed class TrieKeySubset : IEnumerable<string> {
+            sealed class TrieKeySubset : IEnumerable<string> {
                 readonly Trie<T> trie;
                 readonly string prefix;
 

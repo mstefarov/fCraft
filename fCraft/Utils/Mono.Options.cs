@@ -316,9 +316,6 @@ namespace Mono.Options
     }
 
     public sealed class OptionContext {
-        private Option option;
-        private string name;
-        private int index;
         private readonly OptionSet set;
         private readonly OptionValueCollection c;
 
@@ -327,20 +324,11 @@ namespace Mono.Options
             c = new OptionValueCollection( this );
         }
 
-        public Option Option {
-            get { return option; }
-            set { option = value; }
-        }
+        public Option Option { get; set; }
 
-        public string OptionName {
-            get { return name; }
-            set { name = value; }
-        }
+        public string OptionName { get; set; }
 
-        public int OptionIndex {
-            get { return index; }
-            set { index = value; }
-        }
+        public int OptionIndex { get; set; }
 
         public OptionSet OptionSet {
             get { return set; }
@@ -554,23 +542,32 @@ namespace Mono.Options
                     for( int i = 0; i < t; i++ ) {
                         char c = line[i];
 
-                        if( c == '"' || c == '\'' ) {
-                            char end = c;
+                        switch( c ) {
+                            case '\'':
+                            case '"': {
+                                char end = c;
 
-                            for( i++; i < t; i++ ) {
-                                c = line[i];
+                                for( i++; i < t; i++ ) {
+                                    c = line[i];
 
-                                if( c == end )
-                                    break;
+                                    if( c == end )
+                                        break;
+                                    arg.Append( c );
+                                }
+                            }
+                                break;
+
+                            case ' ':
+                                if( arg.Length > 0 ) {
+                                    yield return arg.ToString();
+                                    arg.Length = 0;
+                                }
+                                break;
+
+                            default:
                                 arg.Append( c );
-                            }
-                        } else if( c == ' ' ) {
-                            if( arg.Length > 0 ) {
-                                yield return arg.ToString();
-                                arg.Length = 0;
-                            }
-                        } else
-                            arg.Append( c );
+                                break;
+                        }
                     }
                     if( arg.Length > 0 ) {
                         yield return arg.ToString();

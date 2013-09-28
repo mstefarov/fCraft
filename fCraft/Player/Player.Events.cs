@@ -413,10 +413,10 @@ namespace fCraft.Events {
         /// <summary> Coordinates at which the block would be placed. </summary>
         public Vector3I Coords { get; private set; }
 
-        /// <summary> Current blocktype at this coordinate. </summary>
+        /// <summary> Current block type at this coordinate. </summary>
         public Block OldBlock { get; private set; }
 
-        /// <summary> Blocktype that the player intends to place. </summary>
+        /// <summary> Block type that the player intends to place. </summary>
         public Block NewBlock { get; private set; }
 
         /// <summary> Context in which the block was placed. </summary>
@@ -452,10 +452,10 @@ namespace fCraft.Events {
         /// <summary> Coordinates at which the block was placed. </summary>
         public Vector3I Coords { get; private set; }
 
-        /// <summary> Previous blocktype at this coordinate. </summary>
+        /// <summary> Previous block type at this coordinate. </summary>
         public Block OldBlock { get; private set; }
 
-        /// <summary> Current (placed) blocktype at this location. </summary>
+        /// <summary> Current (placed) block type at this location. </summary>
         public Block NewBlock { get; private set; }
 
         /// <summary> Context in which the block was placed. </summary>

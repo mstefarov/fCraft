@@ -38,13 +38,6 @@ namespace fCraft {
         }
 
 
-        public Vector3F( Vector3F other ) {
-            X = other.X;
-            Y = other.Y;
-            Z = other.Z;
-        }
-
-
         public Vector3F( Vector3I other ) {
             X = other.X;
             Y = other.Y;

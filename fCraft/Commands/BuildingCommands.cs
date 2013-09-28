@@ -182,8 +182,8 @@ namespace fCraft {
             Name = "Bind",
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.Build },
-            Help = "Assigns one blocktype to another. " +
-                   "Allows to build blocktypes that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
+            Help = "Assigns one block type to another. " +
+                   "Allows to build block types that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
             Usage = "/Bind OriginalBlockType ReplacementBlockType",
             Handler = BindHandler

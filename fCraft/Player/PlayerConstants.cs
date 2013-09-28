@@ -23,7 +23,7 @@ namespace fCraft {
         /// <summary> Invalid characters in a message </summary>
         InvalidMessageKick = 0x12,
 
-        /// <summary> Attempted to place invalid blocktype </summary>
+        /// <summary> Attempted to place invalid block type </summary>
         [Obsolete]
         InvalidSetTileKick = 0x13,
 
@@ -139,8 +139,8 @@ namespace fCraft {
         /// <summary> Block was out of bounds in the given map. </summary>
         OutOfBounds,
 
-        /// <summary> Player was not allowed to place or replace blocks of this particular blocktype. </summary>
-        BlocktypeDenied,
+        /// <summary> Player was not allowed to place or replace blocks of this particular block type. </summary>
+        BlockTypeDenied,
 
         /// <summary> Player was not allowed to build on this particular world. </summary>
         WorldDenied,
@@ -153,7 +153,7 @@ namespace fCraft {
         RankDenied,
 
         /// <summary> A plugin callback cancelled block placement/deletion.
-        /// To keep player's copy of the map in sync, he will be resent the old blocktype at that location. </summary>
+        /// To keep player's copy of the map in sync, he will be resent the old block type at that location. </summary>
         PluginDenied,
 
         /// <summary> A plugin callback cancelled block placement/deletion.

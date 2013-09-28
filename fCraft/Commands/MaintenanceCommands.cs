@@ -790,7 +790,7 @@ namespace fCraft {
             Handler = SetInfoHandler
         };
 
-        static void SetInfoHandler( Player player, CommandReader cmd ) {
+        static void SetInfoHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             string propertyName = cmd.Next();
             string valName = cmd.NextAll();
@@ -888,7 +888,7 @@ namespace fCraft {
                 case "rct":
                     RankChangeType oldType = info.RankChangeType;
                     RankChangeType newType;
-                    if(!EnumUtil.TryParse(valName, out newType, true)){
+                    if( !EnumUtil.TryParse( valName, out newType, true ) ) {
                         player.Message( "SetInfo: Could not parse RankChangeType. Allowed values: {0}",
                                         String.Join( ", ", Enum.GetNames( typeof( RankChangeType ) ) ) );
                         return;
@@ -960,7 +960,8 @@ namespace fCraft {
                     string oldDisplayedName = info.DisplayedName;
                     if( valName.Length == 0 ) valName = null;
 
-                    if( valName != null && ( valName.Contains( '\n' ) || valName.Contains( "&n" ) || valName.Contains( "&N" ) ) ) {
+                    if( valName != null &&
+                        ( valName.Contains( '\n' ) || valName.Contains( "&n" ) || valName.Contains( "&N" ) ) ) {
                         player.Message( "SetInfo: DisplayedName may not contain line breaks." );
                         return;
                     }

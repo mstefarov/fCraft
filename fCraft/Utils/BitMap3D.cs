@@ -134,9 +134,7 @@ namespace fCraft {
 
 
             public BitMap3DEnumerator( [NotNull] BitMap3D bitmap ) {
-                if( bitmap == null ) {
-                    throw new ArgumentNullException( "bitmap" );
-                }
+                if( bitmap == null ) throw new ArgumentNullException( "bitmap" );
                 this.bitmap = bitmap;
                 startingVersion = bitmap.version;
                 dimX = bitmap.dimensions.X;

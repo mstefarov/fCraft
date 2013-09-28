@@ -26,13 +26,6 @@ namespace fCraft {
         }
 
 
-        public Vector3I( Vector3I other ) {
-            X = other.X;
-            Y = other.Y;
-            Z = other.Z;
-        }
-
-
         public Vector3I( Vector3F other ) {
             X = (int)other.X;
             Y = (int)other.Y;

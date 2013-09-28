@@ -61,7 +61,7 @@ namespace fCraft.Drawing {
         public int BlocksDenied { get; protected set; }
 
         /// <summary> Number of blocks/coordinates that were processed, and left untouched: either because the Brush decided to skip it,
-        /// or because map's current block matched the desired blocktype. </summary>
+        /// or because map's current block matched the desired block type. </summary>
         public int BlocksSkipped { get; protected set; }
 
         /// <summary> Estimate of total number of blocks that will be processed by this command.
@@ -98,7 +98,7 @@ namespace fCraft.Drawing {
         /// <summary> Whether the brush should use alternate block (if available)
         /// for filling insides of hollow DrawOps. Currently only supported by NormalBrush. 
         /// Used with CuboidH/CuboidW/EllipsoidH draw ops. </summary>
-        public int AlternateBlockIndex { get; set; }
+        public int AlternateBlockIndex { get; protected set; }
 
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
         [NotNull]

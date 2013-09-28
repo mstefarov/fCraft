@@ -92,9 +92,7 @@ namespace fCraft.MapGeneration {
 
 
         public override MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == null ) {
-                throw new ArgumentNullException( "presetName" );
-            }
+            if( presetName == null ) throw new ArgumentNullException( "presetName" );
             RealisticMapGenTerrainType terrainType;
             if( EnumUtil.TryParse( presetName, out terrainType, true ) ) {
                 return CreateParameters( terrainType, MapGenTheme.Forest );

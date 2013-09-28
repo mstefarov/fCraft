@@ -71,7 +71,7 @@ namespace fCraft.MapConversion {
                                           mapTag["Spawn"][1].GetShort() );
 
                 map.Blocks = mapTag["Blocks"].GetBytes();
-                map.RemoveUnknownBlocktypes();
+                map.RemoveUnknownBlockTypes();
 
                 return map;
             }

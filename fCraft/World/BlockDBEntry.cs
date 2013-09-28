@@ -28,26 +28,8 @@ namespace fCraft{
         /// <summary> Block that now occupies this coordinate </summary>
         public readonly Block NewBlock;
 
-        /// <summary> Change's (X,Y,Z) coordinates as a vector. </summary>
-        public Vector3I Coord {
-            get { return new Vector3I( X, Y, Z ); }
-        }
-
         /// <summary> Context for this block change. </summary>
         public readonly BlockChangeContext Context;
-
-
-        public BlockDBEntry( int timestamp, int playerID, short x, short y, short z,
-                             Block oldBlock, Block newBlock, BlockChangeContext flags ) {
-            Timestamp = timestamp;
-            PlayerID = playerID;
-            X = x;
-            Y = y;
-            Z = z;
-            OldBlock = oldBlock;
-            NewBlock = newBlock;
-            Context = flags;
-        }
 
         public BlockDBEntry( int timestamp, int playerID, Vector3I coords,
                              Block oldBlock, Block newBlock, BlockChangeContext flags ) {

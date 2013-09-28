@@ -714,10 +714,10 @@ namespace fCraft {
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
                             ( Process.GetCurrentProcess().PrivateMemorySize64/( 1024*1024 ) ) );
 
-            if( Server.IsMonitoringCPUUsage ) {
+            if( Server.IsMonitoringCpuUsage ) {
                 player.Message( "  Averaging {0:0.0}% CPU now, {1:0.0}% overall",
-                                Server.CPUUsageLastMinute*100,
-                                Server.CPUUsageTotal*100 );
+                                Server.CpuUsageLastMinute*100,
+                                Server.CpuUsageTotal*100 );
             }
 
             if( MonoCompat.IsMono ) {

@@ -749,7 +749,7 @@ namespace fCraft {
         }
 
         // TODO: convert into DrawOperation
-        public static void RestoreCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
+        static void RestoreCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( tag == null ) throw new ArgumentNullException( "tag" );

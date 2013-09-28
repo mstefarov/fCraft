@@ -119,6 +119,7 @@ namespace fCraft {
         static Server() {
             InternalIP = IPAddress.Any;
             ExternalIP = IPAddress.Any;
+            Players = new Player[0];
         }
 
 
@@ -327,7 +328,6 @@ namespace fCraft {
 
             StartTime = DateTime.UtcNow;
             cpuUsageStartingOffset = Process.GetCurrentProcess().TotalProcessorTime;
-            Players = new Player[0];
 
             RaiseEvent( Starting );
 
@@ -517,7 +517,7 @@ namespace fCraft {
                     }
                 }
 
-                if( WorldManager.Worlds != null ) {
+                if( WorldManager.Worlds.Length > 0 ) {
                     Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
                     lock( WorldManager.SyncRoot ) {
                         // unload all worlds (includes saving)
@@ -782,25 +782,25 @@ namespace fCraft {
 
 
         // measures CPU usage
-        public static bool IsMonitoringCPUUsage { get; private set; }
+        public static bool IsMonitoringCpuUsage { get; private set; }
         static TimeSpan cpuUsageStartingOffset;
-        public static double CPUUsageTotal { get; private set; }
-        public static double CPUUsageLastMinute { get; private set; }
+        public static double CpuUsageTotal { get; private set; }
+        public static double CpuUsageLastMinute { get; private set; }
 
-        static TimeSpan oldCPUTime = new TimeSpan( 0 );
+        static TimeSpan oldCpuTime = new TimeSpan( 0 );
         static readonly TimeSpan MonitorProcessorUsageInterval = TimeSpan.FromSeconds( 30 );
         static DateTime lastMonitorTime = DateTime.UtcNow;
 
 
         static void MonitorProcessorUsage( [NotNull] SchedulerTask task ) {
-            TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
-            CPUUsageLastMinute = ( newCPUTime - oldCPUTime ).TotalSeconds /
+            TimeSpan newCpuTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
+            CpuUsageLastMinute = ( newCpuTime - oldCpuTime ).TotalSeconds /
                                  ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
             lastMonitorTime = DateTime.UtcNow;
-            CPUUsageTotal = newCPUTime.TotalSeconds /
+            CpuUsageTotal = newCpuTime.TotalSeconds /
                             ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
-            oldCPUTime = newCPUTime;
-            IsMonitoringCPUUsage = true;
+            oldCpuTime = newCpuTime;
+            IsMonitoringCpuUsage = true;
         }
 
         #endregion
