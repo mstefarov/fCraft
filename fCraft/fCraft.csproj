@@ -124,6 +124,7 @@
     <Compile Include="MapGeneration\RealisticMapGenBlockTheme.cs" />
     <Compile Include="MapGeneration\VanillaMapGen.cs" />
     <Compile Include="Network\CpeExtension.cs" />
+    <Compile Include="Player\Player.Chat.cs" />
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\BitMap3D.cs" />
