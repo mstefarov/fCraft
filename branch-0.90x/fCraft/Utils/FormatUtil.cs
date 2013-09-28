@@ -70,7 +70,7 @@ namespace fCraft {
 
 
         // Quicker Int32.Parse(string) by Karl Seguin
-        public static int Parse( [NotNull] string stringToConvert ) {
+        public static int Parse( [NotNull] string stringToConvert ) { // TODO: benchmark and integrate
             if( stringToConvert == null ) throw new ArgumentNullException( "stringToConvert" );
             int value = 0;
             int length = stringToConvert.Length;
@@ -85,7 +85,8 @@ namespace fCraft {
 
         // UppercaseFirst by Sam Allen of http://www.dotnetperls.com
         [NotNull]
-        public static string UppercaseFirst( this string s ) {
+        public static string UppercaseFirst( [NotNull] this string s ) {
+            if( s == null ) throw new ArgumentNullException( "s" );
             if( string.IsNullOrEmpty( s ) ) {
                 return string.Empty;
             }

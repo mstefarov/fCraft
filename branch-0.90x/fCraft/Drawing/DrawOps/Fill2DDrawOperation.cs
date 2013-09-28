@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that performs a 2D flood fill. 
@@ -145,13 +146,16 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumeratorX() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
 
             while( stack.Count > 0 ) {
                 Vector3I coords = stack.Pop();
-                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
+                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) {
+                    coords.Y--;
+                }
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;
@@ -183,13 +187,16 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumeratorY() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
 
             while( stack.Count > 0 ) {
                 Vector3I coords = stack.Pop();
-                while( coords.Z >= Bounds.ZMin && CanPlace( coords ) ) coords.Z--;
+                while( coords.Z >= Bounds.ZMin && CanPlace( coords ) ) {
+                    coords.Z--;
+                }
                 coords.Z++;
                 bool spanLeft = false;
                 bool spanRight = false;
@@ -197,7 +204,7 @@ namespace fCraft.Drawing {
                     yield return coords;
 
                     if( coords.X > Bounds.XMin ) {
-                        bool canPlace = CanPlace( new Vector3I( coords.X -1, coords.Y, coords.Z ) );
+                        bool canPlace = CanPlace( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                         if( !spanLeft && canPlace ) {
                             stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );
                             spanLeft = true;
@@ -221,13 +228,16 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumeratorZ() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
 
             while( stack.Count > 0 ) {
                 Vector3I coords = stack.Pop();
-                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) coords.Y--;
+                while( coords.Y >= Bounds.YMin && CanPlace( coords ) ) {
+                    coords.Y--;
+                }
                 coords.Y++;
                 bool spanLeft = false;
                 bool spanRight = false;

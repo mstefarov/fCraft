@@ -11,8 +11,7 @@ namespace fCraft {
         const int BitCoordMask = 31;
 
         readonly uint[] store;
-        readonly Vector3I offset,
-                          dimensions;
+        readonly Vector3I offset, dimensions;
         int version;
 
 
@@ -20,12 +19,15 @@ namespace fCraft {
         public int Count { get; private set; }
 
         /// <summary> Bounding box within which coordinates are stored. </summary>
-        public BoundingBox Bounds { get; set; }
+        [NotNull]
+        public BoundingBox Bounds { get; private set; }
 
 
         /// <summary> Creates a new 3D bit array, within the given bounds. </summary>
-        /// <param name="bounds"> Bounding box inside which the coordinates are stored. </param>
-        public BitMap3D( BoundingBox bounds ) {
+        /// <param name="bounds"> Bounding box inside which the coordinates are stored. May not be null. </param>
+        /// <exception cref="ArgumentNullException"> bounds is null </exception>
+        public BitMap3D( [NotNull] BoundingBox bounds ) {
+            if( bounds == null ) throw new ArgumentNullException( "bounds" );
             dimensions = bounds.Dimensions;
             offset = bounds.MinVertex;
             Bounds = bounds;
@@ -125,6 +127,7 @@ namespace fCraft {
 
             public Vector3I Current { get; private set; }
 
+            [NotNull]
             object IEnumerator.Current {
                 get { return Current; }
             }

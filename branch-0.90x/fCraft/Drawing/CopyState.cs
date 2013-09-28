@@ -50,10 +50,12 @@ namespace fCraft.Drawing {
 
 
         /// <summary> 3D array of copies blocks. </summary>
+        [NotNull]
         public Block[, ,] Blocks { get; private set; }
 
 
         /// <summary> Dimensions and coordinates of the copied blocks. </summary>
+        [NotNull]
         public BoundingBox Bounds { get; private set; }
 
 
@@ -63,7 +65,7 @@ namespace fCraft.Drawing {
         public Vector3I Orientation { get; private set; }
 
 
-        /// <summary> Index of the copyslot into which this was copied.
+        /// <summary> Index of the copySlot into which this was copied.
         /// Defaults to 0. </summary>
         public int Slot { get; set; }
 
@@ -80,6 +82,7 @@ namespace fCraft.Drawing {
 
 
         /// <summary> Description of the corner at which copying started (e.g. "bottom southeast") </summary>
+        [NotNull]
         public string OriginCorner {
             get {
                 return String.Format( "{0} {1}{2}",

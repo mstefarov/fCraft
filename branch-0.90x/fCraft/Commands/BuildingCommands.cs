@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using fCraft.Drawing;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
@@ -42,8 +43,8 @@ namespace fCraft {
             Handler = SolidHandler
         };
 
-        static void SolidHandler( Player player, CommandReader cmd ) {
-            bool turnSolidOn = (player.GetBind( Block.Stone ) != Block.Admincrete);
+        static void SolidHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnSolidOn = ( player.GetBind( Block.Stone ) != Block.Admincrete );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnSolidOn ) ) {
                 CdSolid.PrintUsage( player );
@@ -60,7 +61,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "Paint",
             Aliases = new[] { "p" },
@@ -72,8 +72,8 @@ namespace fCraft {
             Handler = PaintHandler
         };
 
-        static void PaintHandler( Player player, CommandReader cmd ) {
-            bool turnPaintOn = (!player.IsPainting);
+        static void PaintHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnPaintOn = ( !player.IsPainting );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnPaintOn ) ) {
                 CdPaint.PrintUsage( player );
@@ -90,7 +90,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdGrass = new CommandDescriptor {
             Name = "Grass",
             Aliases = new[] { "g" },
@@ -101,8 +100,8 @@ namespace fCraft {
             Handler = GrassHandler
         };
 
-        static void GrassHandler( Player player, CommandReader cmd ) {
-            bool turnGrassOn = (player.GetBind( Block.Dirt ) != Block.Grass);
+        static void GrassHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnGrassOn = ( player.GetBind( Block.Dirt ) != Block.Grass );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnGrassOn ) ) {
                 CdGrass.PrintUsage( player );
@@ -119,7 +118,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdWater = new CommandDescriptor {
             Name = "Water",
             Aliases = new[] { "w" },
@@ -130,10 +128,10 @@ namespace fCraft {
             Handler = WaterHandler
         };
 
-        static void WaterHandler( Player player, CommandReader cmd ) {
-            bool turnWaterOn = (player.GetBind( Block.Aqua ) != Block.Water ||
-                                player.GetBind( Block.Cyan ) != Block.Water ||
-                                player.GetBind( Block.Blue ) != Block.Water);
+        static void WaterHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnWaterOn = ( player.GetBind( Block.Aqua ) != Block.Water ||
+                                 player.GetBind( Block.Cyan ) != Block.Water ||
+                                 player.GetBind( Block.Blue ) != Block.Water );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnWaterOn ) ) {
                 CdWater.PrintUsage( player );
@@ -152,7 +150,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdLava = new CommandDescriptor {
             Name = "Lava",
             Aliases = new[] { "l" },
@@ -163,8 +160,8 @@ namespace fCraft {
             Handler = LavaHandler
         };
 
-        static void LavaHandler( Player player, CommandReader cmd ) {
-            bool turnLavaOn = (player.GetBind( Block.Red ) != Block.Lava);
+        static void LavaHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnLavaOn = ( player.GetBind( Block.Red ) != Block.Lava );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnLavaOn ) ) {
                 CdLava.PrintUsage( player );
@@ -181,7 +178,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdBind = new CommandDescriptor {
             Name = "Bind",
             Category = CommandCategory.Building,
@@ -193,7 +189,7 @@ namespace fCraft {
             Handler = BindHandler
         };
 
-        static void BindHandler( Player player, CommandReader cmd ) {
+        static void BindHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( !cmd.HasNext ) {
                 player.Message( "All bindings have been reset." );
                 player.ResetAllBinds();
@@ -261,7 +257,7 @@ namespace fCraft {
             Handler = UndoHandler
         };
 
-        static void UndoHandler( Player player, CommandReader cmd ) {
+        static void UndoHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             if( cmd.HasNext ) {
@@ -280,8 +276,8 @@ namespace fCraft {
             if( undoState.Op != null && !undoState.Op.IsDone && !undoState.Op.IsCancelled ) {
                 undoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
-                                     undoState.Op.Description,
-                                     undoState.Op.PercentDone );
+                                      undoState.Op.Description,
+                                      undoState.Op.PercentDone );
             }
 
             // Check if command was too massive.
@@ -320,7 +316,7 @@ namespace fCraft {
             Handler = RedoHandler
         };
 
-        static void RedoHandler( Player player, CommandReader cmd ) {
+        static void RedoHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdRedo.PrintUsage( player );
                 return;
@@ -339,8 +335,8 @@ namespace fCraft {
             if( redoState.Op != null && !redoState.Op.IsDone ) {
                 redoState.Op.Cancel();
                 msg += String.Format( "Cancelled {0} (was {1}% done). ",
-                                     redoState.Op.Description,
-                                     redoState.Op.PercentDone );
+                                      redoState.Op.Description,
+                                      redoState.Op.PercentDone );
             }
 
             // no need to set player.drawingInProgress here because this is done on the user thread
@@ -374,7 +370,7 @@ namespace fCraft {
             Handler = CopySlotHandler
         };
 
-        static void CopySlotHandler( Player player, CommandReader cmd ) {
+        static void CopySlotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             int slotNumber;
             if( cmd.NextInt( out slotNumber ) ) {
                 if( cmd.HasNext ) {
@@ -390,25 +386,29 @@ namespace fCraft {
                         player.Message( "Selected copy slot {0} (unused).", slotNumber );
                     } else {
                         player.Message( "Selected copy slot {0}: {1} blocks from {2}, {3} old.",
-                                        slotNumber, info.Blocks.Length,
-                                        info.OriginWorld, DateTime.UtcNow.Subtract( info.CopyTime ).ToMiniString() );
+                                        slotNumber,
+                                        info.Blocks.Length,
+                                        info.OriginWorld,
+                                        DateTime.UtcNow.Subtract( info.CopyTime ).ToMiniString() );
                     }
                 }
             } else {
                 CopyState[] slots = player.CopyStates;
                 player.Message( "Using {0} of {1} slots. Selected slot: {2}",
-                                slots.Count( info => info != null ), player.Info.Rank.CopySlots, player.CopySlot + 1 );
+                                slots.Count( info => info != null ),
+                                player.Info.Rank.CopySlots,
+                                player.CopySlot + 1 );
                 for( int i = 0; i < slots.Length; i++ ) {
                     if( slots[i] != null ) {
                         player.Message( "  {0}: {1} blocks from {2}, {3} old",
-                                        i + 1, slots[i].Blocks.Length,
+                                        i + 1,
+                                        slots[i].Blocks.Length,
                                         slots[i].OriginWorld,
                                         DateTime.UtcNow.Subtract( slots[i].CopyTime ).ToMiniString() );
                     }
                 }
             }
         }
-
 
 
         static readonly CommandDescriptor CdCopy = new CommandDescriptor {
@@ -421,7 +421,7 @@ namespace fCraft {
             Handler = CopyHandler
         };
 
-        static void CopyHandler( Player player, CommandReader cmd ) {
+        static void CopyHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdCopy.PrintUsage( player );
                 return;
@@ -431,7 +431,7 @@ namespace fCraft {
         }
 
 
-        static void CopyCallback( Player player, Vector3I[] marks, object tag ) {
+        static void CopyCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
             int sx = Math.Min( marks[0].X, marks[1].X );
             int ex = Math.Max( marks[0].X, marks[1].X );
             int sy = Math.Min( marks[0].Y, marks[1].Y );
@@ -442,8 +442,10 @@ namespace fCraft {
 
             int volume = bounds.Volume;
             if( !player.CanDraw( volume ) ) {
-                player.MessageNow( "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
-                                   player.Info.Rank.DrawLimit, volume );
+                player.MessageNow(
+                    "You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                    player.Info.Rank.DrawLimit,
+                    volume );
                 return;
             }
 
@@ -473,10 +475,12 @@ namespace fCraft {
 
             Logger.Log( LogType.UserActivity,
                         "{0} copied {1} blocks from world {2} (between {3} and {4}).",
-                        player.Name, volume, playerWorld.Name,
-                        bounds.MinVertex, bounds.MaxVertex );
+                        player.Name,
+                        volume,
+                        playerWorld.Name,
+                        bounds.MinVertex,
+                        bounds.MaxVertex );
         }
-
 
 
         static readonly CommandDescriptor CdMirror = new CommandDescriptor {
@@ -491,7 +495,7 @@ namespace fCraft {
             Handler = MirrorHandler
         };
 
-        static void MirrorHandler( Player player, CommandReader cmd ) {
+        static void MirrorHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             CopyState originalInfo = player.GetCopyState();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to flip! Copy something first." );
@@ -501,9 +505,11 @@ namespace fCraft {
             // clone to avoid messing up any paste-in-progress
             CopyState info = new CopyState( originalInfo );
 
-            bool flipX = false, flipY = false, flipH = false;
+            bool flipX = false,
+                 flipY = false,
+                 flipH = false;
             string axis;
-            while( (axis = cmd.Next()) != null ) {
+            while( ( axis = cmd.Next() ) != null ) {
                 foreach( char c in axis.ToLower() ) {
                     if( c == 'x' ) flipX = true;
                     if( c == 'y' ) flipY = true;
@@ -596,7 +602,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdRotate = new CommandDescriptor {
             Name = "Rotate",
             Aliases = new[] { "spin" },
@@ -607,7 +612,7 @@ namespace fCraft {
             Handler = RotateHandler
         };
 
-        static void RotateHandler( Player player, CommandReader cmd ) {
+        static void RotateHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             CopyState originalInfo = player.GetCopyState();
             if( originalInfo == null ) {
                 player.MessageNow( "Nothing to rotate! Copy something first." );
@@ -615,7 +620,7 @@ namespace fCraft {
             }
 
             int degrees;
-            if( !cmd.NextInt( out degrees ) || (degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270) ) {
+            if( !cmd.NextInt( out degrees ) || ( degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270 ) ) {
                 CdRotate.PrintUsage( player );
                 return;
             }
@@ -641,19 +646,17 @@ namespace fCraft {
             }
 
             // allocate the new buffer
-            Block[, ,] oldBuffer = originalInfo.Blocks;
-            Block[, ,] newBuffer;
+            Block[,,] oldBuffer = originalInfo.Blocks;
+            Block[,,] newBuffer;
 
             if( degrees == 180 ) {
                 newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 2 )];
-
             } else if( axis == Axis.X ) {
                 newBuffer = new Block[oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 )];
-
             } else if( axis == Axis.Y ) {
                 newBuffer = new Block[oldBuffer.GetLength( 2 ), oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 )];
-
-            } else { // axis == Axis.Z
+            } else {
+                // axis == Axis.Z
                 newBuffer = new Block[oldBuffer.GetLength( 1 ), oldBuffer.GetLength( 0 ), oldBuffer.GetLength( 2 )];
             }
 
@@ -662,12 +665,13 @@ namespace fCraft {
 
             // construct the rotation matrix
             int[,] matrix = {
-                {1,0,0},
-                {0,1,0},
-                {0,0,1}
+                { 1, 0, 0 },
+                { 0, 1, 0 },
+                { 0, 0, 1 }
             };
 
-            int a, b;
+            int a,
+                b;
             switch( axis ) {
                 case Axis.X:
                     a = 1;
@@ -707,25 +711,26 @@ namespace fCraft {
             for( int x = oldBuffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = oldBuffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     for( int z = oldBuffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                        int nx = (matrix[0, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[0, 0] > 0 ? x : 0)) +
-                                 (matrix[0, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[0, 1] > 0 ? y : 0)) +
-                                 (matrix[0, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[0, 2] > 0 ? z : 0));
-                        int ny = (matrix[1, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[1, 0] > 0 ? x : 0)) +
-                                 (matrix[1, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[1, 1] > 0 ? y : 0)) +
-                                 (matrix[1, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[1, 2] > 0 ? z : 0));
-                        int nz = (matrix[2, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[2, 0] > 0 ? x : 0)) +
-                                 (matrix[2, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[2, 1] > 0 ? y : 0)) +
-                                 (matrix[2, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[2, 2] > 0 ? z : 0));
+                        int nx = ( matrix[0, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[0, 0] > 0 ? x : 0 ) ) +
+                                 ( matrix[0, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[0, 1] > 0 ? y : 0 ) ) +
+                                 ( matrix[0, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[0, 2] > 0 ? z : 0 ) );
+                        int ny = ( matrix[1, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[1, 0] > 0 ? x : 0 ) ) +
+                                 ( matrix[1, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[1, 1] > 0 ? y : 0 ) ) +
+                                 ( matrix[1, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[1, 2] > 0 ? z : 0 ) );
+                        int nz = ( matrix[2, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[2, 0] > 0 ? x : 0 ) ) +
+                                 ( matrix[2, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[2, 1] > 0 ? y : 0 ) ) +
+                                 ( matrix[2, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[2, 2] > 0 ? z : 0 ) );
                         newBuffer[nx, ny, nz] = oldBuffer[x, y, z];
                     }
                 }
             }
 
             player.Message( "Rotated copy (slot {0}) by {1} degrees around {2} axis.",
-                            info.Slot + 1, degrees, axis );
+                            info.Slot + 1,
+                            degrees,
+                            axis );
             player.SetCopyState( info );
         }
-
 
         #endregion
 
@@ -742,7 +747,7 @@ namespace fCraft {
             Handler = MarkHandler
         };
 
-        static void MarkHandler( Player player, CommandReader cmd ) {
+        static void MarkHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Map map = player.WorldMap;
             int x, y, z;
             Vector3I coords;
@@ -776,9 +781,13 @@ namespace fCraft {
             Handler = DoNotMarkHandler
         };
 
-        static void DoNotMarkHandler( Player player, CommandReader cmd ) {
-            player.DisableClickToMark = !player.DisableClickToMark;
-            if( player.DisableClickToMark ) {
+        static void DoNotMarkHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool doNotMark = !player.DisableClickToMark;
+            if( cmd.HasNext && !cmd.NextOnOff( out doNotMark ) ) {
+                CdDoNotMark.PrintUsage( player );
+            }
+            player.DisableClickToMark = doNotMark;
+            if( doNotMark ) {
                 player.Message( "Click-to-mark disabled." );
             } else {
                 player.Message( "Click-to-mark re-enabled." );
@@ -797,8 +806,9 @@ namespace fCraft {
             Handler = CancelHandler
         };
 
-        static void CancelHandler( Player player, CommandReader cmd ) {
-            throw new NotSupportedException( "/Cancel handler may not be used directly. Use Player.SelectionCancel() instead." );
+        static void CancelHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            throw new NotSupportedException(
+                "/Cancel handler may not be used directly. Use Player.SelectionCancel() instead." );
         }
 
         #endregion
@@ -812,8 +822,8 @@ namespace fCraft {
             Handler = StaticHandler
         };
 
-        static void StaticHandler( Player player, CommandReader cmd ) {
-            bool turnStaticOn = (!player.IsRepeatingSelection);
+        static void StaticHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            bool turnStaticOn = ( !player.IsRepeatingSelection );
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnStaticOn ) ) {
                 CdStatic.PrintUsage( player );

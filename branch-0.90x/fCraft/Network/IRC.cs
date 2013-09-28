@@ -217,7 +217,8 @@ namespace fCraft {
             }
 
 
-            static void LogDisconnectWarning( Exception ex ) {
+            static void LogDisconnectWarning( [NotNull] Exception ex ) {
+                if( ex == null ) throw new ArgumentNullException( "ex" );
                 Logger.Log( LogType.Warning,
                             "IRC: Disconnected ({0}: {1}). Will retry in {2} seconds.",
                             ex.GetType().Name,
@@ -705,7 +706,7 @@ namespace fCraft {
         }
 
 
-        internal static void Disconnect( string quitMsg ) {
+        internal static void Disconnect( [CanBeNull] string quitMsg ) {
             if( threads != null && threads.Length > 0 ) {
                 foreach( IRCThread thread in threads ) {
                     thread.DisconnectThread( quitMsg );
@@ -719,6 +720,7 @@ namespace fCraft {
             IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7E]" ),
             IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
 
+        [NotNull]
         static string ProcessMessageFromIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             bool useColor = ConfigKey.IRCShowColorsFromIRC.Enabled();
@@ -753,6 +755,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         static string ProcessMessageToIRC( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             bool useColor = ConfigKey.IRCShowColorsFromServer.Enabled();
@@ -780,7 +783,6 @@ namespace fCraft {
             return message.Trim();
         }
 
-
         #region Server Event Handlers
 
         static void HookUpHandlers() {
@@ -794,7 +796,7 @@ namespace fCraft {
         }
 
 
-        static void OnPlayerHideChanged( object sender, PlayerHideChangedEventArgs e ) {
+        static void OnPlayerHideChanged( [CanBeNull] object sender, [NotNull] PlayerHideChangedEventArgs e ) {
             if( !ConfigKey.IRCBotAnnounceServerJoins.Enabled() || e.Silent ) {
                 return;
             }
@@ -808,21 +810,21 @@ namespace fCraft {
         }
 
 
-        static void ChatSentHandler( object sender, ChatSentEventArgs args ) {
+        static void ChatSentHandler( [CanBeNull] object sender, [NotNull] ChatSentEventArgs args ) {
             bool enabled = ConfigKey.IRCBotForwardFromServer.Enabled();
             switch( args.MessageType ) {
                 case ChatMessageType.Global:
                     if( enabled ) {
                         string formattedMessage = String.Format( "{0}{1}: {2}",
-                                                        args.Player.ClassyName, 
-                                                        ResetCode,
-                                                        args.Message );
+                                                                 args.Player.ClassyName,
+                                                                 ResetCode,
+                                                                 args.Message );
                         SendChannelMessage( formattedMessage );
                     } else if( args.Message.StartsWith( "#" ) ) {
                         string formattedMessage = String.Format( "{0}{1}: {2}",
-                                                        args.Player.ClassyName,
-                                                        ResetCode,
-                                                        args.Message.Substring( 1 ) );
+                                                                 args.Player.ClassyName,
+                                                                 ResetCode,
+                                                                 args.Message.Substring( 1 ) );
                         SendChannelMessage( formattedMessage );
                     }
                     break;
@@ -837,7 +839,8 @@ namespace fCraft {
         }
 
 
-        static void PlayerReadyHandler( object sender, IPlayerEvent e ) {
+        static void PlayerReadyHandler( [CanBeNull] object sender, [NotNull] IPlayerEvent e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S connected.",
                                                 BoldCode, e.Player.ClassyName );
@@ -846,30 +849,24 @@ namespace fCraft {
         }
 
 
-        static void PlayerDisconnectedHandler( object sender, PlayerDisconnectedEventArgs e ) {
+        static void PlayerDisconnectedHandler( [CanBeNull] object sender, [NotNull] PlayerDisconnectedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             if( e.Player.HasFullyConnected && ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 ShowPlayerDisconnectedMsg( e.Player, e.LeaveReason );
             }
         }
 
 
-        static void ShowPlayerDisconnectedMsg( Player player, LeaveReason leaveReason ) {
-            string message = String.Format( "{0}&S* {1}&S left the server ({2})",
-                                            BoldCode,
-                                            player.ClassyName,
-                                            leaveReason );
-            SendAction( message );
-        }
-
-
-        static void PlayerKickedHandler( object sender, PlayerKickedEventArgs e ) {
+        static void PlayerKickedHandler( [CanBeNull] object sender, [NotNull] PlayerKickedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             if( e.Announce && e.Context == LeaveReason.Kick ) {
                 PlayerSomethingMessage( e.Kicker, "kicked", e.Player.Info, e.Reason );
             }
         }
 
 
-        static void PlayerInfoBanChangedHandler( object sender, PlayerInfoBanChangedEventArgs e ) {
+        static void PlayerInfoBanChangedHandler( [CanBeNull] object sender, [NotNull] PlayerInfoBanChangedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             if( e.Announce ) {
                 if( e.WasUnbanned ) {
                     PlayerSomethingMessage( e.Banner, "unbanned", e.PlayerInfo, e.Reason );
@@ -880,7 +877,8 @@ namespace fCraft {
         }
 
 
-        static void PlayerInfoRankChangedHandler( object sender, PlayerInfoRankChangedEventArgs e ) {
+        static void PlayerInfoRankChangedHandler( [CanBeNull] object sender, [NotNull] PlayerInfoRankChangedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             if( e.Announce ) {
                 string actionString = String.Format( "{0} from {1}&W to {2}&W",
                                                      e.RankChangeType,
@@ -891,7 +889,18 @@ namespace fCraft {
         }
 
 
-        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target, [CanBeNull] string reason ) {
+        static void ShowPlayerDisconnectedMsg( [NotNull] Player player, LeaveReason leaveReason ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            string message = String.Format( "{0}&S* {1}&S left the server ({2})",
+                                            BoldCode,
+                                            player.ClassyName,
+                                            leaveReason );
+            SendAction( message );
+        }
+
+
+        static void PlayerSomethingMessage( [NotNull] IClassy player, [NotNull] string action, [NotNull] IClassy target,
+                                            [CanBeNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( action == null ) throw new ArgumentNullException( "action" );
             if( target == null ) throw new ArgumentNullException( "target" );
@@ -1098,6 +1107,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         static IRCMessage MessageParser( [NotNull] string rawLine, [NotNull] string actualBotNick ) {
             if( rawLine == null ) throw new ArgumentNullException( "rawLine" );
             if( actualBotNick == null ) throw new ArgumentNullException( "actualBotNick" );
@@ -1116,7 +1126,9 @@ namespace fCraft {
                 line = rawLine;
             }
 
-            string[] linear = line.Split( new[] { ' ' } );
+            string[] linear = line.Split( new[] {
+                ' '
+            } );
 
             // conform to RFC 2812
             string from = linear[0];
@@ -1131,9 +1143,9 @@ namespace fCraft {
             if( exclamationPos != -1 ) {
                 nick = from.Substring( 0, exclamationPos );
             }
-            if( (atPos != -1) &&
-                (exclamationPos != -1) ) {
-                ident = from.Substring( exclamationPos + 1, (atPos - exclamationPos) - 1 );
+            if( ( atPos != -1 ) &&
+                ( exclamationPos != -1 ) ) {
+                ident = from.Substring( exclamationPos + 1, ( atPos - exclamationPos ) - 1 );
             }
             if( atPos != -1 ) {
                 host = from.Substring( atPos + 1 );
@@ -1173,8 +1185,8 @@ namespace fCraft {
                     break;
             }
 
-            if( (channel != null) &&
-                (channel[0] == ':') ) {
+            if( ( channel != null ) &&
+                ( channel[0] == ':' ) ) {
                 channel = channel.Substring( 1 );
             }
 

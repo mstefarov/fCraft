@@ -14,7 +14,7 @@ namespace fCraft.MapGeneration {
 
         /// <summary> Flag indicating whether this generation task has been cancelled. 
         /// Should be set by CancelAsync(), regardless of whether async cancellation is supported. </summary>
-        public bool Canceled { get; protected set; }
+        public bool Canceled { get; private set; }
 
         /// <summary> Flag indicating whether this generation task has finished.
         /// Expected to be set right before Generate() exits. </summary>
@@ -27,6 +27,7 @@ namespace fCraft.MapGeneration {
 
         /// <summary> String representing the current state of the map generator.
         /// This information will be shown to users in ConfigGUI. </summary>
+        [NotNull]
         public string StatusString { get; protected set; }
 
         /// <summary> Flag: whether this generation task will report progress. </summary>
@@ -50,7 +51,7 @@ namespace fCraft.MapGeneration {
         public abstract Map Generate();
 
         /// <summary> Sigals this task to asynchronously finish executing. </summary>
-        public virtual void CancelAsync() {
+        public void CancelAsync() {
             Canceled = true;
         }
 

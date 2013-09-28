@@ -33,12 +33,14 @@ namespace fCraft {
 
 
         /// <summary> Gets a list of all commands (including hidden ones). </summary>
+        [NotNull]
         public static CommandDescriptor[] GetCommands() {
             return Commands.Values.ToArray();
         }
 
 
         /// <summary> Gets a list of ONLY hidden or non-hidden commands, not both. </summary>
+        [NotNull]
         public static CommandDescriptor[] GetCommands( bool hidden ) {
             return Commands.Values
                            .Where( cmd => ( cmd.IsHidden == hidden ) )
@@ -47,6 +49,7 @@ namespace fCraft {
 
 
         /// <summary> Gets a list of commands available to a specified rank. </summary>
+        [NotNull]
         public static CommandDescriptor[] GetCommands( [NotNull] Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
@@ -58,6 +61,7 @@ namespace fCraft {
 
         /// <summary> Gets a list of commands in a specified category.
         /// Note that commands may belong to more than one category. </summary>
+        [NotNull]
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
                            .Where( cmd => ( includeHidden || !cmd.IsHidden ) &&
@@ -258,7 +262,7 @@ namespace fCraft {
         public static event EventHandler<CommandCalledEventArgs> CommandCalled;
 
 
-        static bool RaiseCommandRegisteringEvent( CommandDescriptor descriptor ) {
+        static bool RaiseCommandRegisteringEvent( [NotNull] CommandDescriptor descriptor ) {
             var h = CommandRegistering;
             if( h == null ) return false;
             var e = new CommandRegisteringEventArgs( descriptor );
@@ -267,24 +271,24 @@ namespace fCraft {
         }
 
 
-        static void RaiseCommandRegisteredEvent( CommandDescriptor descriptor ) {
+        static void RaiseCommandRegisteredEvent( [NotNull] CommandDescriptor descriptor ) {
             var h = CommandRegistered;
             if( h != null ) h( null, new CommandRegisteredEventArgs( descriptor ) );
         }
 
 
-        internal static bool RaiseCommandCallingEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
+        internal static bool RaiseCommandCallingEvent( [NotNull] CommandReader cmd, [NotNull] Player player ) {
             var h = CommandCalling;
             if( h == null ) return false;
-            var e = new CommandCallingEventArgs( cmd, descriptor, player );
+            var e = new CommandCallingEventArgs( cmd, player );
             h( null, e );
             return e.Cancel;
         }
 
 
-        internal static void RaiseCommandCalledEvent( CommandReader cmd, CommandDescriptor descriptor, Player player ) {
+        internal static void RaiseCommandCalledEvent( [NotNull] CommandReader cmd, [NotNull] Player player ) {
             var h = CommandCalled;
-            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, descriptor, player ) );
+            if( h != null ) CommandCalled( null, new CommandCalledEventArgs( cmd, player ) );
         }
 
         #endregion
@@ -320,17 +324,19 @@ namespace fCraft {
 namespace fCraft.Events {
     /// <summary> Provides data for CommandManager.CommandRegistered event. Immutable. </summary>
     public class CommandRegisteredEventArgs : EventArgs {
-        internal CommandRegisteredEventArgs( CommandDescriptor descriptor ) {
+        internal CommandRegisteredEventArgs( [NotNull] CommandDescriptor descriptor ) {
+            if( descriptor == null ) throw new ArgumentNullException( "descriptor" );
             Descriptor = descriptor;
         }
 
+        [NotNull]
         public CommandDescriptor Descriptor { get; private set; }
     }
 
 
     /// <summary> Provides data for CommandManager.CommandRegistering event. Cancelable. </summary>
     public sealed class CommandRegisteringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
-        internal CommandRegisteringEventArgs( CommandDescriptor descriptor )
+        internal CommandRegisteringEventArgs( [NotNull] CommandDescriptor descriptor )
             : base( descriptor ) {
         }
 
@@ -340,22 +346,24 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for CommandManager.CommandCalled event. Immutable. </summary>
     public class CommandCalledEventArgs : EventArgs, IPlayerEvent {
-        internal CommandCalledEventArgs( CommandReader command, CommandDescriptor descriptor, Player player ) {
+        internal CommandCalledEventArgs( [NotNull] CommandReader command, [NotNull] Player player ) {
+            if( command == null ) throw new ArgumentNullException( "command" );
+            if( player == null ) throw new ArgumentNullException( "player" );
             Command = command;
-            Descriptor = descriptor;
             Player = player;
         }
 
+        [NotNull]
         public CommandReader Command { get; private set; }
-        public CommandDescriptor Descriptor { get; private set; }
+
         public Player Player { get; private set; }
     }
 
 
     /// <summary> Provides data for CommandManager.CommandCalling event. Cancelable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
-        internal CommandCallingEventArgs( CommandReader command, CommandDescriptor descriptor, Player player ) :
-            base( command, descriptor, player ) {
+        internal CommandCallingEventArgs( [NotNull] CommandReader command, [NotNull] Player player ) :
+            base( command, player ) {
         }
 
         public bool Cancel { get; set; }

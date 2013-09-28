@@ -11,7 +11,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
@@ -40,6 +39,7 @@ namespace fCraft {
         public LeaveReason LeaveReason { get; private set; }
 
         /// <summary> Remote IP address of this player. </summary>
+        [NotNull]
         public IPAddress IP { get; private set; }
 
 
@@ -56,10 +56,10 @@ namespace fCraft {
         readonly ConcurrentQueue<Packet> outputQueue = new ConcurrentQueue<Packet>(),
                                          priorityOutputQueue = new ConcurrentQueue<Packet>();
 
-
-        internal static Player StartSession( [NotNull] TcpClient tcpClient ) {
+        internal static void StartSession( [NotNull] TcpClient tcpClient ) {
             if( tcpClient == null ) throw new ArgumentNullException( "tcpClient" );
-            return new Player( tcpClient );
+            Player p = new Player( tcpClient );
+            p.ioThread.Start();
         }
 
 
@@ -91,7 +91,6 @@ namespace fCraft {
                     Name = "fCraft.Session",
                     CurrentCulture = new CultureInfo( "en-US" )
                 };
-                ioThread.Start();
 
             } catch( SocketException ) {
                 // Mono throws SocketException when accessing Client.RemoteEndPoint on disconnected sockets
@@ -646,20 +645,6 @@ namespace fCraft {
             }
             SendNow( Packet.MakeHandshake( this, serverName, motd ) );
 
-            // AutoRank
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                Rank newRank = AutoRankManager.Check( Info );
-                if( newRank != null ) {
-                    try {
-                        Info.ChangeRank( AutoRank, newRank, "~AutoRank", true, true, true );
-                    } catch( PlayerOpException ex ) {
-                        Logger.Log( LogType.Error,
-                                    "AutoRank failed on player {0}: {1}",
-                                    ex.Player.Name, ex.Message );
-                    }
-                }
-            }
-
             bool firstTime = ( Info.TimesVisited == 1 );
             if( !JoinWorldNow( startingWorld, true, WorldChangeReason.FirstWorld ) ) {
                 Logger.Log( LogType.Warning,
@@ -832,14 +817,15 @@ namespace fCraft {
         }
 
 
-        bool VerifyName( string givenName, string verificationCode ) {
+        bool VerifyName( [NotNull] string givenName, [NotNull] string verificationCode ) {
             if( Server.VerifyName( givenName, verificationCode, Heartbeat.Salt ) ) {
                 IsVerified = true;
-
             } else {
                 NameVerificationMode nameVerificationMode = ConfigKey.VerifyNames.GetEnum<NameVerificationMode>();
 
-                string stdMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).", Name, IP );
+                string stdMessage = String.Format( "Player.LoginSequence: Could not verify player name for {0} ({1}).",
+                                                   Name,
+                                                   IP );
                 if( IP.Equals( IPAddress.Loopback ) && nameVerificationMode != NameVerificationMode.Always ) {
                     // Player is connecting from localhost
                     Logger.Log( LogType.SuspiciousActivity,
@@ -852,7 +838,6 @@ namespace fCraft {
                                 "{0} Player was identified as connecting from LAN and allowed in.",
                                 stdMessage );
                     IsVerified = true;
-
                 } else if( Info.TimesVisited > 1 && Info.LastIP.Equals( IP ) ) {
                     // Player has been here before, and is reconnecting from same IP
                     switch( nameVerificationMode ) {
@@ -873,14 +858,15 @@ namespace fCraft {
                             IsVerified = true;
                             break;
                     }
-
                 } else {
                     // All other modes of verification failed.
                     switch( nameVerificationMode ) {
                         case NameVerificationMode.Always:
                         case NameVerificationMode.Balanced:
                             Info.ProcessFailedLogin( this );
-                            Logger.Log( LogType.SuspiciousActivity, "{0} IP did not match. Player was kicked.", stdMessage );
+                            Logger.Log( LogType.SuspiciousActivity,
+                                        "{0} IP did not match. Player was kicked.",
+                                        stdMessage );
                             KickNow( "Could not verify player name!", LeaveReason.UnverifiedName );
                             return false;
 
@@ -1180,7 +1166,8 @@ namespace fCraft {
         #endregion
 
 
-        static void ClearQueue( ConcurrentQueue<Packet> queue ) {
+        static void ClearQueue( [NotNull] ConcurrentQueue<Packet> queue ) {
+            if( queue == null ) throw new ArgumentNullException( "queue" );
             Packet ignored;
             while( queue.TryDequeue( out ignored ) ) {
             }
@@ -1400,6 +1387,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         VisibleEntity AddEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( freePlayerIDs.Count > 0 ) {
@@ -1520,7 +1508,7 @@ namespace fCraft {
             public static readonly Position HiddenPosition = new Position( 0, 0, short.MinValue );
 
 
-            public VisibleEntity( Position newPos, sbyte newId, Rank newRank ) {
+            public VisibleEntity( Position newPos, sbyte newId, [NotNull] Rank newRank ) {
                 Id = newId;
                 LastKnownPosition = newPos;
                 MarkedForRetention = true;
@@ -1531,6 +1519,7 @@ namespace fCraft {
 
             public readonly sbyte Id;
             public Position LastKnownPosition;
+            [NotNull]
             public Rank LastKnownRank;
             public bool Hidden;
             public bool MarkedForRetention;

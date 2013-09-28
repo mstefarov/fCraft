@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Xml;
 using System.Xml.Linq;
 using fCraft.Events;
@@ -28,12 +27,14 @@ namespace fCraft {
 
         /// <summary> User-agent value used for HTTP requests (heartbeat, updater, external IP check, etc). 
         /// Defaults to "fCraft" + VersionString of the current release. </summary>
+        [NotNull]
         public static string UserAgent { get; set; }
 
         /// <summary> The latest stable branch/version of fCraft. </summary>
         public const string LatestStable = "0.642_r2180";
 
         /// <summary> Url to update fCraft from. Use "{0}" as a placeholder for CurrentRelease.Version.Revision </summary>
+        [NotNull]
         public static string UpdateUri { get; set; }
 
 
@@ -50,6 +51,7 @@ namespace fCraft {
 
 
         /// <summary> Checks fCraft.net for updated versions of fCraft. </summary>
+        [NotNull]
         public static UpdaterResult CheckForUpdates() {
             UpdaterMode mode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
             if( mode == UpdaterMode.Disabled ) return UpdaterResult.NoUpdate;
@@ -124,7 +126,7 @@ namespace fCraft {
         public static event EventHandler<CheckedForUpdatesEventArgs> CheckedForUpdates;
 
 
-        static bool RaiseCheckingForUpdatesEvent( ref string updateUrl ) {
+        static bool RaiseCheckingForUpdatesEvent( [NotNull] ref string updateUrl ) {
             var h = CheckingForUpdates;
             if( h == null ) return false;
             var e = new CheckingForUpdatesEventArgs( updateUrl );
@@ -134,7 +136,7 @@ namespace fCraft {
         }
 
 
-        static void RaiseCheckedForUpdatesEvent( string url, UpdaterResult result ) {
+        static void RaiseCheckedForUpdatesEvent( [NotNull] string url, [NotNull] UpdaterResult result ) {
             var h = CheckedForUpdates;
             if( h != null ) h( null, new CheckedForUpdatesEventArgs( url, result ) );
         }
@@ -145,12 +147,13 @@ namespace fCraft {
 
     /// <summary> Result of an update check. </summary>
     public sealed class UpdaterResult {
-        public static UpdaterResult NoUpdate {
+        [NotNull]
+        internal static UpdaterResult NoUpdate {
             get { return new UpdaterResult( false, null, new ReleaseInfo[0] ); }
         }
 
 
-        internal UpdaterResult( bool updateAvailable, Uri downloadUri, ReleaseInfo[] releases ) {
+        internal UpdaterResult( bool updateAvailable, [CanBeNull] Uri downloadUri, [NotNull] ReleaseInfo[] releases ) {
             UpdateAvailable = updateAvailable;
             DownloadUri = downloadUri;
             History = releases.OrderByDescending( r => r.Revision ).ToArray();
@@ -167,22 +170,20 @@ namespace fCraft {
 
     /// <summary> Used to describe a particular release version of fCraft. Includes date released, version </summary>
     public sealed class ReleaseInfo {
-        internal ReleaseInfo( int version, int revision, DateTime releaseDate,
-                              string summary, string changeLog, ReleaseFlags releaseType ) {
+        internal ReleaseInfo( int version, int revision, DateTime releaseDate, [NotNull] string summary,
+                              [NotNull] string changeLog, ReleaseFlags releaseType ) {
             Version = version;
             Revision = revision;
             Date = releaseDate;
             Summary = summary;
-            ChangeLog = changeLog.Split( new[] { '\n' } );
+            ChangeLog = changeLog.Split( new[] {
+                '\n'
+            } );
             Flags = releaseType;
         }
 
 
         public ReleaseFlags Flags { get; private set; }
-
-        public string FlagsString {
-            get { return ReleaseFlagsToString( Flags ); }
-        }
 
         public string[] FlagsList {
             get { return ReleaseFlagsToStringArray( Flags ); }
@@ -256,22 +257,6 @@ namespace fCraft {
                 }
             }
             return flags;
-        }
-
-
-        public static string ReleaseFlagsToString( ReleaseFlags flags ) {
-            StringBuilder sb = new StringBuilder();
-            if( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange ) sb.Append( 'A' );
-            if( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix ) sb.Append( 'B' );
-            if( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange ) sb.Append( 'C' );
-            if( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev ) sb.Append( 'D' );
-            if( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature ) sb.Append( 'F' );
-            if( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange ) sb.Append( 'M' );
-            if( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange ) sb.Append( 'P' );
-            if( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security ) sb.Append( 'S' );
-            if( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable ) sb.Append( 'U' );
-            if( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized ) sb.Append( 'O' );
-            return sb.ToString();
         }
 
 
@@ -367,25 +352,31 @@ namespace fCraft {
 namespace fCraft.Events {
     /// <summary> Provides data for Updater.CheckingForUpdates event. Allows changing the URL. Cancelable. </summary>
     public sealed class CheckingForUpdatesEventArgs : EventArgs, ICancelableEvent {
-        internal CheckingForUpdatesEventArgs( string url ) {
+        internal CheckingForUpdatesEventArgs( [NotNull] string url ) {
+            if( url == null ) throw new ArgumentNullException( "url" );
             Url = url;
         }
 
-
+        [NotNull]
         public string Url { get; set; }
+
         public bool Cancel { get; set; }
     }
 
 
     /// <summary> Provides data for Updater.CheckedForUpdates event. Immutable. </summary>
     public sealed class CheckedForUpdatesEventArgs : EventArgs {
-        internal CheckedForUpdatesEventArgs( string url, UpdaterResult result ) {
+        internal CheckedForUpdatesEventArgs( [NotNull] string url, [NotNull] UpdaterResult result ) {
+            if( url == null ) throw new ArgumentNullException( "url" );
+            if( result == null ) throw new ArgumentNullException( "result" );
             Url = url;
             Result = result;
         }
 
-
+        [NotNull]
         public string Url { get; private set; }
+
+        [NotNull]
         public UpdaterResult Result { get; private set; }
     }
 }

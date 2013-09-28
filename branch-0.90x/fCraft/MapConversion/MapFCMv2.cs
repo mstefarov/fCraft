@@ -56,6 +56,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadHeaderInternal( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader reader = new BinaryReader( stream );

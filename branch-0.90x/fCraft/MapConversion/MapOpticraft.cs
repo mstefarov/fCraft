@@ -26,8 +26,12 @@ namespace fCraft.MapConversion {
         public byte SpawnOrientation { get; set; }
         [DataMember]
         public byte SpawnPitch { get; set; }
+
+        [NotNull]
         [DataMember]
         public string MinimumBuildRank { get; set; }
+
+        [NotNull]
         [DataMember]
         public string MinimumJoinRank { get; set; }
         [DataMember]
@@ -45,6 +49,7 @@ namespace fCraft.MapConversion {
 
 
     internal sealed class OpticraftZone {
+        [NotNull]
         [DataMember]
         public string Name { get; set; }
         [DataMember]
@@ -117,6 +122,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadMapMetadata( [NotNull] Stream mapStream ) {
             if( mapStream == null ) throw new ArgumentNullException( "mapStream" );
             BinaryReader reader = new BinaryReader( mapStream );
@@ -134,9 +140,9 @@ namespace fCraft.MapConversion {
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
             // ReSharper restore UseObjectOrCollectionInitializer
             mapFile.Spawn = new Position(
-                (short)(metaData.SpawnX),
-                (short)(metaData.SpawnY),
-                (short)(metaData.SpawnZ),
+                (short)( metaData.SpawnX ),
+                (short)( metaData.SpawnY ),
+                (short)( metaData.SpawnZ ),
                 metaData.SpawnOrientation,
                 metaData.SpawnPitch );
             return mapFile;

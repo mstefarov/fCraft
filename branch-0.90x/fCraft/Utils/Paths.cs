@@ -44,7 +44,6 @@ namespace fCraft {
                 GreetingFileName,
                 HeartbeatDataFileName,
                 WorldListFileName,
-                AutoRankFileName,
                 "CHANGELOG.txt",
                 "README.txt",
                 "LICENSE.txt"
@@ -74,18 +73,22 @@ namespace fCraft {
         /// <summary> Path to save maps to (default: .\maps)
         /// Can be overridden at startup via command-line argument "--mappath=",
         /// or via "MapPath" ConfigKey </summary>
+        [NotNull]
         public static string MapPath { get; set; }
 
         /// <summary> Working path (default: whatever directory fCraft.dll is located in)
         /// Can be overridden at startup via command line argument "--path=" </summary>
+        [NotNull]
         public static string WorkingPath { get; set; }
 
         /// <summary> Path to save logs to (default: .\logs)
         /// Can be overridden at startup via command-line argument "--logpath=" </summary>
+        [NotNull]
         public static string LogPath { get; set; }
 
         /// <summary> Path to load/save config to/from (default: .\config.xml)
         /// Can be overridden at startup via command-line argument "--config=" </summary>
+        [NotNull]
         public static string ConfigFileName { get; set; }
 
 
@@ -107,22 +110,23 @@ namespace fCraft {
 
         public const string WorldListFileName = "worlds.xml";
 
-        public const string AutoRankFileName = "autorank.xml";
-
         public const string BlockDBDirectory = "blockdb";
 
 
         /// <summary> Directory where block database files (.fbdb) are stored. </summary>
+        [NotNull]
         public static string BlockDBPath {
             get { return Path.Combine( WorkingPath, BlockDBDirectory ); }
         }
 
         /// <summary> Directory where rule sections are stored. </summary>
+        [NotNull]
         public static string RulesPath {
             get { return Path.Combine( WorkingPath, RulesDirectory ); }
         }
 
         /// <summary> Path where map backups are stored. </summary>
+        [NotNull]
         public static string BackupPath {
             get { return Path.Combine( MapPath, "backups" ); }
         }
@@ -141,6 +145,7 @@ namespace fCraft {
         /// <param name="path"> Path to normalize. </param>
         /// <returns> Normalized path. </returns>
         /// <exception cref="ArgumentNullException"> path is null. </exception>
+        [NotNull]
         public static string NormalizeDirName( [NotNull] string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             path = Path.GetFullPath( path );
@@ -157,6 +162,7 @@ namespace fCraft {
         /// <param name="toPath"> Contains the path that defines the endpoint of the relative path. </param>
         /// <returns> The relative path from the start directory to the end path. </returns>
         /// <exception cref="ArgumentNullException"> fromPath or toPath is null. </exception>
+        [NotNull]
         public static string MakeRelativePath( [NotNull] string fromPath, [NotNull] string toPath ) {
             if( fromPath == null ) throw new ArgumentNullException( "fromPath" );
             if( toPath == null ) throw new ArgumentNullException( "toPath" );
@@ -324,7 +330,8 @@ namespace fCraft {
         /// <param name="path"> Path to check. </param>
         /// <returns> Returns false if path is of incorrect format, too long, unsupported, or blocked.
         /// Otherwise true. </returns>
-        public static bool IsValidPath( string path ) {
+        public static bool IsValidPath( [NotNull] string path ) {
+            if( path == null ) throw new ArgumentNullException( "path" );
             try {
                 // ReSharper disable ObjectCreationAsStatement
                 new FileInfo( path );

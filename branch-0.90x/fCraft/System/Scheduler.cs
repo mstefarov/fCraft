@@ -129,7 +129,8 @@ namespace fCraft {
         }
 
 
-        static void ExecuteBackgroundTask( SchedulerTask task ) {
+        static void ExecuteBackgroundTask( [NotNull] SchedulerTask task ) {
+            if( task == null ) throw new ArgumentNullException( "task" );
             task.IsExecuting = true;
 #if DEBUG_SCHEDULER
                     FireEvent( TaskExecuting, task );

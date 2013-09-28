@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     public class FloatingIslandMapGen : MapGenerator {
@@ -105,7 +106,7 @@ namespace fCraft.MapGeneration {
         }
 
 
-        public FloatingIslandMapGenParameters( XElement baseElement )
+        public FloatingIslandMapGenParameters( [NotNull] XElement baseElement )
             : this() {
             base.LoadProperties( baseElement );
         }
@@ -118,7 +119,8 @@ namespace fCraft.MapGeneration {
 
 
     unsafe class FloatingIslandMapGenState : MapGeneratorState {
-        public FloatingIslandMapGenState( FloatingIslandMapGenParameters parameters ) {
+        public FloatingIslandMapGenState( [NotNull] FloatingIslandMapGenParameters parameters ) {
+            if( parameters == null ) throw new ArgumentNullException( "parameters" );
             genParams = parameters;
             Parameters = parameters;
             ReportsProgress = true;
@@ -214,6 +216,7 @@ namespace fCraft.MapGeneration {
         }
 
 
+        [NotNull]
         Island CreateIsland( Vector3I offset ) {
             List<Sphere> spheres = new List<Sphere>();
 
@@ -228,11 +231,11 @@ namespace fCraft.MapGeneration {
             spheres.Add( firstSphere );
 
             for( int i = 1; i < genParams.SphereCount; i++ ) {
-                float newRadius = (float)(sphereSize + 1);
+                float newRadius = (float)( sphereSize + 1 );
                 double angle = rand.NextDouble()*Math.PI*2;
-                Sphere newSphere = new Sphere( (float)(Math.Cos( angle )*rand.NextDouble()*hSpread),
-                                               (float)(Math.Sin( angle )*rand.NextDouble()*hSpread),
-                                               (float)(rand.NextDouble() * (vSpreadMax - vSpreadMin) + vSpreadMin),
+                Sphere newSphere = new Sphere( (float)( Math.Cos( angle )*rand.NextDouble()*hSpread ),
+                                               (float)( Math.Sin( angle )*rand.NextDouble()*hSpread ),
+                                               (float)( rand.NextDouble()*( vSpreadMax - vSpreadMin ) + vSpreadMin ),
                                                newRadius );
 
                 double closestDist = newSphere.DistanceTo( spheres[0] );
@@ -266,7 +269,8 @@ namespace fCraft.MapGeneration {
         }
 
 
-        void MakeIslandHemisphere( Vector3I offset, Sphere sphere ) {
+        void MakeIslandHemisphere( Vector3I offset, [NotNull] Sphere sphere ) {
+            if( sphere == null ) throw new ArgumentNullException( "sphere" );
             Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
                                             (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
                                             (int)Math.Floor( sphere.Origin.Z - sphere.Radius ) );
@@ -427,7 +431,8 @@ namespace fCraft.MapGeneration {
         }
 
 
-        void MakeIslandBase( Island island ) {
+        void MakeIslandBase( [NotNull] Island island ) {
+            if( island == null ) throw new ArgumentNullException( "island" );
             foreach( Sphere sphere in island.Spheres ) {
                 Vector3I origin = new Vector3I( (int)Math.Floor( sphere.Origin.X - sphere.Radius ),
                                                 (int)Math.Floor( sphere.Origin.Y - sphere.Radius ),
@@ -618,7 +623,8 @@ namespace fCraft.MapGeneration {
 
 
         // grows a single Vanilla-style tree
-        void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
+        void GrowTree( [NotNull] Random treeRand, int startX, int startY, int startZ ) {
+            if( treeRand == null ) throw new ArgumentNullException( "treeRand" );
             int treeHeight = treeRand.Next( 3 ) + 4;
 
             Block blockUnder = map.GetBlock( startX, startY, startZ - 1 );
@@ -718,7 +724,8 @@ namespace fCraft.MapGeneration {
                 Radius = radius;
             }
 
-            public float DistanceTo( Sphere other ) {
+            public float DistanceTo( [NotNull] Sphere other ) {
+                if( other == null ) throw new ArgumentNullException( "other" );
                 return (other.Origin - Origin).Length - (Radius + other.Radius);
             }
 

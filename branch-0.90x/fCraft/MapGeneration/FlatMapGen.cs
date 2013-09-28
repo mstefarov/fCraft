@@ -100,7 +100,8 @@ namespace fCraft.MapGeneration {
 
 
     sealed class FlatMapGenParameters : MapGeneratorParameters {
-        [Browsable(false)]
+        [CanBeNull]
+        [Browsable( false )]
         public string Preset { get; set; }
 
         [Category( "Layers" )]
@@ -198,7 +199,7 @@ namespace fCraft.MapGeneration {
         }
 
 
-        public FlatMapGenParameters( XElement el )
+        public FlatMapGenParameters( [NotNull] XElement el )
             : this() {
             LoadProperties( el );
         }

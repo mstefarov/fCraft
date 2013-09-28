@@ -31,27 +31,35 @@ namespace fCraft {
 
         // User-defined color assignments. Set by Config.ApplyConfig.
         /// <summary> Color of system messages, nickserv, chanserv. </summary>
+        [NotNull]
         public static string Sys { get; set; }
 
         /// <summary> Color of help messages, /help. </summary>
+        [NotNull]
         public static string Help { get; set; }
 
         /// <summary> Color of say messages (/say) and timer announcements. </summary>
+        [NotNull]
         public static string Say { get; set; }
 
         /// <summary> Color of announcements, server announcements. </summary>
+        [NotNull]
         public static string Announcement { get; set; }
 
         /// <summary> Color of personal messages. </summary>
+        [NotNull]
         public static string PM { get; set; }
 
         /// <summary> Color of IRC chat. </summary>
+        [NotNull]
         public static string IRC { get; set; }
 
         /// <summary> Color of /me command. </summary>
+        [NotNull]
         public static string Me { get; set; }
 
         /// <summary> Color of warning messages. </summary>
+        [NotNull]
         public static string Warning { get; set; }
 
 
@@ -72,7 +80,7 @@ namespace fCraft {
         public const string PMDefault = Aqua;
 
         /// <summary> Default color of IRC chat. Purple. </summary>
-        public const string IRCDefault = Purple;
+        public const string IrcDefault = Purple;
 
         /// <summary> Default color of /me command. Purple. </summary>
         public const string MeDefault = Purple;

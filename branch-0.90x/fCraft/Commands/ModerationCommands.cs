@@ -68,7 +68,7 @@ namespace fCraft {
             Handler = BanHandler
         };
 
-        static void BanHandler( Player player, CommandReader cmd ) {
+        static void BanHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdBan.PrintUsage( player );
@@ -96,7 +96,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdBanIP = new CommandDescriptor {
             Name = "BanIP",
             Category = CommandCategory.Moderation,
@@ -109,7 +108,7 @@ namespace fCraft {
             Handler = BanIPHandler
         };
 
-        static void BanIPHandler( Player player, CommandReader cmd ) {
+        static void BanIPHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdBanIP.PrintUsage( player );
@@ -149,7 +148,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdBanAll = new CommandDescriptor {
             Name = "BanAll",
             Category = CommandCategory.Moderation,
@@ -163,7 +161,7 @@ namespace fCraft {
             Handler = BanAllHandler
         };
 
-        static void BanAllHandler( Player player, CommandReader cmd ) {
+        static void BanAllHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdBanAll.PrintUsage( player );
@@ -203,7 +201,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnban = new CommandDescriptor {
             Name = "Unban",
             Category = CommandCategory.Moderation,
@@ -215,7 +212,7 @@ namespace fCraft {
             Handler = UnbanHandler
         };
 
-        static void UnbanHandler( Player player, CommandReader cmd ) {
+        static void UnbanHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdUnban.PrintUsage( player );
@@ -238,7 +235,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnbanIP = new CommandDescriptor {
             Name = "UnbanIP",
             Category = CommandCategory.Moderation,
@@ -251,7 +247,7 @@ namespace fCraft {
             Handler = UnbanIPHandler
         };
 
-        static void UnbanIPHandler( Player player, CommandReader cmd ) {
+        static void UnbanIPHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdUnbanIP.PrintUsage( player );
@@ -284,7 +280,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnbanAll = new CommandDescriptor {
             Name = "UnbanAll",
             Category = CommandCategory.Moderation,
@@ -297,7 +292,7 @@ namespace fCraft {
             Handler = UnbanAllHandler
         };
 
-        static void UnbanAllHandler( Player player, CommandReader cmd ) {
+        static void UnbanAllHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetNameOrIP = cmd.Next();
             if( targetNameOrIP == null ) {
                 CdUnbanAll.PrintUsage( player );
@@ -341,13 +336,13 @@ namespace fCraft {
             Handler = BanExHandler
         };
 
-        static void BanExHandler( Player player, CommandReader cmd ) {
+        static void BanExHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string playerName = cmd.Next();
-            if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
+            if( playerName == null || playerName.Length < 2 || ( playerName[0] != '-' && playerName[0] != '+' ) ) {
                 CdBanEx.PrintUsage( player );
                 return;
             }
-            bool addExemption = (playerName[0] == '+');
+            bool addExemption = ( playerName[0] == '+' );
             string targetName = playerName.Substring( 1 );
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, SearchOptions.Default );
             if( target == null ) return;
@@ -370,8 +365,9 @@ namespace fCraft {
                                         target.ClassyName );
                         target.BanStatus = BanStatus.NotBanned;
                         Logger.Log( LogType.UserActivity,
-                                    "{0} removed a ban exemption for {1}", player.Name, target.Name );
-
+                                    "{0} removed a ban exemption for {1}",
+                                    player.Name,
+                                    target.Name );
                     }
                     break;
                 case BanStatus.NotBanned:
@@ -380,7 +376,9 @@ namespace fCraft {
                                         target.ClassyName );
                         target.BanStatus = BanStatus.IPBanExempt;
                         Logger.Log( LogType.UserActivity,
-                                    "{0} added a ban exemption for {1}", player.Name, target.Name );
+                                    "{0} added a ban exemption for {1}",
+                                    player.Name,
+                                    target.Name );
                     } else {
                         player.Message( "No IP-Ban exemption exists for player {0}",
                                         target.ClassyName );
@@ -406,7 +404,7 @@ namespace fCraft {
             Handler = KickHandler
         };
 
-        static void KickHandler( Player player, CommandReader cmd ) {
+        static void KickHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 player.Message( "Usage: &H/Kick PlayerName [Message]" );
@@ -431,7 +429,6 @@ namespace fCraft {
                 Player targetPlayer = target;
                 target.Kick( player, reason, LeaveReason.Kick, true, true, true );
                 WarnIfOtherPlayersOnIP( player, target.Info, targetPlayer );
-
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
                 if( ex.ErrorCode == PlayerOpExceptionCode.ReasonRequired ) {
@@ -443,7 +440,8 @@ namespace fCraft {
             // warn player if target has been kicked before
             if( target.Info.TimesKicked > 1 ) {
                 player.Message( "Warning: {0}&S has been kicked {1} times before.",
-                                target.ClassyName, target.Info.TimesKicked - 1 );
+                                target.ClassyName,
+                                target.Info.TimesKicked - 1 );
                 if( previousKickDate != DateTime.MinValue ) {
                     player.Message( "Most recent kick was {0} ago, by {1}",
                                     DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
@@ -474,7 +472,7 @@ namespace fCraft {
             Handler = RankHandler
         };
 
-        static void RankHandler( Player player, CommandReader cmd ) {
+        static void RankHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             string newRankName = cmd.Next();
 
@@ -535,7 +533,8 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.UserActivity,
                                 "Rank: Asked {0} to confirm adding unrecognized name \"{1}\" to the database.",
-                                player.Name, name );
+                                player.Name,
+                                name );
                     player.Confirm( cmd,
                                     "Warning: Player \"{0}\" is not in the database (possible typo). Type the full name or",
                                     name );
@@ -550,7 +549,6 @@ namespace fCraft {
                 player.Message( ex.MessageColored );
             }
         }
-
 
         #endregion
 
@@ -569,7 +567,7 @@ namespace fCraft {
             Handler = HideHandler
         };
 
-        static void HideHandler( Player player, CommandReader cmd ) {
+        static void HideHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsHidden ) {
                 player.Message( "You are already hidden." );
                 return;
@@ -606,7 +604,6 @@ namespace fCraft {
         }
 
 
-
         static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
             Name = "Unhide",
             Category = CommandCategory.Moderation,
@@ -617,7 +614,7 @@ namespace fCraft {
             Handler = UnhideHandler
         };
 
-        static void UnhideHandler( Player player, CommandReader cmd ) {
+        static void UnhideHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -665,7 +662,7 @@ namespace fCraft {
             Handler = SetSpawnHandler
         };
 
-        static void SetSpawnHandler( Player player, CommandReader cmd ) {
+        static void SetSpawnHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -680,7 +677,6 @@ namespace fCraft {
                 Logger.Log( LogType.UserActivity,
                             "{0} changed the spawned point.",
                             player.Name );
-
             } else if( player.Can( Permission.Bring ) ) {
                 Player[] infos = playerWorld.FindPlayers( player, playerName );
                 if( infos.Length == 1 ) {
@@ -693,10 +689,8 @@ namespace fCraft {
                                         player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                         player.Message( "{0}&S is ranked {1}", target.ClassyName, target.Info.Rank.ClassyName );
                     }
-
                 } else if( infos.Length > 0 ) {
                     player.MessageManyMatches( "player", infos );
-
                 } else {
                     infos = Server.FindPlayers( player, playerName, SearchOptions.IncludeSelf );
                     if( infos.Length > 0 ) {
@@ -728,7 +722,7 @@ namespace fCraft {
             Handler = FreezeHandler
         };
 
-        static void FreezeHandler( Player player, CommandReader cmd ) {
+        static void FreezeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdFreeze.PrintUsage( player );
@@ -763,7 +757,7 @@ namespace fCraft {
             Handler = UnfreezeHandler
         };
 
-        static void UnfreezeHandler( Player player, CommandReader cmd ) {
+        static void UnfreezeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 CdFreeze.PrintUsage( player );
@@ -802,7 +796,7 @@ namespace fCraft {
             Handler = TeleportHandler
         };
 
-        static void TeleportHandler( Player player, CommandReader cmd ) {
+        static void TeleportHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdTeleport.PrintUsage( player );
@@ -813,15 +807,13 @@ namespace fCraft {
                 cmd.Rewind();
                 int x, y, z;
                 if( cmd.NextInt( out x ) && cmd.NextInt( out y ) && cmd.NextInt( out z ) ) {
-
                     if( x <= -1024 || x >= 1024 || y <= -1024 || y >= 1024 || z <= -1024 || z >= 1024 ) {
                         player.Message( "Coordinates are outside the valid range!" );
-
                     } else {
                         Position newPos = new Position(
-                            (short)(x*32 + 16),
-                            (short)(y*32 + 16),
-                            (short)(z*32 + 16),
+                            (short)( x*32 + 16 ),
+                            (short)( y*32 + 16 ),
+                            (short)( z*32 + 16 ),
                             player.Position.R,
                             player.Position.L );
                         player.TeleportTo( newPos );
@@ -829,7 +821,6 @@ namespace fCraft {
                 } else {
                     CdTeleport.PrintUsage( player );
                 }
-
             } else {
                 if( name == "-" ) {
                     if( player.LastUsedPlayerName != null ) {
@@ -847,7 +838,6 @@ namespace fCraft {
 
                     if( targetWorld == player.World ) {
                         player.TeleportTo( target.Position );
-
                     } else {
                         switch( targetWorld.AccessSecurity.CheckDetailed( player.Info ) ) {
                             case SecurityCheckResult.Allowed:
@@ -874,10 +864,8 @@ namespace fCraft {
                                 break;
                         }
                     }
-
                 } else if( matches.Length > 1 ) {
                     player.MessageManyMatches( "player", matches );
-
                 } else {
                     player.MessageNoPlayer( name );
                 }
@@ -901,7 +889,7 @@ namespace fCraft {
             Handler = BringHandler
         };
 
-        static void BringHandler( Player player, CommandReader cmd ) {
+        static void BringHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name == null ) {
                 CdBring.PrintUsage( player );
@@ -929,14 +917,14 @@ namespace fCraft {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.ClassyName, target.Info.Rank.ClassyName );
+                                target.ClassyName,
+                                target.Info.Rank.ClassyName );
                 return;
             }
 
             if( target.World == world ) {
                 // teleport within the same world
                 target.TeleportTo( toPlayer.Position );
-
             } else {
                 // teleport to a different world
                 SecurityCheckResult check = world.AccessSecurity.CheckDetailed( target.Info );
@@ -947,7 +935,9 @@ namespace fCraft {
                         } else {
                             Logger.Log( LogType.UserActivity,
                                         "Bring: Asked {0} to confirm overriding world permissions to bring player {1} to world {2}",
-                                        player.Name, target.Name, world.Name );
+                                        player.Name,
+                                        target.Name,
+                                        world.Name );
                             player.Confirm( cmd,
                                             "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                             target.ClassyName,
@@ -955,7 +945,8 @@ namespace fCraft {
                         }
                     } else {
                         player.Message( "Neither you nor {0}&S are allowed to join world {1}",
-                                        target.ClassyName, world.ClassyName );
+                                        target.ClassyName,
+                                        world.ClassyName );
                     }
                 } else {
                     BringPlayerToWorld( player, target, world, false, true );
@@ -974,7 +965,7 @@ namespace fCraft {
             Handler = WorldBringHandler
         };
 
-        static void WorldBringHandler( Player player, CommandReader cmd ) {
+        static void WorldBringHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string playerName = cmd.Next();
             string worldName = cmd.Next();
             if( playerName == null || worldName == null ) {
@@ -998,13 +989,15 @@ namespace fCraft {
                 player.Message( "You may only bring players ranked {0}&S or lower.",
                                 player.Info.Rank.GetLimit( Permission.Bring ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.ClassyName, target.Info.Rank.ClassyName );
+                                target.ClassyName,
+                                target.Info.Rank.ClassyName );
                 return;
             }
 
             if( world == target.World ) {
                 player.Message( "Player {0}&S is already in world {1}&S. They were brought to spawn.",
-                                target.ClassyName, world.ClassyName );
+                                target.ClassyName,
+                                world.ClassyName );
                 target.TeleportTo( target.WorldMap.Spawn );
                 return;
             }
@@ -1017,7 +1010,9 @@ namespace fCraft {
                     } else {
                         Logger.Log( LogType.UserActivity,
                                     "WBring: Asked {0} to confirm overriding world permissions to bring player {1} to world {2}",
-                                    player.Name, target.Name, world.Name );
+                                    player.Name,
+                                    target.Name,
+                                    world.Name );
                         player.Confirm( cmd,
                                         "Player {0}&S is ranked too low to join {1}&S. Override world permissions?",
                                         target.ClassyName,
@@ -1025,7 +1020,8 @@ namespace fCraft {
                     }
                 } else {
                     player.Message( "Neither you nor {0}&S are allowed to join world {1}",
-                                    target.ClassyName, world.ClassyName );
+                                    target.ClassyName,
+                                    world.ClassyName );
                 }
             } else {
                 BringPlayerToWorld( player, target, world, false, false );
@@ -1044,7 +1040,7 @@ namespace fCraft {
             Handler = BringAllHandler
         };
 
-        static void BringAllHandler( Player player, CommandReader cmd ) {
+        static void BringAllHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1055,7 +1051,7 @@ namespace fCraft {
 
             // Parse the list of worlds and ranks
             string arg;
-            while( (arg = cmd.Next()) != null ) {
+            while( ( arg = cmd.Next() ) != null ) {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.FindRank( arg.Substring( 1 ) );
                     if( rank == null ) {
@@ -1131,7 +1127,6 @@ namespace fCraft {
                     if( targetPlayer.Info.IsFrozen ) {
                         targetPlayer.Position = player.Position;
                     }
-
                 } else {
                     // teleport to a different world
                     BringPlayerToWorld( player, targetPlayer, playerWorld, false, true );
@@ -1146,7 +1141,6 @@ namespace fCraft {
                 player.Message( "Bringing {0} players...", count );
             }
         }
-
 
 
         static void BringPlayerToWorld( [NotNull] Player player, [NotNull] Player target, [NotNull] World world,
@@ -1209,7 +1203,7 @@ namespace fCraft {
             Handler = PatrolHandler
         };
 
-        static void PatrolHandler( Player player, CommandReader cmd ) {
+        static void PatrolHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1233,7 +1227,7 @@ namespace fCraft {
             Handler = SpecPatrolHandler
         };
 
-        static void SpecPatrolHandler( Player player, CommandReader cmd ) {
+        static void SpecPatrolHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -1266,7 +1260,7 @@ namespace fCraft {
             Handler = MuteHandler
         };
 
-        static void MuteHandler( Player player, CommandReader cmd ) {
+        static void MuteHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             string timeString = cmd.Next();
             TimeSpan duration;
@@ -1313,7 +1307,7 @@ namespace fCraft {
             Handler = UnmuteHandler
         };
 
-        static void UnmuteHandler( Player player, CommandReader cmd ) {
+        static void UnmuteHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( String.IsNullOrEmpty( targetName ) ) {
                 CdUnmute.PrintUsage( player );
@@ -1351,7 +1345,7 @@ namespace fCraft {
             Handler = SpectateHandler
         };
 
-        static void SpectateHandler( Player player, CommandReader cmd ) {
+        static void SpectateHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
             if( targetName == null ) {
                 PlayerInfo lastSpec = player.LastSpectatedPlayer;
@@ -1380,9 +1374,10 @@ namespace fCraft {
 
             if( !player.Can( Permission.Spectate, target.Info.Rank ) ) {
                 player.Message( "You may only spectate players ranked {0}&S or lower.",
-                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
+                                player.Info.Rank.GetLimit( Permission.Spectate ).ClassyName );
                 player.Message( "{0}&S is ranked {1}",
-                                target.ClassyName, target.Info.Rank.ClassyName );
+                                target.ClassyName,
+                                target.Info.Rank.ClassyName );
                 return;
             }
 
@@ -1401,7 +1396,8 @@ namespace fCraft {
             Handler = UnspectateHandler
         };
 
-        static void UnspectateHandler( Player player, CommandReader cmd ) {
+        static void UnspectateHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            if( cmd.HasNext ) CdUnspectate.PrintUsage( player );
             if( !player.StopSpectating() ) {
                 player.Message( "You are not currently spectating anyone." );
             }
@@ -1411,18 +1407,24 @@ namespace fCraft {
 
 
         // freeze target if player is allowed to do so
-        static void FreezeIfAllowed( Player player, PlayerInfo targetInfo ) {
+        static void FreezeIfAllowed( [NotNull] Player player, [NotNull] PlayerInfo targetInfo ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             if( targetInfo.IsOnline && !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
                 try {
                     targetInfo.Freeze( player, true, true );
                     player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
-                } catch( PlayerOpException ) { }
+                } catch( PlayerOpException ) {
+                }
             }
         }
 
 
         // warn player if others are still online from target's IP
-        static void WarnIfOtherPlayersOnIP( Player player, PlayerInfo targetInfo, Player except ) {
+        static void WarnIfOtherPlayersOnIP( [NotNull] Player player, [NotNull] PlayerInfo targetInfo,
+                                            [CanBeNull] Player except ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP )
                                                   .Except( except )
                                                   .ToArray();

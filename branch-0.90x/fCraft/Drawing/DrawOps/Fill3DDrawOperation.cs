@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that performs a 2D flood fill. 
@@ -141,6 +142,8 @@ namespace fCraft.Drawing {
 
 
         int blocksProcessed;
+
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumerator() {
             Stack<Vector3I> stack = new Stack<Vector3I>();
             stack.Push( Origin );
@@ -148,7 +151,7 @@ namespace fCraft.Drawing {
             while( stack.Count > 0 ) {
                 Vector3I coords = stack.Pop();
                 blocksProcessed++;
-                if(CanPlace( coords )){
+                if( CanPlace( coords ) ) {
                     yield return coords;
                     if( coords.X - 1 >= Bounds.XMin ) {
                         stack.Push( new Vector3I( coords.X - 1, coords.Y, coords.Z ) );

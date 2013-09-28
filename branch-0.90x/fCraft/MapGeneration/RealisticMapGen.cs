@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     /// <summary> Map generator that creates realistic-looking landscapes. </summary>
@@ -81,7 +82,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void MessageTemplateList( string templateName, Player player ) {
+        static void MessageTemplateList( [NotNull] string templateName, [NotNull] Player player ) {
+            if( templateName == null ) throw new ArgumentNullException( "templateName" );
+            if( player == null ) throw new ArgumentNullException( "player" );
             player.Message( "SetGen: Unrecognized terrainType \"{0}\". Available terrain types: {1}",
                             templateName,
                             Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() );

@@ -108,7 +108,6 @@
   <ItemGroup>
     <Compile Include="Commands\DrawCommands.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
-    <Compile Include="AutoRank\AutoRankManager.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
@@ -222,8 +221,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AutoRank\Conditions.cs" />
-    <Compile Include="AutoRank\Criterion.cs" />
     <Compile Include="Commands\ChatCommands.cs" />
     <Compile Include="Drawing\Brushes\ReplaceBrushBrush.cs" />
     <Compile Include="Drawing\DrawOps\BlockDBDrawOperation.cs" />

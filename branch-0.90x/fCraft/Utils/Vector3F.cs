@@ -2,6 +2,7 @@
 // With contributions by Conrad "Redshift" Morgan
 using System;
 using fCraft.Drawing;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Floating-point (single precision) 3D vector. </summary>
@@ -165,7 +166,7 @@ namespace fCraft {
 
         #region Equality
 
-        public override bool Equals( object obj ) {
+        public override bool Equals( [CanBeNull] object obj ) {
             if( obj is Vector3F ) {
                 return Equals( (Vector3F)obj );
             } else {

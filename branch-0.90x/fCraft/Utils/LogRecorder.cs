@@ -37,7 +37,7 @@ namespace fCraft {
         }
 
 
-        void HandleLog( object sender, LogEventArgs e ) {
+        void HandleLog( [CanBeNull] object sender, [NotNull] LogEventArgs e ) {
             if( creatingThread != null && creatingThread != Thread.CurrentThread ) return;
             for( int i = 0; i < thingsToLog.Length; i++ ) {
                 if( thingsToLog[i] != e.MessageType ) continue;
@@ -69,6 +69,7 @@ namespace fCraft {
 
 
         /// <summary> An array of individual recorded messages. </summary>
+        [NotNull]
         public string[] MessageList {
             get {
                 lock( locker ) {

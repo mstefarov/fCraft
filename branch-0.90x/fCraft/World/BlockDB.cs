@@ -27,7 +27,9 @@ namespace fCraft {
         /// <summary> Sets this BlockDB's enabled state to Yes (always on), No (always off),
         /// or Auto (on or off depending on BlockDBAutoEnableRank config key and World's build permissions). </summary>
         public YesNoAuto EnabledState {
-            get { return enabledState; }
+            get {
+                return enabledState;
+            }
             set {
                 IDisposable writeLockHandle = null;
                 try {
@@ -85,13 +87,13 @@ namespace fCraft {
             FileInfo fi = new FileInfo( FileName );
             if( fi.Exists ) {
                 long length = fi.Length;
-                if( length % sizeof( BlockDBEntry ) != 0 ) {
+                if( length%sizeof( BlockDBEntry ) != 0 ) {
                     Logger.Log( LogType.Error,
                                 "BlockDB: Misaligned data detected in \"{0}\". " +
                                 "This might have been caused by a power outage or ungraceful shutdown. Attempting recovery.",
                                 fi.Name );
                     using( FileStream fs = File.OpenWrite( fi.FullName ) ) {
-                        fs.SetLength( length - ( length % sizeof( BlockDBEntry ) ) );
+                        fs.SetLength( length - ( length%sizeof( BlockDBEntry ) ) );
                     }
                 }
             }
@@ -109,14 +111,18 @@ namespace fCraft {
 
 
         bool ShouldBeAutoEnabled {
-            get { return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank ); }
+            get {
+                return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank );
+            }
         }
 
 
         /// <summary> Full path to the file where BlockDB data is stored. </summary>
         [NotNull]
         public string FileName {
-            get { return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" ); }
+            get {
+                return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
+            }
         }
 
 
@@ -144,14 +150,15 @@ namespace fCraft {
 
         #region Cache
 
-        const int BufferSize = 64 * 1024; // 64 KB (at 16 bytes/entry)
+        const int BufferSize = 64*1024; // 64 KB (at 16 bytes/entry)
         readonly byte[] ioBuffer = new byte[BufferSize];
 
         BlockDBEntry[] cacheStore = new BlockDBEntry[MinCacheSize];
         internal int CacheSize;
 
-        const int MinCacheSize = 2 * 1024, // 32 KB (at 16 bytes/entry)
-                  CacheLinearResizeThreshold = 64 * 1024; // 1 MB (at 16 bytes/entry)
+        const int MinCacheSize = 2*1024,
+                  // 32 KB (at 16 bytes/entry)
+                  CacheLinearResizeThreshold = 64*1024; // 1 MB (at 16 bytes/entry)
 
 
         void CacheClear() {
@@ -193,7 +200,7 @@ namespace fCraft {
 
                 } else {
                     // linear resizing (in 1 MB increments)
-                    newCapacity = ( newCapacity / CacheLinearResizeThreshold + 1 ) * CacheLinearResizeThreshold;
+                    newCapacity = ( newCapacity/CacheLinearResizeThreshold + 1 )*CacheLinearResizeThreshold;
                 }
 
                 CacheCapacity = newCapacity;
@@ -207,7 +214,9 @@ namespace fCraft {
 
 
         internal int CacheCapacity {
-            get { return cacheStore.Length; }
+            get {
+                return cacheStore.Length;
+            }
             set {
                 if( value < MinCacheSize ) {
                     throw new ArgumentOutOfRangeException( "value", "MinCacheSize may not be negative" );
@@ -240,7 +249,9 @@ namespace fCraft {
         bool isPreloaded;
 
         public bool IsPreloaded {
-            get { return isPreloaded; }
+            get {
+                return isPreloaded;
+            }
             set {
                 IDisposable writeLockHandle = null;
                 try {
@@ -273,7 +284,7 @@ namespace fCraft {
         void Preload() {
             if( !File.Exists( FileName ) ) return;
             using( FileStream fs = OpenRead() ) {
-                CacheSize = (int)( fs.Length / sizeof( BlockDBEntry ) );
+                CacheSize = (int)( fs.Length/sizeof( BlockDBEntry ) );
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
@@ -304,27 +315,29 @@ namespace fCraft {
 
         static readonly TimeSpan MinLimitDelay = TimeSpan.FromMinutes( 5 ),
                                  MinTimeLimitDelay = TimeSpan.FromMinutes( 10 );
+
         const double LimitEnforcementThreshold = 1.15; // 15%
         internal int LastFlushedIndex;
         int changesSinceLimitEnforcement;
+
         DateTime lastLimit,
                  lastTimeLimit;
 
 
         void TrimFile( int maxCapacity ) {
             if( maxCapacity == 0 ) {
-                using( File.Create( FileName ) ) {}
+                using( File.Create( FileName ) ) { }
                 return;
             }
             if( !File.Exists( FileName ) ) return;
 
             string tempFileName = FileName + ".tmp";
             using( FileStream source = File.OpenRead( FileName ) ) {
-                int entries = (int)( source.Length / sizeof( BlockDBEntry ) );
+                int entries = (int)( source.Length/sizeof( BlockDBEntry ) );
                 if( entries <= maxCapacity ) return;
 
                 // skip beginning of the file (that's where old entries are)
-                source.Seek( ( entries - maxCapacity ) * sizeof( BlockDBEntry ), SeekOrigin.Begin );
+                source.Seek( ( entries - maxCapacity )*sizeof( BlockDBEntry ), SeekOrigin.Begin );
 
                 // copy end of the existing file to a new one
                 using( FileStream destination = File.Create( tempFileName ) ) {
@@ -385,8 +398,8 @@ namespace fCraft {
 
                         fixed( byte* parr = buffer ) {
                             BlockDBEntry* entries = (BlockDBEntry*)parr;
-                            int entryCount = bytesRead / sizeof( BlockDBEntry );
-                            if( bytesRead % sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
+                            int entryCount = bytesRead/sizeof( BlockDBEntry );
+                            if( bytesRead%sizeof( BlockDBEntry ) != 0 ) throw new DataMisalignedException();
                             for( int i = entryCount - 1; i >= 0; i-- ) {
                                 if( entries[i].Timestamp < minTimestamp ) {
                                     return entryCount - i;
@@ -404,7 +417,9 @@ namespace fCraft {
         /// Set to 0 for "unlimited". Value may not be negative. </summary>
         /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public int Limit {
-            get { return limit; }
+            get {
+                return limit;
+            }
             set {
                 if( value < 0 ) {
                     throw new ArgumentOutOfRangeException( "value", "Limit may not be negative." );
@@ -438,7 +453,9 @@ namespace fCraft {
 
         /// <summary> Whether this BlockDB instance has a limit on the number of entries. </summary>
         public bool HasLimit {
-            get { return limit > 0; }
+            get {
+                return limit > 0;
+            }
         }
 
 
@@ -467,7 +484,9 @@ namespace fCraft {
         /// Set to TimeSpan.Zero for "unlimited". Value may not be negative. </summary>
         /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public TimeSpan TimeLimit {
-            get { return timeLimit; }
+            get {
+                return timeLimit;
+            }
             set {
                 if( value < TimeSpan.Zero ) {
                     throw new ArgumentOutOfRangeException( "value", "TimeLimit may not be negative." );
@@ -502,7 +521,9 @@ namespace fCraft {
 
         /// <summary> Whether this BlockDB instance has a limit on the age of entries. </summary>
         public bool HasTimeLimit {
-            get { return timeLimit > TimeSpan.Zero; }
+            get {
+                return timeLimit > TimeSpan.Zero;
+            }
         }
 
 
@@ -590,7 +611,7 @@ namespace fCraft {
                 if( limit > 0 ) {
                     bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > MinLimitDelay ||
                                            ( CacheSize - limit ) > CacheLinearResizeThreshold;
-                    if( changesSinceLimitEnforcement > limit * LimitEnforcementThreshold && limitingAllowed ) {
+                    if( changesSinceLimitEnforcement > limit*LimitEnforcementThreshold && limitingAllowed ) {
                         changesSinceLimitEnforcement = 0;
                         EnforceLimit();
                         LimitCapacity( CacheSize );
@@ -612,16 +633,21 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         FileStream OpenRead() {
-            return new FileStream( FileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize,
+            return new FileStream( FileName,
+                                   FileMode.Open,
+                                   FileAccess.Read,
+                                   FileShare.Read,
+                                   BufferSize,
                                    FileOptions.SequentialScan );
         }
 
 
+        [NotNull]
         FileStream OpenAppend() {
             return new FileStream( FileName, FileMode.Append, FileAccess.Write, FileShare.Read, BufferSize );
         }
-
 
         #region Lookup
 
@@ -638,7 +664,7 @@ namespace fCraft {
         /// <exception cref="IOException"> An I/O error occurs while trying to read FBDB file from disk. </exception>
         [NotNull]
         public BlockDBEntry[] Lookup( int max, BlockDBSearchType searchType,
-                                      [NotNull, InstantHandle] Predicate<BlockDBEntry> selector ) {
+                                      [NotNull] [InstantHandle] Predicate<BlockDBEntry> selector ) {
             if( !IsEnabled || !IsEnabledGlobally ) {
                 throw new InvalidOperationException( "Trying to lookup on disabled BlockDB." );
             }
@@ -736,8 +762,8 @@ namespace fCraft {
                             // search a chunk
                             fixed( byte* parr = buffer ) {
                                 BlockDBEntry* entries = (BlockDBEntry*)parr;
-                                int entryCount = bytesRead / sizeof( BlockDBEntry );
-                                if( bytesRead % sizeof( BlockDBEntry ) != 0 ) {
+                                int entryCount = bytesRead/sizeof( BlockDBEntry );
+                                if( bytesRead%sizeof( BlockDBEntry ) != 0 ) {
                                     throw new DataMisalignedException();
                                 }
                                 // iterate over the chunk backwards (newest to oldest)
@@ -769,7 +795,8 @@ namespace fCraft {
             readonly List<BlockDBEntry> result = new List<BlockDBEntry>();
 
 
-            public ReturnAllProcessor( int max, Predicate<BlockDBEntry> selector ) {
+            public ReturnAllProcessor( int max, [NotNull] Predicate<BlockDBEntry> selector ) {
+                if( selector == null ) throw new ArgumentNullException( "selector" );
                 this.max = max;
                 this.selector = selector;
             }
@@ -801,7 +828,9 @@ namespace fCraft {
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
-            public ReturnOldestProcessor( Map map, int max, Predicate<BlockDBEntry> selector ) {
+            public ReturnOldestProcessor( [NotNull] Map map, int max, [NotNull] Predicate<BlockDBEntry> selector ) {
+                if( map == null ) throw new ArgumentNullException( "map" );
+                if( selector == null ) throw new ArgumentNullException( "selector" );
                 this.max = max;
                 this.selector = selector;
                 this.map = map;
@@ -835,7 +864,9 @@ namespace fCraft {
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
-            public ReturnNewestProcessor( Map map, int max, Predicate<BlockDBEntry> selector ) {
+            public ReturnNewestProcessor( [NotNull] Map map, int max, [NotNull] Predicate<BlockDBEntry> selector ) {
+                if( map == null ) throw new ArgumentNullException( "map" );
+                if( selector == null ) throw new ArgumentNullException( "selector" );
                 this.max = max;
                 this.selector = selector;
                 this.map = map;
@@ -873,9 +904,12 @@ namespace fCraft {
             readonly Dictionary<int, BlockDBEntry> result = new Dictionary<int, BlockDBEntry>();
 
 
-            public ExcludingReturnOldestProcessor( Map map, int max,
-                                                   Predicate<BlockDBEntry> inclusionSelector,
-                                                   Predicate<BlockDBEntry> exclusionSelector ) {
+            public ExcludingReturnOldestProcessor( [NotNull] Map map, int max,
+                                                   [NotNull] Predicate<BlockDBEntry> inclusionSelector,
+                                                   [NotNull] Predicate<BlockDBEntry> exclusionSelector ) {
+                if( map == null ) throw new ArgumentNullException( "map" );
+                if( inclusionSelector == null ) throw new ArgumentNullException( "inclusionSelector" );
+                if( exclusionSelector == null ) throw new ArgumentNullException( "exclusionSelector" );
                 this.max = max;
                 this.inclusionSelector = inclusionSelector;
                 this.exclusionSelector = exclusionSelector;
@@ -916,45 +950,51 @@ namespace fCraft {
         /// <param name="max"> Maximum number of changes to return. </param>
         /// <param name="coords"> Coordinate to search at. </param>
         /// <exception cref="ArgumentOutOfRangeException"> Given coordinates are outside the map. </exception>
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, Vector3I coords ) {
             if( !World.LoadMap().InBounds( coords ) ) {
                 throw new ArgumentOutOfRangeException( "coords" );
             }
-            return Lookup( max, BlockDBSearchType.ReturnAll,
+            return Lookup( max,
+                           BlockDBSearchType.ReturnAll,
                            entry => ( entry.X == coords.X && entry.Y == coords.Y && entry.Z == coords.Z ) );
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max ) {
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
+            return Lookup( max,
+                           BlockDBSearchType.ReturnOldest,
                            entry => true );
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, TimeSpan span ) {
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
+            return Lookup( max,
+                           BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks );
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area ) {
             if( area == null ) throw new ArgumentNullException( "area" );
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
+            return Lookup( max,
+                           BlockDBSearchType.ReturnOldest,
                            entry => area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
-            return Lookup( max, BlockDBSearchType.ReturnOldest,
+            return Lookup( max,
+                           BlockDBSearchType.ReturnOldest,
                            entry => entry.Timestamp >= ticks && area.Contains( entry.X, entry.Y, entry.Z ) );
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             int pid = info.ID;
@@ -962,18 +1002,20 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => true,
                                                                 entry => entry.PlayerID == pid );
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => entry.PlayerID == pid );
             }
             Traverse( processor );
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
@@ -983,18 +1025,20 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => entry.Timestamp >= ticks,
                                                                 entry => entry.PlayerID == pid );
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
             }
             Traverse( processor );
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, bool exclude ) {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
@@ -1003,18 +1047,20 @@ namespace fCraft {
 
             IBlockDBQueryProcessor processor;
             if( exclude ) {
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => true,
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => infos.Any( t => entry.PlayerID == t.ID ) );
             }
             Traverse( processor );
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo[] infos, bool exclude, TimeSpan span ) {
             if( infos == null ) throw new ArgumentNullException( "infos" );
             if( infos.Length == 0 ) throw new ArgumentException( "At least one PlayerInfo must be given", "infos" );
@@ -1026,12 +1072,14 @@ namespace fCraft {
             IBlockDBQueryProcessor processor;
             if( exclude ) {
                 // ReSharper disable ImplicitlyCapturedClosure
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => entry.Timestamp >= ticks,
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => entry.Timestamp >= ticks &&
                                                                 infos.Any( t => entry.PlayerID == t.ID ) );
             }
@@ -1039,7 +1087,7 @@ namespace fCraft {
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
@@ -1049,12 +1097,14 @@ namespace fCraft {
             IBlockDBQueryProcessor processor;
             if( exclude ) {
                 // ReSharper disable ImplicitlyCapturedClosure
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => entry.PlayerID == pid );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
                                                                 entry.PlayerID == pid );
             }
@@ -1062,7 +1112,7 @@ namespace fCraft {
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude,
                                       TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
@@ -1075,13 +1125,15 @@ namespace fCraft {
             IBlockDBQueryProcessor processor;
             if( exclude ) {
                 // ReSharper disable ImplicitlyCapturedClosure
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => entry.PlayerID == pid );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => entry.Timestamp >= ticks &&
                                                                 entry.PlayerID == pid &&
                                                                 area.Contains( entry.X, entry.Y, entry.Z ) );
@@ -1090,7 +1142,7 @@ namespace fCraft {
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( infos == null ) throw new ArgumentNullException( "infos" );
@@ -1101,12 +1153,14 @@ namespace fCraft {
             IBlockDBQueryProcessor processor;
             if( exclude ) {
                 // ReSharper disable ImplicitlyCapturedClosure
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
                                                                 infos.Any( t => entry.PlayerID == t.ID ) );
             }
@@ -1114,7 +1168,7 @@ namespace fCraft {
             return processor.GetResults();
         }
 
-
+        [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo[] infos, bool exclude,
                                       TimeSpan span ) {
             if( area == null ) throw new ArgumentNullException( "area" );
@@ -1128,13 +1182,15 @@ namespace fCraft {
             IBlockDBQueryProcessor processor;
             if( exclude ) {
                 // ReSharper disable ImplicitlyCapturedClosure
-                processor = new ExcludingReturnOldestProcessor( map, max,
+                processor = new ExcludingReturnOldestProcessor( map,
+                                                                max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
                                                                 entry => infos.Any( t => entry.PlayerID == t.ID ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
-                processor = new ReturnOldestProcessor( map, max,
+                processor = new ReturnOldestProcessor( map,
+                                                       max,
                                                        entry => entry.Timestamp >= ticks &&
                                                                 area.Contains( entry.X, entry.Y, entry.Z ) &&
                                                                 infos.Any( t => entry.PlayerID == t.ID ) );
@@ -1146,22 +1202,22 @@ namespace fCraft {
         #endregion
 
 
+        readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
+        const int SearchBufferSize = 1000000; // in bytes
+
         /// <summary> Acquires and returns an exclusive (write) lock for this BlockDB.
         /// Disposing the object returned by this method releases the lock. </summary>
+        [NotNull]
         public IDisposable GetWriteLock() {
             return locker.WriteLock();
         }
 
-
         /// <summary> Acquires and returns a shared (read) lock for this BlockDB.
         /// Disposing the object returned by this method releases the lock. </summary>
+        [NotNull]
         public IDisposable GetReadLock() {
             return locker.ReadLock();
         }
-
-
-        readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
-        const int SearchBufferSize = 1000000; // in bytes
 
 
         #region Serialization
@@ -1251,7 +1307,7 @@ namespace fCraft {
         }
 
 
-        static void OnPlayerPlacedBlock( object sender, [NotNull] PlayerPlacedBlockEventArgs e ) {
+        static void OnPlayerPlacedBlock( [CanBeNull] object sender, [NotNull] PlayerPlacedBlockEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             World world = e.Map.World;
             if( world != null && world.BlockDB.IsEnabled ) {
@@ -1276,8 +1332,8 @@ namespace fCraft {
         /// <returns> True if traversal should continue. False if traversal should end. </returns>
         bool ProcessEntry( BlockDBEntry entry );
 
-
         /// <summary> Returns the gathered results, as an array of BlockDBEntry structs. </summary>
+        [NotNull]
         BlockDBEntry[] GetResults();
     }
 }

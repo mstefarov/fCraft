@@ -376,6 +376,7 @@ namespace fCraft {
 
 
         /// <summary> Saves this rank definition to XML. </summary>
+        [NotNull]
         public XElement Serialize() {
             XElement rankTag = new XElement( "Rank" );
             rankTag.Add( new XAttribute( "name", Name ) );
@@ -601,8 +602,9 @@ namespace fCraft {
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
+        [ContractAnnotation("null => null")]
         [CanBeNull]
-        public static Rank Parse( string name ) {
+        public static Rank Parse( [CanBeNull] string name ) {
             if( name == null ) return null;
 
             Rank parsedRank;

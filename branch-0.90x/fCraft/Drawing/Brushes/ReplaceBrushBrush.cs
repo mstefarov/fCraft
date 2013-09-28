@@ -27,7 +27,6 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -100,7 +99,6 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
         public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

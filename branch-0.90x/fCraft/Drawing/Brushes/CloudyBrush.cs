@@ -29,7 +29,6 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -161,11 +160,13 @@ namespace fCraft.Drawing {
         public float Turbulence { get; set; }
 
         /// <summary> Array of blocks (at least one) used in the brush pattern. </summary>
+        [NotNull]
         public Block[] Blocks { get; private set; }
 
         /// <summary> Corresponding ratios of each block type in Blocks array.
         /// A block with ratio of N will fill (N / SumOfRatios) of the drawn volume. 
         /// Thus, higher ratio means more a abundant block type. </summary>
+        [NotNull]
         public int[] BlockRatios { get; private set; }
 
 
@@ -192,14 +193,20 @@ namespace fCraft.Drawing {
         }
 
 
-        public CloudyBrush( Block[] blocks, int[] ratios )
+        public CloudyBrush( [NotNull] Block[] blocks, [NotNull] int[] ratios )
             : this() {
+            if( blocks == null ) throw new ArgumentNullException( "blocks" );
+            if( ratios == null ) throw new ArgumentNullException( "ratios" );
+            if( blocks.Length == 0 ) throw new ArgumentException( "At least one block type required." );
+            if( blocks.Length != ratios.Length )
+                throw new ArgumentException( "Number of ratios must match number of blocks." );
             Blocks = blocks;
             BlockRatios = ratios;
         }
 
 
-        public CloudyBrush( CloudyBrush other ) {
+        public CloudyBrush( [NotNull] CloudyBrush other ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
             Blocks = other.Blocks;
             BlockRatios = other.BlockRatios;
             Seed = other.Seed;
@@ -330,7 +337,6 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
         public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );

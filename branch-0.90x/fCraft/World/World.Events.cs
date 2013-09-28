@@ -7,6 +7,7 @@ namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly relates to a particular world. </summary>
     public interface IWorldEvent {
         /// <summary> World affected by the event. </summary>
+        [NotNull]
         World World { get; }
     }
 
@@ -30,7 +31,7 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for WorldManager.MainWorldChanging event. Cancelable. </summary>
     public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancelableEvent {
-        internal MainWorldChangingEventArgs( World oldWorld, [NotNull] World newWorld )
+        internal MainWorldChangingEventArgs( [CanBeNull] World oldWorld, [NotNull] World newWorld )
             : base( oldWorld, newWorld ) { }
 
         public bool Cancel { get; set; }
@@ -38,7 +39,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for WorldManager.SearchingForWorld event. Allows changing the results. </summary>
-    public sealed class SearchingForWorldEventArgs : EventArgs, IPlayerEvent {
+    public sealed class SearchingForWorldEventArgs : EventArgs {
         internal SearchingForWorldEventArgs( [CanBeNull] Player player, [NotNull] string searchQuery, [NotNull] List<World> matches ) {
             if( searchQuery == null ) throw new ArgumentNullException( "searchQuery" );
             if( matches == null ) throw new ArgumentNullException( "matches" );
@@ -81,7 +82,7 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for WorldManager.WorldCreated event. Immutable. </summary>
-    public sealed class WorldCreatedEventArgs : EventArgs, IPlayerEvent, IWorldEvent {
+    public sealed class WorldCreatedEventArgs : EventArgs, IWorldEvent {
         internal WorldCreatedEventArgs( [CanBeNull] Player player, [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             Player = player;
@@ -91,7 +92,6 @@ namespace fCraft.Events {
         [CanBeNull]
         public Player Player { get; private set; }
 
-        [NotNull]
         public World World { get; private set; }
     }
 }

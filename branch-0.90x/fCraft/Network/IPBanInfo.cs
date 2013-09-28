@@ -55,6 +55,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         internal static IPBanInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
@@ -80,6 +81,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         internal static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
             if( fields == null ) throw new ArgumentNullException( "fields" );
             if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
@@ -105,6 +107,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         internal string Serialize() {
             string[] fields = new string[FieldCount];
 

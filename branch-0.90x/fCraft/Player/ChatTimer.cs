@@ -199,6 +199,7 @@ namespace fCraft {
 
 
         /// <summary> Returns a list of all active timers. </summary>
+        [NotNull]
         public static ChatTimer[] TimerList {
             get {
                 lock( TimerListLock ) {
@@ -236,13 +237,13 @@ namespace fCraft {
         public static event EventHandler<ChatTimerEventArgs> Stopped;
 
 
-        static void RaiseStartedEvent( ChatTimer timer ) {
+        static void RaiseStartedEvent( [NotNull] ChatTimer timer ) {
             var h = Started;
             if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
         }
 
 
-        static void RaiseStoppedEvent( ChatTimer timer ) {
+        static void RaiseStoppedEvent( [NotNull] ChatTimer timer ) {
             var h = Stopped;
             if( h != null ) h( null, new ChatTimerEventArgs( timer ) );
         }
@@ -253,10 +254,12 @@ namespace fCraft {
 
     /// <summary> Provides data for ChatTimer.Started and ChatTimer.Stopped events. Immutable. </summary>
     public sealed class ChatTimerEventArgs : EventArgs {
-        public ChatTimerEventArgs( ChatTimer timer ) {
+        public ChatTimerEventArgs( [NotNull] ChatTimer timer ) {
+            if( timer == null ) throw new ArgumentNullException( "timer" );
             Timer = timer;
         }
 
+        [NotNull]
         public ChatTimer Timer { get; private set; }
     }
 }

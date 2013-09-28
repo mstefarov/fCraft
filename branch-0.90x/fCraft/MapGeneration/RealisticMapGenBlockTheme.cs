@@ -244,7 +244,7 @@ namespace fCraft.MapGeneration {
 
         #region Equality members
 
-        public bool Equals( RealisticMapGenBlockTheme other ) {
+        public bool Equals( [CanBeNull] RealisticMapGenBlockTheme other ) {
             if( ReferenceEquals( null, other ) ) {
                 return false;
             }
@@ -260,7 +260,7 @@ namespace fCraft.MapGeneration {
                    WaterBlock == other.WaterBlock && WaterSurfaceBlock == other.WaterSurfaceBlock;
         }
 
-        public override bool Equals( object obj ) {
+        public override bool Equals( [CanBeNull] object obj ) {
             if( ReferenceEquals( null, obj ) ) {
                 return false;
             }

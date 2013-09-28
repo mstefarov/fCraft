@@ -10,6 +10,7 @@ namespace fCraft.MapConversion {
 
         /// <summary> File extension associated with this file.
         /// Throws NotSupportedException if this is a directory-based format. </summary>
+        [NotNull]
         string FileExtension { get; }
 
         /// <summary> Returns the map storage type (file-based or directory-based). </summary>

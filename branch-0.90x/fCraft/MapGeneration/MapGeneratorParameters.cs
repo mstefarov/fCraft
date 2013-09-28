@@ -15,6 +15,7 @@ namespace fCraft.MapGeneration {
     /// and pass a COPY to MapGeneratorState. </summary>
     public abstract class MapGeneratorParameters : ICloneable {
         /// <summary> Associated MapGenerator object that created this parameter set. </summary>
+        [NotNull]
         [Browsable( false )]
         [XmlIgnore]
         public MapGenerator Generator { get; protected set; }
@@ -51,9 +52,7 @@ namespace fCraft.MapGeneration {
         /// <param name="baseElement"> Element from which parameters are read.
         /// Each property corresponds to a child element. </param>
         public virtual void LoadProperties( [NotNull] XElement baseElement ) {
-            if( baseElement == null ) {
-                throw new ArgumentNullException( "baseElement" );
-            }
+            if( baseElement == null ) throw new ArgumentNullException( "baseElement" );
             foreach( PropertyInfo pi in ListProperties() ) {
                 XElement el = baseElement.Element( pi.Name );
                 if( el == null ) continue;
@@ -75,12 +74,14 @@ namespace fCraft.MapGeneration {
 
         /// <summary> Creates MapGeneratorState to create a map with the current parameters and specified dimensions. 
         /// Does NOT start the generation process yet -- that should be done in MapGeneratorState.Generate() </summary>
+        [NotNull]
         public abstract MapGeneratorState CreateGenerator();
 
 
         static readonly object PropListsLock = new object();
         static readonly Dictionary<Type, PropertyInfo[]> PropLists = new Dictionary<Type, PropertyInfo[]>();
 
+        [NotNull]
         IEnumerable<PropertyInfo> ListProperties() {
             Type thisType = GetType();
             PropertyInfo[] result;

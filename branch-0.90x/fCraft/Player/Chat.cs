@@ -67,31 +67,31 @@ namespace fCraft {
 
 
         /// <summary> Sends a private message (PM). Does NOT send a copy of the message to the sender. </summary>
-        /// <param name="from"> Sender player. </param>
-        /// <param name="to"> Recipient player. </param>
+        /// <param name="fromPlayer"> Sender player. </param>
+        /// <param name="toPlayer"> Recipient player. </param>
         /// <param name="rawMessage"> Message text. </param>
         /// <returns> True if message was sent, false if it was cancelled by an event callback. </returns>
-        public static bool SendPM( [NotNull] Player from, [NotNull] Player to, [NotNull] string rawMessage ) {
-            if( @from == null ) throw new ArgumentNullException( "from" );
-            if( to == null ) throw new ArgumentNullException( "to" );
+        public static bool SendPM( [NotNull] Player fromPlayer, [NotNull] Player toPlayer, [NotNull] string rawMessage ) {
+            if( fromPlayer == null ) throw new ArgumentNullException( "fromPlayer" );
+            if( toPlayer == null ) throw new ArgumentNullException( "toPlayer" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            var recipientList = new[] { to };
+            var recipientList = new[] { toPlayer };
 
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
-                                                     @from.Name, rawMessage );
+                                                     fromPlayer.Name, rawMessage );
 
-            var e = new ChatSendingEventArgs( @from,
+            var e = new ChatSendingEventArgs( fromPlayer,
                                               rawMessage,
                                               formattedMessage,
                                               ChatMessageType.PM,
                                               recipientList );
 
             if( !SendInternal( e ) ) return false;
-            to.lastPrivateMessageSender = from.Name;
+            toPlayer.lastPrivateMessageSender = fromPlayer.Name;
 
             Logger.Log( LogType.PrivateChat,
                         "{0} to {1}: {2}",
-                        @from.Name, to.Name, rawMessage );
+                        fromPlayer.Name, toPlayer.Name, rawMessage );
             return true;
         }
 
@@ -185,7 +185,6 @@ namespace fCraft {
 
 
         static bool SendInternal( [NotNull] ChatSendingEventArgs e ) {
-            if( e == null ) throw new ArgumentNullException( "e" );
             if( RaiseSendingEvent( e ) ) return false;
 
             Player[] players = e.RecipientList.ToArray();
@@ -607,7 +606,8 @@ namespace fCraft {
 
         #region Events
 
-        static bool RaiseSendingEvent( ChatSendingEventArgs args ) {
+        static bool RaiseSendingEvent( [NotNull] ChatSendingEventArgs args ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
             var h = Sending;
             if( h == null ) return false;
             h( null, args );
@@ -615,11 +615,10 @@ namespace fCraft {
         }
 
 
-        static void RaiseSentEvent( ChatSendingEventArgs args, int recipientCount ) {
+        static void RaiseSentEvent( [NotNull] ChatSendingEventArgs args, int recipientCount ) {
             var h = Sent;
             if( h != null )
-                h( null, new ChatSentEventArgs( args.Player, args.Message, args.FormattedMessage,
-                                                args.MessageType, args.RecipientList, recipientCount ) );
+                h( null, new ChatSentEventArgs( args, recipientCount ) );
         }
 
 
@@ -697,8 +696,11 @@ namespace fCraft.Events {
     /// <summary> Provides data for Chat.Sending event. Cancelable.
     /// FormattedMessage and recipientList properties may be changed. </summary>
     public sealed class ChatSendingEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
-        internal ChatSendingEventArgs( Player player, string message, string formattedMessage,
-                                       ChatMessageType messageType, IEnumerable<Player> recipientList ) {
+        internal ChatSendingEventArgs( [NotNull] Player player,
+                                       [NotNull] string message,
+                                       [NotNull] string formattedMessage,
+                                       ChatMessageType messageType,
+                                       [NotNull] IEnumerable<Player> recipientList ) {
             Player = player;
             Message = message;
             MessageType = messageType;
@@ -711,15 +713,18 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
 
         /// <summary> Raw text of the message. </summary>
+        [NotNull]
         public string Message { get; private set; }
 
         /// <summary> Formatted message, as it will appear to the recipients. </summary>
+        [NotNull]
         public string FormattedMessage { get; set; }
 
         /// <summary> Type of the message that's being sent. </summary>
         public ChatMessageType MessageType { get; private set; }
 
         /// <summary> List of intended recipients. </summary>
+        [NotNull]
         public readonly IEnumerable<Player> RecipientList;
 
         public bool Cancel { get; set; }
@@ -728,13 +733,12 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Chat.Sent event. Immutable. </summary>
     public sealed class ChatSentEventArgs : EventArgs, IPlayerEvent {
-        internal ChatSentEventArgs( Player player, string message, string formattedMessage,
-                                    ChatMessageType messageType, IEnumerable<Player> recipientList, int recipientCount ) {
-            Player = player;
-            Message = message;
-            MessageType = messageType;
-            RecipientList = recipientList;
-            FormattedMessage = formattedMessage;
+        internal ChatSentEventArgs( [NotNull] ChatSendingEventArgs args, int recipientCount ) {
+            Player = args.Player;
+            Message = args.Message;
+            MessageType = args.MessageType;
+            RecipientList = args.RecipientList;
+            FormattedMessage = args.FormattedMessage;
             RecipientCount = recipientCount;
         }
 
@@ -743,15 +747,18 @@ namespace fCraft.Events {
         public Player Player { get; private set; }
 
         /// <summary> Raw text of the message. </summary>
+        [NotNull]
         public string Message { get; private set; }
 
         /// <summary> Formatted message, as it appeared to the recipients. </summary>
+        [NotNull]
         public string FormattedMessage { get; private set; }
 
         /// <summary> Type of message that was sent. </summary>
         public ChatMessageType MessageType { get; private set; }
 
         /// <summary> List of players who received the message. </summary>
+        [NotNull]
         public IEnumerable<Player> RecipientList { get; private set; }
 
         /// <summary> Number of players who received the message. </summary>

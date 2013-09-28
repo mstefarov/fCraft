@@ -37,7 +37,7 @@ namespace fCraft {
         /// Console has all the permissions granted.
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /TP). </summary>
-        public static Player Console, AutoRank;
+        public static Player Console;
 
 
         #region Properties
@@ -64,6 +64,7 @@ namespace fCraft {
         public bool IsVerified { get; private set; }
 
         /// <summary> Persistent information record associated with this player. </summary>
+        [NotNull]
         public PlayerInfo Info { get; private set; }
 
         /// <summary> Whether the player is in paint mode (deleting blocks replaces them). Used by /Paint. </summary>
@@ -790,8 +791,9 @@ namespace fCraft {
         public DateTime ConfirmRequestTime { get; private set; }
 
 
-        static void ConfirmCommandCallback( [NotNull] Player player, object tag, bool fromConsole ) {
+        static void ConfirmCommandCallback( [NotNull] Player player, [NotNull] object tag, bool fromConsole ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
             CommandReader cmd = (CommandReader)tag;
             cmd.Rewind();
             cmd.IsConfirmed = true;
@@ -1860,7 +1862,7 @@ namespace fCraft {
     sealed class PlayerListSorter : IComparer<Player> {
         public static readonly PlayerListSorter Instance = new PlayerListSorter();
 
-        public int Compare( Player x, Player y ) {
+        public int Compare( [NotNull] Player x, [NotNull] Player y ) {
             if( x.Info.Rank == y.Info.Rank ) {
                 return StringComparer.OrdinalIgnoreCase.Compare( x.Name, y.Name );
             } else {

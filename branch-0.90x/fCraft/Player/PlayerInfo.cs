@@ -81,11 +81,10 @@ namespace fCraft {
         }
 
 
-        static void CheckPaidStatusCallback( SchedulerTask task ) {
+        static void CheckPaidStatusCallback( [NotNull] SchedulerTask task ) {
             PlayerInfo info = (PlayerInfo)task.UserState;
             info.AccountType = Player.CheckPaidStatus( info.Name );
         }
-
 
         #region Rank
 
@@ -381,7 +380,9 @@ namespace fCraft {
         #region Loading
 
         static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
-        internal static PlayerInfo LoadFormat2( string[] fields ) {
+
+        [NotNull]
+        internal static PlayerInfo LoadFormat2( [NotNull] string[] fields ) {
             if( fields.Length < 44 ) {
                 throw new FormatException( "PlayerInfo record did not contain all the expected information. " +
                                            "This record, or maybe the whole file, may be corrupted." );
@@ -544,8 +545,11 @@ namespace fCraft {
         }
 
 
-        internal static PlayerInfo LoadFormat1( string[] fields ) {
-            PlayerInfo info = new PlayerInfo { Name = fields[0] };
+        [NotNull]
+        internal static PlayerInfo LoadFormat1( [NotNull] string[] fields ) {
+            PlayerInfo info = new PlayerInfo {
+                Name = fields[0]
+            };
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
@@ -582,7 +586,8 @@ namespace fCraft {
             // failed logins
             fields[12].ToDateTimeLegacy( ref info.LastFailedLoginDate );
 
-            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) { // LEGACY
+            if( fields[13].Length > 1 || !IPAddress.TryParse( fields[13], out info.LastFailedLoginIP ) ) {
+                // LEGACY
                 info.LastFailedLoginIP = IPAddress.None;
             }
             // skip 14
@@ -629,7 +634,7 @@ namespace fCraft {
             if( fields[34].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
 
             fields[36].ToDateTimeLegacy( ref info.BannedUntil );
-            info.IsFrozen = (fields[37] == "f");
+            info.IsFrozen = ( fields[37] == "f" );
             if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.Unescape( fields[38] );
             fields[39].ToDateTimeLegacy( ref info.FrozenOn );
             fields[40].ToDateTimeLegacy( ref info.MutedUntil );
@@ -692,7 +697,8 @@ namespace fCraft {
 
         #region Saving
 
-        internal void Serialize( StringBuilder sb ) {
+        internal void Serialize( [NotNull] StringBuilder sb ) {
+            if( sb == null ) throw new ArgumentNullException( "sb" );
             sb.Append( Name ).Append( ',' ); // 0
             if( !LastIP.Equals( IPAddress.None ) ) sb.Append( LastIP ); // 1
             sb.Append( ',' );
@@ -1010,11 +1016,12 @@ namespace fCraft {
     public sealed class PlayerInfoComparer : IComparer<PlayerInfo> {
         readonly Player observer;
 
-        public PlayerInfoComparer( Player observer ) {
+        public PlayerInfoComparer( [NotNull] Player observer ) {
+            if( observer == null ) throw new ArgumentNullException( "observer" );
             this.observer = observer;
         }
 
-        public int Compare( PlayerInfo x, PlayerInfo y ) {
+        public int Compare( [NotNull] PlayerInfo x, [NotNull] PlayerInfo y ) {
             Player xPlayer = x.PlayerObject;
             Player yPlayer = y.PlayerObject;
             bool xIsOnline = xPlayer != null && observer.CanSee( xPlayer );

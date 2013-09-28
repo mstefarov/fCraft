@@ -22,7 +22,7 @@ namespace fCraft.Drawing {
         };
 
 
-        static void BrushHandler( Player player, CommandReader cmd ) {
+        static void BrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string brushName = cmd.Next();
             if( brushName == null ) {
                 player.Message( player.Brush.Description );
@@ -95,6 +95,7 @@ namespace fCraft.Drawing {
 
 
         /// <summary> Provides a list of all registered IBrushFactories. </summary>
+        [NotNull]
         public static IBrushFactory[] RegisteredFactories {
             get { return BrushFactories.Values.ToArray(); }
         }

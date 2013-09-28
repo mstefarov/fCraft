@@ -6,10 +6,11 @@ using System.IO;
 using System.Net;
 using System.Text;
 using JetBrains.Annotations;
+// ReSharper disable CodeAnnotationAnalyzer
 
 namespace fCraft.MapConversion {
     /// <summary> Standard NBT data types. </summary>
-    public enum NBTType : byte {
+    public enum NBTType : byte { // TODO: replace with fNBT
         /// <summary> End of tag </summary>
         End,
         /// <summary> 8 bit integer </summary>

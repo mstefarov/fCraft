@@ -179,6 +179,7 @@ namespace fCraft {
         /// <param name="noun"> The type of target (e.g. "world" or "zone"). </param>
         /// <param name="verb"> The action, in past tense, that this
         /// controller manages (e.g. "accessed" or "modified"). </param>
+        [NotNull]
         public string GetDescription( [NotNull] IClassy target, [NotNull] string noun, [NotNull] string verb ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( noun == null ) throw new ArgumentNullException( "noun" );
@@ -210,7 +211,6 @@ namespace fCraft {
             message.Append( '.' );
             return message.ToString();
         }
-
 
         #region XML Serialization
 

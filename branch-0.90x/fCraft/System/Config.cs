@@ -809,6 +809,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         static XElement DefineDefaultRanks() {
             XElement permissions = new XElement( "Ranks" );
 
@@ -1075,6 +1076,7 @@ namespace fCraft {
 
 
         /// <summary> Returns a list of all keys in a section. </summary>
+        [NotNull]
         public static ConfigKey[] GetKeys( this ConfigSection section ) {
             return KeySections[section];
         }

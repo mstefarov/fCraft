@@ -67,6 +67,7 @@ namespace fCraft {
         public int MaxLength { get; set; }
         Regex regex;
 
+        [CanBeNull]
         public string RegexString {
             get {
                 if( regex != null ) {
@@ -321,6 +322,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         IPAddress GetBlankValueSubstitute() {
             switch( BlankMeaning ) {
                 case BlankValueMeaning.Any:
