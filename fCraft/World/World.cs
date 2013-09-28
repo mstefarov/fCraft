@@ -483,9 +483,11 @@ namespace fCraft {
         public bool IsLocked { get; internal set; }
 
         /// <summary> The name of player/entity who last locked this world. </summary>
+        [CanBeNull]
         public string LockedBy { get; internal set; }
 
         /// <summary> The name of player/entity who last unlocked this world. </summary>
+        [CanBeNull]
         public string UnlockedBy { get; internal set; }
 
         /// <summary> Date (UTC) when this world was last locked. </summary>
@@ -561,6 +563,7 @@ namespace fCraft {
         /// <param name="observer"> Player who is patrolling. </param>
         /// <returns> Player who has been selected to be patrolled. </returns>
         /// <exception cref="ArgumentNullException"> observer is null. </exception>
+        [CanBeNull]
         public Player GetNextPatrolTarget( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             lock( patrolLock ) {
@@ -587,6 +590,7 @@ namespace fCraft {
         /// <param name="setLastPatrolTime"> Whether to set target's LastPatrolTime. </param>
         /// <returns> Player who has been selected to be patrolled. </returns>
         /// <exception cref="ArgumentNullException"> observer or predicate is null. </exception>
+        [CanBeNull]
         public Player GetNextPatrolTarget( [NotNull] Player observer,
                                            [NotNull, InstantHandle] Predicate<Player> predicate,
                                            bool setLastPatrolTime ) {
@@ -773,6 +777,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         internal string BackupSettingDescription {
             get {
                 switch( backupEnabledState ) {

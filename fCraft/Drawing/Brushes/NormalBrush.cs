@@ -40,6 +40,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -47,7 +48,6 @@ namespace fCraft.Drawing {
         }
 
 
-        [CanBeNull]
         public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
@@ -69,7 +69,7 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that creates a solid, single-block fill. </summary>
     public sealed class NormalBrush : IBrushInstance {
-        public Block[] Blocks { get; set; }
+        public Block[] Blocks { get; private set; }
 
 
         public string InstanceDescription {

@@ -4,11 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-using fCraft.AutoRank;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> Several yet-undocumented commands, mostly related to AutoRank. </summary>
     static class MaintenanceCommands {
 
         internal static void Init() {
@@ -88,7 +86,7 @@ namespace fCraft {
 
         const int TopPlayersToList = 5;
 
-        static void DumpStatsHandler( Player player, CommandReader cmd ) {
+        static void DumpStatsHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string fileName = cmd.Next();
             string time = cmd.Next();
             if( fileName == null ) {
@@ -120,7 +118,8 @@ namespace fCraft {
             if( File.Exists( fileName ) && !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
                             "DumpStats: Asked {0} for confirmation to overwrite \"{1}\"",
-                            player.Name, fileName );
+                            player.Name,
+                            fileName );
                 player.Confirm( cmd, "File \"{0}\" already exists. Overwrite?", Path.GetFileName( fileName ) );
                 return;
             }
@@ -165,7 +164,11 @@ namespace fCraft {
             player.Message( "DumpStats: Saved to \"{0}\"", fileName );
         }
 
-        static void DumpPlayerGroupStats( TextWriter writer, IList<PlayerInfo> infos, string groupName, TimeSpan inactivityTime ) {
+        static void DumpPlayerGroupStats( [NotNull] TextWriter writer, [NotNull] IList<PlayerInfo> infos,
+                                          [NotNull] string groupName, TimeSpan inactivityTime ) {
+            if( writer == null ) throw new ArgumentNullException( "writer" );
+            if( infos == null ) throw new ArgumentNullException( "infos" );
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
             RankStats stat = new RankStats();
             foreach( Rank rank2 in RankManager.Ranks ) {
                 stat.PreviousRank.Add( rank2, 0 );
@@ -563,7 +566,7 @@ namespace fCraft {
             Handler = MassRankHandler
         };
 
-        static void MassRankHandler( Player player, CommandReader cmd ) {
+        static void MassRankHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string fromRankName = cmd.Next();
             string toRankName = cmd.Next();
             string reason = cmd.NextAll();
@@ -590,18 +593,21 @@ namespace fCraft {
             }
 
             int playerCount = fromRank.PlayerCount;
-            string verb = (fromRank > toRank ? "demot" : "promot");
+            string verb = ( fromRank > toRank ? "demot" : "promot" );
 
             if( !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
                             "MassRank: Asked {0} to confirm {1}ion of {2} players.",
-                            player.Name, verb, playerCount );
+                            player.Name,
+                            verb,
+                            playerCount );
                 player.Confirm( cmd, "{0}e {1} players?", verb.UppercaseFirst(), playerCount );
                 return;
             }
 
             player.Message( "MassRank: {0}ing {1} players...",
-                            verb, playerCount );
+                            verb,
+                            playerCount );
 
             int affected = PlayerDB.MassRankChange( player, fromRank, toRank, reason );
             player.Message( "MassRank: done, {0} records affected.", affected );
@@ -620,7 +626,7 @@ namespace fCraft {
         };
 
         // TODO: document the fact that this only promotes (unlike "/Import Ranks")
-        static void ImportRankListHandler( Player player, CommandReader cmd ) {
+        static void ImportRankListHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string fileName = cmd.Next();
             string rankName = cmd.Next();
             string reason = cmd.NextAll();
@@ -636,7 +642,7 @@ namespace fCraft {
                 player.MessageNoRank( rankName );
                 return;
             }
-            
+
             // Make sure that the target file is legit
             if( !Paths.Contains( Paths.WorkingPath, fileName ) ) {
                 Logger.Log( LogType.SuspiciousActivity,
@@ -701,7 +707,6 @@ namespace fCraft {
                     PlayerInfo newInfo = PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
                     newInfo.ChangeRank( player, rank, reason, true, true, false );
                     Logger.Log( LogType.UserActivity, "ImportRankList: Created a new player record for {0}", name );
-
                 } else {
                     // Check if an existing record needs updating
                     if( info.Rank < rank && // don't demote anyone
@@ -711,7 +716,6 @@ namespace fCraft {
                         // Promote!
                         info.ChangeRank( player, rank, reason, true, true, false );
                         promotedPlayers++;
-
                     } else {
                         skippedPlayers++;
                     }
@@ -1041,7 +1045,7 @@ namespace fCraft {
             return true;
         }
 
-        static bool ValidateInt( string stringVal, int min, int max ) {
+        static bool ValidateInt( [CanBeNull] string stringVal, int min, int max ) {
             int val;
             if( Int32.TryParse( stringVal, out val ) ) {
                 return (val >= min && val <= max);
@@ -1057,11 +1061,11 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReload = new CommandDescriptor {
             Name = "Reload",
-            Aliases = new[] { "configreload", "reloadconfig", "autorankreload", "reloadautorank" },
+            Aliases = new[] { "configreload", "reloadconfig" },
             Category = CommandCategory.Maintenance,
             Permissions = new[] { Permission.ReloadConfig },
             IsConsoleSafe = true,
-            Usage = "/Reload config/autorank/salt",
+            Usage = "/Reload config/salt",
             Help = "Reloads a given configuration file or setting. "+
                    "Config note: changes to ranks and IRC settings still require a full restart. "+
                    "Salt note: Until server synchronizes with Minecraft.net, " +
@@ -1069,7 +1073,7 @@ namespace fCraft {
             Handler = ReloadHandler
         };
 
-        static void ReloadHandler( Player player, CommandReader cmd ) {
+        static void ReloadHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string whatToReload = cmd.Next();
             if( whatToReload == null ) {
                 CdReload.PrintUsage( player );
@@ -1090,11 +1094,6 @@ namespace fCraft {
                             Logger.LogAndReportCrash( "Config failed to reload", "ConfigGUI", ex, false );
                             success = false;
                         }
-                        break;
-
-                    case "autorank":
-                        success = AutoRankManager.Init();
-                        AutoRankManager.DoAutoRankAll( player, PlayerDB.PlayerInfoList, "(AutoRanked)", false );
                         break;
 
                     case "salt":
@@ -1142,7 +1141,7 @@ namespace fCraft {
 
         static readonly TimeSpan DefaultShutdownTime = TimeSpan.FromSeconds( 5 );
 
-        static void ShutdownHandler( Player player, CommandReader cmd ) {
+        static void ShutdownHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1206,7 +1205,7 @@ namespace fCraft {
             Handler = RestartHandler
         };
 
-        static void RestartHandler( Player player, CommandReader cmd ) {
+        static void RestartHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string delayString = cmd.Next();
             TimeSpan delayTime = DefaultShutdownTime;
             string reason = "";
@@ -1271,7 +1270,7 @@ namespace fCraft {
             Handler = PruneDBHandler
         };
 
-        static void PruneDBHandler( Player player, CommandReader cmd ) {
+        static void PruneDBHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( !cmd.IsConfirmed ) {
                 player.MessageNow( "PruneDB: Finding inactive players..." );
                 int inactivePlayers = PlayerDB.CountInactivePlayers();
@@ -1292,7 +1291,7 @@ namespace fCraft {
         }
 
 
-        static void PruneDBTask( SchedulerTask task ) {
+        static void PruneDBTask( [NotNull] SchedulerTask task ) {
             int removedCount = PlayerDB.RemoveInactivePlayers();
             Player player = (Player)task.UserState;
             player.Message( "PruneDB: Removed {0} inactive players!", removedCount );
@@ -1315,7 +1314,7 @@ namespace fCraft {
             Handler = ImportHandler
         };
 
-        static void ImportHandler( Player player, CommandReader cmd ) {
+        static void ImportHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string action = cmd.Next();
             if( action == null ) {
                 CdImport.PrintUsage( player );
@@ -1346,7 +1345,9 @@ namespace fCraft {
         }
 
 
-        static void ImportBans( Player player, CommandReader cmd ) {
+        static void ImportBans( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
             string serverName = cmd.Next();
             string fileName = cmd.Next();
 
@@ -1378,13 +1379,16 @@ namespace fCraft {
                                         fileName );
                         Logger.Log( LogType.Error,
                                     "ImportBans: Could not open \"{0}\": {1}",
-                                    fileName, ex );
+                                    fileName,
+                                    ex );
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
                         Logger.Log( LogType.UserActivity,
                                     "Import: Asked {0} to confirm importing {1} bans from \"{2}\"",
-                                    player.Name, names.Length, fileName );
+                                    player.Name,
+                                    names.Length,
+                                    fileName );
                         player.Confirm( cmd, "Import: Import {0} bans?", names.Length );
                         return;
                     }
@@ -1393,17 +1397,14 @@ namespace fCraft {
                     foreach( string name in names ) {
                         try {
                             IPAddress ip;
-                            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) {
+                            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) )
                                 ip.BanIP( player, reason, true, true );
-                            } else if( Player.IsValidPlayerName( name ) ) {
+                            else if( Player.IsValidPlayerName( name ) ) {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                                   PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Default );
                                 info.Ban( player, reason, true, true );
                                 playersBanned++;
-
-                            } else {
-                                linesSkipped++;
-                            }
+                            } else linesSkipped++;
                         } catch( PlayerOpException ex ) {
                             if( ex.ErrorCode == PlayerOpExceptionCode.NoActionNeeded ) {
                                 playersAlreadyBanned++;
@@ -1431,13 +1432,16 @@ namespace fCraft {
                                         fileName );
                         Logger.Log( LogType.Error,
                                     "ImportBans: Could not open \"{0}\": {1}",
-                                    fileName, ex );
+                                    fileName,
+                                    ex );
                         return;
                     }
                     if( !cmd.IsConfirmed ) {
                         Logger.Log( LogType.UserActivity,
                                     "Import: Asked {0} to confirm importing {1} bans from \"{2}\"",
-                                    player.Name, lines.Length, fileName );
+                                    player.Name,
+                                    lines.Length,
+                                    fileName );
                         player.Confirm( cmd, "Import: Import {0} bans?", lines.Length );
                         return;
                     }
@@ -1486,16 +1490,23 @@ namespace fCraft {
                     return;
             }
             player.Message( "Import: Banned {0} players, found {1} already-banned players, skipped {2} lines.",
-                            playersBanned, playersAlreadyBanned, linesSkipped );
+                            playersBanned,
+                            playersAlreadyBanned,
+                            linesSkipped );
         }
 
 
         // by Chris Wilson
-        static string[] ParseCsvRow( string r ) {
+        [NotNull]
+        static string[] ParseCsvRow( [NotNull] string r ) {
+            if( r == null ) throw new ArgumentNullException( "r" );
             List<string> resp = new List<string>();
             bool cont = false;
             string cs = "";
-            string[] c = r.Split( new[] { ',' }, StringSplitOptions.None );
+            string[] c = r.Split( new[] {
+                ','
+            },
+                                  StringSplitOptions.None );
             foreach( string y in c ) {
                 string x = y;
                 if( cont ) {
@@ -1506,7 +1517,6 @@ namespace fCraft {
                         cs = "";
                         cont = false;
                         continue;
-
                     } else {
                         // Field still not ended
                         cs += "," + x;
@@ -1515,7 +1525,7 @@ namespace fCraft {
                 }
                 // Fully encapsulated with no comma within
                 if( x.StartsWith( "\"" ) && x.EndsWith( "\"" ) ) {
-                    if( (x.EndsWith( "\"\"" ) && !x.EndsWith( "\"\"\"" )) && x != "\"\"" ) {
+                    if( ( x.EndsWith( "\"\"" ) && !x.EndsWith( "\"\"\"" ) ) && x != "\"\"" ) {
                         cont = true;
                         cs = x;
                         continue;
@@ -1536,11 +1546,13 @@ namespace fCraft {
         }
 
 
-        static void ImportRanks( Player player, CommandReader cmd ) {
+        static void ImportRanks( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
             string serverName = cmd.Next();
             string fileName = cmd.Next();
             string rankName = cmd.Next();
-            bool silent = (cmd.Next() != null);
+            bool silent = ( cmd.Next() != null );
 
 
             // Make sure all parameters are specified
@@ -1573,7 +1585,8 @@ namespace fCraft {
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "Could not open \"{0}\" to import ranks: {1}",
-                                    fileName, ex );
+                                    fileName,
+                                    ex );
                         return;
                     }
                     break;
@@ -1585,7 +1598,9 @@ namespace fCraft {
             if( !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
                             "Import: Asked {0} to confirm importing {1} ranks from {2}",
-                            player.Name, names.Length, fileName );
+                            player.Name,
+                            names.Length,
+                            fileName );
                 player.Confirm( cmd, "Import {0} player ranks?", names.Length );
                 return;
             }
@@ -1710,7 +1725,7 @@ namespace fCraft {
             Handler = InfoSwapHandler
         };
 
-        static void InfoSwapHandler( Player player, CommandReader cmd ) {
+        static void InfoSwapHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string p1Name = cmd.Next();
             string p2Name = cmd.Next();
             if( p1Name == null || p2Name == null ) {
@@ -1736,16 +1751,23 @@ namespace fCraft {
             if( !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
                             "InfoSwap: Asked {0} to confirm swapping stats of players {1} and {2}",
-                            player.Name, p1.Name, p2.Name );
-                player.Confirm( cmd, "InfoSwap: Swap stats of players {0}&S and {1}&S?",
-                                     p1.ClassyName, p2.ClassyName );
+                            player.Name,
+                            p1.Name,
+                            p2.Name );
+                player.Confirm( cmd,
+                                "InfoSwap: Swap stats of players {0}&S and {1}&S?",
+                                p1.ClassyName,
+                                p2.ClassyName );
             } else {
                 PlayerDB.SwapPlayerInfo( p1, p2 );
                 Logger.Log( LogType.UserActivity,
                             "Player {0} swapped stats of players {1} and {2}",
-                            player.Name, p1.Name, p2.Name );
+                            player.Name,
+                            p1.Name,
+                            p2.Name );
                 player.Message( "InfoSwap: Stats of {0}&S and {1}&S have been swapped.",
-                                p1.ClassyName, p2.ClassyName );
+                                p1.ClassyName,
+                                p2.ClassyName );
             }
         }
     }

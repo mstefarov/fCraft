@@ -129,10 +129,12 @@ namespace fCraft.MapGeneration {
         /// parse parameters for an unknown/unrecognized map generator type. </summary>
         public class UnknownMapGeneratorException : Exception {
             /// <summary> Given map generator name, which was not recognized. </summary>
+            [NotNull]
             public string GeneratorName { get; private set; }
 
-            internal UnknownMapGeneratorException( string name )
+            internal UnknownMapGeneratorException( [NotNull] string name )
                 : base( "Unknown map generator: " + name ) {
+                if( name == null ) throw new ArgumentNullException( "name" );
                 GeneratorName = name;
             }
         }

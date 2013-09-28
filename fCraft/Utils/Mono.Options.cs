@@ -126,6 +126,8 @@
 //      p.Parse (new string[]{"-a-"});  // sets v == null
 //
 
+// ReSharper disable CodeAnnotationAnalyzer
+#pragma warning disable 1591
 using System;
 using System.Collections;
 using System.Collections.Generic;

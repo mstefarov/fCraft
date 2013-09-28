@@ -21,6 +21,7 @@ namespace fCraft {
         /// May be quite long. Make sure to copy a reference to
         /// the list before accessing it in a loop, since this 
         /// array be frequently be replaced by an updated one. </summary>
+        [NotNull]
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
         static int maxID = 255;
@@ -137,7 +138,9 @@ namespace fCraft {
         }
 
 
-        static void LoadInternal( StreamReader reader, string header ) {
+        static void LoadInternal( [NotNull] TextReader reader, [NotNull] string header ) {
+            if( reader == null ) throw new ArgumentNullException( "reader" );
+
             int version = IdentifyFormatVersion( header );
             if( version == 0 ) {
                 throw new Exception( "PlayerDB.Load: Unsupported PlayerDB file format. " +
@@ -261,6 +264,7 @@ namespace fCraft {
 
         static int IdentifyFormatVersion( [NotNull] string header ) {
             if( header == null ) throw new ArgumentNullException( "header" );
+
             if( header.StartsWith( "playerName" ) ) return 0;
             string[] headerParts = header.Split( ' ' );
             if( headerParts.Length < 2 ) {
@@ -316,12 +320,19 @@ namespace fCraft {
         }
 
 
-        static FileStream OpenRead( string fileName ) {
-            return new FileStream( fileName, FileMode.Open, FileAccess.Read, FileShare.Read, BufferSize, FileOptions.SequentialScan );
+        [NotNull]
+        static FileStream OpenRead( [NotNull] string fileName ) {
+            return new FileStream( fileName,
+                                   FileMode.Open,
+                                   FileAccess.Read,
+                                   FileShare.Read,
+                                   BufferSize,
+                                   FileOptions.SequentialScan );
         }
 
 
-        static FileStream OpenWrite( string fileName ) {
+        [NotNull]
+        static FileStream OpenWrite( [NotNull] string fileName ) {
             return new FileStream( fileName, FileMode.Create, FileAccess.Write, FileShare.None, BufferSize );
         }
 
@@ -349,7 +360,7 @@ namespace fCraft {
             saveTask.RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
         }
 
-        static void SaveTask( SchedulerTask task ) {
+        static void SaveTask( [NotNull] SchedulerTask task ) {
             Save();
         }
 
@@ -949,7 +960,7 @@ namespace fCraft {
             public static readonly PlayerIDComparer Instance = new PlayerIDComparer();
             private PlayerIDComparer() { }
 
-            public int Compare( PlayerInfo x, PlayerInfo y ) {
+            public int Compare( [NotNull] PlayerInfo x, [NotNull] PlayerInfo y ) {
                 return x.ID - y.ID;
             }
         }
@@ -967,6 +978,7 @@ namespace fCraft {
         /// <param name="str"> String to process and append. If this string is null or empty, nothing is appended. </param>
         /// <returns> A reference to the given StringBuilder (sb). </returns>
         /// <exception cref="ArgumentNullException"> sb is null. </exception>
+        [NotNull]
         public static StringBuilder AppendEscaped( [NotNull] this StringBuilder sb, [CanBeNull] string str ) {
             if( sb == null ) throw new ArgumentNullException( "sb" );
             if( !String.IsNullOrEmpty( str ) ) {
@@ -1022,6 +1034,7 @@ namespace fCraft {
 
         /// <summary> Creates a regular expression pattern from a wildcard pattern (like the one /Info takes).
         /// Accepts single-character ("?") and zero-or-more-characters ("*") wildcards. </summary>
+        [NotNull]
         public static Regex WildcardToRegex( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             string regexString = "^" +
@@ -1038,7 +1051,9 @@ namespace fCraft {
 
         // Extracts name from an email address, replaces non-printable characters with underscores,
         // and truncates name to 14 characters. Used on Mojang accounts.
-        static string EmailToPlayerName( string email ) {
+        [NotNull]
+        static string EmailToPlayerName( [NotNull] string email ) {
+            if( email == null ) throw new ArgumentNullException( "email" );
             string name = email.Substring( 0, email.LastIndexOf( '@' ) );
             name = NonNameCharsRegex.Replace( name, "_" );
             if( name.Length == 0 ) {

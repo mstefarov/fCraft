@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     /// <summary> Basic empty map generator. Basically a fancy wrapper for Map constructor.
@@ -55,7 +56,8 @@ namespace fCraft.MapGeneration {
 
 
     class EmptyMapGenState : MapGeneratorState {
-        public EmptyMapGenState( MapGeneratorParameters genParams ) {
+        public EmptyMapGenState( [NotNull] MapGeneratorParameters genParams ) {
+            if( genParams == null ) throw new ArgumentNullException( "genParams" );
             Parameters = genParams;
         }
 

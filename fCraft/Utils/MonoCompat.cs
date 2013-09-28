@@ -16,9 +16,11 @@ namespace fCraft {
         public static bool IsMono { get; private set; }
 
         /// <summary> Full Mono version string. May be null if we are running a REALLY old version. </summary>
+        [CanBeNull]
         public static string MonoVersionString { get; private set; }
 
         /// <summary> Mono version number. May be null if we are running a REALLY old version. </summary>
+        [CanBeNull]
         public static Version MonoVersion { get; private set; }
 
         /// <summary> Whether we are under a Windows OS (under either .NET or Mono). </summary>
@@ -86,12 +88,14 @@ namespace fCraft {
         /// <param name="assemblyLocation"> .NET executable path. </param>
         /// <param name="assemblyArgs"> Arguments to pass to the executable. </param>
         /// <param name="detachIfMono"> If true, new process will be detached under Mono. </param>
-        /// <returns>Process object</returns>
+        /// <returns> Process object. </returns>
+        [CanBeNull]
         public static Process StartDotNetProcess( [NotNull] string assemblyLocation, [NotNull] string assemblyArgs,
                                                   bool detachIfMono ) {
             if( assemblyLocation == null ) throw new ArgumentNullException( "assemblyLocation" );
             if( assemblyArgs == null ) throw new ArgumentNullException( "assemblyArgs" );
-            string binaryName, args;
+            string binaryName,
+                   args;
             if( IsMono ) {
                 binaryName = "mono";
                 args = "\"" + assemblyLocation + "\"";

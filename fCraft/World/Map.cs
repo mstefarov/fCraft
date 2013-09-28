@@ -78,9 +78,11 @@ namespace fCraft {
         public byte[] Blocks;
 
         /// <summary> Map metadata, excluding zones. </summary>
+        [NotNull]
         public MetadataCollection<string> Metadata { get; private set; }
 
         /// <summary> All zones within a map. </summary>
+        [NotNull]
         public ZoneCollection Zones { get; private set; }
 
 
@@ -126,10 +128,9 @@ namespace fCraft {
         }
 
 
-        void OnMetaOrZoneChange( object sender, EventArgs args ) {
+        void OnMetaOrZoneChange( [CanBeNull] object sender, [CanBeNull] EventArgs args ) {
             HasChangedSinceSave = true;
         }
-
 
         #region Saving
 
@@ -710,6 +711,7 @@ namespace fCraft {
         /// Air, Brown/Red mushrooms, Glass, Leaves, Red/Yellow flowers, and Saplings are considered non-solid. </summary>
         /// <returns> A 2D array of same Width/Length as the map.
         /// Value at each coordinate corresponds to the highest solid point on the map. </returns>
+        [NotNull]
         public short[][] ComputeHeightmap() {
             fixed( byte* blocks = Blocks ) {
                 int layer = Width*Length;
@@ -719,7 +721,7 @@ namespace fCraft {
                     var sx = shadows[x];
                     for( int y = 0; y < Length; y++ ) {
                         int index = Index( x, y, Height - 1 );
-                        for( int z = (Height - 1); z >= 0; z-- ) {
+                        for( int z = ( Height - 1 ); z >= 0; z-- ) {
                             switch( (Block)blocks[index] ) {
                                 case Block.Air:
                                 case Block.BrownMushroom:
@@ -782,6 +784,7 @@ namespace fCraft {
 
         /// <summary> Gets a compressed (GZip) copy of the map (raw block data with signed, 32bit, big-endian block count prepended).
         /// If the map has not been modified since last GetCompressedCopy call, returns a cached copy. </summary>
+        [NotNull]
         public byte[] GetCompressedCopy() {
             byte[] currentCopy = compressedCopyCache;
             if( currentCopy == null ) {
@@ -799,6 +802,7 @@ namespace fCraft {
             }
             return currentCopy;
         }
+
         volatile byte[] compressedCopyCache;
 
 

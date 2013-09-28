@@ -26,9 +26,11 @@ namespace fCraft {
         public bool IsConsoleSafe { get; set; }
 
         /// <summary> Callback function to execute when command is called. Must be set before registering. </summary>
+        [NotNull]
         public CommandHandler Handler { get; set; }
 
-        /// <summary> Full text of the help message. Default: null </summary>
+        /// <summary> Full text of the help message. Must be set before registering. </summary>
+        [NotNull]
         public virtual string Help { get; set; }
 
         /// <summary> Whether the command is hidden from command list (/cmds). Default: false </summary>
@@ -47,19 +49,23 @@ namespace fCraft {
         public bool DisableLogging { get; set; }
 
         /// <summary> Primary command name. Must be set before registering. </summary>
+        [NotNull]
         public string Name { get; set; }
 
         /// <summary> List of permissions required to call the command. May be empty or null. Default: null </summary>
+        [CanBeNull]
         public Permission[] Permissions { get; set; }
 
         /// <summary> Whether any permission from the list is enough.
         /// If this is false, ALL permissions are required. </summary>
         public bool AnyPermission { get; set; }
 
-        /// <summary> Brief demonstration of command's usage syntax. Defaults to "/Name". </summary>
+        /// <summary> Brief demonstration of command's usage syntax. Default: null (meaning "/Name"). </summary>
+        [CanBeNull]
         public string Usage { get; set; }
 
-        /// <summary> Help sub-sections. </summary>
+        /// <summary> Help sub-sections. May be null. </summary>
+        [CanBeNull]
         public virtual Dictionary<string, string> HelpSections { get; set; }
 
         /// <summary> Whether this command involves a selection that can be repeated with /static. Default: false </summary>
@@ -77,6 +83,7 @@ namespace fCraft {
 
         /// <summary> Gets the lowest rank that has any/all permissions to call this command.
         /// Returns null if none of the ranks have necessary permissions. </summary>
+        [CanBeNull]
         public Rank MinRank {
             get {
                 if( Permissions == null ) {
@@ -118,9 +125,9 @@ namespace fCraft {
         public bool Call( [NotNull] Player player, [NotNull] CommandReader cmd, bool raiseEvent ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( raiseEvent && CommandManager.RaiseCommandCallingEvent( cmd, this, player ) ) return false;
+            if( raiseEvent && CommandManager.RaiseCommandCallingEvent( cmd, player ) ) return false;
             Handler( player, cmd );
-            if( raiseEvent ) CommandManager.RaiseCommandCalledEvent( cmd, this, player );
+            if( raiseEvent ) CommandManager.RaiseCommandCalledEvent( cmd, player );
             return true;
         }
 

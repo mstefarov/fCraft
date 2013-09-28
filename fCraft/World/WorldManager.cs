@@ -18,6 +18,7 @@ namespace fCraft {
                             RankMainXmlTagName = "RankMainWorld";
 
         /// <summary> List of worlds currently being managed by WorldManager. </summary>
+        [NotNull]
         public static World[] Worlds { get; private set; }
         static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>( StringComparer.OrdinalIgnoreCase );
 
@@ -496,6 +497,7 @@ namespace fCraft {
         /// <summary> Finds all worlds that match the given world name.
         /// Autocompletes. Does not raise SearchingForWorld event.
         /// Target worlds are not guaranteed to have a loaded map. </summary>
+        [NotNull]
         public static World[] FindWorldsNoEvent( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] worldListCache = Worlds;
@@ -522,6 +524,7 @@ namespace fCraft {
         /// <param name="player"> Player who is calling the query. May be null. </param>
         /// <param name="name"> Full or partial world name. </param>
         /// <returns> An array of 0 or more worlds that matched the name. </returns>
+        [NotNull]
         public static World[] FindWorlds( [CanBeNull] Player player, [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             World[] matches = FindWorldsNoEvent( name );
@@ -782,6 +785,7 @@ namespace fCraft {
 
         /// <summary> List of all the worlds that are currently loaded. </summary>
         /// <returns> List of all loaded worlds. </returns>
+        [NotNull]
         public static IEnumerable<World> ListLoadedWorlds() {
             return Worlds.Where( world => world.IsLoaded );
         }
@@ -790,6 +794,7 @@ namespace fCraft {
         /// <summary> List of worlds that are currently loaded and can be seen by the specified observer. </summary>
         /// <param name="observer"> Player to observe as. </param>
         /// <returns> List of worlds the specified player has permission to observe. </returns>
+        [NotNull]
         public static IEnumerable<World> ListLoadedWorlds( [NotNull] Player observer ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             return Worlds.Where( w => w.Players.Any( observer.CanSee ) );
@@ -891,7 +896,7 @@ namespace fCraft {
         public static event EventHandler<WorldCreatedEventArgs> WorldCreated;
 
 
-        static bool RaiseMainWorldChangingEvent( World oldWorld, [NotNull] World newWorld ) {
+        static bool RaiseMainWorldChangingEvent( [CanBeNull] World oldWorld, [NotNull] World newWorld ) {
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = MainWorldChanging;
             if( h == null ) return false;

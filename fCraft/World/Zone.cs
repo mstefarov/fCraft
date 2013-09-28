@@ -36,6 +36,7 @@ namespace fCraft {
 
         /// <summary> Classy name of the player who created this zone.
         /// Returns "?" if CreatedBy name is unknown, unrecognized, or null. </summary>
+        [NotNull]
         public string CreatedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( CreatedBy );
@@ -48,6 +49,7 @@ namespace fCraft {
 
         /// <summary> Decorated name of the player who was the last to edit this zone.
         /// Returns "?" if EditedBy name is unknown, unrecognized, or null. </summary>
+        [NotNull]
         public string EditedByClassy {
             get {
                 return PlayerDB.FindExactClassyName( EditedBy );

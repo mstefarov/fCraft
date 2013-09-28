@@ -88,10 +88,9 @@ namespace fCraft {
             Handler = CuboidHandler
         };
 
-        static void CuboidHandler( Player player, CommandReader cmd ) {
+        static void CuboidHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdCuboidWireframe = new CommandDescriptor {
@@ -108,10 +107,9 @@ namespace fCraft {
             Handler = CuboidWireframeHandler
         };
 
-        static void CuboidWireframeHandler( Player player, CommandReader cmd ) {
+        static void CuboidWireframeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidWireframeDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdCuboidHollow = new CommandDescriptor {
@@ -130,10 +128,9 @@ namespace fCraft {
             Handler = CuboidHollowHandler
         };
 
-        static void CuboidHollowHandler( Player player, CommandReader cmd ) {
+        static void CuboidHollowHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new CuboidHollowDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdEllipsoid = new CommandDescriptor {
@@ -150,10 +147,9 @@ namespace fCraft {
             Handler = EllipsoidHandler
         };
 
-        static void EllipsoidHandler( Player player, CommandReader cmd ) {
+        static void EllipsoidHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new EllipsoidDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdEllipsoidHollow = new CommandDescriptor {
@@ -170,10 +166,9 @@ namespace fCraft {
             Handler = EllipsoidHollowHandler
         };
 
-        static void EllipsoidHollowHandler( Player player, CommandReader cmd ) {
+        static void EllipsoidHollowHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new EllipsoidHollowDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdSphere = new CommandDescriptor {
@@ -192,10 +187,9 @@ namespace fCraft {
             Handler = SphereHandler
         };
 
-        static void SphereHandler( Player player, CommandReader cmd ) {
+        static void SphereHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new SphereDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdSphereHollow = new CommandDescriptor {
@@ -215,10 +209,9 @@ namespace fCraft {
             Handler = SphereHollowHandler
         };
 
-        static void SphereHollowHandler( Player player, CommandReader cmd ) {
+        static void SphereHollowHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new SphereHollowDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdLine = new CommandDescriptor {
@@ -235,10 +228,9 @@ namespace fCraft {
             Handler = LineHandler
         };
 
-        static void LineHandler( Player player, CommandReader cmd ) {
+        static void LineHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new LineDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdTriangleWireframe = new CommandDescriptor {
@@ -255,10 +247,9 @@ namespace fCraft {
             Handler = TriangleWireframeHandler
         };
 
-        static void TriangleWireframeHandler( Player player, CommandReader cmd ) {
+        static void TriangleWireframeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TriangleWireframeDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdTriangle = new CommandDescriptor {
@@ -275,10 +266,9 @@ namespace fCraft {
             Handler = TriangleHandler
         };
 
-        static void TriangleHandler( Player player, CommandReader cmd ) {
+        static void TriangleHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TriangleDrawOperation( player ) );
         }
-
 
 
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
@@ -298,13 +288,12 @@ namespace fCraft {
             Handler = TorusHandler
         };
 
-        static void TorusHandler( Player player, CommandReader cmd ) {
+        static void TorusHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             DrawOperationBegin( player, cmd, new TorusDrawOperation( player ) );
         }
 
 
-
-        static void DrawOperationBegin( Player player, CommandReader cmd, DrawOperation op ) {
+        static void DrawOperationBegin( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
             // try to create instance of player's currently selected brush
             // all command parameters are passed to the brush
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
@@ -318,15 +307,19 @@ namespace fCraft {
         }
 
 
-        static void DrawOperationCallback( Player player, Vector3I[] marks, object tag ) {
+        static void DrawOperationCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+
             DrawOperation op = (DrawOperation)tag;
             if( !op.Prepare( marks ) )
                 return;
             if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                 player.MessageNow(
-                    "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect {1} blocks.",
+                    "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect ~{1} blocks.",
                     player.Info.Rank.DrawLimit,
-                    op.Bounds.Volume );
+                    op.BlocksTotalEstimate );
                 op.Cancel();
                 return;
             }
@@ -357,7 +350,7 @@ namespace fCraft {
             Handler = Fill2DHandler
         };
 
-        static void Fill2DHandler( Player player, CommandReader cmd ) {
+        static void Fill2DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
 
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
@@ -370,7 +363,11 @@ namespace fCraft {
         }
 
 
-        static void Fill2DCallback( Player player, Vector3I[] marks, object tag ) {
+        static void Fill2DCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+
             DrawOperation op = (DrawOperation)tag;
             if( !op.Prepare( marks ) )
                 return;
@@ -388,7 +385,9 @@ namespace fCraft {
         }
 
 
-        static void Fill2DConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void Fill2DConfirmCallback( [NotNull] Player player, [NotNull] object tag, bool fromConsole ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
             Fill2DDrawOperation op = (Fill2DDrawOperation)tag;
             int maxDim = Math.Max( op.Bounds.Width, Math.Max( op.Bounds.Length, op.Bounds.Height ) );
             int otherDim = op.Bounds.Volume/maxDim;
@@ -413,7 +412,7 @@ namespace fCraft {
             Handler = Fill3DHandler
         };
 
-        static void Fill3DHandler( Player player, CommandReader cmd ) {
+        static void Fill3DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill3DDrawOperation op = new Fill3DDrawOperation( player );
 
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
@@ -426,7 +425,11 @@ namespace fCraft {
         }
 
 
-        static void Fill3DCallback( Player player, Vector3I[] marks, object tag ) {
+        static void Fill3DCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
+
             DrawOperation op = (DrawOperation)tag;
             if( !op.Prepare( marks ) )
                 return;
@@ -442,7 +445,9 @@ namespace fCraft {
         }
 
 
-        static void Fill3DConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void Fill3DConfirmCallback( [NotNull] Player player, [NotNull] object tag, bool fromConsole ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
             Fill3DDrawOperation op = (Fill3DDrawOperation)tag;
             player.Message( "{0}: Filling in a {1}x{2}x{3} area...",
                             op.Description,
@@ -457,7 +462,12 @@ namespace fCraft {
 
         #region Replace
 
-        static void ReplaceHandlerInternal( IBrush factory, Player player, CommandReader cmd ) {
+        static void ReplaceHandlerInternal( [NotNull] IBrush factory, [NotNull] Player player,
+                                            [NotNull] CommandReader cmd ) {
+            if( factory == null ) throw new ArgumentNullException( "factory" );
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+
             CuboidDrawOperation op = new CuboidDrawOperation( player );
             IBrushInstance brush = factory.MakeInstance( player, cmd, op );
             if( brush == null )
@@ -484,7 +494,7 @@ namespace fCraft {
             Handler = ReplaceHandler
         };
 
-        static void ReplaceHandler( Player player, CommandReader cmd ) {
+        static void ReplaceHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null )
                 return;
@@ -507,7 +517,7 @@ namespace fCraft {
             Handler = ReplaceNotHandler
         };
 
-        static void ReplaceNotHandler( Player player, CommandReader cmd ) {
+        static void ReplaceNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null )
                 return;
@@ -526,13 +536,12 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/ReplaceBrush Block BrushName [Params]",
-            Help =
-                "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
-                "See &H/Help brush&S for a list of available brushes.",
+            Help = "Replaces all blocks of specified type(s) in an area with output of a given brush. " +
+                   "See &H/Help brush&S for a list of available brushes.",
             Handler = ReplaceBrushHandler
         };
 
-        static void ReplaceBrushHandler( Player player, CommandReader cmd ) {
+        static void ReplaceBrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceBrushBrushFactory.Instance.MakeBrush( player, cmd );
             if( replaceBrush == null )
                 return;
@@ -551,15 +560,15 @@ namespace fCraft {
                 Permission.CopyAndPaste
             },
             RepeatableSelection = true,
-            Help =
-                "Copies and removes blocks for pasting. Unless a different block type is specified, the area is filled with air. " +
-                "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
-                "Note that pasting starts at the same corner that you started &H/Cut&S from.",
+            Help = "Copies and removes blocks for pasting. " +
+                   "Unless a different block type is specified, the area is filled with air. " +
+                   "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
+                   "Note that pasting starts at the same corner that you started &H/Cut&S from.",
             Usage = "/Cut [FillBlock]",
             Handler = CutHandler
         };
 
-        static void CutHandler( Player player, CommandReader cmd ) {
+        static void CutHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Block fillBlock = Block.Air;
             if( cmd.HasNext ) {
                 if( !cmd.NextBlock( player, false, out fillBlock ) )
@@ -593,15 +602,14 @@ namespace fCraft {
                 Permission.CopyAndPaste
             },
             RepeatableSelection = true,
-            Help =
-                "Pastes previously copied blocks, aligned. Used together with &H/Copy&S command. " +
-                "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
-                "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
+            Help = "Pastes previously copied blocks, aligned. Used together with &H/Copy&S command. " +
+                   "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
+                   "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteX [IncludedBlock [AnotherOne etc]]",
             Handler = PasteXHandler
         };
 
-        static void PasteXHandler( Player player, CommandReader cmd ) {
+        static void PasteXHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, false ) );
         }
 
@@ -616,15 +624,14 @@ namespace fCraft {
                 Permission.CopyAndPaste
             },
             RepeatableSelection = true,
-            Help =
-                "Pastes previously copied blocks, aligned, except the given block type(s). " +
-                "Used together with &H/Copy&S command. " +
-                "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
+            Help = "Pastes previously copied blocks, aligned, except the given block type(s). " +
+                   "Used together with &H/Copy&S command. " +
+                   "Takes 2 marks: first sets the origin of pasting, and second sets the direction where to paste.",
             Usage = "/PasteNotX ExcludedBlock [AnotherOne etc]",
             Handler = PasteNotXHandler
         };
 
-        static void PasteNotXHandler( Player player, CommandReader cmd ) {
+        static void PasteNotXHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             PasteOpHandler( player, cmd, 2, new PasteDrawOperation( player, true ) );
         }
 
@@ -636,44 +643,44 @@ namespace fCraft {
                 Permission.CopyAndPaste
             },
             RepeatableSelection = true,
-            Help =
-                "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
-                "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
-                "Alignment semantics are... complicated.",
+            Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
+                   "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
+                   "Alignment semantics are... complicated.",
             Usage = "/Paste [IncludedBlock [AnotherOne etc]]",
             Handler = PasteHandler
         };
 
-        static void PasteHandler( Player player, CommandReader cmd ) {
+        static void PasteHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, false ) );
         }
 
 
         static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
             Name = "PasteNot",
-            Aliases = new[] {
-                "pn"
-            },
+            Aliases = new[] { "pn" },
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.CopyAndPaste
-            },
+            Permissions = new[] { Permission.CopyAndPaste },
             RepeatableSelection = true,
-            Help =
-                "Pastes previously copied blocks, except the given block type(s). " +
-                "Used together with &H/Copy&S command. " + "Alignment semantics are... complicated.",
+            Help = "Pastes previously copied blocks, except the given block type(s). " +
+                   "Used together with &H/Copy&S command. " +
+                   "Alignment semantics are... complicated.",
             Usage = "/PasteNot ExcludedBlock [AnotherOne etc]",
             Handler = PasteNotHandler
         };
 
-        static void PasteNotHandler( Player player, CommandReader cmd ) {
+        static void PasteNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             PasteOpHandler( player, cmd, 1, new QuickPasteDrawOperation( player, true ) );
         }
 
 
-        static void PasteOpHandler( Player player, CommandReader cmd, int expectedMarks, DrawOpWithBrush op ) {
-            if( !op.ReadParams( cmd ) )
-                return;
+        static void PasteOpHandler( [NotNull] Player player, [NotNull] CommandReader cmd, int expectedMarks,
+                                    [NotNull] DrawOpWithBrush op ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            if( op == null ) throw new ArgumentNullException( "op" );
+
+            if( !op.ReadParams( cmd ) ) return;
+
             player.SelectionStart( expectedMarks, DrawOperationCallback, op, Permission.Draw, Permission.CopyAndPaste );
             CopyState copyInfo = player.GetCopyState();
             if( copyInfo != null ) {
@@ -700,14 +707,13 @@ namespace fCraft {
             },
             RepeatableSelection = true,
             Usage = "/Restore FileName",
-            Help =
-                "Selectively restores/pastes part of map file into the current world. " +
-                "Map file must have the same dimensions as the current world. " +
-                "If the file name contains spaces, surround it with quote marks.",
+            Help = "Selectively restores/pastes part of map file into the current world. " +
+                   "Map file must have the same dimensions as the current world. " +
+                   "If the file name contains spaces, surround it with quote marks.",
             Handler = RestoreHandler
         };
 
-        static void RestoreHandler( Player player, CommandReader cmd ) {
+        static void RestoreHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string fileName = cmd.Next();
             if( fileName == null ) {
                 CdRestore.PrintUsage( player );
@@ -742,7 +748,11 @@ namespace fCraft {
             player.MessageNow( "Restore: Click or &H/Mark&S 2 blocks." );
         }
 
-        static void RestoreCallback( Player player, Vector3I[] marks, object tag ) {
+        // TODO: convert into DrawOperation
+        public static void RestoreCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
             BoundingBox selection = new BoundingBox( marks[0], marks[1] );
             Map map = (Map)tag;
 
@@ -796,15 +806,15 @@ namespace fCraft {
 
 
         static void DrawOneBlock( [NotNull] Player player, [NotNull] Map map, Block drawBlock, Vector3I coord,
-                                  BlockChangeContext context, ref int blocks, ref int blocksDenied, UndoState undoState ) {
-            if( player == null )
-                throw new ArgumentNullException( "player" );
+                                  BlockChangeContext context, ref int blocks, ref int blocksDenied,
+                                  [NotNull] UndoState undoState ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( map == null ) throw new ArgumentNullException( "map" );
+            if( undoState == null ) throw new ArgumentNullException( "undoState" );
 
-            if( !map.InBounds( coord ) )
-                return;
+            if( !map.InBounds( coord ) ) return;
             Block block = map.GetBlock( coord );
-            if( block == drawBlock )
-                return;
+            if( block == drawBlock ) return;
 
             if( player.CanPlace( map, coord, drawBlock, context ) != CanPlaceResult.Allowed ) {
                 blocksDenied++;
@@ -824,9 +834,10 @@ namespace fCraft {
         }
 
 
-        static void DrawingFinished( [NotNull] Player player, string verb, int blocks, int blocksDenied ) {
-            if( player == null )
-                throw new ArgumentNullException( "player" );
+        static void DrawingFinished( [NotNull] Player player, [NotNull] string verb, int blocks, int blocksDenied ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( verb == null ) throw new ArgumentNullException( "verb" );
+
             if( blocks == 0 ) {
                 if( blocksDenied > 0 ) {
                     player.MessageNow( "No blocks could be {0} due to permission issues.", verb.ToLower() );
@@ -871,7 +882,12 @@ namespace fCraft {
         // parses and checks command parameters (for both UndoPlayer and UndoArea)
 
         [CanBeNull]
-        static BlockDBUndoArgs ParseBlockDBUndoParams( Player player, CommandReader cmd, string cmdName, bool not ) {
+        static BlockDBUndoArgs ParseBlockDBUndoParams( [NotNull] Player player, [NotNull] CommandReader cmd,
+                                                       [NotNull] string cmdName, bool not ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            if( cmdName == null ) throw new ArgumentNullException( "cmdName" );
+
             // check if command's being called by a worldless player (e.g. console)
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
@@ -1059,7 +1075,7 @@ namespace fCraft {
             Handler = UndoAreaHandler
         };
 
-        static void UndoAreaHandler( Player player, CommandReader cmd ) {
+        static void UndoAreaHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoArea", false );
             if( args == null ) return;
 
@@ -1087,7 +1103,7 @@ namespace fCraft {
             Handler = UndoAreaNotHandler
         };
 
-        static void UndoAreaNotHandler( Player player, CommandReader cmd ) {
+        static void UndoAreaNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoAreaNot", true );
             if( args == null ) return;
 
@@ -1097,8 +1113,7 @@ namespace fCraft {
 
 
         // Queues UndoAreaLookup to run in the background
-
-        static void UndoAreaSelectionCallback( Player player, Vector3I[] marks, object tag ) {
+        static void UndoAreaSelectionCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
             args.Area = new BoundingBox( marks[0], marks[1] );
             Scheduler.NewBackgroundTask( UndoAreaLookup )
@@ -1107,11 +1122,10 @@ namespace fCraft {
 
 
         // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
-
-        static void UndoAreaLookup( SchedulerTask task ) {
+        static void UndoAreaLookup( [NotNull] SchedulerTask task ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
-            bool allPlayers = (args.Targets.Length == 0);
-            string cmdName = (args.Not ? "UndoAreaNot" : "UndoArea");
+            bool allPlayers = ( args.Targets.Length == 0 );
+            string cmdName = ( args.Not ? "UndoAreaNot" : "UndoArea" );
 
             // prepare to look up
             string targetList;
@@ -1134,26 +1148,38 @@ namespace fCraft {
                 if( changes.Length > 0 ) {
                     Logger.Log( LogType.UserActivity,
                                 "{0}: Asked {1} to confirm undo on world {2}",
-                                cmdName, args.Player.Name, args.World.Name );
-                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                cmdName,
+                                args.Player.Name,
+                                args.World.Name );
+                    args.Player.Confirm( BlockDBUndoConfirmCallback,
+                                         args,
                                          "Undo last {0} changes made here by {1}&S?",
-                                         changes.Length, targetList );
+                                         changes.Length,
+                                         targetList );
                 }
-
             } else {
                 // time-limited lookup
                 if( args.Targets.Length == 0 ) {
                     changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.AgeLimit );
                 } else {
-                    changes = args.World.BlockDB.Lookup( Int32.MaxValue, args.Area, args.Targets, args.Not, args.AgeLimit );
+                    changes = args.World.BlockDB.Lookup( Int32.MaxValue,
+                                                         args.Area,
+                                                         args.Targets,
+                                                         args.Not,
+                                                         args.AgeLimit );
                 }
                 if( changes.Length > 0 ) {
                     Logger.Log( LogType.UserActivity,
                                 "{0}: Asked {1} to confirm undo on world {2}",
-                                cmdName, args.Player.Name, args.World.Name );
-                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                cmdName,
+                                args.Player.Name,
+                                args.World.Name );
+                    args.Player.Confirm( BlockDBUndoConfirmCallback,
+                                         args,
                                          "Undo changes ({0}) made here by {1}&S in the last {2}?",
-                                         changes.Length, targetList, args.AgeLimit.ToMiniString() );
+                                         changes.Length,
+                                         targetList,
+                                         args.AgeLimit.ToMiniString() );
                 }
             }
 
@@ -1182,7 +1208,7 @@ namespace fCraft {
             Handler = UndoPlayerHandler
         };
 
-        static void UndoPlayerHandler( Player player, CommandReader cmd ) {
+        static void UndoPlayerHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayer", false );
             if( args == null ) return;
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
@@ -1202,7 +1228,7 @@ namespace fCraft {
             Handler = UndoPlayerNotHandler
         };
 
-        static void UndoPlayerNotHandler( Player player, CommandReader cmd ) {
+        static void UndoPlayerNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             BlockDBUndoArgs args = ParseBlockDBUndoParams( player, cmd, "UndoPlayerNot", true );
             if( args == null ) return;
             Scheduler.NewBackgroundTask( UndoPlayerLookup )
@@ -1212,7 +1238,9 @@ namespace fCraft {
 
         // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
 
-        static void UndoPlayerLookup( SchedulerTask task ) {
+        static void UndoPlayerLookup( [NotNull] SchedulerTask task ) {
+            if( task == null ) throw new ArgumentNullException( "task" );
+
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
             bool allPlayers = (args.Targets.Length == 0);
             string cmdName = (args.Not ? "UndoPlayerNot" : "UndoPlayer");

@@ -120,6 +120,7 @@ namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly related to a particular PlayerInfo. </summary>
     public interface IPlayerInfoEvent {
         /// <summary> Player affected by the event. </summary>
+        [NotNull]
         PlayerInfo PlayerInfo { get; }
     }
 
@@ -167,7 +168,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Newly-added PlayerInfo object. </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Whether new player is unrecognized. </summary>
@@ -196,7 +196,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player whose rank will be changed (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated promotion/demotion. </summary>
@@ -243,7 +242,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player whose rank was just changed (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated promotion/demotion. </summary>
@@ -286,7 +284,6 @@ namespace fCraft.Events {
 
 
         /// <summary> Player who is being banned/unbanned (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated ban/unban. </summary>
@@ -321,7 +318,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who was just banned/unbanned (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated ban/unban. </summary>
@@ -354,7 +350,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who is being frozen/unfrozen (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated freeze/unfreeze. </summary>
@@ -384,7 +379,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who was just frozen/unfrozen (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated freeze/unfreeze. </summary>
@@ -414,7 +408,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who is being muted/unmuted (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated mute/unmute. </summary>
@@ -450,7 +443,6 @@ namespace fCraft.Events {
         }
 
         /// <summary> Player who was just muted/unmuted (target). </summary>
-        [NotNull]
         public PlayerInfo PlayerInfo { get; private set; }
 
         /// <summary> Player who initiated mute/unmute. </summary>

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     /// <summary> Map generator that creates landscapes identical to
@@ -145,7 +146,8 @@ namespace fCraft.MapGeneration {
         readonly int[] heightmap;
         readonly Map map;
 
-        internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
+        internal VanillaMapGenState( [NotNull] VanillaMapGenParameters genParams ) {
+            if( genParams == null ) throw new ArgumentNullException( "genParams" );
             this.genParams = genParams;
             Parameters = genParams;
             random = new Random( genParams.Seed );
@@ -479,7 +481,8 @@ namespace fCraft.MapGeneration {
 
 
         // Plant a single tree - Based on Minecraft Classic's "com.mojang.minecraft.level.maybeGrowTree"
-        void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
+        void GrowTree( [NotNull] Random treeRand, int startX, int startY, int startZ ) {
+            if( treeRand == null ) throw new ArgumentNullException( "treeRand" );
             int treeHeight = treeRand.Next( 3 ) + 4;
 
             Block blockUnder = map.GetBlock( startX, startY, startZ - 1 );

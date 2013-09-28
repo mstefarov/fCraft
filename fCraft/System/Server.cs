@@ -13,7 +13,6 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
-using fCraft.AutoRank;
 using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapGeneration;
@@ -82,6 +81,7 @@ namespace fCraft {
 
         /// <summary> Produces a string containing all recognized arguments that were set/passed to this instance of fCraft. </summary>
         /// <returns> A string containing all given arguments, or an empty string if none were set. </returns>
+        [NotNull]
         public static string GetArgString() {
             return String.Join( " ", GetArgList() );
         }
@@ -90,6 +90,7 @@ namespace fCraft {
         /// <summary> Produces a list of arguments that were passed to this instance of fCraft. </summary>
         /// <returns> An array of strings, formatted as --key="value" (or, for flag arguments, --key).
         /// Returns an empty string array if no arguments were set. </returns>
+        [NotNull]
         public static string[] GetArgList() {
             List<string> argList = new List<string>();
             foreach( var pair in Args ) {
@@ -231,7 +232,7 @@ namespace fCraft {
 
 
         /// <summary> Initialized various server subsystems. This should be called after InitLibrary and before StartServer.
-        /// Loads config, PlayerDB, IP bans, AutoRank settings, builds a list of commands, and prepares the IRC bot.
+        /// Loads config, PlayerDB, IP bans, builds a list of commands, and prepares the IRC bot.
         /// Raises Server.Initializing and Server.Initialized events, and possibly Logger.Logged events.
         /// Throws exceptions on failure. </summary>
         /// <exception cref="System.InvalidOperationException"> Library is not initialized, or server is already initialized. </exception>
@@ -302,10 +303,6 @@ namespace fCraft {
             // Init IRC
             IRC.Init();
 
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                AutoRankManager.Init();
-            }
-
             RaiseEvent( Initialized );
 
             serverInitialized = true;
@@ -339,7 +336,6 @@ namespace fCraft {
             }
 
             Player.Console = new Player( ConfigKey.ConsoleName.GetString() );
-            Player.AutoRank = new Player( "(AutoRank)" );
 
             // Back up server data (PlayerDB, worlds, bans, config)
             if( ConfigKey.BlockDBEnabled.Enabled() ) {
@@ -442,11 +438,6 @@ namespace fCraft {
 
             if( ConfigKey.IRCBotEnabled.Enabled() ) {
                 IRC.Start();
-            }
-
-            if( ConfigKey.AutoRankEnabled.Enabled() ) {
-                Scheduler.NewTask( AutoRankManager.TaskCallback )
-                         .RunForever( AutoRankManager.TickInterval );
             }
 
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
@@ -692,7 +683,7 @@ namespace fCraft {
         }
 
 
-        static void CheckConnections( SchedulerTask param ) {
+        static void CheckConnections( [NotNull] SchedulerTask param ) {
             TcpListener listenerCache = listener;
             if( listenerCache != null && listenerCache.Pending() ) {
                 try {
@@ -721,7 +712,7 @@ namespace fCraft {
         }
 
 
-        static void CheckIdles( SchedulerTask task ) {
+        static void CheckIdles( [NotNull] SchedulerTask task ) {
             Player[] tempPlayerList = Players;
             for( int i = 0; i < tempPlayerList.Length; i++ ) {
                 Player player = tempPlayerList[i];
@@ -754,27 +745,28 @@ namespace fCraft {
         }
 
 
-        static void DoGC( SchedulerTask task ) {
+        static void DoGC( [NotNull] SchedulerTask task ) {
             if( !gcRequested ) return;
             gcRequested = false;
 
-            Process proc = Process.GetCurrentProcess();
-            proc.Refresh();
-            long usageBefore = proc.PrivateMemorySize64 / ( 1024 * 1024 );
+            Process thisProcess = Process.GetCurrentProcess();
+            thisProcess.Refresh();
+            long usageBefore = thisProcess.PrivateMemorySize64/( 1024*1024 );
 
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
 
-            proc.Refresh();
-            long usageAfter = proc.PrivateMemorySize64 / ( 1024 * 1024 );
+            thisProcess.Refresh();
+            long usageAfter = thisProcess.PrivateMemorySize64/( 1024*1024 );
 
             Logger.Log( LogType.Debug,
                         "Server.DoGC: Collected on schedule ({0}->{1} MB).",
-                        usageBefore, usageAfter );
+                        usageBefore,
+                        usageAfter );
         }
 
 
         // shows announcements
-        static void ShowRandomAnnouncement( SchedulerTask task ) {
+        static void ShowRandomAnnouncement( [NotNull] SchedulerTask task ) {
             if( !File.Exists( Paths.AnnouncementsFileName ) ) return;
             string[] lines = File.ReadAllLines( Paths.AnnouncementsFileName );
             if( lines.Length == 0 ) return;
@@ -800,7 +792,7 @@ namespace fCraft {
         static DateTime lastMonitorTime = DateTime.UtcNow;
 
 
-        static void MonitorProcessorUsage( SchedulerTask task ) {
+        static void MonitorProcessorUsage( [NotNull] SchedulerTask task ) {
             TimeSpan newCPUTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
             CPUUsageLastMinute = ( newCPUTime - oldCPUTime ).TotalSeconds /
                                  ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
@@ -968,6 +960,7 @@ namespace fCraft {
         /// This property is volatile and can change when players connect/disconnect,
         /// so cache a reference if you need to refer to the same snapshot of the
         /// player list more than once. </summary>
+        [NotNull]
         public static Player[] Players { get; private set; }
 
         // list of all player sessions currently registered with the server
@@ -1086,9 +1079,10 @@ namespace fCraft {
         /// <returns> An array of matches. List length of 0 means "no matches";
         /// 1 is an exact match; over 1 for multiple matches. </returns>
         /// <exception cref="ArgumentNullException"></exception>
+        [NotNull]
         public static Player[] FindPlayers( [NotNull] string namePart, SearchOptions options) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            bool suppressEvent = (options & SearchOptions.SuppressEvent) != 0;
+            bool suppressEvent = ( options & SearchOptions.SuppressEvent ) != 0;
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1199,6 +1193,7 @@ namespace fCraft {
         /// <param name="name"> Full player name. Case-insensitive. </param>
         /// <param name="options"> Search options (IncludeHidden and IncludeSelf are applicable, other flags are ignored). </param>
         /// <returns> Player object if player was found online; otherwise null. </returns>
+        [CanBeNull]
         public static Player FindPlayerExact( [NotNull] Player player, [NotNull] string name, SearchOptions options ) {
             Player target = Players.FirstOrDefault( p => p.Name.Equals( name, StringComparison.OrdinalIgnoreCase ) );
             bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;

@@ -56,6 +56,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadHeaderInternal( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
@@ -76,9 +77,9 @@ namespace fCraft.MapConversion {
 
             // Read in the spawn location
             map.Spawn = new Position(
-                (short)(bs.ReadInt16()*32),
-                (short)(bs.ReadInt16()*32),
-                (short)(bs.ReadInt16()*32),
+                (short)( bs.ReadInt16()*32 ),
+                (short)( bs.ReadInt16()*32 ),
+                (short)( bs.ReadInt16()*32 ),
                 bs.ReadByte(),
                 bs.ReadByte() );
 

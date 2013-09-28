@@ -31,14 +31,14 @@ namespace fCraft.Drawing {
         public BlockChangeContext Context { get; set; }
 
         /// <summary> Marks given by the player to this command. Marks could come from either clicks or /Mark command.
-        /// Set by DrawOperation.Prepare() </summary>
+        /// Set by DrawOperation.Prepare(). Must be set by any class that overrides Prepare(). </summary>
         public Vector3I[] Marks { get; protected set; }
 
         /// <summary> Time when the draw operation began. Set by DrawOperation.Begin() </summary>
         public DateTime StartTime { get; protected set; }
 
-        /// <summary> Area that bounds the DrawOperation's extent, if possible to estimate in advance.
-        /// Used for logging. Should be assigned, as accurately as possible, before DrawOp finishes. </summary>
+        /// <summary> Area that bounds this DrawOperation's extent. Used for logging.
+        /// Should be assigned, as accurately as possible, before DrawOp finishes. </summary>
         public BoundingBox Bounds { get; protected set; }
 
         /// <summary> Whether this operation has been started (queued for processing on the Map). </summary>
@@ -101,11 +101,13 @@ namespace fCraft.Drawing {
         public int AlternateBlockIndex { get; set; }
 
         /// <summary> General name of this type of draw operation. Should be same for all instances. </summary>
+        [NotNull]
         public abstract string Name { get; }
 
         /// <summary> Compact description of this specific draw operation,
         /// with any instance-specific parameters,
         /// and the brush's instance description. </summary>
+        [NotNull]
         public virtual string Description {
             get {
                 return String.Format( "{0}/{1}", Name, Brush.InstanceDescription );

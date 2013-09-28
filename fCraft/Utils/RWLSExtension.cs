@@ -1,25 +1,26 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Threading;
+using JetBrains.Annotations;
 
 namespace fCraft {
-    static class RWLSExtension {
-        public static ReadLockHelper ReadLock( this ReaderWriterLockSlim readerWriterLock ) {
+    static class RwlsExtension {
+        public static ReadLockHelper ReadLock( [NotNull] this ReaderWriterLockSlim readerWriterLock ) {
             return new ReadLockHelper( readerWriterLock );
         }
 
-        public static UpgradeableReadLockHelper UpgradableReadLock( this ReaderWriterLockSlim readerWriterLock ) {
+        public static UpgradeableReadLockHelper UpgradableReadLock( [NotNull] this ReaderWriterLockSlim readerWriterLock ) {
             return new UpgradeableReadLockHelper( readerWriterLock );
         }
 
-        public static WriteLockHelper WriteLock( this ReaderWriterLockSlim readerWriterLock ) {
+        public static WriteLockHelper WriteLock( [NotNull] this ReaderWriterLockSlim readerWriterLock ) {
             return new WriteLockHelper( readerWriterLock );
         }
 
         public struct ReadLockHelper : IDisposable {
             private readonly ReaderWriterLockSlim readerWriterLock;
 
-            public ReadLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+            public ReadLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterReadLock();
                 this.readerWriterLock = readerWriterLock;
             }
@@ -32,7 +33,7 @@ namespace fCraft {
         public struct UpgradeableReadLockHelper : IDisposable {
             private readonly ReaderWriterLockSlim readerWriterLock;
 
-            public UpgradeableReadLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+            public UpgradeableReadLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterUpgradeableReadLock();
                 this.readerWriterLock = readerWriterLock;
             }
@@ -45,7 +46,7 @@ namespace fCraft {
         public struct WriteLockHelper : IDisposable {
             private readonly ReaderWriterLockSlim readerWriterLock;
 
-            public WriteLockHelper( ReaderWriterLockSlim readerWriterLock ) {
+            public WriteLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterWriteLock();
                 this.readerWriterLock = readerWriterLock;
             }

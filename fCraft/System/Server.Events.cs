@@ -35,16 +35,16 @@ namespace fCraft {
         public static event EventHandler<SearchingForPlayerEventArgs> SearchingForPlayer;
 
 
-        static void RaiseEvent( EventHandler h ) {
+        static void RaiseEvent( [CanBeNull] EventHandler h ) {
             if( h != null ) h( null, EventArgs.Empty );
         }
 
-        static void RaiseShutdownBeganEvent( ShutdownParams shutdownParams ) {
+        static void RaiseShutdownBeganEvent( [NotNull] ShutdownParams shutdownParams ) {
             var h = ShutdownBegan;
             if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
         }
 
-        static void RaiseShutdownEndedEvent( ShutdownParams shutdownParams ) {
+        static void RaiseShutdownEndedEvent( [NotNull] ShutdownParams shutdownParams ) {
             var h = ShutdownEnded;
             if( h != null ) h( null, new ShutdownEventArgs( shutdownParams ) );
         }
@@ -70,7 +70,6 @@ namespace fCraft {
 
 
         internal static bool RaiseSessionConnectingEvent( [NotNull] IPAddress ip ) {
-            if( ip == null ) throw new ArgumentNullException( "ip" );
             var h = SessionConnecting;
             if( h == null ) return false;
             var e = new SessionConnectingEventArgs( ip );
@@ -80,14 +79,12 @@ namespace fCraft {
 
 
         internal static void RaiseSessionConnectedEvent( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
             var h = SessionConnected;
             if( h != null ) h( null, new PlayerEventArgs( player ) );
         }
 
 
         internal static void RaiseSessionDisconnectedEvent( [NotNull] Player player, LeaveReason leaveReason ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
             var h = SessionDisconnected;
             if( h != null ) h( null, new SessionDisconnectedEventArgs( player, leaveReason ) );
         }
@@ -111,10 +108,11 @@ namespace fCraft.Events {
     }
 
 
-    public sealed class SearchingForPlayerEventArgs : EventArgs, IPlayerEvent {
+    public sealed class SearchingForPlayerEventArgs : EventArgs {
         internal SearchingForPlayerEventArgs( [CanBeNull] Player player, [NotNull] string searchTerm,
-                                              List<Player> matches, SearchOptions options ) {
+                                              [NotNull] List<Player> matches, SearchOptions options ) {
             if( searchTerm == null ) throw new ArgumentNullException( "searchTerm" );
+            if( matches == null ) throw new ArgumentNullException( "matches" );
             Player = player;
             SearchTerm = searchTerm;
             Matches = matches;
@@ -124,9 +122,12 @@ namespace fCraft.Events {
         [CanBeNull]
         public Player Player { get; private set; }
 
+        [NotNull]
         public string SearchTerm { get; private set; }
-        public SearchOptions Options { get; private set; }
 
-        public List<Player> Matches { get; set; }
+        [NotNull]
+        public List<Player> Matches { get; private set; }
+
+        public SearchOptions Options { get; private set; }
     }
 }

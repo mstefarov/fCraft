@@ -59,6 +59,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadHeaderInternal( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             BinaryReader bs = new BinaryReader( stream );
@@ -83,7 +84,9 @@ namespace fCraft.MapConversion {
             short x = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             short z = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
             short y = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            map.Spawn = new Position( x, y, z,
+            map.Spawn = new Position( x,
+                                      y,
+                                      z,
                                       bs.ReadByte(),
                                       bs.ReadByte() );
 

@@ -9,6 +9,7 @@ namespace fCraft.Drawing {
         readonly BlockChangeContext undoContext = BlockChangeContext.Drawn | BlockChangeContext.UndoneSelf;
 
         /// <summary> State which is currently being undone/redone. </summary>
+        [NotNull]
         public UndoState State { get; private set; }
 
         /// <summary> Whether this is an Undo (false) or Redo (true) operation. </summary>
@@ -38,7 +39,7 @@ namespace fCraft.Drawing {
         /// <param name="state"> UndoState to work with. May not be null. </param>
         /// <param name="redo"> Whether state should be undone (false) or redone (true). </param>
         /// <exception cref="ArgumentNullException"> player or state is null </exception>
-        public UndoDrawOperation( Player player, [NotNull] UndoState state, bool redo )
+        public UndoDrawOperation( [NotNull] Player player, [NotNull] UndoState state, bool redo )
             : base( player ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             State = state;

@@ -404,7 +404,7 @@ or requires identification/authentication." )]
 @"Message to send to nickname registration service bot." )]
         IRCNickServMessage,
 
-        [ColorKey( ConfigSection.IRC, Color.IRCDefault,
+        [ColorKey( ConfigSection.IRC, Color.IrcDefault,
 @"Color of IRC messages and event announcements, as seen on the server/in-game." )]
         IRCMessageColor,
 
@@ -529,10 +529,6 @@ Each state increases the maximum potential memory use per-player.",
 @"Displayed name of the Console pseudoplayer. You may use any printable characters, and even colorcodes here.",
             MinLength = 1, MaxLength = 64 )]
         ConsoleName,
-
-        [BoolKey( ConfigSection.Advanced, false,
-@"Enable autorank (experimental, unsupported, use at your own risk)" )]
-        AutoRankEnabled,
 
         [BoolKey( ConfigSection.Advanced, true,
 @"Enable heartbeat to minecraft.net.

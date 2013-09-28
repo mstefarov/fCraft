@@ -15,8 +15,9 @@ namespace fCraft.MapConversion {
             : base( message ) {}
 
 
-        MapFormatException( SerializationInfo info, StreamingContext context )
-            : base( info, context ) {}
+        MapFormatException( [NotNull] SerializationInfo info, StreamingContext context )
+            : base( info, context ) {
+        }
     }
 
 
@@ -27,7 +28,8 @@ namespace fCraft.MapConversion {
         internal NoMapConverterFoundException( [NotNull] string message )
             : base( message ) {}
 
-        NoMapConverterFoundException( SerializationInfo info, StreamingContext context )
-            : base( info, context ) {}
+        NoMapConverterFoundException( [NotNull] SerializationInfo info, StreamingContext context )
+            : base( info, context ) {
+        }
     }
 }

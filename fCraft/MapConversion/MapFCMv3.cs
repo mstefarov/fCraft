@@ -147,6 +147,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadHeaderInternal( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             if( reader.ReadInt32() != Identifier || reader.ReadByte() != Revision ) {
@@ -166,7 +167,9 @@ namespace fCraft.MapConversion {
             short x = (short)reader.ReadInt32();
             short z = (short)reader.ReadInt32();
             short y = (short)reader.ReadInt32();
-            map.Spawn = new Position( x, y, z,
+            map.Spawn = new Position( x,
+                                      y,
+                                      z,
                                       reader.ReadByte(),
                                       reader.ReadByte() );
 

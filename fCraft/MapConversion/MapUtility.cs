@@ -17,7 +17,9 @@ namespace fCraft.MapConversion {
         /// If an importer/exporter for the given format has already been registered, it will be replaced. </summary>
         /// <param name="converter"> New converter to add. </param>
         /// <exception cref="ArgumentException"> Given IMapConverter is nether an IMapImporter, nor an IMapExporter. </exception>
-        public static void RegisterConverter( IMapConverter converter ) {
+        public static void RegisterConverter( [NotNull] IMapConverter converter ) {
+            if( converter == null ) throw new ArgumentNullException( "converter" );
+
             IMapImporter asImporter = converter as IMapImporter;
             IMapExporter asExporter = converter as IMapExporter;
             if( asImporter != null ) Importers.Add( asImporter.Format, asImporter );
@@ -52,6 +54,7 @@ namespace fCraft.MapConversion {
         /// <exception cref="FileNotFoundException"> The file specified in path was not found. </exception>
         public static MapFormat Identify( [NotNull] string path, bool tryFallbackConverters ) {
             if( path == null ) throw new ArgumentNullException( "path" );
+
             MapStorageType targetType = MapStorageType.SingleFile;
             if( !File.Exists( path ) ) {
                 if( Directory.Exists( path ) ) {
@@ -99,8 +102,10 @@ namespace fCraft.MapConversion {
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map excluding block data was loaded successfully. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
+        [ContractAnnotation("fileName:null => halt; => true,map:notnull; => false,map:null")]
         public static bool TryLoadHeader( [NotNull] string fileName, bool tryFallbackConverters, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
+
             try {
                 map = LoadHeader( fileName, tryFallbackConverters );
                 return true;
@@ -182,6 +187,7 @@ namespace fCraft.MapConversion {
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map was loaded successfully. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
+        [ContractAnnotation( "fileName:null => halt; => true,map:notnull; => false,map:null" )]
         public static bool TryLoad( [NotNull] string fileName, bool tryFallbackConverters, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             try {
@@ -265,6 +271,7 @@ namespace fCraft.MapConversion {
         public static bool TrySave( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat mapFormat ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
+
             if( mapFormat == MapFormat.Unknown )
                 throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
 

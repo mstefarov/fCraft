@@ -99,7 +99,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void FindTrees( ForesterArgs args, ICollection<Tree> treeList ) {
+        static void FindTrees( [NotNull] ForesterArgs args, [NotNull] ICollection<Tree> treeList ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( treeList == null ) throw new ArgumentNullException( "treeList" );
             int treeHeight = args.Height;
 
             for( int x = 0; x < args.Map.Width; x++ ) {
@@ -153,7 +155,8 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static Vector3I FindRandomTreeLocation( ForesterArgs args, int height ) {
+        static Vector3I FindRandomTreeLocation( [NotNull] ForesterArgs args, int height ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
             int padding = (int)(height / 3f + 1);
             int minDim = Math.Min( args.Map.Width, args.Map.Length );
             if( padding > minDim / 2.2 ) {
@@ -166,7 +169,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void PlantRainForestTrees( ForesterArgs args, ICollection<Tree> treeList ) {
+        static void PlantRainForestTrees( [NotNull] ForesterArgs args, [NotNull] ICollection<Tree> treeList ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( treeList == null ) throw new ArgumentNullException( "treeList" );
             int treeHeight = args.Height;
 
             int existingTreeNum = treeList.Count;
@@ -246,7 +251,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void ProcessTrees( ForesterArgs args, IList<Tree> treeList ) {
+        static void ProcessTrees( [NotNull] ForesterArgs args, [NotNull] IList<Tree> treeList ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( treeList == null ) throw new ArgumentNullException( "treeList" );
             TreeShape[] shapeChoices;
             switch( args.Shape ) {
                 case TreeShape.Stickly:
@@ -328,7 +335,8 @@ namespace fCraft.MapGeneration {
 
             public virtual void MakeFoliage() { }
 
-            public void Copy( Tree other ) {
+            public void Copy( [NotNull] Tree other ) {
+                if( other == null ) throw new ArgumentNullException( "other" );
                 Args = other.Args;
                 Pos = other.Pos;
                 Height = other.Height;
@@ -540,7 +548,8 @@ namespace fCraft.MapGeneration {
                 public float Radius;
             }
 
-            void MakeRoots( IList<RootBase> rootBases ) {
+            void MakeRoots( [NotNull] IList<RootBase> rootBases ) {
+                if( rootBases == null ) throw new ArgumentNullException( "rootBases" );
                 if( rootBases.Count == 0 ) return;
                 foreach( Vector3I coord in FoliageCoords ) {
                     float dist = (float)Math.Sqrt( Sqr( coord[0] - Pos[0] ) + Sqr( coord[2] - Pos[2] ) );
@@ -806,12 +815,13 @@ namespace fCraft.MapGeneration {
 
         #region Math Helpers
 
-        static int DistanceToBlock( Map map, Vector3F coord, Vector3F vec, Block blockType ) {
+        static int DistanceToBlock( [NotNull] Map map, Vector3F coord, Vector3F vec, Block blockType ) {
             return DistanceToBlock( map, coord, vec, blockType, false );
         }
 
         static readonly Vector3F HalfBlock = new Vector3F( .5f, .5f, .5f );
-        static int DistanceToBlock( Map map, Vector3F coord, Vector3F vec, Block blockType, bool invert ) {
+        static int DistanceToBlock( [NotNull] Map map, Vector3F coord, Vector3F vec, Block blockType, bool invert ) {
+            if( map == null ) throw new ArgumentNullException( "map" );
             coord += HalfBlock;
             int iterations = 0;
             while( map.InBounds( new Vector3I( coord ) ) ) {
@@ -879,6 +889,7 @@ namespace fCraft.MapGeneration {
 
     // TODO: Add a UI to RealisticMapGenGui to set these
     public sealed class ForesterArgs {
+        // ReSharper disable ConvertToConstant.Global
         public Forester.ForesterOperation Operation = Forester.ForesterOperation.Replant;
         public int TreeCount = 15; // 0 = no limit if op=conserve/replant
         public Forester.TreeShape Shape = Forester.TreeShape.Procedural;
@@ -899,6 +910,7 @@ namespace fCraft.MapGeneration {
 
         public Block TrunkBlock = Block.Log;
         public Block FoliageBlock = Block.Leaves;
+        // ReSharper restore ConvertToConstant.Global
 
         public event EventHandler<ForesterBlockPlacingEventArgs> BlockPlacing;
 

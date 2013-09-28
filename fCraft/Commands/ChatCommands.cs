@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft {
     static class ChatCommands {
@@ -41,7 +42,7 @@ namespace fCraft {
             Handler = ReplyHandler
         };
 
-        static void ReplyHandler( Player player, CommandReader cmd ) {
+        static void ReplyHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string messageText = cmd.NextAll();
             if( messageText.Length == 0 ) {
                 player.Message( "Reply: No message to send!" );
@@ -74,7 +75,6 @@ namespace fCraft {
                     player.Message( "Reply: Cannot send message; player {0}&S is offline.",
                                     PlayerDB.FindExactClassyName( targetName ) );
                 }
-
             } else {
                 player.Message( "Reply: You have not sent any messages yet." );
             }
@@ -101,7 +101,7 @@ namespace fCraft {
             Handler = SayHandler
         };
 
-        static void SayHandler( Player player, CommandReader cmd ) {
+        static void SayHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -140,7 +140,7 @@ namespace fCraft {
             Handler = StaffHandler
         };
 
-        static void StaffHandler( Player player, CommandReader cmd ) {
+        static void StaffHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -169,7 +169,7 @@ namespace fCraft {
             Handler = IgnoreHandler
         };
 
-        static void IgnoreHandler( Player player, CommandReader cmd ) {
+        static void IgnoreHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
@@ -178,7 +178,9 @@ namespace fCraft {
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfOnlyMatch );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                               name,
+                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
                     player.Message( "You cannot &H/Ignore&S yourself." );
@@ -190,7 +192,6 @@ namespace fCraft {
                 } else {
                     player.MessageNow( "You are already ignoring {0}", targetInfo.ClassyName );
                 }
-
             } else {
                 ListIgnoredPlayers( player );
             }
@@ -206,7 +207,7 @@ namespace fCraft {
             Handler = UnignoreHandler
         };
 
-        static void UnignoreHandler( Player player, CommandReader cmd ) {
+        static void UnignoreHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string name = cmd.Next();
             if( name != null ) {
                 if( cmd.HasNext ) {
@@ -215,7 +216,9 @@ namespace fCraft {
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.ReturnSelfIfOnlyMatch );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                               name,
+                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
                 if( targetInfo == null ) return;
                 if( targetInfo == player.Info ) {
                     player.Message( "You cannot &H/Ignore&S (or &H/Unignore&S) yourself." );
@@ -233,7 +236,8 @@ namespace fCraft {
         }
 
 
-        static void ListIgnoredPlayers( Player player ) {
+        static void ListIgnoredPlayers( [NotNull] Player player ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
             PlayerInfo[] ignoreList = player.IgnoreList;
             if( ignoreList.Length > 0 ) {
                 player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
@@ -260,7 +264,7 @@ namespace fCraft {
             Handler = MeHandler
         };
 
-        static void MeHandler( Player player, CommandReader cmd ) {
+        static void MeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -294,7 +298,7 @@ namespace fCraft {
             Handler = RollHandler
         };
 
-        static void RollHandler( Player player, CommandReader cmd ) {
+        static void RollHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
                 player.MessageMuted();
                 return;
@@ -318,16 +322,24 @@ namespace fCraft {
             }
             if( max == Int32.MaxValue - 1 ) {
                 player.Message( "Roll: Given values must be between {0} and {1}",
-                                Int32.MinValue, Int32.MaxValue - 1 );
+                                Int32.MinValue,
+                                Int32.MaxValue - 1 );
                 return;
             }
 
             int num = rand.Next( min, max + 1 );
             Server.Message( player,
                             "{0}{1} rolled {2} ({3}...{4})",
-                            player.ClassyName, Color.Silver, num, min, max );
+                            player.ClassyName,
+                            Color.Silver,
+                            num,
+                            min,
+                            max );
             player.Message( "{0}You rolled {1} ({2}...{3})",
-                            Color.Silver, num, min, max );
+                            Color.Silver,
+                            num,
+                            min,
+                            max );
         }
 
         #endregion
@@ -343,7 +355,7 @@ namespace fCraft {
             Handler = DeafenHandler
         };
 
-        static void DeafenHandler( Player player, CommandReader cmd ) {
+        static void DeafenHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdDeafen.PrintUsage( player );
                 return;
@@ -375,7 +387,7 @@ namespace fCraft {
             Handler = ClearHandler
         };
 
-        static void ClearHandler( Player player, CommandReader cmd ) {
+        static void ClearHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( cmd.HasNext ) {
                 CdClear.PrintUsage( player );
                 return;
@@ -406,7 +418,7 @@ namespace fCraft {
             Handler = TimerHandler
         };
 
-        static void TimerHandler( Player player, CommandReader cmd ) {
+        static void TimerHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string param = cmd.Next();
 
             // List timers
@@ -418,7 +430,10 @@ namespace fCraft {
                     player.Message( "There are {0} timers running:", list.Length );
                     foreach( ChatTimer timer in list ) {
                         player.Message( "  #{0} \"{1}&S\" (started by {2}, {3} left)",
-                                        timer.ID, timer.Message, timer.StartedBy, timer.TimeLeft.ToMiniString() );
+                                        timer.ID,
+                                        timer.Message,
+                                        timer.StartedBy,
+                                        timer.TimeLeft.ToMiniString() );
                     }
                 }
                 return;
@@ -434,7 +449,9 @@ namespace fCraft {
                     } else {
                         timer.Abort();
                         string abortMsg = String.Format( "&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",
-                                                         player.ClassyName, timer.TimeLeft.ToMiniString(), timer.Message );
+                                                         player.ClassyName,
+                                                         timer.TimeLeft.ToMiniString(),
+                                                         timer.Message );
                         Chat.SendSay( player, abortMsg );
                     }
                 } else {

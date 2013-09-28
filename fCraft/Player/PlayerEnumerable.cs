@@ -18,7 +18,7 @@ namespace fCraft {
         /// <param name="rank"> Desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Ranked( this IEnumerable<Player> source, Rank rank ) {
+        public static IEnumerable<Player> Ranked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             foreach( Player player in source ) {
@@ -34,7 +34,7 @@ namespace fCraft {
         /// <param name="rank"> Undesired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotRanked( this IEnumerable<Player> source, Rank rank ) {
+        public static IEnumerable<Player> NotRanked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( rank == null ) throw new ArgumentNullException( "rank" );
             foreach( Player player in source ) {
@@ -50,7 +50,7 @@ namespace fCraft {
         /// <param name="minRank"> All ranks above this one will be kept. This and lower ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAbove( this IEnumerable<Player> source, Rank minRank ) {
+        public static IEnumerable<Player> RankedAbove( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
             foreach( Player player in source ) {
@@ -66,7 +66,7 @@ namespace fCraft {
         /// <param name="minRank"> Minimum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtLeast( this IEnumerable<Player> source, Rank minRank ) {
+        public static IEnumerable<Player> RankedAtLeast( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
             foreach( Player player in source ) {
@@ -82,7 +82,7 @@ namespace fCraft {
         /// <param name="maxRank"> All ranks below this one will be kept. This and higher ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedBelow( this IEnumerable<Player> source, Rank maxRank ) {
+        public static IEnumerable<Player> RankedBelow( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
             foreach( Player player in source ) {
@@ -98,7 +98,7 @@ namespace fCraft {
         /// <param name="maxRank"> Maximum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtMost( this IEnumerable<Player> source, Rank maxRank ) {
+        public static IEnumerable<Player> RankedAtMost( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
             foreach( Player player in source ) {

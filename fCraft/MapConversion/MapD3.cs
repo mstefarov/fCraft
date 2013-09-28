@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
@@ -57,7 +58,8 @@ namespace fCraft.MapConversion {
         }
 
 
-        static Map LoadHeaderInternal( Stream gs ) {
+        [NotNull]
+        static Map LoadHeaderInternal( [NotNull] Stream gs ) {
             if( gs == null ) throw new ArgumentNullException( "gs" );
             // Setup a GZipStream to decompress and read the map file
             BinaryReader bs = new BinaryReader( gs );
@@ -76,17 +78,17 @@ namespace fCraft.MapConversion {
                 case 1010:
                     break;
                 case 1020:
-                    map.Spawn = new Position( (short)(bs.ReadInt16()*32),
-                                              (short)(bs.ReadInt16()*32),
-                                              (short)(bs.ReadInt16()*32) );
+                    map.Spawn = new Position( (short)( bs.ReadInt16()*32 ),
+                                              (short)( bs.ReadInt16()*32 ),
+                                              (short)( bs.ReadInt16()*32 ) );
                     break;
-                //case 1030:
-                //case 1040:
-                //case 1050:
+                    //case 1030:
+                    //case 1040:
+                    //case 1050:
                 default:
-                    map.Spawn = new Position( (short)(bs.ReadInt16()*32),
-                                              (short)(bs.ReadInt16()*32),
-                                              (short)(bs.ReadInt16()*32),
+                    map.Spawn = new Position( (short)( bs.ReadInt16()*32 ),
+                                              (short)( bs.ReadInt16()*32 ),
+                                              (short)( bs.ReadInt16()*32 ),
                                               (byte)bs.ReadInt16(),
                                               (byte)bs.ReadInt16() );
                     break;

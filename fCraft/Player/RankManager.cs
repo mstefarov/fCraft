@@ -7,28 +7,33 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Manages all the ranks on a server. Controls what ranks are available and in what order they exist in. </summary>
     public static class RankManager {
+        [NotNull]
         internal static Dictionary<string, string> LegacyRankMapping { get; private set; }
 
         /// <summary> List of Ranks, indexed by their name. </summary>
+        [NotNull]
         public static Dictionary<string, Rank> RanksByName { get; private set; }
 
         /// <summary> List of Ranks, indexed by their fully qualified name. </summary>
+        [NotNull]
         public static Dictionary<string, Rank> RanksByFullName { get; private set; }
 
         /// <summary> List of Ranks, indexed by their ID. </summary>
+        [NotNull]
         public static Dictionary<string, Rank> RanksByID { get; private set; }
 
         /// <summary> List of all Ranks, in no particular order. </summary>
+        [NotNull]
         public static List<Rank> Ranks { get; private set; }
 
         /// <summary> Default Rank of a new user. </summary>
         public static Rank DefaultRank { get; set; }
 
         /// <summary> Lowest Rank available in the server. </summary>
-        public static Rank LowestRank { get; set; }
+        public static Rank LowestRank { get; private set; }
 
         /// <summary> Highest Rank available in the server. </summary>
-        public static Rank HighestRank { get; set; }
+        public static Rank HighestRank { get; private set; }
 
         /// <summary> Highest Rank that /Patrol will consider when selecting candidates. </summary>
         public static Rank PatrolledRank { get; set; }

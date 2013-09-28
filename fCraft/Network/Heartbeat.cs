@@ -19,8 +19,9 @@ namespace fCraft {
         public static TimeSpan Timeout { get; set; }
 
         /// <summary> Secret string used to verify players' names.
-        /// Randomly generated at startup.
+        /// Randomly generated at startup, and can be randomized by "/reload salt"
         /// Known only to this server and to heartbeat server(s). </summary>
+        [NotNull]
         public static string Salt { get; internal set; }
 
 
@@ -32,7 +33,7 @@ namespace fCraft {
         }
 
 
-        static void OnServerShutdown( object sender, ShutdownEventArgs e ) {
+        static void OnServerShutdown( [CanBeNull] object sender, [NotNull] ShutdownEventArgs e ) {
             if( minecraftNetRequest != null ) {
                 minecraftNetRequest.Abort();
             }
@@ -44,7 +45,7 @@ namespace fCraft {
         }
 
 
-        static void Beat( SchedulerTask scheduledTask ) {
+        static void Beat( [NotNull] SchedulerTask scheduledTask ) {
             if( Server.IsShuttingDown ) return;
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
@@ -84,7 +85,9 @@ namespace fCraft {
 
 
         // Creates an asynchronous HTTP request to the given URL
-        static HttpWebRequest CreateRequest( Uri uri ) {
+        [NotNull]
+        static HttpWebRequest CreateRequest( [NotNull] Uri uri ) {
+            if( uri == null ) throw new ArgumentNullException( "uri" );
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( uri );
             request.CachePolicy = Server.CachePolicy;
             request.Method = "GET";
@@ -97,7 +100,7 @@ namespace fCraft {
 
 
         // Called when the heartbeat server responds.
-        static void ResponseCallback( IAsyncResult result ) {
+        static void ResponseCallback( [NotNull] IAsyncResult result ) {
             if( Server.IsShuttingDown ) return;
             HeartbeatRequestState state = (HeartbeatRequestState)result.AsyncState;
             try {
@@ -129,7 +132,6 @@ namespace fCraft {
                                     replyString );
                     }
                 }
-
             } catch( Exception ex ) {
                 if( ex is WebException || ex is IOException ) {
                     Logger.Log( LogType.Warning,
@@ -141,7 +143,6 @@ namespace fCraft {
                 }
             }
         }
-
 
         #region Events
 
@@ -155,7 +156,7 @@ namespace fCraft {
         public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
-        static bool RaiseHeartbeatSendingEvent( HeartbeatData data, Uri uri, bool getServerUri ) {
+        static bool RaiseHeartbeatSendingEvent( [NotNull] HeartbeatData data, [NotNull] Uri uri, bool getServerUri ) {
             var h = Sending;
             if( h == null ) return true;
             var e = new HeartbeatSendingEventArgs( data, uri, getServerUri );
@@ -163,19 +164,19 @@ namespace fCraft {
             return !e.Cancel;
         }
 
-        static void RaiseHeartbeatSentEvent( HeartbeatData heartbeatData,
-                                             HttpWebResponse response,
-                                             string text ) {
+        static void RaiseHeartbeatSentEvent( [NotNull] HeartbeatData heartbeatData, [NotNull] HttpWebResponse response,
+                                             [NotNull] string text ) {
             var h = Sent;
             if( h != null ) {
-                h( null, new HeartbeatSentEventArgs( heartbeatData,
-                                                     response.Headers,
-                                                     response.StatusCode,
-                                                     text ) );
+                h( null,
+                   new HeartbeatSentEventArgs( heartbeatData,
+                                               response.Headers,
+                                               response.StatusCode,
+                                               text ) );
             }
         }
 
-        static void RaiseUriChangedEvent( Uri oldUri, Uri newUri ) {
+        static void RaiseUriChangedEvent( [CanBeNull] Uri oldUri, [NotNull] Uri newUri ) {
             var h = UriChanged;
             if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
         }
@@ -201,7 +202,6 @@ namespace fCraft {
             IsPublic = ConfigKey.IsPublic.Enabled();
             MaxPlayers = ConfigKey.MaxPlayers.GetInt();
             PlayerCount = Server.CountPlayers( false );
-            ServerIP = Server.InternalIP;
             Port = Server.Port;
             ProtocolVersion = Config.ProtocolVersion;
             Salt = Heartbeat.Salt;
@@ -215,10 +215,8 @@ namespace fCraft {
         public Uri HeartbeatUri { get; private set; }
 
         /// <summary> Server salt used in name verification (hashing). </summary>
+        [NotNull]
         public string Salt { get; set; }
-
-        /// <summary> IP address of this server. </summary>
-        public IPAddress ServerIP { get; set; }
 
         /// <summary> Port that players should connect to in order to join this server. </summary>
         public int Port { get; set; }
@@ -230,6 +228,7 @@ namespace fCraft {
         public int MaxPlayers { get; set; }
 
         /// <summary> Name of the server to display on minecraft.net. </summary>
+        [NotNull]
         public string ServerName { get; set; }
 
         /// <summary> Whether or not the server should be listed on minecraft.net </summary>
@@ -239,9 +238,11 @@ namespace fCraft {
         public int ProtocolVersion { get; set; }
 
         /// <summary> Any other custom data that needs to be sent. </summary>
+        [NotNull]
         public Dictionary<string, string> CustomData { get; private set; }
 
 
+        [NotNull]
         internal Uri CreateUri() {
             UriBuilder ub = new UriBuilder( HeartbeatUri );
             StringBuilder sb = new StringBuilder();
@@ -269,13 +270,17 @@ namespace fCraft.Events {
     /// <summary> Provides data for Heartbeat.Sending event. Cancelable. 
     /// HeartbeatData may be modified, Uri and GetServerUri may be changed. </summary>
     public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
-        internal HeartbeatSendingEventArgs( HeartbeatData data, Uri uri, bool getServerUri ) {
+        internal HeartbeatSendingEventArgs( [NotNull] HeartbeatData data, [NotNull] Uri uri, bool getServerUri ) {
+            if( data == null ) throw new ArgumentNullException( "data" );
             HeartbeatData = data;
             Uri = uri;
             GetServerUri = getServerUri;
         }
 
+        [NotNull]
         public HeartbeatData HeartbeatData { get; private set; }
+
+        [NotNull]
         public Uri Uri { get; set; }
         public bool GetServerUri { get; set; }
         public bool Cancel { get; set; }
@@ -284,31 +289,41 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Heartbeat.Sent event. Immutable. </summary>
     public sealed class HeartbeatSentEventArgs : EventArgs {
-        internal HeartbeatSentEventArgs( HeartbeatData heartbeatData,
-                                         WebHeaderCollection headers,
-                                         HttpStatusCode status,
-                                         string text ) {
+        internal HeartbeatSentEventArgs( [NotNull] HeartbeatData heartbeatData, [NotNull] WebHeaderCollection headers,
+                                         HttpStatusCode status, [NotNull] string text ) {
+            if( heartbeatData == null ) throw new ArgumentNullException( "heartbeatData" );
+            if( headers == null ) throw new ArgumentNullException( "headers" );
+            if( text == null ) throw new ArgumentNullException( "text" );
             HeartbeatData = heartbeatData;
             ResponseHeaders = headers;
             ResponseStatusCode = status;
             ResponseText = text;
         }
 
+        [NotNull]
         public HeartbeatData HeartbeatData { get; private set; }
+
+        [NotNull]
         public WebHeaderCollection ResponseHeaders { get; private set; }
         public HttpStatusCode ResponseStatusCode { get; private set; }
+
+        [NotNull]
         public string ResponseText { get; private set; }
     }
 
 
     /// <summary> Provides data for Heartbeat.UriChanged event. Immutable. </summary>
     public sealed class UriChangedEventArgs : EventArgs {
-        internal UriChangedEventArgs( Uri oldUri, Uri newUri ) {
+        internal UriChangedEventArgs( [CanBeNull] Uri oldUri, [NotNull] Uri newUri ) {
+            if( newUri == null ) throw new ArgumentNullException( "newUri" );
             OldUri = oldUri;
             NewUri = newUri;
         }
 
+        [CanBeNull]
         public Uri OldUri { get; private set; }
+
+        [NotNull]
         public Uri NewUri { get; private set; }
     }
 }

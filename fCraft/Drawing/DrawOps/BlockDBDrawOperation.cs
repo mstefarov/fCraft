@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that applies changes from a given BlockDBEntry array. </summary>
@@ -63,6 +64,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         BoundingBox FindBounds() {
             if( changes.Length == 0 ) return BoundingBox.Empty;
             Vector3I min = new Vector3I( int.MaxValue, int.MaxValue, int.MaxValue );

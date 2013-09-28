@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a wireframe cuboid, optionally filling sides and center. </summary>
@@ -63,6 +64,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumerator() {
             // Draw cuboid vertices
             yield return new Vector3I( Bounds.XMin, Bounds.YMin, Bounds.ZMin );

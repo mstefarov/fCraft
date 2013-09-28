@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a hollow cuboid, optionally filling the center. </summary>
@@ -52,6 +53,7 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumerator() {
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {

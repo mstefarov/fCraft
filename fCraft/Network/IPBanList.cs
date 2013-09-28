@@ -689,9 +689,8 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for IPBanList.AddingIPBan and RemovingIPBan events. Cancelable. </summary>
     public sealed class IPBanCancelableEventArgs : IPBanEventArgs, ICancelableEvent {
-        internal IPBanCancelableEventArgs( IPBanInfo info ) :
-            base( info ) {
-        }
+        internal IPBanCancelableEventArgs( [NotNull] IPBanInfo info ) :
+            base( info ) {}
 
         public bool Cancel { get; set; }
     }

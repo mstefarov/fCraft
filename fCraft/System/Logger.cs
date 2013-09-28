@@ -36,6 +36,7 @@ namespace fCraft {
 
         /// <summary> Name of the file that log messages are currently being written to.
         /// Does not include path to the log folder (see Paths.LogPath for that). </summary>
+        [NotNull]
         public static string CurrentLogFileName {
             get {
                 switch( SplittingType ) {
@@ -134,6 +135,7 @@ namespace fCraft {
             }
         }
 
+        [NotNull]
         [DebuggerStepThrough]
         static string GetPrefix( LogType level ) {
             switch( level ) {
@@ -249,7 +251,11 @@ namespace fCraft {
         }
 
 
-        static void LogAndReportCrashInner( string message, string assembly, Exception exception ) {
+        static void LogAndReportCrashInner( [NotNull] string message, [NotNull] string assembly,
+                                            [NotNull] Exception exception ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( assembly == null ) throw new ArgumentNullException( "assembly" );
+            if( exception == null ) throw new ArgumentNullException( "exception" );
             if( exception.InnerException != null ) {
                 LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );
             }
@@ -558,7 +564,8 @@ namespace fCraft {
         }
 
 
-        static void RaiseCrashedEvent( CrashedEventArgs e ) {
+        static void RaiseCrashedEvent( [NotNull] CrashedEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException( "e" );
             var h = Crashed;
             if( h != null ) h( null, e );
         }
@@ -641,8 +648,10 @@ namespace fCraft.Events {
     /// <summary> Provides data for Logger.Logged event. Immutable. </summary>
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
-        internal LogEventArgs( string rawMessage, string message, LogType messageType, bool writeToFile,
-                               bool writeToConsole ) {
+        internal LogEventArgs( [NotNull] string rawMessage, [NotNull] string message,
+                               LogType messageType, bool writeToFile, bool writeToConsole ) {
+            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+            if( message == null ) throw new ArgumentNullException( "message" );
             RawMessage = rawMessage;
             Message = message;
             MessageType = messageType;
@@ -650,7 +659,10 @@ namespace fCraft.Events {
             WriteToConsole = writeToConsole;
         }
 
+        [NotNull]
         public string RawMessage { get; private set; }
+
+        [NotNull]
         public string Message { get; private set; }
         public LogType MessageType { get; private set; }
         public bool WriteToFile { get; private set; }
@@ -660,8 +672,11 @@ namespace fCraft.Events {
 
     /// <summary> Provides for Logger.Crashed event. Crash reporting can be cancelled. </summary>
     public sealed class CrashedEventArgs : EventArgs {
-        internal CrashedEventArgs( string message, string location, Exception exception, bool submitCrashReport,
-                                   bool isCommonProblem, bool shutdownImminent ) {
+        internal CrashedEventArgs( [NotNull] string message, [NotNull] string location, [NotNull] Exception exception,
+                                   bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            if( location == null ) throw new ArgumentNullException( "location" );
+            if( exception == null ) throw new ArgumentNullException( "exception" );
             Message = message;
             Location = location;
             Exception = exception;
@@ -670,8 +685,13 @@ namespace fCraft.Events {
             ShutdownImminent = shutdownImminent;
         }
 
+        [NotNull]
         public string Message { get; private set; }
+
+        [NotNull]
         public string Location { get; private set; }
+
+        [NotNull]
         public Exception Exception { get; private set; }
         public bool SubmitCrashReport { get; set; }
         public bool IsCommonProblem { get; private set; }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading;
+using fCraft.Drawing;
 using fCraft.Events;
 
 namespace fCraft.ServerCLI {
@@ -49,7 +50,7 @@ namespace fCraft.ServerCLI {
                     }
                 }
 
-                // dont hook up Ctrl+C handler until the server's about to start
+                // don't hook up Ctrl+C handler until the server's about to start
                 Console.CancelKeyPress += OnCancelKeyPress;
 
                 if( Server.StartServer() ) {

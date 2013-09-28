@@ -20,8 +20,10 @@ namespace fCraft {
 
 
         /// <summary> Creates a copy of the given BoundingBox. </summary>
-        public BoundingBox( BoundingBox other ) :
-            this( other.XMin, other.YMin, other.ZMin, other.XMax, other.YMax, other.ZMax ) {}
+        public BoundingBox( [NotNull] BoundingBox other ) :
+            this( other.XMin, other.YMin, other.ZMin, other.XMax, other.YMax, other.ZMax ) {
+            if( other == null ) throw new ArgumentNullException( "other" );
+        }
 
 
         /// <summary> Constructs a bounding box at a given origin, with given dimensions. </summary>
@@ -92,6 +94,7 @@ namespace fCraft {
         /// <summary> Returns a BoundingBox object that describes the space shared between this and another box. </summary>
         /// <returns> Intersecting volume, or BoundingBox.Empty if there is no overlap. </returns>
         /// <exception cref="ArgumentNullException"> other is null. </exception>
+        [NotNull]
         [Pure]
         public BoundingBox GetIntersection( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );

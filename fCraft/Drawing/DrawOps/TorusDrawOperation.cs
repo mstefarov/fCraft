@@ -2,6 +2,7 @@
 // original TorusDrawOperation contributed by M1_Abrams
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates a horizontal torus. </summary>
@@ -71,17 +72,18 @@ namespace fCraft.Drawing {
         }
 
 
+        [NotNull]
         IEnumerable<Vector3I> BlockEnumerator() {
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
                     for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-                        double dx = (x - center.X);
-                        double dy = (y - center.Y);
-                        double dz = (z - center.Z);
+                        double dx = ( x - center.X );
+                        double dy = ( y - center.Y );
+                        double dz = ( z - center.Z );
 
                         // test if it's inside the torus
-                        double r1 = bigR - Math.Sqrt( dx * dx + dy * dy );
-                        if( r1 * r1 + dz * dz <= tubeR * tubeR + Bias ) {
+                        double r1 = bigR - Math.Sqrt( dx*dx + dy*dy );
+                        if( r1*r1 + dz*dz <= tubeR*tubeR + Bias ) {
                             yield return new Vector3I( x, y, z );
                         }
                     }
