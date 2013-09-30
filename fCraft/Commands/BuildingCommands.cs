@@ -6,7 +6,8 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
-    /// and switching block placement modes (paint, bind). </summary>
+    /// switching block placement modes (paint, bind),
+    /// and draw command support commands. </summary>
     static class BuildingCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdBind );

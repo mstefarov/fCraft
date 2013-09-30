@@ -19,13 +19,18 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
     public sealed partial class Player {
+        /// <summary> Timeout for player connections, in milliseconds. Default is 10000 (10 seconds). 
+        /// Only affects connections created AFTER this changes -- existing connections are not affected. </summary>
         public static int SocketTimeout { get; set; }
-        public static bool RelayAllUpdates { get; set; }
+        internal static bool RelayAllUpdates { get; set; }
+
+
         const int SleepDelay = 5; // milliseconds
         const int SocketPollInterval = 200; // multiples of SleepDelay, approx. 1 second
         const int PingInterval = 3; // multiples of SocketPollInterval, approx. 3 seconds
 
         const string NoSmpMessage = "This server is for Minecraft Classic only.";
+        const string WoMIdCommand = "/womid ";
 
 
         static Player() {
@@ -320,7 +325,7 @@ namespace fCraft {
             reader.ReadByte();
             string message = reader.ReadString();
 
-            if( !IsSuper && message.StartsWith( "/womid " ) ) {
+            if( !IsSuper && message.StartsWith( WoMIdCommand ) ) {
                 IsUsingWoM = true;
                 return true;
             }

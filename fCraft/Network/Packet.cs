@@ -402,6 +402,7 @@ namespace fCraft {
             66, // Message
             65, // Kick
             2, // SetPermission
+
             67, // ExtInfo
             69, // ExtEntry
 
