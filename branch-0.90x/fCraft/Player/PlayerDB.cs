@@ -34,7 +34,8 @@ namespace fCraft {
         /// Version 3 - 0.600 dev - same as v2, but sorting by ID is enforced.
         /// Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
         /// Version 5 - 0.600+ - removed FailedLoginCount column, added AccountType column.</summary>
-        public const int FormatVersion = 5;
+        public const int FormatVersion = 5,
+            MinSupportedFormatVersion = 2;
 
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
@@ -143,18 +144,9 @@ namespace fCraft {
             if( reader == null ) throw new ArgumentNullException( "reader" );
 
             int version = IdentifyFormatVersion( header );
-            if( version == 0 ) {
-                throw new Exception( "PlayerDB.Load: Unsupported PlayerDB file format. " +
-                                     "Try loading it in an older version of fCraft (before 0.640)." );
-            } else if( version > FormatVersion ) {
-                Logger.Log( LogType.Warning,
-                            "PlayerDB.Load: Attempting to load unsupported PlayerDB format ({0}). Errors may occur.",
-                            version );
-            } else if( version < FormatVersion ) {
-                Logger.Log( LogType.Warning,
-                            "PlayerDB.Load: Converting PlayerDB to a newer format (version {0} to {1}).",
-                            version,
-                            FormatVersion );
+            if( version < MinSupportedFormatVersion ) {
+                throw new NotSupportedException( "PlayerDB.Load: Unsupported PlayerDB file format. " +
+                                                 "Try loading it in an older version of fCraft (before 0.640)." );
             }
 
             int emptyRecords = 0;
@@ -166,13 +158,7 @@ namespace fCraft {
 #if !DEBUG
                     try {
 #endif
-                        PlayerInfo info;
-                        if( version == 1 ) {
-                            info = PlayerInfo.LoadFormat1( fields );
-                        } else {
-                            // Versions 2-5 differ in semantics only, not in actual serialization format.
-                            info = PlayerInfo.LoadFormat2( fields );
-                        }
+                        PlayerInfo info = PlayerInfo.LoadFormat2( fields );
 
                         if( info.ID > maxID ) {
                             Logger.Log( LogType.Warning,

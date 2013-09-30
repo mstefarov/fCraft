@@ -37,18 +37,9 @@ namespace fCraft {
                         }
 
                         int version = ParseHeader( headerText );
-                        if( version == 0 ) {
-                            throw new Exception( "IPBanList.Load: Unsupported PlayerDB file format. " +
-                                                 "Try loading it in an older version of fCraft (before 0.640)." );
-                        } else if( version > FormatVersion ) {
-                            Logger.Log( LogType.Warning,
-                                        "IPBanList.Load: Attempting to load unsupported IPBanList format ({0}). Errors may occur.",
-                                        version );
-                        } else if( version < FormatVersion ) {
-                            Logger.Log( LogType.Warning,
-                                        "IPBanList.Load: Converting IPBanList to a newer format (version {0} to {1}).",
-                                        version,
-                                        FormatVersion );
+                        if( version != FormatVersion ) {
+                            throw new NotSupportedException( "IPBanList.Load: Unsupported PlayerDB file format. " +
+                                                             "Try loading it in an older version of fCraft (before 0.640)." );
                         }
 
                         while( !reader.EndOfStream ) {
@@ -57,12 +48,7 @@ namespace fCraft {
                             string[] fields = line.Split( ',' );
                             if( fields.Length == IPBanInfo.FieldCount ) {
                                 try {
-                                    IPBanInfo ban;
-                                    if( version == 1 ) {
-                                        ban = IPBanInfo.LoadFormat1( fields );
-                                    } else {
-                                        ban = IPBanInfo.LoadFormat2( fields );
-                                    }
+                                    IPBanInfo ban = IPBanInfo.LoadFormat2( fields );
 
                                     if( ban.Address.Equals( IPAddress.Any ) || ban.Address.Equals( IPAddress.None ) ) {
                                         Logger.Log( LogType.Warning,
