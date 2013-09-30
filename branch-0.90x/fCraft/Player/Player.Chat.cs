@@ -8,7 +8,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     public sealed partial class Player {
         static readonly TimeSpan ConfirmationTimeout = TimeSpan.FromSeconds( 60 );
-        const string WoMAlertPrefix = "^detail.user.alert=";
         int muteWarnings;
 
         [CanBeNull]
@@ -329,34 +328,6 @@ namespace fCraft {
             Player[] spectators = Server.Players.Where( p => p.spectatedPlayer == this ).ToArray();
             if( spectators.Length > 0 ) {
                 spectators.Message( "[Spectate]: &F" + message, formatArgs );
-            }
-        }
-
-
-        /// <summary> Sends a message as a WoM alert.
-        /// Players who use World of Minecraft client will see this message on the left side of the screen.
-        /// Other players will receive it as a normal message. "System color" code (&amp;S) will be prepended to the message. </summary>
-        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
-        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
-        /// <exception cref="ArgumentNullException"> message or formatArgs is null. </exception>
-        /// <exception cref="FormatException"> Message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public void MessageWoMAlert( [NotNull] string message, [NotNull] params object[] formatArgs ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
-            }
-            if( this == Console ) {
-                Logger.LogToConsole( message );
-            } else if( IsUsingWoM ) {
-                foreach( Packet p in LineWrapper.WrapPrefixed( WoMAlertPrefix, WoMAlertPrefix + Color.Sys + message ) ) {
-                    Send( p );
-                }
-            } else {
-                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
-                    Send( p );
-                }
             }
         }
 

@@ -562,29 +562,6 @@ namespace fCraft {
             return sourceArray.Length;
         }
 
-
-        /// <summary> Formats and broadcasts a message, showing on top-left for those who use WoM. </summary>
-        /// <param name="source"> List of players who will receive the message. </param>
-        /// <param name="message"> A composite format string for the message. Same semantics as String.Format(). </param>
-        /// <param name="formatArgs"> An object array that contains zero or more objects to format. </param>
-        /// <returns> Number of players who received the message. </returns>
-        /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
-        /// <exception cref="FormatException"> Message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public static int MessageWoMAlert( [NotNull] this IEnumerable<Player> source,
-                                           [NotNull] string message,
-                                           [NotNull] params object[] formatArgs ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            int i = 0;
-            foreach( Player player in source ) {
-                player.MessageWoMAlert( message, formatArgs );
-                i++;
-            }
-            return i;
-        }
-
         #endregion
 
 
