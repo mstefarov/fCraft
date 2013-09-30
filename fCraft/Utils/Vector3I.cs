@@ -2,6 +2,7 @@
 // With contributions by Conrad "Redshift" Morgan
 using System;
 using fCraft.Drawing;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Integer 3D vector. </summary>
@@ -34,7 +35,9 @@ namespace fCraft {
 
 
         public float Length {
-            get { return (float)Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z ); }
+            get {
+                return (float)Math.Sqrt( X*X + Y*Y + Z*Z );
+            }
         }
 
         public int LengthSquared {
@@ -144,7 +147,7 @@ namespace fCraft {
 
         #region Equality
 
-        public override bool Equals( object obj ) {
+        public override bool Equals( [CanBeNull] object obj ) {
             if( obj is Vector3I ) {
                 return Equals( (Vector3I)obj );
             } else {

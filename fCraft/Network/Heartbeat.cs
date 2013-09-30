@@ -11,6 +11,8 @@ namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
         internal static Uri MinecraftNetUri;
+        static readonly TimeSpan DelayDefault = TimeSpan.FromSeconds( 20 );
+        static readonly TimeSpan TimeoutDefault = TimeSpan.FromSeconds( 10 );
 
         /// <summary> Delay between sending heartbeats. Default: 20s </summary>
         public static TimeSpan Delay { get; set; }
@@ -26,8 +28,8 @@ namespace fCraft {
 
 
         static Heartbeat() {
-            Delay = TimeSpan.FromSeconds( 20 );
-            Timeout = TimeSpan.FromSeconds( 10 );
+            Delay = DelayDefault;
+            Timeout = TimeoutDefault;
             Salt = Server.GetRandomString( 32 );
             Server.ShutdownBegan += OnServerShutdown;
         }

@@ -12,7 +12,7 @@ namespace fCraft {
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
         /// <summary> Set of reserved command names (ok, nvm, and client). </summary>
-        public static readonly string[] ReservedCommandNames = { "ok", "nvm", "client" };
+        public static readonly string[] ReservedCommandNames = { "ok", "nvm", "client", "womid" };
 
         // Sets up all the command hooks
         internal static void Init() {
