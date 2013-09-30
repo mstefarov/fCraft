@@ -48,7 +48,7 @@ namespace fCraft {
                 player.Message( "Reply: No message to send!" );
                 return;
             }
-            string targetName = player.lastPrivateMessageSender;
+            string targetName = player.LastPrivateMessageSender;
             if( targetName != null ) {
                 Player targetPlayer = Server.FindPlayerExact( player,
                                                               targetName,

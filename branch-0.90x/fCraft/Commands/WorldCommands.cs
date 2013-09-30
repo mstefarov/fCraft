@@ -432,7 +432,7 @@ namespace fCraft {
             Handler = BlockInfoHandler
         };
 
-        static void BlockInfoHandler( Player player, CommandReader cmd ) {
+        static void BlockInfoHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             World playerWorld = player.World;
             if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
 
@@ -458,8 +458,11 @@ namespace fCraft {
                 coords.X = Math.Min( map.Width - 1, Math.Max( 0, coords.X ) );
                 coords.Y = Math.Min( map.Length - 1, Math.Max( 0, coords.Y ) );
                 coords.Z = Math.Min( map.Height - 1, Math.Max( 0, coords.Z ) );
-                BlockInfoSelectionCallback( player, new[] { coords }, null );
-
+                BlockInfoSelectionCallback( player,
+                                            new[] {
+                                                coords
+                                            },
+                                            null );
             } else {
                 // Otherwise, start a selection
                 player.Message( "BInfo: Click a block to look it up." );

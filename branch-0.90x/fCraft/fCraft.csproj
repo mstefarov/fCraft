@@ -123,7 +123,7 @@
     <Compile Include="MapGeneration\RealisticMapGen.cs" />
     <Compile Include="MapGeneration\RealisticMapGenBlockTheme.cs" />
     <Compile Include="MapGeneration\VanillaMapGen.cs" />
-    <Compile Include="Network\CpeExtension.cs" />
+    <Compile Include="Network\CpeConstants.cs" />
     <Compile Include="Player\Player.Chat.cs" />
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />

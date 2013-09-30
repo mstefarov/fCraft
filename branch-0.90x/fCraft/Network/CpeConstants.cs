@@ -37,7 +37,14 @@ namespace fCraft {
 
         /// <summary> This extension allows the server to instruct the player that certain block
         /// types are allowed/disallowed to be placed or deleted. </summary>
-        BlockPermissions
+        BlockPermissions,
+
+        /// <summary> Allows changing appearance of player models in supporting clients. </summary>
+        ChangeModel,
+
+        /// <summary> This extension allows the server to specify custom terrain textures,
+        /// and tweak appearance of map edges. </summary>
+        EnvMapAppearance
     }
 
 
