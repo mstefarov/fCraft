@@ -146,42 +146,8 @@ namespace fCraft.MapConversion {
             return Encoding.UTF8.GetString( reader.ReadBytes( stringLength ) );
         }
 
-        public string FullName {
-            get {
-                string fullName = ToString();
-                NBTag tag = this;
-                while( tag.Parent != null ) {
-                    tag = tag.Parent;
-                    fullName = tag + "." + fullName;
-                }
-                return fullName;
-            }
-        }
-
-        public string IndentedName {
-            get {
-                string fullName = ToString();
-                NBTag tag = this;
-                while( tag.Parent != null ) {
-                    tag = tag.Parent;
-                    fullName = "    " + fullName;
-                }
-                return fullName;
-            }
-        }
-
         public override string ToString() {
             return Type + " " + Name;
-        }
-
-        public string ToString( bool recursive ) {
-            if( !recursive ) return ToString();
-            StringBuilder sb = new StringBuilder( IndentedName );
-            sb.AppendLine();
-            foreach( NBTag tag in this ) {
-                sb.Append( tag.ToString( true ) );
-            }
-            return sb.ToString();
         }
 
         #endregion

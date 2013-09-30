@@ -1243,7 +1243,7 @@ namespace fCraft {
         }
 
 
-        public void LoadSettings( [NotNull] XElement el ) {
+        internal void LoadSettings( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
             if( ( temp = el.Attribute( "enabled" ) ) != null ) {

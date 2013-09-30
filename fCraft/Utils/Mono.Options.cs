@@ -605,9 +605,6 @@ namespace Mono.Options
     public sealed class OptionException : Exception {
         private readonly string option;
 
-        public OptionException() {
-        }
-
         public OptionException( string message, string optionName )
             : base( message ) {
             option = optionName;

@@ -1217,6 +1217,8 @@ namespace fCraft {
 
 
 #pragma warning disable 1591
+    // ReSharper disable UnusedMember.Global
+
     /// <summary> IRC protocol reply codes. </summary>
     public enum IRCReplyCode {
         Null = 000,
@@ -1401,5 +1403,4 @@ namespace fCraft {
         ErrorMessage,
         Unknown
     }
-#pragma warning restore 1591
 }
