@@ -833,19 +833,19 @@ namespace fCraft {
 
         #region Update Handlers
 
-        public void ProcessMessageWritten() {
+        internal void ProcessMessageWritten() {
             Interlocked.Increment( ref MessagesWritten );
             LastModified = DateTime.UtcNow;
         }
 
 
-        public void DecrementMessageWritten() {
+        internal void DecrementMessageWritten() {
             Interlocked.Decrement( ref MessagesWritten );
             LastModified = DateTime.UtcNow;
         }
 
 
-        public void ProcessLogin( [NotNull] Player player ) {
+        internal void ProcessLogin( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             LastIP = player.IP;
             LastLoginDate = DateTime.UtcNow;
@@ -858,7 +858,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessFailedLogin( [NotNull] Player player ) {
+        internal void ProcessFailedLogin( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             LastFailedLoginDate = DateTime.UtcNow;
             LastFailedLoginIP = player.IP;
@@ -866,7 +866,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessLogout( [NotNull] Player player ) {
+        internal void ProcessLogout( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             TotalTime += player.LastActiveTime.Subtract( player.LoginTime );
             LastSeen = DateTime.UtcNow;
@@ -877,7 +877,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [CanBeNull] string reason, RankChangeType type ) {
+        void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [CanBeNull] string reason, RankChangeType type ) {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
             if( changer == null ) throw new ArgumentNullException( "changer" );
             PreviousRank = Rank;
@@ -891,7 +891,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessBlockPlaced( byte type ) {
+        internal void ProcessBlockPlaced( byte type ) {
             if( type == 0 ) { // air
                 Interlocked.Increment( ref BlocksDeleted );
             } else {
@@ -901,7 +901,7 @@ namespace fCraft {
         }
 
 
-        public void ProcessDrawCommand( int blocksDrawn ) {
+        internal void ProcessDrawCommand( int blocksDrawn ) {
             Interlocked.Add( ref BlocksDrawn, blocksDrawn );
             LastModified = DateTime.UtcNow;
         }

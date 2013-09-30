@@ -754,7 +754,9 @@ namespace fCraft {
 
         #region Copy/Paste
 
-        /// <summary> Returns a list of all CopyStates, indexed by slot. </summary>
+        /// <summary> Returns a list of all CopyStates, indexed by slot.
+        /// Is null briefly while player connects, until player.Info is assigned. </summary>
+        [NotNull]
         public CopyState[] CopyStates {
             get { return copyStates; }
         }
