@@ -44,7 +44,8 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
+    <ErrorReport>none</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -55,7 +56,8 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
+    <ErrorReport>none</ErrorReport>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Events|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -64,7 +66,7 @@
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
     <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_IRC|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -73,7 +75,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Scheduler|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
@@ -82,13 +84,13 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_Networking|AnyCPU' ">
     <OutputPath>..\bin\Debug\</OutputPath>
     <DefineConstants>TRACE;DEBUG;DEBUG_NETWORKING</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>..\bin\Debug\fCraft.XML</DocumentationFile>
+    <DocumentationFile>..\bin\Debug\fCraft.xml</DocumentationFile>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>

@@ -104,16 +104,6 @@ namespace fCraft {
         }
 
 
-        public static explicit operator Vector3I( Position a ) {
-            return new Vector3I( a.X, a.Y, a.Z );
-        }
-
-
-        public Vector3I ToVector3I() {
-            return new Vector3I( X, Y, Z );
-        }
-
-
         public Vector3I ToBlockCoords() {
             return new Vector3I( ( X - 16 ) / 32, ( Y - 16 ) / 32, ( Z - 16 ) / 32 );
         }
