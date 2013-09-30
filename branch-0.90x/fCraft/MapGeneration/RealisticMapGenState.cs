@@ -251,9 +251,9 @@ namespace fCraft.MapGeneration {
             // Calculate the slope
             if( genParams.CliffSmoothing ) {
                 ReportRelativeProgress( 2, "Heightmap Processing: Smoothing" );
-                slopemap = Noise.CalculateSlope( Noise.GaussianBlur5X5( heightmap ) );
+                slopemap = Noise.CalculateSteepness( Noise.GaussianBlur5X5( heightmap ) );
             } else {
-                slopemap = Noise.CalculateSlope( heightmap );
+                slopemap = Noise.CalculateSteepness( heightmap );
             }
 
             // Randomize max height/depth
