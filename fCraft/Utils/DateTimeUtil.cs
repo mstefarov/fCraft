@@ -8,11 +8,9 @@ namespace fCraft {
     /// <summary> Provides utility functions for working with DateTime and TimeSpan. </summary>
     public static class DateTimeUtil {
         static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
-        const long TicksPerMillisecond = 10000;
 
         /// <summary> UTC Unix epoch (1970-01-01, 00:00:00). </summary>
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
-        static readonly long TicksToUnixEpoch = UnixEpoch.Ticks;
 
 
         #region Conversion to/from Unix timestamps
@@ -68,25 +66,6 @@ namespace fCraft {
             return false;
         }
 
-
-        // Tries to parse the given DateTime representation (stingified integer, number of milliseconds since Unix Epoch).
-        // Used to load old versions of PlayerDB, and creation/modification dates in FCMv3
-        internal static DateTime ToDateTimeLegacy( long timestamp ) {
-            return new DateTime( timestamp * TicksPerMillisecond + TicksToUnixEpoch, DateTimeKind.Utc );
-        }
-
-
-        // Tries to parse the given DateTime representation (stingified integer, number of milliseconds since Unix Epoch).
-        // Used to load old versions of PlayerDB, and creation/modification dates in FCMv3
-        internal static bool ToDateTimeLegacy( [NotNull] this string str, ref DateTime result ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            if( str.Length <= 1 ) {
-                return false;
-            }
-            result = ToDateTimeLegacy( Int64.Parse( str ) );
-            return true;
-        }
-
         #endregion
 
 
@@ -117,19 +96,6 @@ namespace fCraft {
                 return true;
             } else {
                 result = TimeSpan.Zero;
-                return false;
-            }
-        }
-
-
-        // Tries to convert the given TimeSpan representation (stingified integer, number of milliseconds).
-        // Used to load old versions of PlayerDB.
-        internal static bool ToTimeSpanLegacy( [NotNull] this string str, ref TimeSpan result ) {
-            if( str == null ) throw new ArgumentNullException( "str" );
-            if( str.Length > 1 ) {
-                result = new TimeSpan( Int64.Parse( str ) * TicksPerMillisecond );
-                return true;
-            } else {
                 return false;
             }
         }

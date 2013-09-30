@@ -82,32 +82,6 @@ namespace fCraft {
 
 
         [NotNull]
-        internal static IPBanInfo LoadFormat1( [NotNull] string[] fields ) {
-            if( fields == null ) throw new ArgumentNullException( "fields" );
-            if( fields.Length != 8 ) throw new ArgumentException( "Unexpected field count", "fields" );
-            IPBanInfo info = new IPBanInfo {
-                Address = IPAddress.Parse( fields[0] ),
-                BannedBy = PlayerDB.Unescape( fields[1] )
-            };
-
-            fields[2].ToDateTimeLegacy( ref info.BanDate );
-            if( fields[3].Length > 0 ) {
-                info.BanReason = PlayerDB.Unescape( fields[3] );
-            }
-            if( fields[4].Length > 0 ) {
-                info.PlayerName = PlayerDB.Unescape( fields[4] );
-            }
-
-            Int32.TryParse( fields[5], out info.Attempts );
-            info.LastAttemptName = PlayerDB.Unescape( fields[6] );
-            if( info.LastAttemptName.Length == 0 ) info.LastAttemptName = null;
-            fields[7].ToDateTimeLegacy( ref info.LastAttemptDate );
-
-            return info;
-        }
-
-
-        [NotNull]
         internal string Serialize() {
             string[] fields = new string[FieldCount];
 
