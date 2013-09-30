@@ -340,7 +340,7 @@ namespace fCraft {
     }
 
 
-    /// <summary> List of included and excluded players. </summary>
+    /// <summary> Immutable list of included and excluded players. </summary>
     public struct PlayerExceptions {
         public PlayerExceptions( [NotNull] PlayerInfo[] included, [NotNull] PlayerInfo[] excluded ) {
             if( included == null ) throw new ArgumentNullException( "included" );

@@ -20,10 +20,13 @@ namespace fCraft.MapGeneration {
             };
         }
 
+        /// <summary> Creates a FloatingIslandMapGenParameters object containing default parameters. </summary>
         public override MapGeneratorParameters CreateDefaultParameters() {
             return new FloatingIslandMapGenParameters();
         }
 
+        /// <summary> Parses serialized map generation parameters into a FloatingIslandMapGenParameters object,
+        /// (to load settings stored in template files or map metadata). </summary>
         public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
             return new FloatingIslandMapGenParameters( serializedParameters );
         }

@@ -12,7 +12,6 @@ namespace fCraft.Drawing {
             Aliases = new[] { "rb" };
         }
 
-
         public string Name {
             get { return "ReplaceBrush"; }
         }

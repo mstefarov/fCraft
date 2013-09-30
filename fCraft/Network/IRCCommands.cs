@@ -1,4 +1,11 @@
 ﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
+// ReSharper disable StringLiteralTypo
+// ReSharper disable UnusedMember.Global
+// ReSharper disable IdentifierTypo
+// ReSharper disable CommentTypo
+#pragma warning disable 1591
+
 /* Based, in part, on SmartIrc4net code. Original license is reproduced below.
  * 
  *
@@ -23,298 +30,459 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Provides methods for constructing IRC command messages. </summary>
     public static class IRCCommands {
-        public static string Pass( string password ) {
+        [NotNull]
+        public static string Pass( [NotNull] string password ) {
+            if( password == null ) throw new ArgumentNullException( "password" );
             return "PASS " + password;
         }
 
-        public static string Nick( string nickname ) {
+        [NotNull]
+        public static string Nick( [NotNull] string nickname ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             return "NICK " + nickname;
         }
 
-        public static string User( string username, int userMode, string realName ) {
+        [NotNull]
+        public static string User( [NotNull] string username, int userMode, [NotNull] string realName ) {
+            if( username == null ) throw new ArgumentNullException( "username" );
+            if( realName == null ) throw new ArgumentNullException( "realName" );
             return "USER " + username + " " + userMode + " * :" + realName;
         }
 
-        public static string Oper( string name, string password ) {
+        [NotNull]
+        public static string Oper( [NotNull] string name, [NotNull] string password ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
+            if( password == null ) throw new ArgumentNullException( "password" );
             return "OPER " + name + " " + password;
         }
 
-        public static string Privmsg( string destination, string message ) {
+        [NotNull]
+        public static string Privmsg( [NotNull] string destination, [NotNull] string message ) {
+            if( destination == null ) throw new ArgumentNullException( "destination" );
+            if( message == null ) throw new ArgumentNullException( "message" );
             return "PRIVMSG " + destination + " :" + message;
         }
 
-        public static string Notice( string destination, string message ) {
+        [NotNull]
+        public static string Notice( [NotNull] string destination, [NotNull] string message ) {
+            if( destination == null ) throw new ArgumentNullException( "destination" );
+            if( message == null ) throw new ArgumentNullException( "message" );
             return "NOTICE " + destination + " :" + message;
         }
 
-        public static string Join( string channel ) {
+        [NotNull]
+        public static string Join( [NotNull] string channel ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "JOIN " + channel;
         }
 
-        public static string Join( string[] channels ) {
+        [NotNull]
+        public static string Join( [NotNull] string[] channels ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
             string channelList = String.Join( ",", channels );
             return "JOIN " + channelList;
         }
 
-        public static string Join( string channel, string key ) {
+        [NotNull]
+        public static string Join( [NotNull] string channel, [NotNull] string key ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( key == null ) throw new ArgumentNullException( "key" );
             return "JOIN " + channel + " " + key;
         }
 
-        public static string Join( string[] channels, string[] keys ) {
+        [NotNull]
+        public static string Join( [NotNull] string[] channels, [NotNull] string[] keys ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( keys == null ) throw new ArgumentNullException( "keys" );
             string channelList = String.Join( ",", channels );
             string keyList = String.Join( ",", keys );
             return "JOIN " + channelList + " " + keyList;
         }
 
-        public static string Part( string channel ) {
+        [NotNull]
+        public static string Part( [NotNull] string channel ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "PART " + channel;
         }
 
-        public static string Part( string[] channels ) {
+        [NotNull]
+        public static string Part( [NotNull] string[] channels ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
             string channelList = String.Join( ",", channels );
             return "PART " + channelList;
         }
 
-        public static string Part( string channel, string partMessage ) {
+        [NotNull]
+        public static string Part( [NotNull] string channel, [NotNull] string partMessage ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( partMessage == null ) throw new ArgumentNullException( "partMessage" );
             return "PART " + channel + " :" + partMessage;
         }
 
-        public static string Part( string[] channels, string partMessage ) {
+        [NotNull]
+        public static string Part( [NotNull] string[] channels, [NotNull] string partMessage ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( partMessage == null ) throw new ArgumentNullException( "partMessage" );
             string channelList = String.Join( ",", channels );
             return "PART " + channelList + " :" + partMessage;
         }
 
-        public static string Kick( string channel, string nickname ) {
+        [NotNull]
+        public static string Kick( [NotNull] string channel, [NotNull] string nickname ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             return "KICK " + channel + " " + nickname;
         }
 
-        public static string Kick( string channel, string nickname, string comment ) {
+        [NotNull]
+        public static string Kick( [NotNull] string channel, [NotNull] string nickname, [NotNull] string comment ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             return "KICK " + channel + " " + nickname + " :" + comment;
         }
 
-        public static string Kick( string[] channels, string nickname ) {
+        [NotNull]
+        public static string Kick( [NotNull] string[] channels, [NotNull] string nickname ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             string channelList = String.Join( ",", channels );
             return "KICK " + channelList + " " + nickname;
         }
 
-        public static string Kick( string[] channels, string nickname, string comment ) {
+        [NotNull]
+        public static string Kick( [NotNull] string[] channels, [NotNull] string nickname, [NotNull] string comment ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             string channelList = String.Join( ",", channels );
             return "KICK " + channelList + " " + nickname + " :" + comment;
         }
 
-        public static string Kick( string channel, string[] nicknames ) {
+        [NotNull]
+        public static string Kick( [NotNull] string channel, [NotNull] string[] nicknames ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
             string nicknameList = String.Join( ",", nicknames );
             return "KICK " + channel + " " + nicknameList;
         }
 
-        public static string Kick( string channel, string[] nicknames, string comment ) {
+        [NotNull]
+        public static string Kick( [NotNull] string channel, [NotNull] string[] nicknames, [NotNull] string comment ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             string nicknameList = String.Join( ",", nicknames );
             return "KICK " + channel + " " + nicknameList + " :" + comment;
         }
 
-        public static string Kick( string[] channels, string[] nicknames ) {
+        [NotNull]
+        public static string Kick( [NotNull] string[] channels, [NotNull] string[] nicknames ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
             string channelList = String.Join( ",", channels );
             string nicknameList = String.Join( ",", nicknames );
             return "KICK " + channelList + " " + nicknameList;
         }
 
-        public static string Kick( string[] channels, string[] nicknames, string comment ) {
+        [NotNull]
+        public static string Kick( [NotNull] string[] channels, [NotNull] string[] nicknames, [NotNull] string comment ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             string channelList = String.Join( ",", channels );
             string nicknameList = String.Join( ",", nicknames );
             return "KICK " + channelList + " " + nicknameList + " :" + comment;
         }
 
+        [NotNull]
         public static string Motd() {
             return "MOTD";
         }
 
-        public static string Motd( string target ) {
+        [NotNull]
+        public static string Motd( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "MOTD " + target;
         }
 
+        [NotNull]
         public static string Luser() {
             return "LUSER";
         }
 
-        public static string Luser( string mask ) {
+        [NotNull]
+        public static string Luser( [NotNull] string mask ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             return "LUSER " + mask;
         }
 
-        public static string Luser( string mask, string target ) {
+        [NotNull]
+        public static string Luser( [NotNull] string mask, [NotNull] string target ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "LUSER " + mask + " " + target;
         }
 
+        [NotNull]
         public static string Version() {
             return "VERSION";
         }
 
-        public static string Version( string target ) {
+        [NotNull]
+        public static string Version( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "VERSION " + target;
         }
 
+        [NotNull]
         public static string Stats() {
             return "STATS";
         }
 
-        public static string Stats( string query ) {
+        [NotNull]
+        public static string Stats( [NotNull] string query ) {
+            if( query == null ) throw new ArgumentNullException( "query" );
             return "STATS " + query;
         }
 
-        public static string Stats( string query, string target ) {
+        [NotNull]
+        public static string Stats( [NotNull] string query, [NotNull] string target ) {
+            if( query == null ) throw new ArgumentNullException( "query" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "STATS " + query + " " + target;
         }
 
+        [NotNull]
         public static string Links() {
             return "LINKS";
         }
 
-        public static string Links( string serverMask ) {
+        [NotNull]
+        public static string Links( [NotNull] string serverMask ) {
+            if( serverMask == null ) throw new ArgumentNullException( "serverMask" );
             return "LINKS " + serverMask;
         }
 
-        public static string Links( string remoteServer, string serverMask ) {
+        [NotNull]
+        public static string Links( [NotNull] string remoteServer, [NotNull] string serverMask ) {
+            if( remoteServer == null ) throw new ArgumentNullException( "remoteServer" );
+            if( serverMask == null ) throw new ArgumentNullException( "serverMask" );
             return "LINKS " + remoteServer + " " + serverMask;
         }
 
+        [NotNull]
         public static string Time() {
             return "TIME";
         }
 
-        public static string Time( string target ) {
+        [NotNull]
+        public static string Time( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "TIME " + target;
         }
 
-        public static string Connect( string targetServer, string port ) {
+        [NotNull]
+        public static string Connect( [NotNull] string targetServer, [NotNull] string port ) {
+            if( targetServer == null ) throw new ArgumentNullException( "targetServer" );
+            if( port == null ) throw new ArgumentNullException( "port" );
             return "CONNECT " + targetServer + " " + port;
         }
 
-        public static string Connect( string targetServer, string port, string remoteServer ) {
+        [NotNull]
+        public static string Connect( [NotNull] string targetServer, [NotNull] string port,
+                                      [NotNull] string remoteServer ) {
+            if( targetServer == null ) throw new ArgumentNullException( "targetServer" );
+            if( port == null ) throw new ArgumentNullException( "port" );
+            if( remoteServer == null ) throw new ArgumentNullException( "remoteServer" );
             return "CONNECT " + targetServer + " " + port + " " + remoteServer;
         }
 
+        [NotNull]
         public static string Trace() {
             return "TRACE";
         }
 
-        public static string Trace( string target ) {
+        [NotNull]
+        public static string Trace( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "TRACE " + target;
         }
 
+        [NotNull]
         public static string Admin() {
             return "ADMIN";
         }
 
-        public static string Admin( string target ) {
+        [NotNull]
+        public static string Admin( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "ADMIN " + target;
         }
 
+        [NotNull]
         public static string Info() {
             return "INFO";
         }
 
-        public static string Info( string target ) {
+        [NotNull]
+        public static string Info( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "INFO " + target;
         }
 
+        [NotNull]
         public static string Servlist() {
             return "SERVLIST";
         }
 
-        public static string Servlist( string mask ) {
+        [NotNull]
+        public static string Servlist( [NotNull] string mask ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             return "SERVLIST " + mask;
         }
 
-        public static string Servlist( string mask, string type ) {
+        [NotNull]
+        public static string Servlist( [NotNull] string mask, [NotNull] string type ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
+            if( type == null ) throw new ArgumentNullException( "type" );
             return "SERVLIST " + mask + " " + type;
         }
 
-        public static string Squery( string serviceName, string serviceText ) {
+        [NotNull]
+        public static string Squery( [NotNull] string serviceName, [NotNull] string serviceText ) {
+            if( serviceName == null ) throw new ArgumentNullException( "serviceName" );
+            if( serviceText == null ) throw new ArgumentNullException( "serviceText" );
             return "SQUERY " + serviceName + " :" + serviceText;
         }
 
+        [NotNull]
         public static string List() {
             return "LIST";
         }
 
-        public static string List( string channel ) {
+        [NotNull]
+        public static string List( [NotNull] string channel ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "LIST " + channel;
         }
 
-        public static string List( string[] channels ) {
+        [NotNull]
+        public static string List( [NotNull] string[] channels ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
             string channelList = String.Join( ",", channels );
             return "LIST " + channelList;
         }
 
-        public static string List( string channel, string target ) {
+        [NotNull]
+        public static string List( [NotNull] string channel, [NotNull] string target ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "LIST " + channel + " " + target;
         }
 
-        public static string List( string[] channels, string target ) {
+        [NotNull]
+        public static string List( [NotNull] string[] channels, [NotNull] string target ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             string channelList = String.Join( ",", channels );
             return "LIST " + channelList + " " + target;
         }
 
+        [NotNull]
         public static string Names() {
             return "NAMES";
         }
 
-        public static string Names( string channel ) {
+        [NotNull]
+        public static string Names( [NotNull] string channel ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "NAMES " + channel;
         }
 
-        public static string Names( string[] channels ) {
+        [NotNull]
+        public static string Names( [NotNull] string[] channels ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
             string channelList = String.Join( ",", channels );
             return "NAMES " + channelList;
         }
 
-        public static string Names( string channel, string target ) {
+        [NotNull]
+        public static string Names( [NotNull] string channel, [NotNull] string target ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "NAMES " + channel + " " + target;
         }
 
-        public static string Names( string[] channels, string target ) {
+        [NotNull]
+        public static string Names( [NotNull] string[] channels, [NotNull] string target ) {
+            if( channels == null ) throw new ArgumentNullException( "channels" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             string channelList = String.Join( ",", channels );
             return "NAMES " + channelList + " " + target;
         }
 
-        public static string Topic( string channel ) {
+        [NotNull]
+        public static string Topic( [NotNull] string channel ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "TOPIC " + channel;
         }
 
-        public static string Topic( string channel, string newTopic ) {
+        [NotNull]
+        public static string Topic( [NotNull] string channel, [NotNull] string newTopic ) {
+            if( channel == null ) throw new ArgumentNullException( "channel" );
+            if( newTopic == null ) throw new ArgumentNullException( "newTopic" );
             return "TOPIC " + channel + " :" + newTopic;
         }
 
-        public static string Mode( string target ) {
+        [NotNull]
+        public static string Mode( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "MODE " + target;
         }
 
-        public static string Mode( string target, string newMode ) {
+        [NotNull]
+        public static string Mode( [NotNull] string target, [NotNull] string newMode ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( newMode == null ) throw new ArgumentNullException( "newMode" );
             return "MODE " + target + " " + newMode;
         }
 
-        public static string Service( string nickname, string distribution, string info ) {
+        [NotNull]
+        public static string Service( [NotNull] string nickname, [NotNull] string distribution, [NotNull] string info ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( distribution == null ) throw new ArgumentNullException( "distribution" );
+            if( info == null ) throw new ArgumentNullException( "info" );
             return "SERVICE " + nickname + " * " + distribution + " * * :" + info;
         }
 
-        public static string Invite( string nickname, string channel ) {
+        [NotNull]
+        public static string Invite( [NotNull] string nickname, [NotNull] string channel ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "INVITE " + nickname + " " + channel;
         }
 
+        [NotNull]
         public static string Who() {
             return "WHO";
         }
 
-        public static string Who( string mask ) {
+        [NotNull]
+        public static string Who( [NotNull] string mask ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             return "WHO " + mask;
         }
 
-        public static string Who( string mask, bool ircop ) {
+        [NotNull]
+        public static string Who( [NotNull] string mask, bool ircop ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             if( ircop ) {
                 return "WHO " + mask + " o";
             } else {
@@ -322,146 +490,223 @@ namespace fCraft {
             }
         }
 
-        public static string Whois( string mask ) {
+        [NotNull]
+        public static string Whois( [NotNull] string mask ) {
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             return "WHOIS " + mask;
         }
 
-        public static string Whois( string[] masks ) {
+        [NotNull]
+        public static string Whois( [NotNull] string[] masks ) {
+            if( masks == null ) throw new ArgumentNullException( "masks" );
             string maskList = String.Join( ",", masks );
             return "WHOIS " + maskList;
         }
 
-        public static string Whois( string target, string mask ) {
+        [NotNull]
+        public static string Whois( [NotNull] string target, [NotNull] string mask ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( mask == null ) throw new ArgumentNullException( "mask" );
             return "WHOIS " + target + " " + mask;
         }
 
-        public static string Whois( string target, string[] masks ) {
+        [NotNull]
+        public static string Whois( [NotNull] string target, [NotNull] string[] masks ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( masks == null ) throw new ArgumentNullException( "masks" );
             string maskList = String.Join( ",", masks );
             return "WHOIS " + target + " " + maskList;
         }
 
-        public static string Whowas( string nickname ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string nickname ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             return "WHOWAS " + nickname;
         }
 
-        public static string Whowas( string[] nicknames ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string[] nicknames ) {
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
             string nicknameList = String.Join( ",", nicknames );
             return "WHOWAS " + nicknameList;
         }
 
-        public static string Whowas( string nickname, string count ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string nickname, [NotNull] string count ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( count == null ) throw new ArgumentNullException( "count" );
             return "WHOWAS " + nickname + " " + count + " ";
         }
 
-        public static string Whowas( string[] nicknames, string count ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string[] nicknames, [NotNull] string count ) {
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
+            if( count == null ) throw new ArgumentNullException( "count" );
             string nicknameList = String.Join( ",", nicknames );
             return "WHOWAS " + nicknameList + " " + count + " ";
         }
 
-        public static string Whowas( string nickname, string count, string target ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string nickname, [NotNull] string count, [NotNull] string target ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( count == null ) throw new ArgumentNullException( "count" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "WHOWAS " + nickname + " " + count + " " + target;
         }
 
-        public static string Whowas( string[] nicknames, string count, string target ) {
+        [NotNull]
+        public static string Whowas( [NotNull] string[] nicknames, [NotNull] string count, [NotNull] string target ) {
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
+            if( count == null ) throw new ArgumentNullException( "count" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             string nicknameList = String.Join( ",", nicknames );
             return "WHOWAS " + nicknameList + " " + count + " " + target;
         }
 
-        public static string Kill( string nickname, string comment ) {
+        [NotNull]
+        public static string Kill( [NotNull] string nickname, [NotNull] string comment ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             return "KILL " + nickname + " :" + comment;
         }
 
-        public static string Ping( string server ) {
+        [NotNull]
+        public static string Ping( [NotNull] string server ) {
+            if( server == null ) throw new ArgumentNullException( "server" );
             return "PING " + server;
         }
 
-        public static string Ping( string server, string server2 ) {
+        [NotNull]
+        public static string Ping( [NotNull] string server, [NotNull] string server2 ) {
+            if( server == null ) throw new ArgumentNullException( "server" );
+            if( server2 == null ) throw new ArgumentNullException( "server2" );
             return "PING " + server + " " + server2;
         }
 
-        public static string Pong( string server ) {
+        [NotNull]
+        public static string Pong( [NotNull] string server ) {
+            if( server == null ) throw new ArgumentNullException( "server" );
             return "PONG " + server;
         }
 
-        public static string Pong( string server, string server2 ) {
+        [NotNull]
+        public static string Pong( [NotNull] string server, [NotNull] string server2 ) {
+            if( server == null ) throw new ArgumentNullException( "server" );
+            if( server2 == null ) throw new ArgumentNullException( "server2" );
             return "PONG " + server + " " + server2;
         }
 
-        public static string Error( string errorMessage ) {
+        [NotNull]
+        public static string Error( [NotNull] string errorMessage ) {
+            if( errorMessage == null ) throw new ArgumentNullException( "errorMessage" );
             return "ERROR :" + errorMessage;
         }
 
+        [NotNull]
         public static string Away() {
             return "AWAY";
         }
 
-        public static string Away( string awayText ) {
+        [NotNull]
+        public static string Away( [NotNull] string awayText ) {
+            if( awayText == null ) throw new ArgumentNullException( "awayText" );
             return "AWAY :" + awayText;
         }
 
+        [NotNull]
         public static string Rehash() {
             return "REHASH";
         }
 
+        [NotNull]
         public static string Die() {
             return "DIE";
         }
 
+        [NotNull]
         public static string Restart() {
             return "RESTART";
         }
 
-        public static string Summon( string user ) {
+        [NotNull]
+        public static string Summon( [NotNull] string user ) {
+            if( user == null ) throw new ArgumentNullException( "user" );
             return "SUMMON " + user;
         }
 
-        public static string Summon( string user, string target ) {
+        [NotNull]
+        public static string Summon( [NotNull] string user, [NotNull] string target ) {
+            if( user == null ) throw new ArgumentNullException( "user" );
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "SUMMON " + user + " " + target;
         }
 
-        public static string Summon( string user, string target, string channel ) {
+        [NotNull]
+        public static string Summon( [NotNull] string user, [NotNull] string target, [NotNull] string channel ) {
+            if( user == null ) throw new ArgumentNullException( "user" );
+            if( target == null ) throw new ArgumentNullException( "target" );
+            if( channel == null ) throw new ArgumentNullException( "channel" );
             return "SUMMON " + user + " " + target + " " + channel;
         }
 
+        [NotNull]
         public static string Users() {
             return "USERS";
         }
 
-        public static string Users( string target ) {
+        [NotNull]
+        public static string Users( [NotNull] string target ) {
+            if( target == null ) throw new ArgumentNullException( "target" );
             return "USERS " + target;
         }
 
-        public static string Wallops( string wallopsText ) {
+        [NotNull]
+        public static string Wallops( [NotNull] string wallopsText ) {
+            if( wallopsText == null ) throw new ArgumentNullException( "wallopsText" );
             return "WALLOPS :" + wallopsText;
         }
 
-        public static string Userhost( string nickname ) {
+        [NotNull]
+        public static string Userhost( [NotNull] string nickname ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             return "USERHOST " + nickname;
         }
 
-        public static string Userhost( string[] nicknames ) {
+        [NotNull]
+        public static string Userhost( [NotNull] string[] nicknames ) {
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
             string nicknameList = String.Join( " ", nicknames );
             return "USERHOST " + nicknameList;
         }
 
-        public static string Ison( string nickname ) {
+        [NotNull]
+        public static string Ison( [NotNull] string nickname ) {
+            if( nickname == null ) throw new ArgumentNullException( "nickname" );
             return "ISON " + nickname;
         }
 
-        public static string Ison( string[] nicknames ) {
+        [NotNull]
+        public static string Ison( [NotNull] string[] nicknames ) {
+            if( nicknames == null ) throw new ArgumentNullException( "nicknames" );
             string nicknameList = String.Join( " ", nicknames );
             return "ISON " + nicknameList;
         }
 
+        [NotNull]
         public static string Quit() {
             return "QUIT";
         }
 
-        public static string Quit( string quitMessage ) {
+        [NotNull]
+        public static string Quit( [NotNull] string quitMessage ) {
+            if( quitMessage == null ) throw new ArgumentNullException( "quitMessage" );
             return "QUIT :" + quitMessage;
         }
 
-        public static string Squit( string server, string comment ) {
+        [NotNull]
+        public static string Squit( [NotNull] string server, [NotNull] string comment ) {
+            if( server == null ) throw new ArgumentNullException( "server" );
+            if( comment == null ) throw new ArgumentNullException( "comment" );
             return "SQUIT " + server + " :" + comment;
         }
     }

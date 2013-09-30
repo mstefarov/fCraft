@@ -35,8 +35,8 @@ namespace fCraft.MapGeneration {
         public abstract MapGeneratorParameters CreateDefaultParameters();
 
         /// <summary> Parses serialized map generation parameters into a IMapGeneratorParameters object,
-        /// (to load settings stored in template files or map metadata). </summary>
-        /// <remarks> Throw appropriate exceptions on failure (do not return null). </remarks>
+        /// (to load settings stored in template files or map metadata). Throws exceptions on failure. </summary>
+        /// <remarks> When implementing, throw appropriate exceptions on failure (do not return null). </remarks>
         [NotNull]
         public abstract MapGeneratorParameters CreateParameters( [NotNull] XElement serializedParameters );
 

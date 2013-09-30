@@ -14,11 +14,13 @@ namespace fCraft {
         static readonly SortedDictionary<string, IPBanInfo> Bans = new SortedDictionary<string, IPBanInfo>();
         static readonly object BanListLock = new object();
 
-
         #region Loading/Saving
 
         const string Header = "IP,bannedBy,banDate,banReason,playerName,attempts,lastAttemptName,lastAttemptDate";
         const int FormatVersion = 2;
+
+        /// <summary> Whether global IP-ban list has been loaded.
+        /// Loading is initiated by Server.InitServer. </summary>
         public static bool IsLoaded { get; private set; }
 
         internal static void Load() {
