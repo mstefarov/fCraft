@@ -342,12 +342,14 @@ namespace fCraft.MapConversion {
 
 
         /// <summary> Returns an array of all available map importers. </summary>
+        [NotNull]
         public static IMapImporter[] GetImporters() {
             return Importers.Values.ToArray();
         }
 
 
         /// <summary> Returns an array of all available map exporters. </summary>
+        [NotNull]
         public static IMapExporter[] GetExporters() {
             return Exporters.Values.ToArray();
         }

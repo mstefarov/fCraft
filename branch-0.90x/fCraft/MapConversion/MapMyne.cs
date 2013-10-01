@@ -93,6 +93,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static Map LoadMeta( [NotNull] Stream stream ) {
             if( stream == null ) throw new ArgumentNullException( "stream" );
             MyneMetaFile metaFile = new MyneMetaFile( stream );
@@ -111,10 +112,10 @@ namespace fCraft.MapConversion {
 
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
-                map.Spawn = new Position( (short)(Int16.Parse( metaFile["spawn", "x"] )*32 + 16),
-                                          (short)(Int16.Parse( metaFile["spawn", "z"] )*32 + 16),
-                                          (short)(Int16.Parse( metaFile["spawn", "y"] )*32 + 16),
-                                          (byte)(Int32.Parse( metaFile["spawn", "h"] )*255/360),
+                map.Spawn = new Position( (short)( Int16.Parse( metaFile["spawn", "x"] )*32 + 16 ),
+                                          (short)( Int16.Parse( metaFile["spawn", "z"] )*32 + 16 ),
+                                          (short)( Int16.Parse( metaFile["spawn", "y"] )*32 + 16 ),
+                                          (byte)( Int32.Parse( metaFile["spawn", "h"] )*255/360 ),
                                           0 );
             }
             return map;

@@ -127,6 +127,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             int length = reader.ReadInt32();

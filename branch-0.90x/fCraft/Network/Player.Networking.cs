@@ -1002,7 +1002,7 @@ namespace fCraft {
                 textLine2 = "Loading world " + newWorld.ClassyName;
             }
 
-            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason, textLine1, textLine2 ) ) {
+            if( RaisePlayerJoiningWorldEvent( this, newWorld, reason ) ) {
                 Logger.Log( LogType.Warning,
                             "Player.JoinWorldNow: Player {0} was prevented from joining world {1} by an event callback.",
                             Name, newWorld.Name );

@@ -9,21 +9,28 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     [DataContract]
-    internal sealed class OpticraftMetaData {
+    sealed class OpticraftMetaData {
         [DataMember]
         public int X { get; set; }
+
         [DataMember]
         public int Y { get; set; }
+
         [DataMember]
         public int Z { get; set; }
+
         [DataMember]
         public int SpawnX { get; set; }
+
         [DataMember]
         public int SpawnY { get; set; }
+
         [DataMember]
         public int SpawnZ { get; set; }
+
         [DataMember]
         public byte SpawnOrientation { get; set; }
+
         [DataMember]
         public byte SpawnPitch { get; set; }
 
@@ -34,42 +41,56 @@ namespace fCraft.MapConversion {
         [NotNull]
         [DataMember]
         public string MinimumJoinRank { get; set; }
+
         [DataMember]
         public bool Hidden { get; set; }
+
         [DataMember]
         public int CreationDate { get; set; }
     }
 
 
-    internal sealed class OpticraftDataStore {
+    sealed class OpticraftDataStore {
         [DataMember]
         public OpticraftZone[] Zones;
 
     }
 
 
-    internal sealed class OpticraftZone {
+    sealed class OpticraftZone {
         [NotNull]
         [DataMember]
         public string Name { get; set; }
+
         [DataMember]
         public int X1 { get; set; }
+
         [DataMember]
         public int X2 { get; set; }
+
         [DataMember]
         public int Y1 { get; set; }
+
         [DataMember]
         public int Y2 { get; set; }
+
         [DataMember]
         public int Z1 { get; set; }
+
         [DataMember]
         public int Z2 { get; set; }
+
+        [NotNull]
         [DataMember]
         public string MinimumRank { get; set; }
+
+        [NotNull]
         [DataMember]
         public string Owner { get; set; }
+
         [DataMember]
         public string[] Builders;
+
         [DataMember]
         public string[] Excluded;
     }
@@ -79,19 +100,27 @@ namespace fCraft.MapConversion {
         const short MapVersion = 2;
 
         public string ServerName {
-            get { return "Opticraft"; }
+            get {
+                return "Opticraft";
+            }
         }
 
         public string FileExtension {
-            get { return "save"; }
+            get {
+                return "save";
+            }
         }
 
         public MapStorageType StorageType {
-            get { return MapStorageType.SingleFile; }
+            get {
+                return MapStorageType.SingleFile;
+            }
         }
 
         public MapFormat Format {
-            get { return MapFormat.Opticraft; }
+            get {
+                return MapFormat.Opticraft;
+            }
         }
 
 
@@ -194,8 +223,12 @@ namespace fCraft.MapConversion {
                 Zone fZone = new Zone {
                     Name = optiZone.Name,
                 };
-                BoundingBox bBox = new BoundingBox( optiZone.X1, optiZone.Y1, optiZone.Z1,
-                                                    optiZone.X2, optiZone.X2, optiZone.Z2 );
+                BoundingBox bBox = new BoundingBox( optiZone.X1,
+                                                    optiZone.Y1,
+                                                    optiZone.Z1,
+                                                    optiZone.X2,
+                                                    optiZone.X2,
+                                                    optiZone.Z2 );
                 fZone.Create( bBox, conversionPlayer );
 
                 // Min rank
@@ -265,7 +298,8 @@ namespace fCraft.MapConversion {
                     oMetadata.MinimumJoinRank = oMetadata.MinimumBuildRank = "guest";
                 }
 
-                oMetadata.CreationDate = 0; // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
+                oMetadata.CreationDate = 0;
+                    // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
                 serializer.WriteObject( serializationStream, oMetadata );
                 byte[] jsonMetaData = serializationStream.ToArray();
                 writer.Write( jsonMetaData.Length );
@@ -314,7 +348,6 @@ namespace fCraft.MapConversion {
                 byte[] jsonDataStore = serializationStream.ToArray();
                 writer.Write( jsonDataStore.Length );
                 writer.Write( jsonDataStore );
-
 
                 // Blocks
                 MemoryStream blockStream = new MemoryStream();

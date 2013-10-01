@@ -12,6 +12,7 @@ namespace fCraft {
         static readonly HashSet<SchedulerTask> Tasks = new HashSet<SchedulerTask>();
         static SchedulerTask[] taskCache;
         static readonly Queue<SchedulerTask> BackgroundTasks = new Queue<SchedulerTask>();
+
         static readonly object TaskListLock = new object(),
                                BackgroundTaskQueueLock = new object();
 
@@ -133,7 +134,7 @@ namespace fCraft {
             if( task == null ) throw new ArgumentNullException( "task" );
             task.IsExecuting = true;
 #if DEBUG_SCHEDULER
-                    FireEvent( TaskExecuting, task );
+            FireEvent( TaskExecuting, task );
 #endif
 
 #if DEBUG
@@ -149,7 +150,7 @@ namespace fCraft {
 #endif
 
 #if DEBUG_SCHEDULER
-                    FireEvent( TaskExecuted, task );
+            FireEvent( TaskExecuted, task );
 #endif
         }
 
@@ -166,10 +167,12 @@ namespace fCraft {
                 if( Tasks.Add( task ) ) {
                     UpdateCache();
                     Logger.Log( LogType.Debug,
-                                "Scheduler.AddTask: Added {0}", task );
-                }else{
+                                "Scheduler.AddTask: Added {0}",
+                                task );
+                } else {
                     Logger.Log( LogType.Debug,
-                                "Scheduler.AddTask: Added duplicate {0}", task );
+                                "Scheduler.AddTask: Added duplicate {0}",
+                                task );
                 }
 #else
                 if( Tasks.Add( task ) ) {
@@ -217,7 +220,8 @@ namespace fCraft {
         /// <param name="userState"> Parameter to pass to the method. </param>
         /// <returns> Newly created SchedulerTask object. </returns>
         [NotNull]
-        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback, [CanBeNull] object userState ) {
+        public static SchedulerTask NewBackgroundTask( [NotNull] SchedulerCallback callback,
+                                                       [CanBeNull] object userState ) {
             return new SchedulerTask( callback, true, userState );
         }
 
@@ -239,7 +243,8 @@ namespace fCraft {
 #if DEBUG_SCHEDULER
                     FireEvent( TaskRemoved, deletionList[i] );
                     Logger.Log( LogType.Debug,
-                                "Scheduler.UpdateCache: Removed {0}", deletionList[i] );
+                                "Scheduler.UpdateCache: Removed {0}",
+                                deletionList[i] );
 #endif
                 }
             }
@@ -272,18 +277,18 @@ namespace fCraft {
                     schedulerThread.Join();
                 }
                 schedulerThread = null;
-            } catch( ThreadStateException ) { }
+            } catch( ThreadStateException ) {}
             try {
                 if( backgroundThread != null && backgroundThread.IsAlive ) {
                     backgroundThread.Join();
                 }
                 backgroundThread = null;
-            } catch( ThreadStateException ) { }
+            } catch( ThreadStateException ) {}
         }
 
 
 #if DEBUG_SCHEDULER
-        
+
         public static void PrintTasks( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             lock( TaskListLock ) {
@@ -303,9 +308,9 @@ namespace fCraft {
         public static event EventHandler<SchedulerTaskEventArgs> TaskRemoved;
 
 
-        static void FireEvent( EventHandler<SchedulerTaskEventArgs> eventToFire, SchedulerTask task ) {
-            var h = eventToFire;
-            if( h != null ) h( null, new SchedulerTaskEventArgs( task ) );
+        static void FireEvent( [CanBeNull] EventHandler<SchedulerTaskEventArgs> eventToFire,
+                               [NotNull] SchedulerTask task ) {
+            if( eventToFire != null ) eventToFire( null, new SchedulerTaskEventArgs( task ) );
         }
 #endif
     }

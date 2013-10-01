@@ -70,7 +70,7 @@ namespace fCraft {
 
         /// <summary> An array of individual recorded messages. </summary>
         [NotNull]
-        public string[] MessageList {
+        public IEnumerable<string> MessageList {
             get {
                 lock( locker ) {
                     return messages.ToArray();
@@ -80,6 +80,7 @@ namespace fCraft {
 
         
         /// <summary> All messages in one block of text, separated by newlines. </summary>
+        [NotNull]
         public string MessageString {
             get {
                 lock( locker ) {

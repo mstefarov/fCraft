@@ -77,8 +77,9 @@ namespace fCraft {
 
 
         static void TimerCallback( [NotNull] SchedulerTask task ) {
-            if( task == null ) throw new ArgumentNullException( "task" );
             ChatTimer timer = (ChatTimer)task.UserState;
+            if( timer == null ) throw new NullReferenceException( "task.UserState" );
+
             if( task.MaxRepeats == 1 ) {
                 if( String.IsNullOrEmpty( timer.Message ) ) {
                     Chat.SendSay( Player.Console, "(Timer Up)" );
@@ -143,6 +144,7 @@ namespace fCraft {
         /// <returns> Newly-created, and already-started timer. </returns>
         /// <exception cref="ArgumentNullException"> startedBy is null. </exception>
         /// <exception cref="ArgumentOutOfRangeException"> duration is less than ChatTimer.MinDuration. </exception>
+        [NotNull]
         public static ChatTimer Start( TimeSpan duration, [CanBeNull] string message, [NotNull] string startedBy ) {
             if( startedBy == null ) throw new ArgumentNullException( "startedBy" );
             if( duration < MinDuration ) {

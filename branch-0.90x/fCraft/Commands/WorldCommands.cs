@@ -494,6 +494,8 @@ namespace fCraft {
         const int MaxBlockChangesToList = 15;
         static void BlockInfoSchedulerCallback( [NotNull] SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
+            if( args == null ) throw new NullReferenceException( "task.UserState" );
+
             if( !args.World.BlockDB.IsEnabled ) {
                 args.Player.Message( "&WBlockDB is disabled in this world." );
                 return;
@@ -1078,8 +1080,8 @@ namespace fCraft {
 
 
         static void GenTaskCallback( [NotNull] SchedulerTask task ) {
-            if( task == null ) throw new ArgumentNullException( "task" );
             GenTaskParams args = (GenTaskParams)task.UserState;
+            if( args == null ) throw new NullReferenceException( "task.UserState" );
 
             Map map;
             try {

@@ -58,13 +58,13 @@ namespace fCraft {
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
         /// not on cooldown (a bit of an intentional race condition). </summary>
         sealed class IrcThread : IDisposable {
+            readonly string desiredBotNick;
             TcpClient client;
             StreamReader reader;
             StreamWriter writer;
             Thread thread;
             bool isConnected;
             bool reconnect;
-            string desiredBotNick;
             DateTime lastMessageSent;
             DateTime lastNickAttempt;
             int nickTry;
@@ -73,12 +73,18 @@ namespace fCraft {
 
             public bool IsReady { get; private set; }
             public bool ResponsibleForInputParsing { get; set; }
+
+            [NotNull]
             public string ActualBotNick { get; private set; }
 
 
-            public bool Start( [NotNull] string botNick, bool parseInput ) {
+            public IrcThread( [NotNull] string botNick ) {
                 if( botNick == null ) throw new ArgumentNullException( "botNick" );
                 desiredBotNick = botNick;
+                ActualBotNick = botNick;
+            }
+
+            public bool Start( bool parseInput ) {
                 ResponsibleForInputParsing = parseInput;
                 try {
                     // start the machinery!
@@ -623,16 +629,18 @@ namespace fCraft {
             int threadCount = ConfigKey.IRCThreads.GetInt();
 
             if( threadCount == 1 ) {
-                IrcThread thread = new IrcThread();
-                if( thread.Start( botNick, true ) ) {
-                    threads = new[] { thread };
+                IrcThread thread = new IrcThread( botNick );
+                if( thread.Start( true ) ) {
+                    threads = new[] {
+                        thread
+                    };
                 }
 
             } else {
                 List<IrcThread> threadTemp = new List<IrcThread>();
                 for( int i = 0; i < threadCount; i++ ) {
-                    IrcThread temp = new IrcThread();
-                    if( temp.Start( botNick + (i + 1), (threadTemp.Count == 0) ) ) {
+                    IrcThread temp = new IrcThread( botNick + ( i + 1 ) );
+                    if( temp.Start( ( threadTemp.Count == 0 ) ) ) {
                         threadTemp.Add( temp );
                     }
                 }

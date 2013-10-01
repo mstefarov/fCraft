@@ -114,6 +114,7 @@ namespace fCraft {
 
 
         /// <summary> Prepends the correct Mono name to the .NET executable, if needed. </summary>
+        [NotNull]
         public static string PrependMono( [NotNull] string dotNetExecutable ) {
             if( dotNetExecutable == null ) throw new ArgumentNullException( "dotNetExecutable" );
             if( IsMono ) {

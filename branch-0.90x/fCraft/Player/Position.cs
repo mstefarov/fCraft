@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Struct representing a position AND orientation in 3D space.
@@ -87,7 +88,7 @@ namespace fCraft {
         }
 
 
-        public override bool Equals( object obj ) {
+        public override bool Equals( [CanBeNull] object obj ) {
             return ( obj is Position ) && Equals( (Position)obj );
         }
 

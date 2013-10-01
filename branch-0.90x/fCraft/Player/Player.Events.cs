@@ -179,13 +179,12 @@ namespace fCraft {
         }
 
 
-        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeReason reason,
-                                                  string textLine1, string textLine2 ) {
+        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeReason reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = JoiningWorld;
             if( h == null ) return false;
-            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason, textLine1, textLine2 );
+            var e = new PlayerJoiningWorldEventArgs( player, player.World, newWorld, reason );
             h( null, e );
             return e.Cancel;
         }
@@ -558,16 +557,13 @@ namespace fCraft.Events {
     /// Allows overriding the text that is shown on connection screen. </summary>
     public sealed class PlayerJoiningWorldEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerJoiningWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
-                                              [NotNull] World newWorld, WorldChangeReason context,
-                                              string textLine1, string textLine2 ) {
+                                              [NotNull] World newWorld, WorldChangeReason context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             Player = player;
             OldWorld = oldWorld;
             NewWorld = newWorld;
             Context = context;
-            TextLine1 = textLine1;
-            TextLine2 = textLine2;
         }
 
         /// <summary> Player who intends to join a world. </summary>
@@ -583,14 +579,6 @@ namespace fCraft.Events {
 
         /// <summary> Context of the world change. </summary>
         public WorldChangeReason Context { get; private set; }
-
-        /// <summary> First line of text that is shown to the player on the loading screen.
-        /// Defaults to server name. May be changed. </summary>
-        public string TextLine1 { get; set; } // TODO
-
-        /// <summary> First line of text that is shown to the player on the loading screen.
-        /// Defaults to world name or WoM cfg string. May be changed. </summary>
-        public string TextLine2 { get; set; } // TODO
 
         public bool Cancel { get; set; }
     }

@@ -119,6 +119,7 @@ namespace fCraft {
 
 
         /// <summary> Provides the default value for a given ConfigKey. </summary>
+        [NotNull]
         public static object GetDefault( this ConfigKey key ) {
             return KeyMetadata[(int)key].DefaultValue;
         }
@@ -581,6 +582,7 @@ namespace fCraft {
 
 
         /// <summary> Returns raw value for the given key. </summary>
+        [NotNull]
         public static string GetString( this ConfigKey key ) {
             return KeyMetadata[(int)key].Process( Settings[(int)key] );
         }
@@ -642,12 +644,14 @@ namespace fCraft {
 
 
         /// <summary> Returns the expected Type of the key's value, as specified in key metadata. </summary>
+        [NotNull]
         public static Type GetValueType( this ConfigKey key ) {
             return KeyMetadata[(int)key].ValueType;
         }
 
 
         /// <summary> Returns the metadata container (ConfigKeyAttribute object) for a given key. </summary>
+        [NotNull]
         public static ConfigKeyAttribute GetMetadata( this ConfigKey key ) {
             return KeyMetadata[(int)key];
         }
@@ -660,6 +664,7 @@ namespace fCraft {
 
 
         /// <summary> Returns the description text for a given config key. </summary>
+        [NotNull]
         public static string GetDescription( this ConfigKey key ) {
             return KeyMetadata[(int)key].Description;
         }
@@ -687,7 +692,7 @@ namespace fCraft {
         /// <exception cref="FormatException"> Given value did not satisfy key's requirements. </exception>
         /// <returns> True if value is valid and has been assigned.
         /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
-        public static bool SetValue( this ConfigKey key, object rawValue ) {
+        public static bool SetValue( this ConfigKey key, [NotNull] object rawValue ) {
             if( rawValue == null ) {
                 throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
@@ -709,10 +714,11 @@ namespace fCraft {
         /// Check the return value to make sure that the given value was acceptable. </summary>
         /// <param name="key"> Config key to set. </param>
         /// <param name="rawValue"> Value to assign to the key. If passed object is not a string, rawValue.ToString() is used. </param>
-        /// <exception cref="T:System.ArgumentNullException" />
+        /// <exception cref="ArgumentNullException"> rawValue is null </exception>
         /// <returns> True if value is valid and has been assigned.
         /// False if value was invalid, or if assignment was cancelled by an event handler/plugin. </returns>
-        public static bool TrySetValue( this ConfigKey key, object rawValue ) {
+        public static bool TrySetValue( this ConfigKey key, [NotNull] object rawValue ) {
+            if( rawValue == null ) throw new ArgumentNullException( "rawValue" );
             try {
                 return SetValue( key, rawValue );
             } catch( FormatException ex ) {
@@ -724,7 +730,8 @@ namespace fCraft {
         }
 
 
-        static bool DoSetValue( ConfigKey key, string newValue ) {
+        static bool DoSetValue( ConfigKey key, [NotNull] string newValue ) {
+            if( newValue == null ) throw new ArgumentNullException( "newValue" );
             string oldValue = Settings[(int)key];
             if( oldValue != newValue ) {
                 if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
@@ -1055,7 +1062,7 @@ namespace fCraft {
         }
 
 
-        static bool RaiseKeyChangingEvent( ConfigKey key, string oldValue, ref string newValue ) {
+        static bool RaiseKeyChangingEvent( ConfigKey key, [NotNull] string oldValue, [NotNull] ref string newValue ) {
             var h = KeyChanging;
             if( h == null ) return false;
             var e = new ConfigKeyChangingEventArgs( key, oldValue, newValue );
@@ -1065,7 +1072,7 @@ namespace fCraft {
         }
 
 
-        static void RaiseKeyChangedEvent( ConfigKey key, string oldValue, string newValue ) {
+        static void RaiseKeyChangedEvent( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
             var h = KeyChanged;
             var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
             if( h != null ) h( null, args );
@@ -1087,11 +1094,18 @@ namespace fCraft.Events {
     /// <summary> Provides data for Config.KeyChanging event. Allows modification of the value. Cancelable. </summary>
     public sealed class ConfigKeyChangingEventArgs : EventArgs, ICancelableEvent {
         public ConfigKey Key { get; private set; }
+
+        [NotNull]
         public string OldValue { get; private set; }
+
+        [NotNull]
         public string NewValue { get; set; }
+
         public bool Cancel { get; set; }
 
-        public ConfigKeyChangingEventArgs( ConfigKey key, string oldValue, string newValue ) {
+        public ConfigKeyChangingEventArgs( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
+            if( oldValue == null ) throw new ArgumentNullException( "oldValue" );
+            if( newValue == null ) throw new ArgumentNullException( "newValue" );
             Key = key;
             OldValue = oldValue;
             NewValue = newValue;
@@ -1103,10 +1117,16 @@ namespace fCraft.Events {
     /// <summary> Provides data for Config.keyChanged event. Immutable. </summary>
     public sealed class ConfigKeyChangedEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
+
+        [NotNull]
         public string OldValue { get; private set; }
+
+        [NotNull]
         public string NewValue { get; private set; }
 
-        public ConfigKeyChangedEventArgs( ConfigKey key, string oldValue, string newValue ) {
+        public ConfigKeyChangedEventArgs( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
+            if( oldValue == null ) throw new ArgumentNullException( "oldValue" );
+            if( newValue == null ) throw new ArgumentNullException( "newValue" );
             Key = key;
             OldValue = oldValue;
             NewValue = newValue;

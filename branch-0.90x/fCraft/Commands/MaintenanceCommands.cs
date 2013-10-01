@@ -1293,8 +1293,10 @@ namespace fCraft {
 
 
         static void PruneDBTask( [NotNull] SchedulerTask task ) {
-            int removedCount = PlayerDB.RemoveInactivePlayers();
             Player player = (Player)task.UserState;
+            if( player == null ) throw new NullReferenceException( "task.UserState" );
+
+            int removedCount = PlayerDB.RemoveInactivePlayers();
             player.Message( "PruneDB: Removed {0} inactive players!", removedCount );
         }
 

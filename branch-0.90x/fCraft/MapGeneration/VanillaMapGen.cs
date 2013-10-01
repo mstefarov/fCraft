@@ -122,7 +122,7 @@ namespace fCraft.MapGeneration {
         }
 
 
-        public VanillaMapGenParameters( XElement baseElement )
+        public VanillaMapGenParameters( [NotNull] XElement baseElement )
             : this() {
             base.LoadProperties( baseElement );
         }

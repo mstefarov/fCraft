@@ -165,8 +165,9 @@ namespace fCraft.MapConversion {
 
         public NBTag this[int index] {
             get {
-                if( this is NBTList ) {
-                    return ( (NBTList)this ).Tags[index];
+                NBTList list = this as NBTList;
+                if( list != null ) {
+                    return list.Tags[index];
                 } else {
                     throw new NotSupportedException();
                 }
@@ -175,8 +176,9 @@ namespace fCraft.MapConversion {
 
         public NBTag this[string key] {
             get {
-                if( this is NBTCompound ) {
-                    return ( (NBTCompound)this ).Tags[key];
+                NBTCompound compound = this as NBTCompound;
+                if( compound != null ) {
+                    return compound.Tags[key];
                 } else {
                     throw new NotSupportedException();
                 }
@@ -196,18 +198,22 @@ namespace fCraft.MapConversion {
             return new NBTEnumerator( this );
         }
 
-        public sealed class NBTEnumerator : IEnumerator<NBTag> {
+        sealed class NBTEnumerator : IEnumerator<NBTag> {
             readonly NBTag[] tags;
             int index = -1;
 
             public NBTEnumerator( NBTag tag ) {
-                if( tag is NBTCompound ) {
-                    tags = new NBTag[( (NBTCompound)tag ).Tags.Count];
-                    ( (NBTCompound)tag ).Tags.Values.CopyTo( tags, 0 );
-                } else if( tag is NBTList ) {
-                    tags = ( (NBTList)tag ).Tags;
+                NBTCompound compound = tag as NBTCompound;
+                if( compound != null ) {
+                    tags = new NBTag[compound.Tags.Count];
+                    compound.Tags.Values.CopyTo( tags, 0 );
                 } else {
-                    tags = new NBTag[0];
+                    NBTList list = tag as NBTList;
+                    if( list != null ) {
+                        tags = list.Tags;
+                    } else {
+                        tags = new NBTag[0];
+                    }
                 }
             }
 
