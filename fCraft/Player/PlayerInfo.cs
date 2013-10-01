@@ -83,6 +83,7 @@ namespace fCraft {
 
         static void CheckPaidStatusCallback( [NotNull] SchedulerTask task ) {
             PlayerInfo info = (PlayerInfo)task.UserState;
+            if( info == null ) throw new NullReferenceException( "task.UserState" );
             info.AccountType = Player.CheckPaidStatus( info.Name );
         }
 

@@ -993,7 +993,9 @@ namespace fCraft {
 
         // called after player types "/ok" to the confirmation prompt.
 
-        static void BlockDBUndoConfirmCallback( Player player, object tag, bool fromConsole ) {
+        static void BlockDBUndoConfirmCallback( [NotNull] Player player, [NotNull] object tag, bool fromConsole ) {
+            if( player == null ) throw new ArgumentNullException( "player" );
+            if( tag == null ) throw new ArgumentNullException( "tag" );
             BlockDBUndoArgs args = (BlockDBUndoArgs)tag;
             string cmdName = (args.Area == null ? "UndoArea" : "UndoPlayer");
             if( args.Not ) cmdName += "Not";
@@ -1124,6 +1126,8 @@ namespace fCraft {
         // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
         static void UndoAreaLookup( [NotNull] SchedulerTask task ) {
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
+            if( args == null ) throw new NullReferenceException( "task.UserState" );
+
             bool allPlayers = ( args.Targets.Length == 0 );
             string cmdName = ( args.Not ? "UndoAreaNot" : "UndoArea" );
 
@@ -1239,9 +1243,9 @@ namespace fCraft {
         // Looks up the changes in BlockDB and prints a confirmation prompt. Runs on a background thread.
 
         static void UndoPlayerLookup( [NotNull] SchedulerTask task ) {
-            if( task == null ) throw new ArgumentNullException( "task" );
-
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
+            if( args == null ) throw new NullReferenceException( "task.UserState" );
+
             bool allPlayers = (args.Targets.Length == 0);
             string cmdName = (args.Not ? "UndoPlayerNot" : "UndoPlayer");
 

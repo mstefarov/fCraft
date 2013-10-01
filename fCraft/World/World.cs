@@ -655,7 +655,7 @@ namespace fCraft {
         }
 
 
-        void UpdateTask( SchedulerTask task ) {
+        void UpdateTask( [NotNull] SchedulerTask task ) {
             Map tempMap = Map;
             if( tempMap != null ) {
                 tempMap.ProcessUpdates();
@@ -663,7 +663,7 @@ namespace fCraft {
         }
 
 
-        void SaveTask( SchedulerTask task ) {
+        void SaveTask( [NotNull] SchedulerTask task ) {
             if( !IsLoaded ) return;
             lock( SyncRoot ) {
                 if( Map == null ) return;
@@ -672,7 +672,6 @@ namespace fCraft {
                     if( BackupsEnabled &&
                         DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
                         ( HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
-
                         string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
                         SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
                         lastBackup = DateTime.UtcNow;

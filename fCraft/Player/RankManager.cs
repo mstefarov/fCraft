@@ -27,22 +27,28 @@ namespace fCraft {
         public static List<Rank> Ranks { get; private set; }
 
         /// <summary> Default Rank of a new user. </summary>
+        [NotNull]
         public static Rank DefaultRank { get; set; }
 
         /// <summary> Lowest Rank available in the server. </summary>
+        [NotNull]
         public static Rank LowestRank { get; private set; }
 
         /// <summary> Highest Rank available in the server. </summary>
+        [NotNull]
         public static Rank HighestRank { get; private set; }
 
         /// <summary> Highest Rank that /Patrol will consider when selecting candidates. </summary>
+        [NotNull]
         public static Rank PatrolledRank { get; set; }
 
         /// <summary> The default minimum Rank required to build in newly created worlds. </summary>
+        [NotNull]
         public static Rank DefaultBuildRank { get; set; }
 
         /// <summary> Rank used by BlockDB to determine whether it should be auto-enabled on a world or not.
         /// Worlds where BuildSecurity.MinRank is equal or lower than this rank WILL have BlockDB auto-enabled. </summary>
+        [NotNull]
         public static Rank BlockDBAutoEnableRank { get; set; }
 
 
@@ -100,9 +106,8 @@ namespace fCraft {
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. 
         /// If null was given instead of rank name, returns null. </returns>
         [CanBeNull]
-        public static Rank FindRank( string name ) {
-            if( name == null ) return null;
-
+        public static Rank FindRank( [NotNull] string name ) {
+            if( name == null ) throw new ArgumentNullException( "name" );
             Rank result = null;
             foreach( string rankName in RanksByName.Keys ) {
                 if( rankName.Equals( name, StringComparison.OrdinalIgnoreCase ) ) {
@@ -262,6 +267,7 @@ namespace fCraft {
 
         /// <summary> Creates a 16 character unique rank ID, via Server.GetRandomString(). </summary>
         /// <returns> 16 character unique rank ID. </returns>
+        [NotNull]
         public static string GenerateID() {
             return Server.GetRandomString( 16 );
         }

@@ -290,7 +290,7 @@ namespace fCraft {
 
 #if DEBUG_SCHEDULER
     public class SchedulerTaskEventArgs : EventArgs {
-        public SchedulerTaskEventArgs( SchedulerTask task ) {
+        public SchedulerTaskEventArgs( [NotNull] SchedulerTask task ) {
             Task = task;
         }
         public SchedulerTask Task { get; private set; }

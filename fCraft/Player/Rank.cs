@@ -466,10 +466,8 @@ namespace fCraft {
 
         #region Permission Limits
 
-        public Rank[] PermissionLimits {
-            get;
-            private set;
-        }
+        [NotNull]
+        internal Rank[] PermissionLimits { get; private set; }
 
         readonly string[] permissionLimitStrings;
 
@@ -562,6 +560,7 @@ namespace fCraft {
 
         /// <summary> Fully qualified name of the rank. Format: "Name#ID".
         /// Should be used whenever rank name needs to be serialized. </summary>
+        [NotNull]
         public string FullName { get; internal set; }
 
 

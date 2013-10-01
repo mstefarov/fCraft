@@ -32,6 +32,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Marks given by the player to this command. Marks could come from either clicks or /Mark command.
         /// Set by DrawOperation.Prepare(). Must be set by any class that overrides Prepare(). </summary>
+        [CanBeNull]
         public Vector3I[] Marks { get; protected set; }
 
         /// <summary> Time when the draw operation began. Set by DrawOperation.Begin() </summary>
@@ -39,6 +40,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Area that bounds this DrawOperation's extent. Used for logging.
         /// Should be assigned, as accurately as possible, before DrawOp finishes. </summary>
+        [CanBeNull]
         public BoundingBox Bounds { get; protected set; }
 
         /// <summary> Whether this operation has been started (queued for processing on the Map). </summary>

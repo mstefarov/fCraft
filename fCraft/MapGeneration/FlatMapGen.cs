@@ -215,7 +215,8 @@ namespace fCraft.MapGeneration {
 
 
     sealed class FlatMapGenState : MapGeneratorState {
-        public FlatMapGenState( FlatMapGenParameters parameters ) {
+        public FlatMapGenState( [NotNull] FlatMapGenParameters parameters ) {
+            if( parameters == null ) throw new ArgumentNullException( "parameters" );
             Parameters = parameters;
             StatusString = "Ready";
             ReportsProgress = false;

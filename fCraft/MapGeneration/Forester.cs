@@ -134,7 +134,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void PlantTrees( ForesterArgs args, ICollection<Tree> treeList ) {
+        static void PlantTrees( [NotNull] ForesterArgs args, [NotNull] ICollection<Tree> treeList ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( treeList == null ) throw new ArgumentNullException( "treeList" );
             int treeHeight = args.Height;
 
             int attempts = 0;
@@ -217,7 +219,9 @@ namespace fCraft.MapGeneration {
         }
 
 
-        static void PlantMangroves( ForesterArgs args, ICollection<Tree> treeList ) {
+        static void PlantMangroves( [NotNull] ForesterArgs args, [NotNull] ICollection<Tree> treeList ) {
+            if( args == null ) throw new ArgumentNullException( "args" );
+            if( treeList == null ) throw new ArgumentNullException( "treeList" );
             int treeHeight = args.Height;
 
             int attempts = 0;

@@ -442,6 +442,7 @@ namespace fCraft {
         /// <param name="fullFileName"> Case-insensitive file name to look for. </param>
         /// <returns> Array of matches. Empty array if no files matches. </returns>
         /// <exception cref="ArgumentNullException"> fullFileName is null. </exception>
+        [NotNull]
         public static FileInfo[] FindFiles( [NotNull] string fullFileName ) {
             if( fullFileName == null ) throw new ArgumentNullException( "fullFileName" );
             string fileName = Path.GetFileName( fullFileName );

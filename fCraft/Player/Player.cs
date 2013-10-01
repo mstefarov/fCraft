@@ -1100,11 +1100,16 @@ namespace fCraft {
 
         /// <summary> Name formatted for the debugger. </summary>
         public override string ToString() {
+            // ReSharper disable HeuristicUnreachableCode
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // Info may be null in the first few milliseconds of the login sequence,
+            // until PlayerDB record is fetched.
             if( Info != null ) {
                 return String.Format( "Player({0})", Info.Name );
             } else {
                 return String.Format( "Player({0})", IP );
             }
+            // ReSharper restore HeuristicUnreachableCode
         }
     }
 

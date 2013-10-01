@@ -135,11 +135,11 @@ namespace fCraft {
         /// <returns> Lowercase color name.
         /// If input is an empty string, returns an empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
-        [CanBeNull, Pure]
-        public static string GetName( [CanBeNull] string color ) {
-            if( color == null ) {
-                return null;
-            } else if( color.Length == 0 ) {
+        [CanBeNull]
+        [Pure]
+        public static string GetName( [NotNull] string color ) {
+            if( color == null ) throw new ArgumentNullException( "color" );
+            if( color.Length == 0 ) {
                 return "";
             } else {
                 string parsedColor = Parse( color );
@@ -197,11 +197,10 @@ namespace fCraft {
         /// <returns> If input could be parsed, returns a standard Minecraft ampersand-color-code.
         /// If input is an empty string, returns an empty string.
         /// If input is null or cannot be parsed, returns null. </returns>
-        [CanBeNull, Pure]
-        public static string Parse( [CanBeNull] string color ) {
-            if( color == null ) {
-                return null;
-            }
+        [CanBeNull]
+        [Pure]
+        public static string Parse( [NotNull] string color ) {
+            if( color == null ) throw new ArgumentNullException( "color" );
             switch( color.Length ) {
                 case 2:
                     if( color[0] == '&' ) {

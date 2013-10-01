@@ -244,6 +244,7 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static string ReadLengthPrefixedString( [NotNull] BinaryReader reader ) {
             if( reader == null ) throw new ArgumentNullException( "reader" );
             int length = reader.ReadUInt16();
@@ -287,19 +288,20 @@ namespace fCraft.MapConversion {
         }
 
 
+        [NotNull]
         static string SerializeZone( [NotNull] Zone zone ) {
             if( zone == null ) throw new ArgumentNullException( "zone" );
-            string xheader;
+            string xHeader;
             if( zone.CreatedBy != null ) {
-                xheader = zone.CreatedBy + " " + zone.CreatedDate.ToCompactString() + " ";
+                xHeader = zone.CreatedBy + " " + zone.CreatedDate.ToCompactString() + " ";
             } else {
-                xheader = "- - ";
+                xHeader = "- - ";
             }
 
             if( zone.EditedBy != null ) {
-                xheader += zone.EditedBy + " " + zone.EditedDate.ToCompactString();
+                xHeader += zone.EditedBy + " " + zone.EditedDate.ToCompactString();
             } else {
-                xheader += "- -";
+                xHeader += "- -";
             }
 
             var zoneExceptions = zone.Controller.ExceptionList;
@@ -310,12 +312,16 @@ namespace fCraft.MapConversion {
             return String.Format( "{0},{1},{2},{3}",
                                   String.Format( "{0} {1} {2} {3} {4} {5} {6} {7}",
                                                  zone.Name,
-                                                 zone.Bounds.XMin, zone.Bounds.YMin, zone.Bounds.ZMin,
-                                                 zone.Bounds.XMax, zone.Bounds.YMax, zone.Bounds.ZMax,
+                                                 zone.Bounds.XMin,
+                                                 zone.Bounds.YMin,
+                                                 zone.Bounds.ZMin,
+                                                 zone.Bounds.XMax,
+                                                 zone.Bounds.YMax,
+                                                 zone.Bounds.ZMax,
                                                  zone.Controller.MinRank.FullName ),
                                   whitelist,
                                   blacklist,
-                                  xheader );
+                                  xHeader );
         }
     }
 }

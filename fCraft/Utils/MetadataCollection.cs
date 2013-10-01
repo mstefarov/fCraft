@@ -157,6 +157,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         TValue GetValue( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -271,6 +272,7 @@ namespace fCraft {
 
         /// <summary> Enumerates a group of keys. </summary>
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
+        [NotNull]
         public IEnumerable<MetadataEntry<TValue>> GetGroup( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             Dictionary<string, TValue> groupDic;
@@ -288,7 +290,6 @@ namespace fCraft {
                 throw new KeyNotFoundException( "No group found with the given name." );
             }
         }
-
 
         #region ICollection<MetadataEntry> Members
 

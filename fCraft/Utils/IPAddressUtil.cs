@@ -7,9 +7,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Provides utility methods for working with IP addresses and ranges. </summary>
     public static class IPAddressUtil {
-        static readonly Regex RegexIP =
-            new Regex( @"\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b",
-                       RegexOptions.Compiled );
+        static readonly Regex RegexIP = new Regex( @"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$", RegexOptions.Compiled );
 
 
         /// <summary> Checks whether an IP address may belong to LAN or localhost (192.168.0.0/16, 10.0.0.0/24, or 127.0.0.0/24). </summary>
@@ -50,7 +48,7 @@ namespace fCraft {
         }
 
 
-        public static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
+        internal static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             uint thisAsUInt = thisAddr.AsUInt();
             return ( thisAsUInt & mask ) == ( otherAddr & mask );

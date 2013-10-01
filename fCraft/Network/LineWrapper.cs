@@ -427,6 +427,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         object IEnumerator.Current {
             get { return Current; }
         }

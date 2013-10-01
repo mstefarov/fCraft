@@ -187,10 +187,13 @@ namespace fCraft {
 
 
         sealed class HeartbeatRequestState {
-            public HeartbeatRequestState( HttpWebRequest request, HeartbeatData data ) {
+            public HeartbeatRequestState( [NotNull] HttpWebRequest request, [NotNull] HeartbeatData data ) {
+                if( request == null ) throw new ArgumentNullException( "request" );
+                if( data == null ) throw new ArgumentNullException( "data" );
                 Request = request;
                 Data = data;
             }
+
             public readonly HttpWebRequest Request;
             public readonly HeartbeatData Data;
         }

@@ -95,7 +95,7 @@ namespace fCraft {
         /// <param name="initBlockArray"> If true, the Blocks array will be created. </param>
         /// <exception cref="ArgumentOutOfRangeException"> Width, length, or height is not between 16 and 2048. </exception>
         /// <exception cref="ArgumentException"> Map volume exceeds Int32.MaxValue. </exception>
-        public Map( World world, int width, int length, int height, bool initBlockArray ) {
+        public Map( [CanBeNull] World world, int width, int length, int height, bool initBlockArray ) {
             if( !IsValidDimension( width ) ) throw new ArgumentOutOfRangeException( "width", "Invalid map width." );
             if( !IsValidDimension( length ) ) throw new ArgumentOutOfRangeException( "length", "Invalid map length." );
             if( !IsValidDimension( height ) ) throw new ArgumentOutOfRangeException( "height", "Invalid map height." );

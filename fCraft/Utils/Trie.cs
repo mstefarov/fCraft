@@ -384,8 +384,7 @@ namespace fCraft {
             protected readonly Stack<int> ParentIndices = new Stack<int>();
 
 
-            protected EnumeratorBase( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix ) {
-                if( node == null ) throw new ArgumentNullException( "node" );
+            protected EnumeratorBase( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix ) {
                 if( trie == null ) throw new ArgumentNullException( "trie" );
                 if( prefix == null ) throw new ArgumentNullException( "prefix" );
                 StartingNode = node;
@@ -719,7 +718,7 @@ namespace fCraft {
 
         sealed class TrieDictionaryEnumerator : EnumeratorBase, IDictionaryEnumerator {
 
-            public TrieDictionaryEnumerator( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
+            public TrieDictionaryEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                 : base( node, trie, prefix ) {}
 
 
@@ -755,6 +754,7 @@ namespace fCraft {
             }
 
 
+            [NotNull]
             object IEnumerator.Current {
                 get {
                     return Entry;
@@ -898,7 +898,7 @@ namespace fCraft {
 
             sealed class TrieValueEnumerator : EnumeratorBase, IEnumerator<T> {
 
-                public TrieValueEnumerator( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
+                public TrieValueEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                     : base( node, trie, prefix ) {
                 }
 
@@ -1064,7 +1064,7 @@ namespace fCraft {
 
             sealed class TrieKeyEnumerator : EnumeratorBase, IEnumerator<string> {
 
-                public TrieKeyEnumerator( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
+                public TrieKeyEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                     : base( node, trie, prefix ) {
                 }
 
@@ -1121,7 +1121,7 @@ namespace fCraft {
 
         sealed class TrieEnumerator : EnumeratorBase, IEnumerator<KeyValuePair<string, T>> {
 
-            public TrieEnumerator( [NotNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
+            public TrieEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                 : base( node, trie, prefix ) {}
 
 
@@ -1135,6 +1135,7 @@ namespace fCraft {
             }
 
 
+            [NotNull]
             object IEnumerator.Current {
                 get {
                     return Current;

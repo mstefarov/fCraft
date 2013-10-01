@@ -350,7 +350,7 @@ namespace fCraft {
 
         public event EventHandler Changed;
 
-        void OnZoneChanged( object sender, EventArgs e ) {
+        void OnZoneChanged( [CanBeNull] object sender, [CanBeNull] EventArgs e ) {
             RaiseChangedEvent();
         }
 
