@@ -7,12 +7,22 @@ namespace fCraft.Drawing {
     /// <summary> Draw operation that performs a 2D flood fill. 
     /// Uses player's position to determine plane of filling. </summary>
     public sealed class Fill3DDrawOperation : DrawOperation {
+        IEnumerator<Vector3I> coordEnumerator;
+
+        // fields to accommodate non-standard brushes (which require caching)
+        bool nonStandardBrush;
+        BitMap3D allCoords;
+
         public override string Name {
-            get { return "Fill3D"; }
+            get {
+                return "Fill3D";
+            }
         }
 
         public override int ExpectedMarks {
-            get { return 1; }
+            get {
+                return 1;
+            }
         }
 
         public override string Description {
@@ -23,7 +33,9 @@ namespace fCraft.Drawing {
                                           Brush.InstanceDescription );
                 } else {
                     return String.Format( "{0}({1} -> {2})",
-                                          Name, SourceBlock, Brush.InstanceDescription );
+                                          Name,
+                                          SourceBlock,
+                                          Brush.InstanceDescription );
                 }
             }
         }
@@ -52,7 +64,7 @@ namespace fCraft.Drawing {
             } else {
                 // Our fill limit is cube root of DrawLimit
                 double pow = Math.Pow( Player.Info.Rank.DrawLimit, 1/3d );
-                int maxLimit = (int)Math.Ceiling( pow / 2 );
+                int maxLimit = (int)Math.Ceiling( pow/2 );
 
                 // Compute the largest possible extent
                 if( maxLimit < 1 || maxLimit > 2048 ) maxLimit = 2048;
@@ -76,17 +88,12 @@ namespace fCraft.Drawing {
         }
 
 
-        // fields to accommodate non-standard brushes (which require caching)
-        bool nonStandardBrush;
-        BitMap3D allCoords;
-
         public override bool Begin() {
             if( !RaiseBeginningEvent( this ) ) return false;
             UndoState = Player.DrawBegin( this );
             StartTime = DateTime.UtcNow;
 
-            if( !(Brush is NormalBrush) ) {
-                long membef = GC.GetTotalMemory( true );
+            if( !( Brush is NormalBrush ) ) {
                 // for nonstandard brushes, cache all coordinates up front
                 nonStandardBrush = true;
 
@@ -99,13 +106,6 @@ namespace fCraft.Drawing {
 
                 // Replace our F3D enumerator with a HashSet enumerator
                 coordEnumerator = allCoords.GetEnumerator();
-                long memaf = GC.GetTotalMemory( true );
-                Logger.Log( LogType.Debug,
-                            "Mem use delta: {0} KB / blocks drawn: {1} / blocks checked: {2} / ratio: {3}%",
-                            (memaf - membef)/1024,
-                            allCoords.Count,
-                            blocksProcessed,
-                            (allCoords.Count * 100 ) / blocksProcessed);
             }
 
             HasBegun = true;
@@ -114,8 +114,6 @@ namespace fCraft.Drawing {
             return true;
         }
 
-
-        IEnumerator<Vector3I> coordEnumerator;
 
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
@@ -136,12 +134,10 @@ namespace fCraft.Drawing {
             if( nonStandardBrush && allCoords.Get( coords ) ) {
                 return false;
             }
-            return (Map.GetBlock( coords ) == SourceBlock) &&
-                   (Player.CanPlace( Map, coords, Brush.NextBlock( this ), Context ) == CanPlaceResult.Allowed);
+            return ( Map.GetBlock( coords ) == SourceBlock ) &&
+                   ( Player.CanPlace( Map, coords, Brush.NextBlock( this ), Context ) == CanPlaceResult.Allowed );
         }
 
-
-        int blocksProcessed;
 
         [NotNull]
         IEnumerable<Vector3I> BlockEnumerator() {
@@ -150,7 +146,6 @@ namespace fCraft.Drawing {
 
             while( stack.Count > 0 ) {
                 Vector3I coords = stack.Pop();
-                blocksProcessed++;
                 if( CanPlace( coords ) ) {
                     yield return coords;
                     if( coords.X - 1 >= Bounds.XMin ) {
