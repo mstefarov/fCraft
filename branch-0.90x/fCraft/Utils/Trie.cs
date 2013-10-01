@@ -57,6 +57,7 @@ namespace fCraft {
                         return null;
 
                     case MultiNode:
+                        Debug.Assert( temp.Children != null, "temp.Children != null" );
                         if( temp.Children[code] == null ) {
                             return null;
                         } else {
@@ -68,6 +69,7 @@ namespace fCraft {
                         if( temp.Tag != code ) {
                             return null;
                         } else {
+                            Debug.Assert( temp.Children != null, "temp.Children != null" );
                             temp = temp.Children[0];
                             break;
                         }
@@ -128,6 +130,7 @@ namespace fCraft {
 
                     default:
                         // go deeper
+                        Debug.Assert( node.Children != null, "node.Children != null" );
                         node = node.Children[0];
                         break;
                 }
@@ -184,11 +187,13 @@ namespace fCraft {
                 switch( temp.Tag ) {
                     case LeafNode:
                         temp.LeafToSingle( (byte)code );
+                        Debug.Assert( temp.Children != null, "temp.Children != null" );
                         temp.Children[0] = new TrieNode();
                         temp = temp.Children[0];
                         break;
 
                     case MultiNode:
+                        Debug.Assert( temp.Children != null, "temp.Children != null" );
                         if( temp.Children[code] == null ) {
                             temp.Children[code] = new TrieNode();
                         }
@@ -198,9 +203,11 @@ namespace fCraft {
                     default:
                         if( temp.Tag != code ) {
                             temp.SingleToMulti();
+                            Debug.Assert( temp.Children != null, "temp.Children != null" );
                             temp.Children[code] = new TrieNode();
                             temp = temp.Children[code];
                         } else {
+                            Debug.Assert( temp.Children != null, "temp.Children != null" );
                             temp = temp.Children[0];
                         }
                         break;
@@ -422,8 +429,10 @@ namespace fCraft {
 
             protected bool FindNextPayload() {
             continueLoop:
+                Debug.Assert( CurrentNode != null, "CurrentNode != null" );
                 switch( CurrentNode.Tag ) {
                     case MultiNode:
+                        Debug.Assert( CurrentNode.Children != null, "CurrentNode.Children != null" );
                         while( CurrentIndex < CurrentNode.Children.Length ) {
                             if( CurrentNode.Children[CurrentIndex] != null ) {
                                 MoveDown( CurrentNode.Children[CurrentIndex], CurrentIndex );
@@ -445,6 +454,7 @@ namespace fCraft {
 
                     default:
                         if( CurrentIndex == 0 ) {
+                            Debug.Assert( CurrentNode.Children != null, "CurrentNode.Children != null" );
                             MoveDown( CurrentNode.Children[0], CurrentNode.Tag );
                             if( CurrentNode.Payload != null ) {
                                 return true;
@@ -572,6 +582,7 @@ namespace fCraft {
                         return false;
 
                     case MultiNode:
+                        Debug.Assert( temp.Children != null, "temp.Children != null" );
                         if( temp.Children[code] == null ) {
                             return false;
                         } else {
@@ -585,6 +596,7 @@ namespace fCraft {
                             return false;
                         } else {
                             parents.Push( temp );
+                            Debug.Assert( temp.Children != null, "temp.Children != null" );
                             temp = temp.Children[0];
                             break;
                         }
@@ -944,7 +956,7 @@ namespace fCraft {
         #region KeyCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
-        public sealed class TrieKeyCollection : ICollection<string>, ICollection {
+        sealed class TrieKeyCollection : ICollection<string>, ICollection {
             readonly Trie<T> trie;
 
 
@@ -1021,7 +1033,10 @@ namespace fCraft {
             #endregion
 
 
-            public IEnumerable<string> StartingWith( string prefix ) {
+            /// <summary> Returns an enumerator over all values that start with the given prefix. </summary>
+            /// <exception cref="ArgumentNullException"> prefix is null. </exception>
+            [NotNull]
+            public IEnumerable<string> StartingWith( [NotNull] string prefix ) {
                 return new TrieKeySubset( trie, prefix );
             }
 
