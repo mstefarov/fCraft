@@ -51,6 +51,7 @@ namespace fCraft {
                               MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
         static int userHostLength = 60,
                    maxNickLength = 30;
+        const int MaxMessageSize = 510; // +2 bytes for CR-LF
 
         /// <summary> Class represents an IRC connection/thread.
         /// There is an undocumented option (IRCThreads) to "load balance" the outgoing
@@ -551,7 +552,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Read/write timeout for IRC connections. Default is 15s. </summary>
         public static TimeSpan Timeout { get; set; }
 
@@ -677,7 +677,6 @@ namespace fCraft {
         }
 
 
-        const int MaxMessageSize = 510; // +2 bytes for CR-LF
         public static void SendRawMessage( string prefix, [NotNull] string line, string suffix ) {
             if( line == null ) throw new ArgumentNullException( "line" );
             // handle newlines

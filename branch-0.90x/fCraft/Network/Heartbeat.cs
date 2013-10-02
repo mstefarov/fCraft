@@ -10,6 +10,12 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
+
+        /// <summary> Minecraft.net connection URL. 
+        /// May be null (if heartbeat is disabled, or first heartbeat has not been sent yet). </summary>
+        [CanBeNull]
+        public static Uri Uri { get; internal set; }
+
         internal static Uri MinecraftNetUri;
         static readonly TimeSpan DelayDefault = TimeSpan.FromSeconds( 20 );
         static readonly TimeSpan TimeoutDefault = TimeSpan.FromSeconds( 10 );
@@ -123,9 +129,9 @@ namespace fCraft {
                 } else {
                     try {
                         Uri newUri = new Uri( replyString );
-                        Uri oldUri = Server.Uri;
+                        Uri oldUri = Uri;
                         if( newUri != oldUri ) {
-                            Server.Uri = newUri;
+                            Uri = newUri;
                             RaiseUriChangedEvent( oldUri, newUri );
                         }
                     } catch( UriFormatException ) {

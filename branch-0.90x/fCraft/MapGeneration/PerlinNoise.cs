@@ -1,13 +1,16 @@
 ﻿// Originally part of FemtoCraft | Copyright 2012-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Based in part on Minecraft 0.30 bytecode, copyright 2009 Markus Persson / Mojang AB
 using System;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     // Based on Minecraft Classic's "com.mojang.minecraft.level.a.a.a"
-    public sealed class FilteredNoise {
+    internal sealed class FilteredNoise {
         readonly PerlinNoise noise1, noise2;
 
-        public FilteredNoise( PerlinNoise noise1, PerlinNoise noise2 ) {
+        public FilteredNoise( [NotNull] PerlinNoise noise1, [NotNull] PerlinNoise noise2 ) {
+            if( noise1 == null ) throw new ArgumentNullException( "noise1" );
+            if( noise2 == null ) throw new ArgumentNullException( "noise2" );
             this.noise1 = noise1;
             this.noise2 = noise2;
         }
@@ -19,11 +22,12 @@ namespace fCraft.MapGeneration {
 
 
     // Based on Minecraft Classic's "com.mojang.minecraft.level.a.a.b"
-    public sealed class PerlinNoise {
+    internal sealed class PerlinNoise {
         readonly ImprovedNoise[] noiseLayers;
         readonly int octaves;
 
-        public PerlinNoise( Random rand, int octaves ) {
+        public PerlinNoise( [NotNull] Random rand, int octaves ) {
+            if( rand == null ) throw new ArgumentNullException( "rand" );
             this.octaves = octaves;
             noiseLayers = new ImprovedNoise[octaves];
             for( int i = 0; i < octaves; i++ ) {
@@ -43,10 +47,14 @@ namespace fCraft.MapGeneration {
     }
 
 
-    // Based on: http://mrl.nyu.edu/~perlin/noise/
-    // JAVA REFERENCE IMPLEMENTATION OF IMPROVED NOISE - COPYRIGHT 2002 KEN PERLIN.
+    /// <summary> Improved Perlin Noise implementation,
+    /// based on reference Java implementation (Copyright 2002 Ken Perlin).
+    /// Original: http://mrl.nyu.edu/~perlin/noise/ </summary>
     public sealed class ImprovedNoise {
-        public ImprovedNoise( Random random ) {
+        readonly int[] p = new int[512];
+
+        public ImprovedNoise( [NotNull] Random random ) {
+            if( random == null ) throw new ArgumentNullException( "random" );
             for( int i = 0; i < 256; i++ ) {
                 p[i] = i;
             }
@@ -63,37 +71,37 @@ namespace fCraft.MapGeneration {
 
 
         public double Noise( double x, double y, double z ) {
-            int X = (int)Math.Floor( x ) & 255, // FIND UNIT CUBE THAT
-                Y = (int)Math.Floor( y ) & 255, // CONTAINS POINT.
-                Z = (int)Math.Floor( z ) & 255;
+            int intX = (int)Math.Floor( x ) & 255, // FIND UNIT CUBE THAT
+                intY = (int)Math.Floor( y ) & 255, // CONTAINS POINT.
+                intZ = (int)Math.Floor( z ) & 255;
             x -= Math.Floor( x ); // FIND RELATIVE X,Y,Z
             y -= Math.Floor( y ); // OF POINT IN CUBE.
             z -= Math.Floor( z );
             double u = Fade( x ), // COMPUTE FADE CURVES
                    v = Fade( y ), // FOR EACH OF X,Y,Z.
                    w = Fade( z );
-            int A = p[X] + Y,
-                AA = p[A] + Z,
-                AB = p[A + 1] + Z, // HASH COORDINATES OF
-                B = p[X + 1] + Y,
-                BA = p[B] + Z,
-                BB = p[B + 1] + Z; // THE 8 CUBE CORNERS,
+            int a = p[intX] + intY,
+                aa = p[a] + intZ,
+                ab = p[a + 1] + intZ, // HASH COORDINATES OF
+                b = p[intX + 1] + intY,
+                ba = p[b] + intZ,
+                bb = p[b + 1] + intZ; // THE 8 CUBE CORNERS,
 
             return Lerp( w,
                          Lerp( v,
                                Lerp( u,
-                                     Grad( p[AA], x, y, z ), // AND ADD
-                                     Grad( p[BA], x - 1, y, z ) ), // BLENDED
+                                     Grad( p[aa], x, y, z ), // AND ADD
+                                     Grad( p[ba], x - 1, y, z ) ), // BLENDED
                                Lerp( u,
-                                     Grad( p[AB], x, y - 1, z ), // RESULTS
-                                     Grad( p[BB], x - 1, y - 1, z ) ) ), // FROM  8
+                                     Grad( p[ab], x, y - 1, z ), // RESULTS
+                                     Grad( p[bb], x - 1, y - 1, z ) ) ), // FROM  8
                          Lerp( v,
                                Lerp( u,
-                                     Grad( p[AA + 1], x, y, z - 1 ), // CORNERS
-                                     Grad( p[BA + 1], x - 1, y, z - 1 ) ), // OF CUBE
+                                     Grad( p[aa + 1], x, y, z - 1 ), // CORNERS
+                                     Grad( p[ba + 1], x - 1, y, z - 1 ) ), // OF CUBE
                                Lerp( u,
-                                     Grad( p[AB + 1], x, y - 1, z - 1 ),
-                                     Grad( p[BB + 1], x - 1, y - 1, z - 1 ) ) ) );
+                                     Grad( p[ab + 1], x, y - 1, z - 1 ),
+                                     Grad( p[bb + 1], x - 1, y - 1, z - 1 ) ) ) );
         }
 
 
@@ -113,7 +121,5 @@ namespace fCraft.MapGeneration {
                    v = h < 4 ? y : h == 12 || h == 14 ? x : z;
             return ((h & 1) == 0 ? u : -u) + ((h & 2) == 0 ? v : -v);
         }
-
-        readonly int[] p = new int[512];
     }
 }

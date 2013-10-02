@@ -50,6 +50,10 @@ namespace fCraft {
                 if( getDisplayNameMethod != null ) {
                     MonoVersionString = (string)getDisplayNameMethod.Invoke( null, null );
 
+                    if( MonoVersionString == null ) {
+                        throw new Exception( UnsupportedMessage );
+                    }
+
                     try {
                         Match versionMatch = VersionRegex.Match( MonoVersionString );
                         int major = Int32.Parse( versionMatch.Groups[1].Value );

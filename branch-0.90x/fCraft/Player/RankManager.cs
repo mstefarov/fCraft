@@ -27,28 +27,22 @@ namespace fCraft {
         public static List<Rank> Ranks { get; private set; }
 
         /// <summary> Default Rank of a new user. </summary>
-        [NotNull]
         public static Rank DefaultRank { get; set; }
 
         /// <summary> Lowest Rank available in the server. </summary>
-        [NotNull]
         public static Rank LowestRank { get; private set; }
 
         /// <summary> Highest Rank available in the server. </summary>
-        [NotNull]
         public static Rank HighestRank { get; private set; }
 
         /// <summary> Highest Rank that /Patrol will consider when selecting candidates. </summary>
-        [NotNull]
         public static Rank PatrolledRank { get; set; }
 
         /// <summary> The default minimum Rank required to build in newly created worlds. </summary>
-        [NotNull]
         public static Rank DefaultBuildRank { get; set; }
 
         /// <summary> Rank used by BlockDB to determine whether it should be auto-enabled on a world or not.
         /// Worlds where BuildSecurity.MinRank is equal or lower than this rank WILL have BlockDB auto-enabled. </summary>
-        [NotNull]
         public static Rank BlockDBAutoEnableRank { get; set; }
 
 

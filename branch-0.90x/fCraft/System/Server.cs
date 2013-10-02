@@ -38,11 +38,6 @@ namespace fCraft {
         /// <summary> Number of the local listening port. </summary>
         public static int Port { get; private set; }
 
-        /// <summary> Minecraft.net connection URL. 
-        /// May be null (if heartbeat is disabled, or first heartbeat has not been sent yet). </summary>
-        [CanBeNull]
-        public static Uri Uri { get; internal set; }
-
 
         internal static int MaxUploadSpeed, // set by Config.ApplyConfig
                             BlockUpdateThrottling; // used when there are no players in a world
@@ -276,7 +271,6 @@ namespace fCraft {
 #else
             // delete the old updater, if exists
             File.Delete( Paths.UpdateInstallerFileName );
-            File.Delete( "fCraftUpdater.exe" ); // pre-0.600
 #endif
 
             // try to load the config
@@ -405,10 +399,10 @@ namespace fCraft {
                         WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
-            checkConnectionsTask = Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
+            Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
 
             // Check for idles (every 30s)
-            checkIdlesTask = Scheduler.NewTask( CheckIdles ).RunForever( CheckIdlesInterval );
+            Scheduler.NewTask( CheckIdles ).RunForever( CheckIdlesInterval );
 
             // Monitor CPU usage (every 30s)
             try {
@@ -431,8 +425,7 @@ namespace fCraft {
             }
 
             // garbage collection (every 60s)
-            gcTask = Scheduler.NewTask( DoGC )
-                              .RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
+            Scheduler.NewTask( DoGC ).RunForever( GCInterval, TimeSpan.FromSeconds( 45 ) );
 
             Heartbeat.Start();
 
@@ -668,19 +661,7 @@ namespace fCraft {
         #region Scheduled Tasks
 
         // checks for incoming connections
-        static SchedulerTask checkConnectionsTask;
-        static TimeSpan checkConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
-
-        /// <summary> Interval at which Server checks for incoming connections.
-        /// One player may be accepted per check. Default is 250ms. </summary>
-        public static TimeSpan CheckConnectionsInterval {
-            get { return checkConnectionsInterval; }
-            set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "CheckConnectionsInterval may not be negative." );
-                checkConnectionsInterval = value;
-                if( checkConnectionsTask != null ) checkConnectionsTask.Interval = value;
-            }
-        }
+        static readonly TimeSpan CheckConnectionsInterval = TimeSpan.FromMilliseconds( 250 );
 
 
         static void CheckConnections( [NotNull] SchedulerTask param ) {
@@ -697,19 +678,7 @@ namespace fCraft {
 
 
         // checks for idle players
-        static SchedulerTask checkIdlesTask;
-        static TimeSpan checkIdlesInterval = TimeSpan.FromSeconds( 30 );
-
-        /// <summary> Interval at which Server checks for idle players (to kick idlers).
-        /// Default is 30 seconds. </summary>
-        public static TimeSpan CheckIdlesInterval {
-            get { return checkIdlesInterval; }
-            set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "CheckIdlesInterval may not be negative." );
-                checkIdlesInterval = value;
-                if( checkIdlesTask != null ) checkIdlesTask.Interval = checkIdlesInterval;
-            }
-        }
+        static readonly TimeSpan CheckIdlesInterval = TimeSpan.FromSeconds( 30 );
 
 
         static void CheckIdles( [NotNull] SchedulerTask task ) {
@@ -730,19 +699,7 @@ namespace fCraft {
         }
 
 
-        static SchedulerTask gcTask;
-        static TimeSpan gcInterval = TimeSpan.FromSeconds( 60 );
-
-        /// <summary> Interval at which Server checks whether forced garbage collection is needed. 
-        /// Default is 60 seconds. </summary>
-        public static TimeSpan GCInterval {
-            get { return gcInterval; }
-            set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "GCInterval may not be negative." );
-                gcInterval = value;
-                if( gcTask != null ) gcTask.Interval = gcInterval;
-            }
-        }
+        static readonly TimeSpan GCInterval = TimeSpan.FromSeconds( 60 );
 
 
         static void DoGC( [NotNull] SchedulerTask task ) {
