@@ -1224,10 +1224,12 @@ namespace fCraft {
 
         public const string XmlRootName = "BlockDB";
 
+        [NotNull]
         public XElement SaveSettings() {
             return SaveSettings( XmlRootName );
         }
 
+        [NotNull]
         public XElement SaveSettings( [NotNull] string rootName ) {
             if( rootName == null ) throw new ArgumentNullException( "rootName" );
             XElement root = new XElement( rootName );

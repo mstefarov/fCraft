@@ -49,7 +49,7 @@ namespace fCraft.MapGeneration {
         /// If no corresponding XML element exists, property value is unchanged. </summary>
         /// <param name="baseElement"> Element from which parameters are read.
         /// Each property corresponds to a child element. </param>
-        public virtual void LoadProperties( [NotNull] XElement baseElement ) {
+        protected virtual void LoadProperties( [NotNull] XElement baseElement ) {
             if( baseElement == null ) throw new ArgumentNullException( "baseElement" );
             foreach( PropertyInfo pi in ListProperties() ) {
                 XElement el = baseElement.Element( pi.Name );
