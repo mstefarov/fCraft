@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using fCraft.Events;
+using JetBrains.Annotations;
 
 namespace fCraft.ServerCLI {
     static class Program {
@@ -14,7 +15,7 @@ namespace fCraft.ServerCLI {
                     exitOnShutdown = true;
 
 
-        static void Main( string[] args ) {
+        static void Main( [NotNull] string[] args ) {
             // Check fCraft.dll version
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 Console.Error.WriteLine( "fCraft.dll version does not match ServerCLI.exe version." );
@@ -100,14 +101,14 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void OnShutdownEnded( object sender, ShutdownEventArgs e ) {
+        static void OnShutdownEnded( [CanBeNull] object sender, [NotNull] ShutdownEventArgs e ) {
             if( exitOnShutdown ) {
                 Environment.Exit( Environment.ExitCode );
             }
         }
 
 
-        static void OnCancelKeyPress( object sender, ConsoleCancelEventArgs e ) {
+        static void OnCancelKeyPress( [CanBeNull] object sender, [NotNull] ConsoleCancelEventArgs e ) {
             switch( e.SpecialKey ) {
                 case ConsoleSpecialKey.ControlBreak:
                     Console.WriteLine( "*** Shutting down (Ctrl-Break) ***" );
@@ -145,7 +146,7 @@ namespace fCraft.ServerCLI {
 
 
         [DebuggerStepThrough]
-        static void OnLogged( object sender, LogEventArgs e ) {
+        static void OnLogged( [CanBeNull] object sender, [NotNull] LogEventArgs e ) {
             if( !e.WriteToConsole ) return;
             switch( e.MessageType ) {
                 case LogType.Error:
@@ -181,7 +182,7 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
+        static void OnHeartbeatUriChanged( [CanBeNull] object sender, [NotNull] UriChangedEventArgs e ) {
             File.WriteAllText( "externalurl.txt", e.NewUri.ToString(), Encoding.ASCII );
             Console.WriteLine( "** URL: {0} **", e.NewUri );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
@@ -196,7 +197,7 @@ namespace fCraft.ServerCLI {
         static readonly object ProgressReportLock = new object();
 
 
-        static void OnUpdateDownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
+        static void OnUpdateDownloadProgress( [CanBeNull] object sender, [NotNull] DownloadProgressChangedEventArgs e ) {
             lock( ProgressReportLock ) {
                 Console.CursorLeft = 0;
                 int maxProgress = Console.WindowWidth - 9;
@@ -210,7 +211,7 @@ namespace fCraft.ServerCLI {
         }
 
 
-        static void OnUpdateDownloadCompleted( object sender, AsyncCompletedEventArgs e ) {
+        static void OnUpdateDownloadCompleted( [CanBeNull] object sender, [NotNull] AsyncCompletedEventArgs e ) {
             Console.WriteLine();
             if( e.Error != null ) {
                 updateFailed = true;

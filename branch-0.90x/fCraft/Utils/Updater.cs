@@ -260,6 +260,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         public static string[] ReleaseFlagsToStringArray( ReleaseFlags flags ) {
             List<string> list = new List<string>();
             if( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
