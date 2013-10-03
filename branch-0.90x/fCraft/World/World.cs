@@ -325,7 +325,7 @@ namespace fCraft {
                                                      .FirstOrDefault();
                         if( idlestPlayer != null ) {
                             idlestPlayer.Kick( Player.Console, "Auto-kicked to make room (idle).",
-                                               LeaveReason.IdleKick, false, false, false );
+                                               LeaveReason.IdleKick, KickOptions.None );
 
                             Server.Players
                                   .CanSee( player )

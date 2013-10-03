@@ -777,7 +777,7 @@ namespace fCraft {
                 for( int i = 0; i < PlayerInfoList.Length; i++ ) {
                     if( PlayerInfoList[i].Rank == @from ) {
                         try {
-                            list[i].ChangeRank( player, to, fullReason, true, true, false );
+                            list[i].ChangeRank( player, to, fullReason, ChangeRankOptions.Default );
                         } catch( PlayerOpException ex ) {
                             player.Message( ex.MessageColored );
                         }

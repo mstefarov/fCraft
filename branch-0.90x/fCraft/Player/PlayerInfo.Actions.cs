@@ -593,7 +593,7 @@ namespace fCraft {
                 MutedBy = null;
                 if( IsFrozen ) {
                     try {
-                        Unfreeze( bannedBy, false, true );
+                        Unfreeze( bannedBy, FreezeOptions.RaiseEvents );
                     } catch( PlayerOpException ex ) {
                         Logger.Log( LogType.Warning,
                                     "PlayerInfo.ProcessBan: {0}", ex.Message );
@@ -631,18 +631,20 @@ namespace fCraft {
         /// <param name="player"> Player who originated the promotion/demotion action. </param>
         /// <param name="newRank"> New rank. </param>
         /// <param name="reason"> Reason for promotion/demotion. </param>
-        /// <param name="announce"> Whether rank change should be publicly announced or not. </param>
-        /// <param name="raiseEvents"> Whether PlayerInfo.RankChanging and PlayerInfo.RankChanged events should be raised. </param>
-        /// <param name="auto"> Whether rank change should be marked as "automatic" or manual. </param>
+        /// <param name="options"> Rank change options. See <see cref="fCraft.ChangeRankOptions"/>. </param>
         /// <exception cref="ArgumentNullException"> player is null. </exception>
         /// <exception cref="fCraft.PlayerOpException"> If anything goes wrong. </exception>
         public void ChangeRank( [NotNull] Player player, [NotNull] Rank newRank, [CanBeNull] string reason,
-                                bool announce, bool raiseEvents, bool auto ) {
+                                ChangeRankOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
             if( reason != null && reason.Length == 0 ) reason = null;
+
+            bool announce = (options & ChangeRankOptions.Announce) != 0;
+            bool raiseEvents = (options & ChangeRankOptions.RaiseEvents) != 0;
+            bool auto = (options & ChangeRankOptions.Auto) != 0;
 
             bool promoting = (newRank > Rank);
             string verb = (promoting ? "promote" : "demote");
@@ -818,10 +820,12 @@ namespace fCraft {
         /// <summary> Freezes this player (prevents from moving, building, and from using most commands).
         /// Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who is doing the freezing. </param>
-        /// <param name="announce"> Whether to announce freezing publicly on the server. </param>
-        /// <param name="raiseEvents"> Whether to raise PlayerInfo.FreezeChanging and PlayerInfo.FreezeChanged events. </param>
-        public void Freeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
+        /// <param name="options"> Freezing options. See <see cref="fCraft.FreezeOptions"/>. </param>
+        public void Freeze( [NotNull] Player player, FreezeOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+
+            bool announce = (options & FreezeOptions.Announce) != 0;
+            bool raiseEvents = (options & FreezeOptions.RaiseEvents) != 0;
 
             // Check if player is trying to freeze self
             if( player.Info == this ) {
@@ -883,12 +887,15 @@ namespace fCraft {
         }
 
 
+
         /// <summary> Unfreezes this player. Throws PlayerOpException on problems. </summary>
         /// <param name="player"> Player who is doing the unfreezing. </param>
-        /// <param name="announce"> Whether to announce freezing publicly on the server. </param>
-        /// <param name="raiseEvents"> Whether to raise PlayerInfo.FreezeChanging and PlayerInfo.FreezeChanged events. </param>
-        public void Unfreeze( [NotNull] Player player, bool announce, bool raiseEvents ) {
+        /// <param name="options"> Unfreezing options. See <see cref="fCraft.FreezeOptions"/>. </param>
+        public void Unfreeze( [NotNull] Player player, FreezeOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
+
+            bool announce = (options & FreezeOptions.Announce) != 0;
+            bool raiseEvents = (options & FreezeOptions.RaiseEvents) != 0;
 
             // Check if player is trying to freeze self
             if( player.Info == this ) {

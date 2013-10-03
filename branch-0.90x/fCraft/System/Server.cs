@@ -692,7 +692,7 @@ namespace fCraft {
                              player.ClassyName,
                              player.Info.Rank.IdleKickTimer );
                     string kickReason = "Idle for " + player.Info.Rank.IdleKickTimer + " minutes";
-                    player.Kick( Player.Console, kickReason, LeaveReason.IdleKick, false, true, false );
+                    player.Kick( Player.Console, kickReason, LeaveReason.IdleKick, KickOptions.RaiseEvents );
                     player.ResetIdleTimer(); // to prevent kick from firing more than once
                 }
             }

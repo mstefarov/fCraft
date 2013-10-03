@@ -1021,15 +1021,15 @@ namespace fCraft {
         /// <param name="player"> Player who is kicking. </param>
         /// <param name="reason"> Reason for kicking. May be null or blank if allowed by server configuration. </param>
         /// <param name="context"> Classification of kick context. </param>
-        /// <param name="announce"> Whether the kick should be announced publicly on the server and IRC. </param>
-        /// <param name="raiseEvents"> Whether Player.BeingKicked and Player.Kicked events should be raised. </param>
-        /// <param name="recordToPlayerDB"> Whether the kick should be counted towards player's record.</param>
-        public void Kick( [NotNull] Player player, [CanBeNull] string reason, LeaveReason context,
-                          bool announce, bool raiseEvents, bool recordToPlayerDB ) {
+        /// <param name="options"> Kick options. See <see cref="fCraft.KickOptions"/>. </param>
+        public void Kick( [NotNull] Player player, [CanBeNull] string reason, LeaveReason context, KickOptions options ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( !Enum.IsDefined( typeof( LeaveReason ), context ) ) {
                 throw new ArgumentOutOfRangeException( "context" );
             }
+            bool announce = (options & KickOptions.Announce) != 0;
+            bool raiseEvents = (options & KickOptions.RaiseEvents) != 0;
+            bool recordToPlayerDB = (options & KickOptions.RecordToPlayerDB) != 0;
 
             if( reason != null ) reason = reason.Trim( ' ' );
             if( reason != null && reason.Length == 0 ) reason = null;

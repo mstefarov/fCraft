@@ -427,7 +427,7 @@ namespace fCraft {
             // do the kick
             try {
                 Player targetPlayer = target;
-                target.Kick( player, reason, LeaveReason.Kick, true, true, true );
+                target.Kick( player, reason, LeaveReason.Kick, KickOptions.Default );
                 WarnIfOtherPlayersOnIP( player, target.Info, targetPlayer );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
@@ -544,7 +544,7 @@ namespace fCraft {
 
             try {
                 player.LastUsedPlayerName = targetInfo.Name;
-                targetInfo.ChangeRank( player, newRank, cmd.NextAll(), true, true, false );
+                targetInfo.ChangeRank( player, newRank, cmd.NextAll(), ChangeRankOptions.Default );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -739,7 +739,7 @@ namespace fCraft {
             }
 
             try {
-                target.Freeze( player, true, true );
+                target.Freeze( player, FreezeOptions.Default );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -774,7 +774,7 @@ namespace fCraft {
             }
 
             try {
-                target.Unfreeze( player, true, true );
+                target.Unfreeze( player, FreezeOptions.Default );
             } catch( PlayerOpException ex ) {
                 player.Message( ex.MessageColored );
             }
@@ -1412,7 +1412,7 @@ namespace fCraft {
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             if( targetInfo.IsOnline && !targetInfo.IsFrozen && player.Can( Permission.Freeze, targetInfo.Rank ) ) {
                 try {
-                    targetInfo.Freeze( player, true, true );
+                    targetInfo.Freeze( player, FreezeOptions.Default );
                     player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
                 } catch( PlayerOpException ) {
                 }

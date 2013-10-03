@@ -795,7 +795,7 @@ namespace fCraft {
                 LastKickReason = reason;
                 if( IsFrozen ) {
                     try {
-                        Unfreeze( kickedBy, false, true );
+                        Unfreeze( kickedBy, FreezeOptions.RaiseEvents );
                     } catch( PlayerOpException ex ) {
                         Logger.Log( LogType.Warning,
                                     "PlayerInfo.ProcessKick: {0}", ex.Message );
