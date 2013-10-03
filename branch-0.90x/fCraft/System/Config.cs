@@ -734,7 +734,8 @@ namespace fCraft {
             if( newValue == null ) throw new ArgumentNullException( "newValue" );
             string oldValue = Settings[(int)key];
             if( oldValue != newValue ) {
-                if( RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
+                // avoid raising KeyChanging event for when defaults are being set
+                if( oldValue != null && RaiseKeyChangingEvent( key, oldValue, ref newValue ) ) return false;
                 Settings[(int)key] = newValue;
 
                 bool enabledCache;
@@ -1072,7 +1073,7 @@ namespace fCraft {
         }
 
 
-        static void RaiseKeyChangedEvent( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
+        static void RaiseKeyChangedEvent( ConfigKey key, [CanBeNull] string oldValue, [NotNull] string newValue ) {
             var h = KeyChanged;
             var args = new ConfigKeyChangedEventArgs( key, oldValue, newValue );
             if( h != null ) h( null, args );
@@ -1103,7 +1104,7 @@ namespace fCraft.Events {
 
         public bool Cancel { get; set; }
 
-        public ConfigKeyChangingEventArgs( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
+        internal ConfigKeyChangingEventArgs( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
             if( oldValue == null ) throw new ArgumentNullException( "oldValue" );
             if( newValue == null ) throw new ArgumentNullException( "newValue" );
             Key = key;
@@ -1118,14 +1119,15 @@ namespace fCraft.Events {
     public sealed class ConfigKeyChangedEventArgs : EventArgs {
         public ConfigKey Key { get; private set; }
 
-        [NotNull]
+        /// <summary> Old raw value. Is null if the default value is being assigned. </summary>
+        [CanBeNull]
         public string OldValue { get; private set; }
 
+        /// <summary> New raw value. </summary>
         [NotNull]
         public string NewValue { get; private set; }
 
-        public ConfigKeyChangedEventArgs( ConfigKey key, [NotNull] string oldValue, [NotNull] string newValue ) {
-            if( oldValue == null ) throw new ArgumentNullException( "oldValue" );
+        internal ConfigKeyChangedEventArgs( ConfigKey key, [CanBeNull] string oldValue, [NotNull] string newValue ) {
             if( newValue == null ) throw new ArgumentNullException( "newValue" );
             Key = key;
             OldValue = oldValue;
