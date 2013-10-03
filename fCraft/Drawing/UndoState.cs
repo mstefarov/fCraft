@@ -8,13 +8,23 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Object used to store </summary>
     public sealed class UndoState {
-        public static int MaxUndoCount = 2000000;
+        /// <summary> Maximum number of blocks that any player can undo by default. </summary>
+        public const int MaxUndoCountDefault = 2000000;
+
+        /// <summary> Maximum number of blocks that any player can undo.
+        /// Determined by ConfigKey.MaxUndo and set by Config.SetValue. </summary>
+        public static int MaxUndoCount { get; internal set; }
+
+        static UndoState() {
+            MaxUndoCount = MaxUndoCountDefault;
+        }
+
+
 
         /// <summary> Creates a new UndoState for the given DrawOperation. <param name="op"/> can be null. </summary>
         public UndoState( [CanBeNull] DrawOperation op ) {
             Op = op;
         }
-
 
         /// <summary> Associated DrawOperation. May be null. </summary>
         [CanBeNull]
@@ -27,17 +37,18 @@ namespace fCraft.Drawing {
         /// <summary> Whether the operation became too large to undo (in which case Buffer will be empty). </summary>
         public bool IsTooLargeToUndo;
 
-        /// <summary> Object used to synchronize reading/writing of blocks.
-        /// Necessary in case drawing/undo/redo end up running concurrently. </summary>
+        // Object used to synchronize reading/writing of blocks.
+        // Necessary in case drawing/undo/redo end up running concurrently.
         [NotNull]
-        public readonly object SyncRoot = new object();
+        readonly object syncRoot = new object();
+
 
 
         /// <summary> Records a new block change. Synchronized. </summary>
         /// <returns> True if block change was recorded; otherwise false.
         /// Changes will not be recorded if undo is disabled, or if max undo size was exceeded. </returns>
         public bool Add( Vector3I coord, Block block ) {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
                 if( MaxUndoCount < 1 || Buffer.Count <= MaxUndoCount ) {
                     Buffer.Add( new UndoBlock( coord, block ) );
                     return true;
@@ -53,7 +64,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Gets block change at the specified index. Synchronized. </summary>
         public UndoBlock Get( int index ) {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
                 return Buffer[index];
             }
         }
@@ -63,7 +74,7 @@ namespace fCraft.Drawing {
         /// Quite slow, because every recorded block change needs to be checked in order. </summary>
         [NotNull]
         public BoundingBox CalculateBounds() {
-            lock( SyncRoot ) {
+            lock( syncRoot ) {
                 if( Buffer.Count == 0 ) return BoundingBox.Empty;
                 Vector3I min = new Vector3I( Int32.MaxValue, Int32.MaxValue, Int32.MaxValue );
                 Vector3I max = new Vector3I( Int32.MinValue, Int32.MinValue, Int32.MinValue );

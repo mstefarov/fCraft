@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 using System.Diagnostics;
+using fCraft.Drawing;
 
 namespace fCraft {
     /// <summary> Enumeration of available configuration keys. See comments
@@ -511,7 +512,7 @@ Note that this may make the lag **worse** for players with low-speed,
 low-bandwidth connections." )]
         LowLatencyMode,
 
-        [IntKey( ConfigSection.Advanced, 2000000,
+        [IntKey( ConfigSection.Advanced, UndoState.MaxUndoCountDefault,
 @"The number of blocks that players can undo at a time.
 Only the most-recent draw command can be undo, so the actual
 limit also depends on rank draw limits. Saving undo information

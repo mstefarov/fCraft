@@ -82,7 +82,7 @@ namespace fCraft {
 
         #region Methods
 
-        public void InitNoiseFunctions( [NotNull] Random rand ) {
+        void InitNoiseFunctions( [NotNull] Random rand ) {
             if( rand == null ) throw new ArgumentNullException( "rand" );
 
             // Fill empty

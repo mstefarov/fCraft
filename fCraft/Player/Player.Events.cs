@@ -91,7 +91,7 @@ namespace fCraft {
 
 
         [NotNull]
-        internal static World RaisePlayerConnectedEvent( [NotNull] Player player, [NotNull] World world ) {
+        static World RaisePlayerConnectedEvent( [NotNull] Player player, [NotNull] World world ) {
             var h = Connected;
             if( h == null ) return world;
             var e = new PlayerConnectedEventArgs( player, world );
