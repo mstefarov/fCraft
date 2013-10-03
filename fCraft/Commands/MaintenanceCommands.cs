@@ -705,7 +705,7 @@ namespace fCraft {
                     // Create and promote a new record
                     newPlayers++;
                     PlayerInfo newInfo = PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
-                    newInfo.ChangeRank( player, rank, reason, true, true, false );
+                    newInfo.ChangeRank( player, rank, reason, ChangeRankOptions.Default );
                     Logger.Log( LogType.UserActivity, "ImportRankList: Created a new player record for {0}", name );
                 } else {
                     // Check if an existing record needs updating
@@ -714,7 +714,7 @@ namespace fCraft {
                         info.RankChangeType != RankChangeType.Demoted && // don't re-promote demoted players
                         info.RankChangeType != RankChangeType.AutoDemoted ) {
                         // Promote!
-                        info.ChangeRank( player, rank, reason, true, true, false );
+                            info.ChangeRank( player, rank, reason, ChangeRankOptions.Default );
                         promotedPlayers++;
                     } else {
                         skippedPlayers++;
@@ -1614,7 +1614,9 @@ namespace fCraft {
                     PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                       PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Promoted );
                     try {
-                        info.ChangeRank( player, targetRank, reason, !silent, true, false );
+                        ChangeRankOptions options = ChangeRankOptions.RaiseEvents;
+                        if( !silent ) options |= ChangeRankOptions.Announce;
+                        info.ChangeRank( player, targetRank, reason, options );
                     } catch( PlayerOpException ex ) {
                         player.Message( ex.MessageColored );
                     }

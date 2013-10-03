@@ -23,7 +23,9 @@ namespace fCraft {
         /// <summary> Invalid characters in a message </summary>
         InvalidMessageKick = 0x12,
 
-        /// <summary> Attempted to place invalid block type </summary>
+        /// <summary> Attempted to place invalid block type. </summary>
+        /// <remarks> fCraft no longer uses this reason,
+        /// but this enum item remains to display old PlayerDB records correctly. </remarks>
         [Obsolete]
         InvalidSetTileKick = 0x13,
 
@@ -247,5 +249,71 @@ namespace fCraft {
 
         /// <summary> Paid minecraft.net account. </summary>
         Paid = 2
+    }
+
+
+    /// <summary> Options for kicking of players. Used by Player.Kick(...) </summary>
+    [Flags]
+    public enum KickOptions {
+        /// <summary> Set none of the options. Kick will be silent,
+        /// no events will be raised, and PlayerDB record will not be affected. </summary>
+        None = 0,
+
+        /// <summary> If set, causes the kick to be publicly announced (in-game and on IRC). </summary>
+        Announce = 1,
+
+        /// <summary> If set, causes Player.BeingKicked and Player.Kicked events to be raised.
+        /// Note that BeingKicked event allows cancellation. </summary>
+        RaiseEvents = 2,
+
+        /// <summary> If set, the kick goes on player's permanent record (in /Info).
+        /// Kick count is incremented, and kicked-by/kick-date/kick-reason are set. </summary>
+        RecordToPlayerDB = 4,
+
+        /// <summary> Default options ("Announce", "RaiseEvents", and "RecordToPlayerDB" are set). </summary>
+        Default = Announce | RaiseEvents | RecordToPlayerDB
+    }
+
+
+    /// <summary> Options for promotion/demotion of players. Used by PlayerInfo.ChangeRank(...). </summary>
+    [Flags]
+    public enum ChangeRankOptions {
+        /// <summary> Set none of the options. Rank change will be silent,
+        /// no events will be raised, and "auto" flag will not be set. </summary>
+        None = 0,
+
+        /// <summary> If set, causes promotion/demotion to be publicly announced (in-game and on IRC). </summary>
+        Announce = 1,
+
+        /// <summary> If set, causes PlayerInfo.RankChanging and PlayerInfo.RankChanged events to be raised.
+        /// Note that RankChanging event allows cancellation. </summary>
+        RaiseEvents = 2,
+
+        /// <summary> If set, rank change will be marked as "automatic" (as opposed to manual).
+        /// Shown in /Info and may be used for AutoRank criteria. </summary>
+        Auto = 4,
+
+        /// <summary> Default options ("Announce" and "RaiseEvents" are set, "Auto" is NOT set). </summary>
+        Default = Announce | RaiseEvents
+    }
+
+
+    /// <summary> Options for freezing/unfreezing players.
+    /// Used by PlayerInfo.Freeze(...) and PlayerInfo.Unfreeze(...). </summary>
+    [Flags]
+    public enum FreezeOptions {
+        /// <summary> Set none of the options.
+        /// Freezing/unfreezing will be silent, and no events will be raised. </summary>
+        None = 0,
+
+        /// <summary> If set, announces freezing/unfreezing publicly on the server. </summary>
+        Announce = 1,
+
+        /// <summary> If set, causes PlayerInfo.FreezeChanging and PlayerInfo.FreezeChanged events to be raised.
+        /// Note that FreezeChanging event allows cancellation. </summary>
+        RaiseEvents = 2,
+
+        /// <summary> No options ("Announce" and "RaiseEvents" are set). </summary>
+        Default = Announce | RaiseEvents
     }
 }
