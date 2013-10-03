@@ -2,25 +2,34 @@
 using System;
 using System.IO;
 using System.IO.Compression;
+using fNbt;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
     public sealed class MapIndev : IMapImporter {
         public string ServerName {
-            get { return "Indev"; }
+            get {
+                return "Indev";
+            }
         }
 
         public string FileExtension {
-            get { return "mclevel"; }
+            get {
+                return "mclevel";
+            }
         }
 
 
         public MapStorageType StorageType {
-            get { return MapStorageType.SingleFile; }
+            get {
+                return MapStorageType.SingleFile;
+            }
         }
 
         public MapFormat Format {
-            get { return MapFormat.Indev; }
+            get {
+                return MapFormat.Indev;
+            }
         }
 
 
@@ -36,11 +45,16 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                     BinaryReader bs = new BinaryReader( gs );
-                    return ( bs.ReadByte() == 10 && NBTag.ReadString( bs ) == "MinecraftLevel" );
+                    return ( bs.ReadByte() == 10 && Swap( bs.ReadInt16() ) == 14 );
                 }
             } catch( Exception ) {
                 return false;
             }
+        }
+
+        static short Swap( short v ) {
+            return (short)( ( v >> 8 ) & 0x00FF |
+                            ( v << 8 ) & 0xFF00 );
         }
 
 
@@ -54,27 +68,24 @@ namespace fCraft.MapConversion {
 
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                NBTag tag = NBTag.ReadStream( gs );
+            NbtFile file = new NbtFile( fileName );
 
-                NBTag mapTag = tag["Map"];
-                // ReSharper disable UseObjectOrCollectionInitializer
-                Map map = new Map( null,
-                                   mapTag["Width"].GetShort(),
-                                   mapTag["Length"].GetShort(),
-                                   mapTag["Height"].GetShort(),
-                                   false );
-                // ReSharper restore UseObjectOrCollectionInitializer
-                map.Spawn = new Position( mapTag["Spawn"][0].GetShort(),
-                                          mapTag["Spawn"][2].GetShort(),
-                                          mapTag["Spawn"][1].GetShort() );
+            NbtCompound mapTag = file.RootTag;
 
-                map.Blocks = mapTag["Blocks"].GetBytes();
-                map.RemoveUnknownBlockTypes();
+            Map map = new Map( null,
+                               mapTag["Width"].ShortValue,
+                               mapTag["Length"].ShortValue,
+                               mapTag["Height"].ShortValue,
+                               false );
 
-                return map;
-            }
+            map.Spawn = new Position( mapTag["Spawn"][0].ShortValue,
+                                      mapTag["Spawn"][2].ShortValue,
+                                      mapTag["Spawn"][1].ShortValue );
+
+            map.Blocks = mapTag["Blocks"].ByteArrayValue;
+            map.RemoveUnknownBlockTypes();
+
+            return map;
         }
     }
 }

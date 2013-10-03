@@ -130,6 +130,7 @@
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\BitMap3D.cs" />
+    <Compile Include="Utils\fNbt_v0.5.0_Annotated.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />
@@ -149,7 +150,6 @@
     <Compile Include="MapConversion\MapMinerCPP.cs" />
     <Compile Include="MapConversion\MapIndev.cs" />
     <Compile Include="MapConversion\MapUtility.cs" />
-    <Compile Include="MapConversion\NBTag.cs" />
     <Compile Include="Network\IRC.cs" />
     <Compile Include="Network\IPBanList.cs" />
     <Compile Include="Network\IRCCommands.cs" />
