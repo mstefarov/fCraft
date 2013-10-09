@@ -265,31 +265,33 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void bAddWorld_Click( object sender, EventArgs e ) {
-            AddWorldPopup popup = new AddWorldPopup( null );
-            if( popup.ShowDialog() == DialogResult.OK ) {
-                Worlds.Add( popup.World );
-                popup.World.LoadedBy = WorldListEntry.WorldInfoSignature;
-                popup.World.LoadedOn = DateTime.UtcNow;
-            }
-            if( cMainWorld.SelectedItem == null ) {
-                FillWorldList();
-                if( cMainWorld.Items.Count > 0 ) {
-                    cMainWorld.SelectedIndex = 0;
+            using( AddWorldPopup popup = new AddWorldPopup( null ) ) {
+                if( popup.ShowDialog() == DialogResult.OK ) {
+                    Worlds.Add( popup.World );
+                    popup.World.LoadedBy = WorldListEntry.WorldInfoSignature;
+                    popup.World.LoadedOn = DateTime.UtcNow;
                 }
-            } else {
-                string mainWorldName = cMainWorld.SelectedItem.ToString();
-                FillWorldList();
-                cMainWorld.SelectedItem = mainWorldName;
+                if( cMainWorld.SelectedItem == null ) {
+                    FillWorldList();
+                    if( cMainWorld.Items.Count > 0 ) {
+                        cMainWorld.SelectedIndex = 0;
+                    }
+                } else {
+                    string mainWorldName = cMainWorld.SelectedItem.ToString();
+                    FillWorldList();
+                    cMainWorld.SelectedItem = mainWorldName;
+                }
             }
         }
 
 
         void bWorldEdit_Click( object sender, EventArgs e ) {
-            AddWorldPopup popup = new AddWorldPopup( Worlds[dgvWorlds.SelectedRows[0].Index] );
-            if( popup.ShowDialog() == DialogResult.OK ) {
-                string oldName = Worlds[dgvWorlds.SelectedRows[0].Index].Name;
-                Worlds[dgvWorlds.SelectedRows[0].Index] = popup.World;
-                HandleWorldRename( oldName, popup.World.Name );
+            using( AddWorldPopup popup = new AddWorldPopup( Worlds[dgvWorlds.SelectedRows[0].Index] ) ) {
+                if( popup.ShowDialog() == DialogResult.OK ) {
+                    string oldName = Worlds[dgvWorlds.SelectedRows[0].Index].Name;
+                    Worlds[dgvWorlds.SelectedRows[0].Index] = popup.World;
+                    HandleWorldRename( oldName, popup.World.Name );
+                }
             }
         }
 
