@@ -1,3 +1,9 @@
+0.643
+ Fix: Fixed sometimes wrapping last word of a chat message to the next line, when the whole message could fit on one line (thanks AndrewPH).
+ Fix: Running UpdateInstaller no longer causes UAC prompts under Windows Vista.
+ Fix: Fixed IRC periodically crashing if someone quits with an empty message.
+ Fix: Fixed IRC-related crashes not being submitted to the crash reporter.
+
 0.642
  Feature: Added /Fill3D command.
  Feature: Added caret (^), tilde (~), and grave accent (`) to emotes.
