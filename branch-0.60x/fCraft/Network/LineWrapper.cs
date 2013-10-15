@@ -265,10 +265,10 @@ namespace fCraft {
 
         bool Append( byte ch ) {
             bool prependColor =
-                // color changed since last inserted character
+                // color changed since last inserted character, OR
                 lastColor != color ||
-                // no characters have been inserted, but color codes have been encountered
-                ( color == DefaultColor && hadColor && outputIndex == outputStart );
+                // a color code is needed to preserve leading whitespace
+                (color == DefaultColor && hadColor && outputIndex == outputStart && spaceCount > 0);
 
             // calculate the number of characters to insert
             int bytesToInsert = 1 + spaceCount;
