@@ -258,6 +258,21 @@ namespace fCraft.Drawing {
         }
 
 
+        protected int DrawBatchFromEnumerable( int maxBlocksToDraw, IEnumerator<Vector3I> coordEnumerator ) {
+            int blocksDone = 0;
+            while( coordEnumerator.MoveNext() ) {
+                Coords = coordEnumerator.Current;
+                if( DrawOneBlock() ) {
+                    blocksDone++;
+                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                }
+                if( TimeToEndBatch ) return blocksDone;
+            }
+            IsDone = true;
+            return blocksDone;
+        }
+
+
         // Contributed by Conrad "Redshift" Morgan
         protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b ) {
             Vector3I pixel = a;
