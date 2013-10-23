@@ -51,9 +51,9 @@ namespace fCraft.Drawing {
 
 
     /// <summary> Brush that replaces all blocks of given type(s) with a replacement block type. </summary>
-    public sealed class ReplaceBrush : IBrushInstance, IBrush {
-        public Block[] Blocks { get; private set; }
-        public Block Replacement { get; private set; }
+    public class ReplaceBrush : IBrushInstance, IBrush {
+        public Block[] Blocks { get; protected set; }
+        public Block Replacement { get; protected set; }
 
         public ReplaceBrush() { }
 
@@ -72,7 +72,7 @@ namespace fCraft.Drawing {
 
         #region IBrush members
 
-        public IBrushFactory Factory {
+        public virtual IBrushFactory Factory {
             get { return ReplaceBrushFactory.Instance; }
         }
 
@@ -107,7 +107,7 @@ namespace fCraft.Drawing {
             }
 
             if( blocks.Count == 0 && Blocks == null ) {
-                player.Message( "Replace brush requires at least 1 block." );
+                player.Message( "{0} brush requires at least 1 block.", Factory.Name );
                 return null;
             }
 
@@ -158,7 +158,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public Block NextBlock( DrawOperation op ) {
+        public virtual Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
             Block block = op.Map.GetBlock( op.Coords );
             for( int i = 0; i < Blocks.Length; i++ ) {
