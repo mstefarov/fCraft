@@ -290,7 +290,7 @@ namespace fCraft.MapRenderer {
             } else {
                 if( !p.AlwaysOverwrite && File.Exists( task.TargetPath ) ) {
                     Console.WriteLine();
-                    if( !ShowYesNo( "File \"{0}\" already exists. Overwrite?", Path.GetFileName( task.TargetPath ) ) ) {
+                    if( !ConsoleUtil.ShowYesNo("File \"{0}\" already exists. Overwrite?", Path.GetFileName(task.TargetPath)) ) {
                         Console.WriteLine( "[{0}%] {1}: Skipped (image file already exists)",
                                            percentage.ToString( CultureInfo.InvariantCulture ).PadLeft( 3 ),
                                            task.RelativeName );
@@ -561,25 +561,6 @@ namespace fCraft.MapRenderer {
             Console.WriteLine( "Usage: MapRenderer [options] \"MapFileOrDirectory\"" );
             Console.WriteLine();
             opts.WriteOptionDescriptions( Console.Out );
-        }
-
-
-        [StringFormatMethod( "prompt" )]
-        static bool ShowYesNo( [NotNull] string prompt, params object[] formatArgs ) {
-            if( prompt == null ) throw new ArgumentNullException( "prompt" );
-            while( true ) {
-                Console.Write( prompt + " (Y/N): ", formatArgs );
-                string input = Console.ReadLine();
-
-                if( input == null ||
-                    input.Equals( "no", StringComparison.OrdinalIgnoreCase ) ||
-                    input.Equals( "n", StringComparison.OrdinalIgnoreCase ) ) {
-                    return false;
-                } else if( input.Equals( "yes", StringComparison.OrdinalIgnoreCase ) ||
-                           input.Equals( "y", StringComparison.OrdinalIgnoreCase ) ) {
-                    return true;
-                }
-            }
         }
 
         #endregion
