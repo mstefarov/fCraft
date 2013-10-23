@@ -62,7 +62,6 @@ namespace fCraft.Drawing {
             Replacement = replacement;
         }
 
-
         public ReplaceBrush( [NotNull] ReplaceBrush other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
             Blocks = other.Blocks;

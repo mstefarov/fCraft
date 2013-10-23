@@ -131,6 +131,7 @@
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
     <Compile Include="Utils\BitMap3D.cs" />
+    <Compile Include="Utils\ConsoleUtil.cs" />
     <Compile Include="Utils\fNbt_v0.6.0_Annotated.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
