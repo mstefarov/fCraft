@@ -20,8 +20,7 @@ namespace fCraft.MapGeneration {
                        "Default settings produce a random forested landscape. " +
                        "You can specify two parameters, in either order: a terrain type, and a block theme. " +
                        "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() +
-                       ". " +
-                       "Block themes are: " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() +
+                       ". Block themes are: " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() +
                        ". For example: &H/SetGen Realistic Forest River&S. More options coming soon."
             };
         }
