@@ -745,8 +745,7 @@ namespace fCraft {
 
 
         internal void ProcessBlockPlaced( byte type ) {
-            if( type == 0 ) {
-                // air
+            if( type == (byte)Block.Air ) {
                 Interlocked.Increment( ref BlocksDeleted );
             } else {
                 Interlocked.Increment( ref BlocksBuilt );

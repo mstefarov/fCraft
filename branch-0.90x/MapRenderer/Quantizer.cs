@@ -6,7 +6,7 @@
   PARTICULAR PURPOSE. 
   
     This is sample code and is freely distributable. 
-*/ 
+*/
 
 using System;
 using System.Drawing;
@@ -16,7 +16,7 @@ using System.Runtime.InteropServices;
 namespace ImageManipulation {
     // Part of ImageManipulation library by Morgan Skinner of Microsoft
     // Used here under MSPL
-    abstract unsafe class Quantizer {
+    internal abstract unsafe class Quantizer {
         /// <summary> Construct the quantizer. </summary>
         /// <param name="singlePass"> If true, the quantization only needs to loop through the source pixels once. </param>
         /// <remarks> If you construct this class with a true value for singlePass, then the code will, when quantizing your image,
@@ -63,8 +63,7 @@ namespace ImageManipulation {
                 // Call the FirstPass function if not a single pass algorithm.
                 // For something like an octree quantizer, this will run through
                 // all image pixels, build a data structure, and create a palette.
-                if( !singlePass )
-                    FirstPass( sourceData, width, height );
+                if( !singlePass ) FirstPass( sourceData, width, height );
 
                 // Then set the color palette on the output bitmap. I'm passing in the current palette 
                 // as there's no way to construct a new, empty palette.
@@ -97,9 +96,10 @@ namespace ImageManipulation {
                 Int32* pSourcePixel = (Int32*)pSourceRow;
 
                 // And loop through each column
-                for( int col = 0; col < width; col++, pSourcePixel++ )
+                for( int col = 0; col < width; col++, pSourcePixel++ ) {
                     // Now I have the pixel, call the FirstPassQuantize function...
                     InitialQuantizePixel( (Color32*)pSourcePixel );
+                }
 
                 // Add the stride to the source row
                 pSourceRow += sourceData.Stride;
@@ -203,19 +203,24 @@ namespace ImageManipulation {
         [StructLayout( LayoutKind.Explicit )]
         protected struct Color32 {
             /// <summary> Holds the blue component of the colour. </summary>
-            [FieldOffset( 0 )] public readonly byte Blue;
+            [FieldOffset( 0 )]
+            public readonly byte Blue;
 
             /// <summary> Holds the green component of the colour. </summary>
-            [FieldOffset( 1 )] public readonly byte Green;
+            [FieldOffset( 1 )]
+            public readonly byte Green;
 
             /// <summary> Holds the red component of the colour. </summary>
-            [FieldOffset( 2 )] public readonly byte Red;
+            [FieldOffset( 2 )]
+            public readonly byte Red;
 
             /// <summary> Holds the alpha component of the colour. </summary>
-            [FieldOffset( 3 )] public readonly byte Alpha;
+            [FieldOffset( 3 )]
+            public readonly byte Alpha;
 
             /// <summary> Permits the Color32 to be treated as an Int32. </summary>
-            [FieldOffset( 0 )] public readonly int ARGB;
+            [FieldOffset( 0 )]
+            public readonly int ARGB;
 
             /// <summary> Return the color for this Color32 object. </summary>
             public Color Color {

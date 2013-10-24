@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -15,15 +16,17 @@ namespace fCraft.ConfigGUI {
         #region Loading & Applying Config
 
         bool ranksLoaded;
+
         void LoadConfig() {
             string missingFileMsg = null;
             if( !File.Exists( Paths.WorldListFileName ) && !File.Exists( Paths.ConfigFileName ) ) {
-                missingFileMsg = String.Format( "Configuration ({0}) and world list ({1}) were not found. Using defaults.",
-                                                Paths.ConfigFileName,
-                                                Paths.WorldListFileName );
+                missingFileMsg =
+                    String.Format( "Configuration ({0}) and world list ({1}) were not found. Using defaults.",
+                                   Paths.ConfigFileName,
+                                   Paths.WorldListFileName );
             } else if( !File.Exists( Paths.ConfigFileName ) ) {
                 missingFileMsg = String.Format( "Configuration ({0}) was not found. Using defaults.",
-                                                 Paths.ConfigFileName );
+                                                Paths.ConfigFileName );
             } else if( !File.Exists( Paths.WorldListFileName ) ) {
                 missingFileMsg = String.Format( "World list ({0}) was not found. Assuming 0 worlds.",
                                                 Paths.WorldListFileName );
@@ -59,9 +62,7 @@ namespace fCraft.ConfigGUI {
             AddChangeHandler( tabs, SomethingChanged );
             AddChangeHandler( bResetTab, SomethingChanged );
             AddChangeHandler( bResetAll, SomethingChanged );
-            dgvWorlds.CellValueChanged += delegate {
-                SomethingChanged( null, null );
-            };
+            dgvWorlds.CellValueChanged += delegate { SomethingChanged( null, null ); };
 
             AddChangeHandler( tabChat, HandleTabChatChange );
             bApply.Enabled = false;
@@ -94,7 +95,9 @@ namespace fCraft.ConfigGUI {
                     }
                 }
                 if( errorLog.Length > 0 ) {
-                    MessageBox.Show( "Some errors occurred while loading the world list:" + Environment.NewLine + errorLog, "Warning" );
+                    MessageBox.Show(
+                        "Some errors occurred while loading the world list:" + Environment.NewLine + errorLog,
+                        "Warning" );
                 }
 
                 FillWorldList();
@@ -107,7 +110,6 @@ namespace fCraft.ConfigGUI {
                         }
                     }
                 }
-
             } catch( Exception ex ) {
                 MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
@@ -205,7 +207,7 @@ namespace fCraft.ConfigGUI {
                     WorldListEntry.DefaultRankOption
                 };
                 foreach( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( ToComboBoxOption(rank) );
+                    rankNameList.Add( ToComboBoxOption( rank ) );
                 }
                 dgvcAccess.DataSource = rankNameList;
                 dgvcBuild.DataSource = rankNameList;
@@ -213,13 +215,12 @@ namespace fCraft.ConfigGUI {
 
                 LoadWorldList();
                 dgvWorlds.DataSource = Worlds;
-
             } else {
                 //dgvWorlds.DataSource = null;
                 rankNameList.Clear();
                 rankNameList.Add( WorldListEntry.DefaultRankOption );
                 foreach( Rank rank in RankManager.Ranks ) {
-                    rankNameList.Add( ToComboBoxOption(rank) );
+                    rankNameList.Add( ToComboBoxOption( rank ) );
                 }
                 foreach( WorldListEntry world in Worlds ) {
                     world.ReparseRanks();
@@ -271,7 +272,8 @@ namespace fCraft.ConfigGUI {
             nAntispamInterval.Value = ConfigKey.AntispamInterval.GetInt();
             nAntispamMuteDuration.Value = ConfigKey.AntispamMuteDuration.GetInt();
 
-            xAntispamMessageCount.Checked = (ConfigKey.AntispamMessageCount.GetInt() > 0) && (ConfigKey.AntispamInterval.GetInt() > 0);
+            xAntispamMessageCount.Checked = (ConfigKey.AntispamMessageCount.GetInt() > 0) &&
+                                            (ConfigKey.AntispamInterval.GetInt() > 0);
 
             xAntispamKicks.Checked = (ConfigKey.AntispamMaxWarnings.GetInt() > 0);
             nAntispamMaxWarnings.Value = ConfigKey.AntispamMaxWarnings.GetInt();
@@ -394,15 +396,20 @@ namespace fCraft.ConfigGUI {
             } else {
                 switch( ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>() ) {
                     case ProcessPriorityClass.High:
-                        cProcessPriority.SelectedIndex = 1; break;
+                        cProcessPriority.SelectedIndex = 1;
+                        break;
                     case ProcessPriorityClass.AboveNormal:
-                        cProcessPriority.SelectedIndex = 2; break;
+                        cProcessPriority.SelectedIndex = 2;
+                        break;
                     case ProcessPriorityClass.Normal:
-                        cProcessPriority.SelectedIndex = 3; break;
+                        cProcessPriority.SelectedIndex = 3;
+                        break;
                     case ProcessPriorityClass.BelowNormal:
-                        cProcessPriority.SelectedIndex = 4; break;
+                        cProcessPriority.SelectedIndex = 4;
+                        break;
                     case ProcessPriorityClass.Idle:
-                        cProcessPriority.SelectedIndex = 5; break;
+                        cProcessPriority.SelectedIndex = 5;
+                        break;
                 }
             }
 
@@ -449,7 +456,6 @@ namespace fCraft.ConfigGUI {
         }
 
         #endregion
-
 
         #region Saving Config
 
@@ -631,17 +637,23 @@ namespace fCraft.ConfigGUI {
 
             switch( cProcessPriority.SelectedIndex ) {
                 case 0:
-                    ConfigKey.ProcessPriority.ResetValue(); break;
+                    ConfigKey.ProcessPriority.ResetValue();
+                    break;
                 case 1:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.High ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.High );
+                    break;
                 case 2:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.AboveNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.AboveNormal );
+                    break;
                 case 3:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Normal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Normal );
+                    break;
                 case 4:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.BelowNormal ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.BelowNormal );
+                    break;
                 case 5:
-                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle ); break;
+                    ConfigKey.ProcessPriority.TrySetValue( ProcessPriorityClass.Idle );
+                    break;
             }
 
             ConfigKey.BlockUpdateThrottling.TrySetValue( Convert.ToInt32( nThrottling.Value ) );
@@ -687,12 +699,16 @@ namespace fCraft.ConfigGUI {
             if( box == null ) throw new ArgumentNullException( "box" );
             if( !typeof( TEnum ).IsEnum ) throw new ArgumentException( "Enum type required" );
             try {
-                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ), box.SelectedIndex.ToString( CultureInfo.InvariantCulture ), true );
+                TEnum val = (TEnum)Enum.Parse( typeof( TEnum ),
+                                               box.SelectedIndex.ToString( CultureInfo.InvariantCulture ),
+                                               true );
                 key.TrySetValue( val );
             } catch( ArgumentException ) {
                 Logger.Log( LogType.Error,
                             "ConfigUI.WriteEnum<{0}>: Could not parse value for {1}. Using default ({2}).",
-                            typeof( TEnum ).Name, key, key.GetString() );
+                            typeof( TEnum ).Name,
+                            key,
+                            key.GetString() );
             }
         }
 

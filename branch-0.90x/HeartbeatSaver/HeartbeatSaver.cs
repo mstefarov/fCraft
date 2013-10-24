@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.Net;
@@ -6,10 +7,10 @@ using System.Net.Cache;
 using System.Text;
 using System.Threading;
 
-
 namespace fCraft.HeartbeatSaver {
-    static class HeartbeatSaver {
+    internal static class HeartbeatSaver {
         const int ProtocolVersion = 7;
+
         static readonly TimeSpan Delay = TimeSpan.FromSeconds( 20 ),
                                  Timeout = TimeSpan.FromSeconds( 10 ),
                                  ErrorDelay = TimeSpan.FromSeconds( 5 ),
@@ -39,7 +40,7 @@ namespace fCraft.HeartbeatSaver {
                 return (int)ReturnCode.HeartbeatDataReadingError;
             }
 
-            new Thread( BeatThreadMinecraftNet ) { IsBackground = true }.Start();
+            new Thread( BeatThreadMinecraftNet ) {IsBackground = true}.Start();
 
             while( true ) {
                 Thread.Sleep( RefreshDataDelay );
@@ -64,20 +65,24 @@ namespace fCraft.HeartbeatSaver {
                 };
                 data = newData;
                 return true;
-
             } catch( Exception ex ) {
                 if( ex is UnauthorizedAccessException || ex is IOException ) {
                     Console.Error.WriteLine( "{0} > Error reading {1}: {2} {3}",
                                              Timestamp(),
-                                             heartbeatDataFileName, ex.GetType().Name, ex.Message );
+                                             heartbeatDataFileName,
+                                             ex.GetType().Name,
+                                             ex.Message );
                 } else if( ex is FormatException || ex is ArgumentException ) {
                     Console.Error.WriteLine( "{0} > Cannot parse one of the data fields of {1}: {2} {3}",
                                              Timestamp(),
-                                             heartbeatDataFileName, ex.GetType().Name, ex.Message );
+                                             heartbeatDataFileName,
+                                             ex.GetType().Name,
+                                             ex.Message );
                 } else {
                     Console.Error.WriteLine( "{0} > Unexpected error: {1} {2}",
                                              Timestamp(),
-                                             ex.GetType().Name, ex.Message );
+                                             ex.GetType().Name,
+                                             ex.Message );
                 }
                 return false;
             }
@@ -100,7 +105,6 @@ namespace fCraft.HeartbeatSaver {
                                               Uri.EscapeDataString( freshData.ServerName ) );
                     CreateRequest( ub.Uri );
                     Thread.Sleep( Delay );
-
                 } catch( Exception ex ) {
                     if( ex is WebException ) {
                         Console.Error.WriteLine( "{0} > Minecraft.net probably down ({1})", Timestamp(), ex.Message );

@@ -6,7 +6,8 @@
   PARTICULAR PURPOSE. 
   
     This is sample code and is freely distributable. 
-*/ 
+*/
+
 using System;
 using System.Collections;
 using System.Drawing;
@@ -15,7 +16,7 @@ using System.Drawing.Imaging;
 namespace ImageManipulation {
     // Part of ImageManipulation library by Morgan Skinner of Microsoft
     // Used here under MSPL
-    sealed unsafe class OctreeQuantizer : Quantizer {
+    internal sealed unsafe class OctreeQuantizer : Quantizer {
         /// <summary> Construct the octree quantizer. </summary>
         /// <remarks> The Octree quantizer is a two pass algorithm. The initial pass sets up the octree,
         /// the second pass quantizes a color based on the nodes in the tree. </remarks>
@@ -24,11 +25,13 @@ namespace ImageManipulation {
         public OctreeQuantizer( int maxColors, int maxColorBits )
             : base( false ) {
             if( maxColors > 255 )
-                throw new ArgumentOutOfRangeException( "maxColors", maxColors,
+                throw new ArgumentOutOfRangeException( "maxColors",
+                                                       maxColors,
                                                        "The number of colors should be less than 256" );
 
-            if( ( maxColorBits < 1 ) | ( maxColorBits > 8 ) )
+            if( (maxColorBits < 1) | (maxColorBits > 8) ){
                 throw new ArgumentOutOfRangeException( "maxColorBits", maxColorBits, "This should be between 1 and 8" );
+            }
 
             // Construct the octree
             octree = new Octree( maxColorBits );
@@ -54,8 +57,9 @@ namespace ImageManipulation {
             byte paletteIndex = (byte)maxColors; // The color at [_maxColors] is set to transparent
 
             // Get the palette index if this non-transparent
-            if( pixel->Alpha > 0 )
+            if( pixel->Alpha > 0 ) {
                 paletteIndex = (byte)octree.GetPaletteIndex( pixel );
+            }
 
             return paletteIndex;
         }
@@ -69,8 +73,9 @@ namespace ImageManipulation {
             ArrayList palette = octree.Palletize( maxColors - 1 );
 
             // Then convert the palette based on those colors
-            for( int index = 0; index < palette.Count; index++ )
+            for( int index = 0; index < palette.Count; index++ ) {
                 original.Entries[index] = (Color)palette[index];
+            }
 
             // Add the transparent color
             original.Entries[maxColors] = Color.FromArgb( 0, 0, 0, 0 );
@@ -124,7 +129,7 @@ namespace ImageManipulation {
                 int index;
 
                 // Find the deepest level containing at least one reducible node
-                for( index = maxColorBits - 1; ( index > 0 ) && ( null == reducibleNodes[index] ); index-- ) {}
+                for( index = maxColorBits - 1; (index > 0) && (null == reducibleNodes[index]); index-- ) {}
 
                 // Reduce the node most recently added to the list at level 'index'
                 OctreeNode node = reducibleNodes[index];
@@ -162,8 +167,9 @@ namespace ImageManipulation {
             /// <param name="colorCount"> The maximum number of colors. </param>
             /// <returns> An ArrayList with the palettized colors. </returns>
             public ArrayList Palletize( int colorCount ) {
-                while( Leaves > colorCount )
+                while( Leaves > colorCount ) {
                     Reduce();
+                }
 
                 // Now palettize the nodes
                 ArrayList palette = new ArrayList( Leaves );
@@ -182,7 +188,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Mask used when getting the appropriate pixels for a given node. </summary>
-            static readonly int[] Mask = new[] { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
+            static readonly int[] Mask = new[] {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
             /// <summary> The root of the octree. </summary>
             readonly OctreeNode root;
@@ -211,7 +217,7 @@ namespace ImageManipulation {
                 /// <param name="octree"> The tree to which this node belongs. </param>
                 public OctreeNode( int level, int colorBits, Octree octree ) {
                     // Construct the new node
-                    leaf = ( level == colorBits );
+                    leaf = (level == colorBits);
 
                     red = green = blue = 0;
                     pixelCount = 0;
@@ -244,9 +250,9 @@ namespace ImageManipulation {
                     } else {
                         // Go to the next level down in the tree
                         int shift = 7 - level;
-                        int index = ( ( pixel->Red & Mask[level] ) >> ( shift - 2 ) ) |
-                                    ( ( pixel->Green & Mask[level] ) >> ( shift - 1 ) ) |
-                                    ( ( pixel->Blue & Mask[level] ) >> ( shift ) );
+                        int index = ((pixel->Red & Mask[level]) >> (shift - 2)) |
+                                    ((pixel->Green & Mask[level]) >> (shift - 1)) |
+                                    ((pixel->Blue & Mask[level]) >> (shift));
 
                         OctreeNode child = children[index];
 
@@ -259,7 +265,6 @@ namespace ImageManipulation {
                         // Add the color to the child node
                         child.AddColor( pixel, colorBits, level + 1, octree );
                     }
-
                 }
 
 
@@ -289,7 +294,7 @@ namespace ImageManipulation {
                     leaf = true;
 
                     // Return the number of nodes to decrement the leaf count by
-                    return ( reducedChildren - 1 );
+                    return (reducedChildren - 1);
                 }
 
 
@@ -302,12 +307,13 @@ namespace ImageManipulation {
                         paletteIndex = currentPaletteIndex++;
 
                         // And set the color of the palette entry
-                        palette.Add( Color.FromArgb( red / pixelCount, green / pixelCount, blue / pixelCount ) );
+                        palette.Add( Color.FromArgb( red/pixelCount, green/pixelCount, blue/pixelCount ) );
                     } else {
                         // Loop through children looking for leaves
                         for( int index = 0; index < 8; index++ ) {
-                            if( null != children[index] )
+                            if( null != children[index] ) {
                                 children[index].ConstructPalette( palette, ref currentPaletteIndex );
+                            }
                         }
                     }
                 }
@@ -319,14 +325,15 @@ namespace ImageManipulation {
 
                     if( !leaf ) {
                         int shift = 7 - level;
-                        int index = ( ( pixel->Red & Mask[level] ) >> ( shift - 2 ) ) |
-                                    ( ( pixel->Green & Mask[level] ) >> ( shift - 1 ) ) |
-                                    ( ( pixel->Blue & Mask[level] ) >> ( shift ) );
+                        int index = ((pixel->Red & Mask[level]) >> (shift - 2)) |
+                                    ((pixel->Green & Mask[level]) >> (shift - 1)) |
+                                    ((pixel->Blue & Mask[level]) >> (shift));
 
-                        if( null != children[index] )
+                        if( null != children[index] ) {
                             result = children[index].GetPaletteIndex( pixel, level + 1 );
-                        else
+                        } else {
                             throw new Exception( "Didn't expect this!" );
+                        }
                     }
 
                     return result;
@@ -362,7 +369,6 @@ namespace ImageManipulation {
 
                 /// <summary> The index of this node in the palette. </summary>
                 int paletteIndex;
-
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.ComponentModel;
 using System.Net;
@@ -51,7 +52,8 @@ namespace fCraft.ServerGUI {
             } else {
                 progress.Value = 100;
                 if( e.Cancelled || e.Error != null ) {
-                    MessageBox.Show( e.Error.ToString(), "Error occurred while trying to download " + Paths.UpdateInstallerFileName );
+                    MessageBox.Show( e.Error.ToString(),
+                                     "Error occurred while trying to download " + Paths.UpdateInstallerFileName );
                 } else if( autoUpdate ) {
                     bUpdateNow_Click( null, null );
                 } else {
@@ -62,11 +64,11 @@ namespace fCraft.ServerGUI {
         }
 
 
-        private void bCancel_Click( object sender, EventArgs e ) {
+        void bCancel_Click( object sender, EventArgs e ) {
             Close();
         }
 
-        private void bUpdateNow_Click( object sender, EventArgs e ) {
+        void bUpdateNow_Click( object sender, EventArgs e ) {
             string args = Server.GetArgString() +
                           String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "ServerGUI.exe" ) );
             MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
@@ -93,18 +95,18 @@ namespace fCraft.ServerGUI {
             tChangeLog.Text = sb.ToString();
         }
 
-        private void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
+        void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
             CreateDetailedChangeLog();
         }
 
-        private void bUpdateLater_Click( object sender, EventArgs e ) {
+        void bUpdateLater_Click( object sender, EventArgs e ) {
             Updater.RunAtShutdown = true;
             Logger.Log( LogType.SystemActivity,
                         "An fCraft update will be applied next time the server is shut down or restarted." );
             Close();
         }
 
-        private void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
+        void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
             if( !downloader.IsBusy ) return;
             downloader.CancelAsync();
             closeFormWhenDownloaded = true;

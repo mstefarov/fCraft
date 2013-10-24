@@ -1,13 +1,13 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
     public sealed partial class UpdaterSettingsPopup : Form {
-
         public string RunBeforeUpdate {
             get {
-                if( xRunBeforeUpdate.Checked) return tRunBeforeUpdate.Text;
+                if( xRunBeforeUpdate.Checked ) return tRunBeforeUpdate.Text;
                 else return "";
             }
             set { tRunBeforeUpdate.Text = value; }
@@ -31,13 +31,17 @@ namespace fCraft.ConfigGUI {
             set {
                 switch( value ) {
                     case UpdaterMode.Disabled:
-                        rDisabled.Checked = true; break;
+                        rDisabled.Checked = true;
+                        break;
                     case UpdaterMode.Notify:
-                        rNotify.Checked = true; break;
+                        rNotify.Checked = true;
+                        break;
                     case UpdaterMode.Prompt:
-                        rPrompt.Checked = true; break;
+                        rPrompt.Checked = true;
+                        break;
                     case UpdaterMode.Auto:
-                        rAutomatic.Checked = true; break;
+                        rAutomatic.Checked = true;
+                        break;
                 }
             }
         }
@@ -69,26 +73,26 @@ namespace fCraft.ConfigGUI {
             };
         }
 
-        private void xRunBeforeUpdate_CheckedChanged( object sender, EventArgs e ) {
+        void xRunBeforeUpdate_CheckedChanged( object sender, EventArgs e ) {
             tRunBeforeUpdate.Enabled = xRunBeforeUpdate.Checked;
         }
 
-        private void xRunAfterUpdate_CheckedChanged( object sender, EventArgs e ) {
+        void xRunAfterUpdate_CheckedChanged( object sender, EventArgs e ) {
             tRunAfterUpdate.Enabled = xRunAfterUpdate.Checked;
         }
 
-        private void rDisabled_CheckedChanged( object sender, EventArgs e ) {
+        void rDisabled_CheckedChanged( object sender, EventArgs e ) {
             gOptions.Enabled = !rDisabled.Checked;
         }
 
 
-        private void tRunBeforeUpdate_TextChanged( object sender, EventArgs e ) {
+        void tRunBeforeUpdate_TextChanged( object sender, EventArgs e ) {
             if( tRunBeforeUpdate.Text.Length > 0 ) {
                 xRunBeforeUpdate.Checked = true;
             }
         }
 
-        private void tRunAfterUpdate_TextChanged( object sender, EventArgs e ) {
+        void tRunAfterUpdate_TextChanged( object sender, EventArgs e ) {
             if( tRunAfterUpdate.Text.Length > 0 ) {
                 xRunAfterUpdate.Checked = true;
             }

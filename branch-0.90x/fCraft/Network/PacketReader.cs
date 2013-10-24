@@ -7,8 +7,8 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     internal sealed class PacketReader : BinaryReader {
-        public PacketReader( [NotNull] Stream stream ) :
-            base( stream ) {}
+        public PacketReader( [NotNull] Stream stream )
+            : base( stream ) {}
 
 
         public OpCode ReadOpCode() {

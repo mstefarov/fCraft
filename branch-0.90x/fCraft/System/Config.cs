@@ -315,8 +315,7 @@ namespace fCraft {
             } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
                 // LEGACY - renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], value );
-            } else if( keyName == "ircstripminecraftcolors" ) {
-                // LEGACY
+            } else if( keyName == "ircstripminecraftcolors" ) { // LEGACY
                 TrySetValue( ConfigKey.IRCShowColorsFromIRC, element.Value );
                 ConfigKey.IRCShowColorsFromIRC.SetValue( !ConfigKey.IRCShowColorsFromIRC.Enabled() );
             } else {
@@ -342,8 +341,7 @@ namespace fCraft {
             }
 
             // for compatibility with fCraft 0.631 and earlier
-            if( el.Element( "IRC" ) != null ) {
-                // LEGACY
+            if( el.Element( "IRC" ) != null ) { // LEGACY
                 list[(int)LogType.IrcStatus] = true;
             }
         }

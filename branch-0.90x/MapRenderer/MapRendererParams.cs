@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
@@ -7,7 +8,7 @@ using fCraft.MapConversion;
 
 namespace fCraft.MapRenderer {
     /// <summary> Holds all parameters for MapRenderer program, and sets some defaults. </summary>
-    class MapRendererParams {
+    internal class MapRendererParams {
         public int Angle { get; set; }
         public IsoCatMode Mode { get; set; }
         public ImageFormat ExportFormat { get; set; }

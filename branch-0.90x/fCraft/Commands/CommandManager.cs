@@ -365,8 +365,8 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for CommandManager.CommandCalling event. Cancelable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
-        internal CommandCallingEventArgs( [NotNull] CommandReader command, [NotNull] Player player ) :
-            base( command, player ) {}
+        internal CommandCallingEventArgs( [NotNull] CommandReader command, [NotNull] Player player )
+            : base( command, player ) {}
 
         public bool Cancel { get; set; }
     }

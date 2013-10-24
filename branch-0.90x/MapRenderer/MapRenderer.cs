@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -15,9 +16,10 @@ using JetBrains.Annotations;
 using Mono.Options;
 
 namespace fCraft.MapRenderer {
-    static class MapRenderer {
+    internal static class MapRenderer {
         static readonly BlockingCollection<RenderTask> ResultQueue = new BlockingCollection<RenderTask>(),
-                                                  WorkQueue = new BlockingCollection<RenderTask>();
+                                                       WorkQueue = new BlockingCollection<RenderTask>();
+
         static readonly Queue<RenderTask> InputPaths = new Queue<RenderTask>();
 
         static readonly DateTime StartTime = DateTime.UtcNow;
@@ -124,7 +126,8 @@ namespace fCraft.MapRenderer {
                     }
                 } catch( Exception ex ) {
                     Console.Error.WriteLine( "MapRenderer: Error checking output directory: {0}: {1}",
-                                             ex.GetType().Name, ex.Message );
+                                             ex.GetType().Name,
+                                             ex.Message );
                 }
             }
 
@@ -165,14 +168,13 @@ namespace fCraft.MapRenderer {
                         // try dequeue a rendered image for saving
                         RenderTask resultTask;
                         if( ResultQueue.TryTake( out resultTask ) ) {
-                            int percent = ( resultsProcessed*100 + 100 )/totalFiles;
+                            int percent = (resultsProcessed*100 + 100)/totalFiles;
                             SaveImage( percent, resultTask );
                             resultsProcessed++;
                         }
-
                     } else {
                         // no more maps to load -- just wait for results
-                        int percent = ( resultsProcessed*100 + 100 )/totalFiles;
+                        int percent = (resultsProcessed*100 + 100)/totalFiles;
                         SaveImage( percent, ResultQueue.Take() );
                         resultsProcessed++;
                     }
@@ -191,17 +193,14 @@ namespace fCraft.MapRenderer {
                 Map map;
                 if( p.MapImporter != null ) {
                     map = p.MapImporter.Load( task.MapPath );
-
                 } else {
                     map = MapUtility.Load( task.MapPath, p.TryHard );
                 }
                 task.Map = map;
                 return true;
-
             } catch( NoMapConverterFoundException ) {
                 Console.WriteLine( "{0}: Skipped (no compatible converter found).", task.RelativeName );
                 return false;
-
             } catch( Exception ex ) {
                 Console.WriteLine( "{0}: Error loading map file:", task.RelativeName );
                 Console.Error.WriteLine( ex );
@@ -219,17 +218,17 @@ namespace fCraft.MapRenderer {
                     p.OutputDirName = Paths.GetDirectoryNameOrRoot( parentDir );
                 }
                 QueueOneMap( new DirectoryInfo( inputPath ), Path.GetDirectoryName( inputPath ) );
-
             } else if( !p.DirectoryMode ) {
                 // single file-based map
                 if( !p.OutputDirGiven ) {
                     p.OutputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
                 }
                 QueueOneMap( new FileInfo( inputPath ), Path.GetFileName( inputPath ) );
-
             } else {
                 // go through all files inside the given directory
-                SearchOption recursiveOption = (p.Recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                SearchOption recursiveOption = (p.Recursive
+                                                    ? SearchOption.AllDirectories
+                                                    : SearchOption.TopDirectoryOnly);
                 DirectoryInfo inputDirInfo = new DirectoryInfo( inputPath );
                 string inputDirNormalizedName = Paths.NormalizeDirName( inputDirInfo.FullName );
                 if( p.InputFilter == null || p.UseRegex ) p.InputFilter = "*";
@@ -243,7 +242,8 @@ namespace fCraft.MapRenderer {
                 bool tryLoadDirs = (p.MapImporter == null || p.MapImporter.StorageType == MapStorageType.Directory);
                 if( tryLoadDirs ) {
                     foreach( var dir in inputDirInfo.GetDirectories( p.InputFilter, recursiveOption ) ) {
-                        string relativePath = Paths.MakeRelativePath( inputDirNormalizedName, Paths.NormalizeDirName( dir.FullName ) );
+                        string relativePath = Paths.MakeRelativePath( inputDirNormalizedName,
+                                                                      Paths.NormalizeDirName( dir.FullName ) );
                         if( !p.UseRegex || p.FilterRegex.IsMatch( relativePath ) ) {
                             QueueOneMap( dir, relativePath );
                         }
@@ -290,7 +290,8 @@ namespace fCraft.MapRenderer {
             } else {
                 if( !p.AlwaysOverwrite && File.Exists( task.TargetPath ) ) {
                     Console.WriteLine();
-                    if( !ConsoleUtil.ShowYesNo("File \"{0}\" already exists. Overwrite?", Path.GetFileName(task.TargetPath)) ) {
+                    if( !ConsoleUtil.ShowYesNo( "File \"{0}\" already exists. Overwrite?",
+                                                Path.GetFileName( task.TargetPath ) ) ) {
                         Console.WriteLine( "[{0}%] {1}: Skipped (image file already exists)",
                                            percentage.ToString( CultureInfo.InvariantCulture ).PadLeft( 3 ),
                                            task.RelativeName );
@@ -319,7 +320,6 @@ namespace fCraft.MapRenderer {
                     return;
             }
         }
-
 
         #region Options and help
 
@@ -448,7 +448,7 @@ namespace fCraft.MapRenderer {
             // Parse angle
             int angle = 0;
             if( angleString != null && (!Int32.TryParse( angleString, out angle ) ||
-                                         angle != -90 && angle != 0 && angle != 180 && angle != 270) ) {
+                                        angle != -90 && angle != 0 && angle != 180 && angle != 270) ) {
                 Console.Error.WriteLine( "MapRenderer: Angle must be a number: -90, 0, 90, 180, or 270" );
                 return ReturnCode.ArgumentError;
             }
@@ -471,9 +471,11 @@ namespace fCraft.MapRenderer {
                 }
                 try {
                     string[] regionParts = regionString.Split( ',' );
-                    p.Region = new BoundingBox( Int32.Parse( regionParts[0] ), Int32.Parse( regionParts[1] ),
+                    p.Region = new BoundingBox( Int32.Parse( regionParts[0] ),
+                                                Int32.Parse( regionParts[1] ),
                                                 Int32.Parse( regionParts[2] ),
-                                                Int32.Parse( regionParts[3] ), Int32.Parse( regionParts[4] ),
+                                                Int32.Parse( regionParts[3] ),
+                                                Int32.Parse( regionParts[4] ),
                                                 Int32.Parse( regionParts[5] ) );
                 } catch {
                     Console.Error.WriteLine(

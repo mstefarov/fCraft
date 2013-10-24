@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.ComponentModel;
 using System.Drawing;
@@ -16,18 +17,18 @@ namespace fCraft.GUI {
 
         static IsoCat() {
             using( Bitmap tilesBmp = Resources.Tileset ) {
-                TileX = tilesBmp.Width / 50;
+                TileX = tilesBmp.Width/50;
                 TileY = tilesBmp.Height;
-                TileStride = TileX * TileY * 4;
-                Tiles = new byte[50 * TileStride];
+                TileStride = TileX*TileY*4;
+                Tiles = new byte[50*TileStride];
 
                 MaxTileDim = Math.Max( TileX, TileY );
 
                 for( int i = 0; i < 50; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
-                            int p = i * TileStride + ( y * TileX + x ) * 4;
-                            System.Drawing.Color c = tilesBmp.GetPixel( x + i * TileX, y );
+                            int p = i*TileStride + (y*TileX + x)*4;
+                            System.Drawing.Color c = tilesBmp.GetPixel( x + i*TileX, y );
                             Tiles[p] = c.B;
                             Tiles[p + 1] = c.G;
                             Tiles[p + 2] = c.R;
@@ -38,14 +39,13 @@ namespace fCraft.GUI {
             }
 
             using( Bitmap stilesBmp = Resources.TilesetShadowed ) {
-
-                ShadowTiles = new byte[50 * TileStride];
+                ShadowTiles = new byte[50*TileStride];
 
                 for( int i = 0; i < 50; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
-                            int p = i * TileStride + ( y * TileX + x ) * 4;
-                            System.Drawing.Color c = stilesBmp.GetPixel( x + i * TileX, y );
+                            int p = i*TileStride + (y*TileX + x)*4;
+                            System.Drawing.Color c = stilesBmp.GetPixel( x + i*TileX, y );
                             ShadowTiles[p] = c.B;
                             ShadowTiles[p + 1] = c.G;
                             ShadowTiles[p + 2] = c.R;
@@ -55,7 +55,6 @@ namespace fCraft.GUI {
                 }
             }
         }
-
 
 
         [CanBeNull]
@@ -155,7 +154,6 @@ namespace fCraft.GUI {
                     while( z < map.Height ) {
                         block = GetBlock( x, y, z );
                         if( block != 0 ) {
-
                             switch( Rotation ) {
                                 case 0:
                                     ctp = (z >= shadows[x][y] ? tp : stp);
@@ -182,25 +180,20 @@ namespace fCraft.GUI {
                                               : 0;
 
                             if( blockUp == 0 || blockLeft == 0 || blockRight == 0 || // air
-
                                 (block != 8 && block != 9 || !SeeThroughWater) &&
                                 (blockUp == 8 || blockLeft == 8 || blockRight == 8 || blockUp == 9 || blockLeft == 9 ||
                                  blockRight == 9) || // water
-
                                 (block != 10 && block != 11 || !SeeThroughLava) &&
                                 (blockUp == 10 || blockLeft == 10 || blockRight == 10 || blockUp == 11 ||
                                  blockLeft == 11 || blockRight == 11) || // lava
-
                                 block != 20 && (blockUp == 20 || blockLeft == 20 || blockRight == 20) || // glass
                                 blockUp == 18 || blockLeft == 18 || blockRight == 18 || // foliage
                                 blockLeft == 44 || blockRight == 44 || // step
-
                                 blockUp == 37 || blockLeft == 37 || blockRight == 37 || // flower
                                 blockUp == 38 || blockLeft == 38 || blockRight == 38 || // flower
                                 blockUp == 6 || blockLeft == 6 || blockRight == 6 || // sapling
                                 blockUp == 39 || blockLeft == 39 || blockRight == 39 ||
                                 blockUp == 40 || blockLeft == 40 || blockRight == 40 ) // mushroom
-
                                 BlendTile();
                         }
 
@@ -306,9 +299,9 @@ namespace fCraft.GUI {
 
         void BlendTile() {
             if( block > 49 ) return;
-            int pos = ( x + ( Rotation == 1 || Rotation == 3 ? offsetY : offsetX ) ) * isoX +
-                      ( y + ( Rotation == 1 || Rotation == 3 ? offsetX : offsetY ) ) * isoY + z * isoH + isoOffset;
-            int tileOffset = block * TileStride;
+            int pos = (x + (Rotation == 1 || Rotation == 3 ? offsetY : offsetX))*isoX +
+                      (y + (Rotation == 1 || Rotation == 3 ? offsetX : offsetY))*isoY + z*isoH + isoOffset;
+            int tileOffset = block*TileStride;
             BlendPixel( pos, tileOffset );
             BlendPixel( pos + 4, tileOffset + 4 );
             BlendPixel( pos + 8, tileOffset + 8 );
@@ -355,19 +348,35 @@ namespace fCraft.GUI {
                 // Apply shading
                 if( z < (map.Height >> 1) ) {
                     int shadow = (z >> 1) + mh34;
-                    image[imageOffset] = (byte)((ctp[tileOffset]*sourceAlpha*shadow + image[imageOffset]*destAlpha*map.Height)/blendDivisor);
-                    image[imageOffset + 1] = (byte)((ctp[tileOffset + 1]*sourceAlpha*shadow + image[imageOffset + 1]*destAlpha*map.Height)/blendDivisor);
-                    image[imageOffset + 2] = (byte)((ctp[tileOffset + 2]*sourceAlpha*shadow + image[imageOffset + 2]*destAlpha*map.Height)/blendDivisor);
+                    image[imageOffset] =
+                        (byte)
+                        ((ctp[tileOffset]*sourceAlpha*shadow + image[imageOffset]*destAlpha*map.Height)/blendDivisor);
+                    image[imageOffset + 1] =
+                        (byte)
+                        ((ctp[tileOffset + 1]*sourceAlpha*shadow + image[imageOffset + 1]*destAlpha*map.Height)/
+                         blendDivisor);
+                    image[imageOffset + 2] =
+                        (byte)
+                        ((ctp[tileOffset + 2]*sourceAlpha*shadow + image[imageOffset + 2]*destAlpha*map.Height)/
+                         blendDivisor);
                 } else {
                     int shadow = (z - (map.Height >> 1))*48;
-                    image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + shadow + image[imageOffset]*destAlpha)/255 );
-                    image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + shadow + image[imageOffset + 1]*destAlpha)/255 );
-                    image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + shadow + image[imageOffset + 2]*destAlpha)/255 );
+                    image[imageOffset] =
+                        (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + shadow + image[imageOffset]*destAlpha)/255 );
+                    image[imageOffset + 1] =
+                        (byte)
+                        Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + shadow + image[imageOffset + 1]*destAlpha)/255 );
+                    image[imageOffset + 2] =
+                        (byte)
+                        Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + shadow + image[imageOffset + 2]*destAlpha)/255 );
                 }
             } else {
-                image[imageOffset] = (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + image[imageOffset]*destAlpha)/255 );
-                image[imageOffset + 1] = (byte)Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + image[imageOffset + 1]*destAlpha)/255 );
-                image[imageOffset + 2] = (byte)Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + image[imageOffset + 2]*destAlpha)/255 );
+                image[imageOffset] =
+                    (byte)Math.Min( 255, (ctp[tileOffset]*sourceAlpha + image[imageOffset]*destAlpha)/255 );
+                image[imageOffset + 1] =
+                    (byte)Math.Min( 255, (ctp[tileOffset + 1]*sourceAlpha + image[imageOffset + 1]*destAlpha)/255 );
+                image[imageOffset + 2] =
+                    (byte)Math.Min( 255, (ctp[tileOffset + 2]*sourceAlpha + image[imageOffset + 2]*destAlpha)/255 );
             }
             image[imageOffset + 3] = (byte)finalAlpha;
         }
@@ -435,7 +444,7 @@ namespace fCraft.GUI {
         void ReportProgress( float progress ) {
             var handler = ProgressChanged;
             if( handler != null ) {
-                handler( this, new ProgressChangedEventArgs( (int)Math.Round( 100 * progress ), "Drawing" ) );
+                handler( this, new ProgressChangedEventArgs( (int)Math.Round( 100*progress ), "Drawing" ) );
             }
         }
 
@@ -445,6 +454,6 @@ namespace fCraft.GUI {
 
         volatile bool isCancelled;
 
-        static readonly IsoCatResult CancelledResult = new IsoCatResult( true, null, default( Rectangle ) );
+        static readonly IsoCatResult CancelledResult = new IsoCatResult( true, null, default(Rectangle) );
     }
 }

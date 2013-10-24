@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using System.Text.RegularExpressions;
 using Mono.Options;
 
 namespace fCraft.MapConverter {
-    static class MapConverter {
+    internal static class MapConverter {
         static string importerName,
                       exporterName,
                       outputDirName,
@@ -158,14 +159,12 @@ namespace fCraft.MapConverter {
                     outputDirName = Paths.GetDirectoryNameOrRoot( parentDir );
                 }
                 ConvertOneMap( new DirectoryInfo( inputPath ), Path.GetDirectoryName( inputPath ) );
-
             } else if( !directoryMode ) {
                 // single file-based map
                 if( !outputDirGiven ) {
                     outputDirName = Paths.GetDirectoryNameOrRoot( inputPath );
                 }
                 ConvertOneMap( new FileInfo( inputPath ), Path.GetFileName( inputPath ) );
-
             } else {
                 // go through all files inside the given directory
                 SearchOption recursiveOption = (recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
@@ -212,7 +211,6 @@ namespace fCraft.MapConverter {
                     }
                     Console.Write( "Loading {0}... ", relativeName );
                     map = importer.Load( fileSystemInfo.FullName );
-
                 } else {
                     Console.Write( "Checking {0}... ", relativeName );
                     map = MapUtility.Load( fileSystemInfo.FullName, tryHard );
@@ -231,7 +229,7 @@ namespace fCraft.MapConverter {
                 string targetPath = Path.Combine( outputDirName, targetFileName );
                 if( !overwrite && File.Exists( targetPath ) ) {
                     Console.WriteLine();
-                    if( !ConsoleUtil.ShowYesNo("File \"{0}\" already exists. Overwrite?", targetFileName) ) {
+                    if( !ConsoleUtil.ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
                         return false;
                     }
                 }
@@ -241,11 +239,9 @@ namespace fCraft.MapConverter {
                 exporter.Save( map, targetPath );
                 Console.WriteLine( "ok" );
                 return true;
-
             } catch( NoMapConverterFoundException ) {
                 Console.WriteLine( "skip" );
                 return false;
-
             } catch( Exception ex ) {
                 Console.WriteLine( "ERROR" );
                 Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
@@ -266,7 +262,6 @@ namespace fCraft.MapConverter {
                     return;
             }
         }
-
 
         #region Options and help
 

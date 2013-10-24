@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,20 +13,20 @@ using fCraft.UpdateInstaller.Properties;
 
 
 namespace fCraft.UpdateInstaller {
-    static class Program {
+    internal static class Program {
         const string ConfigFileNameDefault = "config.xml",
                      BackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}_BeforeUpdate.zip";
 
         public const string DataBackupDirectory = "databackups";
 
-        static readonly string[] FilesToBackup = new[]{
+        static readonly string[] FilesToBackup = new[] {
             "PlayerDB.txt",
             "config.xml",
             "ipbans.txt",
             "worlds.xml"
         };
 
-        static readonly string[] LegacyFiles = new[]{
+        static readonly string[] LegacyFiles = new[] {
             "fCraftConsole.exe",
             "fCraftUI.exe",
             "ConfigTool.exe",
@@ -102,7 +103,6 @@ namespace fCraft.UpdateInstaller {
             // Apply the update
             using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
-
                     var allFiles = zs.ReadCentralDir().Select( entry => entry.FileNameInZip ).Union( LegacyFiles );
 
                     // ensure that fcraft files are writable
@@ -113,14 +113,15 @@ namespace fCraft.UpdateInstaller {
                             try {
                                 FileInfo fi = new FileInfo( fileName );
                                 if( !fi.Exists ) continue;
-                                using( fi.OpenWrite() ) { }
-
+                                using( fi.OpenWrite() ) {}
                             } catch( Exception ex ) {
                                 if( ex is IOException ) {
                                     Console.WriteLine( "Waiting for fCraft-related applications to close..." );
                                 } else {
                                     Console.Error.WriteLine( "ERROR: could not write to {0}: {1} - {2}",
-                                                             fileName, ex.GetType().Name, ex.Message );
+                                                             fileName,
+                                                             ex.GetType().Name,
+                                                             ex.Message );
                                     Console.WriteLine();
                                 }
                                 allPassed = false;
@@ -205,7 +206,7 @@ namespace fCraft.UpdateInstaller {
         }
     }
 
-    enum ReturnCodes {
+    internal enum ReturnCodes {
         Ok = 0,
         FailedToRunPreUpdateCommand = 1,
         FailedToRunPostUpdateCommand = 2

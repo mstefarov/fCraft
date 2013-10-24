@@ -645,8 +645,8 @@ namespace fCraft {
         }
 
         [StringFormatMethod( "message" )]
-        public RankDefinitionException( string rankName, string message, params object[] args ) :
-            base( String.Format( message, args ) ) {
+        public RankDefinitionException( string rankName, string message, params object[] args )
+            : base( String.Format( message, args ) ) {
             RankName = rankName;
         }
 

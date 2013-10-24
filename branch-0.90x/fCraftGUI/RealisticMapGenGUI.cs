@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Windows.Forms;
 using fCraft.MapGeneration;
@@ -237,8 +238,6 @@ namespace fCraft.GUI {
         }
 
 
-
-
         void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
             gTerrainFeatures.Visible = xAdvanced.Checked;
             gHeightmapCreation.Visible = xAdvanced.Checked;
@@ -324,7 +323,7 @@ namespace fCraft.GUI {
 
 
     public class RealisticMapGenGuiProvider : IMapGeneratorGuiProvider {
-        RealisticMapGenGuiProvider() { }
+        RealisticMapGenGuiProvider() {}
 
         public static readonly RealisticMapGenGuiProvider Instance = new RealisticMapGenGuiProvider();
 
@@ -333,6 +332,7 @@ namespace fCraft.GUI {
         }
 
         static readonly Version StaticVersion = new Version( 2, 1 );
+
         public Version Version {
             get { return StaticVersion; }
         }

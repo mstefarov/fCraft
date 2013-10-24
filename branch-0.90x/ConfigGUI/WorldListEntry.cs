@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace fCraft.ConfigGUI {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
 
-            if( ( temp = el.Attribute( "name" ) ) == null ) {
+            if( (temp = el.Attribute( "name" )) == null ) {
                 throw new FormatException( "WorldListEntity: Cannot parse XML: Unnamed worlds are not allowed." );
             }
             if( !World.IsValidName( temp.Value ) ) {
@@ -57,7 +58,7 @@ namespace fCraft.ConfigGUI {
             }
             name = temp.Value;
 
-            if( ( temp = el.Attribute( "hidden" ) ) != null && !String.IsNullOrEmpty( temp.Value ) ) {
+            if( (temp = el.Attribute( "hidden" )) != null && !String.IsNullOrEmpty( temp.Value ) ) {
                 bool hidden;
                 if( Boolean.TryParse( temp.Value, out hidden ) ) {
                     Hidden = hidden;
@@ -69,7 +70,7 @@ namespace fCraft.ConfigGUI {
                 Hidden = false;
             }
 
-            if( ( temp = el.Attribute( "backup" ) ) != null ) {
+            if( (temp = el.Attribute( "backup" )) != null ) {
                 TimeSpan realBackupTimer;
                 if( DateTimeUtil.TryParseTimeSpan( temp.Value, out realBackupTimer ) ) {
                     Backup = BackupNameFromValue( realBackupTimer );
@@ -84,12 +85,12 @@ namespace fCraft.ConfigGUI {
             }
 
             XElement tempEl;
-            if( ( tempEl = el.Element( WorldManager.AccessSecurityXmlTagName ) ) != null ||
-                ( tempEl = el.Element( "accessSecurity" ) ) != null ) {
+            if( (tempEl = el.Element( WorldManager.AccessSecurityXmlTagName )) != null ||
+                (tempEl = el.Element( "accessSecurity" )) != null ) {
                 accessSecurity = new SecurityController( tempEl, false );
             }
-            if( ( tempEl = el.Element( WorldManager.BuildSecurityXmlTagName ) ) != null ||
-                ( tempEl = el.Element( "buildSecurity" ) ) != null ) {
+            if( (tempEl = el.Element( WorldManager.BuildSecurityXmlTagName )) != null ||
+                (tempEl = el.Element( "buildSecurity" )) != null ) {
                 buildSecurity = new SecurityController( tempEl, false );
             }
 
@@ -97,7 +98,7 @@ namespace fCraft.ConfigGUI {
             if( blockEl == null ) {
                 BlockDBEnabled = YesNoAuto.Auto;
             } else {
-                if( ( temp = blockEl.Attribute( "enabled" ) ) != null ) {
+                if( (temp = blockEl.Attribute( "enabled" )) != null ) {
                     YesNoAuto enabledStateTemp;
                     if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                         BlockDBEnabled = enabledStateTemp;
@@ -109,7 +110,7 @@ namespace fCraft.ConfigGUI {
                     }
                 }
 
-                if( ( temp = blockEl.Attribute( "preload" ) ) != null ) {
+                if( (temp = blockEl.Attribute( "preload" )) != null ) {
                     bool isPreloaded;
                     if( Boolean.TryParse( temp.Value, out isPreloaded ) ) {
                         blockDBIsPreloaded = isPreloaded;
@@ -119,7 +120,7 @@ namespace fCraft.ConfigGUI {
                                     name );
                     }
                 }
-                if( ( temp = blockEl.Attribute( "limit" ) ) != null ) {
+                if( (temp = blockEl.Attribute( "limit" )) != null ) {
                     int limit;
                     if( Int32.TryParse( temp.Value, out limit ) ) {
                         blockDBLimit = limit;
@@ -129,7 +130,7 @@ namespace fCraft.ConfigGUI {
                                     name );
                     }
                 }
-                if( ( temp = blockEl.Attribute( "timeLimit" ) ) != null ) {
+                if( (temp = blockEl.Attribute( "timeLimit" )) != null ) {
                     int timeLimitSeconds;
                     if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                         blockDBTimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
@@ -141,19 +142,19 @@ namespace fCraft.ConfigGUI {
                 }
             }
 
-            if( ( tempEl = el.Element( "LoadedBy" ) ) != null ) {
+            if( (tempEl = el.Element( "LoadedBy" )) != null ) {
                 LoadedBy = tempEl.Value;
             }
-            if( ( tempEl = el.Element( "MapChangedBy" ) ) != null ) {
+            if( (tempEl = el.Element( "MapChangedBy" )) != null ) {
                 MapChangedBy = tempEl.Value;
             }
 
-            if( ( tempEl = el.Element( "LoadedOn" ) ) != null ) {
+            if( (tempEl = el.Element( "LoadedOn" )) != null ) {
                 if( !DateTimeUtil.TryParseDateTime( tempEl.Value, ref LoadedOn ) ) {
                     LoadedOn = DateTime.MinValue;
                 }
             }
-            if( ( tempEl = el.Element( "MapChangedOn" ) ) != null ) {
+            if( (tempEl = el.Element( "MapChangedOn" )) != null ) {
                 if( !DateTimeUtil.TryParseDateTime( tempEl.Value, ref MapChangedOn ) ) {
                     MapChangedOn = DateTime.MinValue;
                 }
@@ -168,7 +169,6 @@ namespace fCraft.ConfigGUI {
         public DateTime LoadedOn, MapChangedOn;
         readonly XElement environmentEl;
 
-
         #region List Properties
 
         string name;
@@ -180,10 +180,8 @@ namespace fCraft.ConfigGUI {
                 if( name == value ) return;
                 if( !World.IsValidName( value ) ) {
                     throw new FormatException( "Invalid world name" );
-
                 } else if( !value.Equals( name, StringComparison.OrdinalIgnoreCase ) && MainForm.IsWorldNameTaken( value ) ) {
                     throw new FormatException( "Duplicate world names are not allowed." );
-
                 } else {
                     string oldName = name;
                     string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
@@ -285,7 +283,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         internal XElement Serialize() {
             XElement element = new XElement( "World" );
             element.Add( new XAttribute( "name", Name ) );
@@ -353,7 +350,6 @@ namespace fCraft.ConfigGUI {
             get { return Path.Combine( Paths.MapPath, Name + MapFileExtension ); }
         }
 
-
         #region Backup
 
         public static string BackupNameFromValue( TimeSpan value ) {
@@ -408,7 +404,6 @@ namespace fCraft.ConfigGUI {
         };
 
         #endregion
-
 
         public YesNoAuto BlockDBEnabled { get; set; }
         readonly bool blockDBIsPreloaded;

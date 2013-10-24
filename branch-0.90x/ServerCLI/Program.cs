@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ using fCraft.Events;
 using JetBrains.Annotations;
 
 namespace fCraft.ServerCLI {
-    static class Program {
+    internal static class Program {
         static bool useColor,
                     exitOnShutdown = true;
 
@@ -32,47 +33,47 @@ namespace fCraft.ServerCLI {
 #if !DEBUG
             try {
 #endif
-                Server.InitLibrary( args );
-                useColor = !Server.HasArg( ArgKey.NoConsoleColor );
+            Server.InitLibrary( args );
+            useColor = !Server.HasArg( ArgKey.NoConsoleColor );
 
-                Server.InitServer();
+            Server.InitServer();
 
-                CheckForUpdates();
-                Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " +
-                                ConfigKey.ServerName.GetString();
+            CheckForUpdates();
+            Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - " +
+                            ConfigKey.ServerName.GetString();
 
-                if( !ConfigKey.ProcessPriority.IsBlank() ) {
-                    try {
-                        Process.GetCurrentProcess().PriorityClass =
-                            ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
-                    } catch( Exception ) {
-                        Logger.Log( LogType.Warning, "Program.Main: Could not set process priority, using defaults." );
-                    }
+            if( !ConfigKey.ProcessPriority.IsBlank() ) {
+                try {
+                    Process.GetCurrentProcess().PriorityClass =
+                        ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                } catch( Exception ) {
+                    Logger.Log( LogType.Warning, "Program.Main: Could not set process priority, using defaults." );
                 }
+            }
 
-                // don't hook up Ctrl+C handler until the server's about to start
-                Console.CancelKeyPress += OnCancelKeyPress;
+            // don't hook up Ctrl+C handler until the server's about to start
+            Console.CancelKeyPress += OnCancelKeyPress;
 
-                if( Server.StartServer() ) {
-                    Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
-                    Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
+            if( Server.StartServer() ) {
+                Console.WriteLine( "** Running fCraft version {0}. **", Updater.CurrentRelease.VersionString );
+                Console.WriteLine( "** Server is now ready. Type /Shutdown to exit safely. **" );
 
-                    while( !Server.IsShuttingDown ) {
-                        string cmd;
-                        try {
-                            cmd = Console.ReadLine();
-                        } catch( ArgumentOutOfRangeException ) {
-                            // workaround for TermInfoDriver bug under Mono
-                            continue;
-                        }
-                        if( cmd == null ) {
-                            Console.WriteLine(
-                                "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
-                            break;
-                        }
-                        if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
-                            Console.Clear();
-                        } else {
+                while( !Server.IsShuttingDown ) {
+                    string cmd;
+                    try {
+                        cmd = Console.ReadLine();
+                    } catch( ArgumentOutOfRangeException ) {
+                        // workaround for TermInfoDriver bug under Mono
+                        continue;
+                    }
+                    if( cmd == null ) {
+                        Console.WriteLine(
+                            "*** Received EOF from console. You will not be able to type anything in console any longer. ***" );
+                        break;
+                    }
+                    if( cmd.Equals( "/Clear", StringComparison.OrdinalIgnoreCase ) ) {
+                        Console.Clear();
+                    } else {
 #if !DEBUG
                             try {
                                 Player.Console.ParseMessage( cmd, true );
@@ -82,14 +83,13 @@ namespace fCraft.ServerCLI {
                                                           ex, false );
                             }
 #else
-                            Player.Console.ParseMessage( cmd, true );
+                        Player.Console.ParseMessage( cmd, true );
 #endif
-                        }
                     }
-
-                } else {
-                    ReportFailure( ShutdownReason.FailedToStart );
                 }
+            } else {
+                ReportFailure( ShutdownReason.FailedToStart );
+            }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerCLI", "ServerCLI", ex, true );
@@ -188,7 +188,6 @@ namespace fCraft.ServerCLI {
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
 
-
         #region Updates
 
         static readonly AutoResetEvent UpdateDownloadWaiter = new AutoResetEvent( false );
@@ -201,7 +200,7 @@ namespace fCraft.ServerCLI {
             lock( ProgressReportLock ) {
                 Console.CursorLeft = 0;
                 int maxProgress = Console.WindowWidth - 9;
-                int progress = (int)Math.Round( ( e.ProgressPercentage / 100f ) * ( maxProgress - 1 ) );
+                int progress = (int)Math.Round( (e.ProgressPercentage/100f)*(maxProgress - 1) );
                 Console.Write( "{0,3}% |", e.ProgressPercentage );
                 Console.Write( new String( '=', progress ) );
                 Console.Write( '>' );

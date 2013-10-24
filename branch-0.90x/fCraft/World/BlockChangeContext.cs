@@ -5,8 +5,8 @@ using System;
 namespace fCraft {
     /// <summary> Context of the block change. Multiple flags can be combined. </summary>
     [Flags]
-    public enum BlockChangeContext {
-        // Backed by Int32.
+    public enum BlockChangeContext { // Backed by Int32.
+
         /// <summary> Default/unknown context. </summary>
         Unknown = 0,
 

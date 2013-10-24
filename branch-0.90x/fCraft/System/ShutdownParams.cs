@@ -18,8 +18,8 @@ namespace fCraft {
         /// <param name="customReason"/> and <param name="initiatedBy"/> may be null. </summary>
         public ShutdownParams( ShutdownReason reason, TimeSpan delay,
                                bool restart, [CanBeNull] string customReason,
-                               [CanBeNull] Player initiatedBy ) :
-                                   this( reason, delay, restart ) {
+                               [CanBeNull] Player initiatedBy )
+            : this( reason, delay, restart ) {
             customReasonString = customReason;
             InitiatedBy = initiatedBy;
         }
