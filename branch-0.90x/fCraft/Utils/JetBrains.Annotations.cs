@@ -23,10 +23,10 @@ namespace JetBrains.Annotations {
     /// }
     /// </code></example>
     [AttributeUsage(
-      AttributeTargets.Method | AttributeTargets.Parameter |
-      AttributeTargets.Property | AttributeTargets.Delegate |
-      AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class CanBeNullAttribute : Attribute { }
+        AttributeTargets.Method | AttributeTargets.Parameter |
+        AttributeTargets.Property | AttributeTargets.Delegate |
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
+    public sealed class CanBeNullAttribute : Attribute {}
 
     /// <summary>
     /// Indicates that the value of the marked element could never be <c>null</c>
@@ -37,10 +37,10 @@ namespace JetBrains.Annotations {
     /// }
     /// </code></example>
     [AttributeUsage(
-      AttributeTargets.Method | AttributeTargets.Parameter |
-      AttributeTargets.Property | AttributeTargets.Delegate |
-      AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class NotNullAttribute : Attribute { }
+        AttributeTargets.Method | AttributeTargets.Parameter |
+        AttributeTargets.Property | AttributeTargets.Delegate |
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
+    public sealed class NotNullAttribute : Attribute {}
 
     /// <summary>
     /// Indicates that the marked method builds string by format pattern and (optional) arguments.
@@ -55,8 +55,8 @@ namespace JetBrains.Annotations {
     /// }
     /// </code></example>
     [AttributeUsage(
-      AttributeTargets.Constructor | AttributeTargets.Method,
-      AllowMultiple = false, Inherited = true )]
+        AttributeTargets.Constructor | AttributeTargets.Method,
+        AllowMultiple = false, Inherited = true )]
     public sealed class StringFormatMethodAttribute : Attribute {
         /// <param name="formatParameterName">
         /// Specifies which parameter of an annotated method should be treated as format-string
@@ -113,7 +113,7 @@ namespace JetBrains.Annotations {
     [AttributeUsage( AttributeTargets.Method, AllowMultiple = true, Inherited = true )]
     public sealed class ContractAnnotationAttribute : Attribute {
         public ContractAnnotationAttribute( [NotNull] string contract )
-            : this( contract, false ) { }
+            : this( contract, false ) {}
 
         public ContractAnnotationAttribute( [NotNull] string contract, bool forceFullStates ) {
             Contract = contract;
@@ -132,7 +132,7 @@ namespace JetBrains.Annotations {
     /// while the method is executed
     /// </summary>
     [AttributeUsage( AttributeTargets.Parameter, Inherited = true )]
-    public sealed class InstantHandleAttribute : Attribute { }
+    public sealed class InstantHandleAttribute : Attribute {}
 
     /// <summary>
     /// Indicates that a method does not make any observable state changes.
@@ -146,5 +146,5 @@ namespace JetBrains.Annotations {
     /// }
     /// </code></example>
     [AttributeUsage( AttributeTargets.Method, Inherited = true )]
-    public sealed class PureAttribute : Attribute { }
+    public sealed class PureAttribute : Attribute {}
 }

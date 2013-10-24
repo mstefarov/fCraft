@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,7 +11,8 @@ namespace fCraft {
     public static class EnumerableUtil {
         /// <summary> Joins all items in a collection into one comma-separated string.
         /// If the items are not strings, .ToString() is called on them. </summary>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             StringBuilder sb = new StringBuilder();
@@ -26,7 +28,8 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// If the items are not strings, .ToString() is called on them. </summary>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             if( separator == null ) throw new ArgumentNullException( "separator" );
@@ -43,7 +46,8 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before concatenation. </summary>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items,
                                               [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
@@ -61,7 +65,8 @@ namespace fCraft {
 
         /// <summary> Joins all items in a collection into one string separated with the given separator.
         /// A specified string conversion function is called on each item before concatenation. </summary>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator,
                                               [NotNull] Func<T, string> stringConversionFunction ) {
             if( items == null ) throw new ArgumentNullException( "items" );
@@ -79,7 +84,8 @@ namespace fCraft {
 
 
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
             if( items == null ) throw new ArgumentNullException( "items" );
             return items.JoinToString( "  ", p => p.ClassyName );

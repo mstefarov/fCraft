@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Most commands for server moderation - kick, ban, rank change, etc - are here. </summary>
-    static class ModerationCommands {
+    internal static class ModerationCommands {
         const string BanCommonHelp = "Ban information can be viewed with &H/BanInfo";
 
         internal static void Init() {
@@ -54,14 +55,13 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUnspectate );
         }
 
-
         #region Ban / Unban
 
         static readonly CommandDescriptor CdBan = new CommandDescriptor {
             Name = "Ban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban },
+            Permissions = new[] {Permission.Ban},
             Usage = "/Ban PlayerName [Reason]",
             Help = "Bans a specified player by name. Note: Does NOT ban IP. " +
                    "Any text after the player name will be saved as a memo. ",
@@ -100,11 +100,12 @@ namespace fCraft {
             Name = "BanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban, Permission.BanIP },
+            Permissions = new[] {Permission.Ban, Permission.BanIP},
             Usage = "/BanIP PlayerName|IPAddress [Reason]",
-            Help = "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
-                   "You can also type in the IP address directly. " +
-                   "Any text after PlayerName/IP will be saved as a memo. ",
+            Help =
+                "Bans the player's name and IP. If player is not online, last known IP associated with the name is used. " +
+                "You can also type in the IP address directly. " +
+                "Any text after PlayerName/IP will be saved as a memo. ",
             Handler = BanIPHandler
         };
 
@@ -152,7 +153,7 @@ namespace fCraft {
             Name = "BanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            Permissions = new[] {Permission.Ban, Permission.BanIP, Permission.BanAll},
             Usage = "/BanAll PlayerName|IPAddress [Reason]",
             Help = "Bans the player's name, IP, and all other names associated with the IP. " +
                    "If player is not online, last known IP associated with the name is used. " +
@@ -205,7 +206,7 @@ namespace fCraft {
             Name = "Unban",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban },
+            Permissions = new[] {Permission.Ban},
             Usage = "/Unban PlayerName [Reason]",
             Help = "Removes ban for a specified player. Does NOT remove associated IP bans. " +
                    "Any text after the player name will be saved as a memo. ",
@@ -239,7 +240,7 @@ namespace fCraft {
             Name = "UnbanIP",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban, Permission.BanIP },
+            Permissions = new[] {Permission.Ban, Permission.BanIP},
             Usage = "/UnbanIP PlayerName|IPaddress [Reason]",
             Help = "Removes ban for a specified player's name and last known IP. " +
                    "You can also type in the IP address directly. " +
@@ -284,11 +285,12 @@ namespace fCraft {
             Name = "UnbanAll",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban, Permission.BanIP, Permission.BanAll },
+            Permissions = new[] {Permission.Ban, Permission.BanIP, Permission.BanAll},
             Usage = "/UnbanAll PlayerName|IPaddress [Reason]",
-            Help = "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
-                   "You can also type in the IP address directly. " +
-                   "Any text after the player name will be saved as a memo. ",
+            Help =
+                "Removes ban for a specified player's name, last known IP, and all other names associated with the IP. " +
+                "You can also type in the IP address directly. " +
+                "Any text after the player name will be saved as a memo. ",
             Handler = UnbanAllHandler
         };
 
@@ -329,7 +331,7 @@ namespace fCraft {
             Name = "BanEx",
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Ban, Permission.BanIP },
+            Permissions = new[] {Permission.Ban, Permission.BanIP},
             Usage = "/BanEx +PlayerName&S or &H/BanEx -PlayerName",
             Help = "Adds or removes an IP-ban exemption for an account. " +
                    "Exempt accounts can log in from any IP, including banned ones.",
@@ -338,11 +340,11 @@ namespace fCraft {
 
         static void BanExHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string playerName = cmd.Next();
-            if( playerName == null || playerName.Length < 2 || ( playerName[0] != '-' && playerName[0] != '+' ) ) {
+            if( playerName == null || playerName.Length < 2 || (playerName[0] != '-' && playerName[0] != '+') ) {
                 CdBanEx.PrintUsage( player );
                 return;
             }
-            bool addExemption = ( playerName[0] == '+' );
+            bool addExemption = (playerName[0] == '+');
             string targetName = playerName.Substring( 1 );
             PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, targetName, SearchOptions.Default );
             if( target == null ) return;
@@ -389,15 +391,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Kick
 
         static readonly CommandDescriptor CdKick = new CommandDescriptor {
             Name = "Kick",
-            Aliases = new[] { "k" },
+            Aliases = new[] {"k"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Kick },
+            Permissions = new[] {Permission.Kick},
             Usage = "/Kick PlayerName [Reason]",
             Help = "Kicks the specified player from the server. " +
                    "Optional kick reason/message is shown to the kicked player and logged.",
@@ -456,14 +457,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Changing Rank (Promotion / Demotion)
 
         static readonly CommandDescriptor CdRank = new CommandDescriptor {
             Name = "Rank",
-            Aliases = new[] { "user", "promote", "demote" },
+            Aliases = new[] {"user", "promote", "demote"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Promote, Permission.Demote },
+            Permissions = new[] {Permission.Promote, Permission.Demote},
             AnyPermission = true,
             IsConsoleSafe = true,
             Usage = "/Rank PlayerName RankName [Reason]",
@@ -552,13 +552,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Hide
 
         static readonly CommandDescriptor CdHide = new CommandDescriptor {
             Name = "Hide",
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Hide },
+            Permissions = new[] {Permission.Hide},
             Usage = "/Hide [silent]",
             Help = "Enables invisible mode. It looks to other players like you left the server, " +
                    "but you can still do anything - chat, build, delete, type commands - as usual. " +
@@ -607,7 +606,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdUnhide = new CommandDescriptor {
             Name = "Unhide",
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Hide },
+            Permissions = new[] {Permission.Hide},
             Usage = "/Unhide [silent]",
             Help = "Disables the &H/Hide&S invisible mode. " +
                    "It looks to other players like you just joined the server.",
@@ -649,13 +648,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Set Spawn
 
         static readonly CommandDescriptor CdSetSpawn = new CommandDescriptor {
             Name = "SetSpawn",
             Category = CommandCategory.Moderation | CommandCategory.World,
-            Permissions = new[] { Permission.SetSpawn },
+            Permissions = new[] {Permission.SetSpawn},
             Help = "Assigns your current location to be the spawn point of the map/world. " +
                    "If an optional PlayerName param is given, the spawn point of only that player is changed instead.",
             Usage = "/SetSpawn [PlayerName]",
@@ -706,15 +704,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Freeze
 
         static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
             Name = "Freeze",
-            Aliases = new[] { "f" },
+            Aliases = new[] {"f"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Freeze },
+            Permissions = new[] {Permission.Freeze},
             Usage = "/Freeze PlayerName",
             Help = "Freezes the specified player in place. " +
                    "This is usually effective, but not hacking-proof. " +
@@ -748,10 +745,10 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
             Name = "Unfreeze",
-            Aliases = new[] { "uf" },
+            Aliases = new[] {"uf"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Freeze },
+            Permissions = new[] {Permission.Freeze},
             Usage = "/Unfreeze PlayerName",
             Help = "Releases the player from a frozen state. See &H/Help Freeze&S for more information.",
             Handler = UnfreezeHandler
@@ -782,14 +779,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region TP
 
         static readonly CommandDescriptor CdTeleport = new CommandDescriptor {
             Name = "TP",
-            Aliases = new[] { "teleport", "to" },
+            Aliases = new[] {"teleport", "to"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Teleport },
+            Permissions = new[] {Permission.Teleport},
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
             Help = "Teleports you to a specified player's location. " +
                    "If coordinates are given, teleports to that location.",
@@ -811,9 +807,9 @@ namespace fCraft {
                         player.Message( "Coordinates are outside the valid range!" );
                     } else {
                         Position newPos = new Position(
-                            (short)( x*32 + 16 ),
-                            (short)( y*32 + 16 ),
-                            (short)( z*32 + 16 ),
+                            (short)(x*32 + 16),
+                            (short)(y*32 + 16),
+                            (short)(z*32 + 16),
                             player.Position.R,
                             player.Position.L );
                         player.TeleportTo( newPos );
@@ -874,15 +870,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Bring / WorldBring / BringAll
 
         static readonly CommandDescriptor CdBring = new CommandDescriptor {
             Name = "Bring",
             IsConsoleSafe = true,
-            Aliases = new[] { "summon", "fetch" },
+            Aliases = new[] {"summon", "fetch"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Bring },
+            Permissions = new[] {Permission.Bring},
             Usage = "/Bring PlayerName [ToPlayer]",
             Help = "Teleports another player to your location. " +
                    "If the optional second parameter is given, teleports player to another player.",
@@ -959,7 +954,7 @@ namespace fCraft {
             Name = "WBring",
             IsConsoleSafe = true,
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Bring },
+            Permissions = new[] {Permission.Bring},
             Usage = "/WBring PlayerName WorldName",
             Help = "Teleports a player to the given world's spawn.",
             Handler = WorldBringHandler
@@ -1032,7 +1027,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdBringAll = new CommandDescriptor {
             Name = "BringAll",
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Bring, Permission.BringAll },
+            Permissions = new[] {Permission.Bring, Permission.BringAll},
             Usage = "/BringAll [@Rank [@AnotherRank]] [*|World [AnotherWorld]]",
             Help = "Teleports all players from your world to you. " +
                    "If any world names are given, only teleports players from those worlds. " +
@@ -1051,7 +1046,7 @@ namespace fCraft {
 
             // Parse the list of worlds and ranks
             string arg;
-            while( ( arg = cmd.Next() ) != null ) {
+            while( (arg = cmd.Next()) != null ) {
                 if( arg.StartsWith( "@" ) ) {
                     Rank rank = RankManager.FindRank( arg.Substring( 1 ) );
                     if( rank == null ) {
@@ -1191,14 +1186,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Patrol & SpecPatrol
 
         static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
             Name = "Patrol",
-            Aliases = new[] { "pat" },
+            Aliases = new[] {"pat"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Patrol },
+            Permissions = new[] {Permission.Patrol},
             Help = "Teleports you to the next player in need of checking.",
             Handler = PatrolHandler
         };
@@ -1220,9 +1214,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
             Name = "SpecPatrol",
-            Aliases = new[] { "spat" },
+            Aliases = new[] {"spat"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Patrol, Permission.Spectate },
+            Permissions = new[] {Permission.Patrol, Permission.Spectate},
             Help = "Teleports you to the next player in need of checking.",
             Handler = SpecPatrolHandler
         };
@@ -1245,7 +1239,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Mute / Unmute
 
         static readonly TimeSpan MaxMuteDuration = TimeSpan.FromDays( 700 ); // 100w0d
@@ -1254,7 +1247,7 @@ namespace fCraft {
             Name = "Mute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Mute },
+            Permissions = new[] {Permission.Mute},
             Help = "Mutes a player for a specified length of time.",
             Usage = "/Mute PlayerName Duration",
             Handler = MuteHandler
@@ -1301,7 +1294,7 @@ namespace fCraft {
             Name = "Unmute",
             Category = CommandCategory.Moderation | CommandCategory.Chat,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Mute },
+            Permissions = new[] {Permission.Mute},
             Help = "Unmutes a player.",
             Usage = "/Unmute PlayerName",
             Handler = UnmuteHandler
@@ -1333,14 +1326,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Spectate / Unspectate
 
         static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
             Name = "Spectate",
-            Aliases = new[] { "follow", "spec" },
+            Aliases = new[] {"follow", "spec"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Spectate },
+            Permissions = new[] {Permission.Spectate},
             Usage = "/Spectate PlayerName",
             Handler = SpectateHandler
         };
@@ -1389,9 +1381,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
             Name = "Unspectate",
-            Aliases = new[] { "unfollow", "unspec" },
+            Aliases = new[] {"unfollow", "unspec"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.Spectate },
+            Permissions = new[] {Permission.Spectate},
             NotRepeatable = true,
             Handler = UnspectateHandler
         };
@@ -1405,7 +1397,6 @@ namespace fCraft {
 
         #endregion
 
-
         // freeze target if player is allowed to do so
         static void FreezeIfAllowed( [NotNull] Player player, [NotNull] PlayerInfo targetInfo ) {
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -1414,8 +1405,7 @@ namespace fCraft {
                 try {
                     targetInfo.Freeze( player, FreezeOptions.Default );
                     player.Message( "Player {0}&S has been frozen while you retry.", targetInfo.ClassyName );
-                } catch( PlayerOpException ) {
-                }
+                } catch( PlayerOpException ) {}
             }
         }
 
@@ -1426,8 +1416,8 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( targetInfo == null ) throw new ArgumentNullException( "targetInfo" );
             Player[] otherPlayers = Server.Players.FromIP( targetInfo.LastIP )
-                                                  .Except( except )
-                                                  .ToArray();
+                                          .Except( except )
+                                          .ToArray();
             if( otherPlayers.Length > 0 ) {
                 player.Message( "&WWarning: Other player(s) share IP with {0}&W: {1}",
                                 targetInfo.ClassyName,

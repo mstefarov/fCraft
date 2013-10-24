@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,13 +15,11 @@ namespace fCraft {
     /// <summary> Object representing volatile state ("session") of a connected player.
     /// For persistent state of a known player account, see PlayerInfo. </summary>
     public sealed partial class Player : IClassy {
-
         /// <summary> The godly pseudo-player for commands called from the server console.
         /// Console has all the permissions granted.
         /// Note that Player.Console.World is always null,
         /// and that prevents console from calling certain commands (like /TP). </summary>
         public static Player Console;
-
 
         #region Properties
 
@@ -37,9 +36,7 @@ namespace fCraft {
 
         /// <summary> Whether the client is currently connected. </summary>
         public bool IsOnline {
-            get {
-                return State == SessionState.Online;
-            }
+            get { return State == SessionState.Online; }
         }
 
         /// <summary> Whether the player name was verified at login. </summary>
@@ -131,7 +128,6 @@ namespace fCraft {
 
         #endregion
 
-
         // This constructor is used to create pseudoplayers (such as Console and /dummy).
         // Such players have unlimited permissions, but no world.
         // This should be replaced by a more generic solution, like an IEntity interface.
@@ -144,7 +140,6 @@ namespace fCraft {
             State = SessionState.Offline;
             IsSuper = true;
         }
-
 
         #region Placing Blocks
 
@@ -170,9 +165,9 @@ namespace fCraft {
 
             // check if player is frozen or too far away to legitimately place a block
             if( Info.IsFrozen ||
-                Math.Abs( coord.X * 32 - Position.X ) > MaxBlockPlacementRange ||
-                Math.Abs( coord.Y * 32 - Position.Y ) > MaxBlockPlacementRange ||
-                Math.Abs( coord.Z * 32 - Position.Z ) > MaxBlockPlacementRange ) {
+                Math.Abs( coord.X*32 - Position.X ) > MaxBlockPlacementRange ||
+                Math.Abs( coord.Y*32 - Position.Y ) > MaxBlockPlacementRange ||
+                Math.Abs( coord.Z*32 - Position.Z ) > MaxBlockPlacementRange ) {
                 RevertBlockNow( coord );
                 return false;
             }
@@ -200,7 +195,7 @@ namespace fCraft {
             if( action == ClickAction.Delete && !IsPainting ) {
                 type = Block.Air;
             }
-            bool requiresUpdate = ( type != GetBind( type ) || IsPainting );
+            bool requiresUpdate = (type != GetBind( type ) || IsPainting);
             type = GetBind( type );
 
             // selection handling
@@ -231,7 +226,6 @@ namespace fCraft {
                         RaisePlayerPlacedBlockEvent( this, map, coordBelow, Block.Slab, Block.DoubleSlab, context );
                         RevertBlockNow( coord );
                         SendNow( Packet.MakeSetBlock( coordBelow, Block.DoubleSlab ) );
-
                     } else {
                         // handle normal blocks
                         blockUpdate = new BlockUpdate( this, coord, type );
@@ -281,8 +275,8 @@ namespace fCraft {
                     RevertBlockNow( coord );
                     break;
 
-                //case CanPlaceResult.PluginDeniedNoUpdate:
-                //    break;
+                    //case CanPlaceResult.PluginDeniedNoUpdate:
+                    //    break;
             }
             return false;
         }
@@ -324,7 +318,9 @@ namespace fCraft {
                     Server.Message( "{0}&W was kicked for suspected griefing.", ClassyName );
                     Logger.Log( LogType.SuspiciousActivity,
                                 "{0} was kicked for block spam ({1} blocks in {2} seconds)",
-                                Name, Info.Rank.AntiGriefBlocks, spamTimer );
+                                Name,
+                                Info.Rank.AntiGriefBlocks,
+                                spamTimer );
                     return true;
                 }
             }
@@ -333,7 +329,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Binding
 
@@ -367,7 +362,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Permission Checks
 
@@ -477,7 +471,7 @@ namespace fCraft {
                 result = CanPlaceResult.Allowed;
             }
 
-        eventCheck:
+            eventCheck:
             var handler = PlacingBlock;
             if( handler == null ) return result;
 
@@ -514,7 +508,7 @@ namespace fCraft {
                              (spectatedPlayer != null && spectatedPlayer == otherPlayer.spectatedPlayer);
 
             return otherPlayer == this || // players can always "see" self
-                   IsSuper ||             // super-players have ALL permissions
+                   IsSuper || // super-players have ALL permissions
                    canSeeOther && !hideOther;
         }
 
@@ -526,7 +520,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Undo / Redo
 
@@ -602,7 +595,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Drawing, Selection
 
         /// <summary> Draw brush currently used by the player. Defaults to NormalBrush. May not be null. </summary>
@@ -666,7 +658,9 @@ namespace fCraft {
                 }
             } else if( announce ) {
                 Message( "Block #{0} marked at {1}. Place mark #{2}.",
-                         SelectionMarkCount, coord, SelectionMarkCount + 1 );
+                         SelectionMarkCount,
+                         coord,
+                         SelectionMarkCount + 1 );
             }
             return false;
         }
@@ -751,7 +745,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Copy/Paste
 
         /// <summary> Returns a list of all CopyStates, indexed by slot.
@@ -760,6 +753,7 @@ namespace fCraft {
         public CopyState[] CopyStates {
             get { return copyStates; }
         }
+
         CopyState[] copyStates;
 
         /// <summary> Gets or sets the currently selected copy slot number. Should be between 0 and (MaxCopySlots-1).
@@ -768,12 +762,13 @@ namespace fCraft {
         public int CopySlot {
             get { return copySlot; }
             set {
-                if( value < 0 || value >= MaxCopySlots) {
+                if( value < 0 || value >= MaxCopySlots ) {
                     throw new ArgumentOutOfRangeException( "value" );
                 }
                 copySlot = value;
             }
         }
+
         int copySlot;
 
 
@@ -837,7 +832,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Spectating
 
@@ -904,7 +898,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Static Utilities
 
         static readonly Uri PaidCheckUri = new Uri( "http://minecraft.net/haspaid.jsp?user=" );
@@ -943,7 +936,8 @@ namespace fCraft {
             } catch( WebException ex ) {
                 Logger.Log( LogType.Warning,
                             "Could not check paid status of player {0}: {1}",
-                            name, ex.Message );
+                            name,
+                            ex.Message );
                 return AccountType.Unknown;
             }
         }
@@ -976,14 +970,15 @@ namespace fCraft {
             if( name == null ) throw new ArgumentNullException( "name" );
             return PlayerNameRegex.IsMatch( name );
         }
-        
+
         /// <summary> Checks if all characters in a string are admissible in a player name.
         /// Allows '@' (for Mojang accounts) and '.' (for those really old rare accounts). </summary>
         public static bool ContainsValidCharacters( [NotNull] string name ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( (ch < '0' && ch != '.') || (ch > '9' && ch < '@') || (ch > 'Z' && ch < '_') || (ch > '_' && ch < 'a') || ch > 'z' ) {
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < '@') || (ch > 'Z' && ch < '_') ||
+                    (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
@@ -991,7 +986,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Teleports player to a given coordinate within this map. </summary>
         public void TeleportTo( Position pos ) {
@@ -1003,9 +997,7 @@ namespace fCraft {
 
         /// <summary> Time since the player was last active (moved, talked, or clicked). </summary>
         public TimeSpan IdleTime {
-            get {
-                return DateTime.UtcNow.Subtract( LastActiveTime );
-            }
+            get { return DateTime.UtcNow.Subtract( LastActiveTime ); }
         }
 
 
@@ -1013,7 +1005,6 @@ namespace fCraft {
         public void ResetIdleTimer() {
             LastActiveTime = DateTime.UtcNow;
         }
-
 
         #region Kick
 
@@ -1072,7 +1063,9 @@ namespace fCraft {
             // log and record kick to PlayerDB
             Logger.Log( LogType.UserActivity,
                         "{0} kicked {1}. Reason: {2}",
-                        player.Name, Name, reason ?? "" );
+                        player.Name,
+                        Name,
+                        reason ?? "" );
             if( recordToPlayerDB ) {
                 Info.ProcessKick( player, reason );
             }
@@ -1081,10 +1074,13 @@ namespace fCraft {
             if( announce ) {
                 if( reason != null && ConfigKey.AnnounceKickAndBanReasons.Enabled() ) {
                     Server.Message( "{0}&W was kicked by {1}&W: {2}",
-                                    ClassyName, player.ClassyName, reason );
+                                    ClassyName,
+                                    player.ClassyName,
+                                    reason );
                 } else {
                     Server.Message( "{0}&W was kicked by {1}",
-                                    ClassyName, player.ClassyName );
+                                    ClassyName,
+                                    player.ClassyName );
                 }
             }
 
@@ -1096,7 +1092,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Name formatted for the debugger. </summary>
         public override string ToString() {
@@ -1115,7 +1110,7 @@ namespace fCraft {
 
 
     // Used by /Players to order results
-    sealed class PlayerListSorter : IComparer<Player> {
+    internal sealed class PlayerListSorter : IComparer<Player> {
         public static readonly PlayerListSorter Instance = new PlayerListSorter();
 
         public int Compare( [NotNull] Player x, [NotNull] Player y ) {

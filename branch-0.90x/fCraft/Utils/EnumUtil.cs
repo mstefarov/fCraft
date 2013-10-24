@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -19,10 +20,8 @@ namespace fCraft {
             try {
                 output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
                 return Enum.IsDefined( typeof( TEnum ), output );
-            } catch( ArgumentException ) {
-            } catch( OverflowException ) {
-            }
-            output = default( TEnum );
+            } catch( ArgumentException ) {} catch( OverflowException ) {}
+            output = default(TEnum);
             return false;
         }
 

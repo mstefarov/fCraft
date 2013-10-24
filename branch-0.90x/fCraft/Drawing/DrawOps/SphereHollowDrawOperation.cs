@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace fCraft.Drawing {
@@ -11,13 +12,12 @@ namespace fCraft.Drawing {
         }
 
         public SphereHollowDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
         public override bool Prepare( Vector3I[] marks ) {
-            double radius = Math.Sqrt( (marks[0].X - marks[1].X) * (marks[0].X - marks[1].X) +
-                                       (marks[0].Y - marks[1].Y) * (marks[0].Y - marks[1].Y) +
-                                       (marks[0].Z - marks[1].Z) * (marks[0].Z - marks[1].Z) );
+            double radius = Math.Sqrt( (marks[0].X - marks[1].X)*(marks[0].X - marks[1].X) +
+                                       (marks[0].Y - marks[1].Y)*(marks[0].Y - marks[1].Y) +
+                                       (marks[0].Z - marks[1].Z)*(marks[0].Z - marks[1].Z) );
 
             marks[1].X = (short)Math.Round( marks[0].X - radius );
             marks[1].Y = (short)Math.Round( marks[0].Y - radius );

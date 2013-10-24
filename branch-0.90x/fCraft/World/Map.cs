@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace fCraft {
     /// <summary> Represents a map file (associated with a world or not).
     /// Maps can be created blank (using Map constructor), generated terrain (using RealisticMapGenState),
     /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
-    public unsafe sealed class Map {
+    public sealed unsafe class Map {
         /// <summary> Current default map format for saving. </summary>
         public const MapFormat SaveFormat = MapFormat.FCMv3;
 
@@ -40,11 +41,9 @@ namespace fCraft {
 
         /// <summary> Default spawning point on the map. A warning is logged when given coordinates are outside the map. </summary>
         public Position Spawn {
-            get {
-                return spawn;
-            }
+            get { return spawn; }
             set {
-                if( value.X > Width * 32 || value.Y > Length * 32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
+                if( value.X > Width*32 || value.Y > Length*32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
                     Logger.Log( LogType.Warning, "Map.Spawn: Coordinates are outside the map!" );
                     return;
                 }
@@ -52,13 +51,14 @@ namespace fCraft {
                 HasChangedSinceSave = true;
             }
         }
+
         Position spawn;
 
         /// <summary> Resets spawn to the default location (top center of the map). </summary>
         public void ResetSpawn() {
-            Spawn = new Position( Width * 16,
-                                  Length * 16,
-                                  Math.Min( short.MaxValue, Height * 32 ) );
+            Spawn = new Position( Width*16,
+                                  Length*16,
+                                  Math.Min( short.MaxValue, Height*32 ) );
         }
 
 
@@ -99,7 +99,7 @@ namespace fCraft {
             if( !IsValidDimension( width ) ) throw new ArgumentOutOfRangeException( "width", "Invalid map width." );
             if( !IsValidDimension( length ) ) throw new ArgumentOutOfRangeException( "length", "Invalid map length." );
             if( !IsValidDimension( height ) ) throw new ArgumentOutOfRangeException( "height", "Invalid map height." );
-            if( (long)width * length * height > Int32.MaxValue ) {
+            if( (long)width*length*height > Int32.MaxValue ) {
                 throw new ArgumentException( "Map volume exceeds Int32.MaxValue." );
             }
             DateCreated = DateTime.UtcNow;
@@ -147,9 +147,9 @@ namespace fCraft {
                 HasChangedSinceSave = true;
                 Logger.Log( LogType.Error,
                             "Map.Save: Unable to open file \"{0}\" for writing: {1}",
-                            tempFileName, ex );
-                if( File.Exists( tempFileName ) )
-                    File.Delete( tempFileName );
+                            tempFileName,
+                            ex );
+                if( File.Exists( tempFileName ) ) File.Delete( tempFileName );
                 return false;
             }
 
@@ -157,22 +157,21 @@ namespace fCraft {
             try {
                 Paths.MoveOrReplaceFile( tempFileName, fileName );
                 Logger.Log( LogType.SystemActivity,
-                            "Saved map to {0}", fileName );
-
+                            "Saved map to {0}",
+                            fileName );
             } catch( Exception ex ) {
                 HasChangedSinceSave = true;
                 Logger.Log( LogType.Error,
                             "Map.Save: Error trying to replace file \"{0}\": {1}",
-                            fileName, ex );
-                if( File.Exists( tempFileName ) )
-                    File.Delete( tempFileName );
+                            fileName,
+                            ex );
+                if( File.Exists( tempFileName ) ) File.Delete( tempFileName );
                 return false;
             }
             return true;
         }
 
         #endregion
-
 
         #region Block Getters / Setters
 
@@ -182,7 +181,7 @@ namespace fCraft {
         /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( int x, int y, int z ) {
-            return (z * Length + y) * Width + x;
+            return (z*Length + y)*Width + x;
         }
 
 
@@ -190,7 +189,7 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Index of the block in Map.Blocks array. </returns>
         public int Index( Vector3I coords ) {
-            return (coords.Z * Length + coords.Y) * Width + coords.X;
+            return (coords.Z*Length + coords.Y)*Width + coords.X;
         }
 
 
@@ -214,7 +213,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <param name="type"> Block type to set. </param>
         public void SetBlock( Vector3I coords, Block type ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 && (byte)type < 50 ) {
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 &&
+                coords.Z >= 0 && (byte)type < 50 ) {
                 Blocks[Index( coords )] = (byte)type;
                 HasChangedSinceSave = true;
                 compressedCopyCache = null;
@@ -238,8 +238,7 @@ namespace fCraft {
         /// <param name="z"> Z coordinate (height, Notch's Y). </param>
         /// <returns> Block type, as a Block enumeration. Block.None if coordinates were out of bounds. </returns>
         public Block GetBlock( int x, int y, int z ) {
-            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 )
-                return (Block)Blocks[Index( x, y, z )];
+            if( x < Width && y < Length && z < Height && x >= 0 && y >= 0 && z >= 0 ) return (Block)Blocks[Index( x, y, z )];
             return Block.None;
         }
 
@@ -248,8 +247,8 @@ namespace fCraft {
         /// <param name="coords"> Coordinate vector (X,Y,Z). </param>
         /// <returns> Block type, as a Block enumeration. Undefined if coordinates were out of bounds. </returns>
         public Block GetBlock( Vector3I coords ) {
-            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 && coords.Z >= 0 )
-                return (Block)Blocks[Index( coords )];
+            if( coords.X < Width && coords.Y < Length && coords.Z < Height && coords.X >= 0 && coords.Y >= 0 &&
+                coords.Z >= 0 ) return (Block)Blocks[Index( coords )];
             return Block.None;
         }
 
@@ -270,7 +269,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Block Updates & Simulation
 
@@ -295,8 +293,7 @@ namespace fCraft {
         /// <summary> Clears all pending updates. </summary>
         public void ClearUpdateQueue() {
             BlockUpdate ignored;
-            while( updates.TryDequeue( out ignored ) ) {
-            }
+            while( updates.TryDequeue( out ignored ) ) {}
         }
 
 
@@ -354,7 +351,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Draw Operations
 
         /// <summary> Number of active draw operations. </summary>
@@ -399,7 +395,7 @@ namespace fCraft {
                 }
 
                 // draw a batch of blocks
-                int blocksToDraw = maxTotalUpdates / (drawOps.Count - i);
+                int blocksToDraw = maxTotalUpdates/(drawOps.Count - i);
                 op.StartBatch();
 #if DEBUG
                 int blocksDrawn = op.DrawBatch( blocksToDraw );
@@ -446,8 +442,8 @@ namespace fCraft {
 
         #endregion
 
-
         #region Utilities
+
         /// <summary> Checks if a given map dimension (width, height, or length) is acceptable.
         /// Values between 1 and 2047 are technically allowed. </summary>
         public static bool IsValidDimension( int dimension ) {
@@ -498,7 +494,7 @@ namespace fCraft {
             // add default names for blocks, and their numeric codes
             foreach( Block block in Enum.GetValues( typeof( Block ) ) ) {
                 BlockNames.Add( block.ToString().ToLower(), block );
-                BlockNames.Add( ( (int)block ).ToStringInvariant(), block );
+                BlockNames.Add( ((int)block).ToStringInvariant(), block );
             }
 
             // alternative names for blocks
@@ -721,7 +717,7 @@ namespace fCraft {
                     var sx = shadows[x];
                     for( int y = 0; y < Length; y++ ) {
                         int index = Index( x, y, Height - 1 );
-                        for( int z = ( Height - 1 ); z >= 0; z-- ) {
+                        for( int z = (Height - 1); z >= 0; z-- ) {
                             switch( (Block)blocks[index] ) {
                                 case Block.Air:
                                 case Block.BrownMushroom:

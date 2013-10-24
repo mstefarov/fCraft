@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,7 +25,9 @@ namespace fCraft {
         /// <summary> List of worlds currently being managed by WorldManager. </summary>
         [NotNull]
         public static World[] Worlds { get; private set; }
-        static readonly SortedDictionary<string, World> WorldIndex = new SortedDictionary<string, World>( StringComparer.OrdinalIgnoreCase );
+
+        static readonly SortedDictionary<string, World> WorldIndex =
+            new SortedDictionary<string, World>( StringComparer.OrdinalIgnoreCase );
 
         internal static readonly object SyncRoot = new object();
 
@@ -56,6 +59,7 @@ namespace fCraft {
                 SaveWorldList();
             }
         }
+
         static World mainWorld;
 
 
@@ -69,10 +73,10 @@ namespace fCraft {
             }
         }
 
-
         #region World List Saving/Loading
 
         static World firstWorld;
+
         internal static bool LoadWorldList() {
             World newMainWorld = null;
             Worlds = new World[0];
@@ -80,12 +84,12 @@ namespace fCraft {
 #if !DEBUG
                 try {
 #endif
-                    XDocument doc = XDocument.Load( Paths.WorldListFileName );
-                    XElement root = doc.Root;
-                    if( root != null ) {
-                        foreach( XElement el in root.Elements( "World" ) ) {
+                XDocument doc = XDocument.Load( Paths.WorldListFileName );
+                XElement root = doc.Root;
+                if( root != null ) {
+                    foreach( XElement el in root.Elements( "World" ) ) {
 #if DEBUG
-                            LoadWorldListEntry( el );
+                        LoadWorldListEntry( el );
 #else
                             try {
                                 LoadWorldListEntry( el );
@@ -94,29 +98,28 @@ namespace fCraft {
                                                           "fCraft", ex, false );
                             }
 #endif
-                        }
+                    }
 
-                        XAttribute temp;
-                        if( (temp = root.Attribute( "main" )) != null ) {
-                            World suggestedMainWorld = FindWorldExact( temp.Value );
+                    XAttribute temp;
+                    if( (temp = root.Attribute( "main" )) != null ) {
+                        World suggestedMainWorld = FindWorldExact( temp.Value );
 
-                            if( suggestedMainWorld != null ) {
-                                newMainWorld = suggestedMainWorld;
-
-                            } else if( firstWorld != null ) {
-                                // if specified main world does not exist, use first-defined world
-                                Logger.Log( LogType.Warning,
-                                            "The specified main world \"{0}\" does not exist. " +
-                                            "\"{1}\" was designated main instead. You can use /WMain to change it.",
-                                            temp.Value, firstWorld.Name );
-                                newMainWorld = firstWorld;
-                            }
-                            // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
-
+                        if( suggestedMainWorld != null ) {
+                            newMainWorld = suggestedMainWorld;
                         } else if( firstWorld != null ) {
+                            // if specified main world does not exist, use first-defined world
+                            Logger.Log( LogType.Warning,
+                                        "The specified main world \"{0}\" does not exist. " +
+                                        "\"{1}\" was designated main instead. You can use /WMain to change it.",
+                                        temp.Value,
+                                        firstWorld.Name );
                             newMainWorld = firstWorld;
                         }
+                        // if firstWorld was also null, LoadWorldList() should try creating a new mainWorld
+                    } else if( firstWorld != null ) {
+                        newMainWorld = firstWorld;
                     }
+                }
 #if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogAndReportCrash( "Error occurred while trying to load the world list.", "fCraft", ex, true );
@@ -130,7 +133,6 @@ namespace fCraft {
                                 "Creating default \"main\" world." );
                     newMainWorld = AddWorld( null, "main", FlatMapGen.MakeFlatgrass( 128, 128, 64 ).Generate(), true );
                 }
-
             } else {
                 Logger.Log( LogType.SystemActivity,
                             "Server.Start: No world list found. Creating default \"main\" world." );
@@ -140,12 +142,11 @@ namespace fCraft {
             // if there is no default world still, die.
             if( newMainWorld == null ) {
                 throw new Exception( "Could not create any worlds." );
-
             } else if( newMainWorld.AccessSecurity.HasRestrictions ) {
                 Logger.Log( LogType.Warning,
                             "Server.LoadWorldList: Main world cannot have any access restrictions. " +
                             "Access permission for \"{0}\" has been reset.",
-                             newMainWorld.Name );
+                            newMainWorld.Name );
                 newMainWorld.AccessSecurity.Reset();
             }
 
@@ -171,7 +172,8 @@ namespace fCraft {
             } catch( WorldOpException ex ) {
                 Logger.Log( LogType.Error,
                             "WorldManager: Error adding world \"{0}\": {1}",
-                            worldName, ex.Message );
+                            worldName,
+                            ex.Message );
                 return;
             }
 
@@ -232,7 +234,7 @@ namespace fCraft {
             // load environment settings
             XElement envEl = el.Element( EnvironmentXmlTagName );
             if( envEl != null ) {
-                if( ( tempAttr = envEl.Attribute( "cloud" ) ) != null ) {
+                if( (tempAttr = envEl.Attribute( "cloud" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.CloudColor ) ) {
                         world.CloudColor = -1;
                         Logger.Log( LogType.Warning,
@@ -241,7 +243,7 @@ namespace fCraft {
                                     worldName );
                     }
                 }
-                if( ( tempAttr = envEl.Attribute( "fog" ) ) != null ) {
+                if( (tempAttr = envEl.Attribute( "fog" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.FogColor ) ) {
                         world.FogColor = -1;
                         Logger.Log( LogType.Warning,
@@ -250,7 +252,7 @@ namespace fCraft {
                                     worldName );
                     }
                 }
-                if( ( tempAttr = envEl.Attribute( "sky" ) ) != null ) {
+                if( (tempAttr = envEl.Attribute( "sky" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.SkyColor ) ) {
                         world.SkyColor = -1;
                         Logger.Log( LogType.Warning,
@@ -259,7 +261,7 @@ namespace fCraft {
                                     worldName );
                     }
                 }
-                if( ( tempAttr = envEl.Attribute( "level" ) ) != null ) {
+                if( (tempAttr = envEl.Attribute( "level" )) != null ) {
                     if( !Int32.TryParse( tempAttr.Value, out world.EdgeLevel ) ) {
                         world.EdgeLevel = -1;
                         Logger.Log( LogType.Warning,
@@ -268,7 +270,7 @@ namespace fCraft {
                                     worldName );
                     }
                 }
-                if( ( tempAttr = envEl.Attribute( "edge" ) ) != null ) {
+                if( (tempAttr = envEl.Attribute( "edge" )) != null ) {
                     Block block;
                     if( Map.GetBlockByName( tempAttr.Value, false, out block ) ) {
                         if( Map.GetEdgeTexture( block ) == null ) {
@@ -360,11 +362,15 @@ namespace fCraft {
                         if( Paths.FileExists( fullMapFileName, true ) ) {
                             Logger.Log( LogType.Warning,
                                         "WorldManager.CheckMapFile: Map file for world \"{0}\" was renamed from \"{1}\" to \"{2}\"",
-                                        world.Name, matches[0].Name, fileName );
+                                        world.Name,
+                                        matches[0].Name,
+                                        fileName );
                         } else {
                             Logger.Log( LogType.Error,
                                         "WorldManager.CheckMapFile: Failed to rename map file of \"{0}\" from \"{1}\" to \"{2}\"",
-                                        world.Name, matches[0].Name, fileName );
+                                        world.Name,
+                                        matches[0].Name,
+                                        fileName );
                             return;
                         }
                     } else {
@@ -381,7 +387,8 @@ namespace fCraft {
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Warning,
                                 "WorldManager.CheckMapFile: Could not load map file for world \"{0}\": {1}",
-                                world.Name, ex );
+                                world.Name,
+                                ex );
                 }
             } else {
                 Logger.Log( LogType.Warning,
@@ -492,7 +499,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Finding Worlds
 
         /// <summary> Finds a world by full name.
@@ -583,7 +589,6 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Creates a new world and adds it to the current list of worlds being managed by WorldManager. </summary>
         /// <param name="player"> Player who is adding the world. May be null. </param>
         /// <param name="name"> Name of the world being added. May NOT be null. </param>
@@ -594,7 +599,8 @@ namespace fCraft {
         /// <exception cref="WorldOpException"> Given world name is invalid; a world with this name already exists;
         /// or an event callback cancels the addition. </exception>
         [NotNull]
-        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map, bool preload ) {
+        public static World AddWorld( [CanBeNull] Player player, [NotNull] string name, [CanBeNull] Map map,
+                                      bool preload ) {
             if( name == null ) throw new ArgumentNullException( "name" );
 
             if( !World.IsValidName( name ) ) {
@@ -633,7 +639,8 @@ namespace fCraft {
 
 
         /// <summary> Changes the name of the given world. </summary>
-        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile, bool overwrite ) {
+        public static void RenameWorld( [NotNull] World world, [NotNull] string newName, bool moveMapFile,
+                                        bool overwrite ) {
             if( newName == null ) throw new ArgumentNullException( "newName" );
             if( world == null ) throw new ArgumentNullException( "world" );
 
@@ -749,11 +756,12 @@ namespace fCraft {
                     throw new WorldOpException( worldToDelete.Name, WorldOpExceptionCode.CannotDoThatToMainWorld );
                 }
 
-                foreach( Rank rank in RankManager.Ranks){
+                foreach( Rank rank in RankManager.Ranks ) {
                     if( rank.MainWorld == worldToDelete ) {
                         Logger.Log( LogType.Warning,
                                     "Main world for rank {0} was reset because world {1} was deleted.",
-                                    rank.Name, worldToDelete.Name );
+                                    rank.Name,
+                                    worldToDelete.Name );
                         rank.MainWorld = null;
                     }
                 }
@@ -768,7 +776,8 @@ namespace fCraft {
                     worldToDelete.BlockDB.Clear();
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}", ex );
+                                "WorldManager.RemoveWorld: Could not delete BlockDB file: {0}",
+                                ex );
                 }
 
                 WorldIndex.Remove( worldToDelete.Name.ToLower() );
@@ -831,11 +840,9 @@ namespace fCraft {
             // Look for the file
             string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
             if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
-
                 if( File.Exists( sourceFullFileName + ".fcm" ) ) {
                     // Try with extension added
                     sourceFullFileName += ".fcm";
-
                 } else if( MonoCompat.IsCaseSensitive ) {
                     try {
                         // If we're on a case-sensitive OS, try case-insensitive search
@@ -849,7 +856,8 @@ namespace fCraft {
                                 player.Message( "File/directory not found: {0}", fileName );
                                 break;
                             case 1:
-                                player.Message( "File names are case-sensitive! Did you mean to load \"{0}\"?", candidates[0].Name );
+                                player.Message( "File names are case-sensitive! Did you mean to load \"{0}\"?",
+                                                candidates[0].Name );
                                 break;
                             default:
                                 player.Message( "File names are case-sensitive! Did you mean to load one of these: {0}",
@@ -860,7 +868,6 @@ namespace fCraft {
                         player.Message( ex.Message );
                     }
                     return null;
-
                 } else {
                     // Nothing found!
                     player.Message( "File/directory not found: {0}", fileName );
@@ -876,7 +883,6 @@ namespace fCraft {
 
             return sourceFullFileName;
         }
-
 
         #region Events
 

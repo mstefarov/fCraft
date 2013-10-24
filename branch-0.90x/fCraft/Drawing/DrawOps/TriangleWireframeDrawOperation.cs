@@ -1,11 +1,11 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 
 namespace fCraft.Drawing {
     /// <summary> Draw operation that creates an outline of a triangle, using three given coordinates as vertices. </summary>
     public sealed class TriangleWireframeDrawOperation : DrawOperation {
-
         public override int ExpectedMarks {
             get { return 3; }
         }
@@ -15,8 +15,7 @@ namespace fCraft.Drawing {
         }
 
         public TriangleWireframeDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -40,6 +39,7 @@ namespace fCraft.Drawing {
 
 
         IEnumerator<Vector3I> coordEnumerator1, coordEnumerator2, coordEnumerator3;
+
         public override int DrawBatch( int maxBlocksToDraw ) {
             int blocksDone = 0;
             while( coordEnumerator1.MoveNext() ) {
@@ -70,7 +70,6 @@ namespace fCraft.Drawing {
             return blocksDone;
         }
 
-        
 
         readonly HashSet<int> modifiedBlocks = new HashSet<int>();
 

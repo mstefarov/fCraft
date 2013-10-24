@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // TriangleDrawOperation contributed by Conrad "Redshift" Morgan
+
 using System;
 
 namespace fCraft.Drawing {
@@ -15,8 +16,7 @@ namespace fCraft.Drawing {
         }
 
         public TriangleDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
         // Triangle vertices.
         Vector3I a, b, c;
@@ -45,7 +45,7 @@ namespace fCraft.Drawing {
                 Math.Max( Math.Max( a.X, b.X ), c.X ),
                 Math.Max( Math.Max( a.Y, b.Y ), c.Y ),
                 Math.Max( Math.Max( a.Z, b.Z ), c.Z )
-            );
+                );
 
             Coords = Bounds.MinVertex;
 
@@ -68,7 +68,7 @@ namespace fCraft.Drawing {
                 return Math.Max( Math.Max( Bounds.Width, Bounds.Height ), Bounds.Length );
             }
             Vector3I nabs = normal.Abs();
-            return Math.Max( Math.Max( nabs.X, nabs.Y ), nabs.Z ) / 2;
+            return Math.Max( Math.Max( nabs.X, nabs.Y ), nabs.Z )/2;
         }
 
 
@@ -92,8 +92,10 @@ namespace fCraft.Drawing {
                                 if( blocksDone >= maxBlocksToDraw ) return blocksDone;
                             }
                             if( TimeToEndBatch ) return blocksDone;
-                        } Coords.Z = Bounds.ZMin;
-                    } Coords.Y = Bounds.YMin;
+                        }
+                        Coords.Z = Bounds.ZMin;
+                    }
+                    Coords.Y = Bounds.YMin;
                 }
             }
             IsDone = true;
@@ -102,6 +104,7 @@ namespace fCraft.Drawing {
 
 
         const float Extra = 0.5f;
+
         bool IsTriangleBlock() {
             // Early out.
             if( Math.Abs( normalF.Dot( Coords - a ) ) > 1 ) return false;
@@ -123,7 +126,7 @@ namespace fCraft.Drawing {
             int numerator = normal.Dot( a - Coords );
             int denominator = normal.Dot( v );
             if( denominator == 0 ) return numerator == 0;
-            double distance = (double)numerator / denominator;
+            double distance = (double)numerator/denominator;
             return distance > -0.5 && distance <= 0.5;
         }
     }

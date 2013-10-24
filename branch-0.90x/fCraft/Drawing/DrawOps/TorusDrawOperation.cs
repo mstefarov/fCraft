@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // original TorusDrawOperation contributed by M1_Abrams
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -21,8 +22,7 @@ namespace fCraft.Drawing {
         }
 
         public TorusDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -37,8 +37,8 @@ namespace fCraft.Drawing {
             tubeR = radiusVector.Z;
 
             // torus radius is figured out from length of vector's X-Y components
-            bigR = Math.Sqrt( radiusVector.X * radiusVector.X +
-                              radiusVector.Y * radiusVector.Y + .5 );
+            bigR = Math.Sqrt( radiusVector.X*radiusVector.X +
+                              radiusVector.Y*radiusVector.Y + .5 );
 
             // tube + torus radius, rounded up. This will be the maximum extend of the torus.
             int combinedRadius = (int)Math.Ceiling( bigR + tubeR );
@@ -49,7 +49,7 @@ namespace fCraft.Drawing {
             // adjusted bounding box
             Bounds = new BoundingBox( center - combinedRadiusVector, center + combinedRadiusVector );
 
-            BlocksTotalEstimate = (int)(2 * Math.PI * Math.PI * bigR * (tubeR * tubeR + Bias));
+            BlocksTotalEstimate = (int)(2*Math.PI*Math.PI*bigR*(tubeR*tubeR + Bias));
 
             coordEnumerator = BlockEnumerator().GetEnumerator();
             return true;
@@ -57,8 +57,9 @@ namespace fCraft.Drawing {
 
 
         IEnumerator<Vector3I> coordEnumerator;
-        public override int DrawBatch(int maxBlocksToDraw) {
-            return DrawBatchFromEnumerable(maxBlocksToDraw, coordEnumerator);
+
+        public override int DrawBatch( int maxBlocksToDraw ) {
+            return DrawBatchFromEnumerable( maxBlocksToDraw, coordEnumerator );
         }
 
 
@@ -67,9 +68,9 @@ namespace fCraft.Drawing {
             for( int x = Bounds.XMin; x <= Bounds.XMax; x++ ) {
                 for( int y = Bounds.YMin; y <= Bounds.YMax; y++ ) {
                     for( int z = Bounds.ZMin; z <= Bounds.ZMax; z++ ) {
-                        double dx = ( x - center.X );
-                        double dy = ( y - center.Y );
-                        double dz = ( z - center.Z );
+                        double dx = (x - center.X);
+                        double dy = (y - center.Y);
+                        double dz = (z - center.Z);
 
                         // test if it's inside the torus
                         double r1 = bigR - Math.Sqrt( dx*dx + dy*dy );

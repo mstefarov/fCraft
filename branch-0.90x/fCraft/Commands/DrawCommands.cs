@@ -6,7 +6,7 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    static class DrawCommands {
+    internal static class DrawCommands {
         const string GeneralDrawingHelp =
             " Use &H/Cancel&S to cancel selection mode. Use &H/Undo&S to stop and undo the last command.";
 
@@ -70,7 +70,6 @@ namespace fCraft {
             CdUndoArea.Help += GeneralDrawingHelp;
             CdUndoAreaNot.Help += GeneralDrawingHelp;
         }
-
 
         #region DrawOperations & Brushes
 
@@ -299,8 +298,7 @@ namespace fCraft {
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
 
             // MakeInstance returns null if there were problems with syntax, abort
-            if( brush == null )
-                return;
+            if( brush == null ) return;
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
             player.Message( "{0}: Click or &H/Mark&S {1} blocks.", op.Description, op.ExpectedMarks );
@@ -313,8 +311,7 @@ namespace fCraft {
             if( tag == null ) throw new ArgumentNullException( "tag" );
 
             DrawOperation op = (DrawOperation)tag;
-            if( !op.Prepare( marks ) )
-                return;
+            if( !op.Prepare( marks ) ) return;
             if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                 player.MessageNow(
                     "You are only allowed to run draw commands that affect up to {0} blocks. This one would affect ~{1} blocks.",
@@ -328,7 +325,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Fill
 
@@ -354,8 +350,7 @@ namespace fCraft {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
 
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
-            if( brush == null )
-                return;
+            if( brush == null ) return;
             op.Brush = brush;
 
             player.SelectionStart( 1, Fill2DCallback, op, Permission.Draw );
@@ -369,8 +364,7 @@ namespace fCraft {
             if( tag == null ) throw new ArgumentNullException( "tag" );
 
             DrawOperation op = (DrawOperation)tag;
-            if( !op.Prepare( marks ) )
-                return;
+            if( !op.Prepare( marks ) ) return;
             if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
                 Logger.Log( LogType.UserActivity,
                             "Fill2D: Asked {0} to confirm replacing air on world {1}",
@@ -416,8 +410,7 @@ namespace fCraft {
             Fill3DDrawOperation op = new Fill3DDrawOperation( player );
 
             IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
-            if( brush == null )
-                return;
+            if( brush == null ) return;
             op.Brush = brush;
 
             player.SelectionStart( 1, Fill3DCallback, op, Permission.Draw );
@@ -431,8 +424,7 @@ namespace fCraft {
             if( tag == null ) throw new ArgumentNullException( "tag" );
 
             DrawOperation op = (DrawOperation)tag;
-            if( !op.Prepare( marks ) )
-                return;
+            if( !op.Prepare( marks ) ) return;
             if( player.WorldMap.GetBlock( marks[0] ) == Block.Air ) {
                 Logger.Log( LogType.UserActivity,
                             "Fill3D: Asked {0} to confirm replacing air on world {1}",
@@ -459,7 +451,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Replace
 
         static void ReplaceHandlerInternal( [NotNull] IBrush factory, [NotNull] Player player,
@@ -470,8 +461,7 @@ namespace fCraft {
 
             CuboidDrawOperation op = new CuboidDrawOperation( player );
             IBrushInstance brush = factory.MakeInstance( player, cmd, op );
-            if( brush == null )
-                return;
+            if( brush == null ) return;
             op.Brush = brush;
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
@@ -496,8 +486,7 @@ namespace fCraft {
 
         static void ReplaceHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null )
-                return;
+            if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
 
@@ -519,8 +508,7 @@ namespace fCraft {
 
         static void ReplaceNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null )
-                return;
+            if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
 
@@ -543,13 +531,11 @@ namespace fCraft {
 
         static void ReplaceBrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             var replaceBrush = ReplaceBrushBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null )
-                return;
+            if( replaceBrush == null ) return;
             ReplaceHandlerInternal( replaceBrush, player, cmd );
         }
 
         #endregion
-
 
         #region Cut
 
@@ -571,8 +557,7 @@ namespace fCraft {
         static void CutHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Block fillBlock = Block.Air;
             if( cmd.HasNext ) {
-                if( !cmd.NextBlock( player, false, out fillBlock ) )
-                    return;
+                if( !cmd.NextBlock( player, false, out fillBlock ) ) return;
                 if( cmd.HasNext ) {
                     CdCut.PrintUsage( player );
                     return;
@@ -588,7 +573,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Paste
 
@@ -657,9 +641,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
             Name = "PasteNot",
-            Aliases = new[] { "pn" },
+            Aliases = new[] {"pn"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks, except the given block type(s). " +
                    "Used together with &H/Copy&S command. " +
@@ -691,7 +675,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Restore
 
@@ -725,8 +708,7 @@ namespace fCraft {
             }
 
             string fullFileName = WorldManager.FindMapFile( player, fileName );
-            if( fullFileName == null )
-                return;
+            if( fullFileName == null ) return;
 
             Map map;
             if( !MapUtility.TryLoad( fullFileName, true, out map ) ) {
@@ -769,8 +751,7 @@ namespace fCraft {
             UndoState undoState = player.DrawBegin( null );
 
             World playerWorld = player.World;
-            if( playerWorld == null )
-                PlayerOpException.ThrowNoWorld( player );
+            if( playerWorld == null ) PlayerOpException.ThrowNoWorld( player );
             Map playerMap = player.WorldMap;
             Vector3I coord = new Vector3I();
             for( coord.X = selection.XMin; coord.X <= selection.XMax; coord.X++ ) {
@@ -864,7 +845,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region UndoPlayer and UndoArea
 
         sealed class BlockDBUndoArgs {
@@ -937,7 +917,6 @@ namespace fCraft {
                         return null;
                     }
                     allPlayers = true;
-
                 } else {
                     // individual player
                     PlayerInfo target = PlayerDB.FindPlayerInfoOrPrintMatches( player, name, SearchOptions.IncludeSelf );
@@ -946,7 +925,8 @@ namespace fCraft {
                     }
                     if( targets.Contains( target ) ) {
                         player.Message( "{0}: Player {1}&S was listed twice.",
-                                        target.ClassyName, cmdName );
+                                        target.ClassyName,
+                                        cmdName );
                         return null;
                     }
                     // make sure player has the permission
@@ -957,7 +937,8 @@ namespace fCraft {
                                         cmdName,
                                         player.Info.Rank.GetLimit( Permission.UndoOthersActions ).ClassyName );
                         player.Message( "Player {0}&S is ranked {1}",
-                                        target.ClassyName, target.Rank.ClassyName );
+                                        target.ClassyName,
+                                        target.Rank.ClassyName );
                         return null;
                     }
                     targets.Add( target );
@@ -1003,7 +984,7 @@ namespace fCraft {
             // Produce 
             Vector3I[] coords;
             if( args.Area != null ) {
-                coords = new[] { args.Area.MinVertex, args.Area.MaxVertex };
+                coords = new[] {args.Area.MinVertex, args.Area.MaxVertex};
             } else {
                 coords = new Vector3I[0];
             }
@@ -1065,9 +1046,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
             Name = "UndoArea",
-            Aliases = new[] { "ua" },
+            Aliases = new[] {"ua"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions },
+            Permissions = new[] {Permission.UndoOthersActions},
             RepeatableSelection = true,
             Usage = "/UndoArea (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by the given player(s). " +
@@ -1094,9 +1075,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoAreaNot = new CommandDescriptor {
             Name = "UndoAreaNot",
-            Aliases = new[] { "uan", "una" },
+            Aliases = new[] {"uan", "una"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
+            Permissions = new[] {Permission.UndoOthersActions, Permission.UndoAll},
             RepeatableSelection = true,
             Usage = "/UndoAreaNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
@@ -1128,8 +1109,8 @@ namespace fCraft {
             BlockDBUndoArgs args = (BlockDBUndoArgs)task.UserState;
             if( args == null ) throw new NullReferenceException( "task.UserState" );
 
-            bool allPlayers = ( args.Targets.Length == 0 );
-            string cmdName = ( args.Not ? "UndoAreaNot" : "UndoArea" );
+            bool allPlayers = (args.Targets.Length == 0);
+            string cmdName = (args.Not ? "UndoAreaNot" : "UndoArea");
 
             // prepare to look up
             string targetList;
@@ -1197,14 +1178,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region UndoPlayer
 
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
             Name = "UndoPlayer",
-            Aliases = new[] { "up", "undox" },
+            Aliases = new[] {"up", "undox"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions },
+            Permissions = new[] {Permission.UndoOthersActions},
             Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by a given player in the current world. " +
                    "More than one player name can be given at a time. " +
@@ -1222,9 +1202,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoPlayerNot = new CommandDescriptor {
             Name = "UndoPlayerNot",
-            Aliases = new[] { "upn", "unp" },
+            Aliases = new[] {"upn", "unp"},
             Category = CommandCategory.Moderation,
-            Permissions = new[] { Permission.UndoOthersActions, Permission.UndoAll },
+            Permissions = new[] {Permission.UndoOthersActions, Permission.UndoAll},
             Usage = "/UndoPlayerNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",
             Help = "Reverses changes made by everyone EXCEPT the given player(s). " +
                    "Applies to the whole world. " +
@@ -1270,12 +1250,15 @@ namespace fCraft {
                 if( changes.Length > 0 ) {
                     Logger.Log( LogType.UserActivity,
                                 "{0}: Asked {1} to confirm undo on world {2}",
-                                cmdName, args.Player.Name, args.World.Name );
-                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                cmdName,
+                                args.Player.Name,
+                                args.World.Name );
+                    args.Player.Confirm( BlockDBUndoConfirmCallback,
+                                         args,
                                          "Undo last {0} changes made by {1}&S?",
-                                         changes.Length, targetList );
+                                         changes.Length,
+                                         targetList );
                 }
-
             } else {
                 // time-limited lookup
                 if( args.Targets.Length == 0 ) {
@@ -1286,10 +1269,15 @@ namespace fCraft {
                 if( changes.Length > 0 ) {
                     Logger.Log( LogType.UserActivity,
                                 "{0}: Asked {1} to confirm undo on world {2}",
-                                cmdName, args.Player.Name, args.World.Name );
-                    args.Player.Confirm( BlockDBUndoConfirmCallback, args,
+                                cmdName,
+                                args.Player.Name,
+                                args.World.Name );
+                    args.Player.Confirm( BlockDBUndoConfirmCallback,
+                                         args,
                                          "Undo changes ({0}) made by {1}&S in the last {2}?",
-                                         changes.Length, targetList, args.AgeLimit.ToMiniString() );
+                                         changes.Length,
+                                         targetList,
+                                         args.AgeLimit.ToMiniString() );
                 }
             }
 

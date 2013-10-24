@@ -5,6 +5,5 @@ using System.Text;
 using fNbt;
 
 namespace fCraft.MapConversion {
-    class MapCW {
-    }
+    internal class MapCW {}
 }

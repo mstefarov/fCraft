@@ -127,6 +127,7 @@
 //
 
 // ReSharper disable CodeAnnotationAnalyzer
+
 #pragma warning disable 1591
 using System;
 using System.Collections;
@@ -152,23 +153,22 @@ using NDesk.Options;
 #if NDESK_OPTIONS
 namespace NDesk.Options
 #else
+
 namespace Mono.Options
 #endif
- {
-    static class StringCoda {
-
+{
+    internal static class StringCoda {
         public static IEnumerable<string> WrappedLines( string self, params int[] widths ) {
             IEnumerable<int> w = widths;
             return WrappedLines( self, w );
         }
 
         public static IEnumerable<string> WrappedLines( string self, IEnumerable<int> widths ) {
-            if( widths == null )
-                throw new ArgumentNullException( "widths" );
+            if( widths == null ) throw new ArgumentNullException( "widths" );
             return CreateWrappedLinesIterator( self, widths );
         }
 
-        private static IEnumerable<string> CreateWrappedLinesIterator( string self, IEnumerable<int> widths ) {
+        static IEnumerable<string> CreateWrappedLinesIterator( string self, IEnumerable<int> widths ) {
             if( string.IsNullOrEmpty( self ) ) {
                 yield return string.Empty;
                 yield break;
@@ -180,8 +180,7 @@ namespace Mono.Options
                 do {
                     int end = GetLineEnd( start, width, self );
                     char c = self[end - 1];
-                    if( char.IsWhiteSpace( c ) )
-                        --end;
+                    if( char.IsWhiteSpace( c ) ) --end;
                     bool needContinuation = end != self.Length && !IsEolChar( c );
                     string continuation = "";
                     if( needContinuation ) {
@@ -191,42 +190,40 @@ namespace Mono.Options
                     string line = self.Substring( start, end - start ) + continuation;
                     yield return line;
                     start = end;
-                    if( char.IsWhiteSpace( c ) )
-                        ++start;
+                    if( char.IsWhiteSpace( c ) ) ++start;
                     width = GetNextWidth( ewidths, width, ref hw );
                 } while( start < self.Length );
             }
         }
 
-        private static int GetNextWidth( IEnumerator<int> ewidths, int curWidth, ref bool? eValid ) {
+        static int GetNextWidth( IEnumerator<int> ewidths, int curWidth, ref bool? eValid ) {
             if( !eValid.HasValue || eValid.Value ) {
-                curWidth = ( eValid = ewidths.MoveNext() ).Value ? ewidths.Current : curWidth;
+                curWidth = (eValid = ewidths.MoveNext()).Value ? ewidths.Current : curWidth;
                 // '.' is any character, - is for a continuation
                 const string minWidth = ".-";
                 if( curWidth < minWidth.Length )
                     throw new ArgumentOutOfRangeException( "ewidths",
-                            string.Format( "Element must be >= {0}, was {1}.", minWidth.Length, curWidth ) );
+                                                           string.Format( "Element must be >= {0}, was {1}.",
+                                                                          minWidth.Length,
+                                                                          curWidth ) );
                 return curWidth;
             }
             // no more elements, use the last element.
             return curWidth;
         }
 
-        private static bool IsEolChar( char c ) {
+        static bool IsEolChar( char c ) {
             return Char.IsWhiteSpace( c ) || c == '-';
         }
 
-        private static int GetLineEnd( int start, int length, string description ) {
+        static int GetLineEnd( int start, int length, string description ) {
             int end = Math.Min( start + length, description.Length );
             int sep = -1;
             for( int i = start; i < end; ++i ) {
-                if( description[i] == '\n' )
-                    return i + 1;
-                if( IsEolChar( description[i] ) )
-                    sep = i + 1;
+                if( description[i] == '\n' ) return i + 1;
+                if( IsEolChar( description[i] ) ) sep = i + 1;
             }
-            if( sep == -1 || end == description.Length )
-                return end;
+            if( sep == -1 || end == description.Length ) return end;
             return sep;
         }
     }
@@ -240,66 +237,139 @@ namespace Mono.Options
         }
 
         #region ICollection
-        void ICollection.CopyTo( Array array, int index ) { ( values as ICollection ).CopyTo( array, index ); }
-        bool ICollection.IsSynchronized { get { return ( values as ICollection ).IsSynchronized; } }
-        object ICollection.SyncRoot { get { return ( values as ICollection ).SyncRoot; } }
+
+        void ICollection.CopyTo( Array array, int index ) {
+            (values as ICollection).CopyTo( array, index );
+        }
+
+        bool ICollection.IsSynchronized {
+            get { return (values as ICollection).IsSynchronized; }
+        }
+
+        object ICollection.SyncRoot {
+            get { return (values as ICollection).SyncRoot; }
+        }
+
         #endregion
 
         #region ICollection<T>
-        public void Add( string item ) { values.Add( item ); }
-        public void Clear() { values.Clear(); }
-        public bool Contains( string item ) { return values.Contains( item ); }
-        public void CopyTo( string[] array, int arrayIndex ) { values.CopyTo( array, arrayIndex ); }
-        public bool Remove( string item ) { return values.Remove( item ); }
-        public int Count { get { return values.Count; } }
-        public bool IsReadOnly { get { return false; } }
+
+        public void Add( string item ) {
+            values.Add( item );
+        }
+
+        public void Clear() {
+            values.Clear();
+        }
+
+        public bool Contains( string item ) {
+            return values.Contains( item );
+        }
+
+        public void CopyTo( string[] array, int arrayIndex ) {
+            values.CopyTo( array, arrayIndex );
+        }
+
+        public bool Remove( string item ) {
+            return values.Remove( item );
+        }
+
+        public int Count {
+            get { return values.Count; }
+        }
+
+        public bool IsReadOnly {
+            get { return false; }
+        }
+
         #endregion
 
         #region IEnumerable
-        IEnumerator IEnumerable.GetEnumerator() { return values.GetEnumerator(); }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return values.GetEnumerator();
+        }
+
         #endregion
 
         #region IEnumerable<T>
-        public IEnumerator<string> GetEnumerator() { return values.GetEnumerator(); }
+
+        public IEnumerator<string> GetEnumerator() {
+            return values.GetEnumerator();
+        }
+
         #endregion
 
         #region IList
-        int IList.Add( object value ) { return ( values as IList ).Add( value ); }
-        bool IList.Contains( object value ) { return ( values as IList ).Contains( value ); }
-        int IList.IndexOf( object value ) { return ( values as IList ).IndexOf( value ); }
-        void IList.Insert( int index, object value ) { ( values as IList ).Insert( index, value ); }
-        void IList.Remove( object value ) { ( values as IList ).Remove( value ); }
-        void IList.RemoveAt( int index ) { ( values as IList ).RemoveAt( index ); }
-        bool IList.IsFixedSize { get { return false; } }
-        object IList.this[int index] { get { return this[index]; } set { ( values as IList )[index] = value; } }
+
+        int IList.Add( object value ) {
+            return (values as IList).Add( value );
+        }
+
+        bool IList.Contains( object value ) {
+            return (values as IList).Contains( value );
+        }
+
+        int IList.IndexOf( object value ) {
+            return (values as IList).IndexOf( value );
+        }
+
+        void IList.Insert( int index, object value ) {
+            (values as IList).Insert( index, value );
+        }
+
+        void IList.Remove( object value ) {
+            (values as IList).Remove( value );
+        }
+
+        void IList.RemoveAt( int index ) {
+            (values as IList).RemoveAt( index );
+        }
+
+        bool IList.IsFixedSize {
+            get { return false; }
+        }
+
+        object IList.this[ int index ] {
+            get { return this[index]; }
+            set { (values as IList)[index] = value; }
+        }
+
         #endregion
 
         #region IList<T>
-        public int IndexOf( string item ) { return values.IndexOf( item ); }
-        public void Insert( int index, string item ) { values.Insert( index, item ); }
-        public void RemoveAt( int index ) { values.RemoveAt( index ); }
 
-        private void AssertValid( int index ) {
-            if( c.Option == null )
-                throw new InvalidOperationException( "OptionContext.Option is null." );
-            if( index >= c.Option.MaxValueCount )
-                throw new ArgumentOutOfRangeException( "index" );
-            if( c.Option.OptionValueType == OptionValueType.Required &&
-                    index >= values.Count )
-                throw new OptionException( string.Format(
-                            c.OptionSet.MessageLocalizer( "Missing required value for option '{0}'." ), c.OptionName ),
-                        c.OptionName );
+        public int IndexOf( string item ) {
+            return values.IndexOf( item );
         }
 
-        public string this[int index] {
+        public void Insert( int index, string item ) {
+            values.Insert( index, item );
+        }
+
+        public void RemoveAt( int index ) {
+            values.RemoveAt( index );
+        }
+
+        void AssertValid( int index ) {
+            if( c.Option == null ) throw new InvalidOperationException( "OptionContext.Option is null." );
+            if( index >= c.Option.MaxValueCount ) throw new ArgumentOutOfRangeException( "index" );
+            if( c.Option.OptionValueType == OptionValueType.Required &&
+                index >= values.Count )
+                throw new OptionException( string.Format(
+                    c.OptionSet.MessageLocalizer( "Missing required value for option '{0}'." ),
+                    c.OptionName ),
+                                           c.OptionName );
+        }
+
+        public string this[ int index ] {
             get {
                 AssertValid( index );
                 return index >= values.Count ? null : values[index];
             }
-            set {
-                values[index] = value;
-            }
+            set { values[index] = value; }
         }
+
         #endregion
 
         public List<string> ToList() {
@@ -316,8 +386,8 @@ namespace Mono.Options
     }
 
     public sealed class OptionContext {
-        private readonly OptionSet set;
-        private readonly OptionValueCollection c;
+        readonly OptionSet set;
+        readonly OptionValueCollection c;
 
         public OptionContext( OptionSet set ) {
             this.set = set;
@@ -354,153 +424,155 @@ namespace Mono.Options
 
 
         protected Option( string prototype, string description )
-            : this( prototype, description, 1 ) {
-        }
+            : this( prototype, description, 1 ) {}
 
         protected Option( string prototype, string description, int maxValueCount ) {
-            if( prototype == null )
-                throw new ArgumentNullException( "prototype" );
-            if( prototype.Length == 0 )
-                throw new ArgumentException( "Cannot be the empty string.", "prototype" );
-            if( maxValueCount < 0 )
-                throw new ArgumentOutOfRangeException( "maxValueCount" );
+            if( prototype == null ) throw new ArgumentNullException( "prototype" );
+            if( prototype.Length == 0 ) throw new ArgumentException( "Cannot be the empty string.", "prototype" );
+            if( maxValueCount < 0 ) throw new ArgumentOutOfRangeException( "maxValueCount" );
 
             this.prototype = prototype;
             this.description = description;
             count = maxValueCount;
-            names = ( this is OptionSet.Category )
-                // append GetHashCode() so that "duplicate" categories have distinct
-                // names, e.g. adding multiple "" categories should be valid.
-                ? new[] { prototype + base.GetHashCode() }
-                : prototype.Split( '|' );
+            names = (this is OptionSet.Category)
+                        // append GetHashCode() so that "duplicate" categories have distinct
+                        // names, e.g. adding multiple "" categories should be valid.
+                        ? new[] {prototype + base.GetHashCode()}
+                        : prototype.Split( '|' );
 
-            if( this is OptionSet.Category )
-                return;
+            if( this is OptionSet.Category ) return;
 
             type = ParsePrototype();
 
             if( count == 0 && type != OptionValueType.None )
                 throw new ArgumentException(
-                        "Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
-                            "OptionValueType.Optional.",
-                        "maxValueCount" );
+                    "Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
+                    "OptionValueType.Optional.",
+                    "maxValueCount" );
             if( type == OptionValueType.None && maxValueCount > 1 )
                 throw new ArgumentException(
-                        string.Format( "Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount ),
-                        "maxValueCount" );
+                    string.Format( "Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount ),
+                    "maxValueCount" );
             if( Array.IndexOf( names, "<>" ) >= 0 &&
-                    ( ( names.Length == 1 && type != OptionValueType.None ) ||
-                     ( names.Length > 1 && MaxValueCount > 1 ) ) )
+                ((names.Length == 1 && type != OptionValueType.None) ||
+                 (names.Length > 1 && MaxValueCount > 1)) )
                 throw new ArgumentException(
-                        "The default option handler '<>' cannot require values.",
-                        "prototype" );
+                    "The default option handler '<>' cannot require values.",
+                    "prototype" );
         }
 
-        public string Prototype { get { return prototype; } }
-        public string Description { get { return description; } }
-        public OptionValueType OptionValueType { get { return type; } }
-        public int MaxValueCount { get { return count; } }
+        public string Prototype {
+            get { return prototype; }
+        }
+
+        public string Description {
+            get { return description; }
+        }
+
+        public OptionValueType OptionValueType {
+            get { return type; }
+        }
+
+        public int MaxValueCount {
+            get { return count; }
+        }
 
         public string[] GetNames() {
             return (string[])names.Clone();
         }
 
         public string[] GetValueSeparators() {
-            if( ValueSeparators == null )
-                return new string[0];
+            if( ValueSeparators == null ) return new string[0];
             return (string[])ValueSeparators.Clone();
         }
 
         protected static T Parse<T>( string value, OptionContext c ) {
             Type tt = typeof( T );
             bool nullable = tt.IsValueType && tt.IsGenericType &&
-                !tt.IsGenericTypeDefinition &&
-                tt.GetGenericTypeDefinition() == typeof( Nullable<> );
+                            !tt.IsGenericTypeDefinition &&
+                            tt.GetGenericTypeDefinition() == typeof( Nullable<> );
             Type targetType = nullable ? tt.GetGenericArguments()[0] : typeof( T );
             TypeConverter conv = TypeDescriptor.GetConverter( targetType );
-            T t = default( T );
+            T t = default(T);
             try {
-                if( value != null )
-                    t = (T)conv.ConvertFromString( value );
+                if( value != null ) t = (T)conv.ConvertFromString( value );
             } catch( Exception e ) {
                 throw new OptionException(
-                        string.Format(
-                            c.OptionSet.MessageLocalizer( "Could not convert string `{0}' to type {1} for option `{2}'." ),
-                            value, targetType.Name, c.OptionName ),
-                        c.OptionName, e );
+                    string.Format(
+                        c.OptionSet.MessageLocalizer( "Could not convert string `{0}' to type {1} for option `{2}'." ),
+                        value,
+                        targetType.Name,
+                        c.OptionName ),
+                    c.OptionName,
+                    e );
             }
             return t;
         }
 
-        internal string[] Names { get { return names; } }
+        internal string[] Names {
+            get { return names; }
+        }
+
         internal string[] ValueSeparators { get; private set; }
 
-        static readonly char[] NameTerminator = { '=', ':' };
+        static readonly char[] NameTerminator = {'=', ':'};
 
-        private OptionValueType ParsePrototype() {
+        OptionValueType ParsePrototype() {
             char typeChar = '\0';
             List<string> seps = new List<string>();
             for( int i = 0; i < names.Length; ++i ) {
                 string name = names[i];
-                if( name.Length == 0 )
-                    throw new ArgumentException( "Empty option names are not supported." );
+                if( name.Length == 0 ) throw new ArgumentException( "Empty option names are not supported." );
 
                 int end = name.IndexOfAny( NameTerminator );
-                if( end == -1 )
-                    continue;
+                if( end == -1 ) continue;
                 names[i] = name.Substring( 0, end );
-                if( typeChar == '\0' || typeChar == name[end] )
-                    typeChar = name[end];
+                if( typeChar == '\0' || typeChar == name[end] ) typeChar = name[end];
                 else
                     throw new ArgumentException(
-                            string.Format( "Conflicting option types: '{0}' vs. '{1}'.", typeChar, name[end] ) );
+                        string.Format( "Conflicting option types: '{0}' vs. '{1}'.", typeChar, name[end] ) );
                 AddSeparators( name, end, seps );
             }
 
-            if( typeChar == '\0' )
-                return OptionValueType.None;
+            if( typeChar == '\0' ) return OptionValueType.None;
 
             if( count <= 1 && seps.Count != 0 )
                 throw new ArgumentException(
-                        string.Format( "Cannot provide key/value separators for Options taking {0} value(s).", count ) );
+                    string.Format( "Cannot provide key/value separators for Options taking {0} value(s).", count ) );
             if( count > 1 ) {
-                if( seps.Count == 0 )
-                    ValueSeparators = new[] { ":", "=" };
-                else if( seps.Count == 1 && seps[0].Length == 0 )
-                    ValueSeparators = null;
-                else
-                    ValueSeparators = seps.ToArray();
+                if( seps.Count == 0 ) ValueSeparators = new[] {":", "="};
+                else if( seps.Count == 1 && seps[0].Length == 0 ) ValueSeparators = null;
+                else ValueSeparators = seps.ToArray();
             }
 
             return typeChar == '=' ? OptionValueType.Required : OptionValueType.Optional;
         }
 
-        private static void AddSeparators( string name, int end, ICollection<string> seps ) {
+        static void AddSeparators( string name, int end, ICollection<string> seps ) {
             int start = -1;
             for( int i = end + 1; i < name.Length; ++i ) {
                 switch( name[i] ) {
                     case '{':
                         if( start != -1 )
                             throw new ArgumentException(
-                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
+                                string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
                         start = i + 1;
                         break;
                     case '}':
                         if( start == -1 )
                             throw new ArgumentException(
-                                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
+                                string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
                         seps.Add( name.Substring( start, i - start ) );
                         start = -1;
                         break;
                     default:
-                        if( start == -1 )
-                            seps.Add( name[i].ToString( CultureInfo.InvariantCulture ) );
+                        if( start == -1 ) seps.Add( name[i].ToString( CultureInfo.InvariantCulture ) );
                         break;
                 }
             }
             if( start != -1 )
                 throw new ArgumentException(
-                        string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
+                    string.Format( "Ill-formed name/value separator found in \"{0}\".", name ) );
         }
 
         public void Invoke( OptionContext c ) {
@@ -536,7 +608,7 @@ namespace Mono.Options
                 StringBuilder arg = new StringBuilder();
 
                 string line;
-                while( ( line = reader.ReadLine() ) != null ) {
+                while( (line = reader.ReadLine()) != null ) {
                     int t = line.Length;
 
                     for( int i = 0; i < t; i++ ) {
@@ -550,8 +622,7 @@ namespace Mono.Options
                                 for( i++; i < t; i++ ) {
                                     c = line[i];
 
-                                    if( c == end )
-                                        break;
+                                    if( c == end ) break;
                                     arg.Append( c );
                                 }
                             }
@@ -575,16 +646,14 @@ namespace Mono.Options
                     }
                 }
             } finally {
-                if( close )
-                    reader.Close();
+                if( close ) reader.Close();
             }
         }
     }
 
     public class ResponseFileSource : ArgumentSource {
-
         public override string[] GetNames() {
-            return new[] { "@file" };
+            return new[] {"@file"};
         }
 
         public override string Description {
@@ -603,7 +672,7 @@ namespace Mono.Options
 
     [Serializable]
     public sealed class OptionException : Exception {
-        private readonly string option;
+        readonly string option;
 
         public OptionException( string message, string optionName )
             : base( message ) {
@@ -635,8 +704,7 @@ namespace Mono.Options
 
     public sealed class OptionSet : KeyedCollection<string, Option> {
         public OptionSet()
-            : this( f => f ) {
-        }
+            : this( f => f ) {}
 
         public OptionSet( Converter<string, string> localizer ) {
             this.localizer = localizer;
@@ -659,10 +727,8 @@ namespace Mono.Options
 
 
         protected override string GetKeyForItem( [NotNull] Option item ) {
-            if( item == null )
-                throw new ArgumentNullException( "item" );
-            if( item.Names != null && item.Names.Length > 0 )
-                return item.Names[0];
+            if( item == null ) throw new ArgumentNullException( "item" );
+            if( item.Names != null && item.Names.Length > 0 ) return item.Names[0];
             // This should never happen, as it's invalid for Option to be
             // constructed w/o any names.
             throw new InvalidOperationException( "Option has no names!" );
@@ -688,9 +754,8 @@ namespace Mono.Options
             AddImpl( item );
         }
 
-        private void AddImpl( Option option ) {
-            if( option == null )
-                throw new ArgumentNullException( "option" );
+        void AddImpl( Option option ) {
+            if( option == null ) throw new ArgumentNullException( "option" );
             List<string> added = new List<string>( option.Names.Length );
             try {
                 // KeyedCollection.InsertItem/SetItem handle the 0th name.
@@ -699,27 +764,25 @@ namespace Mono.Options
                     added.Add( option.Names[i] );
                 }
             } catch( Exception ) {
-                foreach( string name in added )
+                foreach( string name in added ) {
                     Dictionary.Remove( name );
+                }
                 throw;
             }
         }
 
         public OptionSet Add( string header ) {
-            if( header == null )
-                throw new ArgumentNullException( "header" );
+            if( header == null ) throw new ArgumentNullException( "header" );
             Add( new Category( header ) );
             return this;
         }
 
         internal sealed class Category : Option {
-
             // Prototype starts with '=' because this is an invalid prototype
             // (see Option.ParsePrototype(), and thus it'll prevent Category
             // instances from being accidentally used as normal options.
             public Category( string description )
-                : base( "=:Category:= " + description, description ) {
-            }
+                : base( "=:Category:= " + description, description ) {}
 
             protected override void OnParseComplete( OptionContext c ) {
                 throw new NotSupportedException( "Category.OnParseComplete should not be invoked." );
@@ -737,8 +800,7 @@ namespace Mono.Options
 
             public ActionOption( string prototype, string description, int count, Action<OptionValueCollection> action )
                 : base( prototype, description, count ) {
-                if( action == null )
-                    throw new ArgumentNullException( "action" );
+                if( action == null ) throw new ArgumentNullException( "action" );
                 this.action = action;
             }
 
@@ -752,8 +814,7 @@ namespace Mono.Options
         }
 
         public OptionSet Add( string prototype, string description, Action<string> action ) {
-            if( action == null )
-                throw new ArgumentNullException( "action" );
+            if( action == null ) throw new ArgumentNullException( "action" );
             Option p = new ActionOption( prototype, description, 1, v => action( v[0] ) );
             base.Add( p );
             return this;
@@ -764,8 +825,7 @@ namespace Mono.Options
         }
 
         public OptionSet Add( string prototype, string description, OptionAction<string, string> action ) {
-            if( action == null )
-                throw new ArgumentNullException( "action" );
+            if( action == null ) throw new ArgumentNullException( "action" );
             Option p = new ActionOption( prototype, description, 2, v => action( v[0], v[1] ) );
             base.Add( p );
             return this;
@@ -776,8 +836,7 @@ namespace Mono.Options
 
             public ActionOption( string prototype, string description, Action<T> action )
                 : base( prototype, description, 1 ) {
-                if( action == null )
-                    throw new ArgumentNullException( "action" );
+                if( action == null ) throw new ArgumentNullException( "action" );
                 this.action = action;
             }
 
@@ -791,15 +850,14 @@ namespace Mono.Options
 
             public ActionOption( string prototype, string description, OptionAction<TKey, TValue> action )
                 : base( prototype, description, 2 ) {
-                if( action == null )
-                    throw new ArgumentNullException( "action" );
+                if( action == null ) throw new ArgumentNullException( "action" );
                 this.action = action;
             }
 
             protected override void OnParseComplete( OptionContext c ) {
                 action(
-                        Parse<TKey>( c.OptionValues[0], c ),
-                        Parse<TValue>( c.OptionValues[1], c ) );
+                    Parse<TKey>( c.OptionValues[0], c ),
+                    Parse<TValue>( c.OptionValues[1], c ) );
             }
         }
 
@@ -820,8 +878,7 @@ namespace Mono.Options
         }
 
         public OptionSet Add( ArgumentSource source ) {
-            if( source == null )
-                throw new ArgumentNullException( "source" );
+            if( source == null ) throw new ArgumentNullException( "source" );
             sources.Add( source );
             return this;
         }
@@ -832,8 +889,7 @@ namespace Mono.Options
         }
 
         public List<string> Parse( IEnumerable<string> arguments ) {
-            if( arguments == null )
-                throw new ArgumentNullException( "arguments" );
+            if( arguments == null ) throw new ArgumentNullException( "arguments" );
             OptionContext c = CreateOptionContext();
             c.OptionIndex = -1;
             bool process = true;
@@ -850,13 +906,10 @@ namespace Mono.Options
                     Unprocessed( unprocessed, def, c, argument );
                     continue;
                 }
-                if( AddSource( ae, argument ) )
-                    continue;
-                if( !Parse( argument, c ) )
-                    Unprocessed( unprocessed, def, c, argument );
+                if( AddSource( ae, argument ) ) continue;
+                if( !Parse( argument, c ) ) Unprocessed( unprocessed, def, c, argument );
             }
-            if( c.Option != null )
-                c.Option.Invoke( c );
+            if( c.Option != null ) c.Option.Invoke( c );
             return unprocessed;
         }
 
@@ -875,8 +928,7 @@ namespace Mono.Options
             public IEnumerator<string> GetEnumerator() {
                 do {
                     IEnumerator<string> c = sources[sources.Count - 1];
-                    if( c.MoveNext() )
-                        yield return c.Current;
+                    if( c.MoveNext() ) yield return c.Current;
                     else {
                         c.Dispose();
                         sources.RemoveAt( sources.Count - 1 );
@@ -892,15 +944,14 @@ namespace Mono.Options
         bool AddSource( ArgumentEnumerator ae, string argument ) {
             foreach( ArgumentSource source in sources ) {
                 IEnumerable<string> replacement;
-                if( !source.GetArguments( argument, out replacement ) )
-                    continue;
+                if( !source.GetArguments( argument, out replacement ) ) continue;
                 ae.Add( replacement );
                 return true;
             }
             return false;
         }
 
-        private static void Unprocessed( ICollection<string> extra, Option def, OptionContext c, string argument ) {
+        static void Unprocessed( ICollection<string> extra, Option def, OptionContext c, string argument ) {
             if( def == null ) {
                 extra.Add( argument );
                 return;
@@ -910,13 +961,12 @@ namespace Mono.Options
             c.Option.Invoke( c );
         }
 
-        private readonly Regex valueOption = new Regex(
+        readonly Regex valueOption = new Regex(
             @"^(?<flag>--|-|/)(?<name>[^:=]+)((?<sep>[:=])(?<value>.*))?$" );
 
 
         bool GetOptionParts( string argument, out string flag, out string name, out string sep, out string value ) {
-            if( argument == null )
-                throw new ArgumentNullException( "argument" );
+            if( argument == null ) throw new ArgumentNullException( "argument" );
 
             flag = name = sep = value = null;
             Match m = valueOption.Match( argument );
@@ -940,8 +990,7 @@ namespace Mono.Options
             }
 
             string f, n, s, v;
-            if( !GetOptionParts( argument, out f, out n, out s, out v ) )
-                return false;
+            if( !GetOptionParts( argument, out f, out n, out s, out v ) ) return false;
 
             if( Contains( n ) ) {
                 Option p = this[n];
@@ -960,37 +1009,37 @@ namespace Mono.Options
                 return true;
             }
             // no match; is it a bool option?
-            if( ParseBool( argument, n, c ) )
-                return true;
+            if( ParseBool( argument, n, c ) ) return true;
             // is it a bundled option?
-            if( ParseBundledValue( f, n + s + v, c ) )
-                return true;
+            if( ParseBundledValue( f, n + s + v, c ) ) return true;
 
             return false;
         }
 
-        private void ParseValue( string option, OptionContext c ) {
+        void ParseValue( string option, OptionContext c ) {
             if( option != null )
                 foreach( string o in c.Option.ValueSeparators != null
-                        ? option.Split( c.Option.ValueSeparators, c.Option.MaxValueCount - c.OptionValues.Count, StringSplitOptions.None )
-                        : new[] { option } ) {
+                                         ? option.Split( c.Option.ValueSeparators,
+                                                         c.Option.MaxValueCount - c.OptionValues.Count,
+                                                         StringSplitOptions.None )
+                                         : new[] {option} ) {
                     c.OptionValues.Add( o );
                 }
             if( c.OptionValues.Count == c.Option.MaxValueCount ||
-                    c.Option.OptionValueType == OptionValueType.Optional )
-                c.Option.Invoke( c );
+                c.Option.OptionValueType == OptionValueType.Optional ) c.Option.Invoke( c );
             else if( c.OptionValues.Count > c.Option.MaxValueCount ) {
                 throw new OptionException( localizer( string.Format(
-                                "Error: Found {0} option values when expecting {1}.",
-                                c.OptionValues.Count, c.Option.MaxValueCount ) ),
-                        c.OptionName );
+                    "Error: Found {0} option values when expecting {1}.",
+                    c.OptionValues.Count,
+                    c.Option.MaxValueCount ) ),
+                                           c.OptionName );
             }
         }
 
-        private bool ParseBool( string option, string n, OptionContext c ) {
+        bool ParseBool( string option, string n, OptionContext c ) {
             string rn;
-            if( n.Length >= 1 && ( n[n.Length - 1] == '+' || n[n.Length - 1] == '-' ) &&
-                    Contains( ( rn = n.Substring( 0, n.Length - 1 ) ) ) ) {
+            if( n.Length >= 1 && (n[n.Length - 1] == '+' || n[n.Length - 1] == '-') &&
+                Contains( (rn = n.Substring( 0, n.Length - 1 )) ) ) {
                 Option p = this[rn];
                 string v = n[n.Length - 1] == '+' ? option : null;
                 c.OptionName = option;
@@ -1002,17 +1051,17 @@ namespace Mono.Options
             return false;
         }
 
-        private bool ParseBundledValue( string f, string n, OptionContext c ) {
-            if( f != "-" )
-                return false;
+        bool ParseBundledValue( string f, string n, OptionContext c ) {
+            if( f != "-" ) return false;
             for( int i = 0; i < n.Length; ++i ) {
                 string opt = f + n[i].ToString( CultureInfo.InvariantCulture );
                 string rn = n[i].ToString( CultureInfo.InvariantCulture );
                 if( !Contains( rn ) ) {
-                    if( i == 0 )
-                        return false;
+                    if( i == 0 ) return false;
                     throw new OptionException( string.Format( localizer(
-                                    "Cannot bundle unregistered option '{0}'." ), opt ), opt );
+                        "Cannot bundle unregistered option '{0}'." ),
+                                                              opt ),
+                                               opt );
                 }
                 Option p = this[rn];
                 switch( p.OptionValueType ) {
@@ -1021,12 +1070,12 @@ namespace Mono.Options
                         break;
                     case OptionValueType.Optional:
                     case OptionValueType.Required: {
-                            string v = n.Substring( i + 1 );
-                            c.Option = p;
-                            c.OptionName = opt;
-                            ParseValue( v.Length != 0 ? v : null, c );
-                            return true;
-                        }
+                        string v = n.Substring( i + 1 );
+                        c.Option = p;
+                        c.OptionName = opt;
+                        ParseValue( v.Length != 0 ? v : null, c );
+                        return true;
+                    }
                     default:
                         throw new InvalidOperationException( "Unknown OptionValueType: " + p.OptionValueType );
                 }
@@ -1034,16 +1083,16 @@ namespace Mono.Options
             return true;
         }
 
-        private static void Invoke( OptionContext c, string name, string value, Option option ) {
+        static void Invoke( OptionContext c, string name, string value, Option option ) {
             c.OptionName = name;
             c.Option = option;
             c.OptionValues.Add( value );
             option.Invoke( c );
         }
 
-        private const int OptionWidth = 29;
-        private const int DescriptionFirstWidth = 79 - OptionWidth;
-        private const int DescriptionRemWidth = 79 - OptionWidth - 2;
+        const int OptionWidth = 29;
+        const int DescriptionFirstWidth = 79 - OptionWidth;
+        const int DescriptionRemWidth = 79 - OptionWidth - 2;
 
         public void WriteOptionDescriptions( TextWriter o ) {
             foreach( Option p in this ) {
@@ -1055,24 +1104,24 @@ namespace Mono.Options
                     continue;
                 }
 
-                if( !WriteOptionPrototype( o, p, ref written ) )
-                    continue;
+                if( !WriteOptionPrototype( o, p, ref written ) ) continue;
 
-                if( written < OptionWidth )
-                    o.Write( new string( ' ', OptionWidth - written ) );
+                if( written < OptionWidth ) o.Write( new string( ' ', OptionWidth - written ) );
                 else {
                     o.WriteLine();
                     o.Write( new string( ' ', OptionWidth ) );
                 }
 
-                WriteDescription( o, p.Description, new string( ' ', OptionWidth + 2 ),
-                        DescriptionFirstWidth, DescriptionRemWidth );
+                WriteDescription( o,
+                                  p.Description,
+                                  new string( ' ', OptionWidth + 2 ),
+                                  DescriptionFirstWidth,
+                                  DescriptionRemWidth );
             }
 
             foreach( ArgumentSource s in sources ) {
                 string[] names = s.GetNames();
-                if( names == null || names.Length == 0 )
-                    continue;
+                if( names == null || names.Length == 0 ) continue;
 
                 int written = 0;
 
@@ -1083,23 +1132,24 @@ namespace Mono.Options
                     Write( o, ref written, names[i] );
                 }
 
-                if( written < OptionWidth )
-                    o.Write( new string( ' ', OptionWidth - written ) );
+                if( written < OptionWidth ) o.Write( new string( ' ', OptionWidth - written ) );
                 else {
                     o.WriteLine();
                     o.Write( new string( ' ', OptionWidth ) );
                 }
 
-                WriteDescription( o, s.Description, new string( ' ', OptionWidth + 2 ),
-                        DescriptionFirstWidth, DescriptionRemWidth );
+                WriteDescription( o,
+                                  s.Description,
+                                  new string( ' ', OptionWidth + 2 ),
+                                  DescriptionFirstWidth,
+                                  DescriptionRemWidth );
             }
         }
 
         void WriteDescription( TextWriter o, string value, string prefix, int firstWidth, int remWidth ) {
             bool indent = false;
             foreach( string line in GetLines( localizer( GetDescription( value ) ), firstWidth, remWidth ) ) {
-                if( indent )
-                    o.Write( prefix );
+                if( indent ) o.Write( prefix );
                 o.WriteLine( line );
                 indent = true;
             }
@@ -1109,8 +1159,7 @@ namespace Mono.Options
             string[] names = p.Names;
 
             int i = GetNextOptionIndex( names, 0 );
-            if( i == names.Length )
-                return false;
+            if( i == names.Length ) return false;
 
             if( names[i].Length == 1 ) {
                 Write( o, ref written, "  -" );
@@ -1121,21 +1170,22 @@ namespace Mono.Options
             }
 
             for( i = GetNextOptionIndex( names, i + 1 );
-                    i < names.Length; i = GetNextOptionIndex( names, i + 1 ) ) {
+                 i < names.Length;
+                 i = GetNextOptionIndex( names, i + 1 ) ) {
                 Write( o, ref written, ", " );
                 Write( o, ref written, names[i].Length == 1 ? "-" : "--" );
                 Write( o, ref written, names[i] );
             }
 
             if( p.OptionValueType == OptionValueType.Optional ||
-                    p.OptionValueType == OptionValueType.Required ) {
+                p.OptionValueType == OptionValueType.Required ) {
                 if( p.OptionValueType == OptionValueType.Optional ) {
                     Write( o, ref written, localizer( "[" ) );
                 }
                 Write( o, ref written, localizer( "=" + GetArgumentName( 0, p.MaxValueCount, p.Description ) ) );
                 string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0
-                    ? p.ValueSeparators[0]
-                    : " ";
+                                 ? p.ValueSeparators[0]
+                                 : " ";
                 for( int c = 1; c < p.MaxValueCount; ++c ) {
                     Write( o, ref written, localizer( sep + GetArgumentName( c, p.MaxValueCount, p.Description ) ) );
                 }
@@ -1158,32 +1208,26 @@ namespace Mono.Options
             o.Write( s );
         }
 
-        private static string GetArgumentName( int index, int maxIndex, string description ) {
-            if( description == null )
-                return maxIndex == 1 ? "VALUE" : "VALUE" + ( index + 1 );
+        static string GetArgumentName( int index, int maxIndex, string description ) {
+            if( description == null ) return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
             string[] nameStart;
-            if( maxIndex == 1 )
-                nameStart = new[] { "{0:", "{" };
-            else
-                nameStart = new[] { "{" + index + ":" };
+            if( maxIndex == 1 ) nameStart = new[] {"{0:", "{"};
+            else nameStart = new[] {"{" + index + ":"};
             for( int i = 0; i < nameStart.Length; ++i ) {
                 int start, j = 0;
                 do {
-                    start = description.IndexOf(nameStart[i], j, StringComparison.Ordinal);
+                    start = description.IndexOf( nameStart[i], j, StringComparison.Ordinal );
                 } while( start >= 0 && j != 0 && description[j++ - 1] == '{' );
-                if( start == -1 )
-                    continue;
-                int end = description.IndexOf("}", start, StringComparison.Ordinal);
-                if( end == -1 )
-                    continue;
+                if( start == -1 ) continue;
+                int end = description.IndexOf( "}", start, StringComparison.Ordinal );
+                if( end == -1 ) continue;
                 return description.Substring( start + nameStart[i].Length, end - start - nameStart[i].Length );
             }
-            return maxIndex == 1 ? "VALUE" : "VALUE" + ( index + 1 );
+            return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
         }
 
-        private static string GetDescription( string description ) {
-            if( description == null )
-                return string.Empty;
+        static string GetDescription( string description ) {
+            if( description == null ) return string.Empty;
             StringBuilder sb = new StringBuilder( description.Length );
             int start = -1;
             for( int i = 0; i < description.Length; ++i ) {
@@ -1192,13 +1236,11 @@ namespace Mono.Options
                         if( i == start ) {
                             sb.Append( '{' );
                             start = -1;
-                        } else if( start < 0 )
-                            start = i + 1;
+                        } else if( start < 0 ) start = i + 1;
                         break;
                     case '}':
                         if( start < 0 ) {
-                            if( ( i + 1 ) == description.Length || description[i + 1] != '}' )
-                                throw new InvalidOperationException( "Invalid option description: " + description );
+                            if( (i + 1) == description.Length || description[i + 1] != '}' ) throw new InvalidOperationException( "Invalid option description: " + description );
                             ++i;
                             sb.Append( "}" );
                         } else {
@@ -1207,20 +1249,18 @@ namespace Mono.Options
                         }
                         break;
                     case ':':
-                        if( start < 0 )
-                            goto default;
+                        if( start < 0 ) goto default;
                         start = i + 1;
                         break;
                     default:
-                        if( start < 0 )
-                            sb.Append( description[i] );
+                        if( start < 0 ) sb.Append( description[i] );
                         break;
                 }
             }
             return sb.ToString();
         }
 
-        private static IEnumerable<string> GetLines( string description, int firstWidth, int remWidth ) {
+        static IEnumerable<string> GetLines( string description, int firstWidth, int remWidth ) {
             return StringCoda.WrappedLines( description, firstWidth, remWidth );
         }
     }

@@ -1,12 +1,12 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains commands related to zone management. </summary>
-    static class ZoneCommands {
-
+    internal static class ZoneCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdZoneAdd );
             CommandManager.RegisterCommand( CdZoneEdit );
@@ -18,14 +18,13 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdZoneTest );
         }
 
-
         #region ZoneAdd
 
         static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
             Name = "ZAdd",
             Category = CommandCategory.Zone,
-            Aliases = new[] { "zone" },
-            Permissions = new[] { Permission.ManageZones },
+            Aliases = new[] {"zone"},
+            Permissions = new[] {Permission.ManageZones},
             Usage = "/ZAdd ZoneName RankName",
             Help = "Create a zone that overrides build permissions. " +
                    "This can be used to restrict access to an area (by setting RankName to a high rank) " +
@@ -110,7 +109,7 @@ namespace fCraft {
                 }
 
                 string name;
-                while( ( name = cmd.Next() ) != null ) {
+                while( (name = cmd.Next()) != null ) {
                     if( name.Length < 1 ) {
                         CdZoneAdd.PrintUsage( player );
                         return;
@@ -185,13 +184,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region ZoneEdit
 
         static readonly CommandDescriptor CdZoneEdit = new CommandDescriptor {
             Name = "ZEdit",
             Category = CommandCategory.Zone,
-            Permissions = new[] { Permission.ManageZones },
+            Permissions = new[] {Permission.ManageZones},
             Usage = "/ZEdit ZoneName [RankName] [+IncludedName] [-ExcludedName]",
             Help = "Allows editing the zone permissions after creation. " +
                    "You can change the rank restrictions, and include or exclude individual players. " +
@@ -217,7 +215,7 @@ namespace fCraft {
             }
 
             string nextToken;
-            while( ( nextToken = cmd.Next() ) != null ) {
+            while( (nextToken = cmd.Next()) != null ) {
                 // Clear whitelist
                 if( nextToken.Equals( "-*" ) ) {
                     PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included;
@@ -358,12 +356,11 @@ namespace fCraft {
 
         #endregion ZoneEdit
 
-
         #region ZoneInfo
 
         static readonly CommandDescriptor CdZoneInfo = new CommandDescriptor {
             Name = "ZInfo",
-            Aliases = new[] { "ZoneInfo" },
+            Aliases = new[] {"ZoneInfo"},
             Category = CommandCategory.Zone | CommandCategory.Info,
             Help = "Shows detailed information about a zone.",
             Usage = "/ZInfo ZoneName",
@@ -393,9 +390,9 @@ namespace fCraft {
                             zone.Controller.MinRank.ClassyName );
 
             player.Message( "  Zone center is at ({0},{1},{2}).",
-                            ( zone.Bounds.XMin + zone.Bounds.XMax )/2,
-                            ( zone.Bounds.YMin + zone.Bounds.YMax )/2,
-                            ( zone.Bounds.ZMin + zone.Bounds.ZMax )/2 );
+                            (zone.Bounds.XMin + zone.Bounds.XMax)/2,
+                            (zone.Bounds.YMin + zone.Bounds.YMax)/2,
+                            (zone.Bounds.ZMin + zone.Bounds.ZMax)/2 );
 
             if( zone.CreatedBy != null ) {
                 player.Message( "  Zone created by {0}&S on {1:MMM d} at {1:h:mm} ({2} ago).",
@@ -426,7 +423,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region ZoneList
 
@@ -482,7 +478,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region ZoneMark
 
         static readonly CommandDescriptor CdZoneMark = new CommandDescriptor {
@@ -524,14 +519,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region ZoneRemove
 
         static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
             Name = "ZRemove",
-            Aliases = new[] { "zdelete" },
+            Aliases = new[] {"zdelete"},
             Category = CommandCategory.Zone,
-            Permissions = new[] { Permission.ManageZones },
+            Permissions = new[] {Permission.ManageZones},
             Usage = "/ZRemove ZoneName",
             Help = "Removes a zone with the specified name from the map.",
             Handler = ZoneRemoveHandler
@@ -607,13 +601,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region ZoneRename
 
         static readonly CommandDescriptor CdZoneRename = new CommandDescriptor {
             Name = "ZRename",
             Category = CommandCategory.Zone,
-            Permissions = new[] { Permission.ManageZones },
+            Permissions = new[] {Permission.ManageZones},
             Help = "Renames a zone",
             Usage = "/ZRename OldName NewName",
             Handler = ZoneRenameHandler
@@ -677,14 +670,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region ZoneTest
 
         static readonly CommandDescriptor CdZoneTest = new CommandDescriptor {
             Name = "ZTest",
             Category = CommandCategory.Zone | CommandCategory.Info,
             RepeatableSelection = true,
-            Help = "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
+            Help =
+                "Allows to test exactly which zones affect a particular block. Can be used to find and resolve zone overlaps.",
             Handler = ZoneTestHandler
         };
 

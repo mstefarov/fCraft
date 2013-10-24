@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,14 +40,17 @@ namespace fCraft {
         public static int Port { get; private set; }
 
 
-        internal static int MaxUploadSpeed, // set by Config.ApplyConfig
+        internal static int MaxUploadSpeed,
+                            // set by Config.ApplyConfig
                             BlockUpdateThrottling; // used when there are no players in a world
-        internal const int MaxSessionPacketsPerTick = 128, // used when there are no players in a world
+
+        internal const int MaxSessionPacketsPerTick = 128,
+                           // used when there are no players in a world
                            MaxBlockUpdatesPerTick = 100000; // used when there are no players in a world
+
         internal static float TicksPerSecond;
 
         static TcpListener listener;
-
 
         #region Command-line args
 
@@ -99,7 +103,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Initialization and Startup
 
@@ -269,7 +272,7 @@ namespace fCraft {
 #if DEBUG
             Config.RunSelfTest();
 #else
-            // delete the old updater, if exists
+    // delete the old updater, if exists
             File.Delete( Paths.UpdateInstallerFileName );
 #endif
 
@@ -344,7 +347,8 @@ namespace fCraft {
             if( ConfigKey.BackupOnStartup.Enabled() ) {
                 foreach( World world in WorldManager.Worlds ) {
                     string backupFileName = String.Format( World.TimedBackupFormat,
-                                                           world.Name, DateTime.Now ); // localized
+                                                           world.Name,
+                                                           DateTime.Now ); // localized
                     world.SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
                 }
             }
@@ -356,12 +360,12 @@ namespace fCraft {
             try {
                 listener = new TcpListener( InternalIP, Port );
                 listener.Start();
-
             } catch( Exception ex ) {
                 // if the port is unavailable
                 Logger.Log( LogType.Error,
                             "Could not start listening on port {0}, stopping. ({1})",
-                            Port, ex.Message );
+                            Port,
+                            ex.Message );
                 if( !ConfigKey.IP.IsDefault() ) {
                     Logger.Log( LogType.Warning,
                                 "Do not use the \"Designated IP\" setting unless you have multiple NICs or IPs." );
@@ -370,7 +374,7 @@ namespace fCraft {
             }
 
             // Resolve internal and external IP addresses
-            InternalIP = ( (IPEndPoint)listener.LocalEndpoint ).Address;
+            InternalIP = ((IPEndPoint)listener.LocalEndpoint).Address;
             IPAddress foundExternalIP = null;
             for( int i = 0; i < 3 && foundExternalIP == null; i++ ) {
                 Logger.Log( LogType.SystemActivity, "Resolving external IP address... (try {0})", i + 1 );
@@ -381,7 +385,8 @@ namespace fCraft {
                 ExternalIP = foundExternalIP;
                 Logger.Log( LogType.SystemActivity,
                             "Server.StartServer: now accepting connections at {0}:{1}",
-                            ExternalIP, Port );
+                            ExternalIP,
+                            Port );
             } else {
                 Logger.Log( LogType.SystemActivity,
                             "Server.StartServer: External IP could not be looked up. Now accepting connections on port {0}",
@@ -396,7 +401,8 @@ namespace fCraft {
 
             Logger.Log( LogType.SystemActivity,
                         "Main world: {0}; default rank: {1}",
-                        WorldManager.MainWorld.Name, RankManager.DefaultRank.Name );
+                        WorldManager.MainWorld.Name,
+                        RankManager.DefaultRank.Name );
 
             // Check for incoming connections (every 250ms)
             Scheduler.NewTask( CheckConnections ).RunForever( CheckConnectionsInterval );
@@ -411,7 +417,8 @@ namespace fCraft {
                                                                        MonitorProcessorUsageInterval );
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
-                            "Server.StartServer: Could not start monitoring CPU use: {0}", ex );
+                            "Server.StartServer: Could not start monitoring CPU use: {0}",
+                            ex );
             }
 
             // PlayerDB saving (every 90s)
@@ -436,7 +443,9 @@ namespace fCraft {
             if( ConfigKey.RestartInterval.GetInt() > 0 ) {
                 // schedule automatic restart
                 TimeSpan restartIn = TimeSpan.FromSeconds( ConfigKey.RestartInterval.GetInt() );
-                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartTimer, restartIn, true,
+                ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartTimer,
+                                                        restartIn,
+                                                        true,
                                                         "Automatic Server Restart",
                                                         Player.Console );
                 Shutdown( sp, false );
@@ -451,7 +460,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Shutdown
 
@@ -471,75 +479,75 @@ namespace fCraft {
 #if !DEBUG
             try {
 #endif
-                RaiseShutdownBeganEvent( shutdownParams );
+            RaiseShutdownBeganEvent( shutdownParams );
 
-                Scheduler.BeginShutdown();
+            Scheduler.BeginShutdown();
 
+            Logger.Log( LogType.SystemActivity,
+                        "Server shutting down ({0})",
+                        shutdownParams.ReasonString );
+
+            // stop accepting new players
+            if( listener != null ) {
+                listener.Stop();
+                listener = null;
+            }
+
+            // kill IRC bot
+            string quitMsg = ConfigKey.ServerName.GetString() + " - " + shutdownParams.ReasonString;
+            IRC.Disconnect( Color.MinecraftToIrcColors( quitMsg ) );
+
+            // kick all players
+            Player[] kickedPlayers = null;
+            lock( PlayerListLock ) {
+                if( PlayerIndex.Count > 0 ) {
+                    Logger.Log( LogType.SystemActivity, "Shutdown: Kicking players..." );
+                    foreach( Player p in PlayerIndex ) {
+                        // NOTE: kick packet delivery here is not currently guaranteed
+                        p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
+                                LeaveReason.ServerShutdown );
+                    }
+                    kickedPlayers = PlayerIndex.ToArray();
+                }
+            }
+
+            if( kickedPlayers != null ) {
+                Logger.Log( LogType.SystemActivity, "Shutdown: Waiting for players to disconnect..." );
+                foreach( Player p in kickedPlayers ) {
+                    p.WaitForDisconnect();
+                }
+            }
+
+            if( WorldManager.Worlds.Length > 0 ) {
+                Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
+                lock( WorldManager.SyncRoot ) {
+                    // unload all worlds (includes saving)
+                    foreach( World world in WorldManager.Worlds ) {
+                        if( BlockDB.IsEnabledGlobally && world.BlockDB.IsEnabled ) {
+                            world.BlockDB.Flush( false );
+                        }
+                        world.SaveMap();
+                    }
+                }
+            }
+
+            if( Scheduler.CriticalTaskCount > 0 ) {
                 Logger.Log( LogType.SystemActivity,
-                            "Server shutting down ({0})",
-                            shutdownParams.ReasonString );
+                            "Shutdown: Waiting for {0} background tasks to finish...",
+                            Scheduler.CriticalTaskCount );
+            }
+            Scheduler.EndShutdown();
 
-                // stop accepting new players
-                if( listener != null ) {
-                    listener.Stop();
-                    listener = null;
-                }
+            if( IsRunning ) {
+                Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases..." );
+                if( PlayerDB.IsLoaded ) PlayerDB.Save();
+                if( IPBanList.IsLoaded ) IPBanList.Save();
+            }
+            IsRunning = false;
 
-                // kill IRC bot
-                string quitMsg = ConfigKey.ServerName.GetString() + " - " + shutdownParams.ReasonString;
-                IRC.Disconnect( Color.MinecraftToIrcColors( quitMsg ) );
+            Environment.ExitCode = (int)shutdownParams.Reason;
 
-                // kick all players
-                Player[] kickedPlayers = null;
-                lock( PlayerListLock ) {
-                    if( PlayerIndex.Count > 0 ) {
-                        Logger.Log( LogType.SystemActivity, "Shutdown: Kicking players..." );
-                        foreach( Player p in PlayerIndex ) {
-                            // NOTE: kick packet delivery here is not currently guaranteed
-                            p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
-                                    LeaveReason.ServerShutdown );
-                        }
-                        kickedPlayers = PlayerIndex.ToArray();
-                    }
-                }
-
-                if( kickedPlayers != null ) {
-                    Logger.Log( LogType.SystemActivity, "Shutdown: Waiting for players to disconnect..." );
-                    foreach( Player p in kickedPlayers ) {
-                        p.WaitForDisconnect();
-                    }
-                }
-
-                if( WorldManager.Worlds.Length > 0 ) {
-                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving worlds..." );
-                    lock( WorldManager.SyncRoot ) {
-                        // unload all worlds (includes saving)
-                        foreach( World world in WorldManager.Worlds ) {
-                            if( BlockDB.IsEnabledGlobally && world.BlockDB.IsEnabled ) {
-                                world.BlockDB.Flush( false );
-                            }
-                            world.SaveMap();
-                        }
-                    }
-                }
-
-                if( Scheduler.CriticalTaskCount > 0 ) {
-                    Logger.Log( LogType.SystemActivity,
-                                "Shutdown: Waiting for {0} background tasks to finish...",
-                                Scheduler.CriticalTaskCount );
-                }
-                Scheduler.EndShutdown();
-
-                if( IsRunning ) {
-                    Logger.Log( LogType.SystemActivity, "Shutdown: Saving databases..." );
-                    if( PlayerDB.IsLoaded ) PlayerDB.Save();
-                    if( IPBanList.IsLoaded ) IPBanList.Save();
-                }
-                IsRunning = false;
-
-                Environment.ExitCode = (int)shutdownParams.Reason;
-
-                Logger.Log( LogType.SystemActivity, "Shutdown: Complete" );
+            Logger.Log( LogType.SystemActivity, "Shutdown: Complete" );
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Error in Server.Shutdown", "fCraft", ex, true );
@@ -609,7 +617,7 @@ namespace fCraft {
             ShutdownWaiter.Set();
 
             if( !HasArg( ArgKey.NoUpdater ) ) {
-                bool doRestart = ( param.Restart && !HasArg( ArgKey.NoRestart ) );
+                bool doRestart = (param.Restart && !HasArg( ArgKey.NoRestart ));
                 string assemblyExecutable = Assembly.GetEntryAssembly().Location;
 
                 if( Updater.RunAtShutdown && doRestart ) {
@@ -618,10 +626,8 @@ namespace fCraft {
                                                  GetArgString() );
 
                     MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, args, true );
-
                 } else if( Updater.RunAtShutdown ) {
                     MonoCompat.StartDotNetProcess( Paths.UpdateInstallerFileName, GetArgString(), true );
-
                 } else if( doRestart ) {
                     MonoCompat.StartDotNetProcess( assemblyExecutable, GetArgString(), true );
                 }
@@ -631,7 +637,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Messaging / Packet Sending
 
@@ -657,7 +662,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Scheduled Tasks
 
         // checks for incoming connections
@@ -671,7 +675,8 @@ namespace fCraft {
                     Player.StartSession( listenerCache.AcceptTcpClient() );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "Server.CheckConnections: Could not accept incoming connection: {0}", ex );
+                                "Server.CheckConnections: Could not accept incoming connection: {0}",
+                                ex );
                 }
             }
         }
@@ -708,12 +713,12 @@ namespace fCraft {
 
             Process thisProcess = Process.GetCurrentProcess();
             thisProcess.Refresh();
-            long usageBefore = thisProcess.PrivateMemorySize64/( 1024*1024 );
+            long usageBefore = thisProcess.PrivateMemorySize64/(1024*1024);
 
             GC.Collect( GC.MaxGeneration, GCCollectionMode.Forced );
 
             thisProcess.Refresh();
-            long usageAfter = thisProcess.PrivateMemorySize64/( 1024*1024 );
+            long usageAfter = thisProcess.PrivateMemorySize64/(1024*1024);
 
             Logger.Log( LogType.Debug,
                         "Server.DoGC: Collected on schedule ({0}->{1} MB).",
@@ -751,17 +756,16 @@ namespace fCraft {
 
         static void MonitorProcessorUsage( [NotNull] SchedulerTask task ) {
             TimeSpan newCpuTime = Process.GetCurrentProcess().TotalProcessorTime - cpuUsageStartingOffset;
-            CpuUsageLastMinute = ( newCpuTime - oldCpuTime ).TotalSeconds /
-                                 ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds );
+            CpuUsageLastMinute = (newCpuTime - oldCpuTime).TotalSeconds/
+                                 (Environment.ProcessorCount*DateTime.UtcNow.Subtract( lastMonitorTime ).TotalSeconds);
             lastMonitorTime = DateTime.UtcNow;
-            CpuUsageTotal = newCpuTime.TotalSeconds /
-                            ( Environment.ProcessorCount * DateTime.UtcNow.Subtract( StartTime ).TotalSeconds );
+            CpuUsageTotal = newCpuTime.TotalSeconds/
+                            (Environment.ProcessorCount*DateTime.UtcNow.Subtract( StartTime ).TotalSeconds);
             oldCpuTime = newCpuTime;
             IsMonitoringCpuUsage = true;
         }
 
         #endregion
-
 
         #region Utilities
 
@@ -793,8 +797,8 @@ namespace fCraft {
 
         internal static int CalculateMaxPacketsPerUpdate( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
-            int packetsPerTick = (int)( BlockUpdateThrottling / TicksPerSecond );
-            int maxPacketsPerUpdate = (int)( MaxUploadSpeed / TicksPerSecond * 128 );
+            int packetsPerTick = (int)(BlockUpdateThrottling/TicksPerSecond);
+            int maxPacketsPerUpdate = (int)(MaxUploadSpeed/TicksPerSecond*128);
 
             int playerCount = world.Players.Length;
             if( playerCount > 0 && !world.IsFlushing ) {
@@ -874,7 +878,8 @@ namespace fCraft {
                 using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
                     if( response.StatusCode != HttpStatusCode.OK ) {
                         Logger.Log( LogType.Warning,
-                                    "Could not check external IP: {0}", response.StatusDescription );
+                                    "Could not check external IP: {0}",
+                                    response.StatusDescription );
                         return null;
                     }
                     // ReSharper disable AssignNullToNotNullAttribute
@@ -893,7 +898,8 @@ namespace fCraft {
                 }
             } catch( WebException ex ) {
                 Logger.Log( LogType.Warning,
-                            "Could not check external IP: {0}", ex );
+                            "Could not check external IP: {0}",
+                            ex );
                 return null;
             }
         }
@@ -909,7 +915,6 @@ namespace fCraft {
         internal static readonly RequestCachePolicy CachePolicy = new RequestCachePolicy( RequestCacheLevel.BypassCache );
 
         #endregion
-
 
         #region Player and Session Management
 
@@ -942,7 +947,8 @@ namespace fCraft {
                     // Wait for other session to exit/unregister
                     Logger.Log( LogType.SuspiciousActivity,
                                 "Server.RegisterPlayer: Player {0} logged in twice. Ghost from {1} was kicked.",
-                                ghost.Name, ghost.IP );
+                                ghost.Name,
+                                ghost.IP );
                     ghost.KickSynchronously( "Connected from elsewhere!", LeaveReason.ClientReconnect );
                 }
 
@@ -953,7 +959,8 @@ namespace fCraft {
                     if( connections >= maxSessions ) {
                         Logger.Log( LogType.SuspiciousActivity,
                                     "Player.LoginSequence: Denied player {0}: maximum number of connections was reached for {1}",
-                                    player.Name, player.IP );
+                                    player.Name,
+                                    player.IP );
                         player.Kick( "Max connections reached for " + player.IP, LeaveReason.LoginFailed );
                         return false;
                     }
@@ -1004,7 +1011,9 @@ namespace fCraft {
                 player.Info.ProcessLogout( player );
 
                 Logger.Log( LogType.UserActivity,
-                            "{0} left the server ({1}).", player.Name, player.LeaveReason );
+                            "{0} left the server ({1}).",
+                            player.Name,
+                            player.LeaveReason );
                 if( player.HasFullyConnected && ConfigKey.ShowConnectionMessages.Enabled() ) {
                     Players.CanSee( player )
                            .Message( MakePlayerDisconnectedMessage( player ) );
@@ -1037,9 +1046,9 @@ namespace fCraft {
         /// 1 is an exact match; over 1 for multiple matches. </returns>
         /// <exception cref="ArgumentNullException"></exception>
         [NotNull]
-        public static Player[] FindPlayers( [NotNull] string namePart, SearchOptions options) {
+        public static Player[] FindPlayers( [NotNull] string namePart, SearchOptions options ) {
             if( namePart == null ) throw new ArgumentNullException( "namePart" );
-            bool suppressEvent = ( options & SearchOptions.SuppressEvent ) != 0;
+            bool suppressEvent = (options & SearchOptions.SuppressEvent) != 0;
             Player[] tempList = Players;
             List<Player> results = new List<Player>();
             for( int i = 0; i < tempList.Length; i++ ) {
@@ -1156,7 +1165,8 @@ namespace fCraft {
             bool includeHidden = (options & SearchOptions.IncludeHidden) != 0;
             bool includeSelf = (options & SearchOptions.IncludeSelf) != 0;
             if( target != null && !includeHidden && !player.CanSee( target ) || // hide players whom player cant see
-                target == player && !includeSelf ) { // hide self, if applicable
+                target == player && !includeSelf ) {
+                // hide self, if applicable
                 target = null;
             }
             return target;
@@ -1204,11 +1214,9 @@ namespace fCraft {
             if( matches.Length == 0 ) {
                 player.MessageNoPlayer( namePart );
                 return null;
-
             } else if( matches.Length > 1 ) {
                 player.MessageManyMatches( "player", matches );
                 return null;
-
             } else {
                 player.LastUsedPlayerName = matches[0].Name;
                 return matches[0];

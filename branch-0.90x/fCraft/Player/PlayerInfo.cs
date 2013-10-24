@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -111,9 +112,7 @@ namespace fCraft {
         /// Returns '?' if RankChangedBy is null or empty. </summary>
         [NotNull]
         public string RankChangedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( RankChangedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( RankChangedBy ); }
         }
 
         /// <summary> Reason given for the most recent promotion/demotion. May be null or empty. </summary>
@@ -124,7 +123,6 @@ namespace fCraft {
         public RankChangeType RankChangeType;
 
         #endregion
-
 
         #region Bans
 
@@ -148,9 +146,7 @@ namespace fCraft {
         /// Returns '?' if BannedBy is null or empty. </summary>
         [NotNull]
         public string BannedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( BannedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( BannedBy ); }
         }
 
         /// <summary> Reason given for the most recent ban. May be null or empty. </summary>
@@ -169,9 +165,7 @@ namespace fCraft {
         /// Returns '?' if UnbannedBy is null or empty. </summary>
         [NotNull]
         public string UnbannedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( UnbannedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( UnbannedBy ); }
         }
 
         /// <summary> Reason given for the most recent unban. May be null or empty. </summary>
@@ -186,7 +180,6 @@ namespace fCraft {
         public IPAddress LastFailedLoginIP = IPAddress.None;
 
         #endregion
-
 
         #region Stats
 
@@ -216,7 +209,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Kicks
 
         /// <summary> Number of times that this player has been manually kicked. </summary>
@@ -235,9 +227,7 @@ namespace fCraft {
         /// Returns '?' if LastKickBy is null or empty. </summary>
         [NotNull]
         public string LastKickByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( LastKickBy );
-            }
+            get { return PlayerDB.FindExactClassyName( LastKickBy ); }
         }
 
         /// <summary> Reason given for the most recent kick. May be null or empty. </summary>
@@ -245,7 +235,6 @@ namespace fCraft {
         public string LastKickReason;
 
         #endregion
-
 
         #region Freeze And Mute
 
@@ -265,16 +254,12 @@ namespace fCraft {
         /// Returns '?' if FrozenBy is null or empty. </summary>
         [NotNull]
         public string FrozenByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( FrozenBy );
-            }
+            get { return PlayerDB.FindExactClassyName( FrozenBy ); }
         }
 
         /// <summary> Whether this player is currently muted. </summary>
         public bool IsMuted {
-            get {
-                return DateTime.UtcNow < MutedUntil;
-            }
+            get { return DateTime.UtcNow < MutedUntil; }
         }
 
         /// <summary> Date until which the player is muted. If the date is in the past, player is NOT muted. </summary>
@@ -289,13 +274,10 @@ namespace fCraft {
         /// Returns '?' if MutedBy is null or empty. </summary>
         [NotNull]
         public string MutedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( MutedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( MutedBy ); }
         }
 
         #endregion
-
 
         /// <summary> Whether the player is currently online.
         /// Another way to check online status is to check if PlayerObject is null. </summary>
@@ -314,7 +296,6 @@ namespace fCraft {
         /// For online players, current IP. </summary>
         [NotNull]
         public IPAddress LastIP;
-
 
         #region Constructors and Serialization
 
@@ -377,7 +358,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Loading
 
         static readonly NumberFormatInfo NumberFormatter = CultureInfo.InvariantCulture.NumberFormat;
@@ -392,7 +372,7 @@ namespace fCraft {
             if( !Player.IsValidPlayerName( fields[0] ) ) {
                 throw new FormatException( "Unacceptable player name" );
             }
-            PlayerInfo info = new PlayerInfo { Name = fields[0] };
+            PlayerInfo info = new PlayerInfo {Name = fields[0]};
 
             if( fields[1].Length == 0 || !IPAddress.TryParse( fields[1], out info.LastIP ) ) {
                 info.LastIP = IPAddress.None;
@@ -455,8 +435,7 @@ namespace fCraft {
             Int32.TryParse( fields[28], NumberStyles.Integer, NumberFormatter, out info.TimesBannedOthers );
 
             info.ID = Int32.Parse( fields[29] );
-            if( info.ID < 256 )
-                info.ID = PlayerDB.GetNextID();
+            if( info.ID < 256 ) info.ID = PlayerDB.GetNextID();
 
             byte rankChangeTypeCode;
             if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
@@ -486,7 +465,7 @@ namespace fCraft {
             if( fields[35].Length > 0 ) info.LastKickReason = PlayerDB.Unescape( fields[35] );
 
             DateTimeUtil.TryParseDateTime( fields[36], ref info.BannedUntil );
-            info.IsFrozen = ( fields[37] == "f" );
+            info.IsFrozen = (fields[37] == "f");
             if( fields[38].Length > 0 ) info.FrozenBy = PlayerDB.Unescape( fields[38] );
             DateTimeUtil.TryParseDateTime( fields[39], ref info.FrozenOn );
             DateTimeUtil.TryParseDateTime( fields[40], ref info.MutedUntil );
@@ -548,7 +527,8 @@ namespace fCraft {
 
         void GuessRankChangeType() {
             if( PreviousRank != null ) {
-                if( RankChangeReason == "~AutoRank" || RankChangeReason == "~AutoRankAll" || RankChangeReason == "~MassRank" ) {
+                if( RankChangeReason == "~AutoRank" || RankChangeReason == "~AutoRankAll" ||
+                    RankChangeReason == "~MassRank" ) {
                     if( PreviousRank > Rank ) {
                         RankChangeType = RankChangeType.AutoDemoted;
                     } else if( PreviousRank < Rank ) {
@@ -567,7 +547,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Saving
 
@@ -704,7 +683,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Update Handlers
 
         internal void ProcessMessageWritten() {
@@ -751,7 +729,8 @@ namespace fCraft {
         }
 
 
-        void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [CanBeNull] string reason, RankChangeType type ) {
+        void ProcessRankChange( [NotNull] Rank newRank, [NotNull] string changer, [CanBeNull] string reason,
+                                RankChangeType type ) {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
             if( changer == null ) throw new ArgumentNullException( "changer" );
             PreviousRank = Rank;
@@ -766,7 +745,8 @@ namespace fCraft {
 
 
         internal void ProcessBlockPlaced( byte type ) {
-            if( type == 0 ) { // air
+            if( type == 0 ) {
+                // air
                 Interlocked.Increment( ref BlocksDeleted );
             } else {
                 Interlocked.Increment( ref BlocksBuilt );
@@ -798,7 +778,8 @@ namespace fCraft {
                         Unfreeze( kickedBy, FreezeOptions.RaiseEvents );
                     } catch( PlayerOpException ex ) {
                         Logger.Log( LogType.Warning,
-                                    "PlayerInfo.ProcessKick: {0}", ex.Message );
+                                    "PlayerInfo.ProcessKick: {0}",
+                                    ex.Message );
                     }
                 }
                 LastModified = DateTime.UtcNow;
@@ -806,7 +787,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region TimeSince_____ shortcuts
 
@@ -854,7 +834,6 @@ namespace fCraft {
 
         #endregion
 
-
         public override string ToString() {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
@@ -866,7 +845,6 @@ namespace fCraft {
         public bool Can( Permission permission, Rank rank ) {
             return Rank.Can( permission, rank );
         }
-
 
         #region Unfinished / Not Implemented
 

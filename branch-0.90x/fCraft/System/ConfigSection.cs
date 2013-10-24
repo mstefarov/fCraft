@@ -3,7 +3,6 @@
 namespace fCraft {
     /// <summary> ConfigKey section/category. </summary>
     public enum ConfigSection {
-
         /// <summary> General server configuration (name, port, default rank, etc). </summary>
         General,
 

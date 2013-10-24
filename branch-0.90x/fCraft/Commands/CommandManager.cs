@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace fCraft {
         static readonly SortedList<string, CommandDescriptor> Commands = new SortedList<string, CommandDescriptor>();
 
         /// <summary> Set of reserved command names (ok, nvm, and client). </summary>
-        public static readonly string[] ReservedCommandNames = { "ok", "nvm", "client", "womid" };
+        public static readonly string[] ReservedCommandNames = {"ok", "nvm", "client", "womid"};
 
         // Sets up all the command hooks
         internal static void Init() {
@@ -43,7 +44,7 @@ namespace fCraft {
         [NotNull]
         public static CommandDescriptor[] GetCommands( bool hidden ) {
             return Commands.Values
-                           .Where( cmd => ( cmd.IsHidden == hidden ) )
+                           .Where( cmd => (cmd.IsHidden == hidden) )
                            .ToArray();
         }
 
@@ -53,7 +54,7 @@ namespace fCraft {
         public static CommandDescriptor[] GetCommands( [NotNull] Rank rank, bool includeHidden ) {
             if( rank == null ) throw new ArgumentNullException( "rank" );
             return Commands.Values
-                           .Where( cmd => ( !cmd.IsHidden || includeHidden ) &&
+                           .Where( cmd => (!cmd.IsHidden || includeHidden) &&
                                           cmd.CanBeCalledBy( rank ) )
                            .ToArray();
         }
@@ -64,8 +65,8 @@ namespace fCraft {
         [NotNull]
         public static CommandDescriptor[] GetCommands( CommandCategory category, bool includeHidden ) {
             return Commands.Values
-                           .Where( cmd => ( includeHidden || !cmd.IsHidden ) &&
-                                          ( cmd.Category & category ) == category )
+                           .Where( cmd => (includeHidden || !cmd.IsHidden) &&
+                                          (cmd.Category & category) == category )
                            .ToArray();
         }
 
@@ -139,7 +140,8 @@ namespace fCraft {
                 Logger.Log( LogType.Warning,
                             "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
                             "but has now been replaced by a different command of the same name.",
-                            descriptor.Name, Aliases[descriptor.Name] );
+                            descriptor.Name,
+                            Aliases[descriptor.Name] );
                 Aliases.Remove( normalizedName );
             }
 
@@ -147,15 +149,19 @@ namespace fCraft {
                 foreach( string alias in descriptor.Aliases ) {
                     string normalizedAlias = alias.ToLowerInvariant();
                     if( ReservedCommandNames.Contains( normalizedAlias ) &&
-                        !( descriptor.Name == "Cancel" && alias == "Nvm" ) ) { // special case for cancel/nvm aliases
+                        !(descriptor.Name == "Cancel" && alias == "Nvm") ) {
+                        // special case for cancel/nvm aliases
                         Logger.Log( LogType.Warning,
                                     "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).",
-                                    alias, descriptor.Name );
+                                    alias,
+                                    descriptor.Name );
                     } else if( Aliases.ContainsKey( normalizedAlias ) ) {
                         Logger.Log( LogType.Warning,
                                     "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
                                     "but has been overridden to resolve to \"{2}\" instead.",
-                                    alias, Aliases[normalizedAlias], descriptor.Name );
+                                    alias,
+                                    Aliases[normalizedAlias],
+                                    descriptor.Name );
                     } else {
                         Aliases.Add( normalizedAlias, normalizedName );
                     }
@@ -238,14 +244,13 @@ namespace fCraft {
             if( name.Length == 0 || name.Length > 16 ) return false;
             for( int i = 0; i < name.Length; i++ ) {
                 char ch = name[i];
-                if( ( ch < '0' && ch != '.' ) || ( ch > '9' && ch < 'A' ) || ( ch > 'Z' && ch < '_' ) ||
-                    ( ch > '_' && ch < 'a' ) || ch > 'z' ) {
+                if( (ch < '0' && ch != '.') || (ch > '9' && ch < 'A') || (ch > 'Z' && ch < '_') ||
+                    (ch > '_' && ch < 'a') || ch > 'z' ) {
                     return false;
                 }
             }
             return true;
         }
-
 
         #region Events
 
@@ -320,7 +325,6 @@ namespace fCraft {
     }
 }
 
-
 namespace fCraft.Events {
     /// <summary> Provides data for CommandManager.CommandRegistered event. Immutable. </summary>
     public class CommandRegisteredEventArgs : EventArgs {
@@ -337,8 +341,7 @@ namespace fCraft.Events {
     /// <summary> Provides data for CommandManager.CommandRegistering event. Cancelable. </summary>
     public sealed class CommandRegisteringEventArgs : CommandRegisteredEventArgs, ICancelableEvent {
         internal CommandRegisteringEventArgs( [NotNull] CommandDescriptor descriptor )
-            : base( descriptor ) {
-        }
+            : base( descriptor ) {}
 
         public bool Cancel { get; set; }
     }
@@ -363,8 +366,7 @@ namespace fCraft.Events {
     /// <summary> Provides data for CommandManager.CommandCalling event. Cancelable. </summary>
     public sealed class CommandCallingEventArgs : CommandCalledEventArgs, ICancelableEvent {
         internal CommandCallingEventArgs( [NotNull] CommandReader command, [NotNull] Player player ) :
-            base( command, player ) {
-        }
+            base( command, player ) {}
 
         public bool Cancel { get; set; }
     }

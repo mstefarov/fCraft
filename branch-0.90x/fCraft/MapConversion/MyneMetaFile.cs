@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,11 +8,13 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> INI parser used by MapMyne. </summary>
-    sealed class MyneMetaFile {
+    internal sealed class MyneMetaFile {
         const string Separator = "=";
-        readonly Dictionary<string, Dictionary<string, string>> contents = new Dictionary<string, Dictionary<string, string>>();
 
-        public string this[[NotNull] string section, [NotNull] string key] {
+        readonly Dictionary<string, Dictionary<string, string>> contents =
+            new Dictionary<string, Dictionary<string, string>>();
+
+        public string this[ [NotNull] string section, [NotNull] string key ] {
             get {
                 if( section == null ) throw new ArgumentNullException( "section" );
                 if( key == null ) throw new ArgumentNullException( "key" );
@@ -40,8 +43,10 @@ namespace fCraft.MapConversion {
                         section[lastKey] += Environment.NewLine + line.Substring( 1 );
                     }
                 } else if( line.Contains( Separator ) && section != null ) {
-                    string keyName = line.Substring( 0, line.IndexOf( Separator, StringComparison.Ordinal ) ).TrimEnd().ToLower();
-                    string valueName = line.Substring( line.IndexOf( Separator, StringComparison.Ordinal ) + 1 ).TrimStart();
+                    string keyName =
+                        line.Substring( 0, line.IndexOf( Separator, StringComparison.Ordinal ) ).TrimEnd().ToLower();
+                    string valueName =
+                        line.Substring( line.IndexOf( Separator, StringComparison.Ordinal ) + 1 ).TrimStart();
                     section.Add( keyName, valueName );
                     lastKey = keyName;
                 } else {
@@ -63,9 +68,7 @@ namespace fCraft.MapConversion {
 
 
         public bool IsEmpty {
-            get {
-                return ( contents.Count == 0 );
-            }
+            get { return (contents.Count == 0); }
         }
     }
 }

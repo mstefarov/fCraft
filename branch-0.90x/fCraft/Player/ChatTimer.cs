@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,7 +88,6 @@ namespace fCraft {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
                 }
                 timer.Stop( false );
-
             } else if( timer.announceIntervalIndex >= 0 ) {
                 if( timer.lastHourAnnounced != (int)timer.TimeLeft.TotalHours ) {
                     timer.lastHourAnnounced = (int)timer.TimeLeft.TotalHours;
@@ -127,7 +127,6 @@ namespace fCraft {
             RemoveTimerFromList( this );
             RaiseStoppedEvent( this );
         }
-
 
         #region Static
 
@@ -227,7 +226,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Events
 

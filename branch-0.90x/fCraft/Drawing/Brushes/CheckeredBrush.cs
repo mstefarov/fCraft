@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -9,7 +10,7 @@ namespace fCraft.Drawing {
         public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
 
         CheckeredBrushFactory() {
-            Aliases = new[] { "ch" };
+            Aliases = new[] {"ch"};
         }
 
         public string Name {
@@ -20,6 +21,7 @@ namespace fCraft.Drawing {
 
         const string HelpString = "Checkered brush: Fills the area with alternating checkered pattern. " +
                                   "If only one block name is given, leaves every other block untouched.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -40,6 +42,7 @@ namespace fCraft.Drawing {
     public sealed class CheckeredBrush : IBrushInstance, IBrush {
         /// <summary> First block in the alternating pattern. </summary>
         public Block Block1 { get; private set; }
+
         /// <summary> Second block in the alternating pattern. </summary>
         public Block Block2 { get; private set; }
 
@@ -59,7 +62,6 @@ namespace fCraft.Drawing {
             Block1 = other.Block1;
             Block2 = other.Block2;
         }
-
 
         #region IBrush members
 
@@ -96,7 +98,6 @@ namespace fCraft.Drawing {
                 }
                 Block1 = block;
                 Block2 = altBlock;
-
             } else if( Block1 == Block.None ) {
                 player.Message( "{0}: Please specify one or two blocks.", Factory.Name );
                 return null;
@@ -106,7 +107,6 @@ namespace fCraft.Drawing {
         }
 
         #endregion
-
 
         #region IBrushInstance members
 
@@ -121,9 +121,7 @@ namespace fCraft.Drawing {
 
 
         public string InstanceDescription {
-            get {
-                return Description;
-            }
+            get { return Description; }
         }
 
 
@@ -144,7 +142,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public void End() { }
+        public void End() {}
 
         #endregion
     }

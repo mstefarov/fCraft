@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Globalization;
 using System.IO;
@@ -10,7 +11,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Contains fCraft path settings, and some filesystem-related utilities. </summary>
     public static class Paths {
-
         static readonly string[] ProtectedFiles;
 
         internal static readonly string[] DataFilesToBackup;
@@ -56,7 +56,6 @@ namespace fCraft {
                 ConfigFileName
             };
         }
-
 
         #region Paths & Properties
 
@@ -136,7 +135,6 @@ namespace fCraft {
         public const string DataBackupFileNameFormat = "fCraftData_{0:yyyyMMdd'_'HH'-'mm'-'ss}.zip";
 
         #endregion
-
 
         #region Utility Methods
 
@@ -220,24 +218,31 @@ namespace fCraft {
                     File.Delete( randomFileName );
                 }
                 return true;
-
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestDirectory: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).",
-                                pathLabel, ex.GetType().Name, ex.Message );
+                                pathLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestDirectory: Cannot create or write to file/path for {0}, please check permissions ({1}: {2}).",
-                                pathLabel, ex.GetType().Name, ex.Message );
+                                pathLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestDirectory: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).",
-                                pathLabel, ex.GetType().Name, ex.Message );
+                                pathLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is IOException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestDirectory: Specified directory for {0} is not readable/writable ({1}: {2}).",
-                                pathLabel, ex.GetType().Name, ex.Message );
+                                pathLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else {
                     throw;
                 }
@@ -262,34 +267,41 @@ namespace fCraft {
             try {
                 FileInfo fi = new FileInfo( fileName );
                 if( fi.Exists ) {
-                    if( ( neededAccess & FileAccess.Read ) == FileAccess.Read ) {
+                    if( (neededAccess & FileAccess.Read) == FileAccess.Read ) {
                         using( fi.OpenRead() ) {}
                     }
-                    if( ( neededAccess & FileAccess.Write ) == FileAccess.Write ) {
+                    if( (neededAccess & FileAccess.Write) == FileAccess.Write ) {
                         using( fi.OpenWrite() ) {}
                     }
                 } else if( createIfDoesNotExist ) {
                     using( fi.Create() ) {}
                 }
                 return true;
-
             } catch( Exception ex ) {
                 if( ex is ArgumentException || ex is NotSupportedException || ex is PathTooLongException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestFile: Specified path for {0} is invalid or incorrectly formatted ({1}: {2}).",
-                                fileLabel, ex.GetType().Name, ex.Message );
+                                fileLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is SecurityException || ex is UnauthorizedAccessException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestFile: Cannot create or write to {0}, please check permissions ({1}: {2}).",
-                                fileLabel, ex.GetType().Name, ex.Message );
+                                fileLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is DirectoryNotFoundException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestFile: Drive/volume for {0} does not exist or is not mounted ({1}: {2}).",
-                                fileLabel, ex.GetType().Name, ex.Message );
+                                fileLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else if( ex is IOException ) {
                     Logger.Log( LogType.Error,
                                 "Paths.TestFile: Specified file for {0} is not readable/writable ({1}: {2}).",
-                                fileLabel, ex.GetType().Name, ex.Message );
+                                fileLabel,
+                                ex.GetType().Name,
+                                ex.Message );
                 } else {
                     throw;
                 }
@@ -315,14 +327,13 @@ namespace fCraft {
         public static bool Compare( [NotNull] string path1, [NotNull] string path2, bool caseSensitive ) {
             if( path1 == null ) throw new ArgumentNullException( "path1" );
             if( path2 == null ) throw new ArgumentNullException( "path2" );
-            StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
+            StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
             return
                 String.Equals(
                     Path.GetFullPath( path1 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
                     Path.GetFullPath( path2 ).TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar ),
                     sc );
         }
-
 
 
         /// <summary> Checks whether the given path is valid.
@@ -337,10 +348,7 @@ namespace fCraft {
                 new FileInfo( path );
                 // ReSharper restore ObjectCreationAsStatement
                 return true;
-            } catch( ArgumentException ) {
-            } catch( PathTooLongException ) {
-            } catch( NotSupportedException ) {
-            } catch( UnauthorizedAccessException ) {}
+            } catch( ArgumentException ) {} catch( PathTooLongException ) {} catch( NotSupportedException ) {} catch( UnauthorizedAccessException ) {}
             return false;
         }
 
@@ -368,7 +376,7 @@ namespace fCraft {
                                         .TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
             string fullChildPath = Path.GetFullPath( childPath )
                                        .TrimEnd( Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar );
-            StringComparison sc = ( caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase );
+            StringComparison sc = (caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase);
             return fullChildPath.StartsWith( fullParentPath, sc );
         }
 
@@ -399,9 +407,9 @@ namespace fCraft {
             } else {
                 string parentDir = GetDirectoryNameOrRoot( fileInfo.FullName );
                 string[] files = Directory.GetFiles( parentDir, "*", SearchOption.TopDirectoryOnly );
-                StringComparison comparison = ( caseSensitive
-                                                    ? StringComparison.Ordinal
-                                                    : StringComparison.OrdinalIgnoreCase );
+                StringComparison comparison = (caseSensitive
+                                                   ? StringComparison.Ordinal
+                                                   : StringComparison.OrdinalIgnoreCase);
                 return files.Select( Path.GetFileName )
                             .Any( fileName => fileName.Equals( fileInfo.Name, comparison ) );
             }

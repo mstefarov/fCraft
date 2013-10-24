@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -10,7 +11,7 @@ namespace fCraft.Drawing {
         public static readonly ReplaceBrushFactory Instance = new ReplaceBrushFactory();
 
         ReplaceBrushFactory() {
-            Aliases = new[] { "r" };
+            Aliases = new[] {"r"};
         }
 
         public string Name {
@@ -21,6 +22,7 @@ namespace fCraft.Drawing {
 
         const string HelpString = "Replace brush: Replaces blocks of a given type(s) with another type. " +
                                   "Usage similar to &H/Replace&S command.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -55,7 +57,7 @@ namespace fCraft.Drawing {
         public Block[] Blocks { get; protected set; }
         public Block Replacement { get; protected set; }
 
-        public ReplaceBrush() { }
+        public ReplaceBrush() {}
 
         public ReplaceBrush( Block[] blocks, Block replacement ) {
             Blocks = blocks;
@@ -67,7 +69,6 @@ namespace fCraft.Drawing {
             Blocks = other.Blocks;
             Replacement = other.Replacement;
         }
-
 
         #region IBrush members
 
@@ -120,7 +121,6 @@ namespace fCraft.Drawing {
 
         #endregion
 
-
         #region IBrushInstance members
 
         public IBrush Brush {
@@ -169,7 +169,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public void End() { }
+        public void End() {}
 
         #endregion
     }

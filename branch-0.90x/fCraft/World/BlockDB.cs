@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 //#define DEBUG_BLOCKDB
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,9 +28,7 @@ namespace fCraft {
         /// <summary> Sets this BlockDB's enabled state to Yes (always on), No (always off),
         /// or Auto (on or off depending on BlockDBAutoEnableRank config key and World's build permissions). </summary>
         public YesNoAuto EnabledState {
-            get {
-                return enabledState;
-            }
+            get { return enabledState; }
             set {
                 IDisposable writeLockHandle = null;
                 try {
@@ -49,9 +48,8 @@ namespace fCraft {
                             Flush( true );
                             CacheClear();
                             IsEnabled = false;
-
                         } else if( !IsEnabled &&
-                                   ( value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled ) ) {
+                                   (value == YesNoAuto.Yes || value == YesNoAuto.Auto && ShouldBeAutoEnabled) ) {
                             // going from disabled to enabled/auto-enabled
                             CheckAlignment();
                             cacheStore = new BlockDBEntry[MinCacheSize];
@@ -62,7 +60,6 @@ namespace fCraft {
                         }
                     }
                     enabledState = value;
-
                 } finally {
                     // release write lock, if we were holding it
                     if( writeLockHandle != null ) {
@@ -93,7 +90,7 @@ namespace fCraft {
                                 "This might have been caused by a power outage or ungraceful shutdown. Attempting recovery.",
                                 fi.Name );
                     using( FileStream fs = File.OpenWrite( fi.FullName ) ) {
-                        fs.SetLength( length - ( length%sizeof( BlockDBEntry ) ) );
+                        fs.SetLength( length - (length%sizeof( BlockDBEntry )) );
                     }
                 }
             }
@@ -106,23 +103,19 @@ namespace fCraft {
         public bool AutoToggleIfNeeded() {
             bool oldEnabled = IsEnabled;
             EnabledState = enabledState;
-            return ( oldEnabled != IsEnabled );
+            return (oldEnabled != IsEnabled);
         }
 
 
         bool ShouldBeAutoEnabled {
-            get {
-                return ( World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank );
-            }
+            get { return (World.BuildSecurity.MinRank <= RankManager.BlockDBAutoEnableRank); }
         }
 
 
         /// <summary> Full path to the file where BlockDB data is stored. </summary>
         [NotNull]
         public string FileName {
-            get {
-                return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" );
-            }
+            get { return Path.Combine( Paths.BlockDBPath, World.Name + ".fbdb" ); }
         }
 
 
@@ -146,7 +139,6 @@ namespace fCraft {
                 locker.ExitUpgradeableReadLock();
             }
         }
-
 
         #region Cache
 
@@ -193,20 +185,18 @@ namespace fCraft {
                 if( newCapacity < MinCacheSize ) {
                     // minimum capacity
                     newCapacity = MinCacheSize;
-
                 } else if( newCapacity < CacheLinearResizeThreshold ) {
                     // exponential resizing (x2 each time)
-                    newCapacity = 1 << (int)( 1 + Math.Floor( Math.Log( newCapacity, 2 ) ) );
-
+                    newCapacity = 1 << (int)(1 + Math.Floor( Math.Log( newCapacity, 2 ) ));
                 } else {
                     // linear resizing (in 1 MB increments)
-                    newCapacity = ( newCapacity/CacheLinearResizeThreshold + 1 )*CacheLinearResizeThreshold;
+                    newCapacity = (newCapacity/CacheLinearResizeThreshold + 1)*CacheLinearResizeThreshold;
                 }
 
                 CacheCapacity = newCapacity;
                 if( max < CacheSize ) {
                     Array.Copy( cacheStore, CacheSize - max, cacheStore, 0, max );
-                    LastFlushedIndex -= ( CacheSize - max );
+                    LastFlushedIndex -= (CacheSize - max);
                     CacheSize = max;
                 }
             }
@@ -214,9 +204,7 @@ namespace fCraft {
 
 
         internal int CacheCapacity {
-            get {
-                return cacheStore.Length;
-            }
+            get { return cacheStore.Length; }
             set {
                 if( value < MinCacheSize ) {
                     throw new ArgumentOutOfRangeException( "value", "MinCacheSize may not be negative" );
@@ -226,9 +214,8 @@ namespace fCraft {
                     if( value < CacheSize ) {
                         // downsizing the cache
                         Array.Copy( cacheStore, CacheSize - value, destinationArray, 0, value );
-                        LastFlushedIndex -= ( CacheSize - value );
+                        LastFlushedIndex -= (CacheSize - value);
                         CacheSize = value;
-
                     } else {
                         // upsizing the cache
                         Array.Copy( cacheStore, 0, destinationArray, 0, Math.Min( cacheStore.Length, CacheSize ) );
@@ -243,15 +230,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Preload
 
         bool isPreloaded;
 
         public bool IsPreloaded {
-            get {
-                return isPreloaded;
-            }
+            get { return isPreloaded; }
             set {
                 IDisposable writeLockHandle = null;
                 try {
@@ -284,7 +268,7 @@ namespace fCraft {
         void Preload() {
             if( !File.Exists( FileName ) ) return;
             using( FileStream fs = OpenRead() ) {
-                CacheSize = (int)( fs.Length/sizeof( BlockDBEntry ) );
+                CacheSize = (int)(fs.Length/sizeof( BlockDBEntry ));
                 EnsureCapacity( CacheSize );
                 LastFlushedIndex = CacheSize;
 
@@ -294,7 +278,7 @@ namespace fCraft {
                     fixed( byte* pBuffer = ioBuffer ) {
                         byte* pCache = (byte*)pCacheStart;
                         while( fs.Position < fs.Length ) {
-                            int bytesToRead = Math.Min( BufferSize, (int)( fs.Length - fs.Position ) );
+                            int bytesToRead = Math.Min( BufferSize, (int)(fs.Length - fs.Position) );
                             int bytesInBuffer = 0;
                             do {
                                 int bytesRead = fs.Read( ioBuffer, bytesInBuffer, BufferSize - bytesInBuffer );
@@ -309,7 +293,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Limiting
 
@@ -326,18 +309,18 @@ namespace fCraft {
 
         void TrimFile( int maxCapacity ) {
             if( maxCapacity == 0 ) {
-                using( File.Create( FileName ) ) { }
+                using( File.Create( FileName ) ) {}
                 return;
             }
             if( !File.Exists( FileName ) ) return;
 
             string tempFileName = FileName + ".tmp";
             using( FileStream source = File.OpenRead( FileName ) ) {
-                int entries = (int)( source.Length/sizeof( BlockDBEntry ) );
+                int entries = (int)(source.Length/sizeof( BlockDBEntry ));
                 if( entries <= maxCapacity ) return;
 
                 // skip beginning of the file (that's where old entries are)
-                source.Seek( ( entries - maxCapacity )*sizeof( BlockDBEntry ), SeekOrigin.Begin );
+                source.Seek( (entries - maxCapacity)*sizeof( BlockDBEntry ), SeekOrigin.Begin );
 
                 // copy end of the existing file to a new one
                 using( FileStream destination = File.Create( tempFileName ) ) {
@@ -370,7 +353,6 @@ namespace fCraft {
                         }
                     }
                 }
-
             } else {
                 Flush( false );
                 if( !File.Exists( FileName ) ) return -1;
@@ -417,9 +399,7 @@ namespace fCraft {
         /// Set to 0 for "unlimited". Value may not be negative. </summary>
         /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public int Limit {
-            get {
-                return limit;
-            }
+            get { return limit; }
             set {
                 if( value < 0 ) {
                     throw new ArgumentOutOfRangeException( "value", "Limit may not be negative." );
@@ -440,7 +420,6 @@ namespace fCraft {
 #if DEBUG_BLOCKDB
                     Logger.Log( LogType.Debug, "BlockDB({0}): Limit={1}", World.Name, value );
 #endif
-
                 } finally {
                     if( writeLockHandle != null ) {
                         writeLockHandle.Dispose();
@@ -453,9 +432,7 @@ namespace fCraft {
 
         /// <summary> Whether this BlockDB instance has a limit on the number of entries. </summary>
         public bool HasLimit {
-            get {
-                return limit > 0;
-            }
+            get { return limit > 0; }
         }
 
 
@@ -484,9 +461,7 @@ namespace fCraft {
         /// Set to TimeSpan.Zero for "unlimited". Value may not be negative. </summary>
         /// <exception cref="ArgumentOutOfRangeException"> value is negative </exception>
         public TimeSpan TimeLimit {
-            get {
-                return timeLimit;
-            }
+            get { return timeLimit; }
             set {
                 if( value < TimeSpan.Zero ) {
                     throw new ArgumentOutOfRangeException( "value", "TimeLimit may not be negative." );
@@ -521,9 +496,7 @@ namespace fCraft {
 
         /// <summary> Whether this BlockDB instance has a limit on the age of entries. </summary>
         public bool HasTimeLimit {
-            get {
-                return timeLimit > TimeSpan.Zero;
-            }
+            get { return timeLimit > TimeSpan.Zero; }
         }
 
 
@@ -552,7 +525,6 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Clears cache and deletes the .fbdb file. </summary>
         public void Clear() {
             IDisposable writeLockHandle = null;
@@ -565,7 +537,6 @@ namespace fCraft {
                 if( File.Exists( FileName ) ) {
                     File.Delete( FileName );
                 }
-
             } finally {
                 if( writeLockHandle != null ) {
                     writeLockHandle.Dispose();
@@ -610,7 +581,7 @@ namespace fCraft {
                 // enforce size limit, if needed
                 if( limit > 0 ) {
                     bool limitingAllowed = DateTime.UtcNow.Subtract( lastLimit ) > MinLimitDelay ||
-                                           ( CacheSize - limit ) > CacheLinearResizeThreshold;
+                                           (CacheSize - limit) > CacheLinearResizeThreshold;
                     if( changesSinceLimitEnforcement > limit*LimitEnforcementThreshold && limitingAllowed ) {
                         changesSinceLimitEnforcement = 0;
                         EnforceLimit();
@@ -721,7 +692,6 @@ namespace fCraft {
                             }
                         }
                     }
-
                 } else {
                     // Search unflushed cache for matches
                     if( LastFlushedIndex < CacheSize ) {
@@ -784,7 +754,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Lookup processors
 
@@ -943,7 +912,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Lookup shortcuts
 
         /// <summary> Returns list of all changes done to the map at the given coordinate, newest to oldest. </summary>
@@ -957,7 +925,7 @@ namespace fCraft {
             }
             return Lookup( max,
                            BlockDBSearchType.ReturnAll,
-                           entry => ( entry.X == coords.X && entry.Y == coords.Y && entry.Z == coords.Z ) );
+                           entry => (entry.X == coords.X && entry.Y == coords.Y && entry.Z == coords.Z) );
         }
 
         [NotNull]
@@ -1201,7 +1169,6 @@ namespace fCraft {
 
         #endregion
 
-
         readonly ReaderWriterLockSlim locker = new ReaderWriterLockSlim();
         const int SearchBufferSize = 1000000; // in bytes
 
@@ -1218,7 +1185,6 @@ namespace fCraft {
         public IDisposable GetReadLock() {
             return locker.ReadLock();
         }
-
 
         #region Serialization
 
@@ -1248,7 +1214,7 @@ namespace fCraft {
         internal void LoadSettings( [NotNull] XElement el ) {
             if( el == null ) throw new ArgumentNullException( "el" );
             XAttribute temp;
-            if( ( temp = el.Attribute( "enabled" ) ) != null ) {
+            if( (temp = el.Attribute( "enabled" )) != null ) {
                 YesNoAuto enabledStateTemp;
                 if( EnumUtil.TryParse( temp.Value, out enabledStateTemp, true ) ) {
                     EnabledState = enabledStateTemp;
@@ -1260,7 +1226,7 @@ namespace fCraft {
                 }
             }
 
-            if( ( temp = el.Attribute( "preload" ) ) != null ) {
+            if( (temp = el.Attribute( "preload" )) != null ) {
                 bool isPreloadedTemp;
                 if( Boolean.TryParse( temp.Value, out isPreloadedTemp ) ) {
                     IsPreloaded = isPreloadedTemp;
@@ -1270,7 +1236,7 @@ namespace fCraft {
                                 World.Name );
                 }
             }
-            if( ( temp = el.Attribute( "limit" ) ) != null ) {
+            if( (temp = el.Attribute( "limit" )) != null ) {
                 int limitTemp;
                 if( Int32.TryParse( temp.Value, out limitTemp ) ) {
                     Limit = limitTemp;
@@ -1280,7 +1246,7 @@ namespace fCraft {
                                 World.Name );
                 }
             }
-            if( ( temp = el.Attribute( "timeLimit" ) ) != null ) {
+            if( (temp = el.Attribute( "timeLimit" )) != null ) {
                 int timeLimitSeconds;
                 if( Int32.TryParse( temp.Value, out timeLimitSeconds ) ) {
                     TimeLimit = TimeSpan.FromSeconds( timeLimitSeconds );
@@ -1293,7 +1259,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Static
 

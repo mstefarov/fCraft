@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -25,8 +26,8 @@ namespace fCraft {
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
         static int maxID = 255;
-        const int BufferSize = 64 * 1024;
-        
+        const int BufferSize = 64*1024;
+
         /// <summary> Format version number (5). History:
         /// Version 0 - before 0.530 - all dates/times are local.
         /// Version 1 - 0.530-0.536 - same as v0, but all dates and times are stored as UTC unix timestamps (milliseconds).
@@ -35,7 +36,7 @@ namespace fCraft {
         /// Version 4 - 0.600 dev - added LastModified column, forced banned players to be unfrozen/unmuted/unhidden.
         /// Version 5 - 0.600+ - removed FailedLoginCount column, added AccountType column.</summary>
         public const int FormatVersion = 5,
-            MinSupportedFormatVersion = 2;
+                         MinSupportedFormatVersion = 2;
 
         const string Header = "fCraft PlayerDB | Row format: " +
                               "Name,IPAddress,Rank,RankChangeDate,RankChangedBy,Banned,BanDate,BannedBy," +
@@ -105,7 +106,6 @@ namespace fCraft {
             return info;
         }
 
-
         #region Saving/Loading
 
         internal static void Load() {
@@ -114,7 +114,6 @@ namespace fCraft {
                     Stopwatch sw = Stopwatch.StartNew();
                     using( FileStream fs = OpenRead( Paths.PlayerDBFileName ) ) {
                         using( StreamReader reader = new StreamReader( fs, Encoding.UTF8, true, BufferSize ) ) {
-
                             string header = reader.ReadLine();
 
                             // if PlayerDB is an empty file
@@ -130,7 +129,9 @@ namespace fCraft {
                     sw.Stop();
                     Logger.Log( LogType.Debug,
                                 "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}",
-                                Trie.Count, sw.ElapsedMilliseconds, maxID );
+                                Trie.Count,
+                                sw.ElapsedMilliseconds,
+                                maxID );
                 } else {
                     Logger.Log( LogType.Warning, "PlayerDB.Load: No player DB file found." );
                 }
@@ -158,39 +159,38 @@ namespace fCraft {
 #if !DEBUG
                     try {
 #endif
-                        PlayerInfo info = PlayerInfo.LoadFormat2( fields );
+                    PlayerInfo info = PlayerInfo.LoadFormat2( fields );
 
-                        if( info.ID > maxID ) {
-                            Logger.Log( LogType.Warning,
-                                        "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
-                                        maxID,
-                                        info.ID );
-                            maxID = info.ID;
-                        }
+                    if( info.ID > maxID ) {
+                        Logger.Log( LogType.Warning,
+                                    "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
+                                    maxID,
+                                    info.ID );
+                        maxID = info.ID;
+                    }
 
-                        // A record is considered "empty" if the player has never logged in.
-                        // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                        // Deleting such records should have no negative impact on DB completeness.
-                        if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) ||
-                             info.TimesVisited == 0) &&
-                            !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                    // A record is considered "empty" if the player has never logged in.
+                    // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                    // Deleting such records should have no negative impact on DB completeness.
+                    if( (info.LastIP.Equals( IPAddress.None ) || info.LastIP.Equals( IPAddress.Any ) ||
+                         info.TimesVisited == 0) &&
+                        !info.IsBanned && info.Rank == RankManager.DefaultRank ) {
+                        Logger.Log( LogType.SystemActivity,
+                                    "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
+                                    info.Name );
+                        emptyRecords++;
+                        continue;
+                    }
 
-                            Logger.Log( LogType.SystemActivity,
-                                        "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
-                                        info.Name );
-                            emptyRecords++;
-                            continue;
-                        }
-
-                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                        if( Trie.ContainsKey( info.Name ) ) {
-                            Logger.Log( LogType.Error,
-                                        "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                        info.Name );
-                        } else {
-                            Trie.Add( info.Name, info );
-                            list.Add( info );
-                        }
+                    // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                    if( Trie.ContainsKey( info.Name ) ) {
+                        Logger.Log( LogType.Error,
+                                    "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                    info.Name );
+                    } else {
+                        Trie.Add( info.Name, info );
+                        list.Add( info );
+                    }
 #if !DEBUG
                     } catch( Exception ex ) {
                         Logger.LogAndReportCrash( "Error while parsing PlayerInfo record: " + line,
@@ -244,7 +244,9 @@ namespace fCraft {
                 }
                 Logger.Log( LogType.SystemActivity,
                             "PlayerDB: Unhid {0}, unfroze {1}, and unmuted {2} banned accounts.",
-                            unhid, unfroze, unmuted );
+                            unhid,
+                            unfroze,
+                            unmuted );
             }
         }
 
@@ -259,7 +261,8 @@ namespace fCraft {
             }
             int maxIDField;
             if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
-                if( maxIDField >= 255 ) {// IDs start at 256
+                if( maxIDField >= 255 ) {
+                    // IDs start at 256
                     maxID = maxIDField;
                 }
             }
@@ -295,13 +298,15 @@ namespace fCraft {
                 sw.Stop();
                 Logger.Log( LogType.Debug,
                             "PlayerDB.Save: Saved player database ({0} records) in {1}ms",
-                            Trie.Count, sw.ElapsedMilliseconds );
+                            Trie.Count,
+                            sw.ElapsedMilliseconds );
 
                 try {
                     Paths.MoveOrReplaceFile( tempFileName, Paths.PlayerDBFileName );
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "PlayerDB.Save: An error occurred while trying to save PlayerDB: {0}", ex );
+                                "PlayerDB.Save: An error occurred while trying to save PlayerDB: {0}",
+                                ex );
                 }
             }
         }
@@ -325,7 +330,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Scheduled Saving
 
         static SchedulerTask saveTask;
@@ -339,6 +343,7 @@ namespace fCraft {
                 if( saveTask != null ) saveTask.Interval = value;
             }
         }
+
         static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void StartSaveTask() {
@@ -352,7 +357,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Lookup
 
@@ -386,11 +390,9 @@ namespace fCraft {
                             // found a new player, not in the database
                             name = newName;
                             break;
-
                         } else if( givenName.Equals( info.Email, StringComparison.OrdinalIgnoreCase ) ) {
                             // player with matching email found
                             return info;
-
                         } else {
                             // increment number and retry
                             i++;
@@ -673,13 +675,11 @@ namespace fCraft {
                     // No matches
                     player.MessageNoPlayer( namePart );
                     return null;
-
                 } else if( targets.Length > 1 ) {
                     // More than one match
                     Array.Sort( targets, new PlayerInfoComparer( player ) );
                     player.MessageManyMatches( "player", targets.Take( MatchesToPrint ).ToArray() );
                     return null;
-
                 } // else: one match!
                 target = targets[0];
             }
@@ -705,14 +705,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Stats
 
         /// <summary> Counts banned players. Runs in O(n). </summary>
         public static int BannedCount {
-            get {
-                return PlayerInfoList.Count( t => t.IsBanned );
-            }
+            get { return PlayerInfoList.Count( t => t.IsBanned ); }
         }
 
 
@@ -723,7 +720,7 @@ namespace fCraft {
                 if( listCache.Length == 0 ) {
                     return 0;
                 } else {
-                    return listCache.Count( t => t.IsBanned ) * 100f / listCache.Length;
+                    return listCache.Count( t => t.IsBanned )*100f/listCache.Length;
                 }
             }
         }
@@ -731,13 +728,10 @@ namespace fCraft {
 
         /// <summary> Returns the total number of players in the database. Runs in O(1). </summary>
         public static int Size {
-            get {
-                return Trie.Count;
-            }
+            get { return Trie.Count; }
         }
 
         #endregion
-
 
         /// <summary> Returns a unique numeric player ID.
         /// Every call to this method will produce a new sequential ID. </summary>
@@ -765,7 +759,8 @@ namespace fCraft {
         }
 
 
-        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to, [NotNull] string reason ) {
+        public static int MassRankChange( [NotNull] Player player, [NotNull] Rank from, [NotNull] Rank to,
+                                          [NotNull] string reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( @from == null ) throw new ArgumentNullException( "from" );
             if( to == null ) throw new ArgumentNullException( "to" );
@@ -794,7 +789,6 @@ namespace fCraft {
                 PlayerInfoList = list.ToArray();
             }
         }
-
 
         #region Experimental & Debug things
 
@@ -848,7 +842,8 @@ namespace fCraft {
         }
 
 
-        static bool PlayerIsInactive( [NotNull] IDictionary<IPAddress, List<PlayerInfo>> playersByIP, [NotNull] PlayerInfo player, bool checkIP ) {
+        static bool PlayerIsInactive( [NotNull] IDictionary<IPAddress, List<PlayerInfo>> playersByIP,
+                                      [NotNull] PlayerInfo player, bool checkIP ) {
             if( playersByIP == null ) throw new ArgumentNullException( "playersByIP" );
             if( player == null ) throw new ArgumentNullException( "player" );
             if( player.BanStatus != BanStatus.NotBanned || player.UnbanDate != DateTime.MinValue ||
@@ -863,7 +858,9 @@ namespace fCraft {
                 return false;
             }
             if( checkIP ) {
-                return playersByIP[player.LastIP].All( other => (other == player) || PlayerIsInactive( playersByIP, other, false ) );
+                return
+                    playersByIP[player.LastIP].All(
+                        other => (other == player) || PlayerIsInactive( playersByIP, other, false ) );
             }
             return true;
         }
@@ -942,21 +939,19 @@ namespace fCraft {
 
         #endregion
 
-
         sealed class PlayerIDComparer : IComparer<PlayerInfo> {
             public static readonly PlayerIDComparer Instance = new PlayerIDComparer();
-            private PlayerIDComparer() { }
+            PlayerIDComparer() {}
 
             public int Compare( [NotNull] PlayerInfo x, [NotNull] PlayerInfo y ) {
                 return x.ID - y.ID;
             }
         }
 
-
         #region Escaping
 
-        static readonly char[] EscapableChars = { ',', '\n', '\r' };
-        static readonly char[] EscapedChars = { '\xFF', '\xFE', '\xFD' };
+        static readonly char[] EscapableChars = {',', '\n', '\r'};
+        static readonly char[] EscapedChars = {'\xFF', '\xFE', '\xFD'};
 
         /// <summary> Escapes special characters (comma, newline, carriage return)
         /// and appends the processed string to the given StringBuilder. 
@@ -1017,7 +1012,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Creates a regular expression pattern from a wildcard pattern (like the one /Info takes).
         /// Accepts single-character ("?") and zero-or-more-characters ("*") wildcards. </summary>

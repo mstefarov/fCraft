@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -44,7 +45,7 @@ namespace fCraft.MapGeneration {
     }
 
 
-    class EmptyMapGenParams : MapGeneratorParameters {
+    internal class EmptyMapGenParams : MapGeneratorParameters {
         public EmptyMapGenParams() {
             Generator = EmptyMapGen.Instance;
         }
@@ -55,7 +56,7 @@ namespace fCraft.MapGeneration {
     }
 
 
-    class EmptyMapGenState : MapGeneratorState {
+    internal class EmptyMapGenState : MapGeneratorState {
         public EmptyMapGenState( [NotNull] MapGeneratorParameters genParams ) {
             if( genParams == null ) throw new ArgumentNullException( "genParams" );
             Parameters = genParams;

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,8 +87,8 @@ namespace fCraft {
                     if( LastCommand == null ) {
                         Message( "No command to repeat." );
                     } else {
-                        if( Info.IsFrozen && ( LastCommand.Descriptor == null ||
-                                               !LastCommand.Descriptor.UsableByFrozenPlayers ) ) {
+                        if( Info.IsFrozen && (LastCommand.Descriptor == null ||
+                                              !LastCommand.Descriptor.UsableByFrozenPlayers) ) {
                             MessageNow( "&WYou cannot use this command while frozen." );
                             return;
                         }
@@ -434,7 +435,6 @@ namespace fCraft {
             return !IsDeaf && !IsIgnoring( sender.Info );
         }
 
-
         #region Macros
 
         const int MatchesToPrint = 30;
@@ -487,8 +487,7 @@ namespace fCraft {
         /// <exception cref="ArgumentException"> permissions array is empty. </exception>
         public void MessageNoAccess( [NotNull] params Permission[] permissions ) {
             if( permissions == null ) throw new ArgumentNullException( "permissions" );
-            if( permissions.Length == 0 )
-                throw new ArgumentException( "At least one permission required.", "permissions" );
+            if( permissions.Length == 0 ) throw new ArgumentException( "At least one permission required.", "permissions" );
             Rank reqRank = RankManager.GetMinRankWithAllPermissions( permissions );
             if( reqRank == null ) {
                 Message( "None of the ranks have permissions for this command." );
@@ -567,7 +566,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Ignore
 
         readonly HashSet<PlayerInfo> ignoreList = new HashSet<PlayerInfo>();
@@ -624,7 +622,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Confirmation
 
@@ -699,7 +696,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region AntiSpam
 

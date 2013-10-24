@@ -1,11 +1,11 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 
 namespace fCraft.MapConversion {
     /// <summary> Map exporter that just saves the raw block array, with no metadata. </summary>
     public sealed class MapRaw : IMapExporter {
-
         public string ServerName {
             get { return "Raw"; }
         }

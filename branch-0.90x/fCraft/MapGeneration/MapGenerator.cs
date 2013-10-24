@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -15,6 +16,7 @@ namespace fCraft.MapGeneration {
         /// <summary> Name of the map generator. Uses same rules as command and world names. </summary>
         [NotNull]
         public string Name { get; protected set; }
+
         // TODO: name aliases/shortcuts
 
         /// <summary> Current version of the map generator. </summary>

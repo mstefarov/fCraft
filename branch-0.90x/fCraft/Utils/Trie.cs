@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using JetBrains.Annotations;
 
 
 // ReSharper disable MemberCanBePrivate.Local
+
 namespace fCraft {
     /// <summary> Specialized data structure for partial-matching of large sparse sets of words.
     /// Used as a searchable index of players for PlayerDB. </summary>
@@ -109,7 +111,6 @@ namespace fCraft {
             if( node.Payload != null ) {
                 payload = node.Payload;
                 return true; // exact match
-
             } else if( node.Tag == MultiNode ) {
                 payload = null;
                 return false; // multiple matches
@@ -243,17 +244,13 @@ namespace fCraft {
             }
         }
 
-
         #region Key Encoding / Decoding
 
         // Encodes ASCII into internal letter code.
         static int CharToCode( char ch ) {
-            if( ch >= 'a' && ch <= 'z' )
-                return ch - 'a';
-            else if( ch >= 'A' && ch <= 'Z' )
-                return ch - 'A';
-            else if( ch >= '0' && ch <= '9' )
-                return ch - '0' + 26;
+            if( ch >= 'a' && ch <= 'z' ) return ch - 'a';
+            else if( ch >= 'A' && ch <= 'Z' ) return ch - 'A';
+            else if( ch >= '0' && ch <= '9' ) return ch - '0' + 26;
             switch( ch ) {
                 case '.':
                     return 37;
@@ -267,10 +264,8 @@ namespace fCraft {
 
         // Decodes internal letter code into ASCII
         static char CodeToChar( int code ) {
-            if( code < 26 )
-                return (char)(code + 'a');
-            if( code >= 26 && code < 36 )
-                return (char)(code + '0');
+            if( code < 26 ) return (char)(code + 'a');
+            if( code >= 26 && code < 36 ) return (char)(code + '0');
             switch( code ) {
                 case 37:
                     return '.';
@@ -284,10 +279,8 @@ namespace fCraft {
 
         // Converts a letter to lowercase, and converts any unrecognized character to '_'
         static char NormalizeChar( char ch ) {
-            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' )
-                return ch;
-            else if( ch >= 'A' && ch <= 'Z' )
-                return (char)(ch - ('A' - 'a'));
+            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' ) return ch;
+            else if( ch >= 'A' && ch <= 'Z' ) return (char)(ch - ('A' - 'a'));
             return ch == '.' ? '.' : '_';
         }
 
@@ -303,7 +296,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Subset Enumerators
 
@@ -360,11 +352,9 @@ namespace fCraft {
 
         #endregion
 
-
         #region Enumerator Base
 
         class EnumeratorBase {
-
             // Starting node ("root" of the trie/subtrie)
             protected readonly TrieNode StartingNode;
 
@@ -428,7 +418,7 @@ namespace fCraft {
 
 
             protected bool FindNextPayload() {
-            continueLoop:
+                continueLoop:
                 Debug.Assert( CurrentNode != null, "CurrentNode != null" );
                 switch( CurrentNode.Tag ) {
                     case MultiNode:
@@ -463,7 +453,6 @@ namespace fCraft {
                             if( !MoveUp() ) return false;
                         }
                         goto continueLoop;
-
                 }
             }
 
@@ -498,16 +487,17 @@ namespace fCraft {
 
         #endregion
 
-
         #region IDictionary<string,T> Members
 
         readonly TrieKeyCollection keys;
+
         public ICollection<string> Keys {
             get { return keys; }
         }
 
 
         readonly TrieValueCollection values;
+
         public ICollection<T> Values {
             get { return values; }
         }
@@ -540,13 +530,9 @@ namespace fCraft {
         }
 
 
-        public T this[string key] {
-            get {
-                return Get( key );
-            }
-            set {
-                Add( key, value, true );
-            }
+        public T this[ string key ] {
+            get { return Get( key ); }
+            set { Add( key, value, true ); }
         }
 
 
@@ -555,7 +541,7 @@ namespace fCraft {
         /// <returns> True if the trie contains a given key. </returns>
         public bool ContainsKey( [NotNull] string key ) {
             TrieNode node = GetNode( key );
-            return ( node != null && node.Payload != null );
+            return (node != null && node.Payload != null);
         }
 
 
@@ -638,23 +624,20 @@ namespace fCraft {
 
         #endregion
 
-
         #region IDictionary Members
 
-        public bool IsFixedSize { get { return false; } }
+        public bool IsFixedSize {
+            get { return false; }
+        }
 
 
         ICollection IDictionary.Values {
-            get {
-                return (ICollection)Values;
-            }
+            get { return (ICollection)Values; }
         }
 
 
         ICollection IDictionary.Keys {
-            get {
-                return (ICollection)Keys;
-            }
+            get { return (ICollection)Keys; }
         }
 
 
@@ -729,7 +712,6 @@ namespace fCraft {
 
 
         sealed class TrieDictionaryEnumerator : EnumeratorBase, IDictionaryEnumerator {
-
             public TrieDictionaryEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                 : base( node, trie, prefix ) {}
 
@@ -768,9 +750,7 @@ namespace fCraft {
 
             [NotNull]
             object IEnumerator.Current {
-                get {
-                    return Entry;
-                }
+                get { return Entry; }
             }
 
 
@@ -786,7 +766,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region ValueCollection
 
         [DebuggerDisplay( "Count = {Count}" )]
@@ -800,16 +779,24 @@ namespace fCraft {
             }
 
 
-            public int Count { get { return trie.Count; } }
+            public int Count {
+                get { return trie.Count; }
+            }
 
 
-            public bool IsReadOnly { get { return true; } }
+            public bool IsReadOnly {
+                get { return true; }
+            }
 
 
-            public bool IsSynchronized { get { return false; } }
+            public bool IsSynchronized {
+                get { return false; }
+            }
 
 
-            public object SyncRoot { get { return trie.syncRoot; } }
+            public object SyncRoot {
+                get { return trie.syncRoot; }
+            }
 
 
             public void CopyTo( Array array, int index ) {
@@ -842,7 +829,7 @@ namespace fCraft {
 
 
             public bool Contains( [CanBeNull] T value ) {
-                return ( this as IEnumerable<T> ).Contains( value );
+                return (this as IEnumerable<T>).Contains( value );
             }
 
             #region Unsupported members (Add/Remove/Clear)
@@ -895,7 +882,6 @@ namespace fCraft {
                 }
             }
 
-
             #region TrieValueEnumerator
 
             public IEnumerator<T> GetEnumerator() {
@@ -909,10 +895,8 @@ namespace fCraft {
 
 
             sealed class TrieValueEnumerator : EnumeratorBase, IEnumerator<T> {
-
                 public TrieValueEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
-                    : base( node, trie, prefix ) {
-                }
+                    : base( node, trie, prefix ) {}
 
 
                 [NotNull]
@@ -928,9 +912,7 @@ namespace fCraft {
 
                 [NotNull]
                 object IEnumerator.Current {
-                    get {
-                        return Current;
-                    }
+                    get { return Current; }
                 }
 
 
@@ -944,14 +926,13 @@ namespace fCraft {
                 }
 
 
-                void IDisposable.Dispose() { }
+                void IDisposable.Dispose() {}
             }
 
             #endregion
         }
 
         #endregion
-
 
         #region KeyCollection
 
@@ -966,16 +947,24 @@ namespace fCraft {
             }
 
 
-            public int Count { get { return trie.Count; } }
+            public int Count {
+                get { return trie.Count; }
+            }
 
 
-            public bool IsReadOnly { get { return true; } }
+            public bool IsReadOnly {
+                get { return true; }
+            }
 
 
-            public bool IsSynchronized { get { return false; } }
+            public bool IsSynchronized {
+                get { return false; }
+            }
 
 
-            public object SyncRoot { get { return trie.syncRoot; } }
+            public object SyncRoot {
+                get { return trie.syncRoot; }
+            }
 
 
             public void CopyTo( Array array, int index ) {
@@ -1032,7 +1021,6 @@ namespace fCraft {
 
             #endregion
 
-
             /// <summary> Returns an enumerator over all values that start with the given prefix. </summary>
             /// <exception cref="ArgumentNullException"> prefix is null. </exception>
             [NotNull]
@@ -1064,7 +1052,6 @@ namespace fCraft {
                 }
             }
 
-
             #region TrieKeyEnumerator
 
             public IEnumerator<string> GetEnumerator() {
@@ -1078,10 +1065,8 @@ namespace fCraft {
 
 
             sealed class TrieKeyEnumerator : EnumeratorBase, IEnumerator<string> {
-
                 public TrieKeyEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
-                    : base( node, trie, prefix ) {
-                }
+                    : base( node, trie, prefix ) {}
 
 
                 [NotNull]
@@ -1097,9 +1082,7 @@ namespace fCraft {
 
                 [NotNull]
                 object IEnumerator.Current {
-                    get {
-                        return Current;
-                    }
+                    get { return Current; }
                 }
 
 
@@ -1113,14 +1096,13 @@ namespace fCraft {
                 }
 
 
-                void IDisposable.Dispose() { }
+                void IDisposable.Dispose() {}
             }
 
             #endregion
         }
 
         #endregion
-
 
         #region IEnumerable<KeyValuePair<string,T>> Members
 
@@ -1135,7 +1117,6 @@ namespace fCraft {
 
 
         sealed class TrieEnumerator : EnumeratorBase, IEnumerator<KeyValuePair<string, T>> {
-
             public TrieEnumerator( [CanBeNull] TrieNode node, [NotNull] Trie<T> trie, [NotNull] string prefix )
                 : base( node, trie, prefix ) {}
 
@@ -1152,9 +1133,7 @@ namespace fCraft {
 
             [NotNull]
             object IEnumerator.Current {
-                get {
-                    return Current;
-                }
+                get { return Current; }
             }
 
 
@@ -1168,19 +1147,19 @@ namespace fCraft {
             }
 
 
-            void IDisposable.Dispose() { }
+            void IDisposable.Dispose() {}
         }
 
         #endregion
 
-
         #region ICollection<KeyValuePair<string,T>> Members
-
 
         public int Count { get; private set; }
 
 
-        public bool IsReadOnly { get { return false; } }
+        public bool IsReadOnly {
+            get { return false; }
+        }
 
 
         public void Add( KeyValuePair<string, T> pair ) {
@@ -1218,14 +1197,18 @@ namespace fCraft {
 
         #endregion
 
-
         #region ICollection Members
 
-        public bool IsSynchronized { get { return false; } }
+        public bool IsSynchronized {
+            get { return false; }
+        }
 
 
         readonly object syncRoot = new object();
-        public object SyncRoot { get { return syncRoot; } }
+
+        public object SyncRoot {
+            get { return syncRoot; }
+        }
 
 
         public void CopyTo( Array pairArray, int index ) {
@@ -1244,9 +1227,7 @@ namespace fCraft {
             }
         }
 
-
         #endregion
-
 
         #region ICloneable Members
 
@@ -1255,7 +1236,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         sealed class TrieNode {
             const int ChildCount = 39;
@@ -1318,12 +1298,9 @@ namespace fCraft {
                     if( Children[i] != null &&
                         Children[i].Tag == LeafNode &&
                         Children[i].Payload == null ) {
-
                         Children[i] = null;
-
                     } else if( index != -1 ) {
                         index = i;
-
                     } else {
                         return;
                     }
@@ -1333,7 +1310,7 @@ namespace fCraft {
                     throw new Exception( InconsistentStateMessage );
                 } else {
                     // if there's just one, convert to single
-                    Children = new[] { Children[index] };
+                    Children = new[] {Children[index]};
                     Tag = (byte)index;
                 }
             }

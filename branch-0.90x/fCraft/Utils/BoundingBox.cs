@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -32,7 +33,9 @@ namespace fCraft {
         /// <param name="length"> Length (Y-axis, horizontal). May be negative. </param>
         /// <param name="height"> Width (Z-axis, vertical). May be negative. </param>
         public BoundingBox( Vector3I origin, int width, int length, int height ) :
-            this( origin.X, origin.Y, origin.Z,
+            this( origin.X,
+                  origin.Y,
+                  origin.Z,
                   origin.X + width - 1,
                   origin.Y + length - 1,
                   origin.Z + height - 1 ) {}
@@ -48,7 +51,6 @@ namespace fCraft {
             ZMax = Math.Max( z1, z2 );
         }
 
-
         #region Collision Detection
 
         /// <summary> Checks whether this bounding box intersects/touches another one. </summary>
@@ -56,9 +58,9 @@ namespace fCraft {
         [Pure]
         public bool Intersects( [NotNull] BoundingBox other ) {
             if( other == null ) throw new ArgumentNullException( "other" );
-            return !( XMax < other.XMin || XMin > other.XMax ||
-                      YMax < other.YMin || YMin > other.YMax ||
-                      ZMax < other.ZMin || ZMin > other.ZMax );
+            return !(XMax < other.XMin || XMin > other.XMax ||
+                     YMax < other.YMin || YMin > other.YMax ||
+                     ZMax < other.ZMin || ZMin > other.ZMax);
         }
 
 
@@ -116,10 +118,9 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Returns volume of this bounding box. Guaranteed to be at least 1. </summary>
         public int Volume {
-            get { return ( XMax - XMin + 1 ) * ( YMax - YMin + 1 ) * ( ZMax - ZMin + 1 ); }
+            get { return (XMax - XMin + 1)*(YMax - YMin + 1)*(ZMax - ZMin + 1); }
         }
 
 
@@ -136,17 +137,17 @@ namespace fCraft {
 
         /// <summary> Width of the bounding box (XMax - XMin + 1). Inclusive, and always at least 1. </summary>
         public int Width {
-            get { return ( XMax - XMin + 1 ); }
+            get { return (XMax - XMin + 1); }
         }
 
         /// <summary> Width of the bounding box (YMax - YMin + 1). Notch's Z. Inclusive, and always at least 1. </summary>
         public int Length {
-            get { return ( YMax - YMin + 1 ); }
+            get { return (YMax - YMin + 1); }
         }
 
         /// <summary> Width of the bounding box (ZMax - ZMin + 1). Notch's Y. Inclusive, and always at least 1. </summary>
         public int Height {
-            get { return ( ZMax - ZMin + 1 ); }
+            get { return (ZMax - ZMin + 1); }
         }
 
 
@@ -179,7 +180,6 @@ namespace fCraft {
             }
         }
 
-
         #region Serialization
 
         public const string XmlRootElementName = "BoundingBox";
@@ -206,7 +206,12 @@ namespace fCraft {
         public XElement Serialize( [NotNull] string tagName ) {
             if( tagName == null ) throw new ArgumentNullException( "tagName" );
             string data = String.Format( "{0} {1} {2} {3} {4} {5}",
-                                         XMin, XMax, YMin, YMax, ZMin, ZMax );
+                                         XMin,
+                                         XMax,
+                                         YMin,
+                                         YMax,
+                                         ZMin,
+                                         ZMax );
             return new XElement( tagName, data );
         }
 
@@ -216,7 +221,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         public bool Equals( [NotNull] BoundingBox other ) {
             return XMin == other.XMin && XMax == other.XMax &&

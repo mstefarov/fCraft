@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -17,9 +18,9 @@ namespace fCraft {
         public static bool IsLocal( [NotNull] this IPAddress addr ) {
             if( addr == null ) throw new ArgumentNullException( "addr" );
             byte[] bytes = addr.GetAddressBytes();
-            return ( bytes[0] == 192 && bytes[1] == 168 ) ||
-                   ( bytes[0] == 10 ) ||
-                   ( bytes[0] == 127 );
+            return (bytes[0] == 192 && bytes[1] == 168) ||
+                   (bytes[0] == 10) ||
+                   (bytes[0] == 127);
         }
 
 
@@ -51,7 +52,7 @@ namespace fCraft {
         internal static bool Match( [NotNull] this IPAddress thisAddr, uint otherAddr, uint mask ) {
             if( thisAddr == null ) throw new ArgumentNullException( "thisAddr" );
             uint thisAsUInt = thisAddr.AsUInt();
-            return ( thisAsUInt & mask ) == ( otherAddr & mask );
+            return (thisAsUInt & mask) == (otherAddr & mask);
         }
 
 
@@ -88,7 +89,7 @@ namespace fCraft {
             if( range == 0 ) {
                 return 0;
             } else {
-                return 0xffffffff << ( 32 - range );
+                return 0xffffffff << (32 - range);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Net;
 using fCraft.Events;
@@ -6,7 +7,6 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     sealed partial class PlayerInfo {
-
         /// <summary> Occurs when a new PlayerDB entry is being created.
         /// Allows editing the starting rank. Cancelable (kicks the player). </summary>
         public static event EventHandler<PlayerInfoBeingCreatedEventArgs> BeingCreated;
@@ -51,20 +51,34 @@ namespace fCraft {
         }
 
 
-        static bool RaiseRankChangingEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank newRank,
+        static bool RaiseRankChangingEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
+                                            [NotNull] Rank newRank,
                                             [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var h = RankChanging;
             if( h == null ) return false;
-            var e = new PlayerInfoRankChangingEventArgs( playerInfo, rankChanger, newRank, reason, rankChangeType, announce );
+            var e = new PlayerInfoRankChangingEventArgs( playerInfo,
+                                                         rankChanger,
+                                                         newRank,
+                                                         reason,
+                                                         rankChangeType,
+                                                         announce );
             h( null, e );
             return e.Cancel;
         }
 
 
-        static void RaiseRankChangedEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger, [NotNull] Rank oldRank,
+        static void RaiseRankChangedEvent( [NotNull] PlayerInfo playerInfo, [NotNull] Player rankChanger,
+                                           [NotNull] Rank oldRank,
                                            [CanBeNull] string reason, RankChangeType rankChangeType, bool announce ) {
             var h = RankChanged;
-            if( h != null ) h( null, new PlayerInfoRankChangedEventArgs( playerInfo, rankChanger, oldRank, reason, rankChangeType, announce ) );
+            if( h != null )
+                h( null,
+                   new PlayerInfoRankChangedEventArgs( playerInfo,
+                                                       rankChanger,
+                                                       oldRank,
+                                                       reason,
+                                                       rankChangeType,
+                                                       announce ) );
         }
 
 
@@ -78,11 +92,14 @@ namespace fCraft {
         internal static void RaiseBanChangedEvent( [NotNull] PlayerInfoBanChangingEventArgs e ) {
             if( e == null ) throw new ArgumentNullException( "e" );
             var h = BanChanged;
-            if( h != null ) h( null, new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason, e.Announce ) );
+            if( h != null )
+                h( null,
+                   new PlayerInfoBanChangedEventArgs( e.PlayerInfo, e.Banner, e.IsBeingUnbanned, e.Reason, e.Announce ) );
         }
 
 
-        static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
+        static bool RaiseFreezeChangingEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing,
+                                              bool announce ) {
             var h = FreezeChanging;
             if( h == null ) return false;
             var e = new PlayerInfoFrozenChangingEventArgs( target, freezer, unfreezing, announce );
@@ -91,7 +108,8 @@ namespace fCraft {
         }
 
 
-        static void RaiseFreezeChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing, bool announce ) {
+        static void RaiseFreezeChangedEvent( [NotNull] PlayerInfo target, [NotNull] Player freezer, bool unfreezing,
+                                             bool announce ) {
             var h = FreezeChanged;
             if( h != null ) h( null, new PlayerInfoFrozenChangedEventArgs( target, freezer, unfreezing, announce ) );
         }
@@ -115,7 +133,6 @@ namespace fCraft {
     }
 }
 
-
 namespace fCraft.Events {
     /// <summary> An EventArgs for an event that directly related to a particular PlayerInfo. </summary>
     public interface IPlayerInfoEvent {
@@ -129,7 +146,7 @@ namespace fCraft.Events {
     /// Allows changing StartingRank. </summary>
     public sealed class PlayerInfoBeingCreatedEventArgs : EventArgs, ICancelableEvent {
         internal PlayerInfoBeingCreatedEventArgs( [NotNull] string name, [CanBeNull] IPAddress ip,
-                                              [NotNull] Rank startingRank, bool isUnrecognized ) {
+                                                  [NotNull] Rank startingRank, bool isUnrecognized ) {
             if( name == null ) throw new ArgumentNullException( "name" );
             if( startingRank == null ) throw new ArgumentNullException( "startingRank" );
             Name = name;
@@ -340,7 +357,7 @@ namespace fCraft.Events {
     /// Announce property may be changed. </summary>
     public sealed class PlayerInfoFrozenChangingEventArgs : EventArgs, IPlayerInfoEvent, ICancelableEvent {
         internal PlayerInfoFrozenChangingEventArgs( [NotNull] PlayerInfo target, [NotNull] Player freezer,
-                                                     bool isBeingUnfrozen, bool announce ) {
+                                                    bool isBeingUnfrozen, bool announce ) {
             if( target == null ) throw new ArgumentNullException( "target" );
             if( freezer == null ) throw new ArgumentNullException( "freezer" );
             PlayerInfo = target;

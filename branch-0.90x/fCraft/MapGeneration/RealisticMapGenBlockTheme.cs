@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,6 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     public class RealisticMapGenBlockTheme : IEquatable<RealisticMapGenBlockTheme>, ICloneable {
-
         static readonly Dictionary<MapGenTheme, RealisticMapGenBlockTheme> StandardThemes =
             new Dictionary<MapGenTheme, RealisticMapGenBlockTheme>();
 
@@ -146,7 +146,6 @@ namespace fCraft.MapGeneration {
             }
         }
 
-
         #region Serialization
 
         public RealisticMapGenBlockTheme( [NotNull] XElement root )
@@ -239,7 +238,6 @@ namespace fCraft.MapGeneration {
 
         #endregion
 
-
         #region Equality members
 
         public bool Equals( [CanBeNull] RealisticMapGenBlockTheme other ) {
@@ -300,7 +298,6 @@ namespace fCraft.MapGeneration {
         }
 
         #endregion
-
 
         public object Clone() {
             return new RealisticMapGenBlockTheme( this );

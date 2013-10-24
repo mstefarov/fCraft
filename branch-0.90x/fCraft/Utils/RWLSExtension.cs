@@ -1,10 +1,11 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Threading;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    static class RwlsExtension {
+    internal static class RwlsExtension {
         public static ReadLockHelper ReadLock( [NotNull] this ReaderWriterLockSlim readerWriterLock ) {
             return new ReadLockHelper( readerWriterLock );
         }
@@ -18,7 +19,7 @@ namespace fCraft {
         }
 
         public struct ReadLockHelper : IDisposable {
-            private readonly ReaderWriterLockSlim readerWriterLock;
+            readonly ReaderWriterLockSlim readerWriterLock;
 
             public ReadLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterReadLock();
@@ -31,7 +32,7 @@ namespace fCraft {
         }
 
         public struct UpgradeableReadLockHelper : IDisposable {
-            private readonly ReaderWriterLockSlim readerWriterLock;
+            readonly ReaderWriterLockSlim readerWriterLock;
 
             public UpgradeableReadLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterUpgradeableReadLock();
@@ -44,7 +45,7 @@ namespace fCraft {
         }
 
         public struct WriteLockHelper : IDisposable {
-            private readonly ReaderWriterLockSlim readerWriterLock;
+            readonly ReaderWriterLockSlim readerWriterLock;
 
             public WriteLockHelper( [NotNull] ReaderWriterLockSlim readerWriterLock ) {
                 readerWriterLock.EnterWriteLock();

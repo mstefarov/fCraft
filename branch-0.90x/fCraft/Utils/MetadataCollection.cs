@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace fCraft {
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     public struct MetadataEntry<TValue> where TValue : class {
         string group;
+
         [NotNull]
         public string Group {
             get { return group; }
@@ -21,6 +23,7 @@ namespace fCraft {
         }
 
         string key;
+
         [NotNull]
         public string Key {
             get { return key; }
@@ -31,6 +34,7 @@ namespace fCraft {
         }
 
         TValue value;
+
         [NotNull]
         public TValue Value {
             get { return value; }
@@ -46,12 +50,13 @@ namespace fCraft {
     /// Group names, key names, and values may not be null. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
-    public sealed class MetadataCollection<TValue> : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable, INotifiesOnChange where TValue : class {
-
-        readonly Dictionary<string, Dictionary<string, TValue>> store = new Dictionary<string, Dictionary<string, TValue>>();
+    public sealed class MetadataCollection<TValue> : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable,
+        INotifiesOnChange where TValue : class {
+        readonly Dictionary<string, Dictionary<string, TValue>> store =
+            new Dictionary<string, Dictionary<string, TValue>>();
 
         /// <summary> Creates an empty MetadataCollection. </summary>
-        public MetadataCollection() { }
+        public MetadataCollection() {}
 
 
         /// <summary> Creates a copy of the given MetadataCollection. Copies all entries within. </summary>
@@ -106,7 +111,6 @@ namespace fCraft {
             }
         }
 
-
         #region Count / Group Count / Key Count
 
         /// <summary> The total number of entries in this collection. </summary>
@@ -135,7 +139,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Index / Get / Set
 
         /// <summary> Gets or sets the value of a given entry.
@@ -143,7 +146,7 @@ namespace fCraft {
         /// and a set operation creates a new element with the specified group/key. </summary>
         /// <param name="group"> The group of the value to get or set. </param>
         /// <param name="key"> The key of the value to get or set. </param>
-        public TValue this[[NotNull] string group, [NotNull] string key] {
+        public TValue this[ [NotNull] string group, [NotNull] string key ] {
             get {
                 if( group == null ) throw new ArgumentNullException( "group" );
                 if( key == null ) throw new ArgumentNullException( "key" );
@@ -205,7 +208,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Contains Group / Key / Value
 
         public bool ContainsGroup( [NotNull] string group ) {
@@ -254,7 +256,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         public bool TryGetValue( [NotNull] string group, [NotNull] string key, out TValue value ) {
             if( group == null ) throw new ArgumentNullException( "group" );
@@ -350,7 +351,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region IEnumerable<MetadataEntry> Members
 
         /// <summary> Enumerates all keys in this collection. </summary>
@@ -369,7 +369,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region IEnumerable Members
 
         IEnumerator IEnumerable.GetEnumerator() {
@@ -377,7 +376,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region ICollection Members
 
@@ -397,13 +395,13 @@ namespace fCraft {
 
 
         readonly object syncRoot = new object();
+
         /// <summary> Internal lock object used by this collection to ensure thread safety. </summary>
         public object SyncRoot {
             get { return syncRoot; }
         }
 
         #endregion
-
 
         public object Clone() {
             return new MetadataCollection<TValue>( this );

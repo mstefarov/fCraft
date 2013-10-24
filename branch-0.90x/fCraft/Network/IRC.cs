@@ -39,18 +39,22 @@ using JetBrains.Annotations;
 using System.Collections.Concurrent;
 
 namespace fCraft {
-
     /// <summary> IRC control class. </summary>
     public static class IRC {
         const string ResetReplacement = "\u0003\u000F",
                      BoldReplacement = "\u0002",
                      ResetCode = "\u211C",
                      BoldCode = "\u212C";
-        static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z", RegexOptions.IgnoreCase ),
-                              UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$", RegexOptions.IgnoreCase ),
+
+        static readonly Regex IrcNickRegex = new Regex( @"\A[a-z_\-\[\]\\^{}|`][a-z0-9_\-\[\]\\^{}|`]*\z",
+                                                        RegexOptions.IgnoreCase ),
+                              UserHostRegex = new Regex( @"^[a-z0-9_\-\[\]\\^{}|`]+\*?=[+-]?(.+@.+)$",
+                                                         RegexOptions.IgnoreCase ),
                               MaxNickLengthRegex = new Regex( @"NICKLEN=(\d+)" );
+
         static int userHostLength = 60,
                    maxNickLength = 30;
+
         const int MaxMessageSize = 510; // +2 bytes for CR-LF
 
         /// <summary> Class represents an IRC connection/thread.
@@ -98,7 +102,8 @@ namespace fCraft {
                     return true;
                 } catch( Exception ex ) {
                     Logger.Log( LogType.Error,
-                                "IRC: Could not start the bot: {0}", ex );
+                                "IRC: Could not start the bot: {0}",
+                                ex );
                     return false;
                 }
             }
@@ -141,7 +146,9 @@ namespace fCraft {
                         reconnect = false;
                         Logger.Log( LogType.IrcStatus,
                                     "Connecting to {0}:{1} as {2}",
-                                    hostName, port, ActualBotNick );
+                                    hostName,
+                                    port,
+                                    ActualBotNick );
                         Connect();
 
                         // register
@@ -194,13 +201,11 @@ namespace fCraft {
                                 HandleMessage( line );
                             }
                         }
-
                     } catch( SocketException ex ) {
-                        LogDisconnectWarning(ex);
+                        LogDisconnectWarning( ex );
                         reconnect = true;
-
                     } catch( IOException ex ) {
-                        LogDisconnectWarning(ex);
+                        LogDisconnectWarning( ex );
                         reconnect = true;
 #if !DEBUG
                     } catch( Exception ex ) {
@@ -254,11 +259,11 @@ namespace fCraft {
                             IsReady = true;
                             Send( IRCCommands.Userhost( ActualBotNick ) );
                             AssignBotForInputParsing(); // bot should be ready to receive input after joining
-
                         } else if( msg.ReplyCode == IRCReplyCode.Bounce ) {
                             Match nickLenMatch = MaxNickLengthRegex.Match( msg.Message );
                             int maxNickLengthTemp;
-                            if( nickLenMatch.Success && Int32.TryParse( nickLenMatch.Groups[1].Value, out maxNickLengthTemp ) ) {
+                            if( nickLenMatch.Success &&
+                                Int32.TryParse( nickLenMatch.Groups[1].Value, out maxNickLengthTemp ) ) {
                                 maxNickLength = maxNickLengthTemp;
                             }
                         }
@@ -291,25 +296,33 @@ namespace fCraft {
                                 if( ConfigKey.IRCBotForwardFromIRC.Enabled() ) {
                                     if( msg.Type == IRCMessageType.ChannelAction ) {
                                         Server.Message( "&i(IRC) * {0} {1}",
-                                                        msg.Nick, processedMessage );
+                                                        msg.Nick,
+                                                        processedMessage );
                                         Logger.Log( LogType.IrcChat,
                                                     "{0}: * {1} {2}",
-                                                    msg.Channel, msg.Nick,
+                                                    msg.Channel,
+                                                    msg.Nick,
                                                     IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                     } else {
                                         Server.Message( "&i(IRC) {0}{1}: {2}",
-                                                        msg.Nick, Color.White, processedMessage );
+                                                        msg.Nick,
+                                                        Color.White,
+                                                        processedMessage );
                                         Logger.Log( LogType.IrcChat,
                                                     "{0}: {1}: {2}",
-                                                    msg.Channel, msg.Nick,
+                                                    msg.Channel,
+                                                    msg.Nick,
                                                     IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                     }
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
-                                                    msg.Nick, Color.White, processedMessage.Substring( 1 ) );
+                                                    msg.Nick,
+                                                    Color.White,
+                                                    processedMessage.Substring( 1 ) );
                                     Logger.Log( LogType.IrcChat,
                                                 "{0}: {1}: {2}",
-                                                msg.Channel, msg.Nick,
+                                                msg.Channel,
+                                                msg.Nick,
                                                 IRCColorsAndNonStandardCharsExceptEmotes.Replace( rawMessage, "" ) );
                                 }
                             }
@@ -321,9 +334,12 @@ namespace fCraft {
                         if( !ResponsibleForInputParsing ) return;
                         if( ConfigKey.IRCBotAnnounceIRCJoins.Enabled() ) {
                             Server.Message( "&i(IRC) {0} joined {1}",
-                                            msg.Nick, msg.Channel );
+                                            msg.Nick,
+                                            msg.Channel );
                             Logger.Log( LogType.IrcChat,
-                                        "{0} joined {1}", msg.Nick, msg.Channel );
+                                        "{0} joined {1}",
+                                        msg.Nick,
+                                        msg.Channel );
                         }
                         return;
 
@@ -334,7 +350,9 @@ namespace fCraft {
                             // If we got kicked, attempt to rejoin
                             Logger.Log( LogType.IrcStatus,
                                         "IRC Bot was kicked from {0} by {1} ({2}), rejoining.",
-                                        msg.Channel, msg.Nick, msg.Message );
+                                        msg.Channel,
+                                        msg.Nick,
+                                        msg.Message );
                             Thread.Sleep( ReconnectDelay );
                             Send( IRCCommands.Join( msg.Channel ) );
                         } else {
@@ -342,10 +360,15 @@ namespace fCraft {
                             // Someone else got kicked -- announce it
                             string kickMessage = ProcessMessageFromIRC( msg.Message );
                             Server.Message( "&i(IRC) {0} kicked {1} from {2} ({3})",
-                                            msg.Nick, kicked, msg.Channel, kickMessage );
+                                            msg.Nick,
+                                            kicked,
+                                            msg.Channel,
+                                            kickMessage );
                             Logger.Log( LogType.IrcChat,
                                         "{0} kicked {1} from {2} ({3})",
-                                        msg.Nick, kicked, msg.Channel,
+                                        msg.Nick,
+                                        kicked,
+                                        msg.Channel,
                                         IRCColorsAndNonStandardCharsExceptEmotes.Replace( kickMessage, "" ) );
                         }
                         return;
@@ -384,7 +407,8 @@ namespace fCraft {
                             nickTry = 0;
                             Logger.Log( LogType.IrcStatus,
                                         "Bot was renamed from {0} to {1}",
-                                        msg.Nick, msg.Message );
+                                        msg.Nick,
+                                        msg.Message );
                             AuthWithNickServ();
                         } else {
                             if( !ResponsibleForInputParsing ) return;
@@ -428,7 +452,8 @@ namespace fCraft {
                                 }
                                 Logger.Log( LogType.IrcStatus,
                                             "Error: Nickname \"{0}\" is already in use. Trying \"{1}\"",
-                                            oldActualBotNick, ActualBotNick );
+                                            oldActualBotNick,
+                                            ActualBotNick );
                                 Send( IRCCommands.Nick( ActualBotNick ) );
                                 Send( IRCCommands.Userhost( ActualBotNick ) );
                                 break;
@@ -437,7 +462,8 @@ namespace fCraft {
                             case IRCReplyCode.ErrorNoSuchChannel:
                                 Logger.Log( LogType.IrcStatus,
                                             "Error: {0} ({1})",
-                                            msg.ReplyCode, msg.Channel );
+                                            msg.ReplyCode,
+                                            msg.Channel );
                                 die = true;
                                 break;
 
@@ -452,7 +478,8 @@ namespace fCraft {
                             default:
                                 Logger.Log( LogType.IrcStatus,
                                             "Error ({0}): {1}",
-                                            msg.ReplyCode, msg.RawMessage );
+                                            msg.ReplyCode,
+                                            msg.RawMessage );
                                 break;
                         }
 
@@ -467,14 +494,17 @@ namespace fCraft {
                     case IRCMessageType.QueryAction:
                         // TODO: PMs
                         Logger.Log( LogType.IrcStatus,
-                                    "Query: {0}", msg.RawMessage );
+                                    "Query: {0}",
+                                    msg.RawMessage );
                         break;
 
 
                     case IRCMessageType.Kill:
                         Logger.Log( LogType.IrcStatus,
                                     "Bot was killed from {0} by {1} ({2}), reconnecting.",
-                                    hostName, msg.Nick, msg.Message );
+                                    hostName,
+                                    msg.Nick,
+                                    msg.Message );
                         reconnect = true;
                         isConnected = false;
                         return;
@@ -515,19 +545,18 @@ namespace fCraft {
                 }
                 try {
                     if( reader != null ) reader.Close();
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
                 try {
                     if( writer != null ) writer.Close();
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
                 try {
                     if( client != null ) client.Close();
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
             }
 
             void ClearLocalQueue() {
                 string ignored;
-                while( localQueue.TryDequeue( out ignored ) ) {
-                }
+                while( localQueue.TryDequeue( out ignored ) ) {}
             }
 
             #region IDisposable members
@@ -535,17 +564,17 @@ namespace fCraft {
             public void Dispose() {
                 try {
                     if( reader != null ) reader.Dispose();
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
 
                 try {
                     if( reader != null ) writer.Dispose();
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
 
                 try {
                     if( client != null && client.Connected ) {
                         client.Close();
                     }
-                } catch( ObjectDisposedException ) { }
+                } catch( ObjectDisposedException ) {}
             }
 
             #endregion
@@ -635,12 +664,11 @@ namespace fCraft {
                         thread
                     };
                 }
-
             } else {
                 List<IrcThread> threadTemp = new List<IrcThread>();
                 for( int i = 0; i < threadCount; i++ ) {
-                    IrcThread temp = new IrcThread( botNick + ( i + 1 ) );
-                    if( temp.Start( ( threadTemp.Count == 0 ) ) ) {
+                    IrcThread temp = new IrcThread( botNick + (i + 1) );
+                    if( temp.Start( (threadTemp.Count == 0) ) ) {
                         threadTemp.Add( temp );
                     }
                 }
@@ -662,7 +690,7 @@ namespace fCraft {
             if( channelNames == null ) return; // in case IRC bot is disabled.
             line = ProcessMessageToIRC( line );
             for( int i = 0; i < channelNames.Length; i++ ) {
-                SendRawMessage( IRCCommands.Privmsg( channelNames[i], ""), line, "" );
+                SendRawMessage( IRCCommands.Privmsg( channelNames[i], "" ), line, "" );
             }
         }
 
@@ -725,7 +753,8 @@ namespace fCraft {
         // includes IRC color codes and non-printable ASCII
         static readonly Regex
             IRCColorsAndNonStandardChars = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7E]" ),
-            IRCColorsAndNonStandardCharsExceptEmotes = new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
+            IRCColorsAndNonStandardCharsExceptEmotes =
+                new Regex( "\x03\\d{1,2}(,\\d{1,2})?|[^\x0A\x20-\x7F☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
 
         [NotNull]
         static string ProcessMessageFromIRC( [NotNull] string message ) {
@@ -850,8 +879,9 @@ namespace fCraft {
             if( e == null ) throw new ArgumentNullException( "e" );
             if( ConfigKey.IRCBotAnnounceServerJoins.Enabled() && !e.Player.Info.IsHidden ) {
                 string message = String.Format( "{0}&S* {1}&S connected.",
-                                                BoldCode, e.Player.ClassyName );
-                SendAction(message );
+                                                BoldCode,
+                                                e.Player.ClassyName );
+                SendAction( message );
             }
         }
 
@@ -924,7 +954,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Parsing
 
@@ -1150,9 +1179,9 @@ namespace fCraft {
             if( exclamationPos != -1 ) {
                 nick = from.Substring( 0, exclamationPos );
             }
-            if( ( atPos != -1 ) &&
-                ( exclamationPos != -1 ) ) {
-                ident = from.Substring( exclamationPos + 1, ( atPos - exclamationPos ) - 1 );
+            if( (atPos != -1) &&
+                (exclamationPos != -1) ) {
+                ident = from.Substring( exclamationPos + 1, (atPos - exclamationPos) - 1 );
             }
             if( atPos != -1 ) {
                 host = from.Substring( atPos + 1 );
@@ -1192,8 +1221,8 @@ namespace fCraft {
                     break;
             }
 
-            if( ( channel != null ) &&
-                ( channel[0] == ':' ) ) {
+            if( (channel != null) &&
+                (channel[0] == ':') ) {
                 channel = channel.Substring( 1 );
             }
 
@@ -1204,10 +1233,18 @@ namespace fCraft {
         static readonly Regex ReplyCodeRegex = new Regex( "^:[^ ]+? ([0-9]{3}) .+$", RegexOptions.Compiled );
         static readonly Regex PingRegex = new Regex( "^PING :.*", RegexOptions.Compiled );
         static readonly Regex ErrorRegex = new Regex( "^ERROR :.*", RegexOptions.Compiled );
-        static readonly Regex ActionRegex = new Regex( "^:.*? PRIVMSG (.).* :" + "\x1" + "ACTION .*" + "\x1" + "$", RegexOptions.Compiled );
-        static readonly Regex CtcpRequestRegex = new Regex( "^:.*? PRIVMSG .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled );
+
+        static readonly Regex ActionRegex = new Regex( "^:.*? PRIVMSG (.).* :" + "\x1" + "ACTION .*" + "\x1" + "$",
+                                                       RegexOptions.Compiled );
+
+        static readonly Regex CtcpRequestRegex = new Regex( "^:.*? PRIVMSG .* :" + "\x1" + ".*" + "\x1" + "$",
+                                                            RegexOptions.Compiled );
+
         static readonly Regex MessageRegex = new Regex( "^:.*? PRIVMSG (.).* :.*$", RegexOptions.Compiled );
-        static readonly Regex CtcpReplyRegex = new Regex( "^:.*? NOTICE .* :" + "\x1" + ".*" + "\x1" + "$", RegexOptions.Compiled );
+
+        static readonly Regex CtcpReplyRegex = new Regex( "^:.*? NOTICE .* :" + "\x1" + ".*" + "\x1" + "$",
+                                                          RegexOptions.Compiled );
+
         static readonly Regex NoticeRegex = new Regex( "^:.*? NOTICE (.).* :.*$", RegexOptions.Compiled );
         static readonly Regex InviteRegex = new Regex( "^:.*? INVITE .* .*$", RegexOptions.Compiled );
         static readonly Regex JoinRegex = new Regex( "^:.*? JOIN .*$", RegexOptions.Compiled );

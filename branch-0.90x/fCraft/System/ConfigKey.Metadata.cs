@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -70,7 +71,7 @@ namespace fCraft {
     }
 
 
-    sealed class StringKeyAttribute : ConfigKeyAttribute {
+    internal sealed class StringKeyAttribute : ConfigKeyAttribute {
         public const int NoLengthRestriction = -1;
 
 
@@ -122,7 +123,7 @@ namespace fCraft {
     }
 
 
-    sealed class IntKeyAttribute : ConfigKeyAttribute {
+    internal sealed class IntKeyAttribute : ConfigKeyAttribute {
         public IntKeyAttribute( ConfigSection section, int defaultValue, [NotNull] string description )
             : base( section, typeof( int ), defaultValue, description ) {
             MinValue = int.MinValue;
@@ -158,7 +159,7 @@ namespace fCraft {
     }
 
 
-    sealed class RankKeyAttribute : ConfigKeyAttribute {
+    internal sealed class RankKeyAttribute : ConfigKeyAttribute {
         public RankKeyAttribute( ConfigSection section, BlankValueMeaning blankMeaning, [NotNull] string description )
             : base( section, typeof( Rank ), "", description ) {
             CanBeLowest = true;
@@ -236,7 +237,7 @@ namespace fCraft {
     }
 
 
-    sealed class BoolKeyAttribute : ConfigKeyAttribute {
+    internal sealed class BoolKeyAttribute : ConfigKeyAttribute {
         public BoolKeyAttribute( ConfigSection section, bool defaultValue, [NotNull] string description )
             : base( section, typeof( bool ), defaultValue, description ) {}
 
@@ -259,7 +260,7 @@ namespace fCraft {
     }
 
 
-    sealed class IPKeyAttribute : ConfigKeyAttribute {
+    internal sealed class IPKeyAttribute : ConfigKeyAttribute {
         public IPKeyAttribute( ConfigSection section, BlankValueMeaning defaultMeaning, [NotNull] string description )
             : base( section, typeof( IPAddress ), "", description ) {
             BlankMeaning = defaultMeaning;
@@ -339,7 +340,7 @@ namespace fCraft {
     }
 
 
-    sealed class ColorKeyAttribute : ConfigKeyAttribute {
+    internal sealed class ColorKeyAttribute : ConfigKeyAttribute {
         public ColorKeyAttribute( ConfigSection section, [NotNull] string defaultColor, [NotNull] string description )
             : base( section, typeof( string ), Color.White, description ) {
             if( defaultColor == null ) throw new ArgumentNullException( "defaultColor" );
@@ -363,7 +364,7 @@ namespace fCraft {
     }
 
 
-    sealed class EnumKeyAttribute : ConfigKeyAttribute {
+    internal sealed class EnumKeyAttribute : ConfigKeyAttribute {
         public EnumKeyAttribute( ConfigSection section, [NotNull] object defaultValue, [NotNull] string description )
             : base( section, defaultValue.GetType(), defaultValue, description ) {
             ValueType = defaultValue.GetType();

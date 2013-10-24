@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
@@ -66,10 +67,9 @@ namespace fCraft {
 
 
         public int DistanceSquaredTo( Position other ) {
-            return ( X - other.X ) * ( X - other.X ) + ( Y - other.Y ) * ( Y - other.Y ) +
-                   ( Z - other.Z ) * ( Z - other.Z );
+            return (X - other.X)*(X - other.X) + (Y - other.Y)*(Y - other.Y) +
+                   (Z - other.Z)*(Z - other.Z);
         }
-
 
         #region Equality
 
@@ -84,21 +84,20 @@ namespace fCraft {
 
 
         public bool Equals( Position other ) {
-            return ( X == other.X ) && ( Y == other.Y ) && ( Z == other.Z ) && ( R == other.R ) && ( L == other.L );
+            return (X == other.X) && (Y == other.Y) && (Z == other.Z) && (R == other.R) && (L == other.L);
         }
 
 
         public override bool Equals( [CanBeNull] object obj ) {
-            return ( obj is Position ) && Equals( (Position)obj );
+            return (obj is Position) && Equals( (Position)obj );
         }
 
 
         public override int GetHashCode() {
-            return ( X + Y * short.MaxValue ) ^ ( R + L * short.MaxValue ) + Z;
+            return (X + Y*short.MaxValue) ^ (R + L*short.MaxValue) + Z;
         }
 
         #endregion
-
 
         public override string ToString() {
             return String.Format( "Position({0},{1},{2} @{3},{4})", X, Y, Z, R, L );
@@ -106,7 +105,7 @@ namespace fCraft {
 
 
         public Vector3I ToBlockCoords() {
-            return new Vector3I( ( X - 16 ) / 32, ( Y - 16 ) / 32, ( Z - 16 ) / 32 );
+            return new Vector3I( (X - 16)/32, (Y - 16)/32, (Z - 16)/32 );
         }
     }
 }

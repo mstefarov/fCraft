@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | fCraft is copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Contributed by Jared Klopper. Opticraft is copyright (c) 2011 Jared Klopper
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,7 +10,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     [DataContract]
-    sealed class OpticraftMetaData {
+    internal sealed class OpticraftMetaData {
         [DataMember]
         public int X { get; set; }
 
@@ -50,14 +51,13 @@ namespace fCraft.MapConversion {
     }
 
 
-    sealed class OpticraftDataStore {
+    internal sealed class OpticraftDataStore {
         [DataMember]
         public OpticraftZone[] Zones;
-
     }
 
 
-    sealed class OpticraftZone {
+    internal sealed class OpticraftZone {
         [NotNull]
         [DataMember]
         public string Name { get; set; }
@@ -100,27 +100,19 @@ namespace fCraft.MapConversion {
         const short MapVersion = 2;
 
         public string ServerName {
-            get {
-                return "Opticraft";
-            }
+            get { return "Opticraft"; }
         }
 
         public string FileExtension {
-            get {
-                return "save";
-            }
+            get { return "save"; }
         }
 
         public MapStorageType StorageType {
-            get {
-                return MapStorageType.SingleFile;
-            }
+            get { return MapStorageType.SingleFile; }
         }
 
         public MapFormat Format {
-            get {
-                return MapFormat.Opticraft;
-            }
+            get { return MapFormat.Opticraft; }
         }
 
 
@@ -169,9 +161,9 @@ namespace fCraft.MapConversion {
             Map mapFile = new Map( null, metaData.X, metaData.Y, metaData.Z, false );
             // ReSharper restore UseObjectOrCollectionInitializer
             mapFile.Spawn = new Position(
-                (short)( metaData.SpawnX ),
-                (short)( metaData.SpawnY ),
-                (short)( metaData.SpawnZ ),
+                (short)(metaData.SpawnX),
+                (short)(metaData.SpawnY),
+                (short)(metaData.SpawnZ),
                 metaData.SpawnOrientation,
                 metaData.SpawnPitch );
             return mapFile;
@@ -299,7 +291,7 @@ namespace fCraft.MapConversion {
                 }
 
                 oMetadata.CreationDate = 0;
-                    // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
+                // This is ctime for when the world was created. Unsure on how to extract it. Opticraft makes no use of it as of yet
                 serializer.WriteObject( serializationStream, oMetadata );
                 byte[] jsonMetaData = serializationStream.ToArray();
                 writer.Write( jsonMetaData.Length );
@@ -357,7 +349,6 @@ namespace fCraft.MapConversion {
                 byte[] compressedBlocks = blockStream.ToArray();
                 writer.Write( compressedBlocks.Length );
                 writer.Write( compressedBlocks );
-
             }
         }
     }

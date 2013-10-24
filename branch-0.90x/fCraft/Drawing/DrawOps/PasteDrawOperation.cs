@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 
@@ -7,9 +8,7 @@ namespace fCraft.Drawing {
     /// /PasteX and /PasteNotX commands. Also used internally by /Paste and /PasteNot. </summary>
     public class PasteDrawOperation : DrawOpWithBrush {
         public override string Name {
-            get {
-                return Not ? "PasteNotX" : "PasteX";
-            }
+            get { return Not ? "PasteNotX" : "PasteX"; }
         }
 
         public override int ExpectedMarks {
@@ -55,15 +54,15 @@ namespace fCraft.Drawing {
             // Calculate the buffer orientation
             Vector3I delta = marks[1] - marks[0];
             Vector3I orientation = new Vector3I {
-                X = ( delta.X == 0 ? CopyInfo.Orientation.X : Math.Sign( delta.X ) ),
-                Y = ( delta.Y == 0 ? CopyInfo.Orientation.Y : Math.Sign( delta.Y ) ),
-                Z = ( delta.Z == 0 ? CopyInfo.Orientation.Z : Math.Sign( delta.Z ) )
+                X = (delta.X == 0 ? CopyInfo.Orientation.X : Math.Sign( delta.X )),
+                Y = (delta.Y == 0 ? CopyInfo.Orientation.Y : Math.Sign( delta.Y )),
+                Z = (delta.Z == 0 ? CopyInfo.Orientation.Z : Math.Sign( delta.Z ))
             };
 
             // Calculate the start/end coordinates for pasting
-            marks[1] = marks[0] + new Vector3I( orientation.X * ( CopyInfo.Bounds.Width - 1 ),
-                                                orientation.Y * ( CopyInfo.Bounds.Length - 1 ),
-                                                orientation.Z * ( CopyInfo.Bounds.Height - 1 ) );
+            marks[1] = marks[0] + new Vector3I( orientation.X*(CopyInfo.Bounds.Width - 1),
+                                                orientation.Y*(CopyInfo.Bounds.Length - 1),
+                                                orientation.Z*(CopyInfo.Bounds.Height - 1) );
             Bounds = new BoundingBox( marks[0], marks[1] );
             Marks = marks;
 

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -10,7 +11,7 @@ namespace fCraft.Drawing {
         public static readonly ReplaceNotBrushFactory Instance = new ReplaceNotBrushFactory();
 
         ReplaceNotBrushFactory() {
-            Aliases = new[] { "rn" };
+            Aliases = new[] {"rn"};
         }
 
         public string Name {
@@ -21,6 +22,7 @@ namespace fCraft.Drawing {
 
         const string HelpString = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
                                   "Usage similar to &H/ReplaceNot&S command.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -52,7 +54,7 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that replaces all blocks EXCEPT those of given type(s) with a replacement block type. </summary>
     public sealed class ReplaceNotBrush : ReplaceBrush {
-        public ReplaceNotBrush() { }
+        public ReplaceNotBrush() {}
 
         public ReplaceNotBrush( Block[] blocks, Block replacement )
             : base( blocks, replacement ) {}

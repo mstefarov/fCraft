@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -32,7 +33,7 @@ namespace fCraft.Events {
     /// <summary> Provides data for WorldManager.MainWorldChanging event. Cancelable. </summary>
     public sealed class MainWorldChangingEventArgs : MainWorldChangedEventArgs, ICancelableEvent {
         internal MainWorldChangingEventArgs( [CanBeNull] World oldWorld, [NotNull] World newWorld )
-            : base( oldWorld, newWorld ) { }
+            : base( oldWorld, newWorld ) {}
 
         public bool Cancel { get; set; }
     }
@@ -40,7 +41,8 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for WorldManager.SearchingForWorld event. Allows changing the results. </summary>
     public sealed class SearchingForWorldEventArgs : EventArgs {
-        internal SearchingForWorldEventArgs( [CanBeNull] Player player, [NotNull] string searchQuery, [NotNull] List<World> matches ) {
+        internal SearchingForWorldEventArgs( [CanBeNull] Player player, [NotNull] string searchQuery,
+                                             [NotNull] List<World> matches ) {
             if( searchQuery == null ) throw new ArgumentNullException( "searchQuery" );
             if( matches == null ) throw new ArgumentNullException( "matches" );
             Player = player;

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Diagnostics;
 using System.Reflection;
@@ -8,7 +9,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Class dedicated to solving Mono compatibility issues </summary>
     public static class MonoCompat {
-
         /// <summary> Whether the current filesystem is case-sensitive. </summary>
         public static bool IsCaseSensitive { get; private set; }
 
@@ -67,7 +67,6 @@ namespace fCraft {
                     if( MonoVersion.Major < 2 || MonoVersion.Major == 2 && MonoVersion.Minor < 8 ) {
                         throw new Exception( UnsupportedMessage );
                     }
-
                 } else {
                     throw new Exception( UnsupportedMessage );
                 }

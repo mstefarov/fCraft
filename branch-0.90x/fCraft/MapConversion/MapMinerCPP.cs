@@ -1,5 +1,6 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Initial support contributed by Tyler Kennedy <tk@tkte.ch>
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,7 +10,6 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> MinerCPP/LuaCraft map conversion implementation, for converting MinerCPP/LuaCraft map format into fCraft's default map format. </summary>
     public sealed class MapMinerCPP : IMapImporter, IMapExporter {
-
         public string ServerName {
             get { return "MinerCPP/LuaCraft"; }
         }
@@ -39,7 +39,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
                         BinaryReader bs = new BinaryReader( gs );
-                        return ( bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef );
+                        return (bs.ReadByte() == 0xbe && bs.ReadByte() == 0xee && bs.ReadByte() == 0xef);
                     }
                 }
             } catch( Exception ) {
@@ -102,7 +102,6 @@ namespace fCraft.MapConversion {
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
                 // Setup a GZipStream to decompress and read the map file
                 using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-
                     Map map = LoadHeaderInternal( gs );
 
                     // Read in the map data
@@ -123,7 +122,7 @@ namespace fCraft.MapConversion {
                     BinaryWriter bs = new BinaryWriter( gs );
 
                     // Write out the magic number
-                    bs.Write( new byte[] { 0xbe, 0xee, 0xef } );
+                    bs.Write( new byte[] {0xbe, 0xee, 0xef} );
 
                     // Save the map dimensions
                     // XYZ(?)

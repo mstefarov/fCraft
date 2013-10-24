@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace fCraft.Drawing {
         public static readonly RandomBrushFactory Instance = new RandomBrushFactory();
 
         RandomBrushFactory() {
-            Aliases = new[] { "rand" };
+            Aliases = new[] {"rand"};
         }
 
         public string Name {
@@ -22,6 +23,7 @@ namespace fCraft.Drawing {
 
         const string HelpString = "Random brush: Chaotic pattern of two or more random block types. " +
                                   "If only one block name is given, leaves every other block untouched.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -39,7 +41,8 @@ namespace fCraft.Drawing {
                 if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 1 || ratio > RandomBrush.MaxRatio ) {
                     player.Message( "Random brush: Invalid block ratio ({0}). Must be between 1 and {1}.",
-                                    ratio, RandomBrush.MaxRatio );
+                                    ratio,
+                                    RandomBrush.MaxRatio );
                     return null;
                 }
                 blocks.Add( block );
@@ -75,9 +78,9 @@ namespace fCraft.Drawing {
 
 
         public RandomBrush( Block oneBlock, int ratio ) {
-            Blocks = new[] { oneBlock, Block.None };
-            BlockRatios = new[] { ratio, 1 };
-            actualBlocks = new[] { oneBlock, Block.None };
+            Blocks = new[] {oneBlock, Block.None};
+            BlockRatios = new[] {ratio, 1};
+            actualBlocks = new[] {oneBlock, Block.None};
         }
 
 
@@ -101,7 +104,6 @@ namespace fCraft.Drawing {
             BlockRatios = other.BlockRatios;
             actualBlocks = other.actualBlocks;
         }
-
 
         #region IBrush members
 
@@ -148,7 +150,8 @@ namespace fCraft.Drawing {
                 if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 1 || ratio > MaxRatio ) {
                     player.Message( "RandomBrush: Invalid block ratio ({0}). Must be between 1 and {1}.",
-                                    ratio, MaxRatio );
+                                    ratio,
+                                    MaxRatio );
                     return null;
                 }
                 blocks.Add( block );
@@ -171,7 +174,6 @@ namespace fCraft.Drawing {
         }
 
         #endregion
-
 
         #region IBrushInstance members
 
@@ -202,15 +204,15 @@ namespace fCraft.Drawing {
 
         public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
-            int n = seed ^ (op.Coords.X + 1290 * op.Coords.Y + 1664510 * op.Coords.Z);
+            int n = seed ^ (op.Coords.X + 1290*op.Coords.Y + 1664510*op.Coords.Z);
             n = (n << 13) ^ n;
-            n = (n * (n * n * 15731 + 789221) + 1376312589) & 0x7FFFFFFF;
-            double derp = (n / (double)0x7FFFFFFF) * actualBlocks.Length;
+            n = (n*(n*n*15731 + 789221) + 1376312589) & 0x7FFFFFFF;
+            double derp = (n/(double)0x7FFFFFFF)*actualBlocks.Length;
             return actualBlocks[(int)Math.Floor( derp )];
         }
 
 
-        public void End() { }
+        public void End() {}
 
         #endregion
     }

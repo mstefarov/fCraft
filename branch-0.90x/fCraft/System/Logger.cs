@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -11,6 +12,7 @@ using JetBrains.Annotations;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+
 #endif
 
 namespace fCraft {
@@ -24,10 +26,12 @@ namespace fCraft {
         public static readonly bool[] LogFileOptions;
 
         static readonly object LogLock = new object();
+
         const string DefaultLogFileName = "fCraft.log",
                      LongDateFormat = "yyyy'-'MM'-'dd'_'HH'-'mm'-'ss",
                      ShortDateFormat = "yyyy'-'MM'-'dd",
                      TimeFormat = "HH':'mm':'ss";
+
         static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
 
         static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
@@ -70,8 +74,10 @@ namespace fCraft {
 
         internal static void MarkLogStart() {
             // Mark start of logging
-            Log( LogType.SystemActivity, "------ Log Starts {0} ({1}) ------",
-                 DateTime.Now.ToLongDateString(), DateTime.Now.ToShortDateString() ); // localized
+            Log( LogType.SystemActivity,
+                 "------ Log Starts {0} ({1}) ------",
+                 DateTime.Now.ToLongDateString(),
+                 DateTime.Now.ToShortDateString() ); // localized
         }
 
 
@@ -124,11 +130,12 @@ namespace fCraft {
                     } catch( Exception ex ) {
                         string errorMessage = "Logger.Log: " + ex;
                         line = String.Format( "{0} {1} > {2}",
-                                              DateTime.Now.ToString( TimeFormat ),// localized
+                                              DateTime.Now.ToString( TimeFormat ),
+                                              // localized
                                               GetPrefix( LogType.Error ),
                                               errorMessage );
                         RaiseLoggedEvent( errorMessage,
-                                          line, 
+                                          line,
                                           LogType.Error );
                     }
                 }
@@ -184,12 +191,16 @@ namespace fCraft {
             }
         }
 
-
         #region Crash Handling
 
-        static readonly object CrashReportLock = new object(); // mutex to prevent simultaneous reports (messes up the timers/requests)
+        static readonly object CrashReportLock = new object();
+                               // mutex to prevent simultaneous reports (messes up the timers/requests)
+
         static DateTime lastCrashReport = DateTime.MinValue;
-        static readonly TimeSpan MinCrashReportInterval = TimeSpan.FromSeconds( 61 ); // minimum interval between submitting crash reports, in seconds
+
+        static readonly TimeSpan MinCrashReportInterval = TimeSpan.FromSeconds( 61 );
+                                 // minimum interval between submitting crash reports, in seconds
+
         static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds( 15 );
 
 
@@ -241,7 +252,8 @@ namespace fCraft {
 
                 // Make sure tight errors-in-loops don't spam the reporter
                 if( DateTime.UtcNow.Subtract( lastCrashReport ) < MinCrashReportInterval ) {
-                    Log( LogType.Warning, "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
+                    Log( LogType.Warning,
+                         "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
                     return;
                 }
 
@@ -271,7 +283,8 @@ namespace fCraft {
                 } else {
                     sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
                 }
-                sb.Append( "&os=" ).Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
+                sb.Append( "&os=" )
+                  .Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
 
                 sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
                 sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
@@ -338,8 +351,6 @@ namespace fCraft {
                         Log( LogType.SystemActivity, "Crash report submitted." );
                     }
                 }
-
-
             } catch( Exception ex ) {
                 Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex );
             }
@@ -356,47 +367,39 @@ namespace fCraft {
                     message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
                               "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
                     return true;
-
                 } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
                            ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
                     return true;
-
                 } else if( ex is MissingMemberException || ex is TypeLoadException ) {
                     message = "Something is incompatible with the current revision of fCraft. " +
                               "If you installed third-party modifications, " +
                               "make sure to use the correct revision (as specified by mod developers). " +
                               "If your own modifications stopped working, your may need to make some updates.";
                     return true;
-
                 } else if( ex is UnauthorizedAccessException ) {
                     message = "fCraft was blocked from accessing a file or resource. " +
                               "Make sure that correct permissions are set for the fCraft files, folders, and processes.";
                     return true;
-
                 } else if( ex is OutOfMemoryException ) {
                     message = "fCraft ran out of memory. Make sure there is enough RAM to run.";
                     return true;
-
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
                     // Ignore Mono-specific bug in MonitorProcessorUsage()
                     return true;
-
                 } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
                     message = "Some Windows settings are preventing fCraft from doing player name verification. " +
                               "See http://support.microsoft.com/kb/811833";
                     return true;
-
                 } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
-                    message = "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
-                              "and that no other processes are using server's files or directories.";
+                    message =
+                        "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
+                        "and that no other processes are using server's files or directories.";
                     return true;
-
                 } else if( ex.Message.Contains( "UNSTABLE" ) ) {
                     return true;
-
                 } else {
                     return false;
                 }
@@ -409,8 +412,8 @@ namespace fCraft {
 
         #endregion
 
-
         #region Event Tracing
+
 #if DEBUG_EVENTS
 
         // list of events in this assembly
@@ -419,8 +422,10 @@ namespace fCraft {
 
         static readonly List<string> eventWhitelist = new List<string>();
         static readonly List<string> eventBlacklist = new List<string>();
+
         const string TraceWhitelistFile = "traceonly.txt",
                      TraceBlacklistFile = "notrace.txt";
+
         static bool useEventWhitelist, useEventBlacklist;
 
         static void LoadTracingSettings() {
@@ -436,7 +441,6 @@ namespace fCraft {
 
         // adds hooks to all compliant events in current assembly
         internal static void PrepareEventTracing() {
-
             LoadTracingSettings();
 
             // create a dynamic type to hold our handler methods
@@ -459,9 +463,10 @@ namespace fCraft {
                     }
                     if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
                         eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
-
-                        if( useEventWhitelist && !eventWhitelist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ||
-                            useEventBlacklist && eventBlacklist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ) continue;
+                        if( useEventWhitelist &&
+                            !eventWhitelist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ||
+                            useEventBlacklist &&
+                            eventBlacklist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ) continue;
 
                         MethodInfo method = eventInfo.EventHandlerType.GetMethod( "Invoke" );
                         var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
@@ -531,13 +536,14 @@ namespace fCraft {
 
             Log( LogType.Trace,
                  "TraceEvent: {0}.{1}( {2} )",
-                 eventInfo.DeclaringType.Name, eventInfo.Name, sb );
-
+                 eventInfo.DeclaringType.Name,
+                 eventInfo.Name,
+                 sb );
         }
 
 #endif
-        #endregion
 
+        #endregion
 
         #region Events
 
@@ -556,11 +562,13 @@ namespace fCraft {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
             if( line == null ) throw new ArgumentNullException( "line" );
             var h = Logged;
-            if( h != null ) h( null, new LogEventArgs( rawMessage,
-                                                       line,
-                                                       logType,
-                                                       LogFileOptions[(int)logType],
-                                                       ConsoleOptions[(int)logType] ) );
+            if( h != null )
+                h( null,
+                   new LogEventArgs( rawMessage,
+                                     line,
+                                     logType,
+                                     LogFileOptions[(int)logType],
+                                     ConsoleOptions[(int)logType] ) );
         }
 
 
@@ -572,7 +580,6 @@ namespace fCraft {
 
         #endregion
     }
-
 
     #region Enums
 
@@ -643,7 +650,6 @@ namespace fCraft {
     #endregion
 }
 
-
 namespace fCraft.Events {
     /// <summary> Provides data for Logger.Logged event. Immutable. </summary>
     public sealed class LogEventArgs : EventArgs {
@@ -664,6 +670,7 @@ namespace fCraft.Events {
 
         [NotNull]
         public string Message { get; private set; }
+
         public LogType MessageType { get; private set; }
         public bool WriteToFile { get; private set; }
         public bool WriteToConsole { get; private set; }
@@ -693,6 +700,7 @@ namespace fCraft.Events {
 
         [NotNull]
         public Exception Exception { get; private set; }
+
         public bool SubmitCrashReport { get; set; }
         public bool IsCommonProblem { get; private set; }
         public bool ShutdownImminent { get; private set; }

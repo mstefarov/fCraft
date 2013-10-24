@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,8 +8,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    static class MaintenanceCommands {
-
+    internal static class MaintenanceCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdDumpStats );
 
@@ -61,13 +61,14 @@ namespace fCraft {
                     BlockDB db = player.World.BlockDB;
                     using( db.GetReadLock() ) {
                         player.Message( "BlockDB: CAP={0} SZ={1} FI={2}",
-                                        db.CacheCapacity, db.CacheSize, db.LastFlushedIndex );
+                                        db.CacheCapacity,
+                                        db.CacheSize,
+                                        db.LastFlushedIndex );
                     }
                 }
             } );
 #endif
         }
-
 
         #region DumpStats
 
@@ -76,7 +77,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
+            Permissions = new[] {Permission.EditPlayerDB},
             Help = "Writes out a number of statistics about the server. " +
                    "Only recently-active non-banned players are counted. " +
                    "If InactivityTime is not given, players from last 31 days are counted.",
@@ -181,7 +182,10 @@ namespace fCraft {
 
             if( infos.Count == 0 ) {
                 writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
-                                  groupName, totalCount, bannedCount, inactiveCount );
+                                  groupName,
+                                  totalCount,
+                                  bannedCount,
+                                  inactiveCount );
                 writer.WriteLine();
                 return;
             }
@@ -201,28 +205,43 @@ namespace fCraft {
                 if( infos[i].PreviousRank != null ) stat.PreviousRank[infos[i].PreviousRank]++;
             }
 
-            stat.BlockRatio = stat.BlocksBuilt / (double)Math.Max( stat.BlocksDeleted, 1 );
+            stat.BlockRatio = stat.BlocksBuilt/(double)Math.Max( stat.BlocksDeleted, 1 );
             stat.BlocksChanged = stat.BlocksDeleted + stat.BlocksBuilt;
 
 
-            stat.TimeSinceFirstLoginMedian = DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.FirstLoginDate )
-                                                                            .ElementAt( infos.Count / 2 ).FirstLoginDate );
-            stat.TimeSinceLastLoginMedian = DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.LastLoginDate )
-                                                                           .ElementAt( infos.Count / 2 ).LastLoginDate );
-            stat.TotalTimeMedian = infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Count / 2 ).TotalTime;
-            stat.BlocksBuiltMedian = infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Count / 2 ).BlocksBuilt;
-            stat.BlocksDeletedMedian = infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Count / 2 ).BlocksDeleted;
-            stat.BlocksDrawnMedian = infos.OrderByDescending( info => info.BlocksDrawn ).ElementAt( infos.Count / 2 ).BlocksDrawn;
-            PlayerInfo medianBlocksChangedPlayerInfo = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Count / 2 );
-            stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.BlocksDeleted + medianBlocksChangedPlayerInfo.BlocksBuilt;
-            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) )
-                                                    .ElementAt( infos.Count / 2 );
-            stat.BlockRatioMedian = medianBlockRatioPlayerInfo.BlocksBuilt / (double)Math.Max( medianBlockRatioPlayerInfo.BlocksDeleted, 1 );
-            stat.TimesVisitedMedian = infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Count / 2 ).TimesVisited;
-            stat.MessagesWrittenMedian = infos.OrderByDescending( info => info.MessagesWritten ).ElementAt( infos.Count / 2 ).MessagesWritten;
-            stat.TimesKickedMedian = infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Count / 2 ).TimesKicked;
-            stat.TimesKickedOthersMedian = infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Count / 2 ).TimesKickedOthers;
-            stat.TimesBannedOthersMedian = infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Count / 2 ).TimesBannedOthers;
+            stat.TimeSinceFirstLoginMedian =
+                DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.FirstLoginDate )
+                                               .ElementAt( infos.Count/2 ).FirstLoginDate );
+            stat.TimeSinceLastLoginMedian =
+                DateTime.UtcNow.Subtract( infos.OrderByDescending( info => info.LastLoginDate )
+                                               .ElementAt( infos.Count/2 ).LastLoginDate );
+            stat.TotalTimeMedian =
+                infos.OrderByDescending( info => info.TotalTime ).ElementAt( infos.Count/2 ).TotalTime;
+            stat.BlocksBuiltMedian =
+                infos.OrderByDescending( info => info.BlocksBuilt ).ElementAt( infos.Count/2 ).BlocksBuilt;
+            stat.BlocksDeletedMedian =
+                infos.OrderByDescending( info => info.BlocksDeleted ).ElementAt( infos.Count/2 ).BlocksDeleted;
+            stat.BlocksDrawnMedian =
+                infos.OrderByDescending( info => info.BlocksDrawn ).ElementAt( infos.Count/2 ).BlocksDrawn;
+            PlayerInfo medianBlocksChangedPlayerInfo =
+                infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ElementAt( infos.Count/2 );
+            stat.BlocksChangedMedian = medianBlocksChangedPlayerInfo.BlocksDeleted +
+                                       medianBlocksChangedPlayerInfo.BlocksBuilt;
+            PlayerInfo medianBlockRatioPlayerInfo = infos.OrderByDescending(
+                info => (info.BlocksBuilt/(double)Math.Max( info.BlocksDeleted, 1 )) )
+                                                         .ElementAt( infos.Count/2 );
+            stat.BlockRatioMedian = medianBlockRatioPlayerInfo.BlocksBuilt/
+                                    (double)Math.Max( medianBlockRatioPlayerInfo.BlocksDeleted, 1 );
+            stat.TimesVisitedMedian =
+                infos.OrderByDescending( info => info.TimesVisited ).ElementAt( infos.Count/2 ).TimesVisited;
+            stat.MessagesWrittenMedian =
+                infos.OrderByDescending( info => info.MessagesWritten ).ElementAt( infos.Count/2 ).MessagesWritten;
+            stat.TimesKickedMedian =
+                infos.OrderByDescending( info => info.TimesKicked ).ElementAt( infos.Count/2 ).TimesKicked;
+            stat.TimesKickedOthersMedian =
+                infos.OrderByDescending( info => info.TimesKickedOthers ).ElementAt( infos.Count/2 ).TimesKickedOthers;
+            stat.TimesBannedOthersMedian =
+                infos.OrderByDescending( info => info.TimesBannedOthers ).ElementAt( infos.Count/2 ).TimesBannedOthers;
 
 
             stat.TopTimeSinceFirstLogin = infos.OrderBy( info => info.FirstLoginDate ).ToArray();
@@ -232,7 +251,9 @@ namespace fCraft {
             stat.TopBlocksDeleted = infos.OrderByDescending( info => info.BlocksDeleted ).ToArray();
             stat.TopBlocksDrawn = infos.OrderByDescending( info => info.BlocksDrawn ).ToArray();
             stat.TopBlocksChanged = infos.OrderByDescending( info => (info.BlocksDeleted + info.BlocksBuilt) ).ToArray();
-            stat.TopBlockRatio = infos.OrderByDescending( info => (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )) ).ToArray();
+            stat.TopBlockRatio =
+                infos.OrderByDescending( info => (info.BlocksBuilt/(double)Math.Max( info.BlocksDeleted, 1 )) )
+                     .ToArray();
             stat.TopTimesVisited = infos.OrderByDescending( info => info.TimesVisited ).ToArray();
             stat.TopMessagesWritten = infos.OrderByDescending( info => info.MessagesWritten ).ToArray();
             stat.TopTimesKicked = infos.OrderByDescending( info => info.TimesKicked ).ToArray();
@@ -241,12 +262,15 @@ namespace fCraft {
 
 
             writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
-                              groupName, totalCount, bannedCount, inactiveCount );
+                              groupName,
+                              totalCount,
+                              bannedCount,
+                              inactiveCount );
             writer.WriteLine( "    TimeSinceFirstLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks / infos.Count ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks/infos.Count ).ToCompactString(),
                               stat.TimeSinceFirstLoginMedian.ToCompactString(),
                               stat.TimeSinceFirstLogin.ToCompactString() );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimeSinceFirstLogin.ToCompactString(), info.Name );
                 }
@@ -263,10 +287,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimeSinceLastLogin: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks / infos.Count ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TimeSinceLastLogin.Ticks/infos.Count ).ToCompactString(),
                               stat.TimeSinceLastLoginMedian.ToCompactString(),
                               stat.TimeSinceLastLogin.ToCompactString() );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceLastLogin.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimeSinceLastLogin.ToCompactString(), info.Name );
                 }
@@ -283,10 +307,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TotalTime: {0} mean,  {1} median,  {2} total",
-                              TimeSpan.FromTicks( stat.TotalTime.Ticks / infos.Count ).ToCompactString(),
+                              TimeSpan.FromTicks( stat.TotalTime.Ticks/infos.Count ).ToCompactString(),
                               stat.TotalTimeMedian.ToCompactString(),
                               stat.TotalTime.ToCompactString() );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTotalTime.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TotalTime.ToCompactString(), info.Name );
                 }
@@ -302,12 +326,11 @@ namespace fCraft {
             writer.WriteLine();
 
 
-
             writer.WriteLine( "    BlocksBuilt: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksBuilt / infos.Count,
+                              stat.BlocksBuilt/infos.Count,
                               stat.BlocksBuiltMedian,
                               stat.BlocksBuilt );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksBuilt.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.BlocksBuilt, info.Name );
                 }
@@ -324,10 +347,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksDeleted: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksDeleted / infos.Count,
+                              stat.BlocksDeleted/infos.Count,
                               stat.BlocksDeletedMedian,
                               stat.BlocksDeleted );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksDeleted.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.BlocksDeleted, info.Name );
                 }
@@ -343,12 +366,11 @@ namespace fCraft {
             writer.WriteLine();
 
 
-
             writer.WriteLine( "    BlocksChanged: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksChanged / infos.Count,
+                              stat.BlocksChanged/infos.Count,
                               stat.BlocksChangedMedian,
                               stat.BlocksChanged );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksChanged.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", (info.BlocksDeleted + info.BlocksBuilt), info.Name );
                 }
@@ -365,10 +387,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    BlocksDrawn: {0} mean,  {1} median,  {2} total",
-                              stat.BlocksDrawn / infos.Count,
+                              stat.BlocksDrawn/infos.Count,
                               stat.BlocksDrawnMedian,
                               stat.BlocksDrawn );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlocksDrawn.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.BlocksDrawn, info.Name );
                 }
@@ -386,27 +408,33 @@ namespace fCraft {
             writer.WriteLine( "    BlockRatio: {0:0.000} mean,  {1:0.000} median",
                               stat.BlockRatio,
                               stat.BlockRatioMedian );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopBlockRatio.Take( TopPlayersToList ) ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}",
+                                      (info.BlocksBuilt/(double)Math.Max( info.BlocksDeleted, 1 )),
+                                      info.Name );
                 }
                 writer.WriteLine( "                           ...." );
                 foreach( PlayerInfo info in stat.TopBlockRatio.Reverse().Take( TopPlayersToList ).Reverse() ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}",
+                                      (info.BlocksBuilt/(double)Math.Max( info.BlocksDeleted, 1 )),
+                                      info.Name );
                 }
             } else {
                 foreach( PlayerInfo info in stat.TopBlockRatio ) {
-                    writer.WriteLine( "        {0,20:0.000}  {1}", (info.BlocksBuilt / (double)Math.Max( info.BlocksDeleted, 1 )), info.Name );
+                    writer.WriteLine( "        {0,20:0.000}  {1}",
+                                      (info.BlocksBuilt/(double)Math.Max( info.BlocksDeleted, 1 )),
+                                      info.Name );
                 }
             }
             writer.WriteLine();
 
 
             writer.WriteLine( "    TimesVisited: {0} mean,  {1} median,  {2} total",
-                              stat.TimesVisited / infos.Count,
+                              stat.TimesVisited/infos.Count,
                               stat.TimesVisitedMedian,
                               stat.TimesVisited );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesVisited.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimesVisited, info.Name );
                 }
@@ -423,10 +451,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    MessagesWritten: {0} mean,  {1} median,  {2} total",
-                              stat.MessagesWritten / infos.Count,
+                              stat.MessagesWritten/infos.Count,
                               stat.MessagesWrittenMedian,
                               stat.MessagesWritten );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopMessagesWritten.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.MessagesWritten, info.Name );
                 }
@@ -443,10 +471,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesKicked: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesKicked / (double)infos.Count,
+                              stat.TimesKicked/(double)infos.Count,
                               stat.TimesKickedMedian,
                               stat.TimesKicked );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesKicked.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimesKicked, info.Name );
                 }
@@ -463,10 +491,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesKickedOthers: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesKickedOthers / (double)infos.Count,
+                              stat.TimesKickedOthers/(double)infos.Count,
                               stat.TimesKickedOthersMedian,
                               stat.TimesKickedOthers );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesKickedOthers.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimesKickedOthers, info.Name );
                 }
@@ -483,10 +511,10 @@ namespace fCraft {
 
 
             writer.WriteLine( "    TimesBannedOthers: {0:0.0} mean,  {1} median,  {2} total",
-                              stat.TimesBannedOthers / (double)infos.Count,
+                              stat.TimesBannedOthers/(double)infos.Count,
                               stat.TimesBannedOthersMedian,
                               stat.TimesBannedOthers );
-            if( infos.Count() > TopPlayersToList * 2 + 1 ) {
+            if( infos.Count() > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimesBannedOthers.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimesBannedOthers, info.Name );
                 }
@@ -550,7 +578,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region MassRank
 
         static readonly CommandDescriptor CdMassRank = new CommandDescriptor {
@@ -593,7 +620,7 @@ namespace fCraft {
             }
 
             int playerCount = fromRank.PlayerCount;
-            string verb = ( fromRank > toRank ? "demot" : "promot" );
+            string verb = (fromRank > toRank ? "demot" : "promot");
 
             if( !cmd.IsConfirmed ) {
                 Logger.Log( LogType.UserActivity,
@@ -714,7 +741,7 @@ namespace fCraft {
                         info.RankChangeType != RankChangeType.Demoted && // don't re-promote demoted players
                         info.RankChangeType != RankChangeType.AutoDemoted ) {
                         // Promote!
-                            info.ChangeRank( player, rank, reason, ChangeRankOptions.Default );
+                        info.ChangeRank( player, rank, reason, ChangeRankOptions.Default );
                         promotedPlayers++;
                     } else {
                         skippedPlayers++;
@@ -734,57 +761,68 @@ namespace fCraft {
 
         #endregion
 
-
         #region SetInfo
 
         static readonly CommandDescriptor CdSetInfo = new CommandDescriptor {
             Name = "SetInfo",
             Category = CommandCategory.Maintenance | CommandCategory.Moderation,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.EditPlayerDB },
+            Permissions = new[] {Permission.EditPlayerDB},
             Help = "Allows direct editing of players' database records. List of editable properties: " +
                    "Bandwidth, BanReason, DisplayedName, KickReason, Name (capitalization only), " +
                    "PreviousRank, RankChangeType, RankReason, TimesKicked, TotalTime, UnbanReason. " +
                    "For detailed help see &H/Help SetInfo <Property>",
-            HelpSections = new Dictionary<string, string>{
-                { "bandwidth",      "&H/SetInfo <PlayerName> Bandwidth <Mode>\n&S" +
-                                    "Sets custom bandwidth use mode for given player. " +
-                                    "<Type> can be: Default, VeryLow, Low, Normal, High, VeryHigh. Shortcut: BW" },
-                { "banreason",      "&H/SetInfo <PlayerName> BanReason <Reason>\n&S" +
-                                    "Changes ban reason for the given player. Original ban reason is preserved in the logs. " +
-                                    "Shortcut: BR" },
-                { "displayedname",  "&H/SetInfo <RealPlayerName> DisplayedName <DisplayedName>\n&S" +
-                                    "Sets or resets the way player's name is displayed in chat. "+
-                                    "Any printable symbols or color codes may be used in the displayed name. "+
-                                    "Note that player's real name is still used in logs and on the in-game player list. "+
-                                    "To remove a custom name, type \"&H/SetInfo <RealName> DisplayedName&S\" (omit the name). " +
-                                    "Shortcut: DN" },
-                { "kickreason",     "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
-                                    "Changes reason of most-recent kick for the given player. " +
-                                    "Original kick reason is preserved in the logs. Shortcut: KR" },
-                { "name",           "&H/SetInfo <PlayerName> Name <Name>\n&S" +
-                                    "Changes capitalization of player's name. " +
-                                    "No spelling changes are allowed (use DisplayedName for those, if you must). " +
-                                    "Shortcut: N" },
-                { "previousrank",   "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
+            HelpSections = new Dictionary<string, string> {
+                {
+                    "bandwidth", "&H/SetInfo <PlayerName> Bandwidth <Mode>\n&S" +
+                                 "Sets custom bandwidth use mode for given player. " +
+                                 "<Type> can be: Default, VeryLow, Low, Normal, High, VeryHigh. Shortcut: BW"
+                }, {
+                    "banreason", "&H/SetInfo <PlayerName> BanReason <Reason>\n&S" +
+                                 "Changes ban reason for the given player. Original ban reason is preserved in the logs. " +
+                                 "Shortcut: BR"
+                }, {
+                    "displayedname", "&H/SetInfo <RealPlayerName> DisplayedName <DisplayedName>\n&S" +
+                                     "Sets or resets the way player's name is displayed in chat. " +
+                                     "Any printable symbols or color codes may be used in the displayed name. " +
+                                     "Note that player's real name is still used in logs and on the in-game player list. " +
+                                     "To remove a custom name, type \"&H/SetInfo <RealName> DisplayedName&S\" (omit the name). " +
+                                     "Shortcut: DN"
+                }, {
+                    "kickreason", "&H/SetInfo <PlayerName> KickReason <Reason>\n&S" +
+                                  "Changes reason of most-recent kick for the given player. " +
+                                  "Original kick reason is preserved in the logs. Shortcut: KR"
+                }, {
+                    "name", "&H/SetInfo <PlayerName> Name <Name>\n&S" +
+                            "Changes capitalization of player's name. " +
+                            "No spelling changes are allowed (use DisplayedName for those, if you must). " +
+                            "Shortcut: N"
+                }, {
+                    "previousrank", "&H/SetInfo <PlayerName> PreviousRank <RankName>\n&S" +
                                     "Changes previous rank held by the player. " +
                                     "To reset previous rank to \"none\" (will show as \"default\" in &H/Info&S), " +
-                                    "type \"&H/SetInfo <Name> PreviousRank&S\" (omit the rank name). Shortcut: PR" },
-                { "rankchangetype", "&H/SetInfo <PlayerName> RankChangeType <Type>\n&S" +
-                                    "Sets the type of rank change. <Type> can be: Promoted, Demoted, AutoPromoted, AutoDemoted. " +
-                                    "Shortcut: RCT" },
-                { "rankreason",     "&H/SetInfo <PlayerName> RankReason <Reason>\n&S" +
-                                    "Changes promotion/demotion reason for the given player. "+
-                                    "Original promotion/demotion reason is preserved in the logs. Shortcut: RR" },
-                { "timeskicked",    "&H/SetInfo <PlayerName> TimesKicked <#>\n&S" +
-                                    "Changes the number of times that a player has been kicked. "+
-                                    "Acceptable value range: 0-9999. Shortcut: TK" },
-                { "totaltime",      "&H/SetInfo <PlayerName> TotalTime <Time>\n&S" +
-                                    "Changes the amount of game time that the player has on record. " +
-                                    "Accepts values in the common compact time-span format. Shortcut: TT" },
-                { "unbanreason",    "&H/SetInfo <PlayerName> UnbanReason <Reason>\n&S" +
-                                    "Changes unban reason for the given player. " +
-                                    "Original unban reason is preserved in the logs. Shortcut: UR" }
+                                    "type \"&H/SetInfo <Name> PreviousRank&S\" (omit the rank name). Shortcut: PR"
+                }, {
+                    "rankchangetype", "&H/SetInfo <PlayerName> RankChangeType <Type>\n&S" +
+                                      "Sets the type of rank change. <Type> can be: Promoted, Demoted, AutoPromoted, AutoDemoted. " +
+                                      "Shortcut: RCT"
+                }, {
+                    "rankreason", "&H/SetInfo <PlayerName> RankReason <Reason>\n&S" +
+                                  "Changes promotion/demotion reason for the given player. " +
+                                  "Original promotion/demotion reason is preserved in the logs. Shortcut: RR"
+                }, {
+                    "timeskicked", "&H/SetInfo <PlayerName> TimesKicked <#>\n&S" +
+                                   "Changes the number of times that a player has been kicked. " +
+                                   "Acceptable value range: 0-9999. Shortcut: TK"
+                }, {
+                    "totaltime", "&H/SetInfo <PlayerName> TotalTime <Time>\n&S" +
+                                 "Changes the amount of game time that the player has on record. " +
+                                 "Accepts values in the common compact time-span format. Shortcut: TT"
+                }, {
+                    "unbanreason", "&H/SetInfo <PlayerName> UnbanReason <Reason>\n&S" +
+                                   "Changes unban reason for the given player. " +
+                                   "Original unban reason is preserved in the logs. Shortcut: UR"
+                }
             },
             Usage = "/SetInfo <PlayerName> <Property> <Value>",
             Handler = SetInfoHandler
@@ -922,7 +960,8 @@ namespace fCraft {
                     info.BandwidthUseMode = newMode;
                     player.Message( "SetInfo: BandwidthUseMode for {0}&S changed from {1} to {2}",
                                     info.ClassyName,
-                                    oldMode, newMode );
+                                    oldMode,
+                                    newMode );
                     break;
 
                 case "unbanreason":
@@ -961,7 +1000,7 @@ namespace fCraft {
                     if( valName.Length == 0 ) valName = null;
 
                     if( valName != null &&
-                        ( valName.Contains( '\n' ) || valName.Contains( "&n" ) || valName.Contains( "&N" ) ) ) {
+                        (valName.Contains( '\n' ) || valName.Contains( "&n" ) || valName.Contains( "&N" )) ) {
                         player.Message( "SetInfo: DisplayedName may not contain line breaks." );
                         return;
                     }
@@ -1024,24 +1063,33 @@ namespace fCraft {
             if( newValue == oldValue ) {
                 if( newValue == null ) {
                     player.Message( "SetInfo: {0} for {1}&S is not set.",
-                                    fieldName, info.ClassyName );
+                                    fieldName,
+                                    info.ClassyName );
                 } else {
                     player.Message( "SetInfo: {0} for {1}&S is already set to \"{2}&S\"",
-                                    fieldName, info.ClassyName, oldValue );
+                                    fieldName,
+                                    info.ClassyName,
+                                    oldValue );
                 }
                 return false;
             }
 
-            if( oldValue == null  ) {
+            if( oldValue == null ) {
                 player.Message( "SetInfo: {0} for {1}&S set to \"{2}&S\"",
-                                fieldName, info.ClassyName, newValue );
+                                fieldName,
+                                info.ClassyName,
+                                newValue );
             } else if( newValue == null ) {
                 player.Message( "SetInfo: {0} for {1}&S was reset (was \"{2}&S\")",
-                                fieldName, info.ClassyName, oldValue );
+                                fieldName,
+                                info.ClassyName,
+                                oldValue );
             } else {
                 player.Message( "SetInfo: {0} for {1}&S changed from \"{2}&S\" to \"{3}&S\"",
-                                fieldName, info.ClassyName,
-                                oldValue, newValue );
+                                fieldName,
+                                info.ClassyName,
+                                oldValue,
+                                newValue );
             }
             return true;
         }
@@ -1057,18 +1105,17 @@ namespace fCraft {
 
         #endregion
 
-
         #region Reload
 
         static readonly CommandDescriptor CdReload = new CommandDescriptor {
             Name = "Reload",
-            Aliases = new[] { "configreload", "reloadconfig" },
+            Aliases = new[] {"configreload", "reloadconfig"},
             Category = CommandCategory.Maintenance,
-            Permissions = new[] { Permission.ReloadConfig },
+            Permissions = new[] {Permission.ReloadConfig},
             IsConsoleSafe = true,
             Usage = "/Reload config/salt",
-            Help = "Reloads a given configuration file or setting. "+
-                   "Config note: changes to ranks and IRC settings still require a full restart. "+
+            Help = "Reloads a given configuration file or setting. " +
+                   "Config note: changes to ranks and IRC settings still require a full restart. " +
                    "Salt note: Until server synchronizes with Minecraft.net, " +
                    "connecting players may have trouble verifying names.",
             Handler = ReloadHandler
@@ -1125,13 +1172,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Shutdown, Restart
 
         static readonly CommandDescriptor CdShutdown = new CommandDescriptor {
             Name = "Shutdown",
             Category = CommandCategory.Maintenance,
-            Permissions = new[] { Permission.ShutdownServer },
+            Permissions = new[] {Permission.ShutdownServer},
             IsConsoleSafe = true,
             Help = "Shuts down the server remotely after a given delay. " +
                    "A shutdown reason or message can be specified to be shown to players. " +
@@ -1151,7 +1197,8 @@ namespace fCraft {
                 if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                     if( Server.CancelShutdown() ) {
                         Logger.Log( LogType.UserActivity,
-                                    "Shutdown aborted by {0}.", player.Name );
+                                    "Shutdown aborted by {0}.",
+                                    player.Name );
                         Server.Message( "&WShutdown aborted by {0}", player.ClassyName );
                     } else {
                         player.MessageNow( "Cannot abort shutdown - too late." );
@@ -1179,25 +1226,27 @@ namespace fCraft {
             if( String.IsNullOrEmpty( reason ) ) {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a shutdown ({1} delay).",
-                            player.Name, delayTime.ToCompactString() );
+                            player.Name,
+                            delayTime.ToCompactString() );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShutdownCommand, delayTime, false );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&SShutdown reason: {0}", reason );
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a shutdown ({1} delay). Reason: {2}",
-                            player.Name, delayTime.ToCompactString(), reason );
+                            player.Name,
+                            delayTime.ToCompactString(),
+                            reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.ShutdownCommand, delayTime, false, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
 
 
-
         static readonly CommandDescriptor CdRestart = new CommandDescriptor {
             Name = "Restart",
             Category = CommandCategory.Maintenance,
-            Permissions = new[] { Permission.ShutdownServer },
+            Permissions = new[] {Permission.ShutdownServer},
             IsConsoleSafe = true,
             Help = "Restarts the server remotely after a given delay. " +
                    "A restart reason or message can be specified to be shown to players. " +
@@ -1215,7 +1264,8 @@ namespace fCraft {
                 if( delayString.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
                     if( Server.CancelShutdown() ) {
                         Logger.Log( LogType.UserActivity,
-                                    "Restart aborted by {0}.", player.Name );
+                                    "Restart aborted by {0}.",
+                                    player.Name );
                         Server.Message( "&WRestart aborted by {0}", player.ClassyName );
                     } else {
                         player.MessageNow( "Cannot abort restart - too late." );
@@ -1243,21 +1293,23 @@ namespace fCraft {
             if( String.IsNullOrEmpty( reason ) ) {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a restart ({1} delay).",
-                            player.Name, delayTime.ToCompactString() );
+                            player.Name,
+                            delayTime.ToCompactString() );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartCommand, delayTime, true );
                 Server.Shutdown( sp, false );
             } else {
                 Server.Message( "&WRestart reason: {0}", reason );
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a restart ({1} delay). Reason: {2}",
-                            player.Name, delayTime.ToCompactString(), reason );
+                            player.Name,
+                            delayTime.ToCompactString(),
+                            reason );
                 ShutdownParams sp = new ShutdownParams( ShutdownReason.RestartCommand, delayTime, true, reason, player );
                 Server.Shutdown( sp, false );
             }
         }
 
         #endregion
-
 
         #region PruneDB
 
@@ -1266,7 +1318,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
+            Permissions = new[] {Permission.EditPlayerDB},
             Help = "Removes inactive players from the player database. Use with caution.",
             Handler = PruneDBHandler
         };
@@ -1280,8 +1332,10 @@ namespace fCraft {
                 } else {
                     Logger.Log( LogType.UserActivity,
                                 "PruneDB: Asked {0} to confirm erasing {1} records.",
-                                player.Name, inactivePlayers );
-                    player.Confirm( cmd, "PruneDB: Erase {0} records of inactive players?",
+                                player.Name,
+                                inactivePlayers );
+                    player.Confirm( cmd,
+                                    "PruneDB: Erase {0} records of inactive players?",
                                     inactivePlayers );
                 }
             } else {
@@ -1302,15 +1356,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Import / Export
 
         static readonly CommandDescriptor CdImport = new CommandDescriptor {
             Name = "Import",
-            Aliases = new[] { "ImportBans", "ImportRanks" },
+            Aliases = new[] {"ImportBans", "ImportRanks"},
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Import },
+            Permissions = new[] {Permission.Import},
             Usage = "/Import Bans Software File&S or &H/Import Ranks Software File Rank",
             Help = "Imports data from formats used by other servers. " +
                    "Currently only MCSharp/MCZall/MCLawl/MCForge files are supported.",
@@ -1400,8 +1453,7 @@ namespace fCraft {
                     foreach( string name in names ) {
                         try {
                             IPAddress ip;
-                            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) )
-                                ip.BanIP( player, reason, true, true );
+                            if( IPAddressUtil.IsIP( name ) && IPAddress.TryParse( name, out ip ) ) ip.BanIP( player, reason, true, true );
                             else if( Player.IsValidPlayerName( name ) ) {
                                 PlayerInfo info = PlayerDB.FindPlayerInfoExact( name ) ??
                                                   PlayerDB.CreateNewPlayerInfo( name, RankChangeType.Default );
@@ -1528,7 +1580,7 @@ namespace fCraft {
                 }
                 // Fully encapsulated with no comma within
                 if( x.StartsWith( "\"" ) && x.EndsWith( "\"" ) ) {
-                    if( ( x.EndsWith( "\"\"" ) && !x.EndsWith( "\"\"\"" ) ) && x != "\"\"" ) {
+                    if( (x.EndsWith( "\"\"" ) && !x.EndsWith( "\"\"\"" )) && x != "\"\"" ) {
                         cont = true;
                         cs = x;
                         continue;
@@ -1555,7 +1607,7 @@ namespace fCraft {
             string serverName = cmd.Next();
             string fileName = cmd.Next();
             string rankName = cmd.Next();
-            bool silent = ( cmd.Next() != null );
+            bool silent = (cmd.Next() != null);
 
 
             // Make sure all parameters are specified
@@ -1635,7 +1687,7 @@ namespace fCraft {
             Category = CommandCategory.Maintenance,
             IsHidden = true,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Import },
+            Permissions = new[] {Permission.Import},
             Usage = "/Export Bans FileName&S or &H/Export Ranks FileName RankName",
             Handler = ExportHandler
         };
@@ -1680,12 +1732,10 @@ namespace fCraft {
 
                 // Get a list of players of given rank
                 playerList = PlayerDB.PlayerInfoList.Where( p => p.Rank == rank );
-
             } else if( "Bans".Equals( actionType, StringComparison.OrdinalIgnoreCase ) ) {
                 // Get a list of banned players
                 playerList = PlayerDB.PlayerInfoList
-                                            .Where( p => p.BanStatus == BanStatus.Banned );
-
+                                     .Where( p => p.BanStatus == BanStatus.Banned );
             } else {
                 player.Message( "Export: Action must be \"ranks\" or \"bans\"." );
                 CdExport.PrintUsage( player );
@@ -1713,18 +1763,18 @@ namespace fCraft {
 
             // report success
             player.Message( "Export: Written {0} names to \"{1}\"",
-                            playerCount, Path.GetFileName( fileName ) );
+                            playerCount,
+                            Path.GetFileName( fileName ) );
         }
 
         #endregion
-
 
         static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
             Name = "InfoSwap",
             Category = CommandCategory.Maintenance,
             IsConsoleSafe = true,
             IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
+            Permissions = new[] {Permission.EditPlayerDB},
             Usage = "/InfoSwap Player1 Player2",
             Help = "Swaps stats of two players in the database. Both players should be offline.",
             Handler = InfoSwapHandler

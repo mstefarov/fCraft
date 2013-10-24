@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -89,11 +90,12 @@ namespace fCraft {
                                         el.Element( "Summary" ).Value,
                                         el.Element( "ChangeLog" ).Value,
                                         ReleaseInfo.StringToReleaseFlags( el.Attribute( "flags" ).Value )
-                                    )
-                                );
+                                        )
+                                    );
                             }
                             // ReSharper restore PossibleNullReferenceException
-                            UpdaterResult result = new UpdaterResult( ( releases.Count > 0 ), new Uri( downloadUrl ),
+                            UpdaterResult result = new UpdaterResult( (releases.Count > 0),
+                                                                      new Uri( downloadUrl ),
                                                                       releases.ToArray() );
                             RaiseCheckedForUpdatesEvent( UpdateUri, result );
                             return result;
@@ -105,7 +107,8 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "An error occurred while trying to check for updates: {0}: {1}",
-                            ex.GetType(), ex.Message );
+                            ex.GetType(),
+                            ex.Message );
                 return UpdaterResult.NoUpdate;
             }
         }
@@ -113,7 +116,6 @@ namespace fCraft {
 
         /// <summary> Whether or not the update installer (UpdateInstaller.exe) should run at shutdown. </summary>
         public static bool RunAtShutdown { get; set; }
-
 
         #region Events
 
@@ -208,7 +210,8 @@ namespace fCraft {
                 if( IsFlagged( ReleaseFlags.Unstable ) ) {
                     formatString += "_u";
                 }
-                return String.Format( CultureInfo.InvariantCulture, formatString,
+                return String.Format( CultureInfo.InvariantCulture,
+                                      formatString,
                                       Decimal.Divide( Version, 1000 ),
                                       Revision );
             }
@@ -263,28 +266,24 @@ namespace fCraft {
         [NotNull]
         public static string[] ReleaseFlagsToStringArray( ReleaseFlags flags ) {
             List<string> list = new List<string>();
-            if( ( flags & ReleaseFlags.APIChange ) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
-            if( ( flags & ReleaseFlags.Bugfix ) == ReleaseFlags.Bugfix ) list.Add( "Fixes" );
-            if( ( flags & ReleaseFlags.ConfigFormatChange ) == ReleaseFlags.ConfigFormatChange )
-                list.Add( "Config Changes" );
-            if( ( flags & ReleaseFlags.Dev ) == ReleaseFlags.Dev ) list.Add( "Developer" );
-            if( ( flags & ReleaseFlags.Feature ) == ReleaseFlags.Feature ) list.Add( "New Features" );
-            if( ( flags & ReleaseFlags.MapFormatChange ) == ReleaseFlags.MapFormatChange )
-                list.Add( "Map Format Changes" );
-            if( ( flags & ReleaseFlags.PlayerDBFormatChange ) == ReleaseFlags.PlayerDBFormatChange )
-                list.Add( "PlayerDB Changes" );
-            if( ( flags & ReleaseFlags.Security ) == ReleaseFlags.Security ) list.Add( "Security Patch" );
-            if( ( flags & ReleaseFlags.Unstable ) == ReleaseFlags.Unstable ) list.Add( "Unstable" );
-            if( ( flags & ReleaseFlags.Optimized ) == ReleaseFlags.Optimized ) list.Add( "Optimized" );
+            if( (flags & ReleaseFlags.APIChange) == ReleaseFlags.APIChange ) list.Add( "API Changes" );
+            if( (flags & ReleaseFlags.Bugfix) == ReleaseFlags.Bugfix ) list.Add( "Fixes" );
+            if( (flags & ReleaseFlags.ConfigFormatChange) == ReleaseFlags.ConfigFormatChange ) list.Add( "Config Changes" );
+            if( (flags & ReleaseFlags.Dev) == ReleaseFlags.Dev ) list.Add( "Developer" );
+            if( (flags & ReleaseFlags.Feature) == ReleaseFlags.Feature ) list.Add( "New Features" );
+            if( (flags & ReleaseFlags.MapFormatChange) == ReleaseFlags.MapFormatChange ) list.Add( "Map Format Changes" );
+            if( (flags & ReleaseFlags.PlayerDBFormatChange) == ReleaseFlags.PlayerDBFormatChange ) list.Add( "PlayerDB Changes" );
+            if( (flags & ReleaseFlags.Security) == ReleaseFlags.Security ) list.Add( "Security Patch" );
+            if( (flags & ReleaseFlags.Unstable) == ReleaseFlags.Unstable ) list.Add( "Unstable" );
+            if( (flags & ReleaseFlags.Optimized) == ReleaseFlags.Optimized ) list.Add( "Optimized" );
             return list.ToArray();
         }
 
 
         public bool IsFlagged( ReleaseFlags flag ) {
-            return ( Flags & flag ) == flag;
+            return (Flags & flag) == flag;
         }
     }
-
 
     #region Enums
 
@@ -348,7 +347,6 @@ namespace fCraft {
 
     #endregion
 }
-
 
 namespace fCraft.Events {
     /// <summary> Provides data for Updater.CheckingForUpdates event. Allows changing the URL. Cancelable. </summary>

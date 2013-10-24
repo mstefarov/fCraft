@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,7 +13,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Contains commands that don't do anything besides displaying some information or text.
     /// Includes several chat commands. </summary>
-    static class InfoCommands {
+    internal static class InfoCommands {
         const int PlayersPerPage = 30;
 
         internal static void Init() {
@@ -42,14 +43,13 @@ namespace fCraft {
 #endif
         }
 
-
         #region Info
 
         const int MaxAltsToPrint = 15;
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
-            Aliases = new[] { "i", "whois", "whowas" },
+            Aliases = new[] {"i", "whois", "whowas"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -209,7 +209,6 @@ namespace fCraft {
                 player.Message( "About {0}&S: Never seen before ({1} acct).",
                                 info.ClassyName,
                                 info.AccountType );
-
             } else {
                 StringBuilder firstLine = new StringBuilder();
                 if( info.DisplayedName != null ) {
@@ -232,7 +231,6 @@ namespace fCraft {
                     if( target.IdleTime > InfoIdleThreshold ) {
                         firstLine.AppendFormat( " (idle {0})", target.IdleTime.ToMiniString() );
                     }
-
                 } else {
                     firstLine.AppendFormat( "Last seen {0} ago", info.TimeSinceLastSeen.ToMiniString() );
                     if( player.Can( Permission.ViewPlayerIPs ) ) {
@@ -352,7 +350,7 @@ namespace fCraft {
                 player.Message( "  Built {0:N0}; deleted {1:N0}; drew {2:N1}K blocks; wrote {3:N0} messages.",
                                 info.BlocksBuilt,
                                 info.BlocksDeleted,
-                                info.BlocksDrawn / 1000d,
+                                info.BlocksDrawn/1000d,
                                 info.MessagesWritten );
             } else {
                 player.Message( "  Built {0:N0}; deleted {1:N0} blocks; wrote {2:N0} messages.",
@@ -434,7 +432,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region BanInfo
 
@@ -609,12 +606,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region RankInfo
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
             Name = "RankInfo",
-            Aliases = new[] { "rinfo" },
+            Aliases = new[] {"rinfo"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -689,12 +685,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region ServerInfo
 
         static readonly CommandDescriptor CdServerInfo = new CommandDescriptor {
             Name = "ServerInfo",
-            Aliases = new[] { "ServerReport", "Version", "SInfo" },
+            Aliases = new[] {"ServerReport", "Version", "SInfo"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -712,7 +707,7 @@ namespace fCraft {
             player.Message( ConfigKey.ServerName.GetString() );
             player.Message( "Servers status: Up for {0:0.0} hours, using {1:0} MB",
                             DateTime.UtcNow.Subtract( Server.StartTime ).TotalHours,
-                            ( Process.GetCurrentProcess().PrivateMemorySize64/( 1024*1024 ) ) );
+                            (Process.GetCurrentProcess().PrivateMemorySize64/(1024*1024)) );
 
             if( Server.IsMonitoringCpuUsage ) {
                 player.Message( "  Averaging {0:0.0}% CPU now, {1:0.0}% overall",
@@ -760,7 +755,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Ranks
 
         static readonly CommandDescriptor CdRanks = new CommandDescriptor {
@@ -786,7 +780,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Rules
 
@@ -905,13 +898,13 @@ namespace fCraft {
             } catch( Exception ex ) {
                 Logger.Log( LogType.Error,
                             "InfoCommands.PrintRuleFile: An error occurred while trying to read {0}: {1}",
-                            ruleFile.FullName, ex );
+                            ruleFile.FullName,
+                            ex );
                 player.Message( "&WError reading the rule file." );
             }
         }
 
         #endregion
-
 
         #region Measure
 
@@ -965,7 +958,7 @@ namespace fCraft {
             var blockString = topBlocks.JoinToString( p => String.Format( "{0}: {1} ({2}%)",
                                                                           p.Key,
                                                                           p.Value,
-                                                                          ( p.Value*100L )/box.Volume ) );
+                                                                          (p.Value*100L)/box.Volume ) );
             player.Message( "  Top {0} block types: {1}",
                             topBlocks.Length,
                             blockString );
@@ -973,12 +966,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Players
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "Players",
-            Aliases = new[] { "who" },
+            Aliases = new[] {"who"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/Players [WorldName] [Offset]",
@@ -1048,7 +1040,7 @@ namespace fCraft {
                                         offset + 1,
                                         offset + playersPart.Length,
                                         visiblePlayers.Length,
-                                        ( worldName == null ? "" : worldName + " " ) );
+                                        (worldName == null ? "" : worldName + " ") );
                     } else {
                         player.Message( "Showing players {0}-{1} (out of {2}).",
                                         offset + 1,
@@ -1063,14 +1055,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Where
 
         const string Compass = "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . " +
                                "N . . . ne. . . E . . . se. . . S . . . sw. . . W . . . nw. . . ";
+
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "Where",
-            Aliases = new[] { "compass", "whereis", "whereami" },
+            Aliases = new[] {"compass", "whereis", "whereami"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1120,7 +1112,7 @@ namespace fCraft {
 
         [NotNull]
         public static string GetCompassString( byte rotation ) {
-            int offset = (int)( rotation/255f*64f ) + 32;
+            int offset = (int)(rotation/255f*64f) + 32;
 
             return String.Format( "&F[{0}&C{1}&F{2}]",
                                   Compass.Substring( offset - 12, 11 ),
@@ -1130,14 +1122,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Help
 
         const string HelpPrefix = "&S   ";
 
         static readonly CommandDescriptor CdHelp = new CommandDescriptor {
             Name = "Help",
-            Aliases = new[] { "herp", "man" },
+            Aliases = new[] {"herp", "man"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1159,7 +1150,8 @@ namespace fCraft {
                 string sectionName = cmd.Next();
                 if( sectionName != null ) {
                     string sectionHelp;
-                    if( descriptor.HelpSections != null && descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
+                    if( descriptor.HelpSections != null &&
+                        descriptor.HelpSections.TryGetValue( sectionName.ToLower(), out sectionHelp ) ) {
                         player.MessagePrefixed( HelpPrefix, sectionHelp );
                     } else {
                         player.Message( "No help found for \"{0}\"", sectionName );
@@ -1197,7 +1189,6 @@ namespace fCraft {
 
                     player.MessagePrefixed( HelpPrefix, sb.ToString() );
                 }
-
             } else {
                 player.Message( "  To see a list of all commands, write &H/Commands" );
                 player.Message( "  To see detailed help for a command, write &H/Help Command" );
@@ -1212,12 +1203,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Commands
 
         static readonly CommandDescriptor CdCommands = new CommandDescriptor {
             Name = "Commands",
-            Aliases = new[] { "cmds", "cmdlist" },
+            Aliases = new[] {"cmds", "cmdlist"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1241,7 +1231,6 @@ namespace fCraft {
             if( param == null ) {
                 prefix = "Available commands";
                 cd = CommandManager.GetCommands( player.Info.Rank, false );
-
             } else if( param.StartsWith( "@" ) ) {
                 string rankName = param.Substring( 1 );
                 Rank rank = RankManager.FindRank( rankName );
@@ -1252,19 +1241,15 @@ namespace fCraft {
                     prefix = String.Format( "Commands available to {0}&S", rank.ClassyName );
                     cd = CommandManager.GetCommands( rank, false );
                 }
-
             } else if( param.Equals( "all", StringComparison.OrdinalIgnoreCase ) ) {
                 prefix = "All commands";
                 cd = CommandManager.GetCommands();
-
             } else if( param.Equals( "hidden", StringComparison.OrdinalIgnoreCase ) ) {
                 prefix = "Hidden commands";
                 cd = CommandManager.GetCommands( true );
-
             } else if( EnumUtil.TryComplete( param, out category, true ) ) {
                 prefix = String.Format( "{0} commands", category );
                 cd = CommandManager.GetCommands( category, false );
-
             } else {
                 CdCommands.PrintUsage( player );
                 return;
@@ -1275,12 +1260,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Colors and Emotes
 
         static readonly CommandDescriptor CdColors = new CommandDescriptor {
             Name = "Colors",
-            Aliases = new[] { "colours" },
+            Aliases = new[] {"colours"},
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1306,7 +1290,7 @@ namespace fCraft {
                     player.Message( "&SNone of the ranks have permission to use colors in chat." );
                 } else {
                     player.Message( "&SOnly {0}+&S can use colors in chat.",
-                             reqRank.ClassyName );
+                                    reqRank.ClassyName );
                 }
             }
         }
@@ -1318,7 +1302,7 @@ namespace fCraft {
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Help = "Shows a list of all available emotes and their keywords. "+
+            Help = "Shows a list of all available emotes and their keywords. " +
                    "There are 34 emotes, spanning 3 pages. Use &h/emotes 2&s and &h/emotes 3&s to see pages 2 and 3.",
             Handler = EmotesHandler
         };
@@ -1366,7 +1350,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
 #if DEBUG_SCHEDULER
         static CommandDescriptor cdTaskDebug = new CommandDescriptor {

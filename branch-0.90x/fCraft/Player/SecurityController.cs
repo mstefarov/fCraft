@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,26 +8,22 @@ using System.Xml.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
     /// <summary> Controller for setting and checking per-rank permissions and per-player exceptions.
     /// Used by World.AccessSecurity, World.BuildSecurity, and Zone. </summary>
     public sealed class SecurityController : ICloneable, INotifiesOnChange {
-
         readonly Dictionary<string, PlayerInfo> includedPlayers = new Dictionary<string, PlayerInfo>();
         readonly Dictionary<string, PlayerInfo> excludedPlayers = new Dictionary<string, PlayerInfo>();
 
         public PlayerExceptions ExceptionList { get; private set; }
         readonly object locker = new object();
-        
+
         [CanBeNull]
         Rank minRank;
 
         /// <summary> Lowest allowed player rank. </summary>
         [NotNull]
         public Rank MinRank {
-            get {
-                return minRank ?? RankManager.LowestRank;
-            }
+            get { return minRank ?? RankManager.LowestRank; }
             set {
                 if( value == null ) throw new ArgumentNullException( "value" );
                 if( minRank != value ) {
@@ -277,7 +274,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Resetting
 
         /// <summary> Clears the list of specifically included players. </summary>
@@ -307,7 +303,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Cloning
 
@@ -354,7 +349,6 @@ namespace fCraft {
 
         public readonly PlayerInfo[] Excluded;
     }
-
 
     #region Enums
 

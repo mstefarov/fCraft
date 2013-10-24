@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Net;
 using JetBrains.Annotations;
@@ -38,7 +39,7 @@ namespace fCraft {
         public DateTime LastAttemptDate;
 
 
-        IPBanInfo() { }
+        IPBanInfo() {}
 
 
         internal IPBanInfo( [NotNull] IPAddress address, [CanBeNull] string playerName,
@@ -104,7 +105,6 @@ namespace fCraft {
             LastAttemptDate = DateTime.UtcNow;
             LastAttemptName = player.Name;
         }
-
 
         #region Shortcuts
 

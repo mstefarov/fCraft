@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -8,28 +9,20 @@ namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
     public sealed class MapIndev : IMapImporter {
         public string ServerName {
-            get {
-                return "Indev";
-            }
+            get { return "Indev"; }
         }
 
         public string FileExtension {
-            get {
-                return "mclevel";
-            }
+            get { return "mclevel"; }
         }
 
 
         public MapStorageType StorageType {
-            get {
-                return MapStorageType.SingleFile;
-            }
+            get { return MapStorageType.SingleFile; }
         }
 
         public MapFormat Format {
-            get {
-                return MapFormat.Indev;
-            }
+            get { return MapFormat.Indev; }
         }
 
 
@@ -45,7 +38,7 @@ namespace fCraft.MapConversion {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
                     BinaryReader bs = new BinaryReader( gs );
-                    return ( bs.ReadByte() == 10 && Swap( bs.ReadInt16() ) == 14 );
+                    return (bs.ReadByte() == 10 && Swap( bs.ReadInt16() ) == 14);
                 }
             } catch( Exception ) {
                 return false;
@@ -53,8 +46,8 @@ namespace fCraft.MapConversion {
         }
 
         static short Swap( short v ) {
-            return (short)( ( v >> 8 ) & 0x00FF |
-                            ( v << 8 ) & 0xFF00 );
+            return (short)((v >> 8) & 0x00FF |
+                           (v << 8) & 0xFF00);
         }
 
 
