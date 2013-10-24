@@ -1,10 +1,10 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System.IO;
 using System.IO.Compression;
 
 namespace fCraft.UpdateBuilder {
-    static class Program {
-
+    internal static class Program {
         static readonly string[] FileList = {
             "ConfigGUI.exe",
             "fCraft.dll",

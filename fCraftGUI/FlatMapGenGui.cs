@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Windows.Forms;
 using fCraft.MapGeneration;
@@ -27,12 +28,12 @@ namespace fCraft.GUI {
             genParams.MapHeight = height;
         }
 
-        private void xCustom_CheckedChanged( object sender, EventArgs e ) {
+        void xCustom_CheckedChanged( object sender, EventArgs e ) {
             pgDetails.Visible = xCustom.Checked;
         }
 
-        private void pgDetails_PropertyValueChanged( object s, PropertyValueChangedEventArgs e ) {
-            lPreset.Text = "Preset: " + genParams.ToString().Split( ' ' )[1] +" (Modified)";
+        void pgDetails_PropertyValueChanged( object s, PropertyValueChangedEventArgs e ) {
+            lPreset.Text = "Preset: " + genParams.ToString().Split( ' ' )[1] + " (Modified)";
         }
     }
 
@@ -40,7 +41,7 @@ namespace fCraft.GUI {
     /// <summary> Represents a class that provides a fallback GUI for any MapGenerator.
     /// Creates DefaultMapGenGui instances on demand. </summary>
     public class FlatMapGenGuiProvider : IMapGeneratorGuiProvider {
-        FlatMapGenGuiProvider() { }
+        FlatMapGenGuiProvider() {}
 
         public static readonly FlatMapGenGuiProvider Instance = new FlatMapGenGuiProvider();
 

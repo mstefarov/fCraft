@@ -261,8 +261,7 @@ namespace fCraft {
             }
             int maxIDField;
             if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
-                if( maxIDField >= 255 ) {
-                    // IDs start at 256
+                if( maxIDField >= 255 ) { // IDs start at 256
                     maxID = maxIDField;
                 }
             }

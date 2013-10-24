@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Diagnostics;
 using System.Globalization;
@@ -9,9 +10,9 @@ using fCraft.Events;
 using fCraft.GUI;
 
 namespace fCraft.ServerGUI {
-
     public sealed partial class MainForm : Form {
         volatile bool shutdownPending, startupComplete, shutdownComplete;
+
         const int MaxLinesInLog = 2000,
                   LinesToTrimWhenExceeded = 50;
 
@@ -20,8 +21,8 @@ namespace fCraft.ServerGUI {
             Shown += BeginStartup;
         }
 
-
         #region Startup
+
         Thread startupThread;
 
         void BeginStartup( object sender, EventArgs e ) {
@@ -66,53 +67,55 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
             try {
 #endif
-                Server.InitLibrary( Environment.GetCommandLineArgs() );
+            Server.InitLibrary( Environment.GetCommandLineArgs() );
+            if( shutdownPending ) return;
+
+            Server.InitServer();
+            if( shutdownPending ) return;
+
+            BeginInvoke( (Action)OnInitSuccess );
+
+            // check for updates
+            UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
+            if( updaterMode != UpdaterMode.Disabled ) {
+                UpdaterResult update = Updater.CheckForUpdates();
                 if( shutdownPending ) return;
-
-                Server.InitServer();
-                if( shutdownPending ) return;
-
-                BeginInvoke( (Action)OnInitSuccess );
-
-                // check for updates
-                UpdaterMode updaterMode = ConfigKey.UpdaterMode.GetEnum<UpdaterMode>();
-                if( updaterMode != UpdaterMode.Disabled ) {
-                    UpdaterResult update = Updater.CheckForUpdates();
-                    if( shutdownPending ) return;
-                    if( update.UpdateAvailable ) {
-                        if( updaterMode == UpdaterMode.Notify ) {
-                            String updateMsg = String.Format( "An fCraft update is available! Visit www.fCraft.net to download. " +
-                                                              "Local version: {0}. Latest available version: {1}.",
-                                                              Updater.CurrentRelease.VersionString,
-                                                              update.LatestRelease.VersionString );
-                            Logger.LogToConsole( updateMsg );
-                        } else {
-                            DialogResult result = new UpdateWindow( update ).ShowDialog();
-                            if( result == DialogResult.Cancel ) {
-                                // startup aborted (restart for update)
-                                return;
-                            }
+                if( update.UpdateAvailable ) {
+                    if( updaterMode == UpdaterMode.Notify ) {
+                        String updateMsg =
+                            String.Format( "An fCraft update is available! Visit www.fCraft.net to download. " +
+                                           "Local version: {0}. Latest available version: {1}.",
+                                           Updater.CurrentRelease.VersionString,
+                                           update.LatestRelease.VersionString );
+                        Logger.LogToConsole( updateMsg );
+                    } else {
+                        DialogResult result = new UpdateWindow( update ).ShowDialog();
+                        if( result == DialogResult.Cancel ) {
+                            // startup aborted (restart for update)
+                            return;
                         }
                     }
                 }
+            }
 
-                // set process priority
-                if( !ConfigKey.ProcessPriority.IsBlank() ) {
-                    try {
-                        Process.GetCurrentProcess().PriorityClass = ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
-                    } catch( Exception ) {
-                        Logger.Log( LogType.Warning,
-                                    "MainForm.StartServer: Could not set process priority, using defaults." );
-                    }
+            // set process priority
+            if( !ConfigKey.ProcessPriority.IsBlank() ) {
+                try {
+                    Process.GetCurrentProcess().PriorityClass =
+                        ConfigKey.ProcessPriority.GetEnum<ProcessPriorityClass>();
+                } catch( Exception ) {
+                    Logger.Log( LogType.Warning,
+                                "MainForm.StartServer: Could not set process priority, using defaults." );
                 }
+            }
 
-                if( shutdownPending ) return;
-                if( Server.StartServer() ) {
-                    startupComplete = true;
-                    BeginInvoke( (Action)OnStartupSuccess );
-                } else {
-                    BeginInvoke( (Action)OnStartupFailure );
-                }
+            if( shutdownPending ) return;
+            if( Server.StartServer() ) {
+                startupComplete = true;
+                BeginInvoke( (Action)OnStartupSuccess );
+            } else {
+                BeginInvoke( (Action)OnStartupFailure );
+            }
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true );
@@ -141,7 +144,6 @@ namespace fCraft.ServerGUI {
         }
 
         #endregion
-
 
         #region Shutdown
 
@@ -187,11 +189,10 @@ namespace fCraft.ServerGUI {
                     }
                 } );
             } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
+            } catch( InvalidOperationException ) {}
         }
 
         #endregion
-
 
         [DebuggerStepThrough]
         void OnLogged( object sender, LogEventArgs e ) {
@@ -238,7 +239,8 @@ namespace fCraft.ServerGUI {
                         logBox.SelectionLength = logBox.GetFirstCharIndexFromLine( LinesToTrimWhenExceeded );
                         userSelectionStart -= logBox.SelectionLength;
                         if( userSelectionStart < 0 ) userSelecting = false;
-                        string textToAdd = "----- cut off, see " + Logger.CurrentLogFileName + " for complete log -----" + Environment.NewLine;
+                        string textToAdd = "----- cut off, see " + Logger.CurrentLogFileName + " for complete log -----" +
+                                           Environment.NewLine;
                         logBox.SelectedText = textToAdd;
                         userSelectionStart += textToAdd.Length;
                         logBox.SelectionColor = System.Drawing.Color.DarkGray;
@@ -253,7 +255,7 @@ namespace fCraft.ServerGUI {
                     }
                 }
             } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
+            } catch( InvalidOperationException ) {}
         }
 
 
@@ -262,14 +264,15 @@ namespace fCraft.ServerGUI {
                 if( shutdownPending ) return;
                 if( uriDisplay.InvokeRequired ) {
                     BeginInvoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
-                            sender, e );
+                                 sender,
+                                 e );
                 } else {
                     uriDisplay.Text = e.NewUri.ToString();
                     uriDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }
             } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
+            } catch( InvalidOperationException ) {}
         }
 
 
@@ -286,24 +289,24 @@ namespace fCraft.ServerGUI {
                     }
                 }
             } catch( ObjectDisposedException ) {
-            } catch( InvalidOperationException ) { }
+            } catch( InvalidOperationException ) {}
         }
 
 
-        private void console_Enter() {
-            string[] separator = { Environment.NewLine };
+        void console_Enter() {
+            string[] separator = {Environment.NewLine};
             string[] lines = console.Text.Trim().Split( separator, StringSplitOptions.RemoveEmptyEntries );
             foreach( string line in lines ) {
 #if !DEBUG
                 try {
 #endif
-                    if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
-                        logBox.Clear();
-                    } else if( line.Equals( "/credits", StringComparison.OrdinalIgnoreCase ) ) {
-                        new AboutWindow().Show();
-                    } else {
-                        Player.Console.ParseMessage( line, true );
-                    }
+                if( line.Equals( "/clear", StringComparison.OrdinalIgnoreCase ) ) {
+                    logBox.Clear();
+                } else if( line.Equals( "/credits", StringComparison.OrdinalIgnoreCase ) ) {
+                    new AboutWindow().Show();
+                } else {
+                    Player.Console.ParseMessage( line, true );
+                }
 #if !DEBUG
                 } catch( Exception ex ) {
                     Logger.LogToConsole( "Error occurred while trying to execute last console command: " );
@@ -317,7 +320,7 @@ namespace fCraft.ServerGUI {
         }
 
 
-        private void bPlay_Click( object sender, EventArgs e ) {
+        void bPlay_Click( object sender, EventArgs e ) {
             try {
                 Process.Start( uriDisplay.Text );
             } catch( Exception ) {
@@ -328,14 +331,14 @@ namespace fCraft.ServerGUI {
 
 
         // CopyMenuOnClickHandler and CopyMenuPopupHandler by Jonty800
-        private void CopyMenuOnClickHandler( object sender, EventArgs e ) {
+        void CopyMenuOnClickHandler( object sender, EventArgs e ) {
             if( logBox.SelectedText.Length > 0 ) {
                 Clipboard.SetText( logBox.SelectedText, TextDataFormat.Text );
             }
         }
 
 
-        private void CopyMenuPopupHandler( object sender, EventArgs e ) {
+        void CopyMenuPopupHandler( object sender, EventArgs e ) {
             ContextMenu menu = sender as ContextMenu;
             if( menu != null ) {
                 menu.MenuItems[0].Enabled = (logBox.SelectedText.Length > 0);

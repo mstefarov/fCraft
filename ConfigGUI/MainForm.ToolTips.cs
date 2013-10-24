@@ -2,9 +2,7 @@
 
 namespace fCraft.ConfigGUI {
     partial class MainForm {
-
         void FillToolTipsGeneral() {
-
             toolTip.SetToolTip( lServerName, ConfigKey.ServerName.GetDescription() );
             toolTip.SetToolTip( tServerName, ConfigKey.ServerName.GetDescription() );
 
@@ -68,7 +66,6 @@ You can use any color codes, and these special variables:
 
 
         void FillToolTipsChat() {
-
             toolTip.SetToolTip( xRankColorsInChat, ConfigKey.RankColorsInChat.GetDescription() );
 
             toolTip.SetToolTip( xRankColorsInWorldNames, ConfigKey.RankColorsInWorldNames.GetDescription() );
@@ -121,7 +118,6 @@ You can use any color codes, and these special variables:
 
 
         void FillToolTipsRanks() {
-
             toolTip.SetToolTip( xAllowSecurityCircumvention,
 @"Allows players to manupulate whitelists/blacklists or rank requirements
 in order to join restricted worlds, or to build in worlds/zones. Normally
@@ -159,7 +155,6 @@ Rank colors may be applied to player and world names.";
 The option to show prefixes in chat is on ""General"" tab.";
             toolTip.SetToolTip( lPrefix, tipPrefix );
             toolTip.SetToolTip( tPrefix, tipPrefix );
-
 
 
             toolTip.SetToolTip( permissionLimitBoxes[Permission.Kick],
@@ -203,7 +198,6 @@ By default, players can only bring players of same or lower rank." );
 By default, players can only undo actions of players of same or lower rank." );
 
 
-
             toolTip.SetToolTip( xReserveSlot,
 @"Allows players of this rank to join the server
 even if it reached the maximum number of players." );
@@ -236,7 +230,7 @@ at one time. If unchecked, there is no limit.";
             toolTip.SetToolTip( nDrawLimit, tipDrawLimit );
             toolTip.SetToolTip( lDrawLimitUnits, tipDrawLimit );
 
-            const string copySlotLimit = 
+            const string copySlotLimit =
 @"Maximum number of copied block chunks that this rank is allowed to have.
 Affects all copy/paste commands.";
             toolTip.SetToolTip( lCopyPasteSlots, copySlotLimit );
@@ -249,8 +243,6 @@ dimensions are (32 * 2 + 1), which is 65 x 65 x 65.";
             toolTip.SetToolTip( lFillLimit, tipFillLimit );
             toolTip.SetToolTip( nFillLimit, tipFillLimit );
             toolTip.SetToolTip( lFillLimitUnits, tipFillLimit );
-
-
 
 
             vPermissions.Items[(int)Permission.Ban].ToolTipText =
@@ -592,7 +584,6 @@ Affected commands:
 
 
         void FillToolTipsSavingAndBackup() {
-
             toolTip.SetToolTip( xSaveInterval, ConfigKey.SaveInterval.GetDescription() );
             toolTip.SetToolTip( nSaveInterval, ConfigKey.SaveInterval.GetDescription() );
             toolTip.SetToolTip( lSaveIntervalUnits, ConfigKey.SaveInterval.GetDescription() );
@@ -631,16 +622,21 @@ Affected commands:
             vLogFileOptions.Items[(int)LogType.ConsoleOutput].ToolTipText =
 @"Things sent directly in response to console input,
 e.g. output of commands called from console.";
-            vLogFileOptions.Items[(int)LogType.Debug].ToolTipText = "Technical information that may be useful to find bugs.";
+            vLogFileOptions.Items[(int)LogType.Debug].ToolTipText =
+                "Technical information that may be useful to find bugs.";
             vLogFileOptions.Items[(int)LogType.Error].ToolTipText = "Major errors and problems.";
-            vLogFileOptions.Items[(int)LogType.SeriousError].ToolTipText = "Errors that prevent server from starting or result in crashes.";
+            vLogFileOptions.Items[(int)LogType.SeriousError].ToolTipText =
+                "Errors that prevent server from starting or result in crashes.";
             vLogFileOptions.Items[(int)LogType.GlobalChat].ToolTipText = "Normal chat messages written by players.";
             vLogFileOptions.Items[(int)LogType.IrcStatus].ToolTipText = "IRC-related status and error messages.";
             vLogFileOptions.Items[(int)LogType.IrcChat].ToolTipText = "IRC chatter and join/part messages.";
-            vLogFileOptions.Items[(int)LogType.PrivateChat].ToolTipText = "PMs (Private Messages) exchanged between players (@player message).";
+            vLogFileOptions.Items[(int)LogType.PrivateChat].ToolTipText =
+                "PMs (Private Messages) exchanged between players (@player message).";
             vLogFileOptions.Items[(int)LogType.RankChat].ToolTipText = "Rank-wide messages (@@rank message).";
-            vLogFileOptions.Items[(int)LogType.SuspiciousActivity].ToolTipText = "Suspicious activity - hack attempts, failed logins, unverified names.";
-            vLogFileOptions.Items[(int)LogType.SystemActivity].ToolTipText = "Status messages regarding normal system activity.";
+            vLogFileOptions.Items[(int)LogType.SuspiciousActivity].ToolTipText =
+                "Suspicious activity - hack attempts, failed logins, unverified names.";
+            vLogFileOptions.Items[(int)LogType.SystemActivity].ToolTipText =
+                "Status messages regarding normal system activity.";
             vLogFileOptions.Items[(int)LogType.UserActivity].ToolTipText = "Status messages regarding players' actions.";
             vLogFileOptions.Items[(int)LogType.UserCommand].ToolTipText = "Commands types in by players.";
             vLogFileOptions.Items[(int)LogType.Warning].ToolTipText = "Minor, recoverable errors and problems.";

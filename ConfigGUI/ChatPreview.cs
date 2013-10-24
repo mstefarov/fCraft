@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,12 +11,12 @@ using fCraft.ConfigGUI.Properties;
 
 namespace fCraft.ConfigGUI {
     sealed partial class ChatPreview : UserControl {
-
         struct ColorPair {
             public ColorPair( int r, int g, int b, int sr, int sg, int sb ) {
                 Foreground = new SolidBrush( System.Drawing.Color.FromArgb( r, g, b ) );
                 Shadow = new SolidBrush( System.Drawing.Color.FromArgb( sr, sg, sb ) );
             }
+
             public readonly Brush Foreground, Shadow;
         }
 
@@ -23,30 +24,29 @@ namespace fCraft.ConfigGUI {
         static readonly Font MinecraftFont;
         static readonly ColorPair[] ColorPairs;
 
-        unsafe static ChatPreview() {
+        static unsafe ChatPreview() {
             Fonts = new PrivateFontCollection();
             fixed( byte* fontPointer = Resources.MinecraftFont ) {
                 Fonts.AddMemoryFont( (IntPtr)fontPointer, Resources.MinecraftFont.Length );
             }
             MinecraftFont = new Font( Fonts.Families[0], 12, FontStyle.Regular );
-            ColorPairs = new[]{
-                new ColorPair(0,0,0,0,0,0),
-                new ColorPair(0,0,191,0,0,47),
-                new ColorPair(0,191,0,0,47,0),
-                new ColorPair(0,191,191,0,47,47),
-                new ColorPair(191,0,0,47,0,0),
-                new ColorPair(191,0,191,47,0,47),
-                new ColorPair(191,191,0,47,47,0),
-                new ColorPair(191,191,191,47,47,47),
-
-                new ColorPair(64,64,64,16,16,16),
-                new ColorPair(64,64,255,16,16,63),
-                new ColorPair(64,255,64,16,63,16),
-                new ColorPair(64,255,255,16,63,63),
-                new ColorPair(255,64,64,63,16,16),
-                new ColorPair(255,64,255,63,16,63),
-                new ColorPair(255,255,64,63,63,16),
-                new ColorPair(255,255,255,63,63,63)
+            ColorPairs = new[] {
+                new ColorPair( 0, 0, 0, 0, 0, 0 ),
+                new ColorPair( 0, 0, 191, 0, 0, 47 ),
+                new ColorPair( 0, 191, 0, 0, 47, 0 ),
+                new ColorPair( 0, 191, 191, 0, 47, 47 ),
+                new ColorPair( 191, 0, 0, 47, 0, 0 ),
+                new ColorPair( 191, 0, 191, 47, 0, 47 ),
+                new ColorPair( 191, 191, 0, 47, 47, 0 ),
+                new ColorPair( 191, 191, 191, 47, 47, 47 ),
+                new ColorPair( 64, 64, 64, 16, 16, 16 ),
+                new ColorPair( 64, 64, 255, 16, 16, 63 ),
+                new ColorPair( 64, 255, 64, 16, 63, 16 ),
+                new ColorPair( 64, 255, 255, 16, 63, 63 ),
+                new ColorPair( 255, 64, 64, 63, 16, 16 ),
+                new ColorPair( 255, 64, 255, 63, 16, 63 ),
+                new ColorPair( 255, 255, 64, 63, 63, 16 ),
+                new ColorPair( 255, 255, 255, 63, 63, 63 )
             };
         }
 
@@ -101,7 +101,6 @@ namespace fCraft.ConfigGUI {
                         }
                         y += 20;
                     }
-
                 }
             }
             segments = newSegments.ToArray();

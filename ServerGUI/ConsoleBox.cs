@@ -1,10 +1,11 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System;
 
 namespace fCraft.ServerGUI {
-    sealed class ConsoleBox : TextBox {
+    internal sealed class ConsoleBox : TextBox {
         const int WM_KEYDOWN = 0x100;
         const int WM_SYSKEYDOWN = 0x104;
         public event Action OnCommand;

@@ -16,13 +16,13 @@ namespace fCraft {
 
 
         /// <summary> Constructs a bounding box using two vectors as opposite corners. </summary>
-        public BoundingBox( Vector3I p1, Vector3I p2 ) :
-            this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {}
+        public BoundingBox( Vector3I p1, Vector3I p2 )
+            : this( p1.X, p1.Y, p1.Z, p2.X, p2.Y, p2.Z ) {}
 
 
         /// <summary> Creates a copy of the given BoundingBox. </summary>
-        public BoundingBox( [NotNull] BoundingBox other ) :
-            this( other.XMin, other.YMin, other.ZMin, other.XMax, other.YMax, other.ZMax ) {
+        public BoundingBox( [NotNull] BoundingBox other )
+            : this( other.XMin, other.YMin, other.ZMin, other.XMax, other.YMax, other.ZMax ) {
             if( other == null ) throw new ArgumentNullException( "other" );
         }
 
@@ -32,13 +32,13 @@ namespace fCraft {
         /// <param name="width"> Width (X-axis, horizontal). May be negative. </param>
         /// <param name="length"> Length (Y-axis, horizontal). May be negative. </param>
         /// <param name="height"> Width (Z-axis, vertical). May be negative. </param>
-        public BoundingBox( Vector3I origin, int width, int length, int height ) :
-            this( origin.X,
-                  origin.Y,
-                  origin.Z,
-                  origin.X + width - 1,
-                  origin.Y + length - 1,
-                  origin.Z + height - 1 ) {}
+        public BoundingBox( Vector3I origin, int width, int length, int height )
+            : this( origin.X,
+                    origin.Y,
+                    origin.Z,
+                    origin.X + width - 1,
+                    origin.Y + length - 1,
+                    origin.Z + height - 1 ) {}
 
 
         /// <summary> Constructs a bounding box between two given coordinates. </summary>

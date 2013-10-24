@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -10,7 +11,7 @@ using ImageManipulation;
 
 namespace fCraft.MapRenderer {
     /// <summary> Class responsible for rendering map files, in a dedicated thread. </summary>
-    class RenderWorker {
+    internal class RenderWorker {
         static int threadCount;
         readonly BlockingCollection<RenderTask> inQueue, outQueue;
         readonly MapRendererParams p;
@@ -75,7 +76,6 @@ namespace fCraft.MapRenderer {
 
                         // store result as a byte[]
                         task.Result = ms.ToArray();
-
                     } catch( Exception ex ) {
                         task.Exception = ex;
                     }

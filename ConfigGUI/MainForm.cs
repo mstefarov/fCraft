@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -21,7 +22,6 @@ namespace fCraft.ConfigGUI {
         Rank selectedRank;
         UpdaterSettingsPopup updaterWindow;
         internal static SortableBindingList<WorldListEntry> Worlds;
-
 
         #region Initialization
 
@@ -83,13 +83,13 @@ namespace fCraft.ConfigGUI {
 
         void FillEnumLists() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
-                ListViewItem item = new ListViewItem( permission.ToString() ) { Tag = permission };
+                ListViewItem item = new ListViewItem( permission.ToString() ) {Tag = permission};
                 vPermissions.Items.Add( item );
             }
 
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
                 if( type == LogType.Trace ) continue;
-                ListViewItem item = new ListViewItem( type.ToString() ) { Tag = type };
+                ListViewItem item = new ListViewItem( type.ToString() ) {Tag = type};
                 vLogFileOptions.Items.Add( item );
                 vConsoleOptions.Items.Add( (ListViewItem)item.Clone() );
             }
@@ -105,9 +105,7 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         #region Input Handlers
-
 
         #region General
 
@@ -150,7 +148,7 @@ namespace fCraft.ConfigGUI {
                         if( stream != null ) {
                             StreamReader reader = new StreamReader( stream );
                             string returnMessage = reader.ReadLine();
-                            if( returnMessage != null && returnMessage[0]=='1' ) {
+                            if( returnMessage != null && returnMessage[0] == '1' ) {
                                 MessageBox.Show( "Port " + nPort.Value + " is open!", "Port check success" );
                                 return;
                             }
@@ -159,7 +157,6 @@ namespace fCraft.ConfigGUI {
                 }
                 MessageBox.Show( "Port " + nPort.Value + " is closed. You will need to set up forwarding.",
                                  "Port check failed" );
-
             } catch {
                 MessageBox.Show(
                     "Could not start listening on port " + nPort.Value + ". Another program may be using the port.",
@@ -251,7 +248,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Worlds
 
         void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
@@ -297,7 +293,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void dgvWorlds_Click( object sender, EventArgs e ) {
-            bool oneRowSelected = ( dgvWorlds.SelectedRows.Count == 1 );
+            bool oneRowSelected = (dgvWorlds.SelectedRows.Count == 1);
             bWorldDelete.Enabled = oneRowSelected;
             bWorldEdit.Enabled = oneRowSelected;
         }
@@ -336,7 +332,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                     if( cMainWorld.Items.Count > 0 ) {
                         cMainWorld.SelectedIndex = 0;
                     }
-
                 } else {
                     // deleting main world
                     string mainWorldName = cMainWorld.SelectedItem.ToString();
@@ -366,11 +361,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Security
 
         void cVerifyNames_SelectedIndexChanged( object sender, EventArgs e ) {
-            xAllowUnverifiedLAN.Enabled = ( cVerifyNames.SelectedIndex != 0 );
+            xAllowUnverifiedLAN.Enabled = (cVerifyNames.SelectedIndex != 0);
             xAllowUnverifiedLAN.Checked = !xAllowUnverifiedLAN.Enabled;
         }
 
@@ -380,7 +374,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         #endregion
-
 
         #region Logging
 
@@ -408,7 +401,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Saving & Backup
 
         void xSaveAtInterval_CheckedChanged( object sender, EventArgs e ) {
@@ -431,7 +423,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         #endregion
-
 
         #region IRC
 
@@ -553,7 +544,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cIRCList.SelectedIndex < 0 ) return;
             string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( n => ( n.Name == selectedNetwork ) );
+            IRCNetwork network = IRCNetworks.First( n => (n.Name == selectedNetwork) );
             tIRCBotNetwork.Text = network.Host;
             nIRCBotPort.Value = network.Port;
         }
@@ -583,12 +574,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Advanced
 
         void nMaxUndo_ValueChanged( object sender, EventArgs e ) {
             if( xMaxUndo.Checked ) {
-                decimal maxMemUsage = Math.Ceiling( nMaxUndoStates.Value * ( nMaxUndo.Value * 8 ) / ( 1024 * 1024 ) );
+                decimal maxMemUsage = Math.Ceiling( nMaxUndoStates.Value*(nMaxUndo.Value*8)/(1024*1024) );
                 lMaxUndoUnits.Text = String.Format( "blocks each (up to {0} MB of RAM per player)", maxMemUsage );
             } else {
                 lMaxUndoUnits.Text = "blocks each";
@@ -609,13 +599,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
             xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
         }
 
         #endregion
-
 
         #region Ranks
 
@@ -759,12 +747,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
-
         #region Ranks Input Handlers
 
         void bAddRank_Click( object sender, EventArgs e ) {
             int number = 1;
-            while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) number++;
+            while( RankManager.RanksByName.ContainsKey( "rank" + number ) ) {
+                number++;
+            }
 
             Rank rank = new Rank( "rank" + number, RankManager.GenerateID() );
 
@@ -918,7 +907,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         void nDrawLimit_ValueChanged( object sender, EventArgs e ) {
             if( selectedRank == null || !xDrawLimit.Checked ) return;
             selectedRank.DrawLimit = Convert.ToInt32( nDrawLimit.Value );
-            double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+            double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1/3d );
             lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
         }
 
@@ -982,7 +971,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( selectedRank == null ) return;
             if( xDrawLimit.Checked ) {
                 nDrawLimit.Value = selectedRank.DrawLimit;
-                double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1 / 3d );
+                double cubed = Math.Pow( Convert.ToDouble( nDrawLimit.Value ), 1/3d );
                 lDrawLimitUnits.Text = String.Format( "blocks ({0:0}\u00B3)", cubed );
             } else {
                 nDrawLimit.Value = 0;
@@ -1171,7 +1160,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 case Permission.BringAll:
                     if( check ) vPermissions.Items[(int)Permission.Bring].Checked = true;
                     break;
-
             }
 
             if( permissionLimitBoxes.ContainsKey( permission ) ) {
@@ -1193,18 +1181,15 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 MessageBox.Show( "Rank name cannot be blank." );
                 tRankName.ForeColor = System.Drawing.Color.Red;
                 e.Cancel = true;
-
             } else if( !Rank.IsValidRankName( newName ) ) {
                 MessageBox.Show( "Rank name can only contain letters, digits, and underscores." );
                 tRankName.ForeColor = System.Drawing.Color.Red;
                 e.Cancel = true;
-
             } else if( !RankManager.CanRenameRank( selectedRank, newName ) ) {
                 MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
                                  "Duplicate rank names are not allowed." );
                 tRankName.ForeColor = System.Drawing.Color.Red;
                 e.Cancel = true;
-
             } else {
                 string oldName = ToComboBoxOption( selectedRank );
 
@@ -1244,9 +1229,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #endregion
-
 
         #region Apply / Save / Cancel Buttons
 
@@ -1287,11 +1270,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Reset
 
         void bResetAll_Click( object sender, EventArgs e ) {
-            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?", "Warning",
+            if( MessageBox.Show( "Are you sure you want to reset everything to defaults?",
+                                 "Warning",
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             Config.LoadDefaults();
             Config.ResetRanks();
@@ -1310,7 +1293,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void bResetTab_Click( object sender, EventArgs e ) {
-            if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?", "Warning",
+            if( MessageBox.Show( "Are you sure you want to reset this tab to defaults?",
+                                 "Warning",
                                  MessageBoxButtons.OKCancel ) != DialogResult.OK ) return;
             switch( tabs.SelectedIndex ) {
                 case 0: // General
@@ -1357,13 +1341,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         #region Utils
-
 
         #region Change Detection
 
         bool pauseTrackingSomethingChanged = false;
+
         void SomethingChanged( object sender, EventArgs args ) {
             if( pauseTrackingSomethingChanged ) return;
             bApply.Enabled = true;
@@ -1372,15 +1355,15 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void AddChangeHandler( Control c, EventHandler handler ) {
             if( c is CheckBox ) {
-                ( (CheckBox)c ).CheckedChanged += handler;
+                ((CheckBox)c).CheckedChanged += handler;
             } else if( c is ComboBox ) {
-                ( (ComboBox)c ).SelectedIndexChanged += handler;
+                ((ComboBox)c).SelectedIndexChanged += handler;
             } else if( c is ListView ) {
-                ( (ListView)c ).ItemChecked += ( ( o, e ) => handler( o, e ) );
+                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
             } else if( c is NumericUpDown ) {
-                ( (NumericUpDown)c ).ValueChanged += handler;
+                ((NumericUpDown)c).ValueChanged += handler;
             } else if( c is ListBox ) {
-                ( (ListBox)c ).SelectedIndexChanged += handler;
+                ((ListBox)c).SelectedIndexChanged += handler;
             } else if( c is TextBoxBase ) {
                 c.TextChanged += handler;
             } else if( c is ButtonBase ) {
@@ -1394,7 +1377,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         #endregion
-
 
         #region Colors
 
@@ -1545,7 +1527,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         void bRules_Click( object sender, EventArgs e ) {
             TextEditorPopup popup = new TextEditorPopup( Paths.RulesFileName, "Use common sense!" );
             popup.ShowDialog();
@@ -1582,10 +1563,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #endregion
 
-
         void ConfigUI_FormClosing( object sender, FormClosingEventArgs e ) {
             if( !bApply.Enabled ) return;
-            DialogResult dr = MessageBox.Show( "Would you like to save the changes before exiting?", "Warning",
+            DialogResult dr = MessageBox.Show( "Would you like to save the changes before exiting?",
+                                               "Warning",
                                                MessageBoxButtons.YesNoCancel );
             switch( dr ) {
                 case DialogResult.Yes:
@@ -1606,24 +1587,32 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void FillPermissionLimitBoxes() {
-
-            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit", Permission.Kick,
+            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit",
+                                                                            Permission.Kick,
                                                                             DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit", Permission.Ban,
+            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit",
+                                                                           Permission.Ban,
                                                                            DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit", Permission.Promote,
+            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit",
+                                                                               Permission.Promote,
                                                                                DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit", Permission.Demote,
+            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit",
+                                                                              Permission.Demote,
                                                                               DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from", Permission.Hide,
+            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from",
+                                                                            Permission.Hide,
                                                                             DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit", Permission.Freeze,
+            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit",
+                                                                              Permission.Freeze,
                                                                               DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit", Permission.Mute,
+            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit",
+                                                                            Permission.Mute,
                                                                             DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit", Permission.Bring,
+            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit",
+                                                                             Permission.Bring,
                                                                              DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit", Permission.Spectate,
+            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit",
+                                                                                Permission.Spectate,
                                                                                 DefaultPermissionLimitString );
             permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit",
                                                                                          Permission.UndoOthersActions,
@@ -1770,7 +1759,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
 
-        [CanBeNull, Pure]
+        [CanBeNull]
+        [Pure]
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return "&" + Color.ColorNames.Keys[index];
@@ -1781,7 +1771,8 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         // Looks up color name for the given numeric color code.
-        [CanBeNull, Pure]
+        [CanBeNull]
+        [Pure]
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
                 return Color.ColorNames.Values[index];
@@ -1791,7 +1782,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
 
-        private void xAllowFreePlayers_CheckedChanged( object sender, EventArgs e ) {
+        void xAllowFreePlayers_CheckedChanged( object sender, EventArgs e ) {
             xAllowEmailAccounts.Enabled = xAllowFreePlayers.Checked;
         }
     }

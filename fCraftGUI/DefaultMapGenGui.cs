@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using fCraft.MapGeneration;
 
@@ -30,7 +31,7 @@ namespace fCraft.GUI {
     /// <summary> Represents a class that provides a fallback GUI for any MapGenerator.
     /// Creates DefaultMapGenGui instances on demand. </summary>
     public class DefaultMapGenGuiProvider : IMapGeneratorGuiProvider {
-        DefaultMapGenGuiProvider() { }
+        DefaultMapGenGuiProvider() {}
 
         public static readonly DefaultMapGenGuiProvider Instance = new DefaultMapGenGuiProvider();
 

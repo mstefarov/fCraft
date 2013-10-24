@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -34,22 +35,86 @@ namespace fCraft.ConfigGUI {
             ColorIndex = oldColorIndex;
             StartPosition = FormStartPosition.CenterParent;
 
-            b0.Click += delegate { ColorIndex = 0; DialogResult = DialogResult.OK; Close(); };
-            b1.Click += delegate { ColorIndex = 1; DialogResult = DialogResult.OK; Close(); };
-            b2.Click += delegate { ColorIndex = 2; DialogResult = DialogResult.OK; Close(); };
-            b3.Click += delegate { ColorIndex = 3; DialogResult = DialogResult.OK; Close(); };
-            b4.Click += delegate { ColorIndex = 4; DialogResult = DialogResult.OK; Close(); };
-            b5.Click += delegate { ColorIndex = 5; DialogResult = DialogResult.OK; Close(); };
-            b6.Click += delegate { ColorIndex = 6; DialogResult = DialogResult.OK; Close(); };
-            b7.Click += delegate { ColorIndex = 7; DialogResult = DialogResult.OK; Close(); };
-            b8.Click += delegate { ColorIndex = 8; DialogResult = DialogResult.OK; Close(); };
-            b9.Click += delegate { ColorIndex = 9; DialogResult = DialogResult.OK; Close(); };
-            ba.Click += delegate { ColorIndex = 10; DialogResult = DialogResult.OK; Close(); };
-            bb.Click += delegate { ColorIndex = 11; DialogResult = DialogResult.OK; Close(); };
-            bc.Click += delegate { ColorIndex = 12; DialogResult = DialogResult.OK; Close(); };
-            bd.Click += delegate { ColorIndex = 13; DialogResult = DialogResult.OK; Close(); };
-            be.Click += delegate { ColorIndex = 14; DialogResult = DialogResult.OK; Close(); };
-            bf.Click += delegate { ColorIndex = 15; DialogResult = DialogResult.OK; Close(); };
+            b0.Click += delegate {
+                ColorIndex = 0;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b1.Click += delegate {
+                ColorIndex = 1;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b2.Click += delegate {
+                ColorIndex = 2;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b3.Click += delegate {
+                ColorIndex = 3;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b4.Click += delegate {
+                ColorIndex = 4;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b5.Click += delegate {
+                ColorIndex = 5;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b6.Click += delegate {
+                ColorIndex = 6;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b7.Click += delegate {
+                ColorIndex = 7;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b8.Click += delegate {
+                ColorIndex = 8;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            b9.Click += delegate {
+                ColorIndex = 9;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            ba.Click += delegate {
+                ColorIndex = 10;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bb.Click += delegate {
+                ColorIndex = 11;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bc.Click += delegate {
+                ColorIndex = 12;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bd.Click += delegate {
+                ColorIndex = 13;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            be.Click += delegate {
+                ColorIndex = 14;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
+            bf.Click += delegate {
+                ColorIndex = 15;
+                DialogResult = DialogResult.OK;
+                Close();
+            };
         }
 
 
@@ -58,6 +123,7 @@ namespace fCraft.ConfigGUI {
                 Foreground = foreground;
                 Background = background;
             }
+
             public System.Drawing.Color Foreground;
             public System.Drawing.Color Background;
         }

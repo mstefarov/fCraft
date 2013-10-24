@@ -1,9 +1,10 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace fCraft.MapRenderer {
     /// <summary> Holds all information related to a single map-rendering task. </summary>
-    class RenderTask {
+    internal class RenderTask {
         public Byte[] Result { get; set; }
         public Map Map { get; set; }
         public Exception Exception { get; set; }

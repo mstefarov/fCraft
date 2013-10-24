@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace JetBrains.Annotations {
@@ -12,8 +13,7 @@ namespace JetBrains.Annotations {
         /// <see cref="Required"/> set to <see langword="true"/>.
         /// </summary>
         public LocalizationRequiredAttribute()
-            : this( true ) {
-        }
+            : this( true ) {}
 
         /// <summary>
         /// Initializes a new instance of the <see cref="LocalizationRequiredAttribute"/> class.
@@ -78,14 +78,15 @@ namespace JetBrains.Annotations {
     /// For example, <see cref="ArgumentNullException"/> has such parameter.
     /// </summary>
     [AttributeUsage( AttributeTargets.Parameter, AllowMultiple = false, Inherited = true )]
-    public sealed class InvokerParameterNameAttribute : Attribute { }
+    public sealed class InvokerParameterNameAttribute : Attribute {}
 
     /// <summary>
     /// Indicates that the function is used to notify class type property value is changed.
     /// </summary>
     [AttributeUsage( AttributeTargets.Method, AllowMultiple = false, Inherited = true )]
     public sealed class NotifyPropertyChangedInvocatorAttribute : Attribute {
-        public NotifyPropertyChangedInvocatorAttribute() { }
+        public NotifyPropertyChangedInvocatorAttribute() {}
+
         public NotifyPropertyChangedInvocatorAttribute( string parameterName ) {
             ParameterName = parameterName;
         }
@@ -97,14 +98,18 @@ namespace JetBrains.Annotations {
     /// <summary>
     /// Indicates that the value of marked element could be <c>null</c> sometimes, so the check for <c>null</c> is necessary before its usage
     /// </summary>
-    [AttributeUsage( AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class CanBeNullAttribute : Attribute { }
+    [AttributeUsage(
+        AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate |
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
+    public sealed class CanBeNullAttribute : Attribute {}
 
     /// <summary>
     /// Indicates that the value of marked element could never be <c>null</c>
     /// </summary>
-    [AttributeUsage( AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate | AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class NotNullAttribute : Attribute { }
+    [AttributeUsage(
+        AttributeTargets.Method | AttributeTargets.Parameter | AttributeTargets.Property | AttributeTargets.Delegate |
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
+    public sealed class NotNullAttribute : Attribute {}
 
     /// <summary>
     /// Describes dependency between method input and output
@@ -135,8 +140,7 @@ namespace JetBrains.Annotations {
     [AttributeUsage( AttributeTargets.Method, AllowMultiple = true, Inherited = true )]
     public sealed class ContractAnnotationAttribute : Attribute {
         public ContractAnnotationAttribute( [NotNull] string fdt )
-            : this( fdt, false ) {
-        }
+            : this( fdt, false ) {}
 
         public ContractAnnotationAttribute( [NotNull] string fdt, bool forceFullStates ) {
             FDT = fdt;
@@ -151,8 +155,9 @@ namespace JetBrains.Annotations {
     /// Indicates that the value of marked type (or its derivatives) cannot be compared using '==' or '!=' operators.
     /// There is only exception to compare with <c>null</c>, it is permitted
     /// </summary>
-    [AttributeUsage( AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false, Inherited = true )]
-    public sealed class CannotApplyEqualityOperatorAttribute : Attribute { }
+    [AttributeUsage( AttributeTargets.Interface | AttributeTargets.Class | AttributeTargets.Struct,
+        AllowMultiple = false, Inherited = true )]
+    public sealed class CannotApplyEqualityOperatorAttribute : Attribute {}
 
     /// <summary>
     /// When applied to target attribute, specifies a requirement for any type which is marked with 
@@ -177,7 +182,7 @@ namespace JetBrains.Annotations {
         /// </summary>
         /// <param name="baseType">Specifies which types are required</param>
         public BaseTypeRequiredAttribute( Type baseType ) {
-            BaseTypes = new[] { baseType };
+            BaseTypes = new[] {baseType};
         }
 
         /// <summary>
@@ -194,7 +199,7 @@ namespace JetBrains.Annotations {
     public sealed class UsedImplicitlyAttribute : Attribute {
         [UsedImplicitly]
         public UsedImplicitlyAttribute()
-            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) { }
+            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) {}
 
         [UsedImplicitly]
         public UsedImplicitlyAttribute( ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags ) {
@@ -204,11 +209,11 @@ namespace JetBrains.Annotations {
 
         [UsedImplicitly]
         public UsedImplicitlyAttribute( ImplicitUseKindFlags useKindFlags )
-            : this( useKindFlags, ImplicitUseTargetFlags.Default ) { }
+            : this( useKindFlags, ImplicitUseTargetFlags.Default ) {}
 
         [UsedImplicitly]
         public UsedImplicitlyAttribute( ImplicitUseTargetFlags targetFlags )
-            : this( ImplicitUseKindFlags.Default, targetFlags ) { }
+            : this( ImplicitUseKindFlags.Default, targetFlags ) {}
 
         [UsedImplicitly]
         public ImplicitUseKindFlags UseKindFlags { get; private set; }
@@ -227,7 +232,7 @@ namespace JetBrains.Annotations {
     public sealed class MeansImplicitUseAttribute : Attribute {
         [UsedImplicitly]
         public MeansImplicitUseAttribute()
-            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) { }
+            : this( ImplicitUseKindFlags.Default, ImplicitUseTargetFlags.Default ) {}
 
         [UsedImplicitly]
         public MeansImplicitUseAttribute( ImplicitUseKindFlags useKindFlags, ImplicitUseTargetFlags targetFlags ) {
@@ -237,12 +242,11 @@ namespace JetBrains.Annotations {
 
         [UsedImplicitly]
         public MeansImplicitUseAttribute( ImplicitUseKindFlags useKindFlags )
-            : this( useKindFlags, ImplicitUseTargetFlags.Default ) {
-        }
+            : this( useKindFlags, ImplicitUseTargetFlags.Default ) {}
 
         [UsedImplicitly]
         public MeansImplicitUseAttribute( ImplicitUseTargetFlags targetFlags )
-            : this( ImplicitUseKindFlags.Default, targetFlags ) { }
+            : this( ImplicitUseKindFlags.Default, targetFlags ) {}
 
         [UsedImplicitly]
         public ImplicitUseKindFlags UseKindFlags { get; private set; }
@@ -305,8 +309,8 @@ namespace JetBrains.Annotations {
     /// </summary>
     [MeansImplicitUse]
     public sealed class PublicAPIAttribute : Attribute {
-        public PublicAPIAttribute() { }
-        public PublicAPIAttribute( string comment ) { }
+        public PublicAPIAttribute() {}
+        public PublicAPIAttribute( string comment ) {}
     }
 
     /// <summary>
@@ -315,15 +319,15 @@ namespace JetBrains.Annotations {
     /// If the parameter is enumerable, indicates that it is enumerated while the method is executed.
     /// </summary>
     [AttributeUsage( AttributeTargets.Parameter, Inherited = true )]
-    public sealed class InstantHandleAttribute : Attribute { }
+    public sealed class InstantHandleAttribute : Attribute {}
 
     /// <summary> Indicates that method doesn't contain observable side effects. </summary>
     [AttributeUsage( AttributeTargets.Method, Inherited = true )]
-    public sealed class PureAttribute : Attribute { }
+    public sealed class PureAttribute : Attribute {}
 
     [AttributeUsage( AttributeTargets.Parameter )]
     public class PathReferenceAttribute : Attribute {
-        public PathReferenceAttribute() { }
+        public PathReferenceAttribute() {}
 
         [UsedImplicitly]
         public PathReferenceAttribute( [PathReference] string basePath ) {

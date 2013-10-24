@@ -1,7 +1,7 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
 namespace fCraft.MapConverter {
-    enum ReturnCode {
+    internal enum ReturnCode {
         Success = 0,
         ArgumentError = 1,
         UnrecognizedImporter = 2,

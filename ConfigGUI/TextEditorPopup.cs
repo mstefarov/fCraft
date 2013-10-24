@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.Linq;
@@ -31,19 +32,20 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        private void tRules_KeyDown( object sender, KeyEventArgs e ) {
+        void tRules_KeyDown( object sender, KeyEventArgs e ) {
             lWarning.Visible = ContainsLongLines();
         }
 
-        private void bOK_Click( object sender, EventArgs e ) {
+        void bOK_Click( object sender, EventArgs e ) {
             File.WriteAllText( FileName, tText.Text );
             Close();
         }
 
         ColorPicker colorPicker;
-        private void bInsertColor_Click( object sender, EventArgs e ) {
-            if( colorPicker == null ) colorPicker = new ColorPicker("Insert color",0);
-            if( colorPicker.ShowDialog() == DialogResult.OK){
+
+        void bInsertColor_Click( object sender, EventArgs e ) {
+            if( colorPicker == null ) colorPicker = new ColorPicker( "Insert color", 0 );
+            if( colorPicker.ShowDialog() == DialogResult.OK ) {
                 string colorToInsert = MainForm.Parse( colorPicker.ColorIndex );
                 int selectionStart = tText.SelectionStart;
                 tText.Paste( colorToInsert );
@@ -53,7 +55,8 @@ namespace fCraft.ConfigGUI {
         }
 
         KeywordPicker keywordPicker;
-        private void bInsertKeyword_Click( object sender, EventArgs e ) {
+
+        void bInsertKeyword_Click( object sender, EventArgs e ) {
             if( keywordPicker == null ) keywordPicker = new KeywordPicker();
             if( keywordPicker.ShowDialog() == DialogResult.OK ) {
                 int selectionStart = tText.SelectionStart;
@@ -63,7 +66,7 @@ namespace fCraft.ConfigGUI {
             }
         }
 
-        private void bReset_Click( object sender, EventArgs e ) {
+        void bReset_Click( object sender, EventArgs e ) {
             tText.Text = OriginalText;
         }
     }

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Windows.Forms;
 
@@ -18,7 +19,7 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        private void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
+        void cSubstitute_SelectedIndexChanged( object sender, EventArgs e ) {
             if( cSubstitute.SelectedIndex < 0 ) return;
             foreach( Rank rank in RankManager.Ranks ) {
                 if( cSubstitute.SelectedItem.ToString() != MainForm.ToComboBoxOption( rank ) ) continue;

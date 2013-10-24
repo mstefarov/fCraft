@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Diagnostics;
 using System.Windows.Forms;
@@ -11,17 +12,16 @@ namespace fCraft.GUI {
             tCredits.Select( 0, 0 );
         }
 
-        private void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
+        void linkLabel1_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
                 Process.Start( "http://www.fcraft.net" );
-            } catch { }
+            } catch {}
         }
 
-        private void linkLabel2_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
+        void linkLabel2_LinkClicked( object sender, LinkLabelLinkClickedEventArgs e ) {
             try {
                 Process.Start( "mailto:me@matvei.org" );
-            } catch { }
+            } catch {}
         }
-
     }
 }

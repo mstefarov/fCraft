@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -113,7 +114,7 @@ namespace fCraft.ConfigGUI {
             tsbCopyGenSettings.DropDownItemClicked += tsbImportSettings_DropDownItemClicked;
             Shown += LoadMap;
         }
-        
+
 
         WorldListEntry[] otherWorlds;
 
@@ -148,7 +149,6 @@ namespace fCraft.ConfigGUI {
                 cBlockDB.SelectedIndex = 0; // Auto
                 cVisibility.SelectedIndex = 0;
                 Map = null;
-
             } else {
                 // Fill in information from an existing world (Editing)
                 World = new WorldListEntry( World );
@@ -192,7 +192,6 @@ namespace fCraft.ConfigGUI {
 
             savePreviewDialog.FileName = World.Name;
         }
-
 
         #region Loading/Saving Map
 
@@ -264,7 +263,6 @@ namespace fCraft.ConfigGUI {
         }
 
         #endregion Loading
-
 
         #region Map Preview
 
@@ -409,7 +407,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         #region Map Generation
 
         MapGeneratorState genState;
@@ -544,7 +541,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         #region Input Handlers
 
         void MapDimensionValidating( object sender, CancelEventArgs e ) {
@@ -634,7 +630,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         #region Generator Presets
 
         SaveFileDialog savePresetDialog;
@@ -683,13 +678,11 @@ namespace fCraft.ConfigGUI {
                     } else {
                         MessageBox.Show( "Could not load map file!" );
                     }
-
                 } else if( fileName.EndsWith( ".ftpl", StringComparison.OrdinalIgnoreCase ) ) {
                     XDocument doc = XDocument.Load( fullFileName );
                     XElement root = doc.Root;
                     // TODO: legacy templates
                     MessageBox.Show( LegacyTemplateMessage );
-
                 } else {
                     MessageBox.Show( "Unrecognized file: \"" + fileName + "\"" );
                 }
@@ -723,7 +716,6 @@ namespace fCraft.ConfigGUI {
                 // load legacy (pre-0.640) embedded generation parameters
                 // TODO: legacy templates
                 MessageBox.Show( LegacyTemplateMessage );
-
             } else {
                 // load modern (0.640+) embedded generation parameters
                 try {
@@ -740,14 +732,12 @@ namespace fCraft.ConfigGUI {
                     SelectGenerator( genParams.Generator );
                     SetGenParams( genParams );
                     tStatus1.Text = "Imported map generation from " + fileName;
-
                 } catch( MapGenUtil.UnknownMapGeneratorException ex ) {
                     tStatus1.Text = "No matching generator found for " + fileName;
                     MessageBox.Show( "Could not find a matching map generator for \"" + ex.GeneratorName + "\"",
                                      "Missing map generator",
                                      MessageBoxButtons.OK,
                                      MessageBoxIcon.Warning );
-
                 } catch( Exception ex ) {
                     tStatus1.Text = "Error loading parameters from " + fileName;
                     MessageBox.Show( ex.GetType().Name + Environment.NewLine + ex.Message,
@@ -762,28 +752,26 @@ namespace fCraft.ConfigGUI {
         void tsbLoadPreset_DropDownItemClicked( object sender, ToolStripItemClickedEventArgs e ) {
             if( e.ClickedItem == tsbLoadPresetFromFile ) {
                 BeginInvoke( (Action)LoadPresetFromFile ); // allow menu to close
-
             } else if( e.ClickedItem == tsbDefaultPreset ) {
                 SetGenParams( generator.CreateDefaultParameters() );
                 SetStatus( "Default preset applied." );
                 bGenerate.PerformClick();
-
             } else if( e.ClickedItem is ToolStripSeparator ) {
                 BeginInvoke( (Action)delegate { tsbLoadPreset.DropDown.AutoClose = true; } );
                 tsbLoadPreset.DropDown.AutoClose = false;
-
             } else {
                 try {
                     string presetName = e.ClickedItem.Text;
                     MapGeneratorParameters genParams = generator.CreateParameters( presetName );
                     if( genParams == null ) {
-                        ShowPresetLoadError( "Preset \"{0}\" was not recognized by {1} map generator.", presetName, generator.Name );
+                        ShowPresetLoadError( "Preset \"{0}\" was not recognized by {1} map generator.",
+                                             presetName,
+                                             generator.Name );
                     } else {
                         SetGenParams( genParams );
                         SetStatus( "Preset \"{0}\" applied.", presetName );
                         bGenerate.PerformClick();
                     }
-
                 } catch( Exception ex ) {
                     ShowPresetLoadError( ex.GetType().Name + Environment.NewLine + ex );
                 }
@@ -842,7 +830,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         #region Tabs
 
         void tabs_SelectedIndexChanged( object sender, EventArgs e ) {
@@ -898,7 +885,6 @@ namespace fCraft.ConfigGUI {
 
         #endregion
 
-
         static void ShowMapDetails( TextBox textBox, string fileName ) {
             DateTime creationTime, modificationTime;
             long fileSize;
@@ -908,13 +894,11 @@ namespace fCraft.ConfigGUI {
                 creationTime = existingMapFileInfo.CreationTime;
                 modificationTime = existingMapFileInfo.LastWriteTime;
                 fileSize = existingMapFileInfo.Length;
-
             } else if( Directory.Exists( fileName ) ) {
                 DirectoryInfo dirInfo = new DirectoryInfo( fileName );
                 creationTime = dirInfo.CreationTime;
                 modificationTime = dirInfo.LastWriteTime;
                 fileSize = dirInfo.GetFiles().Sum( fileInfo => fileInfo.Length );
-
             } else {
                 textBox.Text = "File or directory \"" + fileName + "\" does not exist.";
                 return;
@@ -941,7 +925,6 @@ Dimensions: {5}×{6}×{7}
                                               loadedMap.Length,
                                               loadedMap.Height,
                                               loadedMap.Volume );
-
             } catch( Exception ex ) {
                 const string msgFormat =
                     @"  Location: {0}
