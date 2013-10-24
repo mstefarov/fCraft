@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -34,7 +35,6 @@ namespace fCraft {
         /// <summary> Controls which players may build in this world. </summary>
         [NotNull]
         public SecurityController BuildSecurity { get; internal set; }
-
 
 
         /// <summary> Date (UTC) that this world was created on. </summary>
@@ -89,7 +89,6 @@ namespace fCraft {
             Players = new Player[0];
         }
 
-
         #region Map
 
         // flag to prevent double ChangeMap() calls on the same World instance
@@ -132,7 +131,8 @@ namespace fCraft {
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "World.LoadMap: Failed to load map ({0}): {1}",
-                                    MapFileName, ex );
+                                    MapFileName,
+                                    ex );
                     }
                 }
 
@@ -272,7 +272,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Flush
 
         /// <summary> Whether this world is currently being flushed. </summary>
@@ -302,7 +301,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region PlayerList
 
         readonly Dictionary<string, Player> playerIndex = new Dictionary<string, Player>();
@@ -324,17 +322,21 @@ namespace fCraft {
                                                      .OrderBy( p => p.LastActiveTime )
                                                      .FirstOrDefault();
                         if( idlestPlayer != null ) {
-                            idlestPlayer.Kick( Player.Console, "Auto-kicked to make room (idle).",
-                                               LeaveReason.IdleKick, KickOptions.None );
+                            idlestPlayer.Kick( Player.Console,
+                                               "Auto-kicked to make room (idle).",
+                                               LeaveReason.IdleKick,
+                                               KickOptions.None );
 
                             Server.Players
                                   .CanSee( player )
                                   .Message( "&SPlayer {0}&S was auto-kicked to make room for {1}",
-                                            idlestPlayer.ClassyName, player.ClassyName );
+                                            idlestPlayer.ClassyName,
+                                            player.ClassyName );
                             Server.Players
                                   .CantSee( player )
                                   .Message( "{0}&S was kicked for being idle for {1} min",
-                                            player.ClassyName, player.Info.Rank.IdleKickTimer );
+                                            player.ClassyName,
+                                            player.Info.Rank.IdleKickTimer );
                         } else {
                             return null;
                         }
@@ -362,12 +364,14 @@ namespace fCraft {
                 if( announce && ConfigKey.ShowJoinedWorldMessages.Enabled() ) {
                     Server.Players.CanSee( player )
                           .Message( "&SPlayer {0}&S joined {1}",
-                                    player.ClassyName, ClassyName );
+                                    player.ClassyName,
+                                    ClassyName );
                 }
 
                 Logger.Log( LogType.UserActivity,
                             "Player {0} joined world {1}.",
-                            player.Name, Name );
+                            player.Name,
+                            Name );
 
                 if( IsLocked ) {
                     player.Message( "&WThis map is currently locked (read-only)." );
@@ -471,11 +475,10 @@ namespace fCraft {
 
         /// <summary> Whether the current world is full, determined by ConfigKey.MaxPlayersPerWorld </summary>
         public bool IsFull {
-            get { return ( Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt() ); }
+            get { return (Players.Length >= ConfigKey.MaxPlayersPerWorld.GetInt()); }
         }
 
         #endregion
-
 
         #region Lock / Unlock
 
@@ -520,7 +523,8 @@ namespace fCraft {
                     Players.Message( "&WWorld was locked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
                                 "World {0} was locked by {1}",
-                                Name, player.Name );
+                                Name,
+                                player.Name );
                     return true;
                 }
             }
@@ -541,7 +545,8 @@ namespace fCraft {
                     Players.Message( "&WMap was unlocked by {0}", player.ClassyName );
                     Logger.Log( LogType.UserActivity,
                                 "World \"{0}\" was unlocked by {1}",
-                                Name, player.Name );
+                                Name,
+                                player.Name );
                     return true;
                 } else {
                     return false;
@@ -550,7 +555,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Patrol
 
@@ -592,7 +596,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> observer or predicate is null. </exception>
         [CanBeNull]
         public Player GetNextPatrolTarget( [NotNull] Player observer,
-                                           [NotNull, InstantHandle] Predicate<Player> predicate,
+                                           [NotNull] [InstantHandle] Predicate<Player> predicate,
                                            bool setLastPatrolTime ) {
             if( observer == null ) throw new ArgumentNullException( "observer" );
             if( predicate == null ) throw new ArgumentNullException( "predicate" );
@@ -614,11 +618,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region Scheduled Tasks
 
-        [CanBeNull] SchedulerTask updateTask;
-        [CanBeNull] SchedulerTask saveTask;
+        [CanBeNull]
+        SchedulerTask updateTask;
+
+        [CanBeNull]
+        SchedulerTask saveTask;
+
         readonly object taskLock = new object();
 
 
@@ -671,7 +678,7 @@ namespace fCraft {
                 lock( BackupLock ) {
                     if( BackupsEnabled &&
                         DateTime.UtcNow.Subtract( lastBackup ) > BackupInterval &&
-                        ( HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled() ) ) {
+                        (HasChangedSinceBackup || !ConfigKey.BackupOnlyWhenChanged.Enabled()) ) {
                         string backupFileName = String.Format( TimedBackupFormat, Name, DateTime.Now ); // localized
                         SaveBackup( Path.Combine( Paths.BackupPath, backupFileName ) );
                         lastBackup = DateTime.UtcNow;
@@ -689,7 +696,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Backups
 
@@ -813,11 +819,12 @@ namespace fCraft {
                         directory.Create();
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
-                                    "Map.SaveBackup: Error occurred while trying to create backup directory: {0}", ex );
+                                    "Map.SaveBackup: Error occurred while trying to create backup directory: {0}",
+                                    ex );
                         return false;
                     }
                 }
-                
+
                 // TODO: if the target file already exists, do something smart
                 try {
                     HasChangedSinceBackup = false;
@@ -826,7 +833,8 @@ namespace fCraft {
                     HasChangedSinceBackup = true;
                     Logger.Log( LogType.Error,
                                 "Map.SaveBackup: Error occurred while trying to save backup to \"{0}\": {1}",
-                                targetName, ex );
+                                targetName,
+                                ex );
                     return false;
                 }
 
@@ -836,7 +844,9 @@ namespace fCraft {
             }
 
             Logger.Log( LogType.SystemActivity,
-                        "Saved a backup of world {0} to \"{1}\"", Name, targetName );
+                        "Saved a backup of world {0} to \"{1}\"",
+                        Name,
+                        targetName );
             return true;
         }
 
@@ -856,11 +866,13 @@ namespace fCraft {
                     } catch( Exception ex ) {
                         Logger.Log( LogType.Error,
                                     "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
-                                    info.FullName, ex );
+                                    info.FullName,
+                                    ex );
                         break;
                     }
                     Logger.Log( LogType.SystemActivity,
-                                "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
+                                "Map.SaveBackup: Deleted old backup \"{0}\"",
+                                info.Name );
                 }
             }
 
@@ -871,7 +883,7 @@ namespace fCraft {
                     FileInfo[] files = directory.GetFiles();
                     long size = files.Sum( fi => fi.Length );
 
-                    if( size / 1024 / 1024 > maxFileSize ) {
+                    if( size/1024/1024 > maxFileSize ) {
                         FileInfo info = backupList[backupList.Count - 1];
                         backupList.RemoveAt( backupList.Count - 1 );
                         try {
@@ -879,11 +891,13 @@ namespace fCraft {
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error,
                                         "Map.SaveBackup: Error occurred while trying delete old backup \"{0}\": {1}",
-                                        info.Name, ex );
+                                        info.Name,
+                                        ex );
                             break;
                         }
                         Logger.Log( LogType.SystemActivity,
-                                    "Map.SaveBackup: Deleted old backup \"{0}\"", info.Name );
+                                    "Map.SaveBackup: Deleted old backup \"{0}\"",
+                                    info.Name );
                     } else {
                         break;
                     }
@@ -892,7 +906,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region WoM Extensions
 
@@ -940,7 +953,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Ensures that player name has the correct length (2-16 characters)
         /// and character set (alphanumeric chars and underscores allowed). </summary>

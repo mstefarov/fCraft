@@ -12,8 +12,7 @@ namespace fCraft.Drawing {
         }
 
         public CuboidDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -24,8 +23,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override int DrawBatch(int maxBlocksToDraw) {
-            return DrawBatchWithinBounds(maxBlocksToDraw);
+        public override int DrawBatch( int maxBlocksToDraw ) {
+            return DrawBatchWithinBounds( maxBlocksToDraw );
         }
     }
 }

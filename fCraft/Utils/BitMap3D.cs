@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -103,7 +104,6 @@ namespace fCraft {
             version++;
         }
 
-
         #region Implementation of IEnumerable
 
         public IEnumerator<Vector3I> GetEnumerator() {
@@ -118,10 +118,14 @@ namespace fCraft {
         class BitMap3DEnumerator : IEnumerator<Vector3I> {
             readonly BitMap3D bitmap;
             readonly int dimX, dimY, dimZ;
+
             int startingVersion,
-                x, y, z,
+                x,
+                y,
+                z,
                 intIndex,
                 bitIndex;
+
             uint storeInt;
 
 

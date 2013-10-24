@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -8,7 +9,7 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
     public sealed class MapFCMv2 : IMapImporter {
-        private const uint Identifier = 0xfc000002;
+        const uint Identifier = 0xfc000002;
 
         public string ServerName {
             get { return "fCraft"; }
@@ -39,12 +40,11 @@ namespace fCraft.MapConversion {
             try {
                 using( FileStream mapStream = File.OpenRead( fileName ) ) {
                     BinaryReader reader = new BinaryReader( mapStream );
-                    return ( reader.ReadUInt32() == Identifier );
+                    return (reader.ReadUInt32() == Identifier);
                 }
             } catch( Exception ) {
                 return false;
             }
-
         }
 
 
@@ -89,7 +89,6 @@ namespace fCraft.MapConversion {
         public Map Load( string fileName ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
             using( FileStream mapStream = File.OpenRead( fileName ) ) {
-
                 Map map = LoadHeaderInternal( mapStream );
 
                 BinaryReader reader = new BinaryReader( mapStream );
@@ -105,12 +104,14 @@ namespace fCraft.MapConversion {
                             map.Zones.Add( new Zone( value, map.World ) );
                         } catch( Exception ex ) {
                             Logger.Log( LogType.Error,
-                                        "MapFCMv2.Load: Error importing zone definition: {0}", ex );
+                                        "MapFCMv2.Load: Error importing zone definition: {0}",
+                                        ex );
                         }
                     } else {
                         Logger.Log( LogType.Warning,
                                     "MapFCMv2.Load: Metadata discarded: \"{0}\"=\"{1}\"",
-                                    key, value );
+                                    key,
+                                    value );
                     }
                 }
 

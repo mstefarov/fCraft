@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -269,7 +270,6 @@ namespace fCraft {
         }
 
 
-
         /// <summary> Changes the name of a given zone. </summary>
         /// <param name="zone"> Zone to rename. </param>
         /// <param name="newName"> New name to give to the zone. </param>
@@ -298,7 +298,6 @@ namespace fCraft {
         public IEnumerator<Zone> GetEnumerator() {
             return store.Values.GetEnumerator();
         }
-
 
         #region ICollection Boilerplate
 
@@ -336,10 +335,10 @@ namespace fCraft {
         public object SyncRoot {
             get { return syncRoot; }
         }
+
         readonly object syncRoot = new object();
 
         #endregion
-
 
         public object Clone() {
             lock( syncRoot ) {

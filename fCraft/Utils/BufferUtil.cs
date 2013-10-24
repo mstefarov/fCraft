@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using JetBrains.Annotations;
@@ -12,7 +13,7 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> array is null. </exception>
         public static void MemSet( [NotNull] this byte[] array, byte value ) {
             if( array == null ) throw new ArgumentNullException( "array" );
-            byte[] rawValue = { value, value, value, value, value, value, value, value };
+            byte[] rawValue = {value, value, value, value, value, value, value, value};
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = array ) {
@@ -49,7 +50,7 @@ namespace fCraft {
                 throw new ArgumentOutOfRangeException( "startIndex" );
             }
 
-            byte[] rawValue = { value, value, value, value, value, value, value, value };
+            byte[] rawValue = {value, value, value, value, value, value, value, value};
             Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
 
             fixed( byte* ptr = &array[startIndex] ) {
@@ -77,32 +78,32 @@ namespace fCraft {
             if( dest == null ) throw new ArgumentNullException( "dest" );
             if( len >= 0x10 ) {
                 do {
-                    *( (int*)dest ) = *( (int*)src );
-                    *( (int*)( dest + 4 ) ) = *( (int*)( src + 4 ) );
-                    *( (int*)( dest + 8 ) ) = *( (int*)( src + 8 ) );
-                    *( (int*)( dest + 12 ) ) = *( (int*)( src + 12 ) );
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
+                    *((int*)(dest + 8)) = *((int*)(src + 8));
+                    *((int*)(dest + 12)) = *((int*)(src + 12));
                     dest += 0x10;
                     src += 0x10;
-                } while( ( len -= 0x10 ) >= 0x10 );
+                } while( (len -= 0x10) >= 0x10 );
             }
             if( len > 0 ) {
-                if( ( len & 8 ) != 0 ) {
-                    *( (int*)dest ) = *( (int*)src );
-                    *( (int*)( dest + 4 ) ) = *( (int*)( src + 4 ) );
+                if( (len & 8) != 0 ) {
+                    *((int*)dest) = *((int*)src);
+                    *((int*)(dest + 4)) = *((int*)(src + 4));
                     dest += 8;
                     src += 8;
                 }
-                if( ( len & 4 ) != 0 ) {
-                    *( (int*)dest ) = *( (int*)src );
+                if( (len & 4) != 0 ) {
+                    *((int*)dest) = *((int*)src);
                     dest += 4;
                     src += 4;
                 }
-                if( ( len & 2 ) != 0 ) {
-                    *( (short*)dest ) = *( (short*)src );
+                if( (len & 2) != 0 ) {
+                    *((short*)dest) = *((short*)src);
                     dest += 2;
                     src += 2;
                 }
-                if( ( len & 1 ) != 0 ) {
+                if( (len & 1) != 0 ) {
                     dest++;
                     src++;
                     dest[0] = src[0];

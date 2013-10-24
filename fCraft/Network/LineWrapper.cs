@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // #define DEBUG_LINE_WRAPPER
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -30,17 +31,21 @@ namespace fCraft {
 
         public Packet Current { get; private set; }
 
-        bool expectingColor;// whether next input character is expected to be a color code
-        byte color,         // color that the next inserted character should be
-             lastColor;     // used to detect duplicate color codes
+        bool expectingColor; // whether next input character is expected to be a color code
+
+        byte color,
+             // color that the next inserted character should be
+             lastColor; // used to detect duplicate color codes
 
         bool endsWithSymbol; // used to guarantee suffixes for symbols ("emotes")
 
-        bool hadColor,      // used to see if white (&f) colorcodes should be inserted
-             canWrap;       // used to see if a word needs to be forcefully wrapped (i.e. doesn't fit in one line)
+        bool hadColor,
+             // used to see if white (&f) colorcodes should be inserted
+             canWrap; // used to see if a word needs to be forcefully wrapped (i.e. doesn't fit in one line)
 
-        int spaceCount,     // used to track spacing between words
-            wordLength;     // used to see whether to wrap at hyphens
+        int spaceCount,
+            // used to track spacing between words
+            wordLength; // used to see whether to wrap at hyphens
 
         readonly byte[] prefix;
 
@@ -48,12 +53,15 @@ namespace fCraft {
         int inputIndex;
 
         byte[] output;
+
         int outputStart,
             outputIndex;
 
-        int wrapInputIndex,     // index of the nearest line-wrapping opportunity in the input buffer 
-            wrapOutputIndex;    // corresponding index in the output buffer
-        byte wrapColor;         // value of "color" field at the wrapping point
+        int wrapInputIndex,
+            // index of the nearest line-wrapping opportunity in the input buffer 
+            wrapOutputIndex; // corresponding index in the output buffer
+
+        byte wrapColor; // value of "color" field at the wrapping point
         bool wrapEndsWithSymbol; // value of "endsWithSymbol" field at the wrapping point
 
 
@@ -224,7 +232,7 @@ namespace fCraft {
                             wrapColor = color;
                             wrapEndsWithSymbol = endsWithSymbol;
                         }
-                        if( ch == 0 || ch > 127 ){
+                        if( ch == 0 || ch > 127 ) {
                             // replace unprintable chars with '?'
                             ch = (byte)'?';
                         }
@@ -273,7 +281,7 @@ namespace fCraft {
             // calculate the number of characters to insert
             int bytesToInsert = 1 + spaceCount;
             if( prependColor ) bytesToInsert += 2;
-            
+
             // calculating requirements for the next symbol
             if( ch < ' ' ) {
                 switch( ch ) {
@@ -375,7 +383,7 @@ namespace fCraft {
                     endsWithSymbol = true;
                     break;
                 default:
-                    endsWithSymbol = ( ch < ' ' );
+                    endsWithSymbol = (ch < ' ');
                     break;
             }
             return true;
@@ -435,7 +443,6 @@ namespace fCraft {
 
         void IDisposable.Dispose() {}
 
-
         #region IEnumerable<Packet> Members
 
         public IEnumerator<Packet> GetEnumerator() {
@@ -448,7 +455,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Creates a new line wrapper for a given raw string. </summary>
         /// <exception cref="ArgumentNullException"> message is null. </exception>

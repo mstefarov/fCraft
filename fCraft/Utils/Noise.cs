@@ -1,9 +1,9 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
 namespace fCraft {
-
     /// <summary> Interpolation mode for perlin noise. </summary>
     public enum NoiseInterpolationMode {
         /// <summary> Bilinear (LERP) interpolation (fastest). </summary>
@@ -37,7 +37,7 @@ namespace fCraft {
 
         /// <summary> 1D linear interpolation (LERP) </summary>
         public static float InterpolateLinear( float v0, float v1, float x ) {
-            return v0*( 1 - x ) + v1*x;
+            return v0*(1 - x) + v1*x;
         }
 
 
@@ -51,8 +51,8 @@ namespace fCraft {
 
         /// <summary> 1D cosine interpolation </summary>
         public static float InterpolateCosine( float v0, float v1, float x ) {
-            double f = ( 1 - Math.Cos( x*Math.PI ) )*.5;
-            return (float)( v0*( 1 - f ) + v1*f );
+            double f = (1 - Math.Cos( x*Math.PI ))*.5;
+            return (float)(v0*(1 - f) + v1*f);
         }
 
 
@@ -72,7 +72,7 @@ namespace fCraft {
             float a1 = v0 - v1 - a0;
             float a2 = v2 - v0;
             float a3 = v1;
-            return ( a0*mu*mu2 + a1*mu2 + a2*mu + a3 );
+            return (a0*mu*mu2 + a1*mu2 + a2*mu + a3);
         }
 
 
@@ -84,7 +84,7 @@ namespace fCraft {
             float a1 = v0 - 2.5f*v1 + 2*v2 - 0.5f*v3;
             float a2 = -0.5f*v0 + 0.5f*v2;
             float a3 = v1;
-            return ( a0*mu*mu2 + a1*mu2 + a2*mu + a3 );
+            return (a0*mu*mu2 + a1*mu2 + a2*mu + a3);
         }
 
 
@@ -92,8 +92,8 @@ namespace fCraft {
         /// Result is normalized to 0.0-1.0. Guaranteed to produce same result for same coordinates between calls. </summary>
         public float StaticNoise( int x, int y ) {
             int n = Seed + x + y*short.MaxValue;
-            n = ( n << 13 ) ^ n;
-            return (float)( 1.0 - ( ( n*( n*n*15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF )/1073741824d );
+            n = (n << 13) ^ n;
+            return (float)(1.0 - ((n*(n*n*15731 + 789221) + 1376312589) & 0x7FFFFFFF)/1073741824d);
         }
 
 
@@ -101,8 +101,8 @@ namespace fCraft {
         /// Result is normalized to 0.0-1.0. Guaranteed to produce same result for same coordinates between calls. </summary>
         public float StaticNoise( int x, int y, int z ) {
             int n = Seed + x + y*1625 + z*2642245;
-            n = ( n << 13 ) ^ n;
-            return (float)( 1.0 - ( ( n*( n*n*15731 + 789221 ) + 1376312589 ) & 0x7FFFFFFF )/1073741824d );
+            n = (n << 13) ^ n;
+            return (float)(1.0 - ((n*(n*n*15731 + 789221) + 1376312589) & 0x7FFFFFFF)/1073741824d);
         }
 
 
@@ -267,7 +267,7 @@ namespace fCraft {
         public static float PerlinNoiseMax( int startOctave, int endOctave, float decay ) {
             if( startOctave < 0 ) throw new ArgumentOutOfRangeException( "startOctave" );
             if( startOctave > endOctave ) throw new ArgumentOutOfRangeException( "endOctave" );
-            return (float)( Math.Pow( decay, startOctave ) - Math.Pow( decay, endOctave + 1 ) )/( 1 - decay );
+            return (float)(Math.Pow( decay, startOctave ) - Math.Pow( decay, endOctave + 1 ))/(1 - decay);
         }
 
 
@@ -345,7 +345,6 @@ namespace fCraft {
             }
         }
 
-
         #region Normalization
 
         /// <summary> Adjusts all values in the given 2D array so that all values
@@ -399,11 +398,11 @@ namespace fCraft {
         /// <param name="multiplier"> Computed normalization multiplier (by which all values were multiplied). </param>
         /// <param name="constant"> Computed normalization constant (which is added to all values). </param>
         /// <exception cref="ArgumentNullException"> data is null </exception>
-        public static unsafe void Normalize( [NotNull] float[, ,] data, out float multiplier, out float constant ) {
+        public static unsafe void Normalize( [NotNull] float[,,] data, out float multiplier, out float constant ) {
             fixed( float* ptr = data ) {
                 CalculateNormalizationParams( ptr, data.Length, 0f, 1f, out multiplier, out constant );
                 for( int i = 0; i < data.Length; i++ ) {
-                    ptr[i] = ptr[i] * multiplier + constant;
+                    ptr[i] = ptr[i]*multiplier + constant;
                 }
             }
         }
@@ -412,7 +411,7 @@ namespace fCraft {
             float multiplier, constant;
             CalculateNormalizationParams( data, dataLength, low, high, out multiplier, out constant );
             for( int i = 0; i < dataLength; i++ ) {
-                data[i] = data[i] * multiplier + constant;
+                data[i] = data[i]*multiplier + constant;
             }
         }
 
@@ -427,18 +426,17 @@ namespace fCraft {
                 max = Math.Max( max, ptr[i] );
             }
 
-            multiplier = (high - low) / (max - min);
-            constant = -min * (high - low) / (max - min) + low;
+            multiplier = (high - low)/(max - min);
+            constant = -min*(high - low)/(max - min) + low;
         }
 
         #endregion
 
-
         #region Filters
 
-        const float BoxBlurDivisor = 1 / 9f;
-        const float GaussianBlurDivisor = 1 / 273f;
-        const float SlopeDivisor = 1 / 20f;
+        const float BoxBlurDivisor = 1/9f;
+        const float GaussianBlurDivisor = 1/273f;
+        const float SlopeDivisor = 1/20f;
 
         const int ThresholdSearchPasses = 10;
 
@@ -452,11 +450,11 @@ namespace fCraft {
             }
         }
 
-        public static unsafe void Marble( [NotNull] float[, ,] map ) {
+        public static unsafe void Marble( [NotNull] float[,,] map ) {
             if( map == null ) throw new ArgumentNullException( "map" );
             fixed( float* ptr = map ) {
                 for( int i = 0; i < map.Length; i++ ) {
-                    ptr[i] = Math.Abs( ptr[i] * 2 - 1 );
+                    ptr[i] = Math.Abs( ptr[i]*2 - 1 );
                 }
             }
         }
@@ -473,7 +471,7 @@ namespace fCraft {
             }
             fixed( float* ptr1 = data1, ptr2 = data2, ptrBlend = blendMap ) {
                 for( int i = 0; i < data1.Length; i++ ) {
-                    ptr1[i] += ptr1[i]*ptrBlend[i] + ptr2[i]*( 1 - ptrBlend[i] );
+                    ptr1[i] += ptr1[i]*ptrBlend[i] + ptr2[i]*(1 - ptrBlend[i]);
                 }
             }
         }
@@ -504,22 +502,22 @@ namespace fCraft {
 
             for( int x = offsetX - 1; x >= 0; x-- ) {
                 for( int y = offsetY - 1; y >= 0; y-- ) {
-                    data[x, y] += InterpolateCosine( c00, ( c00 + c01 )/2, ( c00 + c10 )/2, midpoint, x*maxX, y*maxY );
-                    data[x + offsetX, y] += InterpolateCosine( ( c00 + c10 )/2,
+                    data[x, y] += InterpolateCosine( c00, (c00 + c01)/2, (c00 + c10)/2, midpoint, x*maxX, y*maxY );
+                    data[x + offsetX, y] += InterpolateCosine( (c00 + c10)/2,
                                                                midpoint,
                                                                c10,
-                                                               ( c11 + c10 )/2,
+                                                               (c11 + c10)/2,
                                                                x*maxX,
                                                                y*maxY );
-                    data[x, y + offsetY] += InterpolateCosine( ( c00 + c01 )/2,
+                    data[x, y + offsetY] += InterpolateCosine( (c00 + c01)/2,
                                                                c01,
                                                                midpoint,
-                                                               ( c01 + c11 )/2,
+                                                               (c01 + c11)/2,
                                                                x*maxX,
                                                                y*maxY );
                     data[x + offsetX, y + offsetY] += InterpolateCosine( midpoint,
-                                                                         ( c01 + c11 )/2,
-                                                                         ( c11 + c10 )/2,
+                                                                         (c01 + c11)/2,
+                                                                         (c11 + c10)/2,
                                                                          c11,
                                                                          x*maxX,
                                                                          y*maxY );
@@ -554,7 +552,7 @@ namespace fCraft {
 
         static unsafe void ScaleAndClipImpl( float* data, int dataLength, float steepness ) {
             for( int i = 0; i < dataLength; i++ ) {
-                data[i] = Math.Min( 1, Math.Max( 0, data[i] * steepness * 2 - steepness ) );
+                data[i] = Math.Min( 1, Math.Max( 0, data[i]*steepness*2 - steepness ) );
             }
         }
 
@@ -602,13 +600,13 @@ namespace fCraft {
             float[,] output = new float[data.GetLength( 0 ), data.GetLength( 1 )];
             for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( ( x == 0 ) || ( y == 0 ) || ( x == data.GetLength( 0 ) - 1 ) ||
-                        ( y == data.GetLength( 1 ) - 1 ) ) {
+                    if( (x == 0) || (y == 0) || (x == data.GetLength( 0 ) - 1) ||
+                        (y == data.GetLength( 1 ) - 1) ) {
                         output[x, y] = data[x, y];
                     } else {
-                        output[x, y] = ( data[x - 1, y - 1] + data[x - 1, y] + data[x - 1, y + 1] +
-                                         data[x, y - 1] + data[x, y] + data[x, y + 1] +
-                                         data[x + 1, y - 1] + data[x + 1, y] + data[x + 1, y + 1] )*
+                        output[x, y] = (data[x - 1, y - 1] + data[x - 1, y] + data[x - 1, y + 1] +
+                                        data[x, y - 1] + data[x, y] + data[x, y + 1] +
+                                        data[x + 1, y - 1] + data[x + 1, y] + data[x + 1, y + 1])*
                                        BoxBlurDivisor;
                     }
                 }
@@ -637,18 +635,18 @@ namespace fCraft {
             float[,] output = new float[data.GetLength( 0 ), data.GetLength( 1 )];
             for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( ( x < 2 ) || ( y < 2 ) || ( x > data.GetLength( 0 ) - 3 ) ||
-                        ( y > data.GetLength( 1 ) - 3 ) ) {
+                    if( (x < 2) || (y < 2) || (x > data.GetLength( 0 ) - 3) ||
+                        (y > data.GetLength( 1 ) - 3) ) {
                         output[x, y] = data[x, y];
                     } else {
-                        output[x, y] = ( data[x - 2, y - 2] + data[x - 1, y - 2]*4 + data[x, y - 2]*7 +
-                                         data[x + 1, y - 2]*4 + data[x + 2, y - 2] + data[x - 1, y - 1]*4 +
-                                         data[x - 1, y - 1]*16 + data[x, y - 1]*26 + data[x + 1, y - 1]*16 +
-                                         data[x + 2, y - 1]*4 + data[x - 2, y]*7 + data[x - 1, y]*26 + data[x, y]*41 +
-                                         data[x + 1, y]*26 + data[x + 2, y]*7 + data[x - 2, y + 1]*4 +
-                                         data[x - 1, y + 1]*16 + data[x, y + 1]*26 + data[x + 1, y + 1]*16 +
-                                         data[x + 2, y + 1]*4 + data[x - 2, y + 2] + data[x - 1, y + 2]*4 +
-                                         data[x, y + 2]*7 + data[x + 1, y + 2]*4 + data[x + 2, y + 2] )*
+                        output[x, y] = (data[x - 2, y - 2] + data[x - 1, y - 2]*4 + data[x, y - 2]*7 +
+                                        data[x + 1, y - 2]*4 + data[x + 2, y - 2] + data[x - 1, y - 1]*4 +
+                                        data[x - 1, y - 1]*16 + data[x, y - 1]*26 + data[x + 1, y - 1]*16 +
+                                        data[x + 2, y - 1]*4 + data[x - 2, y]*7 + data[x - 1, y]*26 + data[x, y]*41 +
+                                        data[x + 1, y]*26 + data[x + 2, y]*7 + data[x - 2, y + 1]*4 +
+                                        data[x - 1, y + 1]*16 + data[x, y + 1]*26 + data[x + 1, y + 1]*16 +
+                                        data[x + 2, y + 1]*4 + data[x - 2, y + 2] + data[x - 1, y + 2]*4 +
+                                        data[x, y + 2]*7 + data[x + 1, y + 2]*4 + data[x + 2, y + 2])*
                                        GaussianBlurDivisor;
                     }
                 }
@@ -678,28 +676,28 @@ namespace fCraft {
 
             for( int x = width1; x >= 0; x-- ) {
                 for( int y = height1; y >= 0; y-- ) {
-                    if( ( x == 0 ) || ( y == 0 ) || ( x == width1 ) || ( y == height1 ) ) {
-                        output[x, y] = ( Math.Abs( data[x, Math.Max( 0, y - 1 )] - data[x, y] )*3 +
-                                         Math.Abs( data[x, Math.Min( height1, y + 1 )] - data[x, y] )*3 +
-                                         Math.Abs( data[Math.Max( 0, x - 1 ), y] - data[x, y] )*3 +
-                                         Math.Abs( data[Math.Min( width1, x + 1 ), y] - data[x, y] )*3 +
-                                         Math.Abs( data[Math.Max( 0, x - 1 ), Math.Max( 0, y - 1 )] -
-                                                   data[x, y] )*2 +
-                                         Math.Abs( data[Math.Min( width1, x + 1 ), Math.Max( 0, y - 1 )] -
-                                                   data[x, y] )*2 +
-                                         Math.Abs( data[Math.Max( 0, x - 1 ), Math.Min( height1, y + 1 )] -
-                                                   data[x, y] )*2 +
-                                         Math.Abs( data[Math.Min( width1, x + 1 ), Math.Min( height1, y + 1 )] -
-                                                   data[x, y] )*2 )*SlopeDivisor;
+                    if( (x == 0) || (y == 0) || (x == width1) || (y == height1) ) {
+                        output[x, y] = (Math.Abs( data[x, Math.Max( 0, y - 1 )] - data[x, y] )*3 +
+                                        Math.Abs( data[x, Math.Min( height1, y + 1 )] - data[x, y] )*3 +
+                                        Math.Abs( data[Math.Max( 0, x - 1 ), y] - data[x, y] )*3 +
+                                        Math.Abs( data[Math.Min( width1, x + 1 ), y] - data[x, y] )*3 +
+                                        Math.Abs( data[Math.Max( 0, x - 1 ), Math.Max( 0, y - 1 )] -
+                                                  data[x, y] )*2 +
+                                        Math.Abs( data[Math.Min( width1, x + 1 ), Math.Max( 0, y - 1 )] -
+                                                  data[x, y] )*2 +
+                                        Math.Abs( data[Math.Max( 0, x - 1 ), Math.Min( height1, y + 1 )] -
+                                                  data[x, y] )*2 +
+                                        Math.Abs( data[Math.Min( width1, x + 1 ), Math.Min( height1, y + 1 )] -
+                                                  data[x, y] )*2)*SlopeDivisor;
                     } else {
-                        output[x, y] = ( Math.Abs( data[x, y - 1] - data[x, y] )*3 +
-                                         Math.Abs( data[x, y + 1] - data[x, y] )*3 +
-                                         Math.Abs( data[x - 1, y] - data[x, y] )*3 +
-                                         Math.Abs( data[x + 1, y] - data[x, y] )*3 +
-                                         Math.Abs( data[x - 1, y - 1] - data[x, y] )*2 +
-                                         Math.Abs( data[x + 1, y - 1] - data[x, y] )*2 +
-                                         Math.Abs( data[x - 1, y + 1] - data[x, y] )*2 +
-                                         Math.Abs( data[x + 1, y + 1] - data[x, y] )*2 )*SlopeDivisor;
+                        output[x, y] = (Math.Abs( data[x, y - 1] - data[x, y] )*3 +
+                                        Math.Abs( data[x, y + 1] - data[x, y] )*3 +
+                                        Math.Abs( data[x - 1, y] - data[x, y] )*3 +
+                                        Math.Abs( data[x + 1, y] - data[x, y] )*3 +
+                                        Math.Abs( data[x - 1, y - 1] - data[x, y] )*2 +
+                                        Math.Abs( data[x + 1, y - 1] - data[x, y] )*2 +
+                                        Math.Abs( data[x - 1, y + 1] - data[x, y] )*2 +
+                                        Math.Abs( data[x + 1, y + 1] - data[x, y] )*2)*SlopeDivisor;
                     }
                 }
             }
@@ -743,9 +741,9 @@ namespace fCraft {
             for( int i = 1; i <= ThresholdSearchPasses; i++ ) {
                 float coverage = CalculateCoverage( data, dataLength, threshold );
                 if( coverage > desiredCoverage ) {
-                    threshold = threshold - 1 / (float)(2 << i);
+                    threshold = threshold - 1/(float)(2 << i);
                 } else {
-                    threshold = threshold + 1 / (float)(2 << i);
+                    threshold = threshold + 1/(float)(2 << i);
                 }
             }
             return threshold;

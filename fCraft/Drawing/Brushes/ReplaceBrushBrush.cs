@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -9,7 +10,7 @@ namespace fCraft.Drawing {
         public static readonly ReplaceBrushBrushFactory Instance = new ReplaceBrushBrushFactory();
 
         ReplaceBrushBrushFactory() {
-            Aliases = new[] { "rb" };
+            Aliases = new[] {"rb"};
         }
 
         public string Name {
@@ -80,7 +81,6 @@ namespace fCraft.Drawing {
             ReplacementInstance = other.ReplacementInstance;
         }
 
-
         #region IBrush members
 
         public IBrushFactory Factory {
@@ -134,7 +134,6 @@ namespace fCraft.Drawing {
         }
 
         #endregion
-
 
         #region IBrushInstance members
 

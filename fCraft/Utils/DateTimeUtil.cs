@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Globalization;
 using System.Text;
@@ -11,7 +12,6 @@ namespace fCraft {
 
         /// <summary> UTC Unix epoch (1970-01-01, 00:00:00). </summary>
         public static readonly DateTime UnixEpoch = new DateTime( 1970, 1, 1, 0, 0, 0, DateTimeKind.Utc );
-
 
         #region Conversion to/from Unix timestamps
 
@@ -45,7 +45,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region To Date Time
 
         /// <summary> Creates a DateTime from a UTC Unix Timestamp. </summary>
@@ -68,7 +67,6 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Converts a TimeSpan to a string containing the number of seconds.
         /// If the timestamp is zero seconds, returns an empty string. </summary>
         [NotNull]
@@ -76,7 +74,7 @@ namespace fCraft {
             if( time == TimeSpan.Zero ) {
                 return "";
             } else {
-                return (time.Ticks / TimeSpan.TicksPerSecond).ToString( NumberFormatter );
+                return (time.Ticks/TimeSpan.TicksPerSecond).ToString( NumberFormatter );
             }
         }
 
@@ -92,14 +90,13 @@ namespace fCraft {
             }
             long ticks;
             if( Int64.TryParse( str, NumberStyles.Integer, NumberFormatter, out ticks ) ) {
-                result = new TimeSpan( ticks * TimeSpan.TicksPerSecond );
+                result = new TimeSpan( ticks*TimeSpan.TicksPerSecond );
                 return true;
             } else {
                 result = TimeSpan.Zero;
                 return false;
             }
         }
-
 
         #region MiniString
 
@@ -136,9 +133,7 @@ namespace fCraft {
             try {
                 result = ParseMiniTimeSpan( text );
                 return true;
-            } catch( ArgumentException ) {
-            } catch( OverflowException ) {
-            } catch( FormatException ) { }
+            } catch( ArgumentException ) {} catch( OverflowException ) {} catch( FormatException ) {}
             result = TimeSpan.Zero;
             return false;
         }
@@ -188,7 +183,7 @@ namespace fCraft {
                                 result += TimeSpan.FromDays( number );
                                 break;
                             case 'w':
-                                result += TimeSpan.FromDays( number * 7 );
+                                result += TimeSpan.FromDays( number*7 );
                                 break;
                             default:
                                 throw new FormatException();
@@ -204,7 +199,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region CompactString
 
         [NotNull]
@@ -216,7 +210,10 @@ namespace fCraft {
         [NotNull]
         public static string ToCompactString( this TimeSpan span ) {
             return String.Format( "{0}.{1:00}:{2:00}:{3:00}",
-                                  span.Days, span.Hours, span.Minutes, span.Seconds );
+                                  span.Days,
+                                  span.Hours,
+                                  span.Minutes,
+                                  span.Seconds );
         }
 
         #endregion

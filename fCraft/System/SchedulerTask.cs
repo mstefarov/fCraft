@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Text;
 using JetBrains.Annotations;
@@ -67,7 +68,7 @@ namespace fCraft {
         /// <summary> Maximum number of repeats for RunRepeating tasks.
         /// Set to -1 to run forever. </summary>
         public int MaxRepeats { get; set; }
-        
+
         /// <summary> Whether this task should be allowed to finish after server shutdown. </summary>
         public bool IsCritical { get; set; }
 
@@ -79,7 +80,6 @@ namespace fCraft {
         /// can be used for anything you want. </summary>
         [CanBeNull]
         public object UserState { get; set; }
-
 
         #region Run Once
 
@@ -132,7 +132,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Run Forever
 
         [NotNull]
@@ -172,7 +171,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Run Repeating
 
         /// <summary> Runs the task a given number of times, at a given interval after an initial delay. </summary>
@@ -194,7 +192,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Run Manual
 
@@ -240,7 +237,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         /// <summary> Stops the task, and removes it from the schedule. </summary>
         [NotNull]

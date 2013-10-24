@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -8,9 +9,13 @@ namespace fCraft.Drawing {
         Vector3F invRadius,
                  center;
 
-        public override string Name { get { return "Ellipsoid"; } }
+        public override string Name {
+            get { return "Ellipsoid"; }
+        }
 
-        public override int ExpectedMarks { get { return 2; } }
+        public override int ExpectedMarks {
+            get { return 2; }
+        }
 
         /// <summary> Creates a new EllipsoidDrawOperation for given player. </summary>
         public EllipsoidDrawOperation( [NotNull] Player player )

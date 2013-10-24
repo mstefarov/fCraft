@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -8,63 +9,63 @@ namespace fCraft.MapGeneration {
     public sealed class RealisticMapGenParameters : MapGeneratorParameters {
         const int FormatVersion = 2;
 
-        public int   Seed { get; set; }
+        public int Seed { get; set; }
 
-        public int   MaxHeight { get; set; }
-        public int   MaxDepth { get; set; }
-        public int   MaxHeightVariation { get; set; }
-        public int   MaxDepthVariation { get; set; }
+        public int MaxHeight { get; set; }
+        public int MaxDepth { get; set; }
+        public int MaxHeightVariation { get; set; }
+        public int MaxDepthVariation { get; set; }
 
-        public bool  AddWater { get; set; }
-        public bool  CustomWaterLevel { get; set; }
-        public bool  MatchWaterCoverage { get; set; }
-        public int   WaterLevel { get; set; }
+        public bool AddWater { get; set; }
+        public bool CustomWaterLevel { get; set; }
+        public bool MatchWaterCoverage { get; set; }
+        public int WaterLevel { get; set; }
         public float WaterCoverage { get; set; }
 
-        public bool  UseBias { get; set; }
-        public bool  DelayBias { get; set; }
+        public bool UseBias { get; set; }
+        public bool DelayBias { get; set; }
         public float Bias { get; set; }
-        public int   RaisedCorners { get; set; }
-        public int   LoweredCorners { get; set; }
-        public int   MidPoint { get; set; }
+        public int RaisedCorners { get; set; }
+        public int LoweredCorners { get; set; }
+        public int MidPoint { get; set; }
 
-        public int   DetailScale { get; set; }
-        public int   FeatureScale { get; set; }
+        public int DetailScale { get; set; }
+        public int FeatureScale { get; set; }
         public float Roughness { get; set; }
-        public bool  LayeredHeightmap { get; set; }
-        public bool  MarbledHeightmap { get; set; }
-        public bool  InvertHeightmap { get; set; }
+        public bool LayeredHeightmap { get; set; }
+        public bool MarbledHeightmap { get; set; }
+        public bool InvertHeightmap { get; set; }
         public float AboveFuncExponent { get; set; }
         public float BelowFuncExponent { get; set; }
 
-        public bool  AddTrees { get; set; }
-        public bool  AddGiantTrees { get; set; }
-        public int   TreeSpacingMin { get; set; }
-        public int   TreeSpacingMax { get; set; }
-        public int   TreeHeightMin { get; set; }
-        public int   TreeHeightMax { get; set; }
+        public bool AddTrees { get; set; }
+        public bool AddGiantTrees { get; set; }
+        public int TreeSpacingMin { get; set; }
+        public int TreeSpacingMax { get; set; }
+        public int TreeHeightMin { get; set; }
+        public int TreeHeightMax { get; set; }
 
-        public bool  AddCaves { get; set; }
-        public bool  AddOre { get; set; }
-        public bool  AddCaveWater { get; set; }
-        public bool  AddCaveLava { get; set; }
+        public bool AddCaves { get; set; }
+        public bool AddOre { get; set; }
+        public bool AddCaveWater { get; set; }
+        public bool AddCaveLava { get; set; }
         public float CaveDensity { get; set; }
         public float CaveSize { get; set; }
 
-        public bool  AddSnow { get; set; }
-        public int   SnowAltitude { get; set; }
-        public int   SnowTransition { get; set; }
+        public bool AddSnow { get; set; }
+        public int SnowAltitude { get; set; }
+        public int SnowTransition { get; set; }
 
-        public bool  AddCliffs { get; set; }
-        public bool  CliffSmoothing { get; set; }
+        public bool AddCliffs { get; set; }
+        public bool CliffSmoothing { get; set; }
         public float CliffThreshold { get; set; }
         public float CliffsideBlockThreshold { get; set; }
 
-        public bool  AddBeaches { get; set; }
-        public int   BeachExtent { get; set; }
-        public int   BeachHeight { get; set; }
+        public bool AddBeaches { get; set; }
+        public int BeachExtent { get; set; }
+        public int BeachHeight { get; set; }
 
-        public bool  AddFloodBarrier { get; set; }
+        public bool AddFloodBarrier { get; set; }
 
         // block selection for voxelization
         public RealisticMapGenBlockTheme Theme { get; set; }
@@ -226,7 +227,7 @@ namespace fCraft.MapGeneration {
 
             XAttribute versionTag = root.Attribute( "version" );
             int version = 0;
-            if( versionTag != null && !String.IsNullOrEmpty(versionTag.Value) ) {
+            if( versionTag != null && !String.IsNullOrEmpty( versionTag.Value ) ) {
                 version = Int32.Parse( versionTag.Value );
             }
 

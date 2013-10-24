@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +34,9 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "(global){0}: {1}", player.Name, rawMessage );
+                        "(global){0}: {1}",
+                        player.Name,
+                        rawMessage );
             return true;
         }
 
@@ -61,7 +64,9 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "(me){0}: {1}", player.Name, rawMessage );
+                        "(me){0}: {1}",
+                        player.Name,
+                        rawMessage );
             return true;
         }
 
@@ -75,10 +80,11 @@ namespace fCraft {
             if( fromPlayer == null ) throw new ArgumentNullException( "fromPlayer" );
             if( toPlayer == null ) throw new ArgumentNullException( "toPlayer" );
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            var recipientList = new[] { toPlayer };
+            var recipientList = new[] {toPlayer};
 
             string formattedMessage = String.Format( "&Pfrom {0}: {1}",
-                                                     fromPlayer.Name, rawMessage );
+                                                     fromPlayer.Name,
+                                                     rawMessage );
 
             var e = new ChatSendingEventArgs( fromPlayer,
                                               rawMessage,
@@ -91,7 +97,9 @@ namespace fCraft {
 
             Logger.Log( LogType.PrivateChat,
                         "{0} to {1}: {2}",
-                        fromPlayer.Name, toPlayer.Name, rawMessage );
+                        fromPlayer.Name,
+                        toPlayer.Name,
+                        rawMessage );
             return true;
         }
 
@@ -123,7 +131,9 @@ namespace fCraft {
 
             Logger.Log( LogType.RankChat,
                         "(rank {0}){1}: {2}",
-                        rank.Name, player.Name, rawMessage );
+                        rank.Name,
+                        player.Name,
+                        rawMessage );
             return true;
         }
 
@@ -149,7 +159,9 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "(say){0}: {1}", player.Name, rawMessage );
+                        "(say){0}: {1}",
+                        player.Name,
+                        rawMessage );
             return true;
         }
 
@@ -163,8 +175,8 @@ namespace fCraft {
             if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
 
             var recipientList = Server.Players.Can( Permission.ReadStaffChat )
-                .NotIgnoring( player )
-                .Union( player );
+                                      .NotIgnoring( player )
+                                      .Union( player );
 
             string formattedMessage = String.Format( "&P(staff){0}&P: {1}",
                                                      player.ClassyName,
@@ -179,7 +191,9 @@ namespace fCraft {
             if( !SendInternal( e ) ) return false;
 
             Logger.Log( LogType.GlobalChat,
-                        "(staff){0}: {1}", player.Name, rawMessage );
+                        "(staff){0}: {1}",
+                        player.Name,
+                        rawMessage );
             return true;
         }
 
@@ -192,7 +206,7 @@ namespace fCraft {
 
             // Only increment the MessagesWritten count if someone other than
             // the player was on the recipient list.
-            if( players.Length > 1 || ( players.Length == 1 && players[0] != e.Player ) ) {
+            if( players.Length > 1 || (players.Length == 1 && players[0] != e.Player) ) {
                 e.Player.Info.ProcessMessageWritten();
             }
 
@@ -294,7 +308,8 @@ namespace fCraft {
         /// <param name="message"> Message to process. </param>
         /// <returns> Processed message. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string ReplaceNewlines( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             message = message.Replace( "&n", "\n" );
@@ -307,7 +322,8 @@ namespace fCraft {
         /// <param name="message"> Message to process. </param>
         /// <returns> Processed message. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string StripNewlines( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             message = message.Replace( "\n", "" );
@@ -315,7 +331,6 @@ namespace fCraft {
             message = message.Replace( "&N", "" );
             return message;
         }
-
 
         #region Emotes
 
@@ -325,127 +340,100 @@ namespace fCraft {
         public static readonly Dictionary<string, char> EmoteKeywords = new Dictionary<string, char> {
             {":)", '\u0001'}, // ☺
             {"smile", '\u0001'},
-
             {"smile2", '\u0002'}, // ☻
 
             {"heart", '\u0003'}, // ♥
             {"hearts", '\u0003'},
             {"<3", '\u0003'},
-
             {"diamond", '\u0004'}, // ♦
             {"diamonds", '\u0004'},
             {"rhombus", '\u0004'},
-
             {"club", '\u0005'}, // ♣
             {"clubs", '\u0005'},
             {"clover", '\u0005'},
             {"shamrock", '\u0005'},
-
             {"spade", '\u0006'}, // ♠
             {"spades", '\u0006'},
-
             {"*", '\u0007'}, // •
             {"bullet", '\u0007'},
             {"dot", '\u0007'},
             {"point", '\u0007'},
-
             {"hole", '\u0008'}, // ◘
 
             {"circle", '\u0009'}, // ○
             {"o", '\u0009'},
-
             {"male", '\u000B'}, // ♂
             {"mars", '\u000B'},
-
             {"female", '\u000C'}, // ♀
             {"venus", '\u000C'},
-
             {"8", '\u000D'}, // ♪
             {"note", '\u000D'},
             {"quaver", '\u000D'},
-
             {"notes", '\u000E'}, // ♫
             {"music", '\u000E'},
-
             {"sun", '\u000F'}, // ☼
             {"celestia", '\u000F'},
-
             {">>", '\u0010'}, // ►
             {"right2", '\u0010'},
-
             {"<<", '\u0011'}, // ◄
             {"left2", '\u0011'},
-
             {"updown", '\u0012'}, // ↕
             {"^v", '\u0012'},
-
             {"!!", '\u0013'}, // ‼
 
             {"p", '\u0014'}, // ¶
             {"para", '\u0014'},
             {"pilcrow", '\u0014'},
             {"paragraph", '\u0014'},
-
             {"s", '\u0015'}, // §
             {"sect", '\u0015'},
             {"section", '\u0015'},
-
             {"-", '\u0016'}, // ▬
             {"_", '\u0016'},
             {"bar", '\u0016'},
             {"half", '\u0016'},
-
             {"updown2", '\u0017'}, // ↨
             {"^v_", '\u0017'},
-
             {"^", '\u0018'}, // ↑
             {"up", '\u0018'},
-
             {"v", '\u0019'}, // ↓
             {"down", '\u0019'},
-
             {">", '\u001A'}, // →
             {"->", '\u001A'},
             {"right", '\u001A'},
-
             {"<", '\u001B'}, // ←
             {"<-", '\u001B'},
             {"left", '\u001B'},
-
             {"l", '\u001C'}, // ∟
             {"angle", '\u001C'},
             {"corner", '\u001C'},
-
             {"<>", '\u001D'}, // ↔
             {"<->", '\u001D'},
             {"leftright", '\u001D'},
-
             {"^^", '\u001E'}, // ▲
             {"up2", '\u001E'},
-
             {"vv", '\u001F'}, // ▼
             {"down2", '\u001F'},
-
             {"house", '\u007F'}, // ⌂
             
             {"caret", '^'},
             {"hat", '^'},
-
             {"tilde", '~'},
             {"wave", '~'},
-
             {"grave", '`'},
             {"'", '`'}
         };
 
 
         static readonly Regex EmoteSymbols = new Regex( "[\x00-\x1F\x7F☺☻♥♦♣♠•◘○\n♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼⌂]" );
+
         /// <summary> Strips all emote symbols (ASCII control characters and their UTF-8 equivalents).
         /// Does not strip emote keywords (e.g. {:)}). </summary>
         /// <param name="message"> Message to strip emotes from. </param>
         /// <returns> Message with its emotes stripped. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string StripEmotes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             return EmoteSymbols.Replace( message, "" );
@@ -457,7 +445,8 @@ namespace fCraft {
         /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string ReplaceEmoteKeywords( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             int startIndex = message.IndexOf( '{' );
@@ -511,7 +500,8 @@ namespace fCraft {
         /// <param name="allowNewlines"> Whether newlines are allowed. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string ReplacePercentColorCodes( [NotNull] string message, bool allowNewlines ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             int startIndex = message.IndexOf( '%' );
@@ -529,7 +519,7 @@ namespace fCraft {
                 }
                 // extract the colorcode
                 char colorCode = message[startIndex + 1];
-                if( Color.IsColorCode( colorCode ) || allowNewlines && (colorCode == 'n' || colorCode == 'N' ) ) {
+                if( Color.IsColorCode( colorCode ) || allowNewlines && (colorCode == 'n' || colorCode == 'N') ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;
@@ -557,7 +547,8 @@ namespace fCraft {
         /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
-        [NotNull, Pure]
+        [NotNull]
+        [Pure]
         public static string UnescapeBackslashes( [NotNull] string message ) {
             if( message == null ) throw new ArgumentNullException( "message" );
             if( message.IndexOf( '\\' ) != -1 ) {
@@ -603,7 +594,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Events
 
         static bool RaiseSendingEvent( [NotNull] ChatSendingEventArgs args ) {
@@ -617,8 +607,7 @@ namespace fCraft {
 
         static void RaiseSentEvent( [NotNull] ChatSendingEventArgs args, int recipientCount ) {
             var h = Sent;
-            if( h != null )
-                h( null, new ChatSentEventArgs( args, recipientCount ) );
+            if( h != null ) h( null, new ChatSentEventArgs( args, recipientCount ) );
         }
 
 
@@ -690,7 +679,6 @@ namespace fCraft {
         RepeatCommand,
     }
 }
-
 
 namespace fCraft.Events {
     /// <summary> Provides data for Chat.Sending event. Cancelable.

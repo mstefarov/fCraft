@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -14,15 +15,11 @@ namespace fCraft.Drawing {
         BitMap3D allCoords;
 
         public override string Name {
-            get {
-                return "Fill3D";
-            }
+            get { return "Fill3D"; }
         }
 
         public override int ExpectedMarks {
-            get {
-                return 1;
-            }
+            get { return 1; }
         }
 
         public override string Description {
@@ -60,7 +57,6 @@ namespace fCraft.Drawing {
             if( Player.Info.Rank.DrawLimit == 0 ) {
                 // Unlimited!
                 Bounds = Map.Bounds;
-
             } else {
                 // Our fill limit is cube root of DrawLimit
                 double pow = Math.Pow( Player.Info.Rank.DrawLimit, 1/3d );
@@ -93,7 +89,7 @@ namespace fCraft.Drawing {
             UndoState = Player.DrawBegin( this );
             StartTime = DateTime.UtcNow;
 
-            if( !( Brush is NormalBrush ) ) {
+            if( !(Brush is NormalBrush) ) {
                 // for nonstandard brushes, cache all coordinates up front
                 nonStandardBrush = true;
 
@@ -115,8 +111,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public override int DrawBatch(int maxBlocksToDraw) {
-            return DrawBatchFromEnumerable(maxBlocksToDraw, coordEnumerator);
+        public override int DrawBatch( int maxBlocksToDraw ) {
+            return DrawBatchFromEnumerable( maxBlocksToDraw, coordEnumerator );
         }
 
 
@@ -124,8 +120,8 @@ namespace fCraft.Drawing {
             if( nonStandardBrush && allCoords.Get( coords ) ) {
                 return false;
             }
-            return ( Map.GetBlock( coords ) == SourceBlock ) &&
-                   ( Player.CanPlace( Map, coords, Brush.NextBlock( this ), Context ) == CanPlaceResult.Allowed );
+            return (Map.GetBlock( coords ) == SourceBlock) &&
+                   (Player.CanPlace( Map, coords, Brush.NextBlock( this ), Context ) == CanPlaceResult.Allowed);
         }
 
 

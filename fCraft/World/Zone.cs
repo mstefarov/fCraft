@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -6,7 +7,6 @@ namespace fCraft {
     /// <summary> A bounding box selection that is designated as a sub area within a world.
     /// Zones can have restriction just like worlds on access, and block modification. </summary>
     public sealed class Zone : IClassy, INotifiesOnChange {
-
         /// <summary> Zone boundaries. </summary>
         [NotNull]
         public BoundingBox Bounds { get; private set; }
@@ -38,9 +38,7 @@ namespace fCraft {
         /// Returns "?" if CreatedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string CreatedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( CreatedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( CreatedBy ); }
         }
 
         /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
@@ -51,9 +49,7 @@ namespace fCraft {
         /// Returns "?" if EditedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string EditedByClassy {
-            get {
-                return PlayerDB.FindExactClassyName( EditedBy );
-            }
+            get { return PlayerDB.FindExactClassyName( EditedBy ); }
         }
 
         /// <summary> Map that this zone is on. </summary>
@@ -96,8 +92,12 @@ namespace fCraft {
 
             string[] header = parts[0].Split( ' ' );
             Name = header[0];
-            Bounds = new BoundingBox( Int32.Parse( header[1] ), Int32.Parse( header[2] ), Int32.Parse( header[3] ),
-                                      Int32.Parse( header[4] ), Int32.Parse( header[5] ), Int32.Parse( header[6] ) );
+            Bounds = new BoundingBox( Int32.Parse( header[1] ),
+                                      Int32.Parse( header[2] ),
+                                      Int32.Parse( header[3] ),
+                                      Int32.Parse( header[4] ),
+                                      Int32.Parse( header[5] ),
+                                      Int32.Parse( header[6] ) );
 
             // If no ranks are loaded (e.g. MapConverter/MapRenderer)(
             if( RankManager.Ranks.Count > 0 ) {
@@ -111,7 +111,8 @@ namespace fCraft {
                     }
                     Logger.Log( LogType.Error,
                                 "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).",
-                                header[7], Controller.MinRank.Name );
+                                header[7],
+                                Controller.MinRank.Name );
                 } else {
                     Controller.MinRank = buildRank;
                 }
@@ -124,13 +125,17 @@ namespace fCraft {
                     foreach( string playerName in parts[1].Split( ' ' ) ) {
                         if( !Player.IsValidPlayerName( playerName ) ) {
                             Logger.Log( LogType.Warning,
-                                        "Invalid entry in zone \"{0}\" whitelist: {1}", Name, playerName );
+                                        "Invalid entry in zone \"{0}\" whitelist: {1}",
+                                        Name,
+                                        playerName );
                             continue;
                         }
                         PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
                         if( info == null ) {
                             Logger.Log( LogType.Warning,
-                                        "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                                        "Unrecognized player in zone \"{0}\" whitelist: {1}",
+                                        Name,
+                                        playerName );
                             continue; // player name not found in the DB (discarded)
                         }
                         Controller.Include( info );
@@ -142,13 +147,17 @@ namespace fCraft {
                     foreach( string playerName in parts[2].Split( ' ' ) ) {
                         if( !Player.IsValidPlayerName( playerName ) ) {
                             Logger.Log( LogType.Warning,
-                                        "Invalid entry in zone \"{0}\" blacklist: {1}", Name, playerName );
+                                        "Invalid entry in zone \"{0}\" blacklist: {1}",
+                                        Name,
+                                        playerName );
                             continue;
                         }
                         PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
                         if( info == null ) {
                             Logger.Log( LogType.Warning,
-                                        "Unrecognized player in zone \"{0}\" whitelist: {1}", Name, playerName );
+                                        "Unrecognized player in zone \"{0}\" whitelist: {1}",
+                                        Name,
+                                        playerName );
                             continue; // player name not found in the DB (discarded)
                         }
                         Controller.Exclude( info );
@@ -185,9 +194,7 @@ namespace fCraft {
 
 
         public string ClassyName {
-            get {
-                return Controller.MinRank.Color + Name;
-            }
+            get { return Controller.MinRank.Color + Name; }
         }
 
 

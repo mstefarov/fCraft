@@ -1,10 +1,12 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace fCraft {
     /// <summary> Context of the block change. Multiple flags can be combined. </summary>
     [Flags]
-    public enum BlockChangeContext { // Backed by Int32.
+    public enum BlockChangeContext {
+        // Backed by Int32.
         /// <summary> Default/unknown context. </summary>
         Unknown = 0,
 

@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -102,7 +103,7 @@ namespace fCraft.MapConversion {
         /// <param name="map"> Where the loaded map should be stored. </param>
         /// <returns> Whether or not the map excluding block data was loaded successfully. </returns>
         /// <exception cref="ArgumentNullException"> fileName is null. </exception>
-        [ContractAnnotation("fileName:null => halt; => true,map:notnull; => false,map:null")]
+        [ContractAnnotation( "fileName:null => halt; => true,map:notnull; => false,map:null" )]
         public static bool TryLoadHeader( [NotNull] string fileName, bool tryFallbackConverters, out Map map ) {
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
@@ -272,8 +273,7 @@ namespace fCraft.MapConversion {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
 
-            if( mapFormat == MapFormat.Unknown )
-                throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
+            if( mapFormat == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
 
             if( Exporters.ContainsKey( mapFormat ) ) {
                 IMapExporter converter = Exporters[mapFormat];
@@ -301,8 +301,7 @@ namespace fCraft.MapConversion {
         public static void Save( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat mapFormat ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            if( mapFormat == MapFormat.Unknown )
-                throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
+            if( mapFormat == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
 
             if( Exporters.ContainsKey( mapFormat ) ) {
                 IMapExporter converter = Exporters[mapFormat];

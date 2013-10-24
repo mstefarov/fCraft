@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Linq;
 using fCraft.Drawing;
@@ -8,7 +9,7 @@ namespace fCraft {
     /// <summary> Commands for placing specific blocks (solid, water, grass),
     /// switching block placement modes (paint, bind),
     /// and draw command support commands. </summary>
-    static class BuildingCommands {
+    internal static class BuildingCommands {
         internal static void Init() {
             CommandManager.RegisterCommand( CdBind );
             CommandManager.RegisterCommand( CdGrass );
@@ -31,21 +32,21 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdStatic );
         }
 
-
         #region Block Commands
 
         static readonly CommandDescriptor CdSolid = new CommandDescriptor {
             Name = "Solid",
-            Aliases = new[] { "s" },
+            Aliases = new[] {"s"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build, Permission.PlaceAdmincrete },
-            Help = "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
+            Permissions = new[] {Permission.Build, Permission.PlaceAdmincrete},
+            Help =
+                "Toggles the admincrete placement mode. When enabled, any stone block you place is replaced with admincrete.",
             Usage = "/Solid [on/off]",
             Handler = SolidHandler
         };
 
         static void SolidHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnSolidOn = ( player.GetBind( Block.Stone ) != Block.Admincrete );
+            bool turnSolidOn = (player.GetBind( Block.Stone ) != Block.Admincrete);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnSolidOn ) ) {
                 CdSolid.PrintUsage( player );
@@ -64,8 +65,8 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "Paint",
-            Aliases = new[] { "p" },
-            Permissions = new[] { Permission.Build, Permission.Delete },
+            Aliases = new[] {"p"},
+            Permissions = new[] {Permission.Build, Permission.Delete},
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
                    "Paint command toggles this behavior on and off.",
@@ -74,7 +75,7 @@ namespace fCraft {
         };
 
         static void PaintHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnPaintOn = ( !player.IsPainting );
+            bool turnPaintOn = (!player.IsPainting);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnPaintOn ) ) {
                 CdPaint.PrintUsage( player );
@@ -93,16 +94,17 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdGrass = new CommandDescriptor {
             Name = "Grass",
-            Aliases = new[] { "g" },
+            Aliases = new[] {"g"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build, Permission.PlaceGrass },
-            Help = "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
+            Permissions = new[] {Permission.Build, Permission.PlaceGrass},
+            Help =
+                "Toggles the grass placement mode. When enabled, any dirt block you place is replaced with a grass block.",
             Usage = "/Grass [on/off]",
             Handler = GrassHandler
         };
 
         static void GrassHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnGrassOn = ( player.GetBind( Block.Dirt ) != Block.Grass );
+            bool turnGrassOn = (player.GetBind( Block.Dirt ) != Block.Grass);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnGrassOn ) ) {
                 CdGrass.PrintUsage( player );
@@ -121,18 +123,19 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWater = new CommandDescriptor {
             Name = "Water",
-            Aliases = new[] { "w" },
+            Aliases = new[] {"w"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build, Permission.PlaceWater },
-            Help = "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
+            Permissions = new[] {Permission.Build, Permission.PlaceWater},
+            Help =
+                "Toggles the water placement mode. When enabled, any blue or cyan block you place is replaced with water.",
             Usage = "/Water [on/off]",
             Handler = WaterHandler
         };
 
         static void WaterHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnWaterOn = ( player.GetBind( Block.Aqua ) != Block.Water ||
-                                 player.GetBind( Block.Cyan ) != Block.Water ||
-                                 player.GetBind( Block.Blue ) != Block.Water );
+            bool turnWaterOn = (player.GetBind( Block.Aqua ) != Block.Water ||
+                                player.GetBind( Block.Cyan ) != Block.Water ||
+                                player.GetBind( Block.Blue ) != Block.Water);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnWaterOn ) ) {
                 CdWater.PrintUsage( player );
@@ -153,16 +156,16 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdLava = new CommandDescriptor {
             Name = "Lava",
-            Aliases = new[] { "l" },
+            Aliases = new[] {"l"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build, Permission.PlaceLava },
+            Permissions = new[] {Permission.Build, Permission.PlaceLava},
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
             Usage = "/Lava [on/off]",
             Handler = LavaHandler
         };
 
         static void LavaHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnLavaOn = ( player.GetBind( Block.Red ) != Block.Lava );
+            bool turnLavaOn = (player.GetBind( Block.Red ) != Block.Lava);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnLavaOn ) ) {
                 CdLava.PrintUsage( player );
@@ -182,7 +185,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdBind = new CommandDescriptor {
             Name = "Bind",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Build },
+            Permissions = new[] {Permission.Build},
             Help = "Assigns one block type to another. " +
                    "Allows to build block types that are not normally buildable directly: admincrete, lava, water, grass, double step. " +
                    "Calling &H/Bind BlockType&S without second parameter resets the binding. If used with no params, ALL bindings are reset.",
@@ -246,13 +249,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Undo / Redo
 
         static readonly CommandDescriptor CdUndo = new CommandDescriptor {
             Name = "Undo",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] {Permission.Draw},
             Help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = UndoHandler
@@ -311,7 +313,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdRedo = new CommandDescriptor {
             Name = "Redo",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw },
+            Permissions = new[] {Permission.Draw},
             Help = "Selectively removes changes from your last drawing command. " +
                    "Note that commands involving over 2 million blocks cannot be undone due to memory restrictions.",
             Handler = RedoHandler
@@ -358,14 +360,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Copy and Paste
 
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "CopySlot",
-            Aliases = new[] { "cs" },
+            Aliases = new[] {"cs"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {Permission.CopyAndPaste},
             Usage = "/CopySlot [#]",
             Help = "Selects a slot to copy to/paste from. The maximum number of slots is limited per-rank.",
             Handler = CopySlotHandler
@@ -415,7 +416,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdCopy = new CommandDescriptor {
             Name = "Copy",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {Permission.CopyAndPaste},
             Help = "Copy blocks for pasting. " +
                    "Used together with &H/Paste&S and &H/PasteNot&S commands. " +
                    "Note that pasting starts at the same corner that you started &H/Copy&S from.",
@@ -486,9 +487,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdMirror = new CommandDescriptor {
             Name = "Mirror",
-            Aliases = new[] { "flip" },
+            Aliases = new[] {"flip"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {Permission.CopyAndPaste},
             Help = "Flips copied blocks along specified axis/axes. " +
                    "The axes are: X = horizontal (east-west), Y = horizontal (north-south), Z = vertical. " +
                    "You can mirror more than one axis at a time, e.g. &H/Mirror X Y",
@@ -510,7 +511,7 @@ namespace fCraft {
                  flipY = false,
                  flipH = false;
             string axis;
-            while( ( axis = cmd.Next() ) != null ) {
+            while( (axis = cmd.Next()) != null ) {
                 foreach( char c in axis.ToLower() ) {
                     if( c == 'x' ) flipX = true;
                     if( c == 'y' ) flipY = true;
@@ -605,9 +606,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRotate = new CommandDescriptor {
             Name = "Rotate",
-            Aliases = new[] { "spin" },
+            Aliases = new[] {"spin"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.CopyAndPaste },
+            Permissions = new[] {Permission.CopyAndPaste},
             Help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
             Usage = "/Rotate (-90|90|180|270) (X|Y|Z)",
             Handler = RotateHandler
@@ -621,7 +622,7 @@ namespace fCraft {
             }
 
             int degrees;
-            if( !cmd.NextInt( out degrees ) || ( degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270 ) ) {
+            if( !cmd.NextInt( out degrees ) || (degrees != 90 && degrees != -90 && degrees != 180 && degrees != 270) ) {
                 CdRotate.PrintUsage( player );
                 return;
             }
@@ -666,9 +667,9 @@ namespace fCraft {
 
             // construct the rotation matrix
             int[,] matrix = {
-                { 1, 0, 0 },
-                { 0, 1, 0 },
-                { 0, 0, 1 }
+                {1, 0, 0},
+                {0, 1, 0},
+                {0, 0, 1}
             };
 
             int a,
@@ -712,15 +713,15 @@ namespace fCraft {
             for( int x = oldBuffer.GetLength( 0 ) - 1; x >= 0; x-- ) {
                 for( int y = oldBuffer.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     for( int z = oldBuffer.GetLength( 2 ) - 1; z >= 0; z-- ) {
-                        int nx = ( matrix[0, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[0, 0] > 0 ? x : 0 ) ) +
-                                 ( matrix[0, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[0, 1] > 0 ? y : 0 ) ) +
-                                 ( matrix[0, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[0, 2] > 0 ? z : 0 ) );
-                        int ny = ( matrix[1, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[1, 0] > 0 ? x : 0 ) ) +
-                                 ( matrix[1, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[1, 1] > 0 ? y : 0 ) ) +
-                                 ( matrix[1, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[1, 2] > 0 ? z : 0 ) );
-                        int nz = ( matrix[2, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : ( matrix[2, 0] > 0 ? x : 0 ) ) +
-                                 ( matrix[2, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : ( matrix[2, 1] > 0 ? y : 0 ) ) +
-                                 ( matrix[2, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : ( matrix[2, 2] > 0 ? z : 0 ) );
+                        int nx = (matrix[0, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[0, 0] > 0 ? x : 0)) +
+                                 (matrix[0, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[0, 1] > 0 ? y : 0)) +
+                                 (matrix[0, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[0, 2] > 0 ? z : 0));
+                        int ny = (matrix[1, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[1, 0] > 0 ? x : 0)) +
+                                 (matrix[1, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[1, 1] > 0 ? y : 0)) +
+                                 (matrix[1, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[1, 2] > 0 ? z : 0));
+                        int nz = (matrix[2, 0] < 0 ? oldBuffer.GetLength( 0 ) - 1 - x : (matrix[2, 0] > 0 ? x : 0)) +
+                                 (matrix[2, 1] < 0 ? oldBuffer.GetLength( 1 ) - 1 - y : (matrix[2, 1] > 0 ? y : 0)) +
+                                 (matrix[2, 2] < 0 ? oldBuffer.GetLength( 2 ) - 1 - z : (matrix[2, 2] > 0 ? z : 0));
                         newBuffer[nx, ny, nz] = oldBuffer[x, y, z];
                     }
                 }
@@ -735,16 +736,16 @@ namespace fCraft {
 
         #endregion
 
-
         #region Mark, Cancel
 
         static readonly CommandDescriptor CdMark = new CommandDescriptor {
             Name = "Mark",
-            Aliases = new[] { "m" },
+            Aliases = new[] {"m"},
             Category = CommandCategory.Building,
             Usage = "/Mark&S or &H/Mark X Y Z",
-            Help = "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
-                   "If three numbers are given, those coordinates are used instead.",
+            Help =
+                "When making a selection (for drawing or zoning) use this to make a marker at your position in the world. " +
+                "If three numbers are given, those coordinates are used instead.",
             Handler = MarkHandler
         };
 
@@ -775,7 +776,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdDoNotMark = new CommandDescriptor {
             Name = "DoNotMark",
-            Aliases = new[] { "dontmark", "dm" },
+            Aliases = new[] {"dontmark", "dm"},
             Category = CommandCategory.Building,
             Usage = "/DoNotMark",
             Help = "Toggles whether clicking blocks adds to a selection.",
@@ -798,7 +799,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCancel = new CommandDescriptor {
             Name = "Cancel",
-            Aliases = new[] { "Nvm" },
+            Aliases = new[] {"Nvm"},
             Category = CommandCategory.Building | CommandCategory.Chat,
             NotRepeatable = true,
             Help = "If you are writing a partial/multiline message, it's cancelled. " +
@@ -814,7 +815,6 @@ namespace fCraft {
 
         #endregion
 
-
         static readonly CommandDescriptor CdStatic = new CommandDescriptor {
             Name = "Static",
             Category = CommandCategory.Building,
@@ -824,7 +824,7 @@ namespace fCraft {
         };
 
         static void StaticHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            bool turnStaticOn = ( !player.IsRepeatingSelection );
+            bool turnStaticOn = (!player.IsRepeatingSelection);
 
             if( cmd.HasNext && !cmd.NextOnOff( out turnStaticOn ) ) {
                 CdStatic.PrintUsage( player );

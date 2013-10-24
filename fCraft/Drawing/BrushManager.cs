@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace fCraft.Drawing {
         static readonly CommandDescriptor CdBrush = new CommandDescriptor {
             Name = "Brush",
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.Draw, Permission.DrawAdvanced },
+            Permissions = new[] {Permission.Draw, Permission.DrawAdvanced},
             Help = "Gets or sets the current brush. Available brushes are: ",
             HelpSections = new Dictionary<string, string>(), // filled by RegisterBrush
             Handler = BrushHandler
@@ -61,7 +62,8 @@ namespace fCraft.Drawing {
         public static void RegisterBrush( [NotNull] IBrushFactory factory ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             string helpString = String.Format( "{0} brush: {1}",
-                                               factory.Name, factory.Help );
+                                               factory.Name,
+                                               factory.Help );
             string lowerName = factory.Name.ToLower();
             BrushFactories.Add( lowerName, factory );
             if( factory.Aliases != null ) {

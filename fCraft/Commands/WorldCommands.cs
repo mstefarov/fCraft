@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,7 +10,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Contains commands related to world management. </summary>
-    static class WorldCommands {
+    internal static class WorldCommands {
         const int WorldNamesPerPage = 30;
 
         internal static void Init() {
@@ -42,43 +43,50 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdWorldUnload );
         }
 
-
         #region BlockDB
 
         static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
             Name = "BlockDB",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageBlockDB },
+            Permissions = new[] {Permission.ManageBlockDB},
             Usage = "/BlockDB <WorldName> <Operation>",
             Help = "Manages BlockDB on a given world. " +
                    "Operations are: On, Off, Clear, Limit, TimeLimit, Preload. " +
                    "See &H/Help BlockDB <Operation>&S for operation-specific help. " +
                    "If no operation is given, world's BlockDB status is shown. " +
                    "If no WorldName is given, prints status of all worlds.",
-            HelpSections = new Dictionary<string, string>{
-                { "auto",       "/BlockDB <WorldName> Auto\n&S" +
-                                "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)." },
-                { "on",         "/BlockDB <WorldName> On\n&S" +
-                                "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled." },
-                { "off",        "/BlockDB <WorldName> Off\n&S" +
-                                "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
-                                "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that." },
-                { "clear",      "/BlockDB <WorldName> Clear\n&S" +
-                                "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file." },
-                { "limit",      "/BlockDB <WorldName> Limit <#>|None\n&S" +
-                                "Sets the limit on the maximum number of changes to store for a given world. " +
-                                "Oldest changes will be deleted once the limit is reached. " +
-                                "Put \"None\" to disable limiting. " +
-                                "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "timelimit",  "/BlockDB <WorldName> TimeLimit <Time>/None\n&S" +
-                                "Sets the age limit for stored changes. " +
-                                "Oldest changes will be deleted once the limit is reached. " +
-                                "Use \"None\" to disable time limiting. " +
-                                "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely." },
-                { "preload",    "/BlockDB <WorldName> Preload On/Off\n&S" +
-                                "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
-                                "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use." },
+            HelpSections = new Dictionary<string, string> {
+                {
+                    "auto", "/BlockDB <WorldName> Auto\n&S" +
+                            "Allows BlockDB to decide whether it should be enabled or disabled based on each world's permissions (default)."
+                }, {
+                    "on", "/BlockDB <WorldName> On\n&S" +
+                          "Enables block tracking. Information will only be available for blocks that changed while BlockDB was enabled."
+                }, {
+                    "off", "/BlockDB <WorldName> Off\n&S" +
+                           "Disables block tracking. Block changes will NOT be recorded while BlockDB is disabled. " +
+                           "Note that disabling BlockDB does not delete the existing data. Use &Hclear&S for that."
+                }, {
+                    "clear", "/BlockDB <WorldName> Clear\n&S" +
+                             "Clears all recorded data from the BlockDB. Erases all changes from memory and deletes the .fbdb file."
+                }, {
+                    "limit", "/BlockDB <WorldName> Limit <#>|None\n&S" +
+                             "Sets the limit on the maximum number of changes to store for a given world. " +
+                             "Oldest changes will be deleted once the limit is reached. " +
+                             "Put \"None\" to disable limiting. " +
+                             "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely."
+                }, {
+                    "timelimit", "/BlockDB <WorldName> TimeLimit <Time>/None\n&S" +
+                                 "Sets the age limit for stored changes. " +
+                                 "Oldest changes will be deleted once the limit is reached. " +
+                                 "Use \"None\" to disable time limiting. " +
+                                 "Unless a Limit or a TimeLimit it specified, all changes will be stored indefinitely."
+                }, {
+                    "preload", "/BlockDB <WorldName> Preload On/Off\n&S" +
+                               "Enabled or disables preloading. When BlockDB is preloaded, all changes are stored in memory as well as in a file. " +
+                               "This reduces CPU and disk use for busy maps, but may not be suitable for large maps due to increased memory use."
+                },
             },
             Handler = BlockDBHandler
         };
@@ -93,7 +101,7 @@ namespace fCraft {
             if( worldName == null ) {
                 int total = 0;
                 World[] autoEnabledWorlds =
-                    WorldManager.Worlds.Where( w => ( w.BlockDB.EnabledState == YesNoAuto.Auto ) && w.BlockDB.IsEnabled )
+                    WorldManager.Worlds.Where( w => (w.BlockDB.EnabledState == YesNoAuto.Auto) && w.BlockDB.IsEnabled )
                                 .ToArray();
                 if( autoEnabledWorlds.Length > 0 ) {
                     total += autoEnabledWorlds.Length;
@@ -244,7 +252,7 @@ namespace fCraft {
                             if( limitString == null ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is {1}",
                                                 world.ClassyName,
-                                                ( db.Limit == 0 ? "none" : db.Limit.ToStringInvariant() ) );
+                                                (db.Limit == 0 ? "none" : db.Limit.ToStringInvariant()) );
                                 return;
                             }
 
@@ -258,7 +266,7 @@ namespace fCraft {
                                 return;
                             }
 
-                            string limitDisplayString = ( limitNumber == 0 ? "none" : limitNumber.ToStringInvariant() );
+                            string limitDisplayString = (limitNumber == 0 ? "none" : limitNumber.ToStringInvariant());
                             if( db.Limit == limitNumber ) {
                                 player.Message( "BlockDB: Limit for world {0}&S is already set to {1}",
                                                 world.ClassyName,
@@ -348,7 +356,7 @@ namespace fCraft {
 
                     case "clear":
                         // wipes BlockDB data
-                        bool hasData = ( db.IsEnabled || File.Exists( db.FileName ) );
+                        bool hasData = (db.IsEnabled || File.Exists( db.FileName ));
                         if( hasData ) {
                             if( cmd.IsConfirmed ) {
                                 db.Clear();
@@ -378,7 +386,7 @@ namespace fCraft {
                             if( param == null ) {
                                 // shows current preload setting
                                 player.Message( "BlockDB preloading is {0} for world {1}",
-                                                ( db.IsPreloaded ? "ON" : "OFF" ),
+                                                (db.IsPreloaded ? "ON" : "OFF"),
                                                 world.ClassyName );
                             } else if( param.Equals( "on", StringComparison.OrdinalIgnoreCase ) ) {
                                 // turns preload on
@@ -418,14 +426,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region BlockInfo
 
         static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
             Name = "BInfo",
             Category = CommandCategory.World,
-            Aliases = new[] { "b", "bi", "whodid", "about" },
-            Permissions = new[] { Permission.ViewOthersInfo },
+            Aliases = new[] {"b", "bi", "whodid", "about"},
+            Permissions = new[] {Permission.ViewOthersInfo},
             RepeatableSelection = true,
             Usage = "/BInfo [X Y Z]",
             Help = "Checks edit history for a given block.",
@@ -488,10 +495,12 @@ namespace fCraft {
 
             [NotNull]
             public World World;
+
             public Vector3I Coordinate;
         }
 
         const int MaxBlockChangesToList = 15;
+
         static void BlockInfoSchedulerCallback( [NotNull] SchedulerTask task ) {
             BlockInfoLookupArgs args = (BlockInfoLookupArgs)task.UserState;
             if( args == null ) throw new NullReferenceException( "task.UserState" );
@@ -530,9 +539,9 @@ namespace fCraft {
                             contextString = " (Redone)";
                             break;
                         default:
-                            if( ( entry.Context & BlockChangeContext.Drawn ) == BlockChangeContext.Drawn &&
+                            if( (entry.Context & BlockChangeContext.Drawn) == BlockChangeContext.Drawn &&
                                 entry.Context != BlockChangeContext.Drawn ) {
-                                contextString = " (" + ( entry.Context & ~BlockChangeContext.Drawn ) + ")";
+                                contextString = " (" + (entry.Context & ~BlockChangeContext.Drawn) + ")";
                             } else {
                                 contextString = " (" + entry.Context + ")";
                             }
@@ -568,34 +577,40 @@ namespace fCraft {
 
         #endregion
 
-
         #region Env
 
         static readonly CommandDescriptor CdEnv = new CommandDescriptor {
             Name = "Env",
             Category = CommandCategory.World,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Help = "Prints or changes the environmental variables for a given world. " +
                    "Variables are: clouds, fog, sky, level, edge. " +
                    "See &H/Help env <Variable>&S for details about each variable. " +
                    "Type &H/Env <WorldName> normal&S to reset everything for a world.",
-            HelpSections = new Dictionary<string, string>{
-                { "normal",     "&H/Env <WorldName> normal\n&S" +
-                                "Resets all environment settings to their defaults for the given world." },
-                { "clouds",     "&H/Env <WorldName> clouds <Color>\n&S" +
-                                "Sets color of the clouds. Use \"normal\" instead of color to reset." },
-                { "fog",        "&H/Env <WorldName> fog <Color>\n&S" +
-                                "Sets color of the fog. Sky color blends with fog color in the distance. " +
-                                "Use \"normal\" instead of color to reset." },
-                { "sky",        "&H/Env <WorldName> sky <Color>\n&S" +
-                                "Sets color of the sky. Sky color blends with fog color in the distance. " +
-                                "Use \"normal\" instead of color to reset." },
-                { "level",      "&H/Env <WorldName> level <#>\n&S" +
-                                "Sets height of the map edges/water level, in terms of blocks from the bottom of the map. " +
-                                "Use \"normal\" instead of a number to reset to default (middle of the map)." },
-                { "edge",       "&H/Env <WorldName> edge <BlockType>\n&S" +
-                                "Changes the type of block that's visible beyond the map boundaries. "+
-                                "Use \"normal\" instead of a block name to reset to default (water)." }
+            HelpSections = new Dictionary<string, string> {
+                {
+                    "normal", "&H/Env <WorldName> normal\n&S" +
+                              "Resets all environment settings to their defaults for the given world."
+                }, {
+                    "clouds", "&H/Env <WorldName> clouds <Color>\n&S" +
+                              "Sets color of the clouds. Use \"normal\" instead of color to reset."
+                }, {
+                    "fog", "&H/Env <WorldName> fog <Color>\n&S" +
+                           "Sets color of the fog. Sky color blends with fog color in the distance. " +
+                           "Use \"normal\" instead of color to reset."
+                }, {
+                    "sky", "&H/Env <WorldName> sky <Color>\n&S" +
+                           "Sets color of the sky. Sky color blends with fog color in the distance. " +
+                           "Use \"normal\" instead of color to reset."
+                }, {
+                    "level", "&H/Env <WorldName> level <#>\n&S" +
+                             "Sets height of the map edges/water level, in terms of blocks from the bottom of the map. " +
+                             "Use \"normal\" instead of a number to reset to default (middle of the map)."
+                }, {
+                    "edge", "&H/Env <WorldName> edge <BlockType>\n&S" +
+                            "Changes the type of block that's visible beyond the map boundaries. " +
+                            "Use \"normal\" instead of a block name to reset to default (water)."
+                }
             },
             Usage = "/Env <WorldName> <Variable>",
             IsConsoleSafe = true,
@@ -797,31 +812,31 @@ namespace fCraft {
             byte red, green, blue;
             switch( text.Length ) {
                 case 3:
-                    red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[0] ));
-                    green = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[1] ));
-                    blue = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[2] ));
+                    red = (byte)(HexToValue( text[0] )*16 + HexToValue( text[0] ));
+                    green = (byte)(HexToValue( text[1] )*16 + HexToValue( text[1] ));
+                    blue = (byte)(HexToValue( text[2] )*16 + HexToValue( text[2] ));
                     break;
                 case 4:
                     if( text[0] != '#' ) throw new FormatException();
-                    red = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[1] ));
-                    green = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[2] ));
-                    blue = (byte)(HexToValue( text[3] ) * 16 + HexToValue( text[3] ));
+                    red = (byte)(HexToValue( text[1] )*16 + HexToValue( text[1] ));
+                    green = (byte)(HexToValue( text[2] )*16 + HexToValue( text[2] ));
+                    blue = (byte)(HexToValue( text[3] )*16 + HexToValue( text[3] ));
                     break;
                 case 6:
-                    red = (byte)(HexToValue( text[0] ) * 16 + HexToValue( text[1] ));
-                    green = (byte)(HexToValue( text[2] ) * 16 + HexToValue( text[3] ));
-                    blue = (byte)(HexToValue( text[4] ) * 16 + HexToValue( text[5] ));
+                    red = (byte)(HexToValue( text[0] )*16 + HexToValue( text[1] ));
+                    green = (byte)(HexToValue( text[2] )*16 + HexToValue( text[3] ));
+                    blue = (byte)(HexToValue( text[4] )*16 + HexToValue( text[5] ));
                     break;
                 case 7:
                     if( text[0] != '#' ) throw new FormatException();
-                    red = (byte)(HexToValue( text[1] ) * 16 + HexToValue( text[2] ));
-                    green = (byte)(HexToValue( text[3] ) * 16 + HexToValue( text[4] ));
-                    blue = (byte)(HexToValue( text[5] ) * 16 + HexToValue( text[6] ));
+                    red = (byte)(HexToValue( text[1] )*16 + HexToValue( text[2] ));
+                    green = (byte)(HexToValue( text[3] )*16 + HexToValue( text[4] ));
+                    blue = (byte)(HexToValue( text[5] )*16 + HexToValue( text[6] ));
                     break;
                 default:
                     throw new FormatException();
             }
-            return red * 256 * 256 + green * 256 + blue;
+            return red*256*256 + green*256 + blue;
         }
 
         static byte HexToValue( char c ) {
@@ -838,12 +853,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Gen
 
         internal static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
             Name = "SetGen",
-            Aliases = new[] { "sg" },
+            Aliases = new[] {"sg"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {
@@ -896,7 +910,7 @@ namespace fCraft {
             Name = "Gen",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/Gen [Width Length Height [FileName|WorldName]]",
             Help = "Generates a new map and either saves it to file, or loads it into a world. " +
                    "If no FileName or WorldName is given, replaces the current world. " +
@@ -927,7 +941,6 @@ namespace fCraft {
                     CdGen.PrintUsage( player );
                     return;
                 }
-
             } else if( playerWorld != null ) {
                 // Nothing is given. Assume that we're replacing the current world.
                 // Use dimensions of the currently-loaded map.
@@ -936,7 +949,6 @@ namespace fCraft {
                 mapLength = oldMap.Length;
                 mapHeight = oldMap.Height;
                 world = playerWorld;
-
             } else {
                 player.Message( "When used from console, /Gen requires map dimensions." );
                 CdGen.PrintUsage( player );
@@ -985,13 +997,11 @@ namespace fCraft {
                         player.Confirm( cmd, "Gen: Replace THIS MAP with a generated one ({0})?", genParams );
                         return;
                     }
-
                 } else {
                     player.Message( "When used from console, /Gen requires a world name or map file name." );
                     CdGen.PrintUsage( player );
                     return;
                 }
-
             } else {
                 // Either a world name or a filename was given. Check worlds first.
                 World existingWorld = WorldManager.FindWorldExact( givenName );
@@ -1010,7 +1020,6 @@ namespace fCraft {
                         return;
                     }
                     world = existingWorld;
-
                 } else {
                     // No world with this name found. Assume that we were given a filename.
                     givenName = givenName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
@@ -1068,12 +1077,16 @@ namespace fCraft {
         class GenTaskParams {
             [NotNull]
             public Player Player { get; set; }
+
             [NotNull]
             public MapGeneratorState GenState { get; set; }
+
             [CanBeNull]
             public World World { get; set; }
+
             [CanBeNull]
             public string FileName { get; set; }
+
             [CanBeNull]
             public string FullFileName { get; set; }
         }
@@ -1087,7 +1100,6 @@ namespace fCraft {
             try {
                 // Generate!
                 map = args.GenState.Generate();
-
             } catch( Exception ex ) {
                 // Report a generator crash
                 Logger.LogAndReportCrash( "Generation error",
@@ -1121,7 +1133,6 @@ namespace fCraft {
                             args.Player.Name,
                             args.World.Name,
                             args.GenState.Parameters );
-
             } else if( args.FullFileName != null ) {
                 if( map.Save( args.FullFileName ) ) {
                     args.Player.Message( "Generation done. Saved to {0}", args.FileName );
@@ -1134,7 +1145,6 @@ namespace fCraft {
                 } else {
                     args.Player.Message( "&WAn error occurred while saving generated map to {0}", args.FileName );
                 }
-
             } else {
                 throw new InvalidOperationException( "GenTaskCallback: No world or file name given." );
             }
@@ -1143,15 +1153,15 @@ namespace fCraft {
 
         #endregion
 
-
         #region Join
 
         static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "Join",
-            Aliases = new[] { "j", "load", "goto", "map" },
+            Aliases = new[] {"j", "load", "goto", "map"},
             Category = CommandCategory.World,
             Usage = "/Join WorldName",
-            Help = "Teleports the player to a specified world. You can see the list of available worlds by using &H/Worlds",
+            Help =
+                "Teleports the player to a specified world. You can see the list of available worlds by using &H/Worlds",
             Handler = JoinHandler
         };
 
@@ -1207,15 +1217,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region WLock, WUnlock
 
         static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
             Name = "WLock",
-            Aliases = new[] { "lock" },
+            Aliases = new[] {"lock"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Lock },
+            Permissions = new[] {Permission.Lock},
             Usage = "/WLock [*|WorldName]",
             Help = "Puts the world into a locked, read-only mode. " +
                    "No one can place or delete blocks during lockdown. " +
@@ -1245,10 +1254,8 @@ namespace fCraft {
                     world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                     if( world == null ) return;
                 }
-
             } else if( player.World != null ) {
                 world = player.World;
-
             } else {
                 player.Message( "When called from console, /WLock requires a world name." );
                 return;
@@ -1264,10 +1271,10 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
             Name = "WUnlock",
-            Aliases = new[] { "unlock" },
+            Aliases = new[] {"unlock"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.Lock },
+            Permissions = new[] {Permission.Lock},
             Usage = "/WUnlock [*|WorldName]",
             Help = "Removes the lockdown set by &H/WLock&S. See &H/Help WLock&S for more information.",
             Handler = WorldUnlockHandler
@@ -1309,7 +1316,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Spawn
 
         static readonly CommandDescriptor CdSpawn = new CommandDescriptor {
@@ -1328,7 +1334,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Worlds
 
         static readonly CommandDescriptor CdWorlds = new CommandDescriptor {
@@ -1336,7 +1341,7 @@ namespace fCraft {
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
-            Aliases = new[] { "maps", "levels" },
+            Aliases = new[] {"maps", "levels"},
             Usage = "/Worlds [all/hidden/populated/@Rank]",
             Help = "Shows a list of available worlds. To join a world, type &H/Join WorldName&S. " +
                    "If the optional \"all\" is added, also shows inaccessible or hidden worlds. " +
@@ -1389,7 +1394,7 @@ namespace fCraft {
                         listName = String.Format( "worlds where {0}&S+ can build", rank.ClassyName );
                         extraParam = "@" + rank.Name + " ";
                         worlds =
-                            WorldManager.Worlds.Where( w => ( w.BuildSecurity.MinRank <= rank ) && player.CanSee( w ) )
+                            WorldManager.Worlds.Where( w => (w.BuildSecurity.MinRank <= rank) && player.CanSee( w ) )
                                         .ToArray();
                         break;
                     default:
@@ -1437,14 +1442,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldAccess
 
         static readonly CommandDescriptor CdWorldAccess = new CommandDescriptor {
             Name = "WAccess",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WAccess [WorldName [RankName]]",
             Help = "Shows access permission for player's current world. " +
                    "If optional WorldName parameter is given, shows access permission for another world. " +
@@ -1491,10 +1495,13 @@ namespace fCraft {
                     PlayerInfo[] oldWhitelist = world.AccessSecurity.ExceptionList.Included.ToArray();
                     world.AccessSecurity.ResetIncludedList();
                     player.Message( "Access whitelist of {0}&S cleared: {1}",
-                                    world.ClassyName, oldWhitelist.JoinToClassyString() );
+                                    world.ClassyName,
+                                    oldWhitelist.JoinToClassyString() );
                     Logger.Log( LogType.UserActivity,
                                 "Player {0} cleared access whitelist of world {1}: {2}",
-                                player.Name, world.Name, oldWhitelist.JoinToString( pi => pi.Name ) );
+                                player.Name,
+                                world.Name,
+                                oldWhitelist.JoinToString( pi => pi.Name ) );
                     continue;
                 }
 
@@ -1503,16 +1510,21 @@ namespace fCraft {
                     PlayerInfo[] oldBlacklist = world.AccessSecurity.ExceptionList.Excluded.ToArray();
                     world.AccessSecurity.ResetExcludedList();
                     player.Message( "Access blacklist of {0}&S cleared: {1}",
-                                    world.ClassyName, oldBlacklist.JoinToClassyString() );
+                                    world.ClassyName,
+                                    oldBlacklist.JoinToClassyString() );
                     Logger.Log( LogType.UserActivity,
                                 "Player {0} cleared access blacklist of world {1}: {2}",
-                                player.Name, world.Name, oldBlacklist.JoinToString( pi => pi.Name ) );
+                                player.Name,
+                                world.Name,
+                                oldBlacklist.JoinToString( pi => pi.Name ) );
                     continue;
                 }
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                             nextToken.Substring( 1 ),
+                                                                             SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1532,7 +1544,8 @@ namespace fCraft {
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.Allowed ) {
                         player.Message( "{0}&S is already allowed to access {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName );
+                                        info.ClassyName,
+                                        world.ClassyName );
                         continue;
                     }
 
@@ -1543,54 +1556,69 @@ namespace fCraft {
                         case PermissionOverride.Deny:
                             if( world.AccessSecurity.Check( info ) ) {
                                 player.Message( "{0}&S is no longer barred from accessing {1}",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
                                     target.Message( "You can now access world {0}&S (removed from blacklist by {1}&S).",
-                                                    world.ClassyName, player.ClassyName );
+                                                    world.ClassyName,
+                                                    player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S was removed from the access blacklist of {1}&S. " +
                                                 "Player is still NOT allowed to join (by rank).",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "You were removed from the access blacklist of world {0}&S by {1}&S. " +
-                                                    "You are still NOT allowed to join (by rank).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "You were removed from the access blacklist of world {0}&S by {1}&S. " +
+                                        "You are still NOT allowed to join (by rank).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} removed {1} from the access blacklist of {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now allowed to access {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             if( target != null ) {
                                 target.Message( "You can now access world {0}&S (whitelisted by {1}&S).",
-                                                world.ClassyName, player.ClassyName );
+                                                world.ClassyName,
+                                                player.ClassyName );
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} added {1} to the access whitelist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
                             player.Message( "{0}&S is already on the access whitelist of {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             break;
                     }
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                             nextToken.Substring( 1 ),
+                                                                             SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     if( world.AccessSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
                         player.Message( "{0}&S is already barred from accessing {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName );
+                                        info.ClassyName,
+                                        world.ClassyName );
                         continue;
                     }
 
@@ -1600,19 +1628,24 @@ namespace fCraft {
                     switch( world.AccessSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
                             player.Message( "{0}&S is already on access blacklist of {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             break;
 
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now barred from accessing {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             if( target != null ) {
                                 target.Message( "&WYou were barred by {0}&W from accessing {1}",
-                                                player.ClassyName, world.ClassyName );
+                                                player.ClassyName,
+                                                world.ClassyName );
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} added {1} to the access blacklist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
@@ -1620,23 +1653,31 @@ namespace fCraft {
                             if( world.AccessSecurity.Check( info ) ) {
                                 player.Message( "{0}&S is no longer on the access whitelist of {1}&S. " +
                                                 "Player is still allowed to join (by rank).",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "You were removed from the access whitelist of world {0}&S by {1}&S. " +
-                                                    "You are still allowed to join (by rank).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "You were removed from the access whitelist of world {0}&S by {1}&S. " +
+                                        "You are still allowed to join (by rank).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to access {1}",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "&WYou can no longer access world {0}&W (removed from whitelist by {1}&W).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "&WYou can no longer access world {0}&W (removed from whitelist by {1}&W).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} removed {1} from the access whitelist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
                     }
@@ -1647,25 +1688,27 @@ namespace fCraft {
                     Rank rank = RankManager.FindRank( nextToken );
                     if( rank == null ) {
                         player.MessageNoRank( nextToken );
-
                     } else if( !player.Info.Rank.AllowSecurityCircumvention &&
                                world.AccessSecurity.MinRank > rank &&
                                world.AccessSecurity.MinRank > player.Info.Rank ) {
                         player.Message( "&WYou must be ranked {0}&W+ to lower the access rank for world {1}",
-                                        world.AccessSecurity.MinRank.ClassyName, world.ClassyName );
-
+                                        world.AccessSecurity.MinRank.ClassyName,
+                                        world.ClassyName );
                     } else {
                         // list players who are redundantly blacklisted
                         var exceptionList = world.AccessSecurity.ExceptionList;
-                        PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
+                        PlayerInfo[] noLongerExcluded =
+                            exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
                         if( noLongerExcluded.Length > 0 ) {
-                            player.Message( "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
-                                            world.ClassyName,
-                                            noLongerExcluded.JoinToClassyString() );
+                            player.Message(
+                                "Following players no longer need to be blacklisted to be barred from {0}&S: {1}",
+                                world.ClassyName,
+                                noLongerExcluded.JoinToClassyString() );
                         }
 
                         // list players who are redundantly whitelisted
-                        PlayerInfo[] noLongerIncluded = exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
+                        PlayerInfo[] noLongerIncluded =
+                            exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted to access {0}&S: {1}",
                                             world.ClassyName,
@@ -1677,15 +1720,19 @@ namespace fCraft {
                         changesWereMade = true;
                         if( world.AccessSecurity.MinRank == RankManager.LowestRank ) {
                             Server.Message( "{0}&S made the world {1}&S accessible to everyone.",
-                                              player.ClassyName, world.ClassyName );
+                                            player.ClassyName,
+                                            world.ClassyName );
                         } else {
                             Server.Message( "{0}&S made the world {1}&S accessible only by {2}+",
-                                              player.ClassyName, world.ClassyName,
-                                              world.AccessSecurity.MinRank.ClassyName );
+                                            player.ClassyName,
+                                            world.ClassyName,
+                                            world.AccessSecurity.MinRank.ClassyName );
                         }
                         Logger.Log( LogType.UserActivity,
                                     "{0} set access rank for world {1} to {2}+",
-                                    player.Name, world.Name, world.AccessSecurity.MinRank.Name );
+                                    player.Name,
+                                    world.Name,
+                                    world.AccessSecurity.MinRank.Name );
                     }
                 }
             } while( (nextToken = cmd.Next()) != null );
@@ -1702,14 +1749,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldBuild
 
         static readonly CommandDescriptor CdWorldBuild = new CommandDescriptor {
             Name = "WBuild",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WBuild [WorldName [RankName]]",
             Help = "Shows build permissions for player's current world. " +
                    "If optional WorldName parameter is given, shows build permission for another world. " +
@@ -1751,10 +1797,13 @@ namespace fCraft {
                     if( oldWhitelist.Length > 0 ) {
                         world.BuildSecurity.ResetIncludedList();
                         player.Message( "Build whitelist of world {0}&S cleared: {1}",
-                                        world.ClassyName, oldWhitelist.JoinToClassyString() );
+                                        world.ClassyName,
+                                        oldWhitelist.JoinToClassyString() );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} cleared build whitelist of world {1}: {2}",
-                                    player.Name, world.Name, oldWhitelist.JoinToString( pi => pi.Name ) );
+                                    player.Name,
+                                    world.Name,
+                                    oldWhitelist.JoinToString( pi => pi.Name ) );
                     } else {
                         player.Message( "Build whitelist of world {0}&S is empty.",
                                         world.ClassyName );
@@ -1768,10 +1817,13 @@ namespace fCraft {
                     if( oldBlacklist.Length > 0 ) {
                         world.BuildSecurity.ResetExcludedList();
                         player.Message( "Build blacklist of world {0}&S cleared: {1}",
-                                        world.ClassyName, oldBlacklist.JoinToClassyString() );
+                                        world.ClassyName,
+                                        oldBlacklist.JoinToClassyString() );
                         Logger.Log( LogType.UserActivity,
                                     "Player {0} cleared build blacklist of world {1}: {2}",
-                                    player.Name, world.Name, oldBlacklist.JoinToString( pi => pi.Name ) );
+                                    player.Name,
+                                    world.Name,
+                                    oldBlacklist.JoinToString( pi => pi.Name ) );
                     } else {
                         player.Message( "Build blacklist of world {0}&S is empty.",
                                         world.ClassyName );
@@ -1781,7 +1833,9 @@ namespace fCraft {
 
                 // Whitelisting individuals
                 if( nextToken.StartsWith( "+" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                             nextToken.Substring( 1 ),
+                                                                             SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     // prevent players from whitelisting themselves to bypass protection
@@ -1801,7 +1855,8 @@ namespace fCraft {
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.Allowed ) {
                         player.Message( "{0}&S is already allowed to build in {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName );
+                                        info.ClassyName,
+                                        world.ClassyName );
                         continue;
                     }
 
@@ -1812,54 +1867,70 @@ namespace fCraft {
                         case PermissionOverride.Deny:
                             if( world.BuildSecurity.Check( info ) ) {
                                 player.Message( "{0}&S is no longer barred from building in {1}",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "You can now build in world {0}&S (removed from blacklist by {1}&S).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "You can now build in world {0}&S (removed from blacklist by {1}&S).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S was removed from the build blacklist of {1}&S. " +
                                                 "Player is still NOT allowed to build (by rank).",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "You were removed from the build blacklist of world {0}&S by {1}&S. " +
-                                                    "You are still NOT allowed to build (by rank).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "You were removed from the build blacklist of world {0}&S by {1}&S. " +
+                                        "You are still NOT allowed to build (by rank).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} removed {1} from the build blacklist of {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now allowed to build in {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             if( target != null ) {
                                 target.Message( "You can now build in world {0}&S (whitelisted by {1}&S).",
-                                                world.ClassyName, player.ClassyName );
+                                                world.ClassyName,
+                                                player.ClassyName );
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} added {1} to the build whitelist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
                         case PermissionOverride.Allow:
                             player.Message( "{0}&S is already on the build whitelist of {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             break;
                     }
 
                     // Blacklisting individuals
                 } else if( nextToken.StartsWith( "-" ) ) {
-                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player, nextToken.Substring( 1 ), SearchOptions.IncludeSelf );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoOrPrintMatches( player,
+                                                                             nextToken.Substring( 1 ),
+                                                                             SearchOptions.IncludeSelf );
                     if( info == null ) return;
 
                     if( world.BuildSecurity.CheckDetailed( info ) == SecurityCheckResult.RankTooLow ) {
                         player.Message( "{0}&S is already barred from building in {1}&S (by rank)",
-                                        info.ClassyName, world.ClassyName );
+                                        info.ClassyName,
+                                        world.ClassyName );
                         continue;
                     }
 
@@ -1869,19 +1940,24 @@ namespace fCraft {
                     switch( world.BuildSecurity.Exclude( info ) ) {
                         case PermissionOverride.Deny:
                             player.Message( "{0}&S is already on build blacklist of {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             break;
 
                         case PermissionOverride.None:
                             player.Message( "{0}&S is now barred from building in {1}",
-                                            info.ClassyName, world.ClassyName );
+                                            info.ClassyName,
+                                            world.ClassyName );
                             if( target != null ) {
                                 target.Message( "&WYou were barred by {0}&W from building in world {1}",
-                                                player.ClassyName, world.ClassyName );
+                                                player.ClassyName,
+                                                world.ClassyName );
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} added {1} to the build blacklist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
 
@@ -1889,23 +1965,31 @@ namespace fCraft {
                             if( world.BuildSecurity.Check( info ) ) {
                                 player.Message( "{0}&S is no longer on the build whitelist of {1}&S. " +
                                                 "Player is still allowed to build (by rank).",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "You were removed from the build whitelist of world {0}&S by {1}&S. " +
-                                                    "You are still allowed to build (by rank).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "You were removed from the build whitelist of world {0}&S by {1}&S. " +
+                                        "You are still allowed to build (by rank).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             } else {
                                 player.Message( "{0}&S is no longer allowed to build in {1}",
-                                                info.ClassyName, world.ClassyName );
+                                                info.ClassyName,
+                                                world.ClassyName );
                                 if( target != null ) {
-                                    target.Message( "&WYou can no longer build in world {0}&W (removed from whitelist by {1}&W).",
-                                                    world.ClassyName, player.ClassyName );
+                                    target.Message(
+                                        "&WYou can no longer build in world {0}&W (removed from whitelist by {1}&W).",
+                                        world.ClassyName,
+                                        player.ClassyName );
                                 }
                             }
                             Logger.Log( LogType.UserActivity,
                                         "{0} removed {1} from the build whitelist on world {2}",
-                                        player.Name, info.Name, world.Name );
+                                        player.Name,
+                                        info.Name,
+                                        world.Name );
                             changesWereMade = true;
                             break;
                     }
@@ -1920,11 +2004,13 @@ namespace fCraft {
                                world.BuildSecurity.MinRank > rank &&
                                world.BuildSecurity.MinRank > player.Info.Rank ) {
                         player.Message( "&WYou must be ranked {0}&W+ to lower build restrictions for world {1}",
-                                        world.BuildSecurity.MinRank.ClassyName, world.ClassyName );
+                                        world.BuildSecurity.MinRank.ClassyName,
+                                        world.ClassyName );
                     } else {
                         // list players who are redundantly blacklisted
                         var exceptionList = world.BuildSecurity.ExceptionList;
-                        PlayerInfo[] noLongerExcluded = exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
+                        PlayerInfo[] noLongerExcluded =
+                            exceptionList.Excluded.Where( excludedPlayer => excludedPlayer.Rank < rank ).ToArray();
                         if( noLongerExcluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be blacklisted on world {0}&S: {1}",
                                             world.ClassyName,
@@ -1932,7 +2018,8 @@ namespace fCraft {
                         }
 
                         // list players who are redundantly whitelisted
-                        PlayerInfo[] noLongerIncluded = exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
+                        PlayerInfo[] noLongerIncluded =
+                            exceptionList.Included.Where( includedPlayer => includedPlayer.Rank >= rank ).ToArray();
                         if( noLongerIncluded.Length > 0 ) {
                             player.Message( "Following players no longer need to be whitelisted on world {0}&S: {1}",
                                             world.ClassyName,
@@ -1953,14 +2040,19 @@ namespace fCraft {
                         changesWereMade = true;
                         if( world.BuildSecurity.MinRank == RankManager.LowestRank ) {
                             Server.Message( "{0}&S allowed anyone to build on world {1}",
-                                              player.ClassyName, world.ClassyName );
+                                            player.ClassyName,
+                                            world.ClassyName );
                         } else {
                             Server.Message( "{0}&S allowed only {1}+&S to build in world {2}",
-                                              player.ClassyName, world.BuildSecurity.MinRank.ClassyName, world.ClassyName );
+                                            player.ClassyName,
+                                            world.BuildSecurity.MinRank.ClassyName,
+                                            world.ClassyName );
                         }
                         Logger.Log( LogType.UserActivity,
                                     "{0} set build rank for world {1} to {2}+",
-                                    player.Name, world.Name, world.BuildSecurity.MinRank.Name );
+                                    player.Name,
+                                    world.Name,
+                                    world.BuildSecurity.MinRank.Name );
                     }
                 }
             } while( (nextToken = cmd.Next()) != null );
@@ -1972,7 +2064,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldFlush
 
         static readonly CommandDescriptor CdWorldFlush = new CommandDescriptor {
@@ -1982,8 +2073,9 @@ namespace fCraft {
             IsConsoleSafe = true,
             Permissions = new[] {Permission.FlushWorlds},
             Usage = "/WFlush [WorldName]",
-            Help = "Reloads the current world to apply all pending drawing commands, forces all players to rejoin the map. " +
-                   "Makes cuboids and other draw commands finish REALLY quickly.",
+            Help =
+                "Reloads the current world to apply all pending drawing commands, forces all players to rejoin the map. " +
+                "Makes cuboids and other draw commands finish REALLY quickly.",
             Handler = WorldFlushHandler
         };
 
@@ -1994,7 +2086,6 @@ namespace fCraft {
             if( worldName != null ) {
                 world = WorldManager.FindWorldOrPrintMatches( player, worldName );
                 if( world == null ) return;
-
             } else if( world == null ) {
                 player.Message( "When using /WFlush from console, you must specify a world name." );
                 return;
@@ -2014,12 +2105,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldInfo
 
         static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
             Name = "WInfo",
-            Aliases = new[] { "mapinfo" },
+            Aliases = new[] {"mapinfo"},
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -2055,13 +2145,16 @@ namespace fCraft {
                     map = MapUtility.LoadHeader( Path.Combine( Paths.MapPath, world.MapFileName ), true );
                 } catch( Exception ex ) {
                     player.Message( "  Map information could not be loaded: {0}: {1}",
-                                    ex.GetType().Name, ex.Message );
+                                    ex.GetType().Name,
+                                    ex.Message );
                 }
             }
 
             if( map != null ) {
                 player.Message( "  Map dimensions are {0} x {1} x {2}",
-                                map.Width, map.Length, map.Height );
+                                map.Width,
+                                map.Length,
+                                map.Height );
             }
 
             // Print access/build limits
@@ -2109,25 +2202,28 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldLoad
 
         static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
             Name = "WLoad",
-            Aliases = new[] { "wadd" },
+            Aliases = new[] {"wadd"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WLoad FileName [WorldName [BuildRank [AccessRank]]]",
-            Help = "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
-                   "If the world with the specified name exists, its map is replaced with the specified map file. " +
-                   "Otherwise, a new world is created using the given name and map file. " +
-                   "NOTE: For security reasons, you may only load files from the map folder. " +
-                   "For a list of supported formats, see &H/Help WLoad Formats",
-            HelpSections = new Dictionary<string, string>{
-                { "formats",    "WLoad supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
-                                "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
-                                "JTE (.gz), iCraft/Myne (directory-based), Opticraft (.save)." }
+            Help =
+                "If WorldName parameter is not given, replaces the current world's map with the specified map. The old map is overwritten. " +
+                "If the world with the specified name exists, its map is replaced with the specified map file. " +
+                "Otherwise, a new world is created using the given name and map file. " +
+                "NOTE: For security reasons, you may only load files from the map folder. " +
+                "For a list of supported formats, see &H/Help WLoad Formats",
+            HelpSections = new Dictionary<string, string> {
+                {
+                    "formats",
+                    "WLoad supported formats: fCraft FCM (versions 2, 3, and 4), MCSharp/MCZall/MCLawl (.lvl), " +
+                    "D3 (.map), Classic (.dat), InDev (.mclevel), MinerCPP/LuaCraft (.dat), " +
+                    "JTE (.gz), iCraft/Myne (directory-based), Opticraft (.save)."
+                }
             },
             Handler = WorldLoadHandler
         };
@@ -2192,8 +2288,6 @@ namespace fCraft {
                             player.Name,
                             world.Name,
                             fileName );
-
-
             } else {
                 // Loading to some other (or new) world
                 if( !World.IsValidName( worldName ) ) {
@@ -2276,13 +2370,13 @@ namespace fCraft {
                                     player.Name,
                                     world.Name,
                                     fullFileName );
-
                     } else {
                         // Adding a new world
                         string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
                         if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
-                            !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
+                            !Paths.Compare( targetFullFileName, fullFileName ) ) {
+                            // and is different from sourceFile
                             Logger.Log( LogType.UserActivity,
                                         "WLoad: Asked {0} to confirm replacing map file \"{1}\" with \"{2}\"",
                                         player.Name,
@@ -2349,14 +2443,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldMain
 
         static readonly CommandDescriptor CdWorldMain = new CommandDescriptor {
             Name = "WMain",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WMain [@RankName] [WorldName]",
             Help = "Sets the specified world as the new main world. " +
                    "Main world is what newly-connected players join first. " +
@@ -2369,8 +2462,8 @@ namespace fCraft {
             if( param == null ) {
                 player.Message( "Main world is {0}", WorldManager.MainWorld.ClassyName );
                 var mainedRanks = RankManager.Ranks
-                                            .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
-                                            .ToArray();
+                                             .Where( r => r.MainWorld != null && r.MainWorld != WorldManager.MainWorld )
+                                             .ToArray();
                 if( mainedRanks.Length > 0 ) {
                     string list = mainedRanks.JoinToString( r => String.Format( "{0}&S for {1}&S",
                                                                                 // ReSharper disable PossibleNullReferenceException
@@ -2378,7 +2471,6 @@ namespace fCraft {
                                                                                 // ReSharper restore PossibleNullReferenceException
                                                                                 r.ClassyName ) );
                     player.Message( "Rank mains: {0}", list );
-                                    
                 }
                 return;
             }
@@ -2407,7 +2499,6 @@ namespace fCraft {
                         SetRankMainWorld( player, rank, world );
                     }
                 }
-
             } else {
                 World world = WorldManager.FindWorldOrPrintMatches( player, param );
                 if( world != null ) {
@@ -2504,14 +2595,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldRename
 
         static readonly CommandDescriptor CdWorldRename = new CommandDescriptor {
             Name = "WRename",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WRename OldName NewName",
             Help = "Changes the name of a world. Does not require any reloading.",
             Handler = WorldRenameHandler
@@ -2595,15 +2685,14 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldSave
 
         static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
             Name = "WSave",
-            Aliases = new[] { "save" },
+            Aliases = new[] {"save"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WSave FileName &Sor&H /WSave WorldName FileName",
             Help = "Saves a map copy to a file with the specified name. " +
                    "The \".fcm\" file extension can be omitted. " +
@@ -2707,23 +2796,27 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldSet
 
         static readonly CommandDescriptor CdWorldSet = new CommandDescriptor {
             Name = "WSet",
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WSet <World> <Variable> <Value>",
             Help = "Sets a world variable. Variables are: hide, backups, greeting",
-            HelpSections = new Dictionary<string, string>{
-                { "hide",       "&H/WSet <WorldName> Hide On/Off\n&S" +
-                                "When a world is hidden, it does not show up on the &H/Worlds&S list. It can still be joined normally." },
-                { "backups",    "&H/WSet <World> Backups Off&S, &H/WSet <World> Backups Default&S, or &H/WSet <World> Backups <Time>\n&S" +
-                                "Enables or disables periodic backups. Time is given in the compact format." },
-                { "greeting",   "&H/WSet <WorldName> Greeting <Text>\n&S" +
-                                "Sets a greeting message. Message is shown whenever someone joins the map, and can also be viewed in &H/WInfo" }
+            HelpSections = new Dictionary<string, string> {
+                {
+                    "hide", "&H/WSet <WorldName> Hide On/Off\n&S" +
+                            "When a world is hidden, it does not show up on the &H/Worlds&S list. It can still be joined normally."
+                }, {
+                    "backups",
+                    "&H/WSet <World> Backups Off&S, &H/WSet <World> Backups Default&S, or &H/WSet <World> Backups <Time>\n&S" +
+                    "Enables or disables periodic backups. Time is given in the compact format."
+                }, {
+                    "greeting", "&H/WSet <WorldName> Greeting <Text>\n&S" +
+                                "Sets a greeting message. Message is shown whenever someone joins the map, and can also be viewed in &H/WInfo"
+                }
             },
             Handler = WorldSetHandler
         };
@@ -2879,18 +2972,18 @@ namespace fCraft {
 
         #endregion
 
-
         #region WorldUnload
 
         static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
             Name = "WUnload",
-            Aliases = new[] { "wremove", "wdelete" },
+            Aliases = new[] {"wremove", "wdelete"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] { Permission.ManageWorlds },
+            Permissions = new[] {Permission.ManageWorlds},
             Usage = "/WUnload WorldName",
-            Help = "Removes the specified world from the world list, and moves all players from it to the main world. " +
-                   "The main world itself cannot be removed with this command. You will need to delete the map file manually.",
+            Help =
+                "Removes the specified world from the world list, and moves all players from it to the main world. " +
+                "The main world itself cannot be removed with this command. You will need to delete the map file manually.",
             Handler = WorldUnloadHandler
         };
 

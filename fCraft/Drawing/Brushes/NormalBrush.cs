@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -11,7 +12,7 @@ namespace fCraft.Drawing {
 
 
         NormalBrushFactory() {
-            Aliases = new[] { "default", "-" };
+            Aliases = new[] {"default", "-"};
         }
 
 
@@ -25,6 +26,7 @@ namespace fCraft.Drawing {
 
         const string HelpString = "Normal brush: Fills the area with solid color. " +
                                   "If no block name is given, uses the last block that player has placed.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -125,6 +127,6 @@ namespace fCraft.Drawing {
         }
 
 
-        public void End() { }
+        public void End() {}
     }
 }

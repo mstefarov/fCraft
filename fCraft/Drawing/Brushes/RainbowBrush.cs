@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace fCraft.Drawing {
@@ -8,7 +9,7 @@ namespace fCraft.Drawing {
         /// <summary> Global singleton instance of RainbowBrush. </summary>
         public static readonly RainbowBrush Instance = new RainbowBrush();
 
-        RainbowBrush() { }
+        RainbowBrush() {}
 
         public string Name {
             get { return "Rainbow"; }
@@ -23,6 +24,7 @@ namespace fCraft.Drawing {
         }
 
         const string HelpString = "Rainbow brush: Creates a diagonal 7-color rainbow pattern.";
+
         public string Help {
             get { return HelpString; }
         }
@@ -73,10 +75,10 @@ namespace fCraft.Drawing {
 
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
-            return Rainbow[(state.Coords.X + state.Coords.Y + state.Coords.Z) % 7];
+            return Rainbow[(state.Coords.X + state.Coords.Y + state.Coords.Z)%7];
         }
 
 
-        public void End() { }
+        public void End() {}
     }
 }

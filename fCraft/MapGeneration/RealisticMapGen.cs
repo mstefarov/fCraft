@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Xml.Linq;
 using JetBrains.Annotations;
@@ -56,10 +57,8 @@ namespace fCraft.MapGeneration {
             bool swapThemeAndTemplate;
             if( EnumUtil.TryParse( themeName, out theme, true ) ) {
                 swapThemeAndTemplate = false;
-
             } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
                 swapThemeAndTemplate = true;
-
             } else {
                 player.Message( "SetGen: Unrecognized theme \"{0}\". Available themes are: {1}",
                                 themeName,

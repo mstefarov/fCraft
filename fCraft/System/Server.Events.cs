@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Net;
 using System.Collections.Generic;
@@ -7,7 +8,6 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     partial class Server {
-
         /// <summary> Occurs when the server is about to be initialized. </summary>
         public static event EventHandler Initializing;
 
@@ -53,7 +53,6 @@ namespace fCraft {
             RaiseEvent( PlayerListChanged );
         }
 
-
         #region Session-related
 
         /// <summary> Occurs any time the server receives an incoming connection (cancelable). </summary>
@@ -66,7 +65,6 @@ namespace fCraft {
 
         /// <summary> Occurs when a connection is closed or lost. </summary>
         public static event EventHandler<SessionDisconnectedEventArgs> SessionDisconnected;
-
 
 
         internal static bool RaiseSessionConnectingEvent( [NotNull] IPAddress ip ) {
@@ -90,13 +88,10 @@ namespace fCraft {
         }
 
         #endregion
-
     }
 }
 
-
 namespace fCraft.Events {
-
     public sealed class ShutdownEventArgs : EventArgs {
         internal ShutdownEventArgs( [NotNull] ShutdownParams shutdownParams ) {
             if( shutdownParams == null ) throw new ArgumentNullException( "shutdownParams" );

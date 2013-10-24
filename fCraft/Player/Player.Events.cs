@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Net;
 using fCraft.Events;
@@ -179,7 +180,8 @@ namespace fCraft {
         }
 
 
-        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld, WorldChangeReason reason ) {
+        static bool RaisePlayerJoiningWorldEvent( [NotNull] Player player, [NotNull] World newWorld,
+                                                  WorldChangeReason reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = JoiningWorld;
@@ -190,7 +192,8 @@ namespace fCraft {
         }
 
 
-        static void RaisePlayerJoinedWorldEvent( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason reason ) {
+        static void RaisePlayerJoinedWorldEvent( [NotNull] Player player, [CanBeNull] World oldWorld,
+                                                 [NotNull] World newWorld, WorldChangeReason reason ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( newWorld == null ) throw new ArgumentNullException( "newWorld" );
             var h = JoinedWorld;
@@ -465,7 +468,7 @@ namespace fCraft.Events {
     /// <summary> Provides data for Player.BeingKicked event. Cancelable. </summary>
     public sealed class PlayerBeingKickedEventArgs : EventArgs, IPlayerEvent, ICancelableEvent {
         internal PlayerBeingKickedEventArgs( [NotNull] Player player, [NotNull] Player kicker, [CanBeNull] string reason,
-                                              bool announce, bool recordToPlayerDB, LeaveReason context ) {
+                                             bool announce, bool recordToPlayerDB, LeaveReason context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( kicker == null ) throw new ArgumentNullException( "kicker" );
             Player = player;
@@ -584,10 +587,10 @@ namespace fCraft.Events {
     }
 
 
-
     /// <summary> Provides data for Player.JoinedWorld event. Immutable. </summary>
     public sealed class PlayerJoinedWorldEventArgs : EventArgs, IPlayerEvent {
-        internal PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld, [NotNull] World newWorld, WorldChangeReason context ) {
+        internal PlayerJoinedWorldEventArgs( [NotNull] Player player, [CanBeNull] World oldWorld,
+                                             [NotNull] World newWorld, WorldChangeReason context ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             Player = player;
             OldWorld = oldWorld;

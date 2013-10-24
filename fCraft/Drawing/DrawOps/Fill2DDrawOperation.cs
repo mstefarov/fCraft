@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -25,7 +26,10 @@ namespace fCraft.Drawing {
                                           Brush.InstanceDescription );
                 } else {
                     return String.Format( "{0}({1} @{2} -> {3})",
-                                          Name, SourceBlock, Axis, Brush.InstanceDescription );
+                                          Name,
+                                          SourceBlock,
+                                          Axis,
+                                          Brush.InstanceDescription );
                 }
             }
         }
@@ -122,8 +126,8 @@ namespace fCraft.Drawing {
 
         IEnumerator<Vector3I> coordEnumerator;
 
-        public override int DrawBatch(int maxBlocksToDraw) {
-            return DrawBatchFromEnumerable(maxBlocksToDraw, coordEnumerator);
+        public override int DrawBatch( int maxBlocksToDraw ) {
+            return DrawBatchFromEnumerable( maxBlocksToDraw, coordEnumerator );
         }
 
 

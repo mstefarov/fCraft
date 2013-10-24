@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -8,7 +9,6 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> Myne map conversion implementation, for converting Myne map format into fCraft's default map format. </summary>
     public sealed class MapMyne : IMapImporter {
-
         const string BlockStoreFileName = "blocks.gz";
         const string MetaDataFileName = "world.meta";
 
@@ -112,10 +112,10 @@ namespace fCraft.MapConversion {
 
 
             if( metaFile.Contains( "spawn", "x", "y", "z", "h" ) ) {
-                map.Spawn = new Position( (short)( Int16.Parse( metaFile["spawn", "x"] )*32 + 16 ),
-                                          (short)( Int16.Parse( metaFile["spawn", "z"] )*32 + 16 ),
-                                          (short)( Int16.Parse( metaFile["spawn", "y"] )*32 + 16 ),
-                                          (byte)( Int32.Parse( metaFile["spawn", "h"] )*255/360 ),
+                map.Spawn = new Position( (short)(Int16.Parse( metaFile["spawn", "x"] )*32 + 16),
+                                          (short)(Int16.Parse( metaFile["spawn", "z"] )*32 + 16),
+                                          (short)(Int16.Parse( metaFile["spawn", "y"] )*32 + 16),
+                                          (byte)(Int32.Parse( metaFile["spawn", "h"] )*255/360),
                                           0 );
             }
             return map;

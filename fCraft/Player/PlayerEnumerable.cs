@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,6 @@ namespace fCraft {
     /// All the utilities are implemented as extension methods,
     /// and it is recommended that you invoke them as extension methods. </summary>
     public static class PlayerEnumerable {
-
         #region Rank Filters
 
         /// <summary> Filters a collection of players, leaving only those of the given rank. </summary>
@@ -66,7 +66,8 @@ namespace fCraft {
         /// <param name="minRank"> Minimum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtLeast( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
+        public static IEnumerable<Player> RankedAtLeast( [NotNull] this IEnumerable<Player> source,
+                                                         [NotNull] Rank minRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( minRank == null ) throw new ArgumentNullException( "minRank" );
             foreach( Player player in source ) {
@@ -98,7 +99,8 @@ namespace fCraft {
         /// <param name="maxRank"> Maximum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtMost( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
+        public static IEnumerable<Player> RankedAtMost( [NotNull] this IEnumerable<Player> source,
+                                                        [NotNull] Rank maxRank ) {
             if( source == null ) throw new ArgumentNullException( "source" );
             if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
             foreach( Player player in source ) {
@@ -109,7 +111,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Permissions
 
@@ -251,7 +252,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Ignore
 
         /// <summary> Filters a collection of players, leaving only those who are ignoring the given player. </summary>
@@ -355,7 +355,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Worlds
 
         /// <summary> Filters a collection of players, leaving only those who are currently located on the given world. </summary>
@@ -390,7 +389,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Personal Inclusion / Exclusion
 
@@ -433,7 +431,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region IPAddress
 
         /// <summary> Filters a collection of players, leaving only those connected from a given IP. </summary>
@@ -468,7 +465,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Messaging
 
@@ -563,7 +559,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Packet Sending
 

@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // With contributions by Conrad "Redshift" Morgan
+
 using System;
 using fCraft.Drawing;
 using JetBrains.Annotations;
@@ -19,15 +20,15 @@ namespace fCraft {
         public float X, Y, Z;
 
         public float X2 {
-            get { return X * X; }
+            get { return X*X; }
         }
 
         public float Y2 {
-            get { return Y * Y; }
+            get { return Y*Y; }
         }
 
         public float Z2 {
-            get { return Z * Z; }
+            get { return Z*Z; }
         }
 
 
@@ -46,11 +47,11 @@ namespace fCraft {
 
 
         public float Length {
-            get { return (float)Math.Sqrt( X * X + Y * Y + Z * Z ); }
+            get { return (float)Math.Sqrt( X*X + Y*Y + Z*Z ); }
         }
 
         public float LengthSquared {
-            get { return X * X + Y * Y + Z * Z; }
+            get { return X*X + Y*Y + Z*Z; }
         }
 
 
@@ -107,7 +108,6 @@ namespace fCraft {
             }
         }
 
-
         #region Operators
 
         public static Vector3F operator +( Vector3F a, Vector3F b ) {
@@ -141,21 +141,20 @@ namespace fCraft {
 
 
         public static Vector3F operator *( Vector3F a, float scalar ) {
-            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+            return new Vector3F( a.X*scalar, a.Y*scalar, a.Z*scalar );
         }
 
 
         public static Vector3F operator *( float scalar, Vector3F a ) {
-            return new Vector3F( a.X * scalar, a.Y * scalar, a.Z * scalar );
+            return new Vector3F( a.X*scalar, a.Y*scalar, a.Z*scalar );
         }
 
 
         public static Vector3F operator /( Vector3F a, float scalar ) {
-            return new Vector3F( a.X / scalar, a.Y / scalar, a.Z / scalar );
+            return new Vector3F( a.X/scalar, a.Y/scalar, a.Z/scalar );
         }
 
         #endregion
-
 
         #region Equality
 
@@ -170,7 +169,7 @@ namespace fCraft {
 
         public bool Equals( Vector3F other ) {
             // ReSharper disable CompareOfFloatsByEqualityOperator
-            return ( X == other.X ) && ( Y == other.Y ) && ( Z == other.Z );
+            return (X == other.X) && (Y == other.Y) && (Z == other.Z);
             // ReSharper restore CompareOfFloatsByEqualityOperator
         }
 
@@ -186,11 +185,10 @@ namespace fCraft {
 
 
         public override int GetHashCode() {
-            return (int)( X + Y * 1625 + Z * 2642245 );
+            return (int)(X + Y*1625 + Z*2642245);
         }
 
         #endregion
-
 
         #region Comparison
 
@@ -225,28 +223,27 @@ namespace fCraft {
 
         #endregion
 
-
         public float Dot( Vector3I b ) {
-            return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
+            return (X*b.X) + (Y*b.Y) + (Z*b.Z);
         }
 
 
         public float Dot( Vector3F b ) {
-            return ( X * b.X ) + ( Y * b.Y ) + ( Z * b.Z );
+            return (X*b.X) + (Y*b.Y) + (Z*b.Z);
         }
 
 
         public Vector3F Cross( Vector3I b ) {
-            return new Vector3F( ( Y * b.Z ) - ( Z * b.Y ),
-                                 ( Z * b.X ) - ( X * b.Z ),
-                                 ( X * b.Y ) - ( Y * b.X ) );
+            return new Vector3F( (Y*b.Z) - (Z*b.Y),
+                                 (Z*b.X) - (X*b.Z),
+                                 (X*b.Y) - (Y*b.X) );
         }
 
 
         public Vector3F Cross( Vector3F b ) {
-            return new Vector3F( ( Y * b.Z ) - ( Z * b.Y ),
-                                 ( Z * b.X ) - ( X * b.Z ),
-                                 ( X * b.Y ) - ( Y * b.X ) );
+            return new Vector3F( (Y*b.Z) - (Z*b.Y),
+                                 (Z*b.X) - (X*b.Z),
+                                 (X*b.Y) - (Y*b.X) );
         }
 
 
@@ -276,15 +273,14 @@ namespace fCraft {
 
         public Vector3F Normalize() {
             if( X == 0 && Y == 0 && Z == 0 ) return Zero;
-            double len = Math.Sqrt( (double)X * X + (double)Y * Y + (double)Z * Z );
-            return new Vector3F( (float)( X / len ), (float)( Y / len ), (float)( Z / len ) );
+            double len = Math.Sqrt( (double)X*X + (double)Y*Y + (double)Z*Z );
+            return new Vector3F( (float)(X/len), (float)(Y/len), (float)(Z/len) );
         }
 
 
         public override string ToString() {
             return String.Format( "({0},{1},{2})", X, Y, Z );
         }
-
 
         #region Conversion
 
@@ -309,7 +305,7 @@ namespace fCraft {
 
 
         public Position ToPlayerCoords() {
-            return new Position( (int)( X * 32 ), (int)( Y * 32 ), (int)( Z * 32 ) );
+            return new Position( (int)(X*32), (int)(Y*32), (int)(Z*32) );
         }
 
         #endregion

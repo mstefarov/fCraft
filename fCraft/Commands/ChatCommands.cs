@@ -1,12 +1,12 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    static class ChatCommands {
-
+    internal static class ChatCommands {
         public static void Init() {
             CommandManager.RegisterCommand( CdSay );
             CommandManager.RegisterCommand( CdStaff );
@@ -25,7 +25,6 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdTimer );
             CommandManager.RegisterCommand( CdReply );
         }
-
 
         #region Reply
 
@@ -82,24 +81,23 @@ namespace fCraft {
 
         #endregion
 
-
         #region Say
 
         static readonly
             CommandDescriptor CdSay = new CommandDescriptor {
-            Name = "Say",
-            Aliases = new[] { "broadcast" },
-            Category = CommandCategory.Chat,
-            IsConsoleSafe = true,
-            NotRepeatable = true,
-            DisableLogging = true,
-            UsableByFrozenPlayers = true,
-            Permissions = new[] { Permission.Chat, Permission.Say },
-            Usage = "/Say Message",
-            Help = "Shows a message in special color, without the player name prefix. " +
-                   "Can be used for making announcements.",
-            Handler = SayHandler
-        };
+                Name = "Say",
+                Aliases = new[] {"broadcast"},
+                Category = CommandCategory.Chat,
+                IsConsoleSafe = true,
+                NotRepeatable = true,
+                DisableLogging = true,
+                UsableByFrozenPlayers = true,
+                Permissions = new[] {Permission.Chat, Permission.Say},
+                Usage = "/Say Message",
+                Help = "Shows a message in special color, without the player name prefix. " +
+                       "Can be used for making announcements.",
+                Handler = SayHandler
+            };
 
         static void SayHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
@@ -123,14 +121,13 @@ namespace fCraft {
 
         #endregion
 
-
         #region Staff
 
         static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "Staff",
-            Aliases = new[] { "st" },
+            Aliases = new[] {"st"},
             Category = CommandCategory.Chat | CommandCategory.Moderation,
-            Permissions = new[] { Permission.Chat },
+            Permissions = new[] {Permission.Chat},
             NotRepeatable = true,
             IsConsoleSafe = true,
             DisableLogging = true,
@@ -155,7 +152,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Ignore / Unignore
 
@@ -248,13 +244,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Me
 
         static readonly CommandDescriptor CdMe = new CommandDescriptor {
             Name = "Me",
             Category = CommandCategory.Chat,
-            Permissions = new[] { Permission.Chat },
+            Permissions = new[] {Permission.Chat},
             IsConsoleSafe = true,
             NotRepeatable = true,
             DisableLogging = true,
@@ -282,13 +277,12 @@ namespace fCraft {
 
         #endregion
 
-
         #region Roll
 
         static readonly CommandDescriptor CdRoll = new CommandDescriptor {
             Name = "Roll",
             Category = CommandCategory.Chat,
-            Permissions = new[] { Permission.Chat },
+            Permissions = new[] {Permission.Chat},
             IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.\n" +
                    "&H/Roll MaxNumber\n" +
@@ -344,12 +338,11 @@ namespace fCraft {
 
         #endregion
 
-
         #region Deafen
 
         static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
             Name = "Deafen",
-            Aliases = new[] { "deaf" },
+            Aliases = new[] {"deaf"},
             Category = CommandCategory.Chat,
             Help = "Blocks all chat messages from being sent to you.",
             Handler = DeafenHandler
@@ -375,10 +368,10 @@ namespace fCraft {
 
         #endregion
 
-
         #region Clear
 
         const int LinesToClear = 30;
+
         static readonly CommandDescriptor CdClear = new CommandDescriptor {
             Name = "Clear",
             UsableByFrozenPlayers = true,
@@ -399,21 +392,22 @@ namespace fCraft {
 
         #endregion
 
-
         #region Timer
 
         static readonly CommandDescriptor CdTimer = new CommandDescriptor {
             Name = "Timer",
-            Permissions = new[] { Permission.UseTimers },
+            Permissions = new[] {Permission.UseTimers},
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
             Help = "Starts a timer with a given duration and message. " +
                    "As the timer counts down, announcements are shown globally. See also: &H/Help Timer Abort",
             HelpSections = new Dictionary<string, string> {
-                { "abort",  "&H/Timer Abort <TimerID>\n&S" +
-                            "Aborts a timer with the given ID number. " +
-                            "To see a list of timers and their IDs, type &H/Timer&S (without any parameters)." }
+                {
+                    "abort", "&H/Timer Abort <TimerID>\n&S" +
+                             "Aborts a timer with the given ID number. " +
+                             "To see a list of timers and their IDs, type &H/Timer&S (without any parameters)."
+                }
             },
             Handler = TimerHandler
         };

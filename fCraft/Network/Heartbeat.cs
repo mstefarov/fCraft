@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,7 +11,6 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
-
         /// <summary> Minecraft.net connection URL. 
         /// May be null (if heartbeat is disabled, or first heartbeat has not been sent yet). </summary>
         [CanBeNull]
@@ -58,7 +58,6 @@ namespace fCraft {
 
             if( ConfigKey.HeartbeatEnabled.Enabled() ) {
                 SendMinecraftNetBeat();
-
             } else {
                 // If heartbeats are disabled, the server data is written
                 // to a text file instead (heartbeatdata.txt)
@@ -191,7 +190,6 @@ namespace fCraft {
 
         #endregion
 
-
         sealed class HeartbeatRequestState {
             public HeartbeatRequestState( [NotNull] HttpWebRequest request, [NotNull] HeartbeatData data ) {
                 if( request == null ) throw new ArgumentNullException( "request" );
@@ -276,7 +274,6 @@ namespace fCraft {
     }
 }
 
-
 namespace fCraft.Events {
     /// <summary> Provides data for Heartbeat.Sending event. Cancelable. 
     /// HeartbeatData may be modified, Uri and GetServerUri may be changed. </summary>
@@ -293,6 +290,7 @@ namespace fCraft.Events {
 
         [NotNull]
         public Uri Uri { get; set; }
+
         public bool GetServerUri { get; set; }
         public bool Cancel { get; set; }
     }
@@ -316,6 +314,7 @@ namespace fCraft.Events {
 
         [NotNull]
         public WebHeaderCollection ResponseHeaders { get; private set; }
+
         public HttpStatusCode ResponseStatusCode { get; private set; }
 
         [NotNull]

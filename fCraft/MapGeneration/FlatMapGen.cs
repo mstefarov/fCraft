@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +24,7 @@ namespace fCraft.MapGeneration {
             Instance = new FlatMapGen {
                 Name = "Flat",
                 Presets = presetList.ToArray(),
-                Help = "&S\"Flat\" map generator:\n" + 
+                Help = "&S\"Flat\" map generator:\n" +
                        "Creates a flat, featureless, layered map. " +
                        "Takes an optional preset name. Presets are: " +
                        presetList.JoinToString()
@@ -46,7 +47,8 @@ namespace fCraft.MapGeneration {
                 newParams = CreateParameters( themeName );
                 if( newParams == null ) {
                     player.Message( "SetGen: \"{0}\" is not a recognized flat theme name. Available themes are: {1}",
-                                    themeName, Presets.JoinToString() );
+                                    themeName,
+                                    Presets.JoinToString() );
                     return null;
                 }
             } else {
@@ -58,13 +60,11 @@ namespace fCraft.MapGeneration {
         public override MapGeneratorParameters CreateParameters( string presetName ) {
             if( presetName == null ) {
                 throw new ArgumentNullException( "presetName" );
-
             } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
                 // "Default"
                 return new FlatMapGenParameters {
                     Preset = Presets[0]
                 };
-
             } else if( presetName.Equals( Presets[1], StringComparison.OrdinalIgnoreCase ) ) {
                 // "Ocean"
                 return new FlatMapGenParameters {
@@ -74,7 +74,6 @@ namespace fCraft.MapGeneration {
                     DeepBlock = Block.Water,
                     Preset = Presets[1]
                 };
-
             } else {
                 MapGenTheme theme;
                 if( EnumUtil.TryParse( presetName, out theme, true ) ) {
@@ -99,7 +98,7 @@ namespace fCraft.MapGeneration {
     }
 
 
-    sealed class FlatMapGenParameters : MapGeneratorParameters {
+    internal sealed class FlatMapGenParameters : MapGeneratorParameters {
         [CanBeNull]
         [Browsable( false )]
         public string Preset { get; set; }
@@ -214,7 +213,7 @@ namespace fCraft.MapGeneration {
     }
 
 
-    sealed class FlatMapGenState : MapGeneratorState {
+    internal sealed class FlatMapGenState : MapGeneratorState {
         public FlatMapGenState( [NotNull] FlatMapGenParameters parameters ) {
             if( parameters == null ) throw new ArgumentNullException( "parameters" );
             Parameters = parameters;

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -77,10 +78,10 @@ namespace fCraft {
         [CanBeNull]
         public World MainWorld { get; set; }
 
-
         #region Constructors
 
         static readonly string[] PermissionNames = Enum.GetNames( typeof( Permission ) );
+
         Rank() {
             Permissions = new bool[PermissionNames.Length];
             PermissionLimits = new Rank[PermissionNames.Length];
@@ -117,14 +118,12 @@ namespace fCraft {
             XAttribute attr = el.Attribute( "name" );
             if( attr == null ) {
                 throw new RankDefinitionException( null, "Rank definition with no name was ignored." );
-
             } else if( !IsValidRankName( attr.Value.Trim() ) ) {
                 throw new RankDefinitionException( Name,
                                                    "Invalid name specified for rank \"{0}\". " +
                                                    "Rank names can only contain letters, digits, and underscores. " +
                                                    "Rank definition was ignored.",
                                                    Name );
-
             } else {
                 // duplicate Name check is done in RankManager.AddRank()
                 Name = attr.Value.Trim();
@@ -139,14 +138,12 @@ namespace fCraft {
                             "Rank({0}): No ID specified; issued a new unique ID: {1}",
                             Name,
                             ID );
-
             } else if( !IsValidID( attr.Value.Trim() ) ) {
                 ID = RankManager.GenerateID();
                 Logger.Log( LogType.Warning,
                             "Rank({0}): Invalid ID specified (must be alphanumeric, and exactly 16 characters long); issued a new unique ID: {1}",
                             Name,
                             ID );
-
             } else {
                 ID = attr.Value.Trim();
                 // duplicate ID check is done in RankManager.AddRank()
@@ -191,7 +188,6 @@ namespace fCraft {
                 if( Int32.TryParse( agBlocks.Value, out value ) ) {
                     if( value >= 0 && value < 1000 ) {
                         AntiGriefBlocks = value;
-
                     } else {
                         Logger.Log( LogType.Warning,
                                     "Rank({0}): Value for antiGriefBlocks is not within valid range (0-1000). Assuming default ({1}).",
@@ -374,7 +370,6 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Saves this rank definition to XML. </summary>
         [NotNull]
         public XElement Serialize() {
@@ -408,7 +403,6 @@ namespace fCraft {
             return rankTag;
         }
 
-
         #region Rank Comparison Operators
 
         // Somewhat counter-intuitive, but lower index number = higher up on the list = higher rank
@@ -436,7 +430,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Permissions
 
         /// <summary> Checks whether this rank is granted the given permission. </summary>
@@ -462,7 +455,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Permission Limits
 
@@ -513,7 +505,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Validation
 
         public static bool IsValidRankName( [NotNull] string rankName ) {
@@ -552,7 +543,6 @@ namespace fCraft {
 
         #endregion
 
-
         public override string ToString() {
             return String.Format( "Rank({0})", Name );
         }
@@ -582,16 +572,12 @@ namespace fCraft {
         /// <summary> Shortcut to the list of all online players of this rank. </summary>
         [NotNull]
         public IEnumerable<Player> Players {
-            get {
-                return Server.Players.Ranked( this );
-            }
+            get { return Server.Players.Ranked( this ); }
         }
 
         /// <summary> Total number of players of this rank (online and offline). </summary>
         public int PlayerCount {
-            get {
-                return PlayerDB.PlayerInfoList.Count( t => t.Rank == this );
-            }
+            get { return PlayerDB.PlayerInfoList.Count( t => t.Rank == this ); }
         }
 
 
@@ -601,7 +587,7 @@ namespace fCraft {
         /// Name part is case-insensitive. ID part is case-sensitive. </summary>
         /// <param name="name"> Full rank name, or name and ID. </param>
         /// <returns> If name could be parsed, returns the corresponding Rank object. Otherwise returns null. </returns>
-        [ContractAnnotation("null => null")]
+        [ContractAnnotation( "null => null" )]
         [CanBeNull]
         public static Rank Parse( [CanBeNull] string name ) {
             if( name == null ) return null;
@@ -619,7 +605,6 @@ namespace fCraft {
                 if( RankManager.RanksByID.TryGetValue( id, out parsedRank ) ) {
                     // current rank
                     return parsedRank;
-
                 } else {
                     // unknown rank
                     int tries = 0;
@@ -641,11 +626,9 @@ namespace fCraft {
                         return null;
                     }
                 }
-
             } else if( RankManager.RanksByName.TryGetValue( name.ToLowerInvariant(), out parsedRank ) ) {
                 // old format
                 return parsedRank; // LEGACY
-
             } else {
                 // totally unknown rank
                 return null;
@@ -664,7 +647,7 @@ namespace fCraft {
         [StringFormatMethod( "message" )]
         public RankDefinitionException( string rankName, string message, params object[] args ) :
             base( String.Format( message, args ) ) {
-            RankName=rankName;
+            RankName = rankName;
         }
 
 

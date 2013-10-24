@@ -20,7 +20,6 @@ namespace fCraft.Drawing {
         }
 
 
-
         /// <summary> Creates a new UndoState for the given DrawOperation. <param name="op"/> can be null. </summary>
         public UndoState( [CanBeNull] DrawOperation op ) {
             Op = op;
@@ -41,7 +40,6 @@ namespace fCraft.Drawing {
         // Necessary in case drawing/undo/redo end up running concurrently.
         [NotNull]
         readonly object syncRoot = new object();
-
 
 
         /// <summary> Records a new block change. Synchronized. </summary>

@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -17,18 +18,17 @@ namespace fCraft.Drawing {
         }
 
         public CuboidHollowDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
             if( !base.Prepare( marks ) ) return false;
 
-            fillInner = ( Brush.AlternateBlocks > 1 ) && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;
+            fillInner = (Brush.AlternateBlocks > 1) && Bounds.Width > 2 && Bounds.Length > 2 && Bounds.Height > 2;
 
             BlocksTotalEstimate = Bounds.Volume;
             if( !fillInner ) {
-                BlocksTotalEstimate -= Math.Max( 0, Bounds.Width - 2 ) * Math.Max( 0, Bounds.Length - 2 ) *
+                BlocksTotalEstimate -= Math.Max( 0, Bounds.Width - 2 )*Math.Max( 0, Bounds.Length - 2 )*
                                        Math.Max( 0, Bounds.Height - 2 );
             }
 
@@ -38,6 +38,7 @@ namespace fCraft.Drawing {
 
 
         IEnumerator<Vector3I> coordEnumerator;
+
         public override int DrawBatch( int maxBlocksToDraw ) {
             return DrawBatchFromEnumerable( maxBlocksToDraw, coordEnumerator );
         }

@@ -1,7 +1,9 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 // This file condenses some of the player-related enumerations
+
 namespace fCraft {
     /// <summary> List of possible reasons for players leaving the server. </summary>
     public enum LeaveReason : byte {
@@ -134,7 +136,6 @@ namespace fCraft {
 
     /// <summary> A list of possible results of Player.CanPlace() permission test. </summary>
     public enum CanPlaceResult {
-
         /// <summary> Block may be placed/changed. </summary>
         Allowed,
 

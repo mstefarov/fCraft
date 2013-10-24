@@ -5,19 +5,16 @@ using JetBrains.Annotations;
 namespace fCraft.Drawing {
     /// <summary> Draw operation that handles non-aligned (single-mark) pasting for /Paste and /PasteNot.
     /// Preserves original orientation of the CopyState. </summary>
-    sealed class QuickPasteDrawOperation : PasteDrawOperation {
+    internal sealed class QuickPasteDrawOperation : PasteDrawOperation {
         public override string Name {
-            get {
-                return Not ? "PasteNot" : "Paste";
-            }
+            get { return Not ? "PasteNot" : "Paste"; }
         }
 
         public QuickPasteDrawOperation( [NotNull] Player player, bool not )
-            : base( player, not ) {
-        }
+            : base( player, not ) {}
 
         public override bool Prepare( Vector3I[] marks ) {
-            return base.Prepare( new[] { marks[0], marks[0] } );
+            return base.Prepare( new[] {marks[0], marks[0]} );
         }
     }
 }

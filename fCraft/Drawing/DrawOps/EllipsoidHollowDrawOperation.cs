@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
@@ -24,8 +25,7 @@ namespace fCraft.Drawing {
 
 
         public EllipsoidHollowDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -46,7 +46,6 @@ namespace fCraft.Drawing {
                         BlocksTotalEstimate = Math.Max( Bounds.Width, Bounds.Length )*2;
                     }
                 }
-
             } else if( Bounds.Length == 1 ) {
                 if( Bounds.Width == 1 || Bounds.Height == 1 ) {
                     // 1D ellipsoid degenerates into a line
@@ -62,7 +61,6 @@ namespace fCraft.Drawing {
                         BlocksTotalEstimate = Math.Max( Bounds.Width, Bounds.Height )*2;
                     }
                 }
-
             } else if( Bounds.Width == 1 ) {
                 if( Bounds.Height == 1 || Bounds.Length == 1 ) {
                     // 1D ellipsoid degenerates into a line
@@ -78,7 +76,6 @@ namespace fCraft.Drawing {
                         BlocksTotalEstimate = Math.Max( Bounds.Height, Bounds.Length )*2;
                     }
                 }
-
             } else {
                 // 3D ellipsoid
                 double rx = Bounds.Width/2d;
@@ -139,7 +136,7 @@ namespace fCraft.Drawing {
                                 delta.X = (Coords.X - center.X);
                                 delta.Y = (Coords.Y - center.Y);
                                 delta.Z = (Coords.Z - center.Z);
-                                if( delta.X2 * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ) continue;
+                                if( delta.X2*radius.X + delta.Y2*radius.Y + delta.Z2*radius.Z > 1 ) continue;
                                 goto case State.OuterBlock1;
 
 
@@ -172,10 +169,10 @@ namespace fCraft.Drawing {
                                 if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) return blocksDone;
                                 delta.Z = (++Coords.Z - center.Z);
                                 if( Coords.Z <= (int)center.Z &&
-                                    ((delta.X + 1) * (delta.X + 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                    (delta.X - 1) * (delta.X - 1) * radius.X + delta.Y2 * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                    delta.X2 * radius.X + (delta.Y + 1) * (delta.Y + 1) * radius.Y + delta.Z2 * radius.Z > 1 ||
-                                    delta.X2 * radius.X + (delta.Y - 1) * (delta.Y - 1) * radius.Y + delta.Z2 * radius.Z > 1) ) {
+                                    ((delta.X + 1)*(delta.X + 1)*radius.X + delta.Y2*radius.Y + delta.Z2*radius.Z > 1 ||
+                                     (delta.X - 1)*(delta.X - 1)*radius.X + delta.Y2*radius.Y + delta.Z2*radius.Z > 1 ||
+                                     delta.X2*radius.X + (delta.Y + 1)*(delta.Y + 1)*radius.Y + delta.Z2*radius.Z > 1 ||
+                                     delta.X2*radius.X + (delta.Y - 1)*(delta.Y - 1)*radius.Y + delta.Z2*radius.Z > 1) ) {
                                     goto case State.OuterBlock1;
                                 }
 
@@ -190,7 +187,7 @@ namespace fCraft.Drawing {
 
                             case State.InnerBlock:
                                 state = State.InnerBlock;
-                                if( Coords.Z > (int)( center.Z - delta.Z ) ) {
+                                if( Coords.Z > (int)(center.Z - delta.Z) ) {
                                     AlternateBlockIndex = 0;
                                     state = State.BeforeBlock;
                                     break;
@@ -225,7 +222,6 @@ namespace fCraft.Drawing {
             InnerBlock = 4
         }
 
-
         #region 2D ellipse drawing
 
         IEnumerator<Vector3I> ellipseEnumerator;
@@ -239,14 +235,14 @@ namespace fCraft.Drawing {
 
             // figure out what we're doing
             int z = bounds.ZMax;
-            float centerX = ( bounds.XMax + bounds.XMin )/2f,
-                  centerY = ( bounds.YMax + bounds.YMin )/2f,
-                  rX = ( bounds.XMax - bounds.XMin )/2f,
-                  rY = ( bounds.YMax - bounds.YMin )/2f;
+            float centerX = (bounds.XMax + bounds.XMin)/2f,
+                  centerY = (bounds.YMax + bounds.YMin)/2f,
+                  rX = (bounds.XMax - bounds.XMin)/2f,
+                  rY = (bounds.YMax - bounds.YMin)/2f;
 
             // x/y coordinates need to be biased by 0.5 for even radii
-            float startX = ( bounds.Width%2 == 1 ) ? 0 : 0.5f,
-                  startY = ( bounds.Length%2 == 1 ) ? 0 : 0.5f;
+            float startX = (bounds.Width%2 == 1) ? 0 : 0.5f,
+                  startY = (bounds.Length%2 == 1) ? 0 : 0.5f;
 
             // used to stop drawing second half-quadrant before it overlaps the first
             int maxX = Bounds.XMax,
@@ -267,7 +263,7 @@ namespace fCraft.Drawing {
                     int topY = (int)Math.Round( centerY + y ),
                         bottomY = (int)Math.Round( centerY - y ),
                         rightX = (int)Math.Ceiling( centerX + x ),
-                        leftX = (int)( centerX - x );
+                        leftX = (int)(centerX - x);
 
                     // Set up to 4 blocks, using ellipse's 4-way symmetry
                     yield return new Vector3I( rightX, topY, z );
@@ -292,7 +288,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     x += 1;
-                    float newY = (float)( rYrX*Math.Sqrt( rX2 - x*x ) ); // ellipse equation solved for y
+                    float newY = (float)(rYrX*Math.Sqrt( rX2 - x*x )); // ellipse equation solved for y
                     dy = y - newY;
                     y = newY;
                 }
@@ -311,7 +307,7 @@ namespace fCraft.Drawing {
 
                 while( dx < 1 ) {
                     int topY = (int)Math.Ceiling( centerY + y ),
-                        bottomY = (int)( centerY - y ),
+                        bottomY = (int)(centerY - y),
                         rightX = (int)Math.Round( centerX + x ),
                         leftX = (int)Math.Round( centerX - x );
 
@@ -339,7 +335,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     y += 1;
-                    float newX = (float)( rXrY*Math.Sqrt( rY2 - y*y ) ); // ellipse equation solved for x
+                    float newX = (float)(rXrY*Math.Sqrt( rY2 - y*y )); // ellipse equation solved for x
                     dx = x - newX;
                     x = newX;
                 }
@@ -356,14 +352,14 @@ namespace fCraft.Drawing {
 
             // figure out what we're doing
             int y = bounds.YMax;
-            float centerX = ( bounds.XMax + bounds.XMin )/2f,
-                  centerZ = ( bounds.ZMax + bounds.ZMin )/2f,
-                  rX = ( bounds.XMax - bounds.XMin )/2f,
-                  rZ = ( bounds.ZMax - bounds.ZMin )/2f;
+            float centerX = (bounds.XMax + bounds.XMin)/2f,
+                  centerZ = (bounds.ZMax + bounds.ZMin)/2f,
+                  rX = (bounds.XMax - bounds.XMin)/2f,
+                  rZ = (bounds.ZMax - bounds.ZMin)/2f;
 
             // x/z coordinates need to be biased by 0.5 for even radii
-            float startX = ( bounds.Width%2 == 1 ) ? 0 : 0.5f,
-                  startZ = ( bounds.Height%2 == 1 ) ? 0 : 0.5f;
+            float startX = (bounds.Width%2 == 1) ? 0 : 0.5f,
+                  startZ = (bounds.Height%2 == 1) ? 0 : 0.5f;
 
             // used to stop drawing second half-quadrant before it overlaps the first
             int maxX = Bounds.XMax,
@@ -384,7 +380,7 @@ namespace fCraft.Drawing {
                     int topZ = (int)Math.Round( centerZ + z ),
                         bottomZ = (int)Math.Round( centerZ - z ),
                         rightX = (int)Math.Ceiling( centerX + x ),
-                        leftX = (int)( centerX - x );
+                        leftX = (int)(centerX - x);
 
                     // Set up to 4 blocks, using ellipse's 4-way symmetry
                     yield return new Vector3I( rightX, y, topZ );
@@ -409,7 +405,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     x += 1;
-                    float newZ = (float)( rZrX*Math.Sqrt( rX2 - x*x ) ); // ellipse equation solved for z
+                    float newZ = (float)(rZrX*Math.Sqrt( rX2 - x*x )); // ellipse equation solved for z
                     dz = z - newZ;
                     z = newZ;
                 }
@@ -428,7 +424,7 @@ namespace fCraft.Drawing {
 
                 while( dx < 1 ) {
                     int topZ = (int)Math.Ceiling( centerZ + z ),
-                        bottomZ = (int)( centerZ - z ),
+                        bottomZ = (int)(centerZ - z),
                         rightX = (int)Math.Round( centerX + x ),
                         leftX = (int)Math.Round( centerX - x );
 
@@ -456,7 +452,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     z += 1;
-                    float newX = (float)( rXrZ*Math.Sqrt( rZ2 - z*z ) ); // ellipse equation solved for x
+                    float newX = (float)(rXrZ*Math.Sqrt( rZ2 - z*z )); // ellipse equation solved for x
                     dx = x - newX;
                     x = newX;
                 }
@@ -473,14 +469,14 @@ namespace fCraft.Drawing {
 
             // figure out what we're doing
             int tempX = bounds.XMax;
-            float centerZ = ( bounds.ZMax + bounds.ZMin )/2f,
-                  centerY = ( bounds.YMax + bounds.YMin )/2f,
-                  rZ = ( bounds.ZMax - bounds.ZMin )/2f,
-                  rY = ( bounds.YMax - bounds.YMin )/2f;
+            float centerZ = (bounds.ZMax + bounds.ZMin)/2f,
+                  centerY = (bounds.YMax + bounds.YMin)/2f,
+                  rZ = (bounds.ZMax - bounds.ZMin)/2f,
+                  rY = (bounds.YMax - bounds.YMin)/2f;
 
             // z/y coordinates need to be biased by 0.5 for even radii
-            float startZ = ( bounds.Height%2 == 1 ) ? 0 : 0.5f,
-                  startY = ( bounds.Length%2 == 1 ) ? 0 : 0.5f;
+            float startZ = (bounds.Height%2 == 1) ? 0 : 0.5f,
+                  startY = (bounds.Length%2 == 1) ? 0 : 0.5f;
 
             // used to stop drawing second half-quadrant before it overlaps the first
             int maxZ = Bounds.ZMax,
@@ -501,7 +497,7 @@ namespace fCraft.Drawing {
                     int topY = (int)Math.Round( centerY + y ),
                         bottomY = (int)Math.Round( centerY - y ),
                         rightZ = (int)Math.Ceiling( centerZ + z ),
-                        leftZ = (int)( centerZ - z );
+                        leftZ = (int)(centerZ - z);
 
                     // Set up to 4 blocks, using ellipse's 4-way symmetry
                     yield return new Vector3I( tempX, topY, rightZ );
@@ -526,7 +522,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     z += 1;
-                    float newY = (float)( rYrZ*Math.Sqrt( rZ2 - z*z ) ); // ellipse equation solved for y
+                    float newY = (float)(rYrZ*Math.Sqrt( rZ2 - z*z )); // ellipse equation solved for y
                     dy = y - newY;
                     y = newY;
                 }
@@ -545,7 +541,7 @@ namespace fCraft.Drawing {
 
                 while( dz < 1 ) {
                     int topY = (int)Math.Ceiling( centerY + y ),
-                        bottomY = (int)( centerY - y ),
+                        bottomY = (int)(centerY - y),
                         rightZ = (int)Math.Round( centerZ + z ),
                         leftZ = (int)Math.Round( centerZ - z );
 
@@ -573,7 +569,7 @@ namespace fCraft.Drawing {
 
                     // compute next point
                     y += 1;
-                    float newZ = (float)( rZrY*Math.Sqrt( rY2 - y*y ) ); // ellipse equation solved for z
+                    float newZ = (float)(rZrY*Math.Sqrt( rY2 - y*y )); // ellipse equation solved for z
                     dz = z - newZ;
                     z = newZ;
                 }

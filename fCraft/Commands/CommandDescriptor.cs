@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,6 @@ namespace fCraft {
     /// <summary> Describes a chat command. Defines properties, permission requirements, and usage information.
     /// Specifies a handler method. </summary>
     public class CommandDescriptor : IClassy {
-
         /// <summary> List of aliases. May be null or empty. Default: null </summary>
         [CanBeNull]
         public string[] Aliases { get; set; }

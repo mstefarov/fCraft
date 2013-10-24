@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 
 namespace fCraft.Drawing {
@@ -31,8 +32,7 @@ namespace fCraft.Drawing {
 
 
         public CutDrawOperation( Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool Prepare( Vector3I[] marks ) {
@@ -65,11 +65,12 @@ namespace fCraft.Drawing {
             Player.SetCopyState( copyInfo );
 
             Player.Message( "{0} blocks cut into slot #{1}. You can now &H/Paste",
-                            Bounds.Volume, Player.CopySlot + 1 );
+                            Bounds.Volume,
+                            Player.CopySlot + 1 );
             Player.Message( "Origin at {0} {1}{2} corner.",
-                            ( copyInfo.Orientation.Z == 1 ? "bottom" : "top" ),
-                            ( copyInfo.Orientation.Y == 1 ? "south" : "north" ),
-                            ( copyInfo.Orientation.X == 1 ? "east" : "west" ) );
+                            (copyInfo.Orientation.Z == 1 ? "bottom" : "top"),
+                            (copyInfo.Orientation.Y == 1 ? "south" : "north"),
+                            (copyInfo.Orientation.X == 1 ? "east" : "west") );
 
             return base.Begin();
         }

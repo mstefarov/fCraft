@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 //#define DEBUG_CHECK_DUPLICATE_COORDS
+
 using System;
 using System.Collections.Generic;
 using fCraft.Drawing;
@@ -71,9 +72,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Estimated total blocks left to process. </summary>
         public int BlocksLeftToProcess {
-            get {
-                return Math.Max( 0, BlocksTotalEstimate - BlocksProcessed );
-            }
+            get { return Math.Max( 0, BlocksTotalEstimate - BlocksProcessed ); }
         }
 
         /// <summary> Undo state associated with this operation. Created by DrawOperation.Begin(). </summary>
@@ -87,7 +86,7 @@ namespace fCraft.Drawing {
                 } else if( IsDone || BlocksTotalEstimate == 0 ) {
                     return 100;
                 } else {
-                    return (int)Math.Min( 100, Math.Max( 0, (BlocksProcessed * 100L) / BlocksTotalEstimate ) );
+                    return (int)Math.Min( 100, Math.Max( 0, (BlocksProcessed*100L)/BlocksTotalEstimate ) );
                 }
             }
         }
@@ -109,9 +108,7 @@ namespace fCraft.Drawing {
         /// and the brush's instance description. </summary>
         [NotNull]
         public virtual string Description {
-            get {
-                return String.Format( "{0}/{1}", Name, Brush.InstanceDescription );
-            }
+            get { return String.Format( "{0}/{1}", Name, Brush.InstanceDescription ); }
         }
 
         /// <summary> Whether completion or cancellation of this DrawOperation should be announced to Player. </summary>
@@ -123,10 +120,9 @@ namespace fCraft.Drawing {
 
         const int MaxBlocksToProcessPerBatch = 25000;
         int batchStartProcessedCount;
+
         protected bool TimeToEndBatch {
-            get {
-                return (BlocksProcessed - batchStartProcessedCount) > MaxBlocksToProcessPerBatch;
-            }
+            get { return (BlocksProcessed - batchStartProcessedCount) > MaxBlocksToProcessPerBatch; }
         }
 
 
@@ -158,7 +154,8 @@ namespace fCraft.Drawing {
             if( marks == null ) throw new ArgumentNullException( "marks" );
             if( marks.Length != ExpectedMarks ) {
                 string msg = String.Format( "Wrong number of marks ({0}), expecting {1}.",
-                                            marks.Length, ExpectedMarks );
+                                            marks.Length,
+                                            ExpectedMarks );
                 throw new ArgumentException( msg, "marks" );
             }
 
@@ -243,8 +240,12 @@ namespace fCraft.Drawing {
                 world.Players.SendLowPriority( Packet.MakeSetBlock( Coords, newBlock ) );
             }
 
-            Player.RaisePlayerPlacedBlockEvent( Player, Map, Coords,
-                                                oldBlock, newBlock, Context );
+            Player.RaisePlayerPlacedBlockEvent( Player,
+                                                Map,
+                                                Coords,
+                                                oldBlock,
+                                                newBlock,
+                                                Context );
 
             if( !UndoState.IsTooLargeToUndo ) {
                 if( !UndoState.Add( Coords, oldBlock ) ) {
@@ -258,7 +259,7 @@ namespace fCraft.Drawing {
         }
 
 
-        protected int DrawBatchWithinBounds(int maxBlocksToDraw) {
+        protected int DrawBatchWithinBounds( int maxBlocksToDraw ) {
             int blocksDone = 0;
             for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
                 for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
@@ -306,15 +307,21 @@ namespace fCraft.Drawing {
                                          Math.Sign( d.Y ),
                                          Math.Sign( d.Z ) );
             d = d.Abs();
-            Vector3I d2 = d * 2;
+            Vector3I d2 = d*2;
 
             int x, y, z;
             if( (d.X >= d.Y) && (d.X >= d.Z) ) {
-                x = 0; y = 1; z = 2;
+                x = 0;
+                y = 1;
+                z = 2;
             } else if( (d.Y >= d.X) && (d.Y >= d.Z) ) {
-                x = 1; y = 2; z = 0;
+                x = 1;
+                y = 2;
+                z = 0;
             } else {
-                x = 2; y = 0; z = 1;
+                x = 2;
+                y = 0;
+                z = 1;
             }
 
             int err1 = d2[y] - d[x];
@@ -342,10 +349,12 @@ namespace fCraft.Drawing {
             if( AnnounceCompletion ) {
                 if( BlocksUpdated > 0 ) {
                     if( BlocksDenied > 0 ) {
-                        Player.Message( "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
-                                           Description,
-                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                           BlocksUpdated, BlocksDenied );
+                        Player.Message(
+                            "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
+                            Description,
+                            DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                            BlocksUpdated,
+                            BlocksDenied );
                     } else {
                         Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
                                         Description,
@@ -354,23 +363,30 @@ namespace fCraft.Drawing {
                     }
                 } else {
                     if( BlocksDenied > 0 ) {
-                        Player.Message( "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
-                                           Description,
-                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                           BlocksDenied );
+                        Player.Message(
+                            "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
+                            Description,
+                            DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                            BlocksDenied );
                     } else {
                         Player.Message( "{0}: Finished in {1}, no changes needed.",
-                                           Description,
-                                           DateTime.UtcNow.Subtract( StartTime ).ToMiniString() );
+                                        Description,
+                                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString() );
                     }
                 }
             }
             if( AnnounceCompletion && Map.World != null ) {
                 Logger.Log( LogType.UserActivity,
                             "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
-                            Player.Name, Description, Map.World.Name,
-                            Bounds.MinVertex, Bounds.MaxVertex,
-                            BlocksProcessed, BlocksUpdated, BlocksSkipped, BlocksDenied );
+                            Player.Name,
+                            Description,
+                            Map.World.Name,
+                            Bounds.MinVertex,
+                            Bounds.MaxVertex,
+                            BlocksProcessed,
+                            BlocksUpdated,
+                            BlocksSkipped,
+                            BlocksDenied );
             }
         }
 
@@ -378,28 +394,37 @@ namespace fCraft.Drawing {
         void OnCancellation() {
             if( AnnounceCompletion ) {
                 if( BlocksDenied > 0 ) {
-                    Player.Message( "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
-                                    Description,
-                                    DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                    BlocksProcessed, BlocksUpdated, BlocksDenied );
+                    Player.Message(
+                        "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
+                        Description,
+                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                        BlocksProcessed,
+                        BlocksUpdated,
+                        BlocksDenied );
                 } else {
                     Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
                                     Description,
                                     DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                    BlocksProcessed, BlocksUpdated );
+                                    BlocksProcessed,
+                                    BlocksUpdated );
                 }
             }
             if( LogCompletion && Map.World != null ) {
                 Logger.Log( LogType.UserActivity,
                             "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
-                            Player, Description, Map.World.Name,
-                            BlocksProcessed, BlocksUpdated, BlocksSkipped, BlocksDenied );
+                            Player,
+                            Description,
+                            Map.World.Name,
+                            BlocksProcessed,
+                            BlocksUpdated,
+                            BlocksSkipped,
+                            BlocksDenied );
             }
         }
 
 #if DEBUG_CHECK_DUPLICATE_COORDS
 
-        // Single modification per block policy enforcement
+    // Single modification per block policy enforcement
         readonly HashSet<int> modifiedBlockIndices = new HashSet<int>();
         void TestForDuplicateModification() {
             int index = Map.Index( Coords );
@@ -440,10 +465,11 @@ namespace fCraft.Drawing {
 }
 
 namespace fCraft.Events {
-    public sealed class DrawOperationEventArgs : EventArgs{
+    public sealed class DrawOperationEventArgs : EventArgs {
         public DrawOperationEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
         }
+
         public DrawOperation DrawOp { get; private set; }
     }
 
@@ -452,6 +478,7 @@ namespace fCraft.Events {
         public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
             DrawOp = drawOp;
         }
+
         public DrawOperation DrawOp { get; private set; }
         public bool Cancel { get; set; }
     }

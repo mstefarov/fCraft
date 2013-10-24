@@ -4,6 +4,7 @@
 // ReSharper disable UnusedMember.Global
 // ReSharper disable IdentifierTypo
 // ReSharper disable CommentTypo
+
 #pragma warning disable 1591
 
 /* Based, in part, on SmartIrc4net code. Original license is reproduced below.

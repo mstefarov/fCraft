@@ -1,13 +1,14 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System.IO;
 using System.Net;
 using System.Text;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    sealed class PacketReader : BinaryReader {
+    internal sealed class PacketReader : BinaryReader {
         public PacketReader( [NotNull] Stream stream ) :
-            base( stream ) { }
+            base( stream ) {}
 
 
         public OpCode ReadOpCode() {

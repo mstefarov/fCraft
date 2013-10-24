@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -22,8 +23,10 @@ namespace fCraft {
         public const int CurrentVersion = 169;
 
         const int LowestSupportedVersion = 111,
-                  FirstVersionWithMaxPlayersKey = 134, // LEGACY
-                  FirstVersionWithSectionTags = 139, // LEGACY
+                  FirstVersionWithMaxPlayersKey = 134,
+                  // LEGACY
+                  FirstVersionWithSectionTags = 139,
+                  // LEGACY
                   FirstVersionWithSettingsTag = 152; // LEGACY
 
         const string ConfigXmlRootName = "fCraftConfig";
@@ -37,7 +40,8 @@ namespace fCraft {
         static readonly ConfigKeyAttribute[] KeyMetadata;
 
         // Keys organized by sections
-        static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections = new Dictionary<ConfigSection, ConfigKey[]>();
+        static readonly Dictionary<ConfigSection, ConfigKey[]> KeySections =
+            new Dictionary<ConfigSection, ConfigKey[]>();
 
         // List of renamed/remapped keys.
         static readonly Dictionary<string, ConfigKey> LegacyConfigKeys = new Dictionary<string, ConfigKey>(); // LEGACY
@@ -52,7 +56,9 @@ namespace fCraft {
 
             // gather metadata for ConfigKeys
             foreach( var keyField in typeof( ConfigKey ).GetFields() ) {
-                foreach( var attribute in (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
+                foreach(
+                    var attribute in
+                        (ConfigKeyAttribute[])keyField.GetCustomAttributes( typeof( ConfigKeyAttribute ), false ) ) {
                     ConfigKey key = (ConfigKey)keyField.GetValue( null );
                     attribute.Key = key;
                     KeyMetadata[(int)key] = attribute;
@@ -62,9 +68,10 @@ namespace fCraft {
             // organize ConfigKeys into categories, based on metadata
             foreach( ConfigSection section in Enum.GetValues( typeof( ConfigSection ) ) ) {
                 ConfigSection sec = section;
-                KeySections.Add( section, KeyMetadata.Where( meta => (meta.Section == sec) )
-                                                     .Select( meta => meta.Key )
-                                                     .ToArray() );
+                KeySections.Add( section,
+                                 KeyMetadata.Where( meta => (meta.Section == sec) )
+                                            .Select( meta => meta.Key )
+                                            .ToArray() );
             }
 
             LoadDefaults();
@@ -92,7 +99,6 @@ namespace fCraft {
             }
         }
 #endif
-
 
         #region Defaults
 
@@ -135,7 +141,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Loading
 
@@ -185,7 +190,8 @@ namespace fCraft {
                                     "Config.Load: Your config.xml was made for a different version of fCraft. " +
                                     "Some obsolete settings might be ignored, and some recently-added settings will be set to defaults. " +
                                     "It is recommended that you run ConfigGUI to make sure that everything is in order. (v{0} -> v{1})",
-                                    version, CurrentVersion );
+                                    version,
+                                    CurrentVersion );
                     }
                 } else {
                     Logger.Log( LogType.Warning,
@@ -198,22 +204,22 @@ namespace fCraft {
             if( !skipRankList ) {
                 LoadRankList( config, fromFile );
             }
-            
+
             ResetLogOptions();
 
             // read log options for console
             XElement consoleOptions = config.Element( "ConsoleOptions" );
-            if( consoleOptions != null ){
+            if( consoleOptions != null ) {
                 LoadLogOptions( consoleOptions, Logger.ConsoleOptions );
-            }else if(fromFile){
+            } else if( fromFile ) {
                 Logger.Log( LogType.Warning, "Config.Load: using default console options." );
             }
 
             // read log options for log files
             XElement logFileOptions = config.Element( "LogFileOptions" );
-            if( logFileOptions != null ){
+            if( logFileOptions != null ) {
                 LoadLogOptions( logFileOptions, Logger.LogFileOptions );
-            }else if(fromFile){
+            } else if( fromFile ) {
                 Logger.Log( LogType.Warning, "Config.Load: using default log file options." );
             }
 
@@ -272,18 +278,15 @@ namespace fCraft {
             if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key
                 TrySetValue( key, element.Value );
-
             } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
                 // LEGACY - renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], element.Value );
-
             } else if( keyName == "limitoneconnectionperip" ) {
                 // LEGACY
                 Logger.Log( LogType.Warning,
                             "Config: LimitOneConnectionPerIP (bool) was replaced by MaxConnectionsPerIP (int). " +
                             "Adjust your configuration accordingly." );
                 ConfigKey.MaxConnectionsPerIP.TrySetValue( 1 );
-
             } else if( keyName != "consoleoptions" &&
                        keyName != "logfileoptions" &&
                        keyName != "ranks" &&
@@ -291,7 +294,8 @@ namespace fCraft {
                 // unknown key
                 Logger.Log( LogType.Warning,
                             "Config: Unrecognized entry ignored: {0} = {1}",
-                            element.Name, element.Value );
+                            element.Name,
+                            element.Value );
             }
         }
 
@@ -308,20 +312,19 @@ namespace fCraft {
             if( EnumUtil.TryParse( keyName, out key, true ) ) {
                 // known key
                 TrySetValue( key, value );
-
             } else if( LegacyConfigKeys.ContainsKey( keyName ) ) {
                 // LEGACY - renamed/legacy key
                 TrySetValue( LegacyConfigKeys[keyName], value );
-
-            } else if( keyName == "ircstripminecraftcolors" ) { // LEGACY
+            } else if( keyName == "ircstripminecraftcolors" ) {
+                // LEGACY
                 TrySetValue( ConfigKey.IRCShowColorsFromIRC, element.Value );
                 ConfigKey.IRCShowColorsFromIRC.SetValue( !ConfigKey.IRCShowColorsFromIRC.Enabled() );
-
             } else {
                 // unknown key
                 Logger.Log( LogType.Warning,
                             "Config: Unrecognized entry ignored: {0} = {1}",
-                            keyName, value );
+                            keyName,
+                            value );
             }
         }
 
@@ -339,7 +342,8 @@ namespace fCraft {
             }
 
             // for compatibility with fCraft 0.631 and earlier
-            if( el.Element( "IRC" ) != null ) { // LEGACY
+            if( el.Element( "IRC" ) != null ) {
+                // LEGACY
                 list[(int)LogType.IrcStatus] = true;
             }
         }
@@ -498,7 +502,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Saving
 
         public static bool Save() {
@@ -526,7 +529,7 @@ namespace fCraft {
             XElement consoleOptions = new XElement( "ConsoleOptions" );
             for( int i = 0; i < Logger.ConsoleOptions.Length; i++ ) {
                 if( Logger.ConsoleOptions[i] ) {
-                    consoleOptions.Add( new XElement( ( (LogType)i ).ToString() ) );
+                    consoleOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
             config.Add( consoleOptions );
@@ -535,7 +538,7 @@ namespace fCraft {
             XElement logFileOptions = new XElement( "LogFileOptions" );
             for( int i = 0; i < Logger.LogFileOptions.Length; i++ ) {
                 if( Logger.LogFileOptions[i] ) {
-                    logFileOptions.Add( new XElement( ( (LogType)i ).ToString() ) );
+                    logFileOptions.Add( new XElement( ((LogType)i).ToString() ) );
                 }
             }
             config.Add( logFileOptions );
@@ -571,7 +574,6 @@ namespace fCraft {
         }
 
         #endregion
-
 
         #region Getters
 
@@ -671,7 +673,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Setters
 
         /// <summary> Resets key value to its default setting. </summary>
@@ -694,7 +695,9 @@ namespace fCraft {
         /// False if value is valid, but assignment was cancelled by an event handler/plugin. </returns>
         public static bool SetValue( this ConfigKey key, [NotNull] object rawValue ) {
             if( rawValue == null ) {
-                throw new ArgumentNullException( "rawValue", key + ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
+                throw new ArgumentNullException( "rawValue",
+                                                 key +
+                                                 ": ConfigKey values cannot be null. Use an empty string to indicate unset value." );
             }
 
             string value = (rawValue as string ?? rawValue.ToString());
@@ -724,7 +727,8 @@ namespace fCraft {
             } catch( FormatException ex ) {
                 Logger.Log( LogType.Error,
                             "{0}.TrySetValue: {1}",
-                            key, ex.Message );
+                            key,
+                            ex.Message );
                 return false;
             }
         }
@@ -755,7 +759,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Ranks
 
         static void LoadRankList( [NotNull] XContainer el, bool fromFile ) {
@@ -769,7 +772,8 @@ namespace fCraft {
                     if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
                         toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
                         Logger.Log( LogType.Error,
-                                    "Config.Load: Could not parse a LegacyRankMapping entry: {0}", rankPair );
+                                    "Config.Load: Could not parse a LegacyRankMapping entry: {0}",
+                                    rankPair );
                     } else {
                         RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
                     }
@@ -791,12 +795,11 @@ namespace fCraft {
 
                 if( RankManager.RanksByName.Count == 0 ) {
                     Logger.Log( LogType.Warning,
-                                "Config.Load: No ranks were defined, or none were defined correctly. "+
+                                "Config.Load: No ranks were defined, or none were defined correctly. " +
                                 "Using default ranks (guest, builder, op, and owner)." );
                     rankList.Remove();
                     el.Add( DefineDefaultRanks() );
                 }
-
             } else {
                 if( fromFile ) Logger.Log( LogType.Warning, "Config.Load: using default player ranks." );
                 el.Add( DefineDefaultRanks() );
@@ -1041,7 +1044,6 @@ namespace fCraft {
 
         #endregion
 
-
         #region Events
 
         /// <summary> Occurs after the entire configuration has been reloaded from file. </summary>
@@ -1081,7 +1083,6 @@ namespace fCraft {
 
         #endregion
 
-
         /// <summary> Returns a list of all keys in a section. </summary>
         [NotNull]
         public static ConfigKey[] GetKeys( this ConfigSection section ) {
@@ -1089,7 +1090,6 @@ namespace fCraft {
         }
     }
 }
-
 
 namespace fCraft.Events {
     /// <summary> Provides data for Config.KeyChanging event. Allows modification of the value. Cancelable. </summary>

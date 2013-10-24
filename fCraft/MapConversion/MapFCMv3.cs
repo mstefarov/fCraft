@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,8 +10,8 @@ namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for format version #3 (2011).
     /// Soon to be obsoleted by FCMv4. </summary>
     public sealed class MapFCMv3 : IMapImporter, IMapExporter {
-        private const int Identifier = 0x0FC2AF40;
-        private const byte Revision = 13;
+        const int Identifier = 0x0FC2AF40;
+        const byte Revision = 13;
 
         public string ServerName {
             get { return "fCraft"; }
@@ -42,7 +43,7 @@ namespace fCraft.MapConversion {
                     BinaryReader reader = new BinaryReader( mapStream );
                     int id = reader.ReadInt32();
                     int rev = reader.ReadByte();
-                    return ( id == Identifier && rev == Revision );
+                    return (id == Identifier && rev == Revision);
                 } catch( Exception ) {
                     return false;
                 }
@@ -59,7 +60,7 @@ namespace fCraft.MapConversion {
 
                 // skip the index
                 int layerCount = reader.ReadByte();
-                mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
+                mapStream.Seek( 25*layerCount, SeekOrigin.Current );
 
                 // read metadata
                 int metaCount = reader.ReadInt32();
@@ -76,14 +77,18 @@ namespace fCraft.MapConversion {
                             Logger.Log( LogType.Warning,
                                         "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"",
-                                        group, key, oldValue, newValue );
+                                        group,
+                                        key,
+                                        oldValue,
+                                        newValue );
                         }
                         if( group == "zones" ) {
                             try {
                                 map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
                                 Logger.Log( LogType.Error,
-                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}", ex );
+                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}",
+                                            ex );
                             }
                         } else {
                             map.Metadata[group, key] = newValue;
@@ -108,7 +113,7 @@ namespace fCraft.MapConversion {
                 if( layerCount < 1 ) {
                     throw new MapFormatException( "MapFCMv3: No data layers found." );
                 }
-                mapStream.Seek( 25 * layerCount, SeekOrigin.Current );
+                mapStream.Seek( 25*layerCount, SeekOrigin.Current );
 
                 // read metadata
                 int metaSize = reader.ReadInt32();
@@ -125,14 +130,18 @@ namespace fCraft.MapConversion {
                             Logger.Log( LogType.Warning,
                                         "MapFCMv3.LoadHeader: Duplicate metadata entry found for [{0}].[{1}]. " +
                                         "Old value (overwritten): \"{2}\". New value: \"{3}\"",
-                                        group, key, oldValue, newValue );
+                                        group,
+                                        key,
+                                        oldValue,
+                                        newValue );
                         }
                         if( group == "zones" ) {
                             try {
                                 map.Zones.Add( new Zone( newValue, map.World ) );
                             } catch( Exception ex ) {
                                 Logger.Log( LogType.Error,
-                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}", ex );
+                                            "MapFCMv3.LoadHeader: Error importing zone definition: {0}",
+                                            ex );
                             }
                         } else {
                             map.Metadata[group, key] = newValue;
@@ -225,18 +234,18 @@ namespace fCraft.MapConversion {
                         metaCount = WriteMetadata( bs, mapToSave );
                         offset = mapStream.Position; // inaccurate, but who cares
                         bs.Write( blocksCache, 0, blocksCache.Length );
-                        compressedLength = (int)( mapStream.Position - offset );
+                        compressedLength = (int)(mapStream.Position - offset);
                     }
                 }
 
                 // come back to write the index
                 writer.BaseStream.Seek( indexOffset, SeekOrigin.Begin );
 
-                writer.Write( (byte)0 );            // data layer type (Blocks)
-                writer.Write( offset );             // offset, in bytes, from start of stream
-                writer.Write( compressedLength );   // compressed length, in bytes
-                writer.Write( 0 );                  // general purpose field
-                writer.Write( 1 );                  // element size
+                writer.Write( (byte)0 ); // data layer type (Blocks)
+                writer.Write( offset ); // offset, in bytes, from start of stream
+                writer.Write( compressedLength ); // compressed length, in bytes
+                writer.Write( 0 ); // general purpose field
+                writer.Write( 1 ); // element size
                 writer.Write( blocksCache.Length ); // element count
 
                 writer.Write( metaCount );

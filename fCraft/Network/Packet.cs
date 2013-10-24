@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Text;
 using JetBrains.Annotations;
@@ -33,7 +34,6 @@ namespace fCraft {
             Bytes = new byte[PacketSizes[(int)opCode]];
             Bytes[0] = (byte)opCode;
         }
-
 
         #region Making regular packets
 
@@ -134,9 +134,9 @@ namespace fCraft {
         public static Packet MakeMoveRotate( sbyte id, Position positionDelta ) {
             Packet packet = new Packet( OpCode.MoveRotate );
             packet.Bytes[1] = (byte)id;
-            packet.Bytes[2] = (byte)( positionDelta.X & 0xFF );
-            packet.Bytes[3] = (byte)( positionDelta.Z & 0xFF );
-            packet.Bytes[4] = (byte)( positionDelta.Y & 0xFF );
+            packet.Bytes[2] = (byte)(positionDelta.X & 0xFF);
+            packet.Bytes[3] = (byte)(positionDelta.Z & 0xFF);
+            packet.Bytes[4] = (byte)(positionDelta.Y & 0xFF);
             packet.Bytes[5] = positionDelta.R;
             packet.Bytes[6] = positionDelta.L;
             return packet;
@@ -199,12 +199,11 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             Packet packet = new Packet( OpCode.SetPermission );
-            packet.Bytes[1] = (byte)( player.Can( Permission.DeleteAdmincrete ) ? 100 : 0 );
+            packet.Bytes[1] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
             return packet;
         }
 
         #endregion
-
 
         #region Making extended packets
 
@@ -254,7 +253,8 @@ namespace fCraft {
 
 
         [Pure]
-        public static Packet MakeSetTextHotKey( [NotNull] string label, [NotNull] string action, int keyCode, byte keyMods ) {
+        public static Packet MakeSetTextHotKey( [NotNull] string label, [NotNull] string action, int keyCode,
+                                                byte keyMods ) {
             if( label == null ) throw new ArgumentNullException( "label" );
             if( action == null ) throw new ArgumentNullException( "action" );
             Packet packet = new Packet( OpCode.SetTextHotKey );
@@ -267,7 +267,8 @@ namespace fCraft {
 
 
         [Pure]
-        public static Packet MakeExtAddPlayerName( short nameId, string playerName, string listName, string groupName, byte groupRank ) {
+        public static Packet MakeExtAddPlayerName( short nameId, string playerName, string listName, string groupName,
+                                                   byte groupRank ) {
             if( playerName == null ) throw new ArgumentNullException( "playerName" );
             if( listName == null ) throw new ArgumentNullException( "listName" );
             if( groupName == null ) throw new ArgumentNullException( "groupName" );
@@ -313,7 +314,8 @@ namespace fCraft {
 
 
         [Pure]
-        public static Packet MakeMakeSelection( byte selectionId, [NotNull] string label, [NotNull] BoundingBox bounds, int color, byte opacity ) {
+        public static Packet MakeMakeSelection( byte selectionId, [NotNull] string label, [NotNull] BoundingBox bounds,
+                                                int color, byte opacity ) {
             if( label == null ) throw new ArgumentNullException( "label" );
             if( bounds == null ) throw new ArgumentNullException( "bounds" );
             Packet packet = new Packet( OpCode.MakeSelection );
@@ -360,7 +362,8 @@ namespace fCraft {
         }
 
         [Pure]
-        public static Packet MakeEnvSetMapAppearance( [NotNull] string textureUrl, Block sideBlock, Block edgeBlock, short sideLevel ) {
+        public static Packet MakeEnvSetMapAppearance( [NotNull] string textureUrl, Block sideBlock, Block edgeBlock,
+                                                      short sideLevel ) {
             if( textureUrl == null ) throw new ArgumentNullException( "textureUrl" );
             Packet packet = new Packet( OpCode.EnvMapAppearance );
             Encoding.ASCII.GetBytes( textureUrl.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
@@ -372,10 +375,9 @@ namespace fCraft {
 
         #endregion
 
-
         static void ToNetOrder( short number, [NotNull] byte[] arr, int offset ) {
-            arr[offset] = (byte)( ( number & 0xff00 ) >> 8 );
-            arr[offset + 1] = (byte)( number & 0x00ff );
+            arr[offset] = (byte)((number & 0xff00) >> 8);
+            arr[offset + 1] = (byte)(number & 0x00ff);
         }
 
         static void ToNetOrder( int number, [NotNull] byte[] arr, int offset ) {

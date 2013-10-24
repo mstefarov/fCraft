@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Collections.Generic;
 using fCraft.Events;
@@ -19,8 +20,7 @@ namespace fCraft {
 
         /// <summary> Creates a recorder for errors and warnings. </summary>
         public LogRecorder()
-            : this( true, LogType.Error, LogType.Warning ) {
-        }
+            : this( true, LogType.Error, LogType.Warning ) {}
 
 
         /// <summary> Creates a custom recorder. </summary>
@@ -78,7 +78,7 @@ namespace fCraft {
             }
         }
 
-        
+
         /// <summary> All messages in one block of text, separated by newlines. </summary>
         [NotNull]
         public string MessageString {

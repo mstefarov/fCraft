@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -25,12 +26,14 @@ namespace fCraft.Drawing {
                 }
             }
         }
+
         readonly string paramDescription;
 
 
         public override int ExpectedMarks {
             get { return expectedMarks; }
         }
+
         readonly int expectedMarks;
 
 

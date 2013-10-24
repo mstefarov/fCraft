@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using JetBrains.Annotations;
 
@@ -23,7 +24,7 @@ namespace fCraft.Drawing {
         /// Note that this is a deep copy -- Blocks array and everything else is duplicated too. </summary>
         public CopyState( [NotNull] CopyState original ) {
             if( original == null ) throw new ArgumentNullException();
-            Blocks = (Block[, ,])original.Blocks.Clone();
+            Blocks = (Block[,,])original.Blocks.Clone();
             Bounds = new BoundingBox( original.Bounds );
             Orientation = original.Orientation;
             Slot = original.Slot;
@@ -32,10 +33,9 @@ namespace fCraft.Drawing {
         }
 
 
-
         /// <summary> Duplicates the given CopyState, but does not copy the Blocks array.
         /// Updates Bounds to match the new buffer's size, but preserves original Orientation. </summary>
-        public CopyState( [NotNull] CopyState original, [NotNull] Block[, ,] buffer ) {
+        public CopyState( [NotNull] CopyState original, [NotNull] Block[,,] buffer ) {
             if( original == null ) throw new ArgumentNullException();
             Blocks = buffer;
             Bounds = new BoundingBox( original.Bounds.MinVertex,
@@ -51,7 +51,7 @@ namespace fCraft.Drawing {
 
         /// <summary> 3D array of copies blocks. </summary>
         [NotNull]
-        public Block[, ,] Blocks { get; private set; }
+        public Block[,,] Blocks { get; private set; }
 
 
         /// <summary> Dimensions and coordinates of the copied blocks. </summary>

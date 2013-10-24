@@ -1,4 +1,5 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
@@ -16,7 +17,8 @@ namespace fCraft {
         public int Offset { get; set; }
 
         /// <summary> Raw message that is being parsed, including the slash and the command name. </summary>
-        [NotNull] public readonly string RawMessage;
+        [NotNull]
+        public readonly string RawMessage;
 
         /// <summary> Name (lowercase) of the command. </summary>
         [NotNull]
@@ -144,8 +146,7 @@ namespace fCraft {
         [DebuggerStepThrough]
         public string NextAll() {
             for( ; Offset < RawMessage.Length; Offset++ ) {
-                if( RawMessage[Offset] != ' ' )
-                    return RawMessage.Substring( Offset );
+                if( RawMessage[Offset] != ' ' ) return RawMessage.Substring( Offset );
             }
             return "";
         }
@@ -157,7 +158,9 @@ namespace fCraft {
             get {
                 int startOffset = Offset;
                 int i = 0;
-                while( Next() != null ) i++;
+                while( Next() != null ) {
+                    i++;
+                }
                 Offset = startOffset;
                 return i;
             }
@@ -171,7 +174,9 @@ namespace fCraft {
                 int startOffset = Offset;
                 Rewind();
                 int i = 1;
-                while( Next() != null ) i++;
+                while( Next() != null ) {
+                    i++;
+                }
                 Offset = startOffset;
                 return i;
             }
@@ -255,7 +260,6 @@ namespace fCraft {
                 } else if( player != null ) {
                     player.Message( "Unrecognized block type \"{0}\"", blockName );
                 }
-
             } else {
                 if( Map.GetBlockByName( jointString, true, out block ) ) {
                     if( block != Block.None || allowNoneBlock ) {

@@ -1,8 +1,9 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace fCraft{
+namespace fCraft {
     /// <summary> Struct representing a single block change.
     /// You may safely cast byte* pointers directly to BlockDBEntry* and vice versa. </summary>
     [StructLayout( LayoutKind.Sequential, Pack = 1 )]
