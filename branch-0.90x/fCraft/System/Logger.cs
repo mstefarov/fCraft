@@ -417,11 +417,11 @@ namespace fCraft {
 #if DEBUG_EVENTS
 
         // list of events in this assembly
-        static readonly Dictionary<int, EventInfo> eventsMap = new Dictionary<int, EventInfo>();
+        static readonly Dictionary<int, EventInfo> EventsMap = new Dictionary<int, EventInfo>();
 
 
-        static readonly List<string> eventWhitelist = new List<string>();
-        static readonly List<string> eventBlacklist = new List<string>();
+        static readonly List<string> EventWhitelist = new List<string>();
+        static readonly List<string> EventBlacklist = new List<string>();
 
         const string TraceWhitelistFile = "traceonly.txt",
                      TraceBlacklistFile = "notrace.txt";
@@ -431,10 +431,10 @@ namespace fCraft {
         static void LoadTracingSettings() {
             if( File.Exists( TraceWhitelistFile ) ) {
                 useEventWhitelist = true;
-                eventWhitelist.AddRange( File.ReadAllLines( TraceWhitelistFile ) );
+                EventWhitelist.AddRange( File.ReadAllLines( TraceWhitelistFile ) );
             } else if( File.Exists( TraceBlacklistFile ) ) {
                 useEventBlacklist = true;
-                eventBlacklist.AddRange( File.ReadAllLines( TraceBlacklistFile ) );
+                EventBlacklist.AddRange( File.ReadAllLines( TraceBlacklistFile ) );
             }
         }
 
@@ -464,15 +464,15 @@ namespace fCraft {
                     if( eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler<> ).FullName ) ||
                         eventInfo.EventHandlerType.FullName.StartsWith( typeof( EventHandler ).FullName ) ) {
                         if( useEventWhitelist &&
-                            !eventWhitelist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ||
+                            !EventWhitelist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ||
                             useEventBlacklist &&
-                            eventBlacklist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ) continue;
+                            EventBlacklist.Contains( type.Name + "." + eventInfo.Name, StringComparer.OrdinalIgnoreCase ) ) continue;
 
                         MethodInfo method = eventInfo.EventHandlerType.GetMethod( "Invoke" );
                         var parameterTypes = method.GetParameters().Select( info => info.ParameterType ).ToArray();
                         AddEventHook( typeBuilder, parameterTypes, method.ReturnType, eventIndex );
                         eventList.Add( eventInfo );
-                        eventsMap.Add( eventIndex, eventInfo );
+                        EventsMap.Add( eventIndex, eventInfo );
                         eventIndex++;
                     }
                 }
@@ -514,7 +514,7 @@ namespace fCraft {
         // Invoked when events fire
         public static void EventTraceNotifier( int eventIndex, EventArgs e ) {
             if( (e is LogEventArgs) && ((LogEventArgs)e).MessageType == LogType.Trace ) return;
-            var eventInfo = eventsMap[eventIndex];
+            var eventInfo = EventsMap[eventIndex];
 
             StringBuilder sb = new StringBuilder();
             bool first = true;

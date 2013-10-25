@@ -198,9 +198,9 @@ namespace fCraft {
         /// <param name="color"> String representation of a color, empty string, or null. </param>
         /// <returns> If input could be parsed, returns a standard Minecraft ampersand-color-code.
         /// If input is an empty string, returns an empty string.
-        /// If input is null or cannot be parsed, returns null. </returns>
+        /// If input is cannot be parsed, returns null. </returns>
+        /// <exception cref="ArgumentNullException"> <paramref name="color"/> is null </exception>
         [CanBeNull]
-        [Pure]
         public static string Parse( [NotNull] string color ) {
             if( color == null ) throw new ArgumentNullException( "color" );
             switch( color.Length ) {
