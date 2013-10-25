@@ -312,7 +312,7 @@ namespace fCraft {
 
 
         [CanBeNull]
-        public Map AcceptPlayer( [NotNull] Player player, bool announce ) {
+        internal Map AcceptPlayer( [NotNull] Player player, bool announce ) {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             lock( SyncRoot ) {

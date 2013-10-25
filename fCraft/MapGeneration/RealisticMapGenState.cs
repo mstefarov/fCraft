@@ -11,9 +11,9 @@ namespace fCraft.MapGeneration {
         readonly Random rand;
         readonly Noise noise;
 
-        float[,] heightmap,
-                 blendmap,
-                 slopemap;
+        float[,] heightMap,
+                 blendMap,
+                 slopeMap;
 
         RealisticMapGenBlockTheme theme;
 
@@ -122,17 +122,17 @@ namespace fCraft.MapGeneration {
 
         void GenerateHeightmap() {
             ReportRelativeProgress( 10, "Heightmap: Priming" );
-            heightmap = new float[genParams.MapWidth, genParams.MapLength];
+            heightMap = new float[genParams.MapWidth, genParams.MapLength];
 
-            noise.PerlinNoise( heightmap, genParams.FeatureScale, genParams.DetailScale, genParams.Roughness, 0, 0 );
+            noise.PerlinNoise( heightMap, genParams.FeatureScale, genParams.DetailScale, genParams.Roughness, 0, 0 );
 
             if( genParams.UseBias && !genParams.DelayBias ) {
                 ReportRelativeProgress( 2, "Heightmap: Biasing" );
-                Noise.Normalize( heightmap );
+                Noise.Normalize( heightMap );
                 ApplyBias();
             }
 
-            Noise.Normalize( heightmap );
+            Noise.Normalize( heightMap );
 
             if( genParams.LayeredHeightmap ) {
                 ReportRelativeProgress( 10, "Heightmap: Layering" );
@@ -147,38 +147,38 @@ namespace fCraft.MapGeneration {
                                                                                       0 );
                 Noise.Normalize( heightmap2 );
 
-                // make a blendmap
-                blendmap = new float[genParams.MapWidth, genParams.MapLength];
+                // make a blendMap
+                blendMap = new float[genParams.MapWidth, genParams.MapLength];
                 int blendmapDetailSize = (int)Math.Log( Math.Max( genParams.MapWidth, genParams.MapLength ), 2 ) - 2;
-                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( blendmap,
+                new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( blendMap,
                                                                                      3,
                                                                                      blendmapDetailSize,
                                                                                      0.5f,
                                                                                      0,
                                                                                      0 );
-                Noise.Normalize( blendmap );
+                Noise.Normalize( blendMap );
                 float cliffSteepness = Math.Max( genParams.MapWidth, genParams.MapLength )/6f;
-                Noise.ScaleAndClip( blendmap, cliffSteepness );
+                Noise.ScaleAndClip( blendMap, cliffSteepness );
 
-                Noise.Blend( heightmap, heightmap2, blendmap );
+                Noise.Blend( heightMap, heightmap2, blendMap );
             }
 
             if( genParams.MarbledHeightmap ) {
                 ReportRelativeProgress( 1, "Heightmap: Marbling" );
-                Noise.Marble( heightmap );
+                Noise.Marble( heightMap );
             }
 
             if( genParams.InvertHeightmap ) {
                 ReportRelativeProgress( 1, "Heightmap: Inverting" );
-                Noise.Invert( heightmap );
+                Noise.Invert( heightMap );
             }
 
             if( genParams.UseBias && genParams.DelayBias ) {
                 ReportRelativeProgress( 2, "Heightmap: Biasing" );
-                Noise.Normalize( heightmap );
+                Noise.Normalize( heightMap );
                 ApplyBias();
             }
-            Noise.Normalize( heightmap );
+            Noise.Normalize( heightMap );
         }
 
 
@@ -198,7 +198,7 @@ namespace fCraft.MapGeneration {
             corners = corners.OrderBy( r => rand.Next() ).ToArray();
 
             // overlay the bias
-            Noise.ApplyBias( heightmap, corners[0], corners[1], corners[2], corners[3], midpoint );
+            Noise.ApplyBias( heightMap, corners[0], corners[1], corners[2], corners[3], midpoint );
         }
 
         #endregion
@@ -227,7 +227,7 @@ namespace fCraft.MapGeneration {
                 // find a number between 0 and 1 ("desiredWaterLevel") for the heightmap such that
                 // the fraction of heightmap coordinates ("blocks") that are below this threshold ("underwater")
                 // match the specified WaterCoverage
-                desiredWaterLevel = Noise.FindThreshold( heightmap, genParams.WaterCoverage );
+                desiredWaterLevel = Noise.FindThreshold( heightMap, genParams.WaterCoverage );
             }
 
 
@@ -242,16 +242,16 @@ namespace fCraft.MapGeneration {
             if( Math.Abs( genParams.BelowFuncExponent - 1 ) > float.Epsilon ||
                 Math.Abs( genParams.AboveFuncExponent - 1 ) > float.Epsilon ) {
                 ReportRelativeProgress( 5, "Heightmap Processing: Adjusting slope" );
-                for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                    for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                        if( heightmap[x, y] < desiredWaterLevel ) {
-                            float normalizedDepth = 1 - heightmap[x, y]/desiredWaterLevel;
-                            heightmap[x, y] = desiredWaterLevel -
+                for( int x = heightMap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                    for( int y = heightMap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+                        if( heightMap[x, y] < desiredWaterLevel ) {
+                            float normalizedDepth = 1 - heightMap[x, y]/desiredWaterLevel;
+                            heightMap[x, y] = desiredWaterLevel -
                                               (float)Math.Pow( normalizedDepth, genParams.BelowFuncExponent )*
                                               desiredWaterLevel;
                         } else {
-                            float normalizedHeight = (heightmap[x, y] - desiredWaterLevel)/(1 - desiredWaterLevel);
-                            heightmap[x, y] = desiredWaterLevel +
+                            float normalizedHeight = (heightMap[x, y] - desiredWaterLevel)/(1 - desiredWaterLevel);
+                            heightMap[x, y] = desiredWaterLevel +
                                               (float)Math.Pow( normalizedHeight, genParams.AboveFuncExponent )*
                                               (1 - desiredWaterLevel);
                         }
@@ -262,9 +262,9 @@ namespace fCraft.MapGeneration {
             // Calculate the slope
             if( genParams.CliffSmoothing ) {
                 ReportRelativeProgress( 2, "Heightmap Processing: Smoothing" );
-                slopemap = Noise.CalculateSteepness( Noise.GaussianBlur5X5( heightmap ) );
+                slopeMap = Noise.CalculateSteepness( Noise.GaussianBlur5X5( heightMap ) );
             } else {
-                slopemap = Noise.CalculateSteepness( heightmap );
+                slopeMap = Noise.CalculateSteepness( heightMap );
             }
 
             // Randomize max height/depth
@@ -290,21 +290,21 @@ namespace fCraft.MapGeneration {
             if( theme.AirBlock != Block.Air ) {
                 map.Blocks.MemSet( (byte)theme.AirBlock );
             }
-            for( int x = heightmap.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = heightmap.GetLength( 1 ) - 1; y >= 0; y-- ) {
+            for( int x = heightMap.GetLength( 0 ) - 1; x >= 0; x-- ) {
+                for( int y = heightMap.GetLength( 1 ) - 1; y >= 0; y-- ) {
                     int level;
                     float slope;
-                    if( heightmap[x, y] < desiredWaterLevel ) {
+                    if( heightMap[x, y] < desiredWaterLevel ) {
                         // for blocks below "sea level"
                         float depth = maxDepthScaled;
                         if( altMap != null ) {
                             depth += altMap[x, y]*genParams.MaxDepthVariation;
                         }
-                        slope = slopemap[x, y]*depth;
+                        slope = slopeMap[x, y]*depth;
                         level = genParams.WaterLevel -
                                 (int)
                                 Math.Round(
-                                    Math.Pow( 1 - heightmap[x, y]/desiredWaterLevel, genParams.BelowFuncExponent )*depth );
+                                    Math.Pow( 1 - heightMap[x, y]/desiredWaterLevel, genParams.BelowFuncExponent )*depth );
 
                         if( genParams.AddWater ) {
                             if( genParams.WaterLevel - level > 3 ) {
@@ -323,7 +323,7 @@ namespace fCraft.MapGeneration {
                                 }
                             }
                         } else {
-                            if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
+                            if( blendMap != null && blendMap[x, y] > .25 && blendMap[x, y] < .75 ) {
                                 map.SetBlock( x, y, level, theme.CliffBlock );
                             } else {
                                 if( slope < genParams.CliffThreshold ) {
@@ -335,8 +335,8 @@ namespace fCraft.MapGeneration {
 
                             for( int i = level - 1; i >= 0; i-- ) {
                                 if( level - i < theme.GroundThickness ) {
-                                    if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold &&
-                                        blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
+                                    if( blendMap != null && blendMap[x, y] > CliffsideBlockThreshold &&
+                                        blendMap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                         map.SetBlock( x, y, i, theme.CliffBlock );
                                     } else {
                                         if( slope < genParams.CliffThreshold ) {
@@ -358,12 +358,12 @@ namespace fCraft.MapGeneration {
                         } else {
                             height = maxHeightScaled;
                         }
-                        slope = slopemap[x, y]*height;
+                        slope = slopeMap[x, y]*height;
                         if( height != 0 ) {
                             level = genParams.WaterLevel +
                                     (int)
                                     Math.Round(
-                                        Math.Pow( heightmap[x, y] - desiredWaterLevel, genParams.AboveFuncExponent )*
+                                        Math.Pow( heightMap[x, y] - desiredWaterLevel, genParams.AboveFuncExponent )*
                                         aboveWaterMultiplier/maxHeightScaled*height );
                         } else {
                             level = genParams.WaterLevel;
@@ -375,7 +375,7 @@ namespace fCraft.MapGeneration {
                                       rand.NextDouble() <
                                       (level - snowStartThreshold)/(double)(snowThreshold - snowStartThreshold)));
 
-                        if( blendmap != null && blendmap[x, y] > .25 && blendmap[x, y] < .75 ) {
+                        if( blendMap != null && blendMap[x, y] > .25 && blendMap[x, y] < .75 ) {
                             map.SetBlock( x, y, level, theme.CliffBlock );
                         } else {
                             if( slope < genParams.CliffThreshold ) {
@@ -387,8 +387,8 @@ namespace fCraft.MapGeneration {
 
                         for( int i = level - 1; i >= 0; i-- ) {
                             if( level - i < theme.GroundThickness ) {
-                                if( blendmap != null && blendmap[x, y] > CliffsideBlockThreshold &&
-                                    blendmap[x, y] < (1 - CliffsideBlockThreshold) ) {
+                                if( blendMap != null && blendMap[x, y] > CliffsideBlockThreshold &&
+                                    blendMap[x, y] < (1 - CliffsideBlockThreshold) ) {
                                     map.SetBlock( x, y, i, theme.CliffBlock );
                                 } else {
                                     if( slope < genParams.CliffThreshold ) {
@@ -738,7 +738,7 @@ namespace fCraft.MapGeneration {
                     if( nx < 0 || nx >= map.Width || ny < 0 || ny >= map.Length ) continue;
                     int nz = shadows[nx][ny];
 
-                    if( (map.GetBlock( nx, ny, nz ) == theme.GroundSurfaceBlock) && slopemap[nx, ny] < .5 ) {
+                    if( (map.GetBlock( nx, ny, nz ) == theme.GroundSurfaceBlock) && slopeMap[nx, ny] < .5 ) {
                         // Pick a random height for the tree between Min and Max,
                         // discarding this tree if it would breach the top of the map
                         int nh;

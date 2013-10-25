@@ -814,6 +814,9 @@ namespace fCraft {
         }
 
 
+        /// <summary> Creates a backup of server's data files.
+        /// Files are placed into a timestamped zip file in Paths.DataBackupDirectory.
+        /// List of files is specified by Paths.DataFilesToBackup. </summary>
         public static void BackupData() {
             if( !Paths.TestDirectory( "DataBackup", Paths.DataBackupDirectory, true ) ) {
                 Logger.Log( LogType.Error, "Unable to create a data backup." );

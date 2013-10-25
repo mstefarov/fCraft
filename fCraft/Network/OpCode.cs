@@ -1,7 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
 namespace fCraft {
-    /// <summary> Minecraft protocol's opcodes. 
+    /// <summary> Minecraft protocol's opCodes. 
     /// For detailed explanation of Minecraft Classic protocol, see http://wiki.vg/Classic_Protocol </summary>
     public enum OpCode {
         /// <summary> Client/server packet. Client provides name and mppass.
@@ -14,7 +14,7 @@ namespace fCraft {
         /// <summary> Server packet. Notifies player of incoming level data. </summary>
         MapBegin = 2,
 
-        /// <summary> Server packet. Contains a chunk of gzipped map. </summary>
+        /// <summary> Server packet. Contains a chunk of GZipped map. </summary>
         MapChunk = 3,
 
         /// <summary> Server packet. Sent after level data is complete and gives map dimensions. </summary>
