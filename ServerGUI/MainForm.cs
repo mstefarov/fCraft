@@ -267,7 +267,7 @@ namespace fCraft.ServerGUI {
                                  sender,
                                  e );
                 } else {
-                    uriDisplay.Text = e.NewUri.ToString();
+                    uriDisplay.Text = e.NewUrl.ToString();
                     uriDisplay.Enabled = true;
                     bPlay.Enabled = true;
                 }

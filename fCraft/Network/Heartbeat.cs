@@ -11,12 +11,13 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class responsible for sending heartbeats. </summary>
     public static class Heartbeat {
-        /// <summary> Minecraft.net connection URL. 
+        /// <summary> Server's public URL, as returned by the heartbeat server.
+        /// This is the URL that players should be able to connect by.
         /// May be null (if heartbeat is disabled, or first heartbeat has not been sent yet). </summary>
         [CanBeNull]
-        public static Uri Uri { get; internal set; }
+        public static Uri Url { get; internal set; }
 
-        internal static Uri MinecraftNetUri;
+        internal static Uri HeartbeatServerUrl;
         static readonly TimeSpan DelayDefault = TimeSpan.FromSeconds( 20 );
         static readonly TimeSpan TimeoutDefault = TimeSpan.FromSeconds( 10 );
 
@@ -81,8 +82,8 @@ namespace fCraft {
         static HttpWebRequest minecraftNetRequest;
 
         static void SendMinecraftNetBeat() {
-            HeartbeatData data = new HeartbeatData( MinecraftNetUri );
-            if( !RaiseHeartbeatSendingEvent( data, MinecraftNetUri, true ) ) {
+            HeartbeatData data = new HeartbeatData( HeartbeatServerUrl );
+            if( !RaiseHeartbeatSendingEvent(data, HeartbeatServerUrl) ) {
                 return;
             }
             minecraftNetRequest = CreateRequest( data.CreateUri() );
@@ -121,16 +122,16 @@ namespace fCraft {
                     RaiseHeartbeatSentEvent( state.Data, response, responseText );
                 }
 
-                // try parse response as server Uri, if needed
+                // try parse response as server Url, if needed
                 string replyString = responseText.Trim();
                 if( replyString.StartsWith( "bad heartbeat", StringComparison.OrdinalIgnoreCase ) ) {
                     Logger.Log( LogType.Error, "Heartbeat: {0}", replyString );
                 } else {
                     try {
                         Uri newUri = new Uri( replyString );
-                        Uri oldUri = Uri;
+                        Uri oldUri = Url;
                         if( newUri != oldUri ) {
-                            Uri = newUri;
+                            Url = newUri;
                             RaiseUriChangedEvent( oldUri, newUri );
                         }
                     } catch( UriFormatException ) {
@@ -159,14 +160,14 @@ namespace fCraft {
         /// <summary> Occurs when a heartbeat has been sent. </summary>
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
 
-        /// <summary> Occurs when the server Uri has been set or changed. </summary>
+        /// <summary> Occurs when the server Url has been set or changed. </summary>
         public static event EventHandler<UriChangedEventArgs> UriChanged;
 
 
-        static bool RaiseHeartbeatSendingEvent( [NotNull] HeartbeatData data, [NotNull] Uri uri, bool getServerUri ) {
+        static bool RaiseHeartbeatSendingEvent( [NotNull] HeartbeatData data, [NotNull] Uri uri ) {
             var h = Sending;
             if( h == null ) return true;
-            var e = new HeartbeatSendingEventArgs( data, uri, getServerUri );
+            var e = new HeartbeatSendingEventArgs( data, uri );
             h( null, e );
             return !e.Cancel;
         }
@@ -276,22 +277,22 @@ namespace fCraft {
 
 namespace fCraft.Events {
     /// <summary> Provides data for Heartbeat.Sending event. Cancelable. 
-    /// HeartbeatData may be modified, Uri and GetServerUri may be changed. </summary>
+    /// HeartbeatData and Url may be modified. </summary>
     public sealed class HeartbeatSendingEventArgs : EventArgs, ICancelableEvent {
-        internal HeartbeatSendingEventArgs( [NotNull] HeartbeatData data, [NotNull] Uri uri, bool getServerUri ) {
+        internal HeartbeatSendingEventArgs( [NotNull] HeartbeatData data, [NotNull] Uri url ) {
             if( data == null ) throw new ArgumentNullException( "data" );
             HeartbeatData = data;
-            Uri = uri;
-            GetServerUri = getServerUri;
+            Url = url;
         }
 
+        /// <summary> Data that will be sent to the heartbeat server. </summary>
         [NotNull]
         public HeartbeatData HeartbeatData { get; private set; }
 
+        /// <summary> Url of the heartbeat server. </summary>
         [NotNull]
-        public Uri Uri { get; set; }
+        public Uri Url { get; set; }
 
-        public bool GetServerUri { get; set; }
         public bool Cancel { get; set; }
     }
 
@@ -309,14 +310,18 @@ namespace fCraft.Events {
             ResponseText = text;
         }
 
+        /// <summary> Data that was sent to the heartbeat server. </summary>
         [NotNull]
         public HeartbeatData HeartbeatData { get; private set; }
 
+        /// <summary> Response headers received from the heartbeat servers. </summary>
         [NotNull]
         public WebHeaderCollection ResponseHeaders { get; private set; }
 
+        /// <summary> HTTP status code returned by the heartbeat server. </summary>
         public HttpStatusCode ResponseStatusCode { get; private set; }
 
+        /// <summary> Raw response returned by the heartbeat server. </summary>
         [NotNull]
         public string ResponseText { get; private set; }
     }
@@ -324,16 +329,18 @@ namespace fCraft.Events {
 
     /// <summary> Provides data for Heartbeat.UriChanged event. Immutable. </summary>
     public sealed class UriChangedEventArgs : EventArgs {
-        internal UriChangedEventArgs( [CanBeNull] Uri oldUri, [NotNull] Uri newUri ) {
-            if( newUri == null ) throw new ArgumentNullException( "newUri" );
-            OldUri = oldUri;
-            NewUri = newUri;
+        internal UriChangedEventArgs( [CanBeNull] Uri oldUrl, [NotNull] Uri newUrl ) {
+            if( newUrl == null ) throw new ArgumentNullException( "newUrl" );
+            OldUrl = oldUrl;
+            NewUrl = newUrl;
         }
 
+        /// <summary> This server's old URL. </summary>
         [CanBeNull]
-        public Uri OldUri { get; private set; }
+        public Uri OldUrl { get; private set; }
 
+        /// <summary> This server's new, freshly-returned URL. </summary>
         [NotNull]
-        public Uri NewUri { get; private set; }
+        public Uri NewUrl { get; private set; }
     }
 }

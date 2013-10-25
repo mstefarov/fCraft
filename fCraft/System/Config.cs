@@ -421,7 +421,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.HeartbeatUrl:
-                    Heartbeat.MinecraftNetUri = new Uri( key.GetString() );
+                    Heartbeat.HeartbeatServerUrl = new Uri( key.GetString() );
                     break;
 
                 case ConfigKey.HelpColor:

@@ -183,8 +183,8 @@ namespace fCraft.ServerCLI {
 
 
         static void OnHeartbeatUriChanged( [CanBeNull] object sender, [NotNull] UriChangedEventArgs e ) {
-            File.WriteAllText( "externalurl.txt", e.NewUri.ToString(), Encoding.ASCII );
-            Console.WriteLine( "** URL: {0} **", e.NewUri );
+            File.WriteAllText( "externalurl.txt", e.NewUrl.ToString(), Encoding.ASCII );
+            Console.WriteLine( "** URL: {0} **", e.NewUrl );
             Console.WriteLine( "URL is also saved to file externalurl.txt" );
         }
 
