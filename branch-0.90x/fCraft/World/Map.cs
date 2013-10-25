@@ -43,22 +43,31 @@ namespace fCraft {
         public Position Spawn {
             get { return spawn; }
             set {
-                if( value.X > Width*32 || value.Y > Length*32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
-                    Logger.Log( LogType.Warning, "Map.Spawn: Coordinates are outside the map!" );
-                    return;
+                if( spawn != value ) {
+                    spawn = value;
+                    HasChangedSinceSave = true;
+                    if( value.X > Width*32 || value.Y > Length*32 || value.X < 0 || value.Y < 0 || value.Z < 0 ) {
+                        Logger.Log( LogType.Warning, "Map.Spawn: Coordinates are outside the map!" );
+                    }
                 }
-                spawn = value;
-                HasChangedSinceSave = true;
             }
         }
 
         Position spawn;
 
-        /// <summary> Resets spawn to the default location (top center of the map). </summary>
+        /// <summary> Resets spawn to the default location.
+        /// Sets the spawn point 1 block above the surface of the map (above the first non-air block), right in the center. </summary>
         public void ResetSpawn() {
-            Spawn = new Position( Width*16,
-                                  Length*16,
-                                  Math.Min( short.MaxValue, Height*32 ) );
+            int spawnZ = 0;
+            for( int z = Height - 1; z > 0; z-- ) {
+                if( GetBlock( Width/2, Length/2, z ) != Block.Air ) {
+                    spawnZ = z + 1;
+                    break;
+                }
+            }
+            Spawn = new Position( Width*16 + 16,
+                                  Length*16 + 16,
+                                  spawnZ );
         }
 
 
@@ -66,9 +75,16 @@ namespace fCraft {
         public bool HasChangedSinceSave { get; internal set; }
 
 
-        // FCMv3 additions
+        /// <summary> Date when this map was last modified.
+        /// Both block- and metadata changes affect this date. </summary>
         public DateTime DateModified { get; set; }
+
+        /// <summary> Date when this map was originally created.
+        /// Set at generation time, or at conversion time for imported maps. </summary>
         public DateTime DateCreated { get; set; }
+
+        /// <summary> Unique identifier of this map file.
+        /// Set at generation time, and at conversion time for imported maps. </summary>
         public Guid Guid { get; set; }
 
         /// <summary> Array of map blocks.
