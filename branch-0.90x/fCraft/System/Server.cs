@@ -863,11 +863,11 @@ namespace fCraft {
         }
 
 
-        static readonly Uri IPCheckUri = new Uri( "http://checkip.dyndns.org/" );
-        const int IPCheckTimeout = 30000;
+        static readonly Uri IPCheckUri = new Uri( "http://fcraft.net/ipcheck.php" );
+        const int IPCheckTimeout = 20000;
 
 
-        /// <summary> Checks server's external IP, as reported by checkip.dyndns.org. </summary>
+        /// <summary> Checks server's external IP, as reported by fCraft.net. </summary>
         [CanBeNull]
         static IPAddress CheckExternalIP() {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create( IPCheckUri );
@@ -889,10 +889,8 @@ namespace fCraft {
                     using( StreamReader responseReader = new StreamReader( response.GetResponseStream() ) ) {
                         // ReSharper restore AssignNullToNotNullAttribute
                         string responseString = responseReader.ReadToEnd();
-                        int startIndex = responseString.IndexOf( ':' ) + 2;
-                        int endIndex = responseString.IndexOf( '<', startIndex ) - startIndex;
                         IPAddress result;
-                        if( IPAddress.TryParse( responseString.Substring( startIndex, endIndex ), out result ) ) {
+                        if( IPAddress.TryParse( responseString, out result ) ) {
                             return result;
                         } else {
                             return null;
