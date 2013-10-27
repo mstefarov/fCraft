@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Resources;
 
@@ -35,3 +36,6 @@ using System.Resources;
 [assembly: AssemblyVersion( "0.9.0.0" )]
 [assembly: AssemblyFileVersion( "0.9.0.0" )]
 [assembly: NeutralResourcesLanguageAttribute( "en-US" )]
+
+// allow fCraft proper to touch our internals
+[assembly: InternalsVisibleTo("fCraft")]

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
@@ -69,6 +71,15 @@ namespace fCraft {
             CommandManager.RegisterCommand( CdUndoPlayerNot );
             CdUndoArea.Help += GeneralDrawingHelp;
             CdUndoAreaNot.Help += GeneralDrawingHelp;
+
+            if( ConfigKey.LoadGDIPlus.Enabled() && File.Exists( "fCraftGUI.dll" ) ) {
+                Assembly fCraftGuiAsm = Assembly.LoadFrom( "fCraftGUI.dll" );
+                Type drawImageCommandType = fCraftGuiAsm.GetType("fCraft.GUI.DrawImageCommand", true);
+                FieldInfo cdDrawImageField = drawImageCommandType.GetField( "CdDrawImage" );
+                CommandDescriptor cdDrawImage = (CommandDescriptor)cdDrawImageField.GetValue( null );
+                CommandManager.RegisterCommand( cdDrawImage );
+                cdDrawImage.Help += GeneralDrawingHelp;
+            }
         }
 
         #region DrawOperations & Brushes
