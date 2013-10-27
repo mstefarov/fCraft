@@ -107,13 +107,14 @@ namespace fCraft {
             if( args.Length > 0 ) {
                 message = String.Format( message, args );
             }
+
             // occasionally \r\n newlines slip into the system, e.g. in stack traces
             message = message.Replace( "\r\n", "\n" );
             message = Chat.ReplaceNewlines( message );
             message = Chat.ReplaceEmotesWithUnicode( message );
             message = Color.StripColors( message );
 
-            string line = DateTime.Now.ToString( TimeFormat ) + GetPrefix( type ) + " > " + message; // localized
+            string line = DecorateLogMessage( type, message );
 
             lock( LogLock ) {
                 RaiseLoggedEvent( message, line, type );
@@ -129,18 +130,27 @@ namespace fCraft {
                                             line + Environment.NewLine );
                     } catch( Exception ex ) {
                         string errorMessage = "Logger.Log: " + ex;
-                        line = String.Format( "{0} {1} > {2}",
-                                              DateTime.Now.ToString( TimeFormat ),
-                                              // localized
-                                              GetPrefix( LogType.Error ),
-                                              errorMessage );
                         RaiseLoggedEvent( errorMessage,
-                                          line,
+                                          DecorateLogMessage( LogType.Error, errorMessage ),
                                           LogType.Error );
                     }
                 }
             }
         }
+
+
+        // Adds timestamp and prefix to given message
+        [NotNull]
+        [DebuggerStepThrough]
+        static string DecorateLogMessage( LogType type, [NotNull] String message ) {
+            if( message == null ) throw new ArgumentNullException( "message" );
+            return String.Format( "{0} {1} > {2}",
+                                  // localized time
+                                  DateTime.Now.ToString( TimeFormat ),
+                                  GetPrefix( type ),
+                                  message );
+        }
+
 
         [NotNull]
         [DebuggerStepThrough]
