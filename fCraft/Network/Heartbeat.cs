@@ -161,7 +161,7 @@ namespace fCraft {
         public static event EventHandler<HeartbeatSentEventArgs> Sent;
 
         /// <summary> Occurs when the server Url has been set or changed. </summary>
-        public static event EventHandler<UriChangedEventArgs> UriChanged;
+        public static event EventHandler<UrlChangedEventArgs> UriChanged;
 
 
         static bool RaiseHeartbeatSendingEvent( [NotNull] HeartbeatData data, [NotNull] Uri uri ) {
@@ -186,7 +186,7 @@ namespace fCraft {
 
         static void RaiseUriChangedEvent( [CanBeNull] Uri oldUri, [NotNull] Uri newUri ) {
             var h = UriChanged;
-            if( h != null ) h( null, new UriChangedEventArgs( oldUri, newUri ) );
+            if( h != null ) h( null, new UrlChangedEventArgs( oldUri, newUri ) );
         }
 
         #endregion
@@ -328,8 +328,8 @@ namespace fCraft.Events {
 
 
     /// <summary> Provides data for Heartbeat.UriChanged event. Immutable. </summary>
-    public sealed class UriChangedEventArgs : EventArgs {
-        internal UriChangedEventArgs( [CanBeNull] Uri oldUrl, [NotNull] Uri newUrl ) {
+    public sealed class UrlChangedEventArgs : EventArgs {
+        internal UrlChangedEventArgs( [CanBeNull] Uri oldUrl, [NotNull] Uri newUrl ) {
             if( newUrl == null ) throw new ArgumentNullException( "newUrl" );
             OldUrl = oldUrl;
             NewUrl = newUrl;
