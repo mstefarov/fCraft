@@ -58,6 +58,13 @@ namespace fCraft {
         /// <summary> Resets spawn to the default location.
         /// Sets the spawn point 1 block above the surface of the map (above the first non-air block), right in the center. </summary>
         public void ResetSpawn() {
+            if( Blocks == null ) {
+                // fallback for maps that don't have a block array yet
+                Spawn = new Position( Width*16,
+                                      Length*16,
+                                      Math.Min( Height*32, Int16.MaxValue ) );
+                return;
+            }
             int spawnZ = 0;
             for( int z = Height - 1; z > 0; z-- ) {
                 if( GetBlock( Width/2, Length/2, z ) != Block.Air ) {
@@ -65,8 +72,8 @@ namespace fCraft {
                     break;
                 }
             }
-            Spawn = new Position( Width*16 + 16,
-                                  Length*16 + 16,
+            Spawn = new Position( Width*16,
+                                  Length*16,
                                   spawnZ );
         }
 
