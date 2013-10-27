@@ -1,4 +1,5 @@
 ﻿// Copyright 2013 Matvei Stefarov <me@matvei.org>
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -13,8 +14,9 @@ namespace fCraft.Drawing {
         const double XN = 95.047,
                      YN = 100.000,
                      ZN = 108.883;
-       // these constant are used in CIEXYZ -> CIELAB conversion
-       const double LinearThreshold = (6/29d)*(6/29d)*(6/29d),
+
+        // these constant are used in CIEXYZ -> CIELAB conversion
+        const double LinearThreshold = (6/29d)*(6/29d)*(6/29d),
                      LinearMultiplier = (1/3d)*(29/6d)*(29/6d),
                      LinearConstant = (4/29d);
 
@@ -26,12 +28,23 @@ namespace fCraft.Drawing {
         /// <summary> Number of block layers in this palette. FindBestMatch(...) will return an array of this size. </summary>
         public int Layers { get; private set; }
 
+        /// <summary> Opacity level (between 0.0 and 1.0) below which pixel is considered transparent.
+        /// Default is 0.2 (20% opaque / 80% transparent). </summary>
+        public float TransparencyThreshold { get; private set; }
+        const float TransparencyThresholdDefault = 0.2f;
+
+
+        readonly Block[] transparent;
 
         protected BlockPalette( [NotNull] string name, int layers ) {
-            if( name == null )
-                throw new ArgumentNullException( "name" );
+            if( name == null ) throw new ArgumentNullException( "name" );
             Name = name;
             Layers = layers;
+            TransparencyThreshold = TransparencyThresholdDefault;
+            transparent = new Block[layers];
+            for( int i = 0; i < layers; i++ ) {
+                transparent[i] = Block.None;
+            }
         }
 
 
@@ -53,6 +66,9 @@ namespace fCraft.Drawing {
 
         [NotNull]
         public Block[] FindBestMatch( RgbColor color ) {
+            if( color.A < TransparencyThreshold*255 ) {
+                return transparent;
+            }
             LabColor pixelColor = RgbToLab( color, true );
             double closestDistance = double.MaxValue;
             Block[] bestMatch = null;
@@ -80,16 +96,16 @@ namespace fCraft.Drawing {
 
 
         // Conversion from RGB to CIELAB, using illuminant D65.
-        static LabColor RgbToLab(RgbColor color, bool adjustContrast) {
+        static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
             // RGB are assumed to be in [0...255] range
             double R = color.R/255d;
             double G = color.G/255d;
             double B = color.B/255d;
 
             // CIEXYZ coordinates are normalized to [0...1]
-            double x = 0.4124564 * R + 0.3575761 * G + 0.1804375 * B;
-            double y = 0.2126729 * R + 0.7151522 * G + 0.0721750 * B;
-            double z = 0.0193339 * R + 0.1191920 * G + 0.9503041 * B;
+            double x = 0.4124564*R + 0.3575761*G + 0.1804375*B;
+            double y = 0.2126729*R + 0.7151522*G + 0.0721750*B;
+            double z = 0.0193339*R + 0.1191920*G + 0.9503041*B;
 
             double xRatio = x/XN;
             double yRatio = y/YN;
@@ -122,8 +138,8 @@ namespace fCraft.Drawing {
             return palette.GetEnumerator();
         }
 
-
         #region Standard Patterns
+
         // lazily initialized to reduce overhead
 
         [NotNull]
@@ -135,6 +151,7 @@ namespace fCraft.Drawing {
                 return lightPalette;
             }
         }
+
         static BlockPalette lightPalette;
 
 
@@ -147,6 +164,7 @@ namespace fCraft.Drawing {
                 return darkPalette;
             }
         }
+
         static BlockPalette darkPalette;
 
 
@@ -159,6 +177,7 @@ namespace fCraft.Drawing {
                 return layeredPalette;
             }
         }
+
         static BlockPalette layeredPalette;
 
 
@@ -171,6 +190,7 @@ namespace fCraft.Drawing {
                 return grayPalette;
             }
         }
+
         static BlockPalette grayPalette;
 
 
@@ -183,6 +203,7 @@ namespace fCraft.Drawing {
                 return darkGrayPalette;
             }
         }
+
         static BlockPalette darkGrayPalette;
 
 
@@ -195,6 +216,7 @@ namespace fCraft.Drawing {
                 return layeredGrayPalette;
             }
         }
+
         static BlockPalette layeredGrayPalette;
 
 
@@ -207,6 +229,7 @@ namespace fCraft.Drawing {
                 return bwPalette;
             }
         }
+
         static BlockPalette bwPalette;
 
 
@@ -296,9 +319,9 @@ namespace fCraft.Drawing {
             foreach( var pair in Dark.palette ) {
                 palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
             }
-            palette.Add(RgbColor.FromArgb(61, 74, 167), new[] { Block.White, Block.StillWater });
-            palette.Add(RgbColor.FromArgb(47, 59, 152), new[] { Block.Gray, Block.StillWater });
-            palette.Add(RgbColor.FromArgb(34, 47, 140), new[] { Block.Black, Block.StillWater });
+            palette.Add( RgbColor.FromArgb( 61, 74, 167 ), new[] {Block.White, Block.StillWater} );
+            palette.Add( RgbColor.FromArgb( 47, 59, 152 ), new[] {Block.Gray, Block.StillWater} );
+            palette.Add( RgbColor.FromArgb( 34, 47, 140 ), new[] {Block.Black, Block.StillWater} );
             return palette;
         }
 
@@ -329,7 +352,7 @@ namespace fCraft.Drawing {
         static BlockPalette DefineLayeredGray() {
             BlockPalette palette = new BlockPalette( "LayeredGray", 2 );
             foreach( var pair in Gray.palette ) {
-                palette.Add(pair.Key, new[] { Block.None, pair.Value[0] });
+                palette.Add( pair.Key, new[] {Block.None, pair.Value[0]} );
             }
             foreach( var pair in DarkGray.palette ) {
                 palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
@@ -355,12 +378,12 @@ namespace fCraft.Drawing {
 
 
     public enum StandardBlockPalettes {
-        Light,   // 1-layer standard blocks, lit
-        Dark,    // 1-layer standard blocks, shadowed
+        Light, // 1-layer standard blocks, lit
+        Dark, // 1-layer standard blocks, shadowed
         Layered, // 2-layer standard blocks
-        Gray,       // 1-layer gray blocks, lit
-        DarkGray,   // 2-layer gray blocks, shadowed
-        LayeredGray,    // 2-layer gray blocks
-        BW              // "black" (obsidian) and white blocks only
+        Gray, // 1-layer gray blocks, lit
+        DarkGray, // 2-layer gray blocks, shadowed
+        LayeredGray, // 2-layer gray blocks
+        BW // "black" (obsidian) and white blocks only
     }
 }
