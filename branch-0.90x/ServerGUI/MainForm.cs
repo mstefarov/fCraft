@@ -119,7 +119,7 @@ namespace fCraft.ServerGUI {
 #if !DEBUG
             } catch( Exception ex ) {
                 Logger.LogAndReportCrash( "Unhandled exception in ServerGUI.StartUp", "ServerGUI", ex, true );
-                Shutdown( ShutdownReason.Crashed );
+                BeginInvoke( (Action<ShutdownReason>)Shutdown, ShutdownReason.Crashed );
             }
 #endif
         }
@@ -162,7 +162,7 @@ namespace fCraft.ServerGUI {
             shutdownPending = true;
             console.Enabled = false;
             console.Text = "Shutting down...";
-            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - shutting down...";
+            Text = "fCraft " + Updater.CurrentRelease.VersionString + " - Shutting down...";
             uriDisplay.Enabled = false;
             if( !startupComplete ) {
                 startupThread.Join();
@@ -173,7 +173,9 @@ namespace fCraft.ServerGUI {
 
         void OnServerShutdownEnded( object sender, ShutdownEventArgs e ) {
             try {
-                BeginInvoke( (Action)delegate {
+                BeginInvoke((Action)delegate {
+                    console.Text = "";
+                    Text = "fCraft " + Updater.CurrentRelease.VersionString + " - Shutdown complete.";
                     shutdownComplete = true;
                     switch( e.ShutdownParams.Reason ) {
                         case ShutdownReason.FailedToInitialize:
