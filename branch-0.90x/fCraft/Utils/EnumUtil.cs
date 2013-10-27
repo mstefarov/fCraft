@@ -8,7 +8,8 @@ namespace fCraft {
     public static class EnumUtil {
         /// <summary> Tries to parse a given value as an enumeration.
         /// Even if value is numeric, this method still ensures that given number is among the enumerated constants.
-        /// This differs in behavior from Enum.Parse, which accepts any valid numeric string (that fits into enumeration's base type). </summary>
+        /// This differs in behavior from Enum.Parse and Enum.TryParse,
+        /// which accept any numeric string that fits into enumeration's base type. </summary>
         /// <typeparam name="TEnum"> Enumeration type. </typeparam>
         /// <param name="value"> Raw string value to parse. </param>
         /// <param name="output"> Parsed enumeration to output. Set to default(TEnum) on failure. </param>

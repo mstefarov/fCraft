@@ -7,9 +7,9 @@ namespace fCraft.GUI {
         // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
         public static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
-            Aliases = new[] { "DrawImg", "ImgDraw", "ImgPrint" },
+            Aliases = new[] {"DrawImg", "ImgDraw", "ImgPrint"},
             Category = CommandCategory.Building,
-            Permissions = new[] { Permission.DrawAdvanced },
+            Permissions = new[] {Permission.DrawAdvanced},
             Usage = "/DrawImage SomeWebsite.com/picture.png [Palette]",
             Help = "Downloads and draws an image, using minecraft blocks. " +
                    "First mark specifies the origin (corner) block of the image. " +
@@ -21,38 +21,38 @@ namespace fCraft.GUI {
             Handler = DrawImageHandler
         };
 
-        static void DrawImageHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
-            ImageDrawOperation op = new ImageDrawOperation(player);
-            if( !op.ReadParams(cmd) ) {
-                CdDrawImage.PrintUsage(player);
+        static void DrawImageHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+            ImageDrawOperation op = new ImageDrawOperation( player );
+            if( !op.ReadParams( cmd ) ) {
+                CdDrawImage.PrintUsage( player );
                 return;
             }
-            player.Message("DrawImage: Click 2 blocks or use &H/Mark&S to set direction.");
-            player.SelectionStart(2, DrawImageCallback, op, Permission.DrawAdvanced);
+            player.Message( "DrawImage: Click 2 blocks or use &H/Mark&S to set direction." );
+            player.SelectionStart( 2, DrawImageCallback, op, Permission.DrawAdvanced );
         }
 
-        static void DrawImageCallback([NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag) {
+        static void DrawImageCallback( [NotNull] Player player, [NotNull] Vector3I[] marks, [NotNull] object tag ) {
             ImageDrawOperation op = (ImageDrawOperation)tag;
-            player.Message("&HDrawImage: Downloading {0}", op.ImageUrl);
+            player.Message( "&HDrawImage: Downloading {0}", op.ImageUrl );
             try {
-                op.Prepare(marks);
-                if( !player.CanDraw(op.BlocksTotalEstimate) ) {
+                op.Prepare( marks );
+                if( !player.CanDraw( op.BlocksTotalEstimate ) ) {
                     player.Message(
                         "DrawImage: You are only allowed to run commands that affect up to {0} blocks. This one would affect {1} blocks.",
                         player.Info.Rank.DrawLimit,
-                        op.BlocksTotalEstimate);
+                        op.BlocksTotalEstimate );
                     return;
                 }
                 op.Begin();
             } catch( ArgumentException ex ) {
-                player.Message("&WDrawImage: Error setting up: " + ex.Message);
+                player.Message( "&WDrawImage: Error setting up: " + ex.Message );
             } catch( Exception ex ) {
-                Logger.Log(LogType.Warning,
+                Logger.Log( LogType.Warning,
                             "{0}: Error downloading image from {1}: {2}",
                             op.Description,
                             op.ImageUrl,
-                            ex);
-                player.Message("&WDrawImage: Error downloading: " + ex.Message);
+                            ex );
+                player.Message( "&WDrawImage: Error downloading: " + ex.Message );
             }
         }
     }

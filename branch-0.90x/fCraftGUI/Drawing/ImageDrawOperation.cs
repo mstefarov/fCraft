@@ -1,4 +1,5 @@
 ﻿// Copyright 2013 Matvei Stefarov <me@matvei.org>
+
 using System;
 using System.Drawing;
 using System.IO;
@@ -6,7 +7,7 @@ using System.Net;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
-    sealed class ImageDrawOperation : DrawOpWithBrush, IDisposable {
+    internal sealed class ImageDrawOperation : DrawOpWithBrush, IDisposable {
         static readonly TimeSpan DownloadTimeout = TimeSpan.FromSeconds( 6 );
 
         public Uri ImageUrl { get; private set; }
@@ -29,14 +30,18 @@ namespace fCraft.Drawing {
             get { return 2; }
         }
 
-        public override string Name { get { return "Image"; } }
+        public override string Name {
+            get { return "Image"; }
+        }
 
         public override string Description {
             get {
                 if( ImageUrl == null ) {
                     return Name;
                 }
-                string fileName = (ImageUrl.IsFile ? Path.GetFileName( ImageUrl.AbsolutePath ) : ImageUrl.AbsolutePath);
+                string fileName = ImageUrl.IsFile
+                                      ? Path.GetFileName( ImageUrl.AbsolutePath )
+                                      : ImageUrl.AbsolutePath;
                 if( Palette == BlockPalette.Layered ) {
                     return String.Format( "{0}({1})", Name, fileName );
                 } else {
@@ -47,8 +52,7 @@ namespace fCraft.Drawing {
 
 
         public ImageDrawOperation( [NotNull] Player player )
-            : base( player ) {
-        }
+            : base( player ) {}
 
 
         public override bool ReadParams( CommandReader cmd ) {
@@ -103,16 +107,17 @@ namespace fCraft.Drawing {
 
         public override bool Prepare( Vector3I[] marks ) {
             // Check the given marks
-            if( marks == null )
-                throw new ArgumentNullException( "marks" );
-            if( marks.Length != 2 )
+            if( marks == null ) throw new ArgumentNullException( "marks" );
+            if( marks.Length != 2 ) {
                 throw new ArgumentException( "DrawImage: Exactly 2 marks needed.", "marks" );
+            }
 
             // Make sure that a direction was given
             Vector3I delta = marks[1] - marks[0];
             if( Math.Abs( delta.X ) == Math.Abs( delta.Y ) ) {
                 throw new ArgumentException(
-                    "DrawImage: Second mark must specify a definite direction (north, east, south, or west) from first mark.",
+                    "DrawImage: Second mark must specify a definite direction " +
+                    "(north, east, south, or west) from first mark.",
                     "marks" );
             }
             Marks = marks;
@@ -166,8 +171,6 @@ namespace fCraft.Drawing {
             Brush = this;
             return true;
         }
-
-
 
 
         Vector3I CalculateCoordConversion( Vector3I delta ) {
