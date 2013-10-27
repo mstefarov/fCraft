@@ -2,12 +2,12 @@
 using fCraft.Drawing;
 using JetBrains.Annotations;
 
-namespace fCraft.GUI.Drawing {
-    public static class DrawImageCommand {
+namespace fCraft.GUI {
+    internal static class DrawImageCommand {
         // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
         public static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
-            Aliases = new[] { "Drawimg", "Imgdraw", "ImgPrint" },
+            Aliases = new[] { "DrawImg", "ImgDraw", "ImgPrint" },
             Category = CommandCategory.Building,
             Permissions = new[] { Permission.DrawAdvanced },
             Usage = "/DrawImage SomeWebsite.com/picture.png [Palette]",
