@@ -558,7 +558,13 @@ but will reduce bandwidth use." )]
 
         [BoolKey( ConfigSection.Advanced, true,
             @"Moves the emote suffix from end-of-line to immediately after its usage." )]
-        MoveEmoteDotToEndOfMessage
+        MoveEmoteDotToEndOfMessage,
+
+        [BoolKey( ConfigSection.Advanced, true,
+            @"Enables features that depend on GDI+ library. " +
+            "This functionality is always available on Windows, " +
+            "but requires a separate package (libgdiplus) to be installed under Mono." )]
+        LoadGDIPlus
 
         #endregion
     }
