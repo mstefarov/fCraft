@@ -8,10 +8,10 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     public static class MapGenUtil {
-        const string ParamsMetaGroup = "_Origin";
-        const string ParamsMetaKey = "MapGeneratorParameters";
-        const string GenNameMetaKey = "MapGeneratorName";
-        const string GenVersionMetaKey = "MapGeneratorVersion";
+        public const string ParamsMetaGroup = "_Origin";
+        public const string ParamsMetaKey = "MapGeneratorParameters";
+        public const string GenNameMetaKey = "MapGeneratorName";
+        public const string GenVersionMetaKey = "MapGeneratorVersion";
         static readonly Dictionary<string, MapGenerator> Generators = new Dictionary<string, MapGenerator>();
 
         public static void Init() {

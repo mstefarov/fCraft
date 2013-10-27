@@ -37,7 +37,10 @@ namespace fCraft.MapConversion {
         Opticraft,
 
         /// <summary> Raw byte array, with no header. For export only. </summary>
-        Raw
+        Raw,
+
+        /// <summary> Map format used by CloudBox and fCraft 0.900+ </summary>
+        ClassicWorld
     }
 
 
