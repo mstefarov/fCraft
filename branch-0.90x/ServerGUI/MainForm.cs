@@ -259,11 +259,11 @@ namespace fCraft.ServerGUI {
         }
 
 
-        void OnHeartbeatUriChanged( object sender, UriChangedEventArgs e ) {
+        void OnHeartbeatUriChanged( object sender, UrlChangedEventArgs e ) {
             try {
                 if( shutdownPending ) return;
                 if( uriDisplay.InvokeRequired ) {
-                    BeginInvoke( (EventHandler<UriChangedEventArgs>)OnHeartbeatUriChanged,
+                    BeginInvoke( (EventHandler<UrlChangedEventArgs>)OnHeartbeatUriChanged,
                                  sender,
                                  e );
                 } else {

@@ -6,9 +6,9 @@ using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    internal static class DrawCommands {
-        const string GeneralDrawingHelp =
-            " Use &H/Cancel&S to cancel selection mode. Use &H/Undo&S to stop and undo the last command.";
+    public static class DrawCommands {
+        public const string GeneralDrawingHelp =
+            "\nUse &H/Cancel&S to cancel selection mode. Use &H/Undo&S to stop and undo the last command.";
 
         internal static void Init() {
             CommandManager.RegisterCommand( CdReplace );
