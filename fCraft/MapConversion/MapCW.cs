@@ -1,11 +1,14 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.IO.Compression;
 using fCraft.MapGeneration;
 using fNbt;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    internal class MapCW : IMapExporter {
+    internal class MapCW : IMapExporter, IMapImporter {
+        const string RootTagName = "ClassicWorld";
+
         public string ServerName {
             get { return "fCraft/CloudBox"; }
         }
@@ -25,8 +28,8 @@ namespace fCraft.MapConversion {
         public void Save( Map mapToSave, string path ) {
             using( FileStream fs = new FileStream( path, FileMode.Create ) ) {
                 using( GZipStream gs = new GZipStream( fs, CompressionMode.Compress ) ) {
-                    using( BufferedStream bs = new BufferedStream( gs ) ) {
-                        NbtWriter writer = new NbtWriter( bs, "ClassicWorld" );
+                    using( BufferedStream bs = new BufferedStream( gs, 8192 ) ) {
+                        NbtWriter writer = new NbtWriter( bs, RootTagName );
                         {
                             WriteHeader( mapToSave, path, writer );
                             writer.WriteByteArray( "BlockArray", mapToSave.Blocks );
@@ -37,28 +40,6 @@ namespace fCraft.MapConversion {
                     }
                 }
             }
-        }
-
-        static void WriteMetadata( [NotNull] Map mapToSave, [NotNull] NbtWriter writer ) {
-            writer.BeginCompound( "Metadata" );
-            {
-                writer.BeginCompound( "fCraft" );
-                {
-                    string oldEntry = null;
-                    foreach( MetadataEntry<string> entry in mapToSave.Metadata ) {
-                        if( oldEntry != entry.Group ) {
-                            // TODO: Modify MetadataCollection to allow easy iteration group-at-a-time
-                            if( oldEntry != null ) writer.EndCompound();
-                            oldEntry = entry.Group;
-                            writer.BeginCompound( entry.Group );
-                        }
-                        writer.WriteString( entry.Key, entry.Value );
-                    }
-                    if( oldEntry != null ) writer.EndCompound();
-                }
-                writer.EndCompound();
-            }
-            writer.EndCompound();
         }
 
         static void WriteHeader( [NotNull] Map mapToSave, [NotNull] string path, [NotNull] NbtWriter writer ) {
@@ -92,8 +73,8 @@ namespace fCraft.MapConversion {
 
             // write timestamps
             writer.WriteLong( "TimeCreated", mapToSave.DateCreated.ToUnixTime() );
-            // TODO: TimeAccessed
             writer.WriteLong( "LastModified", mapToSave.DateCreated.ToUnixTime() );
+            // TODO: TimeAccessed
 
             // TODO: write CreatedBy
 
@@ -110,6 +91,141 @@ namespace fCraft.MapConversion {
                 writer.WriteString( "MapGeneratorName", genName );
             }
             writer.EndCompound();
+        }
+
+        static void WriteMetadata( [NotNull] Map mapToSave, [NotNull] NbtWriter writer ) {
+            writer.BeginCompound( "Metadata" );
+            {
+                writer.BeginCompound( "fCraft" );
+                {
+                    string oldEntry = null;
+                    foreach( MetadataEntry<string> entry in mapToSave.Metadata ) {
+                        if( oldEntry != entry.Group ) {
+                            // TODO: Modify MetadataCollection to allow easy iteration group-at-a-time
+                            if( oldEntry != null ) writer.EndCompound();
+                            oldEntry = entry.Group;
+                            writer.BeginCompound( entry.Group );
+                        }
+                        writer.WriteString( entry.Key, entry.Value );
+                    }
+                    if( oldEntry != null ) writer.EndCompound();
+                }
+                writer.EndCompound();
+                // TODO: write CPE metadata here
+            }
+            writer.EndCompound();
+        }
+
+        public bool ClaimsName( string fileName ) {
+            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+            return fileName.EndsWith( ".cw", StringComparison.OrdinalIgnoreCase );
+        }
+
+        public bool Claims( string path ) {
+            return NbtFile.ReadRootTagName( path ) == RootTagName;
+        }
+
+        public Map LoadHeader( string path ) {
+            using( FileStream fs = new FileStream( path, FileMode.Open, FileAccess.Read, FileShare.Read ) ) {
+                using( GZipStream gs = new GZipStream( fs, CompressionMode.Decompress ) ) {
+                    NbtReader reader = new NbtReader( gs );
+                    reader.ReadToFollowing(); // skip root tag
+                    reader.ReadToFollowing(); // skip to first inner tag
+                    int width = 0,
+                        length = 0,
+                        height = 0;
+                    do {
+                        switch( reader.TagName ) {
+                            case "X":
+                                width = reader.ReadValueAs<int>();
+                                break;
+                            case "Y":
+                                height = reader.ReadValueAs<int>();
+                                break;
+                            case "Z":
+                                length = reader.ReadValueAs<int>();
+                                break;
+                        }
+                        if( width > 0 && length > 0 && height > 0 ) {
+                            return new Map( null, width, length, height, false );
+                        }
+                    } while( reader.ReadToNextSibling() );
+                }
+            }
+            throw new MapFormatException( "Could not locate map dimensions." );
+        }
+
+        public Map Load( string path ) {
+            NbtFile file = new NbtFile( path );
+            NbtCompound root = file.RootTag;
+
+            int formatVersion = root["FormatVersion"].ByteValue;
+            if( formatVersion != 1 ) {
+                throw new MapFormatException( "Unsupported format version: " + formatVersion );
+            }
+
+            // Read dimensions and create the map
+            Map map = new Map( null,
+                               root["X"].ShortValue,
+                               root["Z"].ShortValue,
+                               root["Y"].ShortValue,
+                               false );
+
+
+            // read spawn coordinates
+            NbtCompound spawn = (NbtCompound)root["Spawn"];
+            map.Spawn = new Position( spawn["X"].ShortValue,
+                                      spawn["Z"].ShortValue,
+                                      spawn["Y"].ShortValue,
+                                      spawn["H"].ByteValue,
+                                      spawn["P"].ByteValue );
+
+            // read UUID
+            map.Guid = new Guid( root["UUID"].ByteArrayValue );
+
+            // read creation/modification dates of the file (for fallback)
+            DateTime fileCreationDate = File.GetCreationTime( path );
+            DateTime fileModTime = File.GetCreationTime( path );
+
+            // try to read embedded creation date
+            NbtLong creationDate = root.Get<NbtLong>( "TimeCreated" );
+            if( creationDate != null ) {
+                map.DateCreated = DateTimeUtil.ToDateTime( creationDate.Value );
+            } else {
+                // for fallback, pick the older of two filesystem dates
+                map.DateCreated = (fileModTime > fileCreationDate) ? fileCreationDate : fileModTime;
+            }
+
+            // try to read embedded modification date
+            NbtLong modTime = root.Get<NbtLong>( "LastModified" );
+            if( modTime != null ) {
+                map.DateModified = DateTimeUtil.ToDateTime( modTime.Value );
+            } else {
+                // for fallback, use file modification date
+                map.DateModified = fileModTime;
+            }
+
+            // TODO: LastAccessed
+
+            // TODO: read CreatedBy and MapGenerator
+
+            map.Blocks = root["BlockArray"].ByteArrayValue;
+
+            NbtCompound metadata = (NbtCompound)root["Metadata"];
+            NbtCompound fCraftMetadata = metadata.Get<NbtCompound>( "fCraft" );
+            if( fCraftMetadata != null ) {
+                foreach( NbtCompound groupTag in fCraftMetadata ) {
+                    string groupName = groupTag.Name;
+                    foreach( NbtString keyValueTag in fCraftMetadata ) {
+                        // ReSharper disable AssignNullToNotNullAttribute // names are never null within compound
+                        map.Metadata.Add( groupName, keyValueTag.Name, keyValueTag.Value );
+                        // ReSharper restore AssignNullToNotNullAttribute
+                    }
+                }
+            }
+            // TODO: CPE metadata
+
+            return map;
         }
     }
 }
