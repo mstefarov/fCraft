@@ -28,9 +28,6 @@ namespace fCraft.ConfigGUI {
         public MainForm() {
             instance = this;
             InitializeComponent();
-            dgvcBlockDB.TrueValue = YesNoAuto.Yes;
-            dgvcBlockDB.FalseValue = YesNoAuto.No;
-            dgvcBlockDB.IndeterminateValue = YesNoAuto.Auto;
             bold = new Font( Font, FontStyle.Bold );
             Text = "fCraft Configuration (" + Updater.CurrentRelease.VersionString + ")";
         }
@@ -38,6 +35,10 @@ namespace fCraft.ConfigGUI {
 
         protected override void OnShown( EventArgs e ) {
             base.OnShown( e );
+            SuspendLayout();
+            dgvcBlockDB.TrueValue = YesNoAuto.Yes;
+            dgvcBlockDB.FalseValue = YesNoAuto.No;
+            dgvcBlockDB.IndeterminateValue = YesNoAuto.Auto;
 
             if( typeof( Server ).Assembly.GetName().Version != typeof( Program ).Assembly.GetName().Version ) {
                 MessageBox.Show( "fCraft.dll version does not match ConfigGUI.exe version." );
@@ -46,7 +47,8 @@ namespace fCraft.ConfigGUI {
             }
 
             // fills Permission and LogType lists
-            FillEnumLists();
+            FillPermissionEnum();
+            FillLogEnum();
 
             // create hidden boxes for permission limits
             FillPermissionLimitBoxes();
@@ -72,21 +74,32 @@ namespace fCraft.ConfigGUI {
 
             LoadConfig();
 
+            // Disable change-tracking while tabs are changing, to avoid false positives
+            tabs.Selecting += ( sender, e1 ) => { changingTabs = true; };
+            foreach( TabPage tabPage in tabs.TabPages ) {
+                tabPage.VisibleChanged += ( sender, e2 ) => { changingTabs = false; };
+            }
+
             // Redraw chat preview when re-entering the tab.
             // This ensured that changes to rank colors/prefixes are applied.
-            tabChat.Enter += ( o, e2 ) => UpdateChatPreview();
+            tabChat.Enter += ( o, e3 ) => UpdateChatPreview();
 
             bReadme.Enabled = File.Exists( ReadmeFileName );
             bChangelog.Enabled = File.Exists( ChangelogFileName );
+
+            pauseTrackingSomethingChanged = false;
+            ResumeLayout();
         }
 
 
-        void FillEnumLists() {
+        void FillPermissionEnum() {
             foreach( Permission permission in Enum.GetValues( typeof( Permission ) ) ) {
-                ListViewItem item = new ListViewItem( permission.ToString() ) {Tag = permission};
+                ListViewItem item = new ListViewItem( permission.ToString() ) { Tag = permission };
                 vPermissions.Items.Add( item );
             }
+        }
 
+        void FillLogEnum() {
             foreach( LogType type in Enum.GetValues( typeof( LogType ) ) ) {
                 if( type == LogType.Trace ) continue;
                 ListViewItem item = new ListViewItem( type.ToString() ) {Tag = type};
@@ -611,6 +624,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void SelectRank( Rank rank ) {
+            tabRanks.SuspendLayout();
             if( rank == null ) {
                 if( selectedRank == null ) return;
                 if( vRanks.SelectedIndex != -1 ) {
@@ -675,6 +689,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             bDeleteRank.Enabled = true;
             bRaiseRank.Enabled = (selectedRank != RankManager.HighestRank);
             bLowerRank.Enabled = (selectedRank != RankManager.LowestRank);
+            tabRanks.ResumeLayout();
         }
 
 
@@ -931,11 +946,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void vRanks_SelectedIndexChanged( object sender, EventArgs e ) {
+            pauseTrackingSomethingChanged = true;
             if( vRanks.SelectedIndex != -1 ) {
                 SelectRank( RankManager.FindRank( vRanks.SelectedIndex ) );
             } else {
                 DisableRankOptions();
             }
+            pauseTrackingSomethingChanged = false;
         }
 
 
@@ -1345,10 +1362,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #region Change Detection
 
-        bool pauseTrackingSomethingChanged = false;
+        bool changingTabs = false;
+        bool pauseTrackingSomethingChanged = true;
 
         void SomethingChanged( object sender, EventArgs args ) {
-            if( pauseTrackingSomethingChanged ) return;
+            if( pauseTrackingSomethingChanged || changingTabs ) return;
             bApply.Enabled = true;
         }
 
@@ -1363,7 +1381,9 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } else if( c is NumericUpDown ) {
                 ((NumericUpDown)c).ValueChanged += handler;
             } else if( c is ListBox ) {
-                ((ListBox)c).SelectedIndexChanged += handler;
+                if( c != vRanks ) {
+                    ((ListBox)c).SelectedIndexChanged += handler;
+                }
             } else if( c is TextBoxBase ) {
                 c.TextChanged += handler;
             } else if( c is ButtonBase ) {
@@ -1387,7 +1407,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             button.Text = GetName( color );
             button.BackColor = ColorPicker.ColorPairs[color].Background;
             button.ForeColor = ColorPicker.ColorPairs[color].Foreground;
-            bApply.Enabled = true;
+            SomethingChanged( button, null );
         }
 
 
@@ -1617,7 +1637,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit",
                                                                                          Permission.UndoOthersActions,
                                                                                          DefaultPermissionLimitString );
-
+            
             foreach( var box in permissionLimitBoxes.Values ) {
                 permissionLimitBoxContainer.Controls.Add( box );
             }
