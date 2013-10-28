@@ -13,18 +13,19 @@ namespace fCraft.GUI {
         static readonly byte[] Tiles, ShadowTiles;
         static readonly int TileX, TileY;
         static readonly int MaxTileDim, TileStride;
+        const byte BlockTypeCount = (byte)Block.StoneBrick + 1;
 
 
         static IsoCat() {
             using( Bitmap tilesBmp = Resources.Tileset ) {
-                TileX = tilesBmp.Width/50;
+                TileX = tilesBmp.Width/BlockTypeCount;
                 TileY = tilesBmp.Height;
                 TileStride = TileX*TileY*4;
-                Tiles = new byte[50*TileStride];
+                Tiles = new byte[BlockTypeCount*TileStride];
 
                 MaxTileDim = Math.Max( TileX, TileY );
 
-                for( int i = 0; i < 50; i++ ) {
+                for( int i = 0; i < BlockTypeCount; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
                             int p = i*TileStride + (y*TileX + x)*4;
@@ -39,9 +40,9 @@ namespace fCraft.GUI {
             }
 
             using( Bitmap stilesBmp = Resources.TilesetShadowed ) {
-                ShadowTiles = new byte[50*TileStride];
+                ShadowTiles = new byte[BlockTypeCount*TileStride];
 
-                for( int i = 0; i < 50; i++ ) {
+                for( int i = 0; i < BlockTypeCount; i++ ) {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
                             int p = i*TileStride + (y*TileX + x)*4;
@@ -298,7 +299,7 @@ namespace fCraft.GUI {
 
 
         void BlendTile() {
-            if( block > 49 ) return;
+            if( block >= BlockTypeCount ) return;
             int pos = (x + (Rotation == 1 || Rotation == 3 ? offsetY : offsetX))*isoX +
                       (y + (Rotation == 1 || Rotation == 3 ? offsetX : offsetY))*isoY + z*isoH + isoOffset;
             int tileOffset = block*TileStride;
