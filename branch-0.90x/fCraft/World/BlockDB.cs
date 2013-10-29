@@ -13,7 +13,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Database of block changes. Each BlockDB object is associated with a world.
     /// Provides controls for storage/retention, and methods to look up data. </summary>
-    public sealed unsafe class BlockDB {
+    public sealed unsafe class BlockDB : IDisposable {
         internal BlockDB( [NotNull] World world ) {
             if( world == null ) throw new ArgumentNullException( "world" );
             World = world;
@@ -1289,6 +1289,10 @@ namespace fCraft {
         }
 
         #endregion
+
+        public void Dispose() {
+            locker.Dispose();
+        }
     }
 
 
