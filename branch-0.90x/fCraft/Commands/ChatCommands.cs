@@ -476,7 +476,7 @@ namespace fCraft {
 
             string sayMessage;
             string message = cmd.NextAll();
-            if( String.IsNullOrEmpty( message ) ) {
+            if( String.IsNullOrWhiteSpace( message ) ) {
                 sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer",
                                             player.ClassyName,
                                             duration.ToMiniString() );

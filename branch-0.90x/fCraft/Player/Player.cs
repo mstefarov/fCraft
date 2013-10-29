@@ -1023,7 +1023,7 @@ namespace fCraft {
             bool recordToPlayerDB = (options & KickOptions.RecordToPlayerDB) != 0;
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             // Check if player can ban/unban in general
             if( !player.Can( Permission.Kick ) ) {

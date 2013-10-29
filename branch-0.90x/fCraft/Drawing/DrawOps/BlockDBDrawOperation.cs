@@ -19,7 +19,7 @@ namespace fCraft.Drawing {
 
         public override string Description {
             get {
-                if( String.IsNullOrEmpty( paramDescription ) ) {
+                if( String.IsNullOrWhiteSpace( paramDescription ) ) {
                     return Name;
                 } else {
                     return String.Format( "{0}({1})", Name, paramDescription );
@@ -37,7 +37,8 @@ namespace fCraft.Drawing {
         readonly int expectedMarks;
 
 
-        public BlockDBDrawOperation( Player player, string commandName, string paramDescription, int expectedMarks )
+        public BlockDBDrawOperation( [NotNull] Player player, [NotNull] string commandName, string paramDescription,
+                                     int expectedMarks )
             : base( player ) {
             if( commandName == null ) throw new ArgumentNullException( "commandName" );
             this.paramDescription = paramDescription;
@@ -46,7 +47,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Prepare( Vector3I[] marks, BlockDBEntry[] changesToApply ) {
+        public bool Prepare( Vector3I[] marks, [NotNull] BlockDBEntry[] changesToApply ) {
             if( changesToApply == null ) throw new ArgumentNullException( "changesToApply" );
             changes = changesToApply;
             return Prepare( marks );

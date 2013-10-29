@@ -238,7 +238,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             // Check if player can ban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -343,7 +343,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             // Check if player can unban IPs in general
             if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -412,7 +412,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player,
@@ -549,7 +549,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
                 PlayerOpException.ThrowPermissionMissing( player,

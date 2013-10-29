@@ -204,7 +204,7 @@ namespace fCraft.MapGeneration {
         }
 
         public override string ToString() {
-            if( !String.IsNullOrEmpty( Preset ) ) {
+            if( !String.IsNullOrWhiteSpace( Preset ) ) {
                 return Generator.Name + " " + Preset;
             } else {
                 return Generator.Name + " (Custom)";

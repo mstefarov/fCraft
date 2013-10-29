@@ -1223,7 +1223,7 @@ namespace fCraft {
 
             Server.Message( "&WServer shutting down in {0}", delayTime.ToMiniString() );
 
-            if( String.IsNullOrEmpty( reason ) ) {
+            if( String.IsNullOrWhiteSpace( reason ) ) {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a shutdown ({1} delay).",
                             player.Name,
@@ -1290,7 +1290,7 @@ namespace fCraft {
 
             Server.Message( "&WServer restarting in {0}", delayTime.ToMiniString() );
 
-            if( String.IsNullOrEmpty( reason ) ) {
+            if( String.IsNullOrWhiteSpace( reason ) ) {
                 Logger.Log( LogType.UserActivity,
                             "{0} scheduled a restart ({1} delay).",
                             player.Name,

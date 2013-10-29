@@ -58,7 +58,7 @@ namespace fCraft.Drawing {
         public override bool ReadParams( CommandReader cmd ) {
             // get image URL
             string urlString = cmd.Next();
-            if( String.IsNullOrEmpty( urlString ) ) {
+            if( String.IsNullOrWhiteSpace( urlString ) ) {
                 return false;
             }
 

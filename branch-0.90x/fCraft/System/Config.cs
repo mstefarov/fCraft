@@ -765,8 +765,8 @@ namespace fCraft {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
                     XAttribute fromRankID = rankPair.Attribute( "from" );
                     XAttribute toRankID = rankPair.Attribute( "to" );
-                    if( fromRankID == null || String.IsNullOrEmpty( fromRankID.Value ) ||
-                        toRankID == null || String.IsNullOrEmpty( toRankID.Value ) ) {
+                    if( fromRankID == null || String.IsNullOrWhiteSpace( fromRankID.Value ) ||
+                        toRankID == null || String.IsNullOrWhiteSpace( toRankID.Value ) ) {
                         Logger.Log( LogType.Error,
                                     "Config.Load: Could not parse a LegacyRankMapping entry: {0}",
                                     rankPair );
