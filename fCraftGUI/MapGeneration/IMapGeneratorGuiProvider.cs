@@ -8,7 +8,7 @@ namespace fCraft.GUI {
     /// Associated with specific MapGenerator, by name. </summary>
     public interface IMapGeneratorGuiProvider {
         string Name { get; }
-        Version Version { get; }
+
         bool IsCompatible( string generatorName, Version generatorVersion );
 
         MapGeneratorGui CreateGui();

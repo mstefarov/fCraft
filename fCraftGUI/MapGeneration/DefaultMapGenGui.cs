@@ -39,12 +39,6 @@ namespace fCraft.GUI {
             get { return "Default"; }
         }
 
-        static readonly Version StaticVersion = new Version( 1, 0 );
-
-        public Version Version {
-            get { return StaticVersion; }
-        }
-
         public bool IsCompatible( string generatorName, Version generatorVersion ) {
             return true;
         }
