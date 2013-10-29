@@ -227,7 +227,7 @@ namespace fCraft.MapGeneration {
 
             XAttribute versionTag = root.Attribute( "version" );
             int version = 0;
-            if( versionTag != null && !String.IsNullOrEmpty( versionTag.Value ) ) {
+            if( versionTag != null && !String.IsNullOrWhiteSpace( versionTag.Value ) ) {
                 version = Int32.Parse( versionTag.Value );
             }
 

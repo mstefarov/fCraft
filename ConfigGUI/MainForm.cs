@@ -1060,7 +1060,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( newName == selectedRank.Name ) {
                 return;
             }
-            if( newName.Length == 0 ) {
+            if( String.IsNullOrWhiteSpace( newName ) ) {
                 MessageBox.Show( "Rank name cannot be blank." );
                 tRankName.ForeColor = System.Drawing.Color.Red;
                 e.Cancel = true;

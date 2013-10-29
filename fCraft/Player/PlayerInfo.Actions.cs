@@ -43,7 +43,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 // Check if player can ban/unban in general
@@ -170,7 +170,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -313,7 +313,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP ) ) {
@@ -391,7 +391,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
@@ -540,7 +540,7 @@ namespace fCraft {
             if( player == null ) throw new ArgumentNullException( "player" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 if( !player.Can( Permission.Ban, Permission.BanIP, Permission.BanAll ) ) {
@@ -716,7 +716,7 @@ namespace fCraft {
             if( newRank == null ) throw new ArgumentNullException( "newRank" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             bool announce = (options & ChangeRankOptions.Announce) != 0;
             bool raiseEvents = (options & ChangeRankOptions.RaiseEvents) != 0;

@@ -82,7 +82,7 @@ namespace fCraft {
             if( timer == null ) throw new NullReferenceException( "task.UserState" );
 
             if( task.MaxRepeats == 1 ) {
-                if( String.IsNullOrEmpty( timer.Message ) ) {
+                if( String.IsNullOrWhiteSpace( timer.Message ) ) {
                     Chat.SendSay( Player.Console, "(Timer Up)" );
                 } else {
                     Chat.SendSay( Player.Console, "(Timer Up) " + timer.Message );
@@ -103,7 +103,7 @@ namespace fCraft {
 
         void Announce( TimeSpan timeLeft ) {
             if( timeLeft.Ticks < 0 ) return;
-            if( String.IsNullOrEmpty( Message ) ) {
+            if( String.IsNullOrWhiteSpace( Message ) ) {
                 Chat.SendSay( Player.Console, "(Timer) " + timeLeft.ToMiniString() );
             } else {
                 Chat.SendSay( Player.Console,

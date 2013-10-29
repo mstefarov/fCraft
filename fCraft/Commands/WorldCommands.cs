@@ -2174,14 +2174,14 @@ namespace fCraft {
                                 world.UnlockedBy );
             }
 
-            if( !String.IsNullOrEmpty( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
+            if( !String.IsNullOrWhiteSpace( world.LoadedBy ) && world.LoadedOn != DateTime.MinValue ) {
                 player.Message( "  {0}&S was created/loaded {1} ago by {2}",
                                 world.ClassyName,
                                 DateTime.UtcNow.Subtract( world.LoadedOn ).ToMiniString(),
                                 world.LoadedByClassy );
             }
 
-            if( !String.IsNullOrEmpty( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
+            if( !String.IsNullOrWhiteSpace( world.MapChangedBy ) && world.MapChangedOn != DateTime.MinValue ) {
                 player.Message( "  Map was last changed {0} ago by {1}",
                                 DateTime.UtcNow.Subtract( world.MapChangedOn ).ToMiniString(),
                                 world.MapChangedByClassy );
@@ -2837,7 +2837,7 @@ namespace fCraft {
             switch( varName.ToLower() ) {
                 case "hide":
                 case "hidden":
-                    if( String.IsNullOrEmpty( value ) ) {
+                    if( String.IsNullOrWhiteSpace( value ) ) {
                         player.Message( "World {0}&S is current {1}hidden.",
                                         world.ClassyName,
                                         world.IsHidden ? "" : "NOT " );
@@ -2868,7 +2868,7 @@ namespace fCraft {
                 case "backups":
                     TimeSpan backupInterval;
                     string oldDescription = world.BackupSettingDescription;
-                    if( String.IsNullOrEmpty( value ) ) {
+                    if( String.IsNullOrWhiteSpace( value ) ) {
                         player.Message( GetBackupSettingsString( world ) );
                         return;
                     } else if( value.Equals( "off", StringComparison.OrdinalIgnoreCase ) ||
@@ -2919,7 +2919,7 @@ namespace fCraft {
 
                 case "description":
                 case "greeting":
-                    if( String.IsNullOrEmpty( value ) ) {
+                    if( String.IsNullOrWhiteSpace( value ) ) {
                         if( world.Greeting == null ) {
                             player.Message( "No greeting message is set for world {0}", world.ClassyName );
                         } else {

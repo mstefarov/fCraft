@@ -190,7 +190,7 @@ namespace fCraft {
             if( firstWorld == null ) firstWorld = world;
 
             XElement tempEl = el.Element( "Greeting" );
-            if( tempEl != null && !String.IsNullOrEmpty( tempEl.Value ) ) {
+            if( tempEl != null && !String.IsNullOrWhiteSpace( tempEl.Value ) ) {
                 world.Greeting = tempEl.Value;
             }
 
@@ -441,13 +441,13 @@ namespace fCraft {
                     }
 
                     // save loaded/map-changed information
-                    if( !String.IsNullOrEmpty( world.LoadedBy ) ) {
+                    if( !String.IsNullOrWhiteSpace( world.LoadedBy ) ) {
                         temp.Add( new XElement( "LoadedBy", world.LoadedBy ) );
                     }
                     if( world.LoadedOn != DateTime.MinValue ) {
                         temp.Add( new XElement( "LoadedOn", world.LoadedOn.ToUnixTime() ) );
                     }
-                    if( !String.IsNullOrEmpty( world.MapChangedBy ) ) {
+                    if( !String.IsNullOrWhiteSpace( world.MapChangedBy ) ) {
                         temp.Add( new XElement( "MapChangedBy", world.MapChangedBy ) );
                     }
                     if( world.MapChangedOn != DateTime.MinValue ) {
@@ -468,14 +468,14 @@ namespace fCraft {
                     // save lock information
                     if( world.IsLocked ) {
                         temp.Add( new XAttribute( "locked", true ) );
-                        if( !String.IsNullOrEmpty( world.LockedBy ) ) {
+                        if( !String.IsNullOrWhiteSpace( world.LockedBy ) ) {
                             temp.Add( new XElement( "LockedBy", world.LockedBy ) );
                         }
                         if( world.LockedOn != DateTime.MinValue ) {
                             temp.Add( new XElement( "LockedOn", world.LockedOn.ToUnixTime() ) );
                         }
                     } else {
-                        if( !String.IsNullOrEmpty( world.UnlockedBy ) ) {
+                        if( !String.IsNullOrWhiteSpace( world.UnlockedBy ) ) {
                             temp.Add( new XElement( "UnlockedBy", world.UnlockedBy ) );
                         }
                         if( world.UnlockedOn != DateTime.MinValue ) {
@@ -483,7 +483,7 @@ namespace fCraft {
                         }
                     }
 
-                    if( !String.IsNullOrEmpty( world.Greeting ) ) {
+                    if( !String.IsNullOrWhiteSpace( world.Greeting ) ) {
                         temp.Add( new XElement( "Greeting", world.Greeting ) );
                     }
 

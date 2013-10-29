@@ -764,7 +764,7 @@ namespace fCraft {
             if( kickedBy == null ) throw new ArgumentNullException( "kickedBy" );
 
             if( reason != null ) reason = reason.Trim( ' ' );
-            if( reason != null && reason.Length == 0 ) reason = null;
+            if( String.IsNullOrWhiteSpace( reason ) ) reason = null;
 
             lock( actionLock ) {
                 Interlocked.Increment( ref TimesKicked );
