@@ -296,7 +296,7 @@ namespace fCraft.MapConverter {
                       o => outputDirName = o )
 
                 .Add( "r|recursive",
-                      "Optional: Look through all subdirectories, and convert map files there too. " +
+                      "Optional: Look through all sub-directories, and convert map files there too. " +
                       "Applicable only when a directory name is given as input.",
                       o => recursive = (o != null) )
 
@@ -305,7 +305,7 @@ namespace fCraft.MapConverter {
                       o => tryHard = (o != null) )
 
                 .Add( "x|regex",
-                      "Enable regular expessions in \"filter\".",
+                      "Enable regular expressions (regex) in \"filter\".",
                       o => useRegex = (o != null) )
 
                 .Add( "y|overwrite",

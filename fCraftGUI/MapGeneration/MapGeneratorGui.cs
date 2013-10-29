@@ -43,7 +43,7 @@ namespace fCraft.GUI {
         /// <summary> Reads given generator params, and adjusts GUI to reflect them. </summary>
         /// <param name="generatorParameters"> Given generation parameters. </param>
         public virtual void SetParameters( [NotNull] MapGeneratorParameters generatorParameters ) {
-            throw new NotImplementedException( "SetParameters must be overriden in MapGeneratorGui implementations." );
+            throw new NotImplementedException( "SetParameters must be overridden in MapGeneratorGui implementations." );
         }
 
 
@@ -52,7 +52,7 @@ namespace fCraft.GUI {
         /// <returns> IMapGeneratorParameters object representing GUI's current state. </returns>
         [NotNull]
         public virtual MapGeneratorParameters GetParameters() {
-            throw new NotImplementedException( "GetParameters must be overriden in MapGeneratorGui implementations." );
+            throw new NotImplementedException( "GetParameters must be overridden in MapGeneratorGui implementations." );
         }
 
 
@@ -63,7 +63,7 @@ namespace fCraft.GUI {
         /// <param name="height"> Map height (vertical, z dimension), in blocks. </param>
         public virtual void OnMapDimensionChange( int width, int length, int height ) {
             throw new NotImplementedException(
-                "OnMapDimensionChange must be overriden in MapGeneratorGui implementations." );
+                "OnMapDimensionChange must be overridden in MapGeneratorGui implementations." );
         }
     }
 }

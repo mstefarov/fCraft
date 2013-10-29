@@ -132,7 +132,7 @@ namespace fCraft.MapConversion {
                     bs.Write( mapToSave.Spawn.R );
                     bs.Write( mapToSave.Spawn.L );
 
-                    // Write the VistPermission and BuildPermission bytes
+                    // Write the VisitPermission and BuildPermission bytes
                     bs.Write( (byte)0 );
                     bs.Write( (byte)0 );
 

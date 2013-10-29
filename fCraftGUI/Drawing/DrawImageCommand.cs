@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.GUI {
     internal static class DrawImageCommand {
-        // New /drawimage implementation contributed by Matvei Stefarov <me@matvei.org>
+        // used implicitly by fCraft.DrawCommands.Init
         public static readonly CommandDescriptor CdDrawImage = new CommandDescriptor {
             Name = "DrawImage",
             Aliases = new[] {"DrawImg", "ImgDraw", "ImgPrint"},

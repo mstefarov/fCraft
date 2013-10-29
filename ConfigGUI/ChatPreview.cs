@@ -20,7 +20,9 @@ namespace fCraft.ConfigGUI {
             public readonly Brush Foreground, Shadow;
         }
 
+        // ReSharper disable once PrivateFieldCanBeConvertedToLocalVariable // to avoid disposing prematurely
         static readonly PrivateFontCollection Fonts;
+
         static readonly Font MinecraftFont;
         static readonly ColorPair[] ColorPairs;
 
@@ -74,7 +76,7 @@ namespace fCraft.ConfigGUI {
         public void SetText( string[] lines ) {
             List<TextSegment> newSegments = new List<TextSegment>();
             using( Bitmap b = new Bitmap( 1, 1 ) ) {
-                using( Graphics g = Graphics.FromImage( b ) ) { // graphics for string mesaurement
+                using( Graphics g = Graphics.FromImage( b ) ) { // graphics for string measurement
                     g.TextRenderingHint = TextRenderingHint.SingleBitPerPixel;
 
                     int y = 5;

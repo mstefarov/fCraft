@@ -111,7 +111,7 @@ namespace fCraft.ConfigGUI {
                     }
                 }
             } catch( Exception ex ) {
-                MessageBox.Show( "Error occured while loading the world list: " + Environment.NewLine + ex, "Warning" );
+                MessageBox.Show( "Error occurred while loading the world list: " + Environment.NewLine + ex, "Warning" );
             }
 
             Worlds.ListChanged += SomethingChanged;

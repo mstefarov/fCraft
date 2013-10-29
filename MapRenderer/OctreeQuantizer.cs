@@ -66,7 +66,7 @@ namespace ImageManipulation {
 
 
         /// <summary> Retrieve the palette for the quantized image. </summary>
-        /// <param name="original"> Any old palette, this is overrwritten. </param>
+        /// <param name="original"> Any old palette, this is overwritten. </param>
         /// <returns> The new color palette. </returns>
         protected override ColorPalette GetPalette( ColorPalette original ) {
             // First off convert the octree to _maxColors colors
@@ -188,7 +188,7 @@ namespace ImageManipulation {
 
 
             /// <summary> Mask used when getting the appropriate pixels for a given node. </summary>
-            static readonly int[] Mask = new[] {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+            static readonly int[] Mask = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
 
             /// <summary> The root of the octree. </summary>
             readonly OctreeNode root;

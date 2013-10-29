@@ -10,6 +10,7 @@ using System.Threading;
 using System.Linq;
 using System.Xml.Linq;
 using fCraft.UpdateInstaller.Properties;
+using JetBrains.Annotations;
 
 
 namespace fCraft.UpdateInstaller {
@@ -19,14 +20,14 @@ namespace fCraft.UpdateInstaller {
 
         public const string DataBackupDirectory = "databackups";
 
-        static readonly string[] FilesToBackup = new[] {
+        static readonly string[] FilesToBackup = {
             "PlayerDB.txt",
             "config.xml",
             "ipbans.txt",
             "worlds.xml"
         };
 
-        static readonly string[] LegacyFiles = new[] {
+        static readonly string[] LegacyFiles = {
             "fCraftConsole.exe",
             "fCraftUI.exe",
             "ConfigTool.exe",
@@ -103,9 +104,12 @@ namespace fCraft.UpdateInstaller {
             // Apply the update
             using( MemoryStream ms = new MemoryStream( Resources.Payload ) ) {
                 using( ZipStorer zs = ZipStorer.Open( ms, FileAccess.Read ) ) {
-                    var allFiles = zs.ReadCentralDir().Select( entry => entry.FileNameInZip ).Union( LegacyFiles );
+                    var allFiles = zs.ReadCentralDir()
+                                     .Select( entry => entry.FileNameInZip )
+                                     .Union( LegacyFiles )
+                                     .ToArray();
 
-                    // ensure that fcraft files are writable
+                    // ensure that fCraft files are writable
                     bool allPassed;
                     do {
                         allPassed = true;
@@ -197,7 +201,8 @@ namespace fCraft.UpdateInstaller {
         }
 
 
-        static string TrimQuotes( this string str ) {
+        static string TrimQuotes( [NotNull] this string str ) {
+            if( str == null ) throw new ArgumentNullException( "str" );
             if( str.StartsWith( "\"" ) && str.EndsWith( "\"" ) ) {
                 return str.Substring( 1, str.Length - 2 );
             } else {

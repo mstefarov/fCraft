@@ -139,16 +139,17 @@ namespace fCraft.ConfigGUI {
             static int CompareAscending( object xValue, object yValue ) {
                 int result;
 
-                /* If values implement IComparer */
-                if( xValue is IComparable ) {
-                    result = ((IComparable)xValue).CompareTo( yValue );
-                }
+                IComparable comparableValue = xValue as IComparable;
+                if( comparableValue != null ) {
+                    /* If values implement IComparer */
+                    result = comparableValue.CompareTo( yValue );
+                } else if( xValue.Equals( yValue ) ) {
                     /* If values don't implement IComparer but are equivalent */
-                else if( xValue.Equals( yValue ) ) {
                     result = 0;
-                }
+                } else {
                     /* Values don't implement IComparer and are not equivalent, so compare as string values */
-                else result = String.Compare( xValue.ToString(), yValue.ToString(), StringComparison.Ordinal );
+                    result = String.Compare( xValue.ToString(), yValue.ToString(), StringComparison.Ordinal );
+                }
 
                 /* Return result */
                 return result;

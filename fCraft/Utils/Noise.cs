@@ -582,39 +582,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Creates a 2D array by applying a 3x3 box blur filter to the given 2D array. 
-        /// Note that values at outer-most coordinates (x=0, y=0, x=Width-1, or y=Height-1) are copied untouched. </summary>
-        /// <param name="data"> 2D array of input data. Not affected by this filter. </param>
-        /// <returns> A new array of the same size as <paramref name="data"/>, with blurred data. </returns>
-        /// <exception cref="ArgumentNullException"> data is null. </exception>
-        /// <remarks>
-        /// The coefficient matrix is:
-        /// [1 1 1]
-        /// [1 1 1]
-        /// [1 1 1]
-        /// The divisor is 9.
-        /// </remarks>
-        [NotNull]
-        public static float[,] BoxBlur( [NotNull] float[,] data ) {
-            if( data == null ) throw new ArgumentNullException( "data" );
-            float[,] output = new float[data.GetLength( 0 ), data.GetLength( 1 )];
-            for( int x = data.GetLength( 0 ) - 1; x >= 0; x-- ) {
-                for( int y = data.GetLength( 1 ) - 1; y >= 0; y-- ) {
-                    if( (x == 0) || (y == 0) || (x == data.GetLength( 0 ) - 1) ||
-                        (y == data.GetLength( 1 ) - 1) ) {
-                        output[x, y] = data[x, y];
-                    } else {
-                        output[x, y] = (data[x - 1, y - 1] + data[x - 1, y] + data[x - 1, y + 1] +
-                                        data[x, y - 1] + data[x, y] + data[x, y + 1] +
-                                        data[x + 1, y - 1] + data[x + 1, y] + data[x + 1, y + 1])*
-                                       BoxBlurDivisor;
-                    }
-                }
-            }
-            return output;
-        }
-
-
         /// <summary> Creates a 2D array by applying a 5x5 Gaussian blur filter to the given 2D array. 
         /// Note that values at outer-most coordinates (x=0, y=0, x=Width-1, or y=Height-1) are copied untouched.</summary>
         /// <param name="data"> 2D array of input data. Not affected by this filter. </param>
