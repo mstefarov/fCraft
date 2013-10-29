@@ -31,8 +31,8 @@ namespace fCraft {
         [NotNull]
         public static IPAddress InternalIP { get; private set; }
 
-        /// <summary> External IP address of this machine, as reported by checkip.dyndns.org
-        /// Same as InternalIP, if dyndns check was not carried out or has failed. </summary>
+        /// <summary> External IP address of this machine.
+        /// Same as InternalIP, if external check was not carried out or has failed. </summary>
         [NotNull]
         public static IPAddress ExternalIP { get; private set; }
 

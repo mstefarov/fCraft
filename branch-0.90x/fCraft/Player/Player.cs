@@ -773,7 +773,7 @@ namespace fCraft {
 
 
         /// <summary> Gets or sets the maximum number of copy slots allocated to this player.
-        /// Should be nonnegative. CopyStates are preserved when increasing the maximum.
+        /// Should be non-negative. CopyStates are preserved when increasing the maximum.
         /// When decreasing the value, any CopyStates in slots that fall outside the new maximum are lost. </summary>
         public int MaxCopySlots {
             get { return copyStates.Length; }

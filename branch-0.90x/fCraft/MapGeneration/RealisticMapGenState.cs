@@ -149,10 +149,10 @@ namespace fCraft.MapGeneration {
 
                 // make a blendMap
                 blendMap = new float[genParams.MapWidth, genParams.MapLength];
-                int blendmapDetailSize = (int)Math.Log( Math.Max( genParams.MapWidth, genParams.MapLength ), 2 ) - 2;
+                int blendMapDetailSize = (int)Math.Log( Math.Max( genParams.MapWidth, genParams.MapLength ), 2 ) - 2;
                 new Noise( rand.Next(), NoiseInterpolationMode.Cosine ).PerlinNoise( blendMap,
                                                                                      3,
-                                                                                     blendmapDetailSize,
+                                                                                     blendMapDetailSize,
                                                                                      0.5f,
                                                                                      0,
                                                                                      0 );

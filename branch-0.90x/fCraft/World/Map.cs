@@ -519,6 +519,7 @@ namespace fCraft {
                 BlockNames.Add( block.ToString().ToLower(), block );
                 BlockNames.Add( ((int)block).ToStringInvariant(), block );
             }
+            // ReSharper disable StringLiteralTypo
 
             // alternative names for blocks
             BlockNames["skip"] = Block.None;
@@ -723,6 +724,7 @@ namespace fCraft {
             BlockEdgeTextures[Block.White] = "d7d91aef7f07a0e0dbafca3b6387619098916953";
             BlockEdgeTextures[Block.Wood] = "af65cd0d0756d357a1abd5390b8de2e5ad1f29af";
             BlockEdgeTextures[Block.Yellow] = "eff6823a987deb65ad21020a3151bb809d3d062c";
+            // ReSharper restore StringLiteralTypo
         }
 
 
