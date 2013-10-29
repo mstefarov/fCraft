@@ -119,7 +119,7 @@ You can use any color codes, and these special variables:
 
         void FillToolTipsRanks() {
             toolTip.SetToolTip( xAllowSecurityCircumvention,
-@"Allows players to manupulate whitelists/blacklists or rank requirements
+@"Allows players to manipulate whitelists/blacklists or rank requirements
 in order to join restricted worlds, or to build in worlds/zones. Normally
 players with ManageWorlds and ManageZones permissions are not allowed to do this.
 Affected commands:
@@ -649,12 +649,6 @@ e.g. output of commands called from console.";
 
         void FillToolTipsIRC() {
             toolTip.SetToolTip( xIRCBotEnabled, ConfigKey.IRCBotEnabled.GetDescription() );
-
-            const string tipIRCList =
-@"Choose one of these popular IRC networks,
-or type in address/port manually below.";
-            toolTip.SetToolTip( lIRCList, tipIRCList );
-            toolTip.SetToolTip( cIRCList, tipIRCList );
 
             toolTip.SetToolTip( lIRCBotNick, ConfigKey.IRCBotNick.GetDescription() );
             toolTip.SetToolTip( tIRCBotNick, ConfigKey.IRCBotNick.GetDescription() );
