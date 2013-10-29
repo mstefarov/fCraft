@@ -19,7 +19,7 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> Represents a connection to a Minecraft client. Handles low-level interactions (e.g. networking). </summary>
-    public sealed partial class Player {
+    public sealed partial class Player : IDisposable {
         /// <summary> Timeout for player connections, in milliseconds. Default is 10000 (10 seconds). 
         /// Only affects connections created AFTER this changes -- existing connections are not affected. </summary>
         public static int SocketTimeout { get; set; }
@@ -357,7 +357,8 @@ namespace fCraft {
                 Logger.LogAndReportCrash( "Error while parsing player's message", "fCraft", ex, false );
                 MessageNow( "&WError while handling your message ({0}: {1})." +
                             "It is recommended that you reconnect to the server.",
-                            ex.GetType().Name, ex.Message );
+                            ex.GetType().Name,
+                            ex.Message );
             }
 #endif
             return true;
@@ -752,7 +753,7 @@ namespace fCraft {
             State = SessionState.Online;
 
             // Add player to the central list
-            lock( syncKickWaiter ) {
+            lock( kickSyncLock ) {
                 if( !useSyncKick ) {
                     Server.UpdatePlayerList();
                 }
@@ -1728,5 +1729,12 @@ namespace fCraft {
         }
 
         #endregion
+
+
+        public void Dispose() {
+            syncKickWaiter.Dispose();
+            if( reader != null ) reader.Dispose();
+            if( writer != null ) writer.Dispose();
+        }
     }
 }
