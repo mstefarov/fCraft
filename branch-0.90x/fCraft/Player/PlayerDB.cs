@@ -696,7 +696,7 @@ namespace fCraft {
         /// Returns '?' if name is empty or null. </summary>
         [NotNull]
         public static string FindExactClassyName( [CanBeNull] string name ) {
-            if( String.IsNullOrEmpty( name ) ) return "?";
+            if( String.IsNullOrWhiteSpace( name ) ) return "?";
             PlayerInfo info = FindPlayerInfoExact( name );
             if( info == null ) return name;
             else return info.ClassyName;

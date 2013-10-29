@@ -448,7 +448,7 @@ namespace fCraft {
                                     DateTime.UtcNow.Subtract( previousKickDate ).ToMiniString(),
                                     previousKickedBy );
                 }
-                if( !String.IsNullOrEmpty( previousKickReason ) ) {
+                if( !String.IsNullOrWhiteSpace( previousKickReason ) ) {
                     player.Message( "Most recent kick reason was: {0}",
                                     previousKickReason );
                 }
@@ -1302,7 +1302,7 @@ namespace fCraft {
 
         static void UnmuteHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string targetName = cmd.Next();
-            if( String.IsNullOrEmpty( targetName ) ) {
+            if( String.IsNullOrWhiteSpace( targetName ) ) {
                 CdUnmute.PrintUsage( player );
                 return;
             }

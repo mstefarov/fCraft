@@ -947,7 +947,7 @@ namespace fCraft {
                                             target.ClassyName,
                                             action,
                                             player.ClassyName );
-            if( !String.IsNullOrEmpty( reason ) ) {
+            if( !String.IsNullOrWhiteSpace( reason ) ) {
                 message += " Reason: " + reason;
             }
             SendAction( message );
