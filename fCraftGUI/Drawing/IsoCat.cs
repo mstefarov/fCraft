@@ -384,27 +384,26 @@ namespace fCraft.GUI {
 
 
         byte GetBlock( int xx, int yy, int zz ) {
-            int realx;
-            int realy;
+            int realX, realY;
             switch( Rotation ) {
                 case 0:
-                    realx = xx;
-                    realy = yy;
+                    realX = xx;
+                    realY = yy;
                     break;
                 case 1:
-                    realx = dimX1 - yy;
-                    realy = xx;
+                    realX = dimX1 - yy;
+                    realY = xx;
                     break;
                 case 2:
-                    realx = dimX1 - xx;
-                    realy = dimY1 - yy;
+                    realX = dimX1 - xx;
+                    realY = dimY1 - yy;
                     break;
                 default:
-                    realx = yy;
-                    realy = dimY1 - xx;
+                    realX = yy;
+                    realY = dimY1 - xx;
                     break;
             }
-            int pos = (zz*dimY + realy)*dimX + realx;
+            int pos = (zz*dimY + realY)*dimX + realX;
 
             switch( Mode ) {
                 case IsoCatMode.Normal:
@@ -428,7 +427,7 @@ namespace fCraft.GUI {
                     }
 
                 case IsoCatMode.Chunk:
-                    if( Chunk.Contains( realx, realy, zz ) ) {
+                    if( Chunk.Contains( realX, realY, zz ) ) {
                         return 0;
                     } else {
                         return bp[pos];

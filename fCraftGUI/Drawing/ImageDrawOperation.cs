@@ -137,7 +137,7 @@ namespace fCraft.Drawing {
                     response.ContentType.StartsWith( "image", StringComparison.OrdinalIgnoreCase ) ) {
                     // if the remote file was found, download it
                     using( Stream inputStream = response.GetResponseStream() ) {
-                        // TODO: check filesize limit?
+                        // TODO: check file size limit?
                         ImageBitmap = new Bitmap( inputStream );
                     }
                 } else {

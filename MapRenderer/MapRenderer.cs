@@ -353,7 +353,7 @@ namespace fCraft.MapRenderer {
                       o => imageFormatName = o )
 
                 .Add( "f=|filter=",
-                      "Pattern to filter input filenames, e.g. \"*.dat\" or \"builder*\". " +
+                      "Pattern to filter input file names, e.g. \"*.dat\" or \"builder*\". " +
                       "Applicable only when a directory name is given as input.",
                       o => p.InputFilter = o )
 
@@ -386,7 +386,7 @@ namespace fCraft.MapRenderer {
                       o => jpegQualityString = o )
 
                 .Add( "r|recursive",
-                      "Look through all subdirectories for map files. " +
+                      "Look through all sub-directories for map files. " +
                       "Applicable only when a directory name is given as input.",
                       o => p.Recursive = (o != null) )
 
