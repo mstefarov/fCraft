@@ -36,6 +36,10 @@ namespace fCraft.ConfigGUI {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tabs = new System.Windows.Forms.TabControl();
             this.tabGeneral = new System.Windows.Forms.TabPage();
+            this.gHeartbeatUrl = new System.Windows.Forms.GroupBox();
+            this.lHeartbeatUrlWarning = new System.Windows.Forms.Label();
+            this.cHeartbeatUrl = new System.Windows.Forms.ComboBox();
+            this.lHeartbeatUrl = new System.Windows.Forms.Label();
             this.gUpdaterSettings = new System.Windows.Forms.GroupBox();
             this.bShowAdvancedUpdaterSettings = new System.Windows.Forms.Button();
             this.cUpdaterMode = new System.Windows.Forms.ComboBox();
@@ -235,7 +239,6 @@ namespace fCraft.ConfigGUI {
             this.xIRCShowEmotesFromIRC = new System.Windows.Forms.CheckBox();
             this.xIRCShowColorsFromIRC = new System.Windows.Forms.CheckBox();
             this.xIRCShowColorsFromServer = new System.Windows.Forms.CheckBox();
-            this.xIRCListShowNonEnglish = new System.Windows.Forms.CheckBox();
             this.gIRCOptions = new System.Windows.Forms.GroupBox();
             this.xIRCBotAnnounceServerEvents = new System.Windows.Forms.CheckBox();
             this.lIRCNoForwardingMessage = new System.Windows.Forms.Label();
@@ -262,9 +265,7 @@ namespace fCraft.ConfigGUI {
             this.lIRCBotNetwork = new System.Windows.Forms.Label();
             this.lIRCBotNick = new System.Windows.Forms.Label();
             this.tIRCBotNick = new System.Windows.Forms.TextBox();
-            this.lIRCList = new System.Windows.Forms.Label();
             this.xIRCBotEnabled = new System.Windows.Forms.CheckBox();
-            this.cIRCList = new System.Windows.Forms.ComboBox();
             this.tabAdvanced = new System.Windows.Forms.TabPage();
             this.gCrashReport = new System.Windows.Forms.GroupBox();
             this.lCrashReportDisclaimer = new System.Windows.Forms.Label();
@@ -300,12 +301,9 @@ namespace fCraft.ConfigGUI {
             this.bResetAll = new System.Windows.Forms.Button();
             this.bApply = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.gHeartbeatUrl = new System.Windows.Forms.GroupBox();
-            this.cHeartbeatUrl = new System.Windows.Forms.ComboBox();
-            this.lHeartbeatUrl = new System.Windows.Forms.Label();
-            this.lHeartbeatUrlWarning = new System.Windows.Forms.Label();
             this.tabs.SuspendLayout();
             this.tabGeneral.SuspendLayout();
+            this.gHeartbeatUrl.SuspendLayout();
             this.gUpdaterSettings.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.gHelpAndSupport.SuspendLayout();
@@ -366,7 +364,6 @@ namespace fCraft.ConfigGUI {
             this.gAdvancedMisc.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).BeginInit();
-            this.gHeartbeatUrl.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabs
@@ -405,6 +402,48 @@ namespace fCraft.ConfigGUI {
             this.tabGeneral.TabIndex = 0;
             this.tabGeneral.Text = "General";
             this.tabGeneral.UseVisualStyleBackColor = true;
+            // 
+            // gHeartbeatUrl
+            // 
+            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrlWarning);
+            this.gHeartbeatUrl.Controls.Add(this.cHeartbeatUrl);
+            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrl);
+            this.gHeartbeatUrl.Location = new System.Drawing.Point(8, 307);
+            this.gHeartbeatUrl.Name = "gHeartbeatUrl";
+            this.gHeartbeatUrl.Size = new System.Drawing.Size(636, 89);
+            this.gHeartbeatUrl.TabIndex = 5;
+            this.gHeartbeatUrl.TabStop = false;
+            this.gHeartbeatUrl.Text = "Heartbeat Service Provider";
+            // 
+            // lHeartbeatUrlWarning
+            // 
+            this.lHeartbeatUrlWarning.AutoSize = true;
+            this.lHeartbeatUrlWarning.Location = new System.Drawing.Point(120, 48);
+            this.lHeartbeatUrlWarning.Name = "lHeartbeatUrlWarning";
+            this.lHeartbeatUrlWarning.Size = new System.Drawing.Size(427, 30);
+            this.lHeartbeatUrlWarning.TabIndex = 2;
+            this.lHeartbeatUrlWarning.Text = "Use caution. Note that different providers may use different player databases.\r\nI" +
+    "t\'s recommended to wipe your PlayerDB completely after switching providers.";
+            // 
+            // cHeartbeatUrl
+            // 
+            this.cHeartbeatUrl.FormattingEnabled = true;
+            this.cHeartbeatUrl.Items.AddRange(new object[] {
+            "https://minecraft.net/heartbeat.jsp",
+            "http://www.classicube.net/server/heartbeat"});
+            this.cHeartbeatUrl.Location = new System.Drawing.Point(123, 22);
+            this.cHeartbeatUrl.Name = "cHeartbeatUrl";
+            this.cHeartbeatUrl.Size = new System.Drawing.Size(507, 23);
+            this.cHeartbeatUrl.TabIndex = 1;
+            // 
+            // lHeartbeatUrl
+            // 
+            this.lHeartbeatUrl.AutoSize = true;
+            this.lHeartbeatUrl.Location = new System.Drawing.Point(25, 25);
+            this.lHeartbeatUrl.Name = "lHeartbeatUrl";
+            this.lHeartbeatUrl.Size = new System.Drawing.Size(92, 15);
+            this.lHeartbeatUrl.TabIndex = 0;
+            this.lHeartbeatUrl.Text = "Heartbeat URL:";
             // 
             // gUpdaterSettings
             // 
@@ -2623,12 +2662,9 @@ namespace fCraft.ConfigGUI {
             // tabIRC
             // 
             this.tabIRC.Controls.Add(this.gIRCFormatting);
-            this.tabIRC.Controls.Add(this.xIRCListShowNonEnglish);
             this.tabIRC.Controls.Add(this.gIRCOptions);
             this.tabIRC.Controls.Add(this.gIRCNetwork);
-            this.tabIRC.Controls.Add(this.lIRCList);
             this.tabIRC.Controls.Add(this.xIRCBotEnabled);
-            this.tabIRC.Controls.Add(this.cIRCList);
             this.tabIRC.Location = new System.Drawing.Point(4, 24);
             this.tabIRC.Name = "tabIRC";
             this.tabIRC.Padding = new System.Windows.Forms.Padding(5, 10, 5, 10);
@@ -2733,18 +2769,6 @@ namespace fCraft.ConfigGUI {
             this.xIRCShowColorsFromServer.TabIndex = 2;
             this.xIRCShowColorsFromServer.Text = "Colors";
             this.xIRCShowColorsFromServer.UseVisualStyleBackColor = true;
-            // 
-            // xIRCListShowNonEnglish
-            // 
-            this.xIRCListShowNonEnglish.AutoSize = true;
-            this.xIRCListShowNonEnglish.Enabled = false;
-            this.xIRCListShowNonEnglish.Location = new System.Drawing.Point(465, 13);
-            this.xIRCListShowNonEnglish.Name = "xIRCListShowNonEnglish";
-            this.xIRCListShowNonEnglish.Size = new System.Drawing.Size(178, 19);
-            this.xIRCListShowNonEnglish.TabIndex = 3;
-            this.xIRCListShowNonEnglish.Text = "Show non-English networks";
-            this.xIRCListShowNonEnglish.UseVisualStyleBackColor = true;
-            this.xIRCListShowNonEnglish.CheckedChanged += new System.EventHandler(this.xIRCListShowNonEnglish_CheckedChanged);
             // 
             // gIRCOptions
             // 
@@ -3042,16 +3066,6 @@ namespace fCraft.ConfigGUI {
             this.tIRCBotNick.Size = new System.Drawing.Size(138, 21);
             this.tIRCBotNick.TabIndex = 12;
             // 
-            // lIRCList
-            // 
-            this.lIRCList.AutoSize = true;
-            this.lIRCList.Enabled = false;
-            this.lIRCList.Location = new System.Drawing.Point(213, 14);
-            this.lIRCList.Name = "lIRCList";
-            this.lIRCList.Size = new System.Drawing.Size(105, 15);
-            this.lIRCList.TabIndex = 1;
-            this.lIRCList.Text = "Popular networks:";
-            // 
             // xIRCBotEnabled
             // 
             this.xIRCBotEnabled.AutoSize = true;
@@ -3062,17 +3076,6 @@ namespace fCraft.ConfigGUI {
             this.xIRCBotEnabled.Text = "Enable IRC integration";
             this.xIRCBotEnabled.UseVisualStyleBackColor = true;
             this.xIRCBotEnabled.CheckedChanged += new System.EventHandler(this.xIRC_CheckedChanged);
-            // 
-            // cIRCList
-            // 
-            this.cIRCList.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cIRCList.Enabled = false;
-            this.cIRCList.FormattingEnabled = true;
-            this.cIRCList.Location = new System.Drawing.Point(321, 11);
-            this.cIRCList.Name = "cIRCList";
-            this.cIRCList.Size = new System.Drawing.Size(138, 23);
-            this.cIRCList.TabIndex = 2;
-            this.cIRCList.SelectedIndexChanged += new System.EventHandler(this.cIRCList_SelectedIndexChanged);
             // 
             // tabAdvanced
             // 
@@ -3520,48 +3523,6 @@ namespace fCraft.ConfigGUI {
             this.toolTip.IsBalloon = true;
             this.toolTip.ReshowDelay = 100;
             // 
-            // gHeartbeatUrl
-            // 
-            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrlWarning);
-            this.gHeartbeatUrl.Controls.Add(this.cHeartbeatUrl);
-            this.gHeartbeatUrl.Controls.Add(this.lHeartbeatUrl);
-            this.gHeartbeatUrl.Location = new System.Drawing.Point(8, 307);
-            this.gHeartbeatUrl.Name = "gHeartbeatUrl";
-            this.gHeartbeatUrl.Size = new System.Drawing.Size(636, 89);
-            this.gHeartbeatUrl.TabIndex = 5;
-            this.gHeartbeatUrl.TabStop = false;
-            this.gHeartbeatUrl.Text = "Heartbeat Service Provider";
-            // 
-            // cHeartbeatUrl
-            // 
-            this.cHeartbeatUrl.FormattingEnabled = true;
-            this.cHeartbeatUrl.Items.AddRange(new object[] {
-            "https://minecraft.net/heartbeat.jsp",
-            "http://www.classicube.net/server/heartbeat"});
-            this.cHeartbeatUrl.Location = new System.Drawing.Point(123, 22);
-            this.cHeartbeatUrl.Name = "cHeartbeatUrl";
-            this.cHeartbeatUrl.Size = new System.Drawing.Size(507, 23);
-            this.cHeartbeatUrl.TabIndex = 1;
-            // 
-            // lHeartbeatUrl
-            // 
-            this.lHeartbeatUrl.AutoSize = true;
-            this.lHeartbeatUrl.Location = new System.Drawing.Point(25, 25);
-            this.lHeartbeatUrl.Name = "lHeartbeatUrl";
-            this.lHeartbeatUrl.Size = new System.Drawing.Size(92, 15);
-            this.lHeartbeatUrl.TabIndex = 0;
-            this.lHeartbeatUrl.Text = "Heartbeat URL:";
-            // 
-            // lHeartbeatUrlWarning
-            // 
-            this.lHeartbeatUrlWarning.AutoSize = true;
-            this.lHeartbeatUrlWarning.Location = new System.Drawing.Point(120, 48);
-            this.lHeartbeatUrlWarning.Name = "lHeartbeatUrlWarning";
-            this.lHeartbeatUrlWarning.Size = new System.Drawing.Size(427, 30);
-            this.lHeartbeatUrlWarning.TabIndex = 2;
-            this.lHeartbeatUrlWarning.Text = "Use caution. Note that different providers may use different player databases.\r\nI" +
-    "t\'s recommended to wipe your PlayerDB completely after switching providers.";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -3580,6 +3541,8 @@ namespace fCraft.ConfigGUI {
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ConfigUI_FormClosing);
             this.tabs.ResumeLayout(false);
             this.tabGeneral.ResumeLayout(false);
+            this.gHeartbeatUrl.ResumeLayout(false);
+            this.gHeartbeatUrl.PerformLayout();
             this.gUpdaterSettings.ResumeLayout(false);
             this.gUpdaterSettings.PerformLayout();
             this.groupBox2.ResumeLayout(false);
@@ -3664,8 +3627,6 @@ namespace fCraft.ConfigGUI {
             this.gAdvancedMisc.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndoStates)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nMaxUndo)).EndInit();
-            this.gHeartbeatUrl.ResumeLayout(false);
-            this.gHeartbeatUrl.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -3841,9 +3802,6 @@ namespace fCraft.ConfigGUI {
         private Label lDefaultBuildRank;
         private ComboBox cDefaultBuildRank;
         private Button bGreeting;
-        private ComboBox cIRCList;
-        private Label lIRCList;
-        private CheckBox xIRCListShowNonEnglish;
         private CheckBox xAllowUnverifiedLAN;
         private TabPage tabChat;
         private GroupBox gAppearence;

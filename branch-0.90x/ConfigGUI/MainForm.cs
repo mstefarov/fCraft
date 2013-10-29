@@ -64,8 +64,6 @@ namespace fCraft.ConfigGUI {
             FillToolTipsIRC();
             FillToolTipsAdvanced();
 
-            FillIRCNetworkList( false );
-
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
             MapGenUtil.Init();
@@ -443,138 +441,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             gIRCNetwork.Enabled = xIRCBotEnabled.Checked;
             gIRCFormatting.Enabled = xIRCBotEnabled.Checked;
             gIRCOptions.Enabled = xIRCBotEnabled.Checked;
-            lIRCList.Enabled = xIRCBotEnabled.Checked;
-            cIRCList.Enabled = xIRCBotEnabled.Checked;
-            xIRCListShowNonEnglish.Enabled = xIRCBotEnabled.Checked;
-        }
-
-
-        struct IRCNetwork {
-            const int DefaultIRCPort = 6667;
-
-            public readonly string Name, Host;
-            public readonly int Port;
-            public readonly bool IsNonEnglish;
-
-
-            public IRCNetwork( string name, string host )
-                : this( name, host, DefaultIRCPort, false ) {}
-
-
-            public IRCNetwork( string name, string host, int port, bool isNonEnglish ) {
-                Name = name;
-                Host = host;
-                Port = port;
-                IsNonEnglish = isNonEnglish;
-            }
-        }
-
-
-        static readonly IRCNetwork[] IRCNetworks = new[] {
-            new IRCNetwork( "FreeNode", "chat.freenode.net" ),
-            new IRCNetwork( "QuakeNet", "irc.quakenet.org" ),
-            new IRCNetwork( "IRCnet", "irc.belwue.de" ),
-            new IRCNetwork( "Undernet", "irc.undernet.org" ),
-            new IRCNetwork( "EFNet", "irc.servercentral.net" ),
-            new IRCNetwork( "Ustream", "c.ustream.tv" ),
-            new IRCNetwork( "WebChat", "irc.webchat.org" ),
-            new IRCNetwork( "DALnet", "irc.dal.net" ),
-            new IRCNetwork( "Rizon", "irc.rizon.net" ),
-            new IRCNetwork( "IRC-Hispano [ES]", "irc.irc-hispano.org", 6667, true ),
-            new IRCNetwork( "FCirc", "irc.friend.td.nu" ),
-            new IRCNetwork( "GameSurge", "irc.gamesurge.net" ),
-            new IRCNetwork( "LinkNet", "irc.link-net.org" ),
-            new IRCNetwork( "OltreIrc [IT]", "irc.oltreirc.net", 6667, true ),
-            new IRCNetwork( "AllNetwork", "irc.allnetwork.org" ),
-            new IRCNetwork( "SwiftIRC", "irc.swiftirc.net" ),
-            new IRCNetwork( "OpenJoke", "irc.openjoke.org" ),
-            new IRCNetwork( "Abjects", "irc.abjects.net" ),
-            new IRCNetwork( "OFTC", "irc.oftc.net" ),
-            new IRCNetwork( "ChatZona [ES]", "irc.chatzona.org", 6667, true ),
-            new IRCNetwork( "synIRC", "irc.synirc.net" ),
-            new IRCNetwork( "OnlineGamesNet", "irc.OnlineGamesNet.net" ),
-            new IRCNetwork( "DarkSin [IT]", "irc.darksin.it", 6667, true ),
-            new IRCNetwork( "RusNet", "irc.run.net", 6667, true ),
-            new IRCNetwork( "ExplosionIRC", "irc.explosionirc.net" ),
-            new IRCNetwork( "IrCQ-Net", "irc.icq.com" ),
-            new IRCNetwork( "IRCHighWay", "irc.irchighway.net" ),
-            new IRCNetwork( "EsperNet", "irc.esper.net" ),
-            new IRCNetwork( "euIRC", "irc.euirc.net" ),
-            new IRCNetwork( "P2P-NET", "irc.p2p-irc.net" ),
-            new IRCNetwork( "Mibbit", "irc.mibbit.com" ),
-            new IRCNetwork( "kiss0fdeath", "irc.kiss0fdeath.net" ),
-            new IRCNetwork( "P2P-NET.EU", "titan.ca.p2p-net.eu", 6667, true ),
-            new IRCNetwork( "2ch [JP]", "irc.2ch.net", 6667, true ),
-            new IRCNetwork( "SorceryNet", "irc.sorcery.net", 9000, false ),
-            new IRCNetwork( "FurNet", "irc.furnet.org" ),
-            new IRCNetwork( "GIMPnet", "irc.gimp.org" ),
-            new IRCNetwork( "Coldfront", "irc.coldfront.net" ),
-            new IRCNetwork( "MindForge", "irc.mindforge.org" ),
-            new IRCNetwork( "Zurna.Net [TR]", "irc.zurna.net", 6667, true ),
-            new IRCNetwork( "7-indonesia [ID]", "irc.7-indonesia.org", 6667, true ),
-            new IRCNetwork( "EpiKnet", "irc.epiknet.org" ),
-            new IRCNetwork( "EnterTheGame", "irc.enterthegame.com" ),
-            new IRCNetwork( "DalNet(ru) [RU]", "irc.chatnet.ru", 6667, true ),
-            new IRCNetwork( "GalaxyNet", "irc.galaxynet.org" ),
-            new IRCNetwork( "Omerta", "irc.barafranca.com" ),
-            new IRCNetwork( "SlashNET", "irc.slashnet.org" ),
-            new IRCNetwork( "DarkMyst", "irc2.darkmyst.org" ),
-            new IRCNetwork( "iZ-smart.net", "irc.iZ-smart.net" ),
-            new IRCNetwork( "ItaLiaN-AmiCi [IT]", "irc.italian-amici.com", 6667, true ),
-            new IRCNetwork( "Aitvaras [LT]", "irc.data.lt", 6667, true ),
-            new IRCNetwork( "V-IRC [RU]", "irc.v-irc.ru", 6667, true ),
-            new IRCNetwork( "ByroeNet [ID]", "irc.byroe.net", 6667, true ),
-            new IRCNetwork( "Azzurra [IT]", "irc.azzurra.org", 6667, true ),
-            new IRCNetwork( "Europa-IRC.DE [DE]", "irc.europa-irc.de", 6667, true ),
-            new IRCNetwork( "ByNets [BY]", "irc.bynets.org", 6667, true ),
-            new IRCNetwork( "GRNet [GR]", "global.irc.gr", 6667, true ),
-            new IRCNetwork( "OceanIRC", "irc.oceanirc.net" ),
-            new IRCNetwork( "UniBG [BG]", "irc.ITDNet.net", 6667, true ),
-            new IRCNetwork( "KampungChat.Org [MY]", "irc.kampungchat.org", 6667, true ),
-            new IRCNetwork( "WeNet [RU]", "ircworld.ru", 6667, true ),
-            new IRCNetwork( "Stratics", "irc.stratics.com" ),
-            new IRCNetwork( "Mozilla", "irc.mozilla.org" ),
-            new IRCNetwork( "bondage.com", "irc.bondage.com" ),
-            new IRCNetwork( "ShakeIT [BG]", "irc.index.bg", 6667, true ),
-            new IRCNetwork( "NetGamers.Org", "firefly.no.eu.netgamers.org" ),
-            new IRCNetwork( "FroZyn", "irc.Frozyn.us" ),
-            new IRCNetwork( "PTnet", "irc.ptnet.org" ),
-            new IRCNetwork( "Recycled-IRC", "yare.recycled-irc.net" ),
-            new IRCNetwork( "Foonetic", "irc.foonetic.net" ),
-            new IRCNetwork( "AlphaIRC", "irc.alphairc.com" ),
-            new IRCNetwork( "KreyNet", "chat.be.krey.net" ),
-            new IRCNetwork( "GeekShed", "irc.geekshed.net" ),
-            new IRCNetwork( "VirtuaLife.com.br [BR]", "irc.virtualife.com.br", 6667, true ),
-            new IRCNetwork( "IRCGate.it [IT]", "marte.ircgate.it", 6667, true ),
-            new IRCNetwork( "Worldnet", "irc.worldnet.net" ),
-            new IRCNetwork( "PIK [BA]", "irc.krstarica.com", 6667, true ),
-            new IRCNetwork( "Friend4ever [IT]", "irc.friend4ever.it", 6667, true ),
-            new IRCNetwork( "AustNet", "irc.austnet.org" ),
-            new IRCNetwork( "GamesNET", "irc.GamesNET.net" )
-        }.OrderBy( network => network.Name ).ToArray();
-
-
-        void cIRCList_SelectedIndexChanged( object sender, EventArgs e ) {
-            if( cIRCList.SelectedIndex < 0 ) return;
-            string selectedNetwork = (string)cIRCList.Items[cIRCList.SelectedIndex];
-            IRCNetwork network = IRCNetworks.First( n => (n.Name == selectedNetwork) );
-            tIRCBotNetwork.Text = network.Host;
-            nIRCBotPort.Value = network.Port;
-        }
-
-
-        void xIRCListShowNonEnglish_CheckedChanged( object sender, EventArgs e ) {
-            FillIRCNetworkList( xIRCListShowNonEnglish.Checked );
-        }
-
-
-        void FillIRCNetworkList( bool showNonEnglishNetworks ) {
-            cIRCList.Items.Clear();
-            foreach( IRCNetwork network in IRCNetworks ) {
-                if( showNonEnglishNetworks || !network.IsNonEnglish ) {
-                    cIRCList.Items.Add( network.Name );
-                }
-            }
         }
 
 
@@ -1362,7 +1228,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #region Change Detection
 
-        bool changingTabs = false;
+        bool changingTabs;
         bool pauseTrackingSomethingChanged = true;
 
         void SomethingChanged( object sender, EventArgs args ) {
@@ -1372,24 +1238,41 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
 
         void AddChangeHandler( Control c, EventHandler handler ) {
-            if( c is CheckBox ) {
-                ((CheckBox)c).CheckedChanged += handler;
-            } else if( c is ComboBox ) {
-                ((ComboBox)c).SelectedIndexChanged += handler;
-            } else if( c is ListView ) {
-                ((ListView)c).ItemChecked += (( o, e ) => handler( o, e ));
-            } else if( c is NumericUpDown ) {
-                ((NumericUpDown)c).ValueChanged += handler;
-            } else if( c is ListBox ) {
-                if( c != vRanks ) {
-                    ((ListBox)c).SelectedIndexChanged += handler;
-                }
+            if( c == vRanks || c == bPortCheck || c == bMeasure ) {
+                return;
+            }
+
+            CheckBox checkBox = c as CheckBox;
+            if( checkBox != null ) {
+                checkBox.CheckedChanged += handler;
+                return;
+            }
+
+            ComboBox comboBox = c as ComboBox;
+            if( comboBox != null ) {
+                comboBox.SelectedIndexChanged += handler;
+                return;
+            }
+
+            ListView view = c as ListView;
+            if( view != null ) {
+                view.ItemChecked += (( o, e ) => handler( o, e ));
+                return;
+            }
+
+            NumericUpDown down = c as NumericUpDown;
+            if( down != null ) {
+                down.ValueChanged += handler;
+                return;
+            }
+
+            ListBox box = c as ListBox;
+            if( box != null ) {
+                box.SelectedIndexChanged += handler;
             } else if( c is TextBoxBase ) {
                 c.TextChanged += handler;
             } else if( c is ButtonBase ) {
-                if( c != bPortCheck && c != bMeasure ) {
-                    c.Click += handler;
-                }
+                c.Click += handler;
             }
             foreach( Control child in c.Controls ) {
                 AddChangeHandler( child, handler );
