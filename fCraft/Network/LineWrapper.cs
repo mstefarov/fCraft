@@ -441,7 +441,7 @@ namespace fCraft {
         }
 
 
-        void IDisposable.Dispose() {}
+        public void Dispose() {}
 
         #region IEnumerable<Packet> Members
 
