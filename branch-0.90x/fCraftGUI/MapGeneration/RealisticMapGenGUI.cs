@@ -36,6 +36,8 @@ namespace fCraft.GUI {
             mapWidth = width;
             mapLength = length;
             mapHeight = height;
+
+            MapDimensionChanged();
         }
 
 
@@ -150,10 +152,10 @@ namespace fCraft.GUI {
                 CaveDensity = sCaveDensity.Value/100f,
                 CaveSize = sCaveSize.Value/100f,
                 CustomWaterLevel = xWaterLevel.Checked,
-                WaterLevel = (int)(xWaterLevel.Checked ? nWaterLevel.Value : mapHeight/2),
+                WaterLevel = (xWaterLevel.Checked ? (int)nWaterLevel.Value : mapHeight/2),
                 AddSnow = xAddSnow.Checked,
                 SnowTransition = (int)nSnowTransition.Value,
-                SnowAltitude = (int)(nSnowAltitude.Value + (xWaterLevel.Checked ? nWaterLevel.Value : mapHeight/2)),
+                SnowAltitude = (int)nSnowAltitude.Value + (xWaterLevel.Checked ? (int)nWaterLevel.Value : mapHeight/2),
                 AddCliffs = xAddCliffs.Checked,
                 CliffThreshold = sCliffThreshold.Value/100f,
                 CliffSmoothing = xCliffSmoothing.Checked,
@@ -249,8 +251,8 @@ namespace fCraft.GUI {
         }
 
 
-        void MapDimensionChanged( object sender, EventArgs e ) {
-            sFeatureScale.Maximum = (int)Math.Log( (double)Math.Max( mapWidth, mapLength ), 2 );
+        void MapDimensionChanged() {
+            sFeatureScale.Maximum = (int)Math.Log( Math.Max( mapWidth, mapLength ), 2 );
             int value = sDetailScale.Maximum - sDetailScale.Value;
             sDetailScale.Maximum = sFeatureScale.Maximum;
             sDetailScale.Value = sDetailScale.Maximum - value;
@@ -329,12 +331,6 @@ namespace fCraft.GUI {
 
         public string Name {
             get { return "RealisticMapGen GUI"; }
-        }
-
-        static readonly Version StaticVersion = new Version( 2, 1 );
-
-        public Version Version {
-            get { return StaticVersion; }
         }
 
         public bool IsCompatible( string generatorName, Version generatorVersion ) {
