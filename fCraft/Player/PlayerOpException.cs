@@ -46,7 +46,7 @@ namespace fCraft {
         internal static void CheckBanReason( [CanBeNull] string reason, [NotNull] Player player,
                                              [CanBeNull] PlayerInfo targetInfo, bool unban ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireBanReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireBanReason.Enabled() && String.IsNullOrWhiteSpace( reason ) ) {
                 string msg;
                 if( unban ) {
                     msg = "Please specify an unban reason.";
@@ -63,7 +63,7 @@ namespace fCraft {
         internal static void CheckRankChangeReason( [CanBeNull] string reason, [NotNull] Player player,
                                                     [CanBeNull] PlayerInfo targetInfo, bool promoting ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireRankChangeReason.Enabled() && String.IsNullOrWhiteSpace( reason ) ) {
                 string msg;
                 if( promoting ) {
                     msg = "Please specify a promotion reason.";
@@ -80,7 +80,7 @@ namespace fCraft {
         internal static void CheckKickReason( [CanBeNull] string reason, [NotNull] Player player,
                                               [CanBeNull] PlayerInfo targetInfo ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrEmpty( reason ) ) {
+            if( ConfigKey.RequireKickReason.Enabled() && String.IsNullOrWhiteSpace( reason ) ) {
                 const string msg = "Please specify a kick reason.";
                 const string colorMsg = "&S" + msg;
                 throw new PlayerOpException( player, targetInfo, PlayerOpExceptionCode.ReasonRequired, msg, colorMsg );

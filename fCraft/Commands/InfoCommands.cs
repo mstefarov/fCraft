@@ -275,7 +275,7 @@ namespace fCraft {
                 case BanStatus.Banned:
                     if( ipBan != null ) {
                         player.Message( "  Account and IP are &CBANNED" );
-                    } else if( String.IsNullOrEmpty( info.BanReason ) ) {
+                    } else if( String.IsNullOrWhiteSpace( info.BanReason ) ) {
                         player.Message( "  Account is &CBANNED" );
                     } else {
                         player.Message( "  Account is &CBANNED&S ({0}&S)", info.BanReason );
@@ -290,7 +290,7 @@ namespace fCraft {
                     break;
                 case BanStatus.NotBanned:
                     if( ipBan != null ) {
-                        if( String.IsNullOrEmpty( ipBan.BanReason ) ) {
+                        if( String.IsNullOrWhiteSpace( ipBan.BanReason ) ) {
                             player.Message( "  IP is &CBANNED" );
                         } else {
                             player.Message( "  IP is &CBANNED&S ({0}&S)", ipBan.BanReason );
@@ -476,7 +476,7 @@ namespace fCraft {
                                     banInfo.BannedByClassy,
                                     banInfo.BanDate,
                                     banInfo.TimeSinceLastAttempt );
-                    if( !String.IsNullOrEmpty( banInfo.PlayerName ) ) {
+                    if( !String.IsNullOrWhiteSpace( banInfo.PlayerName ) ) {
                         player.Message( "  Banned by association with {0}",
                                         banInfo.PlayerNameClassy );
                     }
@@ -874,7 +874,7 @@ namespace fCraft {
             if( Directory.Exists( Paths.RulesPath ) ) {
                 string[] sections = Directory.GetFiles( Paths.RulesPath, "*.txt", SearchOption.TopDirectoryOnly )
                                              .Select( Path.GetFileNameWithoutExtension )
-                                             .Where( name => !String.IsNullOrEmpty( name ) )
+                                             .Where( name => !String.IsNullOrWhiteSpace( name ) )
                                              .ToArray();
                 if( sections.Length != 0 ) {
                     return sections;
@@ -1167,7 +1167,7 @@ namespace fCraft {
                           .Append( "\n&S" );
                     }
 
-                    if( String.IsNullOrEmpty( descriptor.Help ) ) {
+                    if( String.IsNullOrWhiteSpace( descriptor.Help ) ) {
                         sb.Append( "No help is available for this command." );
                     } else {
                         sb.Append( descriptor.Help );
