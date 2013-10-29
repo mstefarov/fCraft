@@ -837,14 +837,6 @@ namespace fCraft {
             return String.Format( "PlayerInfo({0},{1})", Name, Rank.Name );
         }
 
-        public bool Can( Permission permission ) {
-            return Rank.Can( permission );
-        }
-
-        public bool Can( Permission permission, Rank rank ) {
-            return Rank.Can( permission, rank );
-        }
-
         #region Unfinished / Not Implemented
 
         /// <summary> Not implemented (IRC/server password hash). </summary>

@@ -147,7 +147,7 @@ namespace ImageManipulation {
                     // Loop through each pixel on this scan line
                     for( int col = 0; col < width; col++, pSourcePixel++, pDestinationPixel++ ) {
                         // Check if this is the same as the last pixel. If so use that value
-                        // rather than calculating it again. This is an inexpensive optimisation.
+                        // rather than calculating it again. This is an inexpensive optimization.
                         if( *pPreviousPixel != *pSourcePixel ) {
                             // Quantize the pixel
                             pixelValue = QuantizePixel( (Color32*)pSourcePixel );
@@ -187,7 +187,7 @@ namespace ImageManipulation {
 
 
         /// <summary> Retrieve the palette for the quantized image. </summary>
-        /// <param name="original"> Any old palette, this is overrwritten. </param>
+        /// <param name="original"> Any old palette, this is overwritten. </param>
         /// <returns> The new color palette. </returns>
         protected abstract ColorPalette GetPalette( ColorPalette original );
 
@@ -196,25 +196,25 @@ namespace ImageManipulation {
         readonly bool singlePass;
 
 
-        /// <summary> Struct that defines a 32 bpp colour. </summary>
+        /// <summary> Struct that defines a 32 bpp color. </summary>
         /// <remarks> This struct is used to read data from a 32 bits per pixel image
         /// in memory, and is ordered in this manner as this is the way that
         /// the data is layed out in memory. </remarks>
         [StructLayout( LayoutKind.Explicit )]
         protected struct Color32 {
-            /// <summary> Holds the blue component of the colour. </summary>
+            /// <summary> Holds the blue component of the color. </summary>
             [FieldOffset( 0 )]
             public readonly byte Blue;
 
-            /// <summary> Holds the green component of the colour. </summary>
+            /// <summary> Holds the green component of the color. </summary>
             [FieldOffset( 1 )]
             public readonly byte Green;
 
-            /// <summary> Holds the red component of the colour. </summary>
+            /// <summary> Holds the red component of the color. </summary>
             [FieldOffset( 2 )]
             public readonly byte Red;
 
-            /// <summary> Holds the alpha component of the colour. </summary>
+            /// <summary> Holds the alpha component of the color. </summary>
             [FieldOffset( 3 )]
             public readonly byte Alpha;
 

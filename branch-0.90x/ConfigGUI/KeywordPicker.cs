@@ -6,8 +6,6 @@ namespace fCraft.ConfigGUI {
     public sealed partial class KeywordPicker : Form {
         public string Result;
 
-        readonly ToolTip tips;
-
         static readonly KeywordInfo[] Keywords = {
             new KeywordInfo( "{SERVER_NAME}", "Server name", "Name of your server, as specified in config." ),
             new KeywordInfo( "{RANK}", "Player's rank", "Player's rank, including prefix and colors (if applicable)." ),
@@ -36,7 +34,7 @@ namespace fCraft.ConfigGUI {
 
         public KeywordPicker() {
             InitializeComponent();
-            tips = new ToolTip();
+            ToolTip tips = new ToolTip();
             foreach( KeywordInfo keyword in Keywords ) {
                 Button newButton = new Button {
                     Text = keyword.LongName,

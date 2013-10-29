@@ -15,7 +15,6 @@ namespace fCraft.MapRenderer {
         static int threadCount;
         readonly BlockingCollection<RenderTask> inQueue, outQueue;
         readonly MapRendererParams p;
-        readonly int threadNumber;
         IsoCat renderer;
         readonly Thread thread;
 
@@ -25,10 +24,9 @@ namespace fCraft.MapRenderer {
             inQueue = inputQueue;
             outQueue = outputQueue;
             threadCount++;
-            threadNumber = threadCount;
             thread = new Thread( RenderLoop ) {
                 IsBackground = true,
-                Name = "RenderWorker" + threadNumber
+                Name = "RenderWorker" + threadCount
             };
             p = taskParams;
         }

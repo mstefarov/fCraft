@@ -499,7 +499,7 @@ namespace fCraft {
             byte opCode = reader.ReadByte();
 
 #if DEBUG_NETWORKING
-            Logger.Log( LogType.Trace, "from {0} [{1}] {2}", IP, outPacketNumber++, (OpCode)opcode );
+            Logger.Log( LogType.Trace, "from {0} [{1}] {2}", IP, outPacketNumber++, (OpCode)opCode );
 #endif
 
             switch( opCode ) {

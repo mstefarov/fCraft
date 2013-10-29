@@ -51,7 +51,7 @@ namespace fCraft.MapGeneration {
         [CanBeNull]
         public abstract Map Generate();
 
-        /// <summary> Sigals this task to asynchronously finish executing. </summary>
+        /// <summary> Signals this task to asynchronously finish executing. </summary>
         public void CancelAsync() {
             Canceled = true;
         }
