@@ -787,13 +787,6 @@ namespace fCraft {
         }
 
 
-        /// <summary> Number of all worlds that are currently loaded. </summary>
-        /// <returns> Number of all loaded worlds. </returns>
-        public static int CountLoadedWorlds() {
-            return Worlds.Count( world => world.IsLoaded );
-        }
-
-
         /// <summary> Number of worlds that are currently loaded and can be seen by the specified observer. </summary>
         /// <param name="observer"> Player to observe as. </param>
         /// <returns> Number of worlds the specified player has permission to observe. </returns>

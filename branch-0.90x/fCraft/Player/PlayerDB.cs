@@ -332,23 +332,12 @@ namespace fCraft {
         #region Scheduled Saving
 
         static SchedulerTask saveTask;
-
-        /// <summary> Interval at which PlayerDB should be saved. Default is 90s. </summary>
-        public static TimeSpan SaveInterval {
-            get { return saveInterval; }
-            set {
-                if( value.Ticks < 0 ) throw new ArgumentException( "Save interval may not be negative" );
-                saveInterval = value;
-                if( saveTask != null ) saveTask.Interval = value;
-            }
-        }
-
-        static TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
+        static readonly TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void StartSaveTask() {
             saveTask = Scheduler.NewBackgroundTask( SaveTask );
             saveTask.IsCritical = true;
-            saveTask.RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
+            saveTask.RunForever( saveInterval, saveInterval + TimeSpan.FromSeconds( 15 ) );
         }
 
         static void SaveTask( [NotNull] SchedulerTask task ) {
