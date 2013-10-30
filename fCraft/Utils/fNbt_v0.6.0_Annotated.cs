@@ -37,6 +37,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using JetBrains.Annotations;
+// ReSharper disable UnusedMember.Global
 
 namespace fNbt {
     /// <summary> A tag containing a single byte. </summary>

@@ -522,7 +522,7 @@ Each state increases the maximum potential memory use per-player.",
         MaxUndoStates,
 
         [StringKey( ConfigSection.Advanced, "(console)",
-            @"Displayed name of the Console pseudoplayer. You may use any printable characters, and even colorcodes here.",
+            @"Displayed name of the Console pseudo-player. You may use any printable characters, and even colorcodes here.",
             MinLength = 1, MaxLength = 64 )]
         ConsoleName,
 

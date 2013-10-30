@@ -434,7 +434,6 @@ namespace fCraft {
 
         #region Filters
 
-        const float BoxBlurDivisor = 1/9f;
         const float GaussianBlurDivisor = 1/273f;
         const float SlopeDivisor = 1/20f;
 
@@ -472,21 +471,6 @@ namespace fCraft {
             fixed( float* ptr1 = data1, ptr2 = data2, ptrBlend = blendMap ) {
                 for( int i = 0; i < data1.Length; i++ ) {
                     ptr1[i] += ptr1[i]*ptrBlend[i] + ptr2[i]*(1 - ptrBlend[i]);
-                }
-            }
-        }
-
-
-        public static unsafe void Add( [NotNull] float[,] data1, [NotNull] float[,] data2 ) {
-            if( data1 == null ) throw new ArgumentNullException( "data1" );
-            if( data2 == null ) throw new ArgumentNullException( "data2" );
-            if( data1.GetLength( 0 ) != data2.GetLength( 0 ) ||
-                data1.GetLength( 1 ) != data2.GetLength( 1 ) ) {
-                throw new ArgumentException( "Dimensions of data1 and data2 must match." );
-            }
-            fixed( float* ptr1 = data1, ptr2 = data2 ) {
-                for( int i = 0; i < data1.Length; i++ ) {
-                    ptr1[i] += ptr2[i];
                 }
             }
         }

@@ -1,6 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
-
+// ReSharper disable UnusedMember.Global
 #pragma warning disable 1591
 
 namespace fCraft {
