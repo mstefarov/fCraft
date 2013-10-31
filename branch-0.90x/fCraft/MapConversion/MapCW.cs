@@ -47,11 +47,13 @@ namespace fCraft.MapConversion {
 
             // write name and UUID
             World mapWorld = mapToSave.World;
+            string mapName;
             if( mapWorld != null ) {
-                writer.WriteString( "Name", mapWorld.Name );
+                mapName = mapWorld.Name;
             } else {
-                writer.WriteString( Path.GetFileName( path ) );
+                mapName = Path.GetFileNameWithoutExtension( path );
             }
+            writer.WriteString( "Name", mapName );
             writer.WriteByteArray( "UUID", mapToSave.Guid.ToByteArray() );
 
             // write map dimensions
@@ -66,8 +68,8 @@ namespace fCraft.MapConversion {
                 writer.WriteShort( "X", spawn.X );
                 writer.WriteShort( "Y", spawn.Z );
                 writer.WriteShort( "Z", spawn.Y );
-                writer.WriteShort( "H", spawn.R );
-                writer.WriteShort( "P", spawn.L );
+                writer.WriteByte( "H", spawn.R );
+                writer.WriteByte( "P", spawn.L );
             }
             writer.EndCompound();
 
@@ -218,7 +220,7 @@ namespace fCraft.MapConversion {
             if( fCraftMetadata != null ) {
                 foreach( NbtCompound groupTag in fCraftMetadata ) {
                     string groupName = groupTag.Name;
-                    foreach( NbtString keyValueTag in fCraftMetadata ) {
+                    foreach( NbtString keyValueTag in groupTag ) {
                         // ReSharper disable AssignNullToNotNullAttribute // names are never null within compound
                         map.Metadata.Add( groupName, keyValueTag.Name, keyValueTag.Value );
                         // ReSharper restore AssignNullToNotNullAttribute
