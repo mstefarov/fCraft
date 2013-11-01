@@ -1692,7 +1692,11 @@ namespace fCraft {
         string ClientName { get; set; }
 
         bool NegotiateCpe() {
+            // Send server capabilities (we currently support 0 extensions :D)
             writer.Write( Packet.MakeExtInfo( 0 ).Bytes );
+            // TODO: send our supported extensions here
+
+            // Read client's ExtInfo
             OpCode extInfoReply = reader.ReadOpCode();
             if( extInfoReply != OpCode.ExtInfo ) {
                 Logger.Log( LogType.Warning,
@@ -1704,8 +1708,8 @@ namespace fCraft {
             }
             ClientName = reader.ReadString();
             int expectedEntries = reader.ReadInt16();
-            // TODO: send our supported extensions here
 
+            // Read client's list of capabilities
             List<string> clientExts = new List<string>();
             for( int i = 0; i < expectedEntries; i++ ) {
                 // Expect ExtEntry replies (0 or more)
@@ -1724,6 +1728,7 @@ namespace fCraft {
                 clientExts.Add( extName + " " + extVersion );
             }
 
+            // Log client's capabilities
             if( clientExts.Count > 0 ) {
                 Logger.Log( LogType.Debug,
                             "Player {0} is using \"{1}\", supporting: {2}",

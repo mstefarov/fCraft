@@ -12,6 +12,6 @@ namespace fCraft.GUI {
 
         public bool Cancelled { get; private set; }
         public Bitmap Bitmap { get; private set; }
-        public Rectangle CropRectangle { get; set; }
+        public Rectangle CropRectangle { get; private set; }
     }
 }
