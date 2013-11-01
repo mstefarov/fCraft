@@ -214,6 +214,8 @@ namespace fCraft.MapConversion {
             // read blocks
             map.Blocks = root["BlockArray"].ByteArrayValue;
 
+            // TODO: CPE CustomBlock conversion
+
             // read metadata
             NbtCompound metadata = (NbtCompound)root["Metadata"];
             NbtCompound fCraftMetadata = metadata.Get<NbtCompound>( "fCraft" );

@@ -206,7 +206,7 @@ fCraft.
 
 === Credits ===================================================================
 
-fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
+fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2013
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Dankirk, Destroyer, FontPeg, Hellenion, Jonty800,
