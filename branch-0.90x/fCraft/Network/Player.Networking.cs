@@ -79,6 +79,8 @@ namespace fCraft {
             LeaveReason = LeaveReason.Unknown;
             LastUsedBlockType = Block.None;
 
+            ClientName = "Unknown";
+
             client = tcpClient;
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
@@ -477,7 +479,10 @@ namespace fCraft {
 
         void Disconnect() {
             State = SessionState.Disconnected;
-            Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
+            // it's possible for IP to be null if exception was thrown while getting IP in constructor
+            if( IP != null ) {
+                Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
+            }
 
             if( HasRegistered ) {
                 lock( kickSyncLock ) {
@@ -1683,6 +1688,7 @@ namespace fCraft {
         }
 
 
+        [NotNull]
         string ClientName { get; set; }
 
         bool NegotiateCpe() {
