@@ -864,6 +864,9 @@ namespace fCraft {
                 // ensure copy slot consistency
                 target.MaxCopySlots = target.Info.Rank.CopySlots;
 
+                // make all players update their entities
+                target.RefreshEntity();
+
                 // inform the player of the rank change
                 target.Message( "You were {0} to {1}&S by {2}",
                                 verbed,
