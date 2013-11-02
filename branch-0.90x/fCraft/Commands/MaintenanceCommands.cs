@@ -1038,6 +1038,14 @@ namespace fCraft {
                 case "n":
                     if( valName.Equals( info.Name, StringComparison.OrdinalIgnoreCase ) ) {
                         info.Name = valName;
+
+                        // if target player is online, do an entity update.
+                        // This makes sure that everyone sees the new name in-game at once.
+                        Player target = info.PlayerObject;
+                        if( target != null ) {
+                            target.RefreshEntity();
+                        }
+
                     } else {
                         player.Message( "SetInfo: Only capitalization changes are allowed in the name. " +
                                         "Type out the whole name ({0}) please.",
