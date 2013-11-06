@@ -55,4 +55,11 @@ namespace fCraft {
         Shadow = 3,
         Sunlight = 4
     }
+
+
+    public enum WeatherType : byte {
+        Sunny = 0,
+        Raining = 1,
+        Snowing = 2
+    }
 }

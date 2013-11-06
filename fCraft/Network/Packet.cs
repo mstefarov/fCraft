@@ -327,10 +327,10 @@ namespace fCraft {
             ToNetOrder( bounds.XMax, packet.Bytes, 72 );
             ToNetOrder( bounds.ZMax, packet.Bytes, 74 );
             ToNetOrder( bounds.YMax, packet.Bytes, 76 );
-            packet.Bytes[78] = (byte)((color >> 16) & 0xFF);
-            packet.Bytes[79] = (byte)((color >> 8) & 0xFF);
-            packet.Bytes[81] = (byte)(color & 0xFF);
-            packet.Bytes[82] = opacity;
+            ToNetOrder( (short)((color >> 16) & 0xFF), packet.Bytes, 78 );
+            ToNetOrder( (short)((color >> 8) & 0xFF), packet.Bytes, 80 );
+            ToNetOrder( (short)(color & 0xFF), packet.Bytes, 82 );
+            ToNetOrder( opacity, packet.Bytes, 84 );
             return packet;
         }
 
@@ -373,6 +373,13 @@ namespace fCraft {
             return packet;
         }
 
+        [Pure]
+        public static Packet MakeEnvSetWeatherType( WeatherType weather ) {
+            Packet packet = new Packet( OpCode.EnvSetWeatherType );
+            packet.Bytes[1] = (byte)weather;
+            return packet;
+        }
+
         #endregion
 
         static void ToNetOrder( short number, [NotNull] byte[] arr, int offset ) {
@@ -410,17 +417,18 @@ namespace fCraft {
 
             3, // SetClickDistance
             2, // CustomBlockSupportLevel
-            2, // HoldThis
+            3, // HoldThis
             134, // SetTextHotKey
             196, // ExtAddPlayerName
             130, // ExtAddEntity
             3, // ExtRemovePlayerName
             8, // EnvSetColor
-            82, // MakeSelection
+            86  , // MakeSelection
             2, // RemoveSelection
             4, // SetBlockPermission
             66, // ChangeModel
-            69 // EnvMapAppearance
+            69, // EnvMapAppearance
+            2 // EnvSetWeatherType
         };
     }
 }
