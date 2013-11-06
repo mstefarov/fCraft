@@ -11,38 +11,18 @@ namespace fCraft {
     /// <summary> A string metadata entry. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     public struct MetadataEntry<TValue> where TValue : class {
-        string group;
-
-        [NotNull]
-        public string Group {
-            get { return group; }
-            set {
-                if( value == null ) throw new ArgumentNullException( "value" );
-                group = value;
-            }
+        public MetadataEntry( [NotNull] string @group, [NotNull] string key, [NotNull] TValue @value ) {
+            if( @group == null ) throw new ArgumentNullException( "group" );
+            if( key == null ) throw new ArgumentNullException( "key" );
+            if( @value == null ) throw new ArgumentNullException( "value" );
+            Group = group;
+            Key = key;
+            Value = value;
         }
 
-        string key;
-
-        [NotNull]
-        public string Key {
-            get { return key; }
-            set {
-                if( value == null ) throw new ArgumentNullException( "value" );
-                key = value;
-            }
-        }
-
-        TValue value;
-
-        [NotNull]
-        public TValue Value {
-            get { return value; }
-            set {
-                if( value == this.value ) throw new ArgumentNullException( "value" );
-                this.value = value;
-            }
-        }
+        public readonly string Group;
+        public readonly string Key;
+        public readonly TValue Value;
     }
 
 
@@ -50,8 +30,9 @@ namespace fCraft {
     /// Group names, key names, and values may not be null. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     [DebuggerDisplay( "Count = {Count}" )]
-    public sealed class MetadataCollection<TValue> : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable,
-        INotifiesOnChange where TValue : class {
+    public sealed class MetadataCollection<TValue>
+        : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable, INotifiesOnChange
+        where TValue : class {
         readonly Dictionary<string, Dictionary<string, TValue>> store =
             new Dictionary<string, Dictionary<string, TValue>>();
 
@@ -193,11 +174,7 @@ namespace fCraft {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
-                return new MetadataEntry<TValue> {
-                    Group = group,
-                    Key = key,
-                    Value = store[group][key]
-                };
+                return new MetadataEntry<TValue>( group, key, store[group][key] );
             }
         }
 
@@ -280,11 +257,7 @@ namespace fCraft {
             if( store.TryGetValue( group, out groupDic ) ) {
                 lock( syncRoot ) {
                     foreach( var key in groupDic ) {
-                        yield return new MetadataEntry<TValue> {
-                            Group = group,
-                            Key = key.Key,
-                            Value = key.Value
-                        };
+                        yield return new MetadataEntry<TValue>( group, key.Key, key.Value );
                     }
                 }
             } else {
@@ -328,11 +301,7 @@ namespace fCraft {
                 int i = 0;
                 foreach( var group in store ) {
                     foreach( var pair in group.Value ) {
-                        array[i] = new MetadataEntry<TValue> {
-                            Group = group.Key,
-                            Key = pair.Key,
-                            Value = pair.Value
-                        };
+                        array[i] = new MetadataEntry<TValue>( group.Key, pair.Key, pair.Value );
                         i++;
                     }
                 }
@@ -357,12 +326,8 @@ namespace fCraft {
         /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
         public IEnumerator<MetadataEntry<TValue>> GetEnumerator() {
             foreach( var group in store ) {
-                foreach( var key in group.Value ) {
-                    yield return new MetadataEntry<TValue> {
-                        Group = group.Key,
-                        Key = key.Key,
-                        Value = key.Value
-                    };
+                foreach( var pair in group.Value ) {
+                    yield return new MetadataEntry<TValue>( group.Key, pair.Key, pair.Value );
                 }
             }
         }
