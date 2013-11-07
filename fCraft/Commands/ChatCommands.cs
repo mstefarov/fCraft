@@ -30,7 +30,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReply = new CommandDescriptor {
             Name = "Reply",
-            Aliases = new[] {"re"},
+            Aliases = new[] {"Re"},
             Category = CommandCategory.Chat,
             Permissions = new[] {Permission.Chat},
             IsConsoleSafe = true,
@@ -83,21 +83,20 @@ namespace fCraft {
 
         #region Say
 
-        static readonly
-            CommandDescriptor CdSay = new CommandDescriptor {
-                Name = "Say",
-                Aliases = new[] {"broadcast"},
-                Category = CommandCategory.Chat,
-                IsConsoleSafe = true,
-                NotRepeatable = true,
-                DisableLogging = true,
-                UsableByFrozenPlayers = true,
-                Permissions = new[] {Permission.Chat, Permission.Say},
-                Usage = "/Say Message",
-                Help = "Shows a message in special color, without the player name prefix. " +
-                       "Can be used for making announcements.",
-                Handler = SayHandler
-            };
+        static readonly CommandDescriptor CdSay = new CommandDescriptor {
+            Name = "Say",
+            Aliases = new[] {"Broadcast"},
+            Category = CommandCategory.Chat,
+            IsConsoleSafe = true,
+            NotRepeatable = true,
+            DisableLogging = true,
+            UsableByFrozenPlayers = true,
+            Permissions = new[] {Permission.Chat, Permission.Say},
+            Usage = "/Say Message",
+            Help = "Shows a message in special color, without the player name prefix. " +
+                   "Can be used for making announcements.",
+            Handler = SayHandler
+        };
 
         static void SayHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             if( player.Info.IsMuted ) {
@@ -125,7 +124,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "Staff",
-            Aliases = new[] {"st"},
+            Aliases = new[] {"St"},
             Category = CommandCategory.Chat | CommandCategory.Moderation,
             Permissions = new[] {Permission.Chat},
             NotRepeatable = true,
@@ -342,7 +341,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
             Name = "Deafen",
-            Aliases = new[] {"deaf"},
+            Aliases = new[] {"Deaf"},
             Category = CommandCategory.Chat,
             Help = "Blocks all chat messages from being sent to you.",
             Handler = DeafenHandler

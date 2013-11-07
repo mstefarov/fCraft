@@ -36,7 +36,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSolid = new CommandDescriptor {
             Name = "Solid",
-            Aliases = new[] {"s"},
+            Aliases = new[] {"S"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.Build, Permission.PlaceAdmincrete},
             Help =
@@ -65,7 +65,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPaint = new CommandDescriptor {
             Name = "Paint",
-            Aliases = new[] {"p"},
+            Aliases = new[] {"P"},
             Permissions = new[] {Permission.Build, Permission.Delete},
             Category = CommandCategory.Building,
             Help = "When paint mode is on, any block you delete will be replaced with the block you are holding. " +
@@ -94,7 +94,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdGrass = new CommandDescriptor {
             Name = "Grass",
-            Aliases = new[] {"g"},
+            Aliases = new[] {"G"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.Build, Permission.PlaceGrass},
             Help =
@@ -123,7 +123,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWater = new CommandDescriptor {
             Name = "Water",
-            Aliases = new[] {"w"},
+            Aliases = new[] {"W"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.Build, Permission.PlaceWater},
             Help =
@@ -156,7 +156,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdLava = new CommandDescriptor {
             Name = "Lava",
-            Aliases = new[] {"l"},
+            Aliases = new[] {"L"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.Build, Permission.PlaceLava},
             Help = "Toggles the lava placement mode. When enabled, any red block you place is replaced with lava.",
@@ -364,7 +364,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCopySlot = new CommandDescriptor {
             Name = "CopySlot",
-            Aliases = new[] {"cs"},
+            Aliases = new[] {"CS"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.CopyAndPaste},
             Usage = "/CopySlot [#]",
@@ -487,7 +487,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdMirror = new CommandDescriptor {
             Name = "Mirror",
-            Aliases = new[] {"flip"},
+            Aliases = new[] {"Flip"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.CopyAndPaste},
             Help = "Flips copied blocks along specified axis/axes. " +
@@ -606,7 +606,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRotate = new CommandDescriptor {
             Name = "Rotate",
-            Aliases = new[] {"spin"},
+            Aliases = new[] {"Spin"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.CopyAndPaste},
             Help = "Rotates copied blocks around specifies axis/axes. If no axis is given, rotates around Z (vertical).",
@@ -740,7 +740,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdMark = new CommandDescriptor {
             Name = "Mark",
-            Aliases = new[] {"m"},
+            Aliases = new[] {"M"},
             Category = CommandCategory.Building,
             Usage = "/Mark&S or &H/Mark X Y Z",
             Help =
@@ -776,7 +776,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdDoNotMark = new CommandDescriptor {
             Name = "DoNotMark",
-            Aliases = new[] {"dontmark", "dm"},
+            Aliases = new[] {"DontMark", "DNM", "DM"},
             Category = CommandCategory.Building,
             Usage = "/DoNotMark",
             Help = "Toggles whether clicking blocks adds to a selection.",
