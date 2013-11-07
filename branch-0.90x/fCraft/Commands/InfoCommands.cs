@@ -49,7 +49,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdInfo = new CommandDescriptor {
             Name = "Info",
-            Aliases = new[] {"i", "whois", "whowas"},
+            Aliases = new[] {"I", "WhoIs", "WhoWas"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -610,7 +610,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRankInfo = new CommandDescriptor {
             Name = "RankInfo",
-            Aliases = new[] {"rinfo"},
+            Aliases = new[] {"RInfo"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -970,7 +970,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPlayers = new CommandDescriptor {
             Name = "Players",
-            Aliases = new[] {"who"},
+            Aliases = new[] {"Who"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             Usage = "/Players [WorldName] [Offset]",
@@ -1062,7 +1062,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWhere = new CommandDescriptor {
             Name = "Where",
-            Aliases = new[] {"compass", "whereis", "whereami"},
+            Aliases = new[] {"Compass", "WhereIs", "WhereAmI"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1128,7 +1128,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdHelp = new CommandDescriptor {
             Name = "Help",
-            Aliases = new[] {"herp", "man"},
+            Aliases = new[] {"Herp", "Man"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1207,7 +1207,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdCommands = new CommandDescriptor {
             Name = "Commands",
-            Aliases = new[] {"cmds", "cmdlist"},
+            Aliases = new[] {"Cmds", "CmdList"},
             Category = CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -1264,7 +1264,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdColors = new CommandDescriptor {
             Name = "Colors",
-            Aliases = new[] {"colours"},
+            Aliases = new[] {"Colours"},
             Category = CommandCategory.Info | CommandCategory.Chat,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,

@@ -47,6 +47,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdBlockDB = new CommandDescriptor {
             Name = "BlockDB",
+            Aliases = new[] {"BDB"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.ManageBlockDB},
@@ -431,7 +432,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdBlockInfo = new CommandDescriptor {
             Name = "BInfo",
             Category = CommandCategory.World,
-            Aliases = new[] {"b", "bi", "whodid", "about"},
+            Aliases = new[] {"B", "BI", "WhoDid", "About"},
             Permissions = new[] {Permission.ViewOthersInfo},
             RepeatableSelection = true,
             Usage = "/BInfo [X Y Z]",
@@ -857,7 +858,7 @@ namespace fCraft {
 
         internal static readonly CommandDescriptor CdSetGen = new CommandDescriptor {
             Name = "SetGen",
-            Aliases = new[] {"sg"},
+            Aliases = new[] {"SG"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {
@@ -1157,7 +1158,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdJoin = new CommandDescriptor {
             Name = "Join",
-            Aliases = new[] {"j", "load", "goto", "map"},
+            Aliases = new[] {"J", "Load", "Goto", "Map"},
             Category = CommandCategory.World,
             Usage = "/Join WorldName",
             Help =
@@ -1221,7 +1222,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldLock = new CommandDescriptor {
             Name = "WLock",
-            Aliases = new[] {"lock"},
+            Aliases = new[] {"Lock"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.Lock},
@@ -1271,7 +1272,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldUnlock = new CommandDescriptor {
             Name = "WUnlock",
-            Aliases = new[] {"unlock"},
+            Aliases = new[] {"Unlock"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.Lock},
@@ -2109,7 +2110,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldInfo = new CommandDescriptor {
             Name = "WInfo",
-            Aliases = new[] {"mapinfo"},
+            Aliases = new[] {"MapInfo"},
             Category = CommandCategory.World | CommandCategory.Info,
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
@@ -2206,7 +2207,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldLoad = new CommandDescriptor {
             Name = "WLoad",
-            Aliases = new[] {"wadd"},
+            Aliases = new[] {"WAdd"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.ManageWorlds},
@@ -2688,7 +2689,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
             Name = "WSave",
-            Aliases = new[] {"save"},
+            Aliases = new[] {"Save"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.ManageWorlds},
@@ -2975,7 +2976,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldUnload = new CommandDescriptor {
             Name = "WUnload",
-            Aliases = new[] {"wremove", "wdelete"},
+            Aliases = new[] {"WRemove", "WDelete"},
             Category = CommandCategory.World,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.ManageWorlds},

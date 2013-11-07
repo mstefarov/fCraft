@@ -395,7 +395,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdKick = new CommandDescriptor {
             Name = "Kick",
-            Aliases = new[] {"k"},
+            Aliases = new[] {"K"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.Kick},
@@ -461,7 +461,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdRank = new CommandDescriptor {
             Name = "Rank",
-            Aliases = new[] {"user", "promote", "demote"},
+            Aliases = new[] {"User", "Promote", "Demote"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Promote, Permission.Demote},
             AnyPermission = true,
@@ -708,7 +708,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdFreeze = new CommandDescriptor {
             Name = "Freeze",
-            Aliases = new[] {"f"},
+            Aliases = new[] {"F"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.Freeze},
@@ -745,7 +745,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUnfreeze = new CommandDescriptor {
             Name = "Unfreeze",
-            Aliases = new[] {"uf"},
+            Aliases = new[] {"UF"},
             Category = CommandCategory.Moderation,
             IsConsoleSafe = true,
             Permissions = new[] {Permission.Freeze},
@@ -783,7 +783,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTeleport = new CommandDescriptor {
             Name = "TP",
-            Aliases = new[] {"teleport", "to"},
+            Aliases = new[] {"Teleport", "To"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Teleport},
             Usage = "/TP PlayerName&S or &H/TP X Y Z",
@@ -875,7 +875,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdBring = new CommandDescriptor {
             Name = "Bring",
             IsConsoleSafe = true,
-            Aliases = new[] {"summon", "fetch"},
+            Aliases = new[] {"Summon", "Fetch"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Bring},
             Usage = "/Bring PlayerName [ToPlayer]",
@@ -1190,7 +1190,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPatrol = new CommandDescriptor {
             Name = "Patrol",
-            Aliases = new[] {"pat"},
+            Aliases = new[] {"Pat"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Patrol},
             Help = "Teleports you to the next player in need of checking.",
@@ -1214,7 +1214,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSpecPatrol = new CommandDescriptor {
             Name = "SpecPatrol",
-            Aliases = new[] {"spat"},
+            Aliases = new[] {"SPat"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Patrol, Permission.Spectate},
             Help = "Teleports you to the next player in need of checking.",
@@ -1330,7 +1330,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSpectate = new CommandDescriptor {
             Name = "Spectate",
-            Aliases = new[] {"follow", "spec"},
+            Aliases = new[] {"Follow", "Spec"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Spectate},
             Usage = "/Spectate PlayerName",
@@ -1381,7 +1381,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUnspectate = new CommandDescriptor {
             Name = "Unspectate",
-            Aliases = new[] {"unfollow", "unspec"},
+            Aliases = new[] {"Unfollow", "Unspec"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.Spectate},
             NotRepeatable = true,

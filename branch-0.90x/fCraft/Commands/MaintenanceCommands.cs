@@ -1117,7 +1117,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReload = new CommandDescriptor {
             Name = "Reload",
-            Aliases = new[] {"configreload", "reloadconfig"},
+            Aliases = new[] {"ConfigReload", "ReloadConfig"},
             Category = CommandCategory.Maintenance,
             Permissions = new[] {Permission.ReloadConfig},
             IsConsoleSafe = true,

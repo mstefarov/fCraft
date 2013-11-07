@@ -74,7 +74,7 @@ namespace fCraft {
 
             if( ConfigKey.LoadGDIPlus.Enabled() && File.Exists( "fCraftGUI.dll" ) ) {
                 Assembly fCraftGuiAsm = Assembly.LoadFrom( "fCraftGUI.dll" );
-                Type drawImageCommandType = fCraftGuiAsm.GetType("fCraft.GUI.DrawImageCommand", true);
+                Type drawImageCommandType = fCraftGuiAsm.GetType( "fCraft.GUI.DrawImageCommand", true );
                 FieldInfo cdDrawImageField = drawImageCommandType.GetField( "CdDrawImage" );
                 CommandDescriptor cdDrawImage = (CommandDescriptor)cdDrawImageField.GetValue( null );
                 CommandManager.RegisterCommand( cdDrawImage );
@@ -87,12 +87,10 @@ namespace fCraft {
         static readonly CommandDescriptor CdCuboid = new CommandDescriptor {
             Name = "Cuboid",
             Aliases = new[] {
-                "blb", "c", "z"
+                "BLB", "C", "Z"
             },
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Fills a rectangular area (cuboid) with blocks.",
             Handler = CuboidHandler
@@ -106,12 +104,10 @@ namespace fCraft {
         static readonly CommandDescriptor CdCuboidWireframe = new CommandDescriptor {
             Name = "CuboidW",
             Aliases = new[] {
-                "cubw", "cw", "bfb"
+                "CubW", "CW", "BFB"
             },
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Draws a wireframe box (a frame) around the selected rectangular area.",
             Handler = CuboidWireframeHandler
@@ -125,16 +121,13 @@ namespace fCraft {
         static readonly CommandDescriptor CdCuboidHollow = new CommandDescriptor {
             Name = "CuboidH",
             Aliases = new[] {
-                "cubh", "ch", "h", "bhb"
+                "CubH", "CH", "H", "BHB"
             },
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
-            Help =
-                "Surrounds the selected rectangular area with a box of blocks. " +
-                "Unless two blocks are specified, leaves the inside untouched.",
+            Help = "Surrounds the selected rectangular area with a box of blocks. " +
+                   "Unless two blocks are specified, leaves the inside untouched.",
             Handler = CuboidHollowHandler
         };
 
@@ -145,13 +138,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdEllipsoid = new CommandDescriptor {
             Name = "Ellipsoid",
-            Aliases = new[] {
-                "e"
-            },
+            Aliases = new[] {"E"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Fills an ellipsoid-shaped area (elongated sphere) with blocks.",
             Handler = EllipsoidHandler
@@ -164,13 +153,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdEllipsoidHollow = new CommandDescriptor {
             Name = "EllipsoidH",
-            Aliases = new[] {
-                "eh"
-            },
+            Aliases = new[] {"EH"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Surrounds the selected an ellipsoid-shaped area (elongated sphere) with a shell of blocks.",
             Handler = EllipsoidHollowHandler
@@ -184,16 +169,16 @@ namespace fCraft {
         static readonly CommandDescriptor CdSphere = new CommandDescriptor {
             Name = "Sphere",
             Aliases = new[] {
-                "sp", "spheroid"
+                "Sp", "Spheroid"
             },
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
             },
             RepeatableSelection = true,
-            Help =
-                "Fills a spherical area with blocks. " + "The first mark denotes the CENTER of the sphere, and " +
-                "distance to the second mark denotes the radius.",
+            Help = "Fills a spherical area with blocks. " +
+                   "The first mark denotes the CENTER of the sphere, and " +
+                   "distance to the second mark denotes the radius.",
             Handler = SphereHandler
         };
 
@@ -205,17 +190,16 @@ namespace fCraft {
         static readonly CommandDescriptor CdSphereHollow = new CommandDescriptor {
             Name = "SphereH",
             Aliases = new[] {
-                "sph", "hsphere"
+                "SpH", "HSphere"
             },
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
             },
             RepeatableSelection = true,
-            Help =
-                "Surrounds a spherical area with a shell of blocks. " +
-                "The first mark denotes the CENTER of the sphere, and " +
-                "distance to the second mark denotes the radius.",
+            Help = "Surrounds a spherical area with a shell of blocks. " +
+                   "The first mark denotes the CENTER of the sphere, and " +
+                   "distance to the second mark denotes the radius.",
             Handler = SphereHollowHandler
         };
 
@@ -226,13 +210,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdLine = new CommandDescriptor {
             Name = "Line",
-            Aliases = new[] {
-                "ln"
-            },
+            Aliases = new[] {"Ln"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Draws a continuous line between two points with blocks. " + "Marks do not have to be aligned.",
             Handler = LineHandler
@@ -245,13 +225,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTriangleWireframe = new CommandDescriptor {
             Name = "TriangleW",
-            Aliases = new[] {
-                "tw"
-            },
+            Aliases = new[] {"TW"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Draws lines between three points, to form a triangle.",
             Handler = TriangleWireframeHandler
@@ -264,13 +240,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTriangle = new CommandDescriptor {
             Name = "Triangle",
-            Aliases = new[] {
-                "t"
-            },
+            Aliases = new[] {"T"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Help = "Draws a triangle between three points.",
             Handler = TriangleHandler
@@ -284,17 +256,16 @@ namespace fCraft {
         static readonly CommandDescriptor CdTorus = new CommandDescriptor {
             Name = "Torus",
             Aliases = new[] {
-                "doughnut", "donut", "bagel"
+                "Doughnut", "Donut", "Bagel"
             },
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
             },
             RepeatableSelection = true,
-            Help =
-                "Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, horizontal " +
-                "distance to the second mark denotes the ring radius, and the vertical distance to the second mark denotes the " +
-                "tube radius",
+            Help = "Draws a horizontally-oriented torus. The first mark denotes the CENTER of the torus, " +
+                   "horizontal distance to the second mark denotes the ring radius, " +
+                   "and the vertical distance to the second mark denotes the tube radius",
             Handler = TorusHandler
         };
 
@@ -341,19 +312,16 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdFill2D = new CommandDescriptor {
             Name = "Fill2D",
-            Aliases = new[] {
-                "f2d"
-            },
+            Aliases = new[] {"F2D"},
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
             },
             RepeatableSelection = true,
-            Help =
-                "Fills a continuous area with blocks, in 2D. " +
-                "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
-                "Works similar to \"Paint Bucket\" tool in Photoshop. " +
-                "Direction of effect is determined by where the player is looking.",
+            Help = "Fills a continuous area with blocks, in 2D. " +
+                   "Takes just 1 mark, and replaces blocks of the same type as the block you clicked. " +
+                   "Works similar to \"Paint Bucket\" tool in Photoshop. " +
+                   "Direction of effect is determined by where the player is looking.",
             Handler = Fill2DHandler
         };
 
@@ -403,17 +371,14 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdFill3D = new CommandDescriptor {
             Name = "Fill3D",
-            Aliases = new[] {
-                "f3d"
-            },
+            Aliases = new[] {"F3D"},
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
             },
             RepeatableSelection = true,
-            Help =
-                "Fills a continuous volume with blocks, in 3D. " +
-                "Takes just 1 mark, and replaces blocks of the same type as the block you clicked.",
+            Help = "Fills a continuous volume with blocks, in 3D. " +
+                   "Takes just 1 mark, and replaces blocks of the same type as the block you clicked.",
             Handler = Fill3DHandler
         };
 
@@ -482,13 +447,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReplace = new CommandDescriptor {
             Name = "Replace",
-            Aliases = new[] {
-                "r"
-            },
+            Aliases = new[] {"R"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Usage = "/Replace BlockToReplace [AnotherOne, ...] ReplacementBlock",
             Help = "Replaces all blocks of specified type(s) in an area.",
@@ -504,13 +465,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReplaceNot = new CommandDescriptor {
             Name = "ReplaceNot",
-            Aliases = new[] {
-                "rn"
-            },
+            Aliases = new[] {"RN"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.Draw
-            },
+            Permissions = new[] {Permission.Draw},
             RepeatableSelection = true,
             Usage = "/ReplaceNot (ExcludedBlock [AnotherOne]) ReplacementBlock",
             Help = "Replaces all blocks EXCEPT specified type(s) in an area.",
@@ -526,9 +483,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdReplaceBrush = new CommandDescriptor {
             Name = "ReplaceBrush",
-            Aliases = new[] {
-                "rb"
-            },
+            Aliases = new[] {"RB"},
             Category = CommandCategory.Building,
             Permissions = new[] {
                 Permission.Draw, Permission.DrawAdvanced
@@ -553,9 +508,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdCut = new CommandDescriptor {
             Name = "Cut",
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.CopyAndPaste
-            },
+            Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
             Help = "Copies and removes blocks for pasting. " +
                    "Unless a different block type is specified, the area is filled with air. " +
@@ -589,13 +542,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPasteX = new CommandDescriptor {
             Name = "PasteX",
-            Aliases = new[] {
-                "px"
-            },
+            Aliases = new[] {"PX"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.CopyAndPaste
-            },
+            Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks, aligned. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
@@ -611,13 +560,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPasteNotX = new CommandDescriptor {
             Name = "PasteNotX",
-            Aliases = new[] {
-                "pnx", "pxn"
-            },
+            Aliases = new[] {"PNX", "PXN"},
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.CopyAndPaste
-            },
+            Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks, aligned, except the given block type(s). " +
                    "Used together with &H/Copy&S command. " +
@@ -634,9 +579,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdPaste = new CommandDescriptor {
             Name = "Paste",
             Category = CommandCategory.Building,
-            Permissions = new[] {
-                Permission.CopyAndPaste
-            },
+            Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
             Help = "Pastes previously copied blocks. Used together with &H/Copy&S command. " +
                    "If one or more optional IncludedBlock parameters are specified, ONLY pastes blocks of specified type(s). " +
@@ -652,7 +595,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdPasteNot = new CommandDescriptor {
             Name = "PasteNot",
-            Aliases = new[] {"pn"},
+            Aliases = new[] {"PN"},
             Category = CommandCategory.Building,
             Permissions = new[] {Permission.CopyAndPaste},
             RepeatableSelection = true,
@@ -1057,7 +1000,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoArea = new CommandDescriptor {
             Name = "UndoArea",
-            Aliases = new[] {"ua"},
+            Aliases = new[] {"UA"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.UndoOthersActions},
             RepeatableSelection = true,
@@ -1086,7 +1029,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoAreaNot = new CommandDescriptor {
             Name = "UndoAreaNot",
-            Aliases = new[] {"uan", "una"},
+            Aliases = new[] {"UAN", "UNA"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.UndoOthersActions, Permission.UndoAll},
             RepeatableSelection = true,
@@ -1193,7 +1136,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoPlayer = new CommandDescriptor {
             Name = "UndoPlayer",
-            Aliases = new[] {"up", "undox"},
+            Aliases = new[] {"UP", "UndoX"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.UndoOthersActions},
             Usage = "/UndoPlayer (TimeSpan|BlockCount) PlayerName [AnotherName...]",
@@ -1213,7 +1156,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdUndoPlayerNot = new CommandDescriptor {
             Name = "UndoPlayerNot",
-            Aliases = new[] {"upn", "unp"},
+            Aliases = new[] {"UPN", "UNP"},
             Category = CommandCategory.Moderation,
             Permissions = new[] {Permission.UndoOthersActions, Permission.UndoAll},
             Usage = "/UndoPlayerNot (TimeSpan|BlockCount) PlayerName [AnotherName...]",

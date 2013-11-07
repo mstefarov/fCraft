@@ -23,7 +23,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdZoneAdd = new CommandDescriptor {
             Name = "ZAdd",
             Category = CommandCategory.Zone,
-            Aliases = new[] {"zone"},
+            Aliases = new[] {"Zone"},
             Permissions = new[] {Permission.ManageZones},
             Usage = "/ZAdd ZoneName RankName",
             Help = "Create a zone that overrides build permissions. " +
@@ -523,7 +523,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdZoneRemove = new CommandDescriptor {
             Name = "ZRemove",
-            Aliases = new[] {"zdelete"},
+            Aliases = new[] {"ZDelete"},
             Category = CommandCategory.Zone,
             Permissions = new[] {Permission.ManageZones},
             Usage = "/ZRemove ZoneName",
