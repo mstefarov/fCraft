@@ -8,6 +8,7 @@ using System.Net;
 using System.Xml.Linq;
 using fCraft.Drawing;
 using fCraft.Events;
+using fCraft.MapConversion;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -464,6 +465,10 @@ namespace fCraft {
 
                 case ConfigKey.PatrolledRank:
                     RankManager.PatrolledRank = Rank.Parse( key.GetString() );
+                    break;
+
+                case ConfigKey.PreserveForeignMapMetadata:
+                    MapUtility.PreserveForeignMetadata = key.Enabled();
                     break;
 
                 case ConfigKey.PrivateMessageColor:

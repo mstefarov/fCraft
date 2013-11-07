@@ -98,6 +98,7 @@ namespace fCraft.MapConversion {
         static void WriteMetadata( [NotNull] Map mapToSave, [NotNull] NbtWriter writer ) {
             writer.BeginCompound( "Metadata" );
             {
+                // write fCraft's native metadata
                 writer.BeginCompound( "fCraft" );
                 {
                     string oldEntry = null;
@@ -113,7 +114,15 @@ namespace fCraft.MapConversion {
                     if( oldEntry != null ) writer.EndCompound();
                 }
                 writer.EndCompound();
+
                 // TODO: write CPE metadata here
+
+                // write foreign metadata
+                if( MapUtility.PreserveForeignMetadata && mapToSave.ForeignMetadata != null ) {
+                    foreach( NbtTag metaGroup in mapToSave.ForeignMetadata ) {
+                        writer.WriteTag( metaGroup );
+                    }
+                }
             }
             writer.EndCompound();
         }
@@ -229,7 +238,19 @@ namespace fCraft.MapConversion {
                     }
                 }
             }
-            // TODO: CPE metadata
+
+            // read CPE settings
+            NbtCompound cpeMetadata = metadata.Get<NbtCompound>( "CPE" );
+            if( cpeMetadata != null ) {
+                // TODO: CPE metadata
+            }
+
+            // preserve forign metadata, if needed
+            if( MapUtility.PreserveForeignMetadata ) {
+                metadata.Remove( "fCraft" );
+                metadata.Remove( "CPE" );
+                map.ForeignMetadata = metadata;
+            }
 
             return map;
         }

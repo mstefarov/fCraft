@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net;
 using fCraft.Drawing;
 using fCraft.MapConversion;
+using fNbt;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -107,6 +108,9 @@ namespace fCraft {
         /// <summary> All zones within a map. </summary>
         [NotNull]
         public ZoneCollection Zones { get; private set; }
+
+        [CanBeNull]
+        internal NbtCompound ForeignMetadata { get; set; }
 
 
         /// <summary> Creates an empty new map of given dimensions.
