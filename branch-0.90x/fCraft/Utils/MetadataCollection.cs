@@ -8,9 +8,11 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> A single entry in a MetadataCollection, identified by group and key names. </summary>
+    /// <summary> A single entry in a MetadataCollection, identified by group and key names. Immutable. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     public struct MetadataEntry<TValue> where TValue : class {
+        /// <summary> Creates a new MetadataEntry struct with the specified group, key, and value. </summary>
+        /// <exception cref="ArgumentNullException"> group, key, or value is null </exception>
         public MetadataEntry( [NotNull] string @group, [NotNull] string key, [NotNull] TValue @value ) {
             if( @group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -75,16 +77,19 @@ namespace fCraft {
 
 
         /// <summary> Removes entry with the specified group/key from the collection. </summary>
-        /// <param name="group"> Group name. Cannot be null. </param>
+        /// <param name="groupName"> Group name. Cannot be null. </param>
         /// <param name="key"> Key name. Cannot be null. </param>
         /// <returns> True if the entry was located and removed. False if no entry was found. </returns>
-        public bool Remove( [NotNull] string group, [NotNull] string key ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
+        public bool Remove( [NotNull] string groupName, [NotNull] string key ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
                 Dictionary<string, TValue> pair;
-                if( !store.TryGetValue( group, out pair ) ) return false;
+                if( !store.TryGetValue( groupName, out pair ) ) return false;
                 if( pair.Remove( key ) ) {
+                    if( pair.Count == 0 ) {
+                        store.Remove( groupName );
+                    }
                     RaiseChangedEvent();
                     return true;
                 } else {
@@ -130,10 +135,11 @@ namespace fCraft {
         }
 
 
-        /// <summary> Number of keys within a given group. Throws KeyNotFoundException if no such group exists. </summary>
+        /// <summary> Counts key/value pairs within a given group.
+        /// Throws KeyNotFoundException if no such group exists. </summary>
         /// <param name="group"> Group name. Cannot be null. </param>
         /// <returns> Number of keys within the specified group. </returns>
-        public int GetKeyCount( [NotNull] string group ) {
+        public int CountKeys( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             return store[group].Count;
         }
@@ -225,6 +231,7 @@ namespace fCraft {
 
         #region Contains Group / Key / Value
 
+        /// <summary> Determines whether this collection contains a group with the specified name. </summary>
         public bool ContainsGroup( [NotNull] string group ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             lock( syncRoot ) {
@@ -233,6 +240,7 @@ namespace fCraft {
         }
 
 
+        /// <summary> Determines whether this collection contains an entry with the specified group/key pair. </summary>
         public bool ContainsKey( [NotNull] string groupName, [NotNull] string key ) {
             if( groupName == null ) throw new ArgumentNullException( "groupName" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -246,28 +254,13 @@ namespace fCraft {
         }
 
 
+        /// <summary> Determines whether this collection contains a specific value at least once. </summary>
         public bool ContainsValue( [CanBeNull] TValue value ) {
             if( value == null ) return false;
             lock( syncRoot ) {
                 foreach( var group in store ) {
                     if( group.Value.ContainsValue( value ) ) {
                         return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-
-        public bool ContainsValue( [CanBeNull] TValue value, [NotNull] IEqualityComparer<TValue> comparer ) {
-            if( value == null ) return false;
-            if( comparer == null ) throw new ArgumentNullException( "comparer" );
-            lock( syncRoot ) {
-                foreach( var group in store ) {
-                    foreach( var key in group.Value ) {
-                        if( comparer.Equals( key.Value, value ) ) {
-                            return true;
-                        }
                     }
                 }
             }
@@ -382,6 +375,7 @@ namespace fCraft {
 
         #region INotifiesOnChange Implementation
 
+        /// <summary> Fired when an element is added, removed, or changed. </summary>
         public event EventHandler Changed;
 
         void RaiseChangedEvent() {
