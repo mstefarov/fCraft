@@ -8,7 +8,7 @@ using System.Linq;
 using JetBrains.Annotations;
 
 namespace fCraft {
-    /// <summary> A string metadata entry. </summary>
+    /// <summary> A single entry in a MetadataCollection, identified by group and key names. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
     public struct MetadataEntry<TValue> where TValue : class {
         public MetadataEntry( [NotNull] string @group, [NotNull] string key, [NotNull] TValue @value ) {
@@ -27,9 +27,10 @@ namespace fCraft {
 
 
     /// <summary> A collection of metadata entries, addressable by pairs of string group/key names.
-    /// Group names, key names, and values may not be null. </summary>
+    /// Group names, key names, and values may not be null.
+    /// This collection is synchronized for cross-thread access. </summary>
     /// <typeparam name="TValue"> Value type. Must be a reference type. </typeparam>
-    [DebuggerDisplay( "Count = {Count}" )]
+    [DebuggerDisplay( "GroupCount = {GroupCount}, Count = {Count}" )]
     public sealed class MetadataCollection<TValue>
         : ICollection<MetadataEntry<TValue>>, ICollection, ICloneable, INotifiesOnChange
         where TValue : class {
@@ -46,9 +47,7 @@ namespace fCraft {
             if( other == null ) throw new ArgumentNullException( "other" );
             lock( other.syncRoot ) {
                 foreach( var group in store ) {
-                    foreach( var key in group.Value ) {
-                        Add( group.Key, key.Key, key.Value );
-                    }
+                    store.Add( group.Key, new Dictionary<string, TValue>( group.Value ) );
                 }
             }
         }
@@ -56,18 +55,20 @@ namespace fCraft {
 
         /// <summary> Adds a new entry to the collection.
         /// Throws ArgumentException if an entry with the same group/key already exists. </summary>
-        /// <param name="group"> Group name. Cannot be null. </param>
+        /// <param name="groupName"> Group name. Cannot be null. </param>
         /// <param name="key"> Key name. Cannot be null. </param>
         /// <param name="value"> Value. Cannot be null. </param>
-        public void Add( [NotNull] string group, [NotNull] string key, [NotNull] TValue value ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
+        public void Add( [NotNull] string groupName, [NotNull] string key, [NotNull] TValue value ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
             lock( syncRoot ) {
-                if( !store.ContainsKey( group ) ) {
-                    store.Add( group, new Dictionary<string, TValue>() );
+                Dictionary<string, TValue> group;
+                if( !store.TryGetValue( groupName, out group ) ) {
+                    group = new Dictionary<string, TValue>();
+                    store.Add( groupName, group );
                 }
-                store[group].Add( key, value );
+                group.Add( key, value );
                 RaiseChangedEvent();
             }
         }
@@ -91,6 +92,25 @@ namespace fCraft {
                 }
             }
         }
+
+
+        /// <summary> Enumerates key-value pairs in a group. </summary>
+        /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
+        [NotNull]
+        public IEnumerable<MetadataEntry<TValue>> GetGroup( [NotNull] string groupName ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
+            lock( syncRoot ) {
+                Dictionary<string, TValue> group;
+                if( store.TryGetValue( groupName, out group ) ) {
+                    foreach( var key in group ) {
+                        yield return new MetadataEntry<TValue>( groupName, key.Key, key.Value );
+                    }
+                } else {
+                    throw new KeyNotFoundException( "No group found with the given name." );
+                }
+            }
+        }
+
 
         #region Count / Group Count / Key Count
 
@@ -123,19 +143,15 @@ namespace fCraft {
         #region Index / Get / Set
 
         /// <summary> Gets or sets the value of a given entry.
-        /// If the specified key/value pair is not found, a get operation throws a KeyNotFoundException,
+        /// If the specified group/key pair is not found, a get operation throws a KeyNotFoundException,
         /// and a set operation creates a new element with the specified group/key. </summary>
         /// <param name="group"> The group of the value to get or set. </param>
         /// <param name="key"> The key of the value to get or set. </param>
         public TValue this[ [NotNull] string group, [NotNull] string key ] {
             get {
-                if( group == null ) throw new ArgumentNullException( "group" );
-                if( key == null ) throw new ArgumentNullException( "key" );
                 return GetValue( group, key );
             }
             set {
-                if( group == null ) throw new ArgumentNullException( "group" );
-                if( key == null ) throw new ArgumentNullException( "key" );
                 SetValue( group, key, value );
             }
         }
@@ -151,25 +167,23 @@ namespace fCraft {
         }
 
 
-        void SetValue( [NotNull] string group, [NotNull] string key, [NotNull] TValue value ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
+        void SetValue( [NotNull] string groupName, [NotNull] string key, [NotNull] TValue value ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
             if( key == null ) throw new ArgumentNullException( "key" );
             if( value == null ) throw new ArgumentNullException( "value" );
             lock( syncRoot ) {
-                bool raiseChangedEvent = false;
-                if( !store.ContainsKey( group ) ) {
-                    store.Add( group, new Dictionary<string, TValue>() );
-                    raiseChangedEvent = true;
+                Dictionary<string, TValue> group;
+                if( !store.TryGetValue( groupName, out group ) ) {
+                    group = new Dictionary<string, TValue>();
+                    store.Add( groupName, group );
                 }
-                if( !store[group].ContainsKey( key ) || store[group][key] != value ) {
-                    raiseChangedEvent = true;
-                }
-                store[group][key] = value;
-                if( raiseChangedEvent ) RaiseChangedEvent();
+                group[key] = value;
             }
+            RaiseChangedEvent();
         }
 
 
+        /// <summary> Sets the value of a given entry as a MetadataEntry struct. </summary>
         public MetadataEntry<TValue> Get( [NotNull] string group, [NotNull] string key ) {
             if( group == null ) throw new ArgumentNullException( "group" );
             if( key == null ) throw new ArgumentNullException( "key" );
@@ -179,8 +193,32 @@ namespace fCraft {
         }
 
 
+        /// <summary> Sets the value of an entry corresponding to given MetadataEntry struct.
+        /// If the specified group/key pair is not found, a new element is created. </summary>
         public void Set( MetadataEntry<TValue> entry ) {
             SetValue( entry.Group, entry.Key, entry.Value );
+        }
+
+
+        /// <summary> Gets the value associated with the specified group/key. </summary>
+        /// <returns> true if this collection contains an element with the specified group/key; otherwise, false. </returns>
+        /// <param name="groupName"> The group of the value to get. </param>
+        /// <param name="key"> The key of the value to get. </param>
+        /// <param name="value"> When this method returns, contains the value associated with the specified
+        /// key, if the key is found; otherwise, the default value for the type of the
+        /// value parameter. This parameter is passed uninitialized. </param>
+        /// <exception cref="ArgumentNullException"> group or key is null </exception>
+        public bool TryGetValue( [NotNull] string groupName, [NotNull] string key, out TValue value ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
+            if( key == null ) throw new ArgumentNullException( "key" );
+            lock( syncRoot ) {
+                Dictionary<string, TValue> group;
+                if( !store.TryGetValue( groupName, out group ) ) {
+                    value = null;
+                    return false;
+                }
+                return group.TryGetValue( key, out value );
+            }
         }
 
         #endregion
@@ -195,23 +233,25 @@ namespace fCraft {
         }
 
 
-        public bool ContainsKey( [NotNull] string group, [NotNull] string key ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
+        public bool ContainsKey( [NotNull] string groupName, [NotNull] string key ) {
+            if( groupName == null ) throw new ArgumentNullException( "groupName" );
             if( key == null ) throw new ArgumentNullException( "key" );
             lock( syncRoot ) {
-                return store.ContainsKey( group ) &&
-                       store[group].ContainsKey( key );
+                Dictionary<string, TValue> group;
+                if( !store.TryGetValue( groupName, out group ) ) {
+                    return false;
+                }
+                return group.ContainsKey( key );
             }
         }
 
 
-        public bool ContainsValue( [NotNull] TValue value ) {
+        public bool ContainsValue( [CanBeNull] TValue value ) {
+            if( value == null ) return false;
             lock( syncRoot ) {
                 foreach( var group in store ) {
-                    foreach( var key in group.Value ) {
-                        if( value.Equals( key.Value ) ) {
-                            return true;
-                        }
+                    if( group.Value.ContainsValue( value ) ) {
+                        return true;
                     }
                 }
             }
@@ -219,7 +259,9 @@ namespace fCraft {
         }
 
 
-        public bool ContainsValue( [NotNull] TValue value, IEqualityComparer<TValue> comparer ) {
+        public bool ContainsValue( [CanBeNull] TValue value, [NotNull] IEqualityComparer<TValue> comparer ) {
+            if( value == null ) return false;
+            if( comparer == null ) throw new ArgumentNullException( "comparer" );
             lock( syncRoot ) {
                 foreach( var group in store ) {
                     foreach( var key in group.Value ) {
@@ -234,38 +276,7 @@ namespace fCraft {
 
         #endregion
 
-        public bool TryGetValue( [NotNull] string group, [NotNull] string key, out TValue value ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            if( key == null ) throw new ArgumentNullException( "key" );
-            lock( syncRoot ) {
-                Dictionary<string, TValue> pair;
-                if( !store.TryGetValue( group, out pair ) ) {
-                    value = null;
-                    return false;
-                }
-                return pair.TryGetValue( key, out value );
-            }
-        }
-
-
-        /// <summary> Enumerates a group of keys. </summary>
-        /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
-        [NotNull]
-        public IEnumerable<MetadataEntry<TValue>> GetGroup( [NotNull] string group ) {
-            if( group == null ) throw new ArgumentNullException( "group" );
-            Dictionary<string, TValue> groupDic;
-            if( store.TryGetValue( group, out groupDic ) ) {
-                lock( syncRoot ) {
-                    foreach( var key in groupDic ) {
-                        yield return new MetadataEntry<TValue>( group, key.Key, key.Value );
-                    }
-                }
-            } else {
-                throw new KeyNotFoundException( "No group found with the given name." );
-            }
-        }
-
-        #region ICollection<MetadataEntry> Members
+        #region ICollection Implementation
 
         public void Add( MetadataEntry<TValue> item ) {
             Add( item.Group, item.Key, item.Value );
@@ -318,31 +329,6 @@ namespace fCraft {
             return Remove( item.Group, item.Key );
         }
 
-        #endregion
-
-        #region IEnumerable<MetadataEntry> Members
-
-        /// <summary> Enumerates all keys in this collection. </summary>
-        /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
-        public IEnumerator<MetadataEntry<TValue>> GetEnumerator() {
-            foreach( var group in store ) {
-                foreach( var pair in group.Value ) {
-                    yield return new MetadataEntry<TValue>( group.Key, pair.Key, pair.Value );
-                }
-            }
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        IEnumerator IEnumerable.GetEnumerator() {
-            return GetEnumerator();
-        }
-
-        #endregion
-
-        #region ICollection Members
 
         public void CopyTo( Array array, int index ) {
             if( array == null ) throw new ArgumentNullException( "array" );
@@ -368,17 +354,41 @@ namespace fCraft {
 
         #endregion
 
+        #region IEnumerable Implementation
+
+        /// <summary> Enumerates all keys in this collection. </summary>
+        /// <remarks> Lock SyncRoot if this is used in a loop. </remarks>
+        public IEnumerator<MetadataEntry<TValue>> GetEnumerator() {
+            foreach( var group in store ) {
+                foreach( var pair in group.Value ) {
+                    yield return new MetadataEntry<TValue>( group.Key, pair.Key, pair.Value );
+                }
+            }
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+        #region ICloneable Implementation
+
         public object Clone() {
             return new MetadataCollection<TValue>( this );
         }
 
+        #endregion
+
+        #region INotifiesOnChange Implementation
 
         public event EventHandler Changed;
-
 
         void RaiseChangedEvent() {
             var h = Changed;
             if( h != null ) h( null, EventArgs.Empty );
         }
+
+        #endregion
     }
 }
