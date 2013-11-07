@@ -12,6 +12,8 @@ namespace fCraft.MapConversion {
         static readonly Dictionary<MapFormat, IMapImporter> Importers = new Dictionary<MapFormat, IMapImporter>();
         static readonly Dictionary<MapFormat, IMapExporter> Exporters = new Dictionary<MapFormat, IMapExporter>();
 
+        public static bool PreserveForeignMetadata { get; set; }
+
 
         /// <summary> Registers a new map importer or exporter.
         /// Only one importer/exporter may be registered for each supported format.

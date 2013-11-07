@@ -564,7 +564,11 @@ but will reduce bandwidth use." )]
             @"Enables features that depend on GDI+ library. " +
             "This functionality is always available on Windows, " +
             "but requires a separate package (libgdiplus) to be installed under Mono." )]
-        LoadGDIPlus
+        LoadGDIPlus,
+
+        [BoolKey( ConfigSection.Advanced, false,
+            @"If enabled, preserves any unrecognized metadata embedded in map files." )]
+        PreserveForeignMapMetadata
 
         #endregion
     }
