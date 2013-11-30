@@ -210,7 +210,8 @@ namespace fCraft {
         [Pure]
         public static Packet MakeExtInfo( short extCount ) {
             Packet packet = new Packet( OpCode.ExtInfo );
-            Encoding.ASCII.GetBytes( "fCraft " + Updater.CurrentRelease.VersionString, 0, 64, packet.Bytes, 1 );
+            string serverId = "fCraft " + Updater.CurrentRelease.VersionString;
+            Encoding.ASCII.GetBytes(serverId.PadRight(64), 0, 64, packet.Bytes, 1);
             ToNetOrder( extCount, packet.Bytes, 65 );
             return packet;
         }
