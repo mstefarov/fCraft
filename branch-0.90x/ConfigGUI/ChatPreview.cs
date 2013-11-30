@@ -10,7 +10,7 @@ using fCraft.ConfigGUI.Properties;
 
 
 namespace fCraft.ConfigGUI {
-    sealed partial class ChatPreview : UserControl {
+    public sealed partial class ChatPreview : UserControl {
         struct ColorPair {
             public ColorPair( int r, int g, int b, int sr, int sg, int sb ) {
                 Foreground = new SolidBrush( System.Drawing.Color.FromArgb( r, g, b ) );
