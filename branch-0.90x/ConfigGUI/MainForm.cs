@@ -120,6 +120,16 @@ namespace fCraft.ConfigGUI {
 
         #region General
 
+        const string ReportUri = "http://forum.fcraft.net/viewforum.php?f=5",
+                     WikiUri = "http://www.fcraft.net/wiki/Main_Page",
+                     ChangelogFileName = "CHANGELOG.txt",
+                     ReadmeFileName = "README.txt";
+
+        void cDefaultRank_SelectedIndexChanged(object sender, EventArgs e) {
+            RankManager.DefaultRank = RankManager.FindRank(cDefaultRank.SelectedIndex - 1);
+        }
+
+
         void bMeasure_Click( object sender, EventArgs e ) {
             try {
                 Process.Start( "http://www.speedtest.net/" );
@@ -217,9 +227,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
 
-        const string WikiUri = "http://www.fcraft.net/wiki/Main_Page";
-
-
         void bOpenWiki_Click( object sender, EventArgs e ) {
             try {
                 Process.Start( WikiUri );
@@ -228,9 +235,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 MessageBox.Show( "Link to the wiki has been copied to clipboard." );
             }
         }
-
-
-        const string ReportUri = "http://forum.fcraft.net/viewforum.php?f=5";
 
 
         void bReportABug_Click( object sender, EventArgs e ) {
@@ -255,6 +259,35 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void bCredits_Click( object sender, EventArgs e ) {
             new AboutWindow().Show();
+        }
+
+
+        void bReadme_Click(object sender, EventArgs e) {
+            try {
+                if (File.Exists(ReadmeFileName)) {
+                    Process.Start(ReadmeFileName);
+                }
+            } catch (Exception) { }
+        }
+
+
+        void bChangelog_Click(object sender, EventArgs e) {
+            try {
+                if (File.Exists(ChangelogFileName)) {
+                    Process.Start(ChangelogFileName);
+                }
+            } catch (Exception) { }
+        }
+
+        #endregion
+
+        #region Chat
+
+        void xRankPrefixesInChat_CheckedChanged(object sender, EventArgs e) {
+            usePrefixes = xRankPrefixesInChat.Checked;
+            tPrefix.Enabled = usePrefixes;
+            lPrefix.Enabled = usePrefixes;
+            if (ranksLoaded) RebuildRankList();
         }
 
         #endregion
@@ -370,6 +403,11 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+
+        void cDefaultBuildRank_SelectedIndexChanged(object sender, EventArgs e) {
+            RankManager.DefaultBuildRank = RankManager.FindRank(cDefaultBuildRank.SelectedIndex - 1);
+        }
+
         #endregion
 
         #region Security
@@ -382,6 +420,37 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void xMaxConnectionsPerIP_CheckedChanged( object sender, EventArgs e ) {
             nMaxConnectionsPerIP.Enabled = xMaxConnectionsPerIP.Checked;
+        }
+
+
+        void xAllowFreePlayers_CheckedChanged(object sender, EventArgs e) {
+            xAllowEmailAccounts.Enabled = xAllowFreePlayers.Checked;
+        }
+
+
+        void xAnnounceRankChanges_CheckedChanged(object sender, EventArgs e) {
+            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
+        }
+
+
+        void cBlockDBAutoEnableRank_SelectedIndexChanged(object sender, EventArgs e) {
+            RankManager.BlockDBAutoEnableRank = RankManager.FindRank(cBlockDBAutoEnableRank.SelectedIndex - 1);
+        }
+
+
+        void xBlockDBEnabled_CheckedChanged(object sender, EventArgs e) {
+            xBlockDBAutoEnable.Enabled = xBlockDBEnabled.Checked;
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
+
+        void xBlockDBAutoEnable_CheckedChanged(object sender, EventArgs e) {
+            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
+        }
+
+
+        void cPatrolledRank_SelectedIndexChanged(object sender, EventArgs e) {
+            RankManager.PatrolledRank = RankManager.FindRank(cPatrolledRank.SelectedIndex - 1);
         }
 
         #endregion
@@ -477,10 +546,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         }
 
         #endregion
-
-        void xAnnounceRankChanges_CheckedChanged( object sender, EventArgs e ) {
-            xAnnounceRankChangeReasons.Enabled = xAnnounceRankChanges.Checked;
-        }
 
         #endregion
 
@@ -628,7 +693,20 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+
+
         #region Ranks Input Handlers
+
+        readonly Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes =
+            new Dictionary<Permission, PermissionLimitBox>();
+
+        const string DefaultPermissionLimitString = "(own rank)";
+
+        void nFillLimit_ValueChanged(object sender, EventArgs e) {
+            if (selectedRank == null) return;
+            selectedRank.FillLimit = Convert.ToInt32(nFillLimit.Value);
+        }
+
 
         void bAddRank_Click( object sender, EventArgs e ) {
             int number = 1;
@@ -1110,6 +1188,61 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
+
+        void xAntispamMessageCount_CheckedChanged(object sender, EventArgs e) {
+            bool enabled = xAntispamMessageCount.Checked;
+            nAntispamMessageCount.Enabled = enabled;
+            lAntispamMessageCount.Enabled = enabled;
+            nAntispamInterval.Enabled = enabled;
+            lAntispamIntervalUnits.Enabled = enabled;
+            xAntispamMuteDuration.Enabled = enabled;
+            xAntispamKicks.Enabled = enabled;
+        }
+
+
+        void xAntispamMuteDuration_CheckedChanged(object sender, EventArgs e) {
+            nAntispamMuteDuration.Enabled = xAntispamMuteDuration.Checked;
+            lAntispamMuteDurationUnits.Enabled = xAntispamMuteDuration.Checked;
+        }
+
+
+        void FillPermissionLimitBoxes() {
+            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox("Kick limit",
+                                                                            Permission.Kick,
+                                                                            DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox("Ban limit",
+                                                                           Permission.Ban,
+                                                                           DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox("Promote limit",
+                                                                               Permission.Promote,
+                                                                               DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox("Demote limit",
+                                                                              Permission.Demote,
+                                                                              DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox("Can hide from",
+                                                                            Permission.Hide,
+                                                                            DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox("Freeze limit",
+                                                                              Permission.Freeze,
+                                                                              DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox("Mute limit",
+                                                                            Permission.Mute,
+                                                                            DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox("Bring limit",
+                                                                             Permission.Bring,
+                                                                             DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox("Spectate limit",
+                                                                                Permission.Spectate,
+                                                                                DefaultPermissionLimitString);
+            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox("Undo limit",
+                                                                                         Permission.UndoOthersActions,
+                                                                                         DefaultPermissionLimitString);
+
+            foreach (var box in permissionLimitBoxes.Values) {
+                permissionLimitBoxContainer.Controls.Add(box);
+            }
+        }
+
         #endregion
 
         #endregion
@@ -1482,112 +1615,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
         }
 
-
-        readonly Dictionary<Permission, PermissionLimitBox> permissionLimitBoxes =
-            new Dictionary<Permission, PermissionLimitBox>();
-
-        const string DefaultPermissionLimitString = "(own rank)";
-
-
-        void FillPermissionLimitBoxes() {
-            permissionLimitBoxes[Permission.Kick] = new PermissionLimitBox( "Kick limit",
-                                                                            Permission.Kick,
-                                                                            DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Ban] = new PermissionLimitBox( "Ban limit",
-                                                                           Permission.Ban,
-                                                                           DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Promote] = new PermissionLimitBox( "Promote limit",
-                                                                               Permission.Promote,
-                                                                               DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Demote] = new PermissionLimitBox( "Demote limit",
-                                                                              Permission.Demote,
-                                                                              DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Hide] = new PermissionLimitBox( "Can hide from",
-                                                                            Permission.Hide,
-                                                                            DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Freeze] = new PermissionLimitBox( "Freeze limit",
-                                                                              Permission.Freeze,
-                                                                              DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Mute] = new PermissionLimitBox( "Mute limit",
-                                                                            Permission.Mute,
-                                                                            DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Bring] = new PermissionLimitBox( "Bring limit",
-                                                                             Permission.Bring,
-                                                                             DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.Spectate] = new PermissionLimitBox( "Spectate limit",
-                                                                                Permission.Spectate,
-                                                                                DefaultPermissionLimitString );
-            permissionLimitBoxes[Permission.UndoOthersActions] = new PermissionLimitBox( "Undo limit",
-                                                                                         Permission.UndoOthersActions,
-                                                                                         DefaultPermissionLimitString );
-            
-            foreach( var box in permissionLimitBoxes.Values ) {
-                permissionLimitBoxContainer.Controls.Add( box );
-            }
-        }
-
-
-        void cDefaultRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultRank = RankManager.FindRank( cDefaultRank.SelectedIndex - 1 );
-        }
-
-
-        void cDefaultBuildRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.DefaultBuildRank = RankManager.FindRank( cDefaultBuildRank.SelectedIndex - 1 );
-        }
-
-
-        void cPatrolledRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.PatrolledRank = RankManager.FindRank( cPatrolledRank.SelectedIndex - 1 );
-        }
-
-
-        void cBlockDBAutoEnableRank_SelectedIndexChanged( object sender, EventArgs e ) {
-            RankManager.BlockDBAutoEnableRank = RankManager.FindRank( cBlockDBAutoEnableRank.SelectedIndex - 1 );
-        }
-
-
-        void xBlockDBEnabled_CheckedChanged( object sender, EventArgs e ) {
-            xBlockDBAutoEnable.Enabled = xBlockDBEnabled.Checked;
-            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
-        }
-
-
-        void xBlockDBAutoEnable_CheckedChanged( object sender, EventArgs e ) {
-            cBlockDBAutoEnableRank.Enabled = xBlockDBEnabled.Checked && xBlockDBAutoEnable.Checked;
-        }
-
-
-        void nFillLimit_ValueChanged( object sender, EventArgs e ) {
-            if( selectedRank == null ) return;
-            selectedRank.FillLimit = Convert.ToInt32( nFillLimit.Value );
-        }
-
-
-        const string ReadmeFileName = "README.txt";
-
-
-        void bReadme_Click( object sender, EventArgs e ) {
-            try {
-                if( File.Exists( ReadmeFileName ) ) {
-                    Process.Start( ReadmeFileName );
-                }
-            } catch( Exception ) {}
-        }
-
-
-        const string ChangelogFileName = "CHANGELOG.txt";
-
-
-        void bChangelog_Click( object sender, EventArgs e ) {
-            try {
-                if( File.Exists( ChangelogFileName ) ) {
-                    Process.Start( ChangelogFileName );
-                }
-            } catch( Exception ) {}
-        }
-
-
         static bool usePrefixes;
 
 
@@ -1597,31 +1624,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } else {
                 return rank.Name;
             }
-        }
-
-
-        void xRankPrefixesInChat_CheckedChanged( object sender, EventArgs e ) {
-            usePrefixes = xRankPrefixesInChat.Checked;
-            tPrefix.Enabled = usePrefixes;
-            lPrefix.Enabled = usePrefixes;
-            if( ranksLoaded ) RebuildRankList();
-        }
-
-
-        void xAntispamMessageCount_CheckedChanged( object sender, EventArgs e ) {
-            bool enabled = xAntispamMessageCount.Checked;
-            nAntispamMessageCount.Enabled = enabled;
-            lAntispamMessageCount.Enabled = enabled;
-            nAntispamInterval.Enabled = enabled;
-            lAntispamIntervalUnits.Enabled = enabled;
-            xAntispamMuteDuration.Enabled = enabled;
-            xAntispamKicks.Enabled = enabled;
-        }
-
-
-        void xAntispamMuteDuration_CheckedChanged( object sender, EventArgs e ) {
-            nAntispamMuteDuration.Enabled = xAntispamMuteDuration.Checked;
-            lAntispamMuteDurationUnits.Enabled = xAntispamMuteDuration.Checked;
         }
 
 
@@ -1682,11 +1684,6 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             } else {
                 return null;
             }
-        }
-
-
-        void xAllowFreePlayers_CheckedChanged( object sender, EventArgs e ) {
-            xAllowEmailAccounts.Enabled = xAllowFreePlayers.Checked;
         }
     }
 }
