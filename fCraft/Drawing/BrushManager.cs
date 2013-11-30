@@ -52,6 +52,8 @@ namespace fCraft.Drawing {
             RegisterBrush( ReplaceBrushFactory.Instance );
             RegisterBrush( ReplaceNotBrushFactory.Instance );
             RegisterBrush( ReplaceBrushBrushFactory.Instance );
+            RegisterBrush( PasteBrushFactory.PasteInstance );
+            RegisterBrush( PasteBrushFactory.PasteNotInstance );
         }
 
 
