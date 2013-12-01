@@ -12,8 +12,6 @@ namespace fCraft.Drawing {
         /// <summary> Global singleton instance of CloudyBrushFactory. </summary>
         public static readonly CloudyBrushFactory Instance = new CloudyBrushFactory();
 
-        CloudyBrushFactory() {}
-
         public string Name {
             get { return "Cloudy"; }
         }
@@ -22,12 +20,13 @@ namespace fCraft.Drawing {
             get { return null; }
         }
 
-        const string HelpString = "Cloudy brush: Creates a swirling pattern of two or more block types. " +
-                                  "If only one block name is given, leaves every other block untouched.";
-
         public string Help {
-            get { return HelpString; }
+            get { return "Cloudy brush: Creates a swirling pattern of two or more block types. " +
+                         "If only one block name is given, leaves every other block untouched."; }
         }
+
+
+        CloudyBrushFactory() { }
 
 
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
@@ -69,6 +68,7 @@ namespace fCraft.Drawing {
                     scale = tempScale;
                     scaleSpecified = true;
                     continue;
+
                 } else if( rawNextParam.EndsWith( "T", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
                     int tempTurbulence;
@@ -87,6 +87,7 @@ namespace fCraft.Drawing {
                         turbulenceSpecified = true;
                         continue;
                     }
+
                 } else if( rawNextParam.EndsWith( "S", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
                     try {
@@ -107,9 +108,8 @@ namespace fCraft.Drawing {
                 Block block;
                 if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 1 || ratio > CloudyBrush.MaxRatio ) {
-                    player.Message( "Cloudy brush: Invalid block ratio ({0}). Must be between 1 and {1}.",
-                                    ratio,
-                                    CloudyBrush.MaxRatio );
+                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and {2}.",
+                                    Name, ratio, CloudyBrush.MaxRatio );
                     return null;
                 }
                 blocks.Add( block );
@@ -119,8 +119,8 @@ namespace fCraft.Drawing {
             CloudyBrush madeBrush;
             switch( blocks.Count ) {
                 case 0:
-                    madeBrush = new CloudyBrush();
-                    break;
+                    player.Message( "{0} brush: Please specify at least one block type.", Name );
+                    return null;
                 case 1:
                     madeBrush = new CloudyBrush( blocks[0], blockRatios[0] );
                     break;
@@ -139,7 +139,7 @@ namespace fCraft.Drawing {
 
 
     /// <summary> Brush that uses 3D perlin noise to create "cloudy" patterns. </summary>
-    public sealed class CloudyBrush : IBrush, IBrushInstance {
+    public sealed class CloudyBrush : IBrush {
         static readonly object SeedGenLock = new object();
         static readonly Random SeedGenerator = new Random();
 
@@ -152,6 +152,18 @@ namespace fCraft.Drawing {
         public const float TurbulenceDefault = 0.75f,
                            FrequencyDefault = 0.08f;
 
+
+        float[] computedThresholds;
+
+        float normMultiplier,
+              normConstant;
+
+        PerlinNoise3D noise3D;
+
+
+        public int AlternateBlocks {
+            get { return 1; }
+        }
 
         /// <summary> Seed of the random generator (unsigned short). </summary>
         public UInt16 Seed { get; set; }
@@ -177,15 +189,52 @@ namespace fCraft.Drawing {
         public int[] BlockRatios { get; private set; }
 
 
-        float[] computedThresholds;
-
-        float normMultiplier,
-              normConstant;
-
-        PerlinNoise3D noise3D;
+        public IBrushFactory Factory {
+            get { return CloudyBrushFactory.Instance; }
+        }
 
 
-        public CloudyBrush() {
+        public string Description {
+            get {
+                StringBuilder sb = new StringBuilder(Factory.Name);
+                if (Blocks.Length == 0) {
+                    return sb.ToString();
+                }
+                sb.Append('(');
+
+                if (BlockRatios.All(r => r == 1) &&
+                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None)) {
+                    sb.Append(Blocks[0]);
+                } else {
+                    for (int i = 0; i < Blocks.Length; i++) {
+                        if (i != 0) sb.Append(',').Append(' ');
+                        sb.Append(Blocks[i]);
+                        if (BlockRatios[i] > 1) {
+                            sb.Append('/');
+                            sb.Digits(BlockRatios[i]);
+                        }
+                    }
+                }
+
+                sb.Append(" -");
+
+                if (Math.Abs(Frequency - FrequencyDefault) > 0.00001f) {
+                    int scale = (int)Math.Round((FrequencyDefault * 100) / Frequency);
+                    sb.AppendFormat(" {0:0}%", scale);
+                }
+
+                if (Math.Abs(Turbulence - TurbulenceDefault) > 0.00001f) {
+                    int turbulence = (int)Math.Round((Turbulence * 100) / TurbulenceDefault);
+                    sb.AppendFormat(" {0:0}T", turbulence);
+                }
+
+                sb.AppendFormat(" {0:X})", Seed);
+                return sb.ToString();
+            }
+        }
+
+
+        CloudyBrush() {
             Seed = NextSeed();
             Blocks = new Block[0];
             BlockRatios = new int[0];
@@ -213,14 +262,10 @@ namespace fCraft.Drawing {
         }
 
 
-        public CloudyBrush( [NotNull] CloudyBrush other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
-            Blocks = other.Blocks;
-            BlockRatios = other.BlockRatios;
-            Seed = other.Seed;
-            Frequency = other.Frequency;
-            Octaves = other.Octaves;
-            Turbulence = other.Turbulence;
+        public static UInt16 NextSeed() {
+            lock (SeedGenLock) {
+                return (UInt16)SeedGenerator.Next(UInt16.MaxValue);
+            }
         }
 
 
@@ -231,7 +276,7 @@ namespace fCraft.Drawing {
             bool extraLarge = (op.Bounds.Volume > ExtraLargeThreshold);
 
             if( extraLarge ) {
-                player.MessageNow( "{0} brush: Preparing, please wait...", Brush.Factory.Name );
+                player.MessageNow( "{0} brush: Preparing, please wait...", Factory.Name );
             }
 
             noise3D = new PerlinNoise3D( new Random( Seed ) ) {
@@ -294,116 +339,6 @@ namespace fCraft.Drawing {
         }
 
 
-        public static UInt16 NextSeed() {
-            lock( SeedGenLock ) {
-                return (UInt16)SeedGenerator.Next( UInt16.MaxValue );
-            }
-        }
-
-        #region IBrush members
-
-        public IBrushFactory Factory {
-            get { return CloudyBrushFactory.Instance; }
-        }
-
-
-        public string Description {
-            get {
-                StringBuilder sb = new StringBuilder( Factory.Name );
-                if( Blocks.Length == 0 ) {
-                    return sb.ToString();
-                }
-                sb.Append( '(' );
-
-                if( BlockRatios.All( r => r == 1 ) &&
-                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None) ) {
-                    sb.Append( Blocks[0] );
-                } else {
-                    for( int i = 0; i < Blocks.Length; i++ ) {
-                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
-                        sb.Append( Blocks[i] );
-                        if( BlockRatios[i] > 1 ) {
-                            sb.Append( '/' );
-                            sb.Digits( BlockRatios[i] );
-                        }
-                    }
-                }
-
-                sb.Append( " -" );
-
-                if( Math.Abs( Frequency - FrequencyDefault ) > 0.00001f ) {
-                    int scale = (int)Math.Round( (FrequencyDefault*100)/Frequency );
-                    sb.AppendFormat( " {0:0}%", scale );
-                }
-
-                if( Math.Abs( Turbulence - TurbulenceDefault ) > 0.00001f ) {
-                    int turbulence = (int)Math.Round( (Turbulence*100)/TurbulenceDefault );
-                    sb.AppendFormat( " {0:0}T", turbulence );
-                }
-
-                sb.AppendFormat( " {0:X})", Seed );
-                return sb.ToString();
-            }
-        }
-
-
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
-
-            List<Block> blocks = new List<Block>();
-            List<int> blockRatios = new List<int>();
-            while( cmd.HasNext ) {
-                int ratio;
-                Block block;
-                if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
-                if( ratio < 1 || ratio > MaxRatio ) {
-                    player.Message( "Cloudy brush: Invalid block ratio ({0}). Must be between 1 and {1}.",
-                                    ratio,
-                                    MaxRatio );
-                    return null;
-                }
-                blocks.Add( block );
-                blockRatios.Add( ratio );
-            }
-
-            switch( blocks.Count ) {
-                case 0:
-                    if( Blocks.Length == 0 ) {
-                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                        return null;
-                    } else {
-                        return new CloudyBrush( this );
-                    }
-                case 1:
-                    return new CloudyBrush( blocks[0], blockRatios[0] );
-                default:
-                    return new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
-            }
-        }
-
-        #endregion
-
-        #region IBrushInstance members
-
-        public int AlternateBlocks {
-            get { return 1; }
-        }
-
-
-        public IBrush Brush {
-            get { return this; }
-        }
-
-
-        public string InstanceDescription {
-            get { return Description; }
-        }
-
-
-        public void End() {}
-
-        #endregion
+        public void End() { }
     }
 }

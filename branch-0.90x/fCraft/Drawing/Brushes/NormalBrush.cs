@@ -6,9 +6,24 @@ using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Constructs NormalBrush. </summary>
-    public sealed class NormalBrushFactory : IBrushFactory, IBrush {
+    public sealed class NormalBrushFactory : IBrushFactory {
         /// <summary> Singleton instance of the NormalBrushFactory. </summary>
         public static readonly NormalBrushFactory Instance = new NormalBrushFactory();
+
+
+        public string[] Aliases { get; private set; }
+
+        public string Help {
+            get {
+                return "Normal brush: Fills the area with solid color. " +
+                                "If no block name is given, uses the last block that player has placed.";
+            }
+        }
+
+        public string Name {
+            get { return "Normal"; }
+        }
+
 
 
         NormalBrushFactory() {
@@ -16,44 +31,10 @@ namespace fCraft.Drawing {
         }
 
 
-        public string Name {
-            get { return "Normal"; }
-        }
-
-
-        public string[] Aliases { get; private set; }
-
-
-        const string HelpString = "Normal brush: Fills the area with solid color. " +
-                                  "If no block name is given, uses the last block that player has placed.";
-
-        public string Help {
-            get { return HelpString; }
-        }
-
-
-        public string Description {
-            get { return Name; }
-        }
-
-
-        public IBrushFactory Factory {
-            get { return this; }
-        }
-
-
-        [NotNull]
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            return this;
-        }
 
-
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
             List<Block> blocks = new List<Block>();
 
             while( cmd.HasNext ) {
@@ -70,22 +51,27 @@ namespace fCraft.Drawing {
 
 
     /// <summary> Brush that creates a solid, single-block fill. </summary>
-    public sealed class NormalBrush : IBrushInstance {
+    public sealed class NormalBrush : IBrush {
+        public int AlternateBlocks {
+            get { return Blocks.Length; }
+        }
+
+
         public Block[] Blocks { get; private set; }
 
 
-        public string InstanceDescription {
+        public string Description {
             get {
-                if( Blocks.Length == 0 ) {
-                    return Brush.Factory.Name;
+                if (Blocks.Length == 0) {
+                    return Factory.Name;
                 } else {
-                    return String.Format( "{0}({1})", Brush.Factory.Name, Blocks.JoinToString() );
+                    return String.Format("{0}({1})", Factory.Name, Blocks.JoinToString());
                 }
             }
         }
 
 
-        public IBrush Brush {
+        public IBrushFactory Factory {
             get { return NormalBrushFactory.Instance; }
         }
 
@@ -119,11 +105,6 @@ namespace fCraft.Drawing {
             } else {
                 return Block.None;
             }
-        }
-
-
-        public int AlternateBlocks {
-            get { return Blocks.Length; }
         }
 
 

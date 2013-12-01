@@ -14,10 +14,6 @@ namespace fCraft.Drawing {
         /// <summary> Global singleton instance that provides "PasteNot" brushes. </summary>
         public static readonly PasteBrushFactory PasteNotInstance = new PasteBrushFactory( true );
 
-        PasteBrushFactory( bool not ) {
-            Not = not;
-        }
-
 
         /// <summary> Whether this factory creates inclusive-filtering (Paste) or
         /// exclusive-filtering (PasteNot) variation of the brush. </summary>
@@ -33,6 +29,11 @@ namespace fCraft.Drawing {
 
         public string Help {
             get { return Name + " brush: Makes a tiled pattern out of copied blocks."; }
+        }
+
+
+        PasteBrushFactory( bool not ) {
+            Not = not;
         }
 
 
@@ -68,6 +69,11 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that makes a tiled pattern out of copied blocks. </summary>
     public sealed class PasteBrush : IBrush {
+
+        public int AlternateBlocks {
+            get { return 1; }
+        }
+
         /// <summary> Whether this is an inclusive-filtering (Paste) or
         /// exclusive-filtering (PasteNot) variation of the brush. </summary>
         public bool Not { get; private set; }
@@ -78,10 +84,28 @@ namespace fCraft.Drawing {
         [CanBeNull]
         public Block[] Blocks { get; private set; }
 
+        /// <summary> CopyState from which blocks are pasted. </summary>
+        public CopyState CopyInfo { get; private set; }
+
+        public IBrushFactory Factory {
+            get { return Not ? PasteBrushFactory.PasteNotInstance : PasteBrushFactory.PasteInstance; }
+        }
+
+        public string Description {
+            get {
+                if (Blocks == null) {
+                    return Factory.Name;
+                } else {
+                    return String.Format("{0}({1})",
+                                          Factory.Name,
+                                          Blocks.JoinToString());
+                }
+            }
+        }
+
 
         /// <summary> Creates a new all-inclusive Paste brush. </summary>
-        public PasteBrush() { }
-
+        public PasteBrush() {}
 
         /// <summary> Creates a new filtering Paste or PasteNot brush. </summary>
         /// <param name="blocks"> Array of block types for filtering. May not be null or empty. </param>
@@ -97,72 +121,16 @@ namespace fCraft.Drawing {
             Blocks = blocks;
         }
 
-        public IBrushFactory Factory {
-            get { return CloudyBrushFactory.Instance; }
-        }
 
-
-        public string Description {
-            get {
-                if( Blocks == null ) {
-                    return Factory.Name;
-                } else {
-                    return String.Format( "{0}({1})",
-                                          Factory.Name,
-                                          Blocks.JoinToString() );
-                }
-            }
-        }
-
-
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
-
-            CopyState cs = player.GetCopyState();
-            if( cs == null ) {
+        public bool Begin(Player player, DrawOperation op) {
+            CopyInfo = player.GetCopyState();
+            if( CopyInfo == null ) {
                 player.Message( "{0}: Nothing to paste! Copy something first.", Factory.Name );
-                return null;
+                return false;
             }
-
-            return new PasteBrushInstance( this, cs );
-        }
-    }
-
-
-    /// <summary> Single-use instance of PasteBrush, for a specific CopyState. </summary>
-    public sealed class PasteBrushInstance : IBrushInstance {
-        readonly PasteBrush brush;
-
-        public int AlternateBlocks {
-            get { return 0; }
-        }
-
-        public IBrush Brush {
-            get { return brush; }
-        }
-
-        /// <summary> CopyState from which blocks are pasted. </summary>
-        public CopyState CopyInfo { get; private set; }
-
-
-        public string InstanceDescription {
-            get { return Brush.Description; }
-        }
-
-        /// <summary> Creates a new instance of PasteBrush, for a given CopyState. </summary>
-        /// <exception cref="ArgumentNullException"> brush or copyInfo is null. </exception>
-        public PasteBrushInstance( [NotNull] PasteBrush brush, [NotNull] CopyState copyInfo ) {
-            if( brush == null ) throw new ArgumentNullException( "brush" );
-            if( copyInfo == null ) throw new ArgumentNullException( "copyInfo" );
-            this.brush = brush;
-            CopyInfo = copyInfo;
-        }
-
-        public bool Begin( Player player, DrawOperation op ) {
             return true;
         }
+
 
         public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -173,18 +141,18 @@ namespace fCraft.Drawing {
                 Y = op.Coords.Y%CopyInfo.Bounds.Length,
                 Z = op.Coords.Z%CopyInfo.Bounds.Height
             };
-            Block block = CopyInfo.Blocks[pasteCoords.X, pasteCoords.Y, pasteCoords.Z];
+            Block blockToPaste = CopyInfo.Blocks[pasteCoords.X, pasteCoords.Y, pasteCoords.Z];
 
-            if( brush.Blocks == null ) {
-                return block;
-            } else if( brush.Not ) {
-                for( int i = 0; i < brush.Blocks.Length; i++ ) {
-                    if( block == brush.Blocks[i] ) return Block.None;
+            if( Blocks == null ) {
+                return blockToPaste;
+            } else if( Not ) {
+                for( int i = 0; i < Blocks.Length; i++ ) {
+                    if( blockToPaste == Blocks[i] ) return Block.None;
                 }
-                return block;
+                return blockToPaste;
             } else {
-                for( int i = 0; i < brush.Blocks.Length; i++ ) {
-                    if( block == brush.Blocks[i] ) return block;
+                for( int i = 0; i < Blocks.Length; i++ ) {
+                    if( blockToPaste == Blocks[i] ) return blockToPaste;
                 }
                 return Block.None;
             }
