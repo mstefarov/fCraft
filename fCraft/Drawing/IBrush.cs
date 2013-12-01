@@ -40,30 +40,6 @@ namespace fCraft.Drawing {
         [NotNull]
         string Description { get; }
 
-        /// <summary> Creates an instance for this configured brush, for use with a specific DrawOperation. </summary>
-        /// <param name="player"> Player who will be using this brush.
-        /// Errors and warnings about the brush creation should be communicated by messaging the player. </param>
-        /// <param name="cmd"> Parameters passed to the DrawOperation.
-        /// If any are given, these parameters should generally replace any stored configuration. </param>
-        /// <param name="op"> DrawOperation that will be using this brush. </param>
-        /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
-        [CanBeNull]
-        IBrushInstance MakeInstance( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op );
-    }
-
-
-    /// <summary> Class that describes an individual instance of a configured brush.
-    /// Each brush instance will only be used for one DrawOperation, so it can store state.
-    /// Stateless brush types may combine IBrush and IBrushInstance into one class. </summary>
-    public interface IBrushInstance {
-        /// <summary> Configured brush that created this instance. </summary>
-        [NotNull]
-        IBrush Brush { get; }
-
-        /// <summary> A compact readable summary of brush type, configuration, and state. </summary>
-        [NotNull]
-        string InstanceDescription { get; }
-
         /// <summary> Whether the brush is capable of providing alternate blocks (e.g. for filling hollow DrawOps).</summary>
         int AlternateBlocks { get; }
 

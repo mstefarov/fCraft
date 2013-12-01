@@ -28,7 +28,9 @@ namespace fCraft.Drawing {
         }
 
         public bool Not { get; private set; }
+
         public Block[] Blocks { get; private set; }
+
         public Vector3I Start { get; private set; }
 
         public CopyState CopyInfo { get; private set; }

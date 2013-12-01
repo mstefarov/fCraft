@@ -25,7 +25,7 @@ namespace fCraft.Drawing {
         /// <summary> Brush used to determine which blocks to place.
         /// Must be assigned before DrawOperation.Prepare() is called. </summary>
         [NotNull]
-        public IBrushInstance Brush { get; set; }
+        public IBrush Brush { get; set; }
 
         /// <summary> Block change context, to be reported to BlockDB and Player.PlacingBlock/PlacedBlock events. 
         /// Should include BlockChangeContext.Drawn flag. </summary>
@@ -108,7 +108,7 @@ namespace fCraft.Drawing {
         /// and the brush's instance description. </summary>
         [NotNull]
         public virtual string Description {
-            get { return String.Format( "{0}/{1}", Name, Brush.InstanceDescription ); }
+            get { return String.Format( "{0}/{1}", Name, Brush.Description ); }
         }
 
         /// <summary> Whether completion or cancellation of this DrawOperation should be announced to Player. </summary>

@@ -5,7 +5,7 @@ using System;
 namespace fCraft.Drawing {
     /// <summary> A self-contained DrawOperation that provides its own brush.
     /// Purpose of this class is mostly to take care of the boilerplate code. </summary>
-    public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush, IBrushInstance {
+    public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush {
         public abstract override string Description { get; }
 
         protected DrawOpWithBrush( Player player )
@@ -46,35 +46,19 @@ namespace fCraft.Drawing {
             get { throw new NotImplementedException(); }
         }
 
-        IBrushInstance IBrush.MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
-            return ReadParams( cmd ) ? this : null;
-        }
-
-        #endregion
-
-        #region IBrushInstance Members
-
-        IBrush IBrushInstance.Brush {
-            get { return this; }
-        }
-
-        string IBrushInstance.InstanceDescription {
-            get { return Description; }
-        }
-
-        int IBrushInstance.AlternateBlocks {
+        int IBrush.AlternateBlocks {
             get { return 1; }
         }
 
-        bool IBrushInstance.Begin( Player player, DrawOperation op ) {
+        bool IBrush.Begin(Player player, DrawOperation op) {
             return true;
         }
 
-        Block IBrushInstance.NextBlock( DrawOperation op ) {
+        Block IBrush.NextBlock(DrawOperation op) {
             return NextBlock();
         }
 
-        void IBrushInstance.End() {}
+        void IBrush.End() { }
 
         #endregion
     }

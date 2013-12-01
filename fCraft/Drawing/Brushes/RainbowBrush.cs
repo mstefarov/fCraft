@@ -5,11 +5,20 @@ using System;
 namespace fCraft.Drawing {
     /// <summary> Brush that creates a diagonal rainbow pattern, using
     /// Red, Orange, Yellow, Green, Aqua, Blue, and Violet blocks. </summary>
-    public sealed class RainbowBrush : IBrushFactory, IBrush, IBrushInstance {
+    public sealed class RainbowBrush : IBrushFactory, IBrush {
         /// <summary> Global singleton instance of RainbowBrush. </summary>
         public static readonly RainbowBrush Instance = new RainbowBrush();
 
-        RainbowBrush() {}
+        static readonly Block[] Rainbow = {
+            Block.Red,
+            Block.Orange,
+            Block.Yellow,
+            Block.Green,
+            Block.Aqua,
+            Block.Blue,
+            Block.Violet
+        };
+
 
         public string Name {
             get { return "Rainbow"; }
@@ -23,10 +32,8 @@ namespace fCraft.Drawing {
             get { return null; }
         }
 
-        const string HelpString = "Rainbow brush: Creates a diagonal 7-color rainbow pattern.";
-
         public string Help {
-            get { return HelpString; }
+            get { return "Rainbow brush: Creates a diagonal 7-color rainbow pattern."; }
         }
 
 
@@ -39,31 +46,11 @@ namespace fCraft.Drawing {
         }
 
 
+        RainbowBrush() {}
+
+
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
             return this;
-        }
-
-
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
-            return this;
-        }
-
-        static readonly Block[] Rainbow = {
-            Block.Red,
-            Block.Orange,
-            Block.Yellow,
-            Block.Green,
-            Block.Aqua,
-            Block.Blue,
-            Block.Violet
-        };
-
-        public string InstanceDescription {
-            get { return "Rainbow"; }
-        }
-
-        public IBrush Brush {
-            get { return Instance; }
         }
 
         public bool Begin( Player player, DrawOperation state ) {
@@ -72,12 +59,10 @@ namespace fCraft.Drawing {
             return true;
         }
 
-
         public Block NextBlock( DrawOperation state ) {
             if( state == null ) throw new ArgumentNullException( "state" );
             return Rainbow[(state.Coords.X + state.Coords.Y + state.Coords.Z)%7];
         }
-
 
         public void End() {}
     }

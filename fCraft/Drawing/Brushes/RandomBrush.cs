@@ -12,7 +12,7 @@ namespace fCraft.Drawing {
         public static readonly RandomBrushFactory Instance = new RandomBrushFactory();
 
         RandomBrushFactory() {
-            Aliases = new[] {"rand"};
+            Aliases = new[] {"Rand"};
         }
 
         public string Name {
@@ -40,7 +40,7 @@ namespace fCraft.Drawing {
                 Block block;
                 if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
                 if( ratio < 1 || ratio > RandomBrush.MaxRatio ) {
-                    player.Message( "Random brush: Invalid block ratio ({0}). Must be between 1 and {1}.",
+                    player.Message( "RandomBrush: Invalid block ratio ({0}). Must be between 1 and {1}.",
                                     ratio,
                                     RandomBrush.MaxRatio );
                     return null;
@@ -51,7 +51,8 @@ namespace fCraft.Drawing {
 
             switch( blocks.Count ) {
                 case 0:
-                    return new RandomBrush();
+                    player.Message( "{0} brush: Please specify at least one block.", Name );
+                    return null;
                 case 1:
                     return new RandomBrush( blocks[0], blockRatios[0] );
                 default:
@@ -63,17 +64,47 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that creates a random pattern,
     /// with individually adjustable probabilities for each block type. </summary>
-    public sealed class RandomBrush : IBrushInstance, IBrush {
+    public sealed class RandomBrush : IBrush {
         public const int MaxRatio = 10000;
 
-        public Block[] Blocks { get; private set; }
-        public int[] BlockRatios { get; private set; }
         readonly Block[] actualBlocks;
         readonly int seed = new Random().Next();
 
-        public RandomBrush() {
-            Blocks = new Block[0];
-            BlockRatios = new int[0];
+
+        public int AlternateBlocks {
+            get { return 1; }
+        }
+
+        public Block[] Blocks { get; private set; }
+
+        public int[] BlockRatios { get; private set; }
+
+        public string Description {
+            get {
+                if (Blocks.Length == 0) {
+                    return Factory.Name;
+                } else if (Blocks.Length == 1 || (Blocks.Length == 2 && Blocks[1] == Block.None)) {
+                    return String.Format("{0}({1})", Factory.Name, Blocks[0]);
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(Factory.Name);
+                    sb.Append('(');
+                    for (int i = 0; i < Blocks.Length; i++) {
+                        if (i != 0) sb.Append(',').Append(' ');
+                        sb.Append(Blocks[i]);
+                        if (BlockRatios[i] > 1) {
+                            sb.Append('/');
+                            sb.Digits(BlockRatios[i]);
+                        }
+                    }
+                    sb.Append(')');
+                    return sb.ToString();
+                }
+            }
+        }
+
+        public IBrushFactory Factory {
+            get { return RandomBrushFactory.Instance; }
         }
 
 
@@ -84,7 +115,8 @@ namespace fCraft.Drawing {
         }
 
 
-        public RandomBrush( Block[] blocks, int[] ratios ) {
+        public RandomBrush( [NotNull] Block[] blocks, int[] ratios ) {
+            if( blocks == null ) throw new ArgumentNullException( "blocks" );
             Blocks = blocks;
             BlockRatios = ratios;
             actualBlocks = new Block[BlockRatios.Sum()];
@@ -98,100 +130,6 @@ namespace fCraft.Drawing {
         }
 
 
-        public RandomBrush( [NotNull] RandomBrush other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
-            Blocks = other.Blocks;
-            BlockRatios = other.BlockRatios;
-            actualBlocks = other.actualBlocks;
-        }
-
-        #region IBrush members
-
-        public IBrushFactory Factory {
-            get { return RandomBrushFactory.Instance; }
-        }
-
-
-        public string Description {
-            get {
-                if( Blocks.Length == 0 ) {
-                    return Factory.Name;
-                } else if( Blocks.Length == 1 || (Blocks.Length == 2 && Blocks[1] == Block.None) ) {
-                    return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
-                } else {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append( Factory.Name );
-                    sb.Append( '(' );
-                    for( int i = 0; i < Blocks.Length; i++ ) {
-                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
-                        sb.Append( Blocks[i] );
-                        if( BlockRatios[i] > 1 ) {
-                            sb.Append( '/' );
-                            sb.Digits( BlockRatios[i] );
-                        }
-                    }
-                    sb.Append( ')' );
-                    return sb.ToString();
-                }
-            }
-        }
-
-
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( state == null ) throw new ArgumentNullException( "state" );
-
-            List<Block> blocks = new List<Block>();
-            List<int> blockRatios = new List<int>();
-            while( cmd.HasNext ) {
-                int ratio;
-                Block block;
-                if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
-                if( ratio < 1 || ratio > MaxRatio ) {
-                    player.Message( "RandomBrush: Invalid block ratio ({0}). Must be between 1 and {1}.",
-                                    ratio,
-                                    MaxRatio );
-                    return null;
-                }
-                blocks.Add( block );
-                blockRatios.Add( ratio );
-            }
-
-            switch( blocks.Count ) {
-                case 0:
-                    if( Blocks.Length == 0 ) {
-                        player.Message( "{0} brush: Please specify at least one block.", Factory.Name );
-                        return null;
-                    } else {
-                        return new RandomBrush( this );
-                    }
-                case 1:
-                    return new RandomBrush( blocks[0], blockRatios[0] );
-                default:
-                    return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
-            }
-        }
-
-        #endregion
-
-        #region IBrushInstance members
-
-        public IBrush Brush {
-            get { return this; }
-        }
-
-
-        public int AlternateBlocks {
-            get { return 1; }
-        }
-
-
-        public string InstanceDescription {
-            get { return Description; }
-        }
-
-
         public bool Begin( Player player, DrawOperation op ) {
             if( player == null ) throw new ArgumentNullException( "player" );
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -200,7 +138,6 @@ namespace fCraft.Drawing {
             }
             return true;
         }
-
 
         public Block NextBlock( DrawOperation op ) {
             if( op == null ) throw new ArgumentNullException( "op" );
@@ -211,9 +148,6 @@ namespace fCraft.Drawing {
             return actualBlocks[(int)Math.Floor( derp )];
         }
 
-
         public void End() {}
-
-        #endregion
     }
 }

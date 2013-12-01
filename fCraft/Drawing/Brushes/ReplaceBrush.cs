@@ -20,11 +20,11 @@ namespace fCraft.Drawing {
 
         public string[] Aliases { get; private set; }
 
-        const string HelpString = "Replace brush: Replaces blocks of a given type(s) with another type. " +
-                                  "Usage similar to &H/Replace&S command.";
-
         public string Help {
-            get { return HelpString; }
+            get {
+                return "Replace brush: Replaces blocks of a given type(s) with another type. " +
+                       "Usage similar to &H/Replace&S command.";
+            }
         }
 
 
@@ -40,37 +40,30 @@ namespace fCraft.Drawing {
             }
             switch( blocks.Count ) {
                 case 0:
-                    return new ReplaceBrush();
+                    player.Message( "{0}: Please specify at least one block type.", Name );
+                    return null;
                 case 1:
                     return new ReplaceBrush( blocks.ToArray(), Block.None );
-                default: {
+                default:
                     Block replacement = blocks.Pop();
                     return new ReplaceBrush( blocks.ToArray(), replacement );
-                }
             }
         }
     }
 
 
     /// <summary> Brush that replaces all blocks of given type(s) with a replacement block type. </summary>
-    public class ReplaceBrush : IBrushInstance, IBrush {
+    public class ReplaceBrush : IBrush {
         public Block[] Blocks { get; protected set; }
+
         public Block Replacement { get; protected set; }
 
-        public ReplaceBrush() {}
 
         public ReplaceBrush( Block[] blocks, Block replacement ) {
             Blocks = blocks;
             Replacement = replacement;
         }
 
-        public ReplaceBrush( [NotNull] ReplaceBrush other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
-            Blocks = other.Blocks;
-            Replacement = other.Replacement;
-        }
-
-        #region IBrush members
 
         public virtual IBrushFactory Factory {
             get { return ReplaceBrushFactory.Instance; }
@@ -94,47 +87,9 @@ namespace fCraft.Drawing {
             }
         }
 
-        public IBrushInstance MakeInstance( Player player, CommandReader cmd, DrawOperation op ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
-            if( op == null ) throw new ArgumentNullException( "op" );
-
-            Stack<Block> blocks = new Stack<Block>();
-            while( cmd.HasNext ) {
-                Block block;
-                if( !cmd.NextBlock( player, false, out block ) ) return null;
-                blocks.Push( block );
-            }
-
-            if( blocks.Count == 0 && Blocks == null ) {
-                player.Message( "{0} brush requires at least 1 block.", Factory.Name );
-                return null;
-            }
-
-            if( blocks.Count > 0 ) {
-                if( blocks.Count > 1 ) Replacement = blocks.Pop();
-                Blocks = blocks.ToArray();
-            }
-
-            return new ReplaceBrush( this );
-        }
-
-        #endregion
-
-        #region IBrushInstance members
-
-        public IBrush Brush {
-            get { return this; }
-        }
-
 
         public int AlternateBlocks {
             get { return 1; }
-        }
-
-
-        public string InstanceDescription {
-            get { return Description; }
         }
 
 
@@ -170,7 +125,5 @@ namespace fCraft.Drawing {
 
 
         public void End() {}
-
-        #endregion
     }
 }
