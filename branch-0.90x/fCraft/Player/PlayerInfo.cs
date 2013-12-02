@@ -53,7 +53,7 @@ namespace fCraft {
         public string Email;
 
         /// <summary> Player's unique numeric ID. Issued on first join. </summary>
-        public int ID;
+        public int Id;
 
         /// <summary> First time the player ever logged in, UTC.
         /// May be DateTime.MinValue if player has never been online. </summary>
@@ -300,7 +300,7 @@ namespace fCraft {
         #region Constructors and Serialization
 
         internal PlayerInfo( int id ) {
-            ID = id;
+            Id = id;
         }
 
         PlayerInfo() {
@@ -352,7 +352,7 @@ namespace fCraft {
             LastLoginDate = DateTime.UtcNow;
             Rank = startingRank;
             Name = name;
-            ID = PlayerDB.GetNextID();
+            Id = PlayerDB.GetNextId();
             LastIP = lastIP;
         }
 
@@ -434,8 +434,8 @@ namespace fCraft {
             Int32.TryParse( fields[27], NumberStyles.Integer, NumberFormatter, out info.TimesKickedOthers );
             Int32.TryParse( fields[28], NumberStyles.Integer, NumberFormatter, out info.TimesBannedOthers );
 
-            info.ID = Int32.Parse( fields[29] );
-            if( info.ID < 256 ) info.ID = PlayerDB.GetNextID();
+            info.Id = Int32.Parse( fields[29] );
+            if( info.Id < 256 ) info.Id = PlayerDB.GetNextId();
 
             byte rankChangeTypeCode;
             if( Byte.TryParse( fields[30], out rankChangeTypeCode ) ) {
@@ -622,7 +622,7 @@ namespace fCraft {
             sb.Append( ',' );
 
 
-            sb.Digits( ID ).Append( ',' ); // 29
+            sb.Digits( Id ).Append( ',' ); // 29
 
             sb.Digits( (int)RankChangeType ).Append( ',' ); // 30
 

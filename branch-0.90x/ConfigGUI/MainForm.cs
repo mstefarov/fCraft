@@ -714,7 +714,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 number++;
             }
 
-            Rank rank = new Rank( "rank" + number, RankManager.GenerateID() );
+            Rank rank = new Rank( "rank" + number, RankManager.GenerateId() );
 
             RankManager.AddRank( rank );
             selectedRank = null;

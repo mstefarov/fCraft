@@ -304,7 +304,9 @@ namespace fCraft.MapConversion {
         public static void Save( [NotNull] Map mapToSave, [NotNull] string fileName, MapFormat mapFormat ) {
             if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
             if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            if( mapFormat == MapFormat.Unknown ) throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
+            if( mapFormat == MapFormat.Unknown ) {
+                throw new ArgumentException( "Format may not be \"Unknown\"", "mapFormat" );
+            }
 
             if( Exporters.ContainsKey( mapFormat ) ) {
                 IMapExporter converter = Exporters[mapFormat];

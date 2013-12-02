@@ -12,7 +12,7 @@ namespace fCraft {
         public readonly int Timestamp;
 
         /// <summary> Numeric PlayerDB id of the player who made the change. </summary>
-        public readonly int PlayerID;
+        public readonly int PlayerId;
 
         /// <summary> X coordinate (horizontal), in terms of blocks. </summary>
         public readonly short X;
@@ -32,10 +32,10 @@ namespace fCraft {
         /// <summary> Context for this block change. </summary>
         public readonly BlockChangeContext Context;
 
-        public BlockDBEntry( int timestamp, int playerID, Vector3I coords,
+        public BlockDBEntry( int timestamp, int playerId, Vector3I coords,
                              Block oldBlock, Block newBlock, BlockChangeContext flags ) {
             Timestamp = timestamp;
-            PlayerID = playerID;
+            PlayerId = playerId;
             X = (short)coords.X;
             Y = (short)coords.Y;
             Z = (short)coords.Z;
@@ -46,7 +46,7 @@ namespace fCraft {
 
         public void Serialize( BinaryWriter writer ) {
             writer.Write( Timestamp );
-            writer.Write( PlayerID );
+            writer.Write( PlayerId );
             writer.Write( X );
             writer.Write( Y );
             writer.Write( Z );

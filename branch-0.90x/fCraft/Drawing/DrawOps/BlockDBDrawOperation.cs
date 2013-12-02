@@ -91,7 +91,7 @@ namespace fCraft.Drawing {
                 BlockDBEntry entry = changes[entryIndex];
                 Coords = new Vector3I( entry.X, entry.Y, entry.Z );
                 block = entry.OldBlock;
-                if( entry.PlayerID == Player.Info.ID ) {
+                if( entry.PlayerId == Player.Info.Id ) {
                     Context = BlockChangeContext.UndoneSelf | BlockChangeContext.Drawn;
                 } else {
                     Context = BlockChangeContext.UndoneOther | BlockChangeContext.Drawn;

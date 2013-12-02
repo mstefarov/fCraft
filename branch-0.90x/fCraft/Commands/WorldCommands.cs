@@ -516,7 +516,7 @@ namespace fCraft {
                 foreach( BlockDBEntry entry in results ) {
                     string date = DateTime.UtcNow.Subtract( DateTimeUtil.ToDateTime( entry.Timestamp ) ).ToMiniString();
 
-                    PlayerInfo info = PlayerDB.FindPlayerInfoByID( entry.PlayerID );
+                    PlayerInfo info = PlayerDB.FindPlayerInfoById( entry.PlayerId );
                     string playerName;
                     if( info == null ) {
                         playerName = "?";

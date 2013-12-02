@@ -25,7 +25,7 @@ namespace fCraft {
         [NotNull]
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
-        static int maxID = 255;
+        static int maxId = 255;
         const int BufferSize = 64*1024;
 
         /// <summary> Format version number (5). History:
@@ -95,7 +95,7 @@ namespace fCraft {
                 }
 
                 info = new PlayerInfo( name, e.StartingRank, false, rankChangeType ) {
-                    ID = GetNextID()
+                    Id = GetNextId()
                 };
 
                 list.Add( info );
@@ -131,7 +131,7 @@ namespace fCraft {
                                 "PlayerDB.Load: Done loading player DB ({0} records) in {1}ms. MaxID={2}",
                                 Trie.Count,
                                 sw.ElapsedMilliseconds,
-                                maxID );
+                                maxId );
                 } else {
                     Logger.Log( LogType.Warning, "PlayerDB.Load: No player DB file found." );
                 }
@@ -161,12 +161,12 @@ namespace fCraft {
 #endif
                     PlayerInfo info = PlayerInfo.LoadFormat2( fields );
 
-                    if( info.ID > maxID ) {
+                    if( info.Id > maxId ) {
                         Logger.Log( LogType.Warning,
                                     "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
-                                    maxID,
-                                    info.ID );
-                        maxID = info.ID;
+                                    maxId,
+                                    info.Id );
+                        maxId = info.Id;
                     }
 
                     // A record is considered "empty" if the player has never logged in.
@@ -219,7 +219,7 @@ namespace fCraft {
 
         static void RunCompatibilityChecks( int loadedVersion ) {
             // Sorting the list allows finding players by ID using binary search.
-            list.Sort( PlayerIDComparer.Instance );
+            list.Sort( PlayerIdComparer.Instance );
 
             if( loadedVersion < 4 ) {
                 int unhid = 0, unfroze = 0, unmuted = 0;
@@ -259,10 +259,10 @@ namespace fCraft {
             if( headerParts.Length < 2 ) {
                 throw new FormatException( "Invalid PlayerDB header format: " + header );
             }
-            int maxIDField;
-            if( Int32.TryParse( headerParts[0], out maxIDField ) ) {
-                if( maxIDField >= 255 ) { // IDs start at 256
-                    maxID = maxIDField;
+            int maxIdField;
+            if( Int32.TryParse( headerParts[0], out maxIdField ) ) {
+                if( maxIdField >= 255 ) { // IDs start at 256
+                    maxId = maxIdField;
                 }
             }
             int version;
@@ -284,7 +284,7 @@ namespace fCraft {
                 Stopwatch sw = Stopwatch.StartNew();
                 using( FileStream fs = OpenWrite( tempFileName ) ) {
                     using( StreamWriter writer = new StreamWriter( fs, Encoding.UTF8, BufferSize ) ) {
-                        writer.WriteLine( "{0} {1} {2}", maxID, FormatVersion, Header );
+                        writer.WriteLine( "{0} {1} {2}", maxId, FormatVersion, Header );
 
                         StringBuilder sb = new StringBuilder();
                         for( int i = 0; i < listCopy.Length; i++ ) {
@@ -332,12 +332,12 @@ namespace fCraft {
         #region Scheduled Saving
 
         static SchedulerTask saveTask;
-        static readonly TimeSpan saveInterval = TimeSpan.FromSeconds( 90 );
+        static readonly TimeSpan SaveInterval = TimeSpan.FromSeconds( 90 );
 
         internal static void StartSaveTask() {
             saveTask = Scheduler.NewBackgroundTask( SaveTask );
             saveTask.IsCritical = true;
-            saveTask.RunForever( saveInterval, saveInterval + TimeSpan.FromSeconds( 15 ) );
+            saveTask.RunForever( SaveInterval, SaveInterval + TimeSpan.FromSeconds( 15 ) );
         }
 
         static void SaveTask( [NotNull] SchedulerTask task ) {
@@ -723,8 +723,8 @@ namespace fCraft {
 
         /// <summary> Returns a unique numeric player ID.
         /// Every call to this method will produce a new sequential ID. </summary>
-        public static int GetNextID() {
-            return Interlocked.Increment( ref maxID );
+        public static int GetNextId() {
+            return Interlocked.Increment( ref maxId );
         }
 
 
@@ -732,12 +732,12 @@ namespace fCraft {
         /// <returns> PlayerInfo associated with given player ID if it was found; otherwise null. </returns>
         /// <exception cref="ArgumentOutOfRangeException"> ID is negative. </exception>
         [CanBeNull]
-        public static PlayerInfo FindPlayerInfoByID( int id ) {
+        public static PlayerInfo FindPlayerInfoById( int id ) {
             if( id < 0 ) throw new ArgumentOutOfRangeException( "id" );
             CheckIfLoaded();
             PlayerInfo dummy = new PlayerInfo( id );
             lock( AddLocker ) {
-                int index = list.BinarySearch( dummy, PlayerIDComparer.Instance );
+                int index = list.BinarySearch( dummy, PlayerIdComparer.Instance );
                 if( index >= 0 ) {
                     return list[index];
                 } else {
@@ -875,7 +875,7 @@ namespace fCraft {
                     Swap( ref p1.FirstLoginDate, ref p2.FirstLoginDate );
                     Swap( ref p1.FrozenBy, ref p2.FrozenBy );
                     Swap( ref p1.FrozenOn, ref p2.FrozenOn );
-                    Swap( ref p1.ID, ref p2.ID );
+                    Swap( ref p1.Id, ref p2.Id );
                     Swap( ref p1.IsFrozen, ref p2.IsFrozen );
                     //Swap( ref p1.IsHidden, ref p2.IsHidden );
                     Swap( ref p1.LastFailedLoginDate, ref p2.LastFailedLoginDate );
@@ -913,7 +913,7 @@ namespace fCraft {
                     Swap( ref p1.UnbannedBy, ref p2.UnbannedBy );
                     Swap( ref p1.UnbanReason, ref p2.UnbanReason );
 
-                    list.Sort( PlayerIDComparer.Instance );
+                    list.Sort( PlayerIdComparer.Instance );
                 }
             }
         }
@@ -927,12 +927,12 @@ namespace fCraft {
 
         #endregion
 
-        sealed class PlayerIDComparer : IComparer<PlayerInfo> {
-            public static readonly PlayerIDComparer Instance = new PlayerIDComparer();
-            PlayerIDComparer() {}
+        sealed class PlayerIdComparer : IComparer<PlayerInfo> {
+            public static readonly PlayerIdComparer Instance = new PlayerIdComparer();
+            PlayerIdComparer() {}
 
             public int Compare( [NotNull] PlayerInfo x, [NotNull] PlayerInfo y ) {
-                return x.ID - y.ID;
+                return x.Id - y.Id;
             }
         }
 

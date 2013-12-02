@@ -423,7 +423,7 @@ namespace fCraft {
                     player.Message( "There are {0} timers running:", list.Length );
                     foreach( ChatTimer timer in list ) {
                         player.Message( "  #{0} \"{1}&S\" (started by {2}, {3} left)",
-                                        timer.ID,
+                                        timer.Id,
                                         timer.Message,
                                         timer.StartedBy,
                                         timer.TimeLeft.ToMiniString() );

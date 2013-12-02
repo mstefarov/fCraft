@@ -12,7 +12,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using fCraft.Drawing;
 using fCraft.Events;
 using fCraft.MapConversion;
 using JetBrains.Annotations;
@@ -479,8 +478,9 @@ namespace fCraft {
 
         void Disconnect() {
             State = SessionState.Disconnected;
-            // it's possible for IP to be null if exception was thrown while getting IP in constructor
-            if( IP != null ) {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            // It's possible for IP to be null if exception was thrown while getting IP in constructor
+            if (IP != null) {
                 Server.RaiseSessionDisconnectedEvent( this, LeaveReason );
             }
 
@@ -1278,7 +1278,7 @@ namespace fCraft {
         // visible entities
         readonly Dictionary<Player, VisibleEntity> entities = new Dictionary<Player, VisibleEntity>();
         readonly Stack<Player> playersToRemove = new Stack<Player>( 127 );
-        readonly Stack<sbyte> freePlayerIDs = new Stack<sbyte>( 127 );
+        readonly Stack<sbyte> freePlayerIds = new Stack<sbyte>( 127 );
 
         // This number is used to track when entity should be re-added by other clients,
         // e.g. if their name appearance or skin changes. Calling .RefreshEntity() increments this.
@@ -1316,9 +1316,9 @@ namespace fCraft {
             foreach( var pos in entities.Values ) {
                 SendNow( Packet.MakeRemoveEntity( pos.Id ) );
             }
-            freePlayerIDs.Clear();
+            freePlayerIds.Clear();
             for( int i = 1; i <= sbyte.MaxValue; i++ ) {
-                freePlayerIDs.Push( (sbyte)i );
+                freePlayerIds.Push( (sbyte)i );
             }
             playersToRemove.Clear();
             entities.Clear();
@@ -1425,8 +1425,8 @@ namespace fCraft {
         [NotNull]
         VisibleEntity AddEntity( [NotNull] Player player ) {
             if( player == null ) throw new ArgumentNullException( "player" );
-            if( freePlayerIDs.Count > 0 ) {
-                var newEntity = new VisibleEntity( VisibleEntity.HiddenPosition, freePlayerIDs.Pop(), player.entityVersion );
+            if( freePlayerIds.Count > 0 ) {
+                var newEntity = new VisibleEntity( VisibleEntity.HiddenPosition, freePlayerIds.Pop(), player.entityVersion );
                 entities.Add( player, newEntity );
 #if DEBUG_MOVEMENT
                 Logger.Log( LogType.Debug, "AddEntity: {0} added {1} ({2})", Name, newEntity.Id, player.Name );
@@ -1478,7 +1478,7 @@ namespace fCraft {
             Logger.Log( LogType.Debug, "RemoveEntity: {0} removed {1} ({2})", Name, entities[player].Id, player.Name );
 #endif
             SendNow( Packet.MakeRemoveEntity( entities[player].Id ) );
-            freePlayerIDs.Push( entities[player].Id );
+            freePlayerIds.Push( entities[player].Id );
             entities.Remove( player );
         }
 
