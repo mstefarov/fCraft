@@ -839,7 +839,8 @@ namespace fCraft {
 
                 // reset brush to normal, if not allowed to draw advanced
                 if( !target.Can( Permission.DrawAdvanced ) ) {
-                    target.Brush = NormalBrushFactory.Instance;
+                    target.BrushFactory = NormalBrushFactory.Instance;
+                    player.Message( "Brush has been reset to \"normal\"." );
                 }
 
                 // unhide, if needed

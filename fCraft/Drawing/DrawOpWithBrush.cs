@@ -34,6 +34,10 @@ namespace fCraft.Drawing {
             return this;
         }
 
+        IBrush IBrushFactory.MakeDefault() {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
         #region IBrush Members
@@ -43,22 +47,26 @@ namespace fCraft.Drawing {
         }
 
         string IBrush.Description {
-            get { throw new NotImplementedException(); }
+            get { return Description; }
         }
 
         int IBrush.AlternateBlocks {
             get { return 1; }
         }
 
-        bool IBrush.Begin(Player player, DrawOperation op) {
+        bool IBrush.Begin( Player player, DrawOperation op ) {
             return true;
         }
 
-        Block IBrush.NextBlock(DrawOperation op) {
+        Block IBrush.NextBlock( DrawOperation op ) {
             return NextBlock();
         }
 
-        void IBrush.End() { }
+        void IBrush.End() {}
+
+        IBrush IBrush.Clone() {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

@@ -26,7 +26,7 @@ namespace fCraft.Drawing {
         static void BrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string brushName = cmd.Next();
             if( brushName == null ) {
-                player.Message( player.Brush.Description );
+                player.Message( player.LastUsedBrush.Description );
             } else {
                 IBrushFactory brushFactory = GetBrushFactory( brushName );
                 if( brushFactory == null ) {
@@ -34,8 +34,8 @@ namespace fCraft.Drawing {
                 } else {
                     IBrush newBrush = brushFactory.MakeBrush( player, cmd );
                     if( newBrush != null ) {
-                        player.Brush = newBrush;
-                        player.Message( "Brush set to {0}", player.Brush.Description );
+                        player.LastUsedBrush = newBrush;
+                        player.Message( "Brush set to {0}", player.LastUsedBrush.Description );
                     }
                 }
             }

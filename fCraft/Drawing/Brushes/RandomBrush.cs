@@ -21,11 +21,11 @@ namespace fCraft.Drawing {
 
         public string[] Aliases { get; private set; }
 
-        const string HelpString = "Random brush: Chaotic pattern of two or more random block types. " +
-                                  "If only one block name is given, leaves every other block untouched.";
-
         public string Help {
-            get { return HelpString; }
+            get {
+                return "Random brush: Chaotic pattern of two or more random block types. " +
+                       "If only one block name is given, leaves every other block untouched.";
+            }
         }
 
 
@@ -59,6 +59,11 @@ namespace fCraft.Drawing {
                     return new RandomBrush( blocks.ToArray(), blockRatios.ToArray() );
             }
         }
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
+        }
     }
 
 
@@ -81,23 +86,23 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if (Blocks.Length == 0) {
+                if( Blocks.Length == 0 ) {
                     return Factory.Name;
-                } else if (Blocks.Length == 1 || (Blocks.Length == 2 && Blocks[1] == Block.None)) {
-                    return String.Format("{0}({1})", Factory.Name, Blocks[0]);
+                } else if( Blocks.Length == 1 || (Blocks.Length == 2 && Blocks[1] == Block.None) ) {
+                    return String.Format( "{0}({1})", Factory.Name, Blocks[0] );
                 } else {
                     StringBuilder sb = new StringBuilder();
-                    sb.Append(Factory.Name);
-                    sb.Append('(');
-                    for (int i = 0; i < Blocks.Length; i++) {
-                        if (i != 0) sb.Append(',').Append(' ');
-                        sb.Append(Blocks[i]);
-                        if (BlockRatios[i] > 1) {
-                            sb.Append('/');
-                            sb.Digits(BlockRatios[i]);
+                    sb.Append( Factory.Name );
+                    sb.Append( '(' );
+                    for( int i = 0; i < Blocks.Length; i++ ) {
+                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
+                        sb.Append( Blocks[i] );
+                        if( BlockRatios[i] > 1 ) {
+                            sb.Append( '/' );
+                            sb.Digits( BlockRatios[i] );
                         }
                     }
-                    sb.Append(')');
+                    sb.Append( ')' );
                     return sb.ToString();
                 }
             }
@@ -144,10 +149,14 @@ namespace fCraft.Drawing {
             int n = seed ^ (op.Coords.X + 1290*op.Coords.Y + 1664510*op.Coords.Z);
             n = (n << 13) ^ n;
             n = (n*(n*n*15731 + 789221) + 1376312589) & 0x7FFFFFFF;
-            double derp = (n/(double)0x7FFFFFFF)*actualBlocks.Length;
-            return actualBlocks[(int)Math.Floor( derp )];
+            double derp = (n/(double) 0x7FFFFFFF)*actualBlocks.Length;
+            return actualBlocks[(int) Math.Floor( derp )];
         }
 
         public void End() {}
+
+        public IBrush Clone() {
+            return new RandomBrush( Blocks, BlockRatios );
+        }
     }
 }

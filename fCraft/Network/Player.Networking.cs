@@ -85,7 +85,7 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
-            Brush = NormalBrushFactory.Instance;
+            BrushFactory = NormalBrushFactory.Instance;
             Metadata = new MetadataCollection<object>();
 
             try {
@@ -1701,6 +1701,7 @@ namespace fCraft {
         string ClientName { get; set; }
 
         bool NegotiateCpe() {
+            return true;
             // Send server capabilities (we currently support 0 extensions :D)
             writer.Write( Packet.MakeExtInfo( 0 ).Bytes );
             // TODO: send our supported extensions here

@@ -16,14 +16,13 @@ namespace fCraft.Drawing {
         public string Help {
             get {
                 return "Normal brush: Fills the area with solid color. " +
-                                "If no block name is given, uses the last block that player has placed.";
+                       "If no block name is given, uses the last block that player has placed.";
             }
         }
 
         public string Name {
             get { return "Normal"; }
         }
-
 
 
         NormalBrushFactory() {
@@ -47,6 +46,10 @@ namespace fCraft.Drawing {
 
             return new NormalBrush( blocks.ToArray() );
         }
+
+        public IBrush MakeDefault() {
+            return new NormalBrush();
+        }
     }
 
 
@@ -62,10 +65,10 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if (Blocks.Length == 0) {
+                if( Blocks.Length == 0 ) {
                     return Factory.Name;
                 } else {
-                    return String.Format("{0}({1})", Factory.Name, Blocks.JoinToString());
+                    return String.Format( "{0}({1})", Factory.Name, Blocks.JoinToString() );
                 }
             }
         }
@@ -75,6 +78,8 @@ namespace fCraft.Drawing {
             get { return NormalBrushFactory.Instance; }
         }
 
+
+        public NormalBrush() {}
 
         public NormalBrush( params Block[] blocks ) {
             Blocks = blocks;
@@ -109,5 +114,10 @@ namespace fCraft.Drawing {
 
 
         public void End() {}
+
+
+        public IBrush Clone() {
+            return new NormalBrush( Blocks );
+        }
     }
 }

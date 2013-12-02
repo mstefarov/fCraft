@@ -49,6 +49,12 @@ namespace fCraft.Drawing {
                     return new ReplaceBrush( blocks.ToArray(), replacement );
             }
         }
+
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
+        }
     }
 
 
@@ -125,5 +131,10 @@ namespace fCraft.Drawing {
 
 
         public void End() {}
+
+
+        public IBrush Clone() {
+            return new ReplaceBrush( Blocks, Replacement );
+        }
     }
 }

@@ -16,13 +16,15 @@ namespace fCraft.Drawing {
         public string[] Aliases { get; private set; }
 
         public string Help {
-            get { return "Checkered brush: Fills the area with alternating checkered pattern. " +
-                         "If only one block name is given, leaves every other block untouched."; }
+            get {
+                return "Checkered brush: Fills the area with alternating checkered pattern. " +
+                       "If only one block name is given, leaves every other block untouched.";
+            }
         }
 
 
         CheckeredBrushFactory() {
-            Aliases = new[] { "ch" };
+            Aliases = new[] {"ch"};
         }
 
 
@@ -46,6 +48,12 @@ namespace fCraft.Drawing {
             }
 
             return new CheckeredBrush( block, altBlock );
+        }
+
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
         }
     }
 
@@ -102,5 +110,9 @@ namespace fCraft.Drawing {
         }
 
         public void End() {}
+
+        public IBrush Clone() {
+            return new CheckeredBrush( Block1, Block2 );
+        }
     }
 }

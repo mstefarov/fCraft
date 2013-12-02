@@ -23,13 +23,13 @@ namespace fCraft.Drawing {
                 if( SourceBlock == Block.None ) {
                     return String.Format( "{0}({1})",
                                           Name,
-                                          Brush.InstanceDescription );
+                                          Brush.Description );
                 } else {
                     return String.Format( "{0}({1} @{2} -> {3})",
                                           Name,
                                           SourceBlock,
                                           Axis,
-                                          Brush.InstanceDescription );
+                                          Brush.Description );
                 }
             }
         }

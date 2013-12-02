@@ -58,6 +58,12 @@ namespace fCraft.Drawing {
 
             return new ReplaceBrushBrush( block, newBrush );
         }
+
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
+        }
     }
 
 
@@ -77,15 +83,15 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                return String.Format("{0}({1} -> {2})",
+                return String.Format( "{0}({1} -> {2})",
                                       Factory.Name,
                                       Block,
-                                      Replacement.Description);
+                                      Replacement.Description );
             }
         }
 
 
-        public ReplaceBrushBrush(Block block, [NotNull] IBrush replacement) {
+        public ReplaceBrushBrush( Block block, [NotNull] IBrush replacement ) {
             Block = block;
             Replacement = replacement;
         }
@@ -111,6 +117,11 @@ namespace fCraft.Drawing {
 
         public void End() {
             Replacement.End();
+        }
+
+
+        public IBrush Clone() {
+            return new ReplaceBrushBrush( Block, Replacement.Clone() );
         }
     }
 }
