@@ -277,10 +277,15 @@ namespace fCraft {
         static void DrawOperationBegin( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
             // try to create instance of player's currently selected brush
             // all command parameters are passed to the brush
-            IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
-
-            // MakeInstance returns null if there were problems with syntax, abort
-            if( brush == null ) return;
+            IBrush brush = player.LastUsedBrush;
+            if( cmd.HasNext ) {
+                brush = player.BrushFactory.MakeBrush(player, cmd);
+                // MakeBrush returns null if there were problems with syntax, abort
+                if (brush == null) return;
+            }else if( brush == null ) {
+                player.Message(  );
+            }
+            player.LastUsedBrush = brush;
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
             player.Message( "{0}: Click or &H/Mark&S {1} blocks.", op.Description, op.ExpectedMarks );
@@ -328,7 +333,7 @@ namespace fCraft {
         static void Fill2DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
 
-            IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
+            IBrushInstance brush = player.LastUsedBrush.MakeInstance( player, cmd, op );
             if( brush == null ) return;
             op.Brush = brush;
 
@@ -385,7 +390,7 @@ namespace fCraft {
         static void Fill3DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill3DDrawOperation op = new Fill3DDrawOperation( player );
 
-            IBrushInstance brush = player.Brush.MakeInstance( player, cmd, op );
+            IBrushInstance brush = player.LastUsedBrush.MakeInstance( player, cmd, op );
             if( brush == null ) return;
             op.Brush = brush;
 
@@ -441,7 +446,7 @@ namespace fCraft {
             op.Brush = brush;
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );
-            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.", op.Brush.InstanceDescription );
+            player.MessageNow( "{0}: Click or &H/Mark&S 2 blocks.", op.Brush.Description );
         }
 
 

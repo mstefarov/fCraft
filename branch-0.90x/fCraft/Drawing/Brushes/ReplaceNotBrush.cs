@@ -40,7 +40,8 @@ namespace fCraft.Drawing {
             }
             switch( blocks.Count ) {
                 case 0:
-                    return new ReplaceNotBrush();
+                    player.Message( "{0} brush: Please specify the replacement block type.", Name );
+                    return null;
                 case 1:
                     return new ReplaceNotBrush( blocks.ToArray(), Block.None );
                 default: {
@@ -49,18 +50,18 @@ namespace fCraft.Drawing {
                 }
             }
         }
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
+        }
     }
 
 
     /// <summary> Brush that replaces all blocks EXCEPT those of given type(s) with a replacement block type. </summary>
     public sealed class ReplaceNotBrush : ReplaceBrush {
-        public ReplaceNotBrush() {}
-
         public ReplaceNotBrush( Block[] blocks, Block replacement )
             : base( blocks, replacement ) {}
-
-        public ReplaceNotBrush( [NotNull] ReplaceNotBrush other )
-            : base( other ) {}
 
 
         public override IBrushFactory Factory {

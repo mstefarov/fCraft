@@ -597,9 +597,12 @@ namespace fCraft {
 
         #region Drawing, Selection
 
-        /// <summary> Draw brush currently used by the player. Defaults to NormalBrush. May not be null. </summary>
         [NotNull]
-        public IBrush Brush { get; set; }
+        public IBrushFactory BrushFactory { get; set; }
+
+        /// <summary> Draw brush currently used by the player. Defaults to NormalBrush. May not be null. </summary>
+        [CanBeNull]
+        public IBrush LastUsedBrush { get; set; }
 
         /// <summary> Last DrawOperation executed by this player this session. May be null (if nothing has been executed yet). </summary>
         [CanBeNull]

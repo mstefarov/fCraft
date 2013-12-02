@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using JetBrains.Annotations;
@@ -21,12 +22,14 @@ namespace fCraft.Drawing {
         }
 
         public string Help {
-            get { return "Cloudy brush: Creates a swirling pattern of two or more block types. " +
-                         "If only one block name is given, leaves every other block untouched."; }
+            get {
+                return "Cloudy brush: Creates a swirling pattern of two or more block types. " +
+                       "If only one block name is given, leaves every other block untouched.";
+            }
         }
 
 
-        CloudyBrushFactory() { }
+        CloudyBrushFactory() {}
 
 
         public IBrush MakeBrush( Player player, CommandReader cmd ) {
@@ -68,7 +71,6 @@ namespace fCraft.Drawing {
                     scale = tempScale;
                     scaleSpecified = true;
                     continue;
-
                 } else if( rawNextParam.EndsWith( "T", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
                     int tempTurbulence;
@@ -87,11 +89,10 @@ namespace fCraft.Drawing {
                         turbulenceSpecified = true;
                         continue;
                     }
-
                 } else if( rawNextParam.EndsWith( "S", StringComparison.OrdinalIgnoreCase ) ) {
                     string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
                     try {
-                        seed = UInt16.Parse( numPart, System.Globalization.NumberStyles.HexNumber );
+                        seed = UInt16.Parse( numPart, NumberStyles.HexNumber );
                         if( seedSpecified ) {
                             player.Message( "Cloudy brush: Seed has been specified twice." );
                             return null;
@@ -134,6 +135,12 @@ namespace fCraft.Drawing {
             madeBrush.Seed = seed;
 
             return madeBrush;
+        }
+
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
         }
     }
 
@@ -196,39 +203,39 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                StringBuilder sb = new StringBuilder(Factory.Name);
-                if (Blocks.Length == 0) {
+                StringBuilder sb = new StringBuilder( Factory.Name );
+                if( Blocks.Length == 0 ) {
                     return sb.ToString();
                 }
-                sb.Append('(');
+                sb.Append( '(' );
 
-                if (BlockRatios.All(r => r == 1) &&
-                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None)) {
-                    sb.Append(Blocks[0]);
+                if( BlockRatios.All( r => r == 1 ) &&
+                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None) ) {
+                    sb.Append( Blocks[0] );
                 } else {
-                    for (int i = 0; i < Blocks.Length; i++) {
-                        if (i != 0) sb.Append(',').Append(' ');
-                        sb.Append(Blocks[i]);
-                        if (BlockRatios[i] > 1) {
-                            sb.Append('/');
-                            sb.Digits(BlockRatios[i]);
+                    for( int i = 0; i < Blocks.Length; i++ ) {
+                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
+                        sb.Append( Blocks[i] );
+                        if( BlockRatios[i] > 1 ) {
+                            sb.Append( '/' );
+                            sb.Digits( BlockRatios[i] );
                         }
                     }
                 }
 
-                sb.Append(" -");
+                sb.Append( " -" );
 
-                if (Math.Abs(Frequency - FrequencyDefault) > 0.00001f) {
-                    int scale = (int)Math.Round((FrequencyDefault * 100) / Frequency);
-                    sb.AppendFormat(" {0:0}%", scale);
+                if( Math.Abs( Frequency - FrequencyDefault ) > 0.00001f ) {
+                    int scale = (int) Math.Round( (FrequencyDefault*100)/Frequency );
+                    sb.AppendFormat( " {0:0}%", scale );
                 }
 
-                if (Math.Abs(Turbulence - TurbulenceDefault) > 0.00001f) {
-                    int turbulence = (int)Math.Round((Turbulence * 100) / TurbulenceDefault);
-                    sb.AppendFormat(" {0:0}T", turbulence);
+                if( Math.Abs( Turbulence - TurbulenceDefault ) > 0.00001f ) {
+                    int turbulence = (int) Math.Round( (Turbulence*100)/TurbulenceDefault );
+                    sb.AppendFormat( " {0:0}T", turbulence );
                 }
 
-                sb.AppendFormat(" {0:X})", Seed);
+                sb.AppendFormat( " {0:X})", Seed );
                 return sb.ToString();
             }
         }
@@ -263,8 +270,8 @@ namespace fCraft.Drawing {
 
 
         public static UInt16 NextSeed() {
-            lock (SeedGenLock) {
-                return (UInt16)SeedGenerator.Next(UInt16.MaxValue);
+            lock( SeedGenLock ) {
+                return (UInt16) SeedGenerator.Next( UInt16.MaxValue );
             }
         }
 
@@ -313,7 +320,7 @@ namespace fCraft.Drawing {
             computedThresholds = new float[Blocks.Length];
             computedThresholds[0] = 0;
             for( int i = 1; i < Blocks.Length; i++ ) {
-                float desiredCoverage = blocksSoFar/(float)totalBlocks;
+                float desiredCoverage = blocksSoFar/(float) totalBlocks;
                 computedThresholds[i] = Noise.FindThreshold( rawData, desiredCoverage );
                 blocksSoFar += BlockRatios[i];
             }
@@ -339,6 +346,18 @@ namespace fCraft.Drawing {
         }
 
 
-        public void End() { }
+        public void End() {}
+
+
+        public IBrush Clone() {
+            return new CloudyBrush {
+                Seed = Seed,
+                Blocks = Blocks,
+                BlockRatios = BlockRatios,
+                Turbulence = Turbulence,
+                Frequency = Frequency,
+                Octaves = Octaves
+            };
+        }
     }
 }

@@ -69,7 +69,6 @@ namespace fCraft.Drawing {
 
     /// <summary> Brush that makes a tiled pattern out of copied blocks. </summary>
     public sealed class PasteBrush : IBrush {
-
         public int AlternateBlocks {
             get { return 1; }
         }
@@ -93,12 +92,12 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if (Blocks == null) {
+                if( Blocks == null ) {
                     return Factory.Name;
                 } else {
-                    return String.Format("{0}({1})",
+                    return String.Format( "{0}({1})",
                                           Factory.Name,
-                                          Blocks.JoinToString());
+                                          Blocks.JoinToString() );
                 }
             }
         }
@@ -122,7 +121,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public bool Begin(Player player, DrawOperation op) {
+        public bool Begin( Player player, DrawOperation op ) {
             CopyInfo = player.GetCopyState();
             if( CopyInfo == null ) {
                 player.Message( "{0}: Nothing to paste! Copy something first.", Factory.Name );
@@ -160,5 +159,14 @@ namespace fCraft.Drawing {
 
 
         public void End() {}
+
+
+        public IBrush Clone() {
+            return new PasteBrush {
+                Blocks = Blocks,
+                Not = Not,
+                CopyInfo = CopyInfo
+            };
+        }
     }
 }

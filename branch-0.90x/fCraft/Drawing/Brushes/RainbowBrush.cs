@@ -53,9 +53,11 @@ namespace fCraft.Drawing {
             return this;
         }
 
+        public IBrush MakeDefault() {
+            return this;
+        }
+
         public bool Begin( Player player, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
             return true;
         }
 
@@ -65,5 +67,10 @@ namespace fCraft.Drawing {
         }
 
         public void End() {}
+
+
+        public IBrush Clone() {
+            return this;
+        }
     }
 }

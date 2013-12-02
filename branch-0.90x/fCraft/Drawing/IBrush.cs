@@ -1,5 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
+using System;
 using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
@@ -26,6 +27,9 @@ namespace fCraft.Drawing {
         /// <returns> A newly-made brush, or null if there was some problem with parameters/permissions. </returns>
         [CanBeNull]
         IBrush MakeBrush( [NotNull] Player player, [NotNull] CommandReader cmd );
+
+        [CanBeNull]
+        IBrush MakeDefault();
     }
 
 
@@ -57,5 +61,7 @@ namespace fCraft.Drawing {
         /// <summary> Called when the DrawOperation is done or cancelled.
         /// Resources used by the brush should be freed/disposed here. </summary>
         void End();
+
+        IBrush Clone();
     }
 }
