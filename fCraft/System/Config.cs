@@ -768,15 +768,15 @@ namespace fCraft {
             XElement legacyRankMappingTag = el.Element( "LegacyRankMapping" );
             if( legacyRankMappingTag != null ) {
                 foreach( XElement rankPair in legacyRankMappingTag.Elements( "LegacyRankPair" ) ) {
-                    XAttribute fromRankID = rankPair.Attribute( "from" );
-                    XAttribute toRankID = rankPair.Attribute( "to" );
-                    if( fromRankID == null || String.IsNullOrWhiteSpace( fromRankID.Value ) ||
-                        toRankID == null || String.IsNullOrWhiteSpace( toRankID.Value ) ) {
+                    XAttribute fromRankId = rankPair.Attribute( "from" );
+                    XAttribute toRankId = rankPair.Attribute( "to" );
+                    if( fromRankId == null || String.IsNullOrWhiteSpace( fromRankId.Value ) ||
+                        toRankId == null || String.IsNullOrWhiteSpace( toRankId.Value ) ) {
                         Logger.Log( LogType.Error,
                                     "Config.Load: Could not parse a LegacyRankMapping entry: {0}",
                                     rankPair );
                     } else {
-                        RankManager.LegacyRankMapping.Add( fromRankID.Value, toRankID.Value );
+                        RankManager.LegacyRankMapping.Add( fromRankId.Value, toRankId.Value );
                     }
                 }
             }
@@ -825,7 +825,7 @@ namespace fCraft {
             XElement permissions = new XElement( "Ranks" );
 
             XElement owner = new XElement( "Rank" );
-            owner.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            owner.Add( new XAttribute( "id", RankManager.GenerateId() ) );
             owner.Add( new XAttribute( "name", "owner" ) );
             owner.Add( new XAttribute( "rank", 100 ) );
             owner.Add( new XAttribute( "color", "red" ) );
@@ -910,7 +910,7 @@ namespace fCraft {
 
 
             XElement op = new XElement( "Rank" );
-            op.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            op.Add( new XAttribute( "id", RankManager.GenerateId() ) );
             op.Add( new XAttribute( "name", "op" ) );
             op.Add( new XAttribute( "rank", 80 ) );
             op.Add( new XAttribute( "color", "aqua" ) );
@@ -981,7 +981,7 @@ namespace fCraft {
 
 
             XElement builder = new XElement( "Rank" );
-            builder.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            builder.Add( new XAttribute( "id", RankManager.GenerateId() ) );
             builder.Add( new XAttribute( "name", "builder" ) );
             builder.Add( new XAttribute( "rank", 30 ) );
             builder.Add( new XAttribute( "color", "white" ) );
@@ -1020,7 +1020,7 @@ namespace fCraft {
 
 
             XElement guest = new XElement( "Rank" );
-            guest.Add( new XAttribute( "id", RankManager.GenerateID() ) );
+            guest.Add( new XAttribute( "id", RankManager.GenerateId() ) );
             guest.Add( new XAttribute( "name", "guest" ) );
             guest.Add( new XAttribute( "rank", 0 ) );
             guest.Add( new XAttribute( "color", "silver" ) );

@@ -597,12 +597,15 @@ namespace fCraft {
 
         #region Drawing, Selection
 
+        /// <summary> Sets the player's BrushFactory.
+        /// This also resets LastUsedBrush. </summary>
         public void BrushSet( [NotNull] IBrushFactory brushFactory ) {
             if( brushFactory == null ) throw new ArgumentNullException( "brushFactory" );
             BrushFactory = brushFactory;
             LastUsedBrush = brushFactory.MakeDefault();
         }
 
+        /// <summary> Resets BrushFactory to "Normal". Also resets LastUsedBrush. </summary>
         public void BrushReset() {
             BrushSet( NormalBrushFactory.Instance );
         }
@@ -620,6 +623,7 @@ namespace fCraft {
             return LastUsedBrush.Clone();
         }
 
+        /// <summary> Currently-selected brush factory. </summary>
         [NotNull]
         public IBrushFactory BrushFactory { get; private set; }
 
@@ -627,6 +631,8 @@ namespace fCraft {
         [CanBeNull]
         public IBrush LastUsedBrush { get; private set; }
 
+        /// <summary> Returns the description of the last-used brush (if available)
+        ///  or the name of the currently-selected brush factory. </summary>
         public string BrushDescription {
             get {
                 if( LastUsedBrush != null ) {

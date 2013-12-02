@@ -965,7 +965,7 @@ namespace fCraft {
         [NotNull]
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude ) {
             if( info == null ) throw new ArgumentNullException( "info" );
-            int pid = info.ID;
+            int pid = info.Id;
             Map map = World.LoadMap();
 
             IBlockDBQueryProcessor processor;
@@ -973,11 +973,11 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => true,
-                                                                entry => entry.PlayerID == pid );
+                                                                entry => entry.PlayerId == pid );
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
-                                                       entry => entry.PlayerID == pid );
+                                                       entry => entry.PlayerId == pid );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -987,7 +987,7 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, [NotNull] PlayerInfo info, bool exclude, TimeSpan span ) {
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            int pid = info.ID;
+            int pid = info.Id;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Map map = World.LoadMap();
 
@@ -996,11 +996,11 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => entry.Timestamp >= ticks,
-                                                                entry => entry.PlayerID == pid );
+                                                                entry => entry.PlayerId == pid );
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
-                                                       entry => entry.Timestamp >= ticks && entry.PlayerID == pid );
+                                                       entry => entry.Timestamp >= ticks && entry.PlayerId == pid );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1018,11 +1018,11 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => true,
-                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerId == t.Id ) );
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
-                                                       entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                                                       entry => infos.Any( t => entry.PlayerId == t.Id ) );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1043,13 +1043,13 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => entry.Timestamp >= ticks,
-                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerId == t.Id ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
                                                        entry => entry.Timestamp >= ticks &&
-                                                                infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                infos.Any( t => entry.PlayerId == t.Id ) );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1059,7 +1059,7 @@ namespace fCraft {
         public BlockDBEntry[] Lookup( int max, [NotNull] BoundingBox area, [NotNull] PlayerInfo info, bool exclude ) {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
-            int pid = info.ID;
+            int pid = info.Id;
             Map map = World.LoadMap();
 
             IBlockDBQueryProcessor processor;
@@ -1068,13 +1068,13 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => entry.PlayerID == pid );
+                                                                entry => entry.PlayerId == pid );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                                                entry.PlayerID == pid );
+                                                                entry.PlayerId == pid );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1086,7 +1086,7 @@ namespace fCraft {
             if( area == null ) throw new ArgumentNullException( "area" );
             if( info == null ) throw new ArgumentNullException( "info" );
             if( span < TimeSpan.Zero ) throw new ArgumentOutOfRangeException( "span" );
-            int pid = info.ID;
+            int pid = info.Id;
             long ticks = DateTime.UtcNow.Subtract( span ).ToUnixTime();
             Map map = World.LoadMap();
 
@@ -1097,13 +1097,13 @@ namespace fCraft {
                                                                 max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => entry.PlayerID == pid );
+                                                                entry => entry.PlayerId == pid );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
                                                        entry => entry.Timestamp >= ticks &&
-                                                                entry.PlayerID == pid &&
+                                                                entry.PlayerId == pid &&
                                                                 area.Contains( entry.X, entry.Y, entry.Z ) );
             }
             Traverse( processor );
@@ -1124,13 +1124,13 @@ namespace fCraft {
                 processor = new ExcludingReturnOldestProcessor( map,
                                                                 max,
                                                                 entry => area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerId == t.Id ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
                                                        entry => area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                                                infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                infos.Any( t => entry.PlayerId == t.Id ) );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1154,14 +1154,14 @@ namespace fCraft {
                                                                 max,
                                                                 entry => entry.Timestamp >= ticks &&
                                                                          area.Contains( entry.X, entry.Y, entry.Z ),
-                                                                entry => infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                entry => infos.Any( t => entry.PlayerId == t.Id ) );
                 // ReSharper restore ImplicitlyCapturedClosure
             } else {
                 processor = new ReturnOldestProcessor( map,
                                                        max,
                                                        entry => entry.Timestamp >= ticks &&
                                                                 area.Contains( entry.X, entry.Y, entry.Z ) &&
-                                                                infos.Any( t => entry.PlayerID == t.ID ) );
+                                                                infos.Any( t => entry.PlayerId == t.Id ) );
             }
             Traverse( processor );
             return processor.GetResults();
@@ -1279,7 +1279,7 @@ namespace fCraft {
             World world = e.Map.World;
             if( world != null && world.BlockDB.IsEnabled ) {
                 BlockDBEntry newEntry = new BlockDBEntry( (int)DateTime.UtcNow.ToUnixTime(),
-                                                          e.Player.Info.ID,
+                                                          e.Player.Info.Id,
                                                           e.Coords,
                                                           e.OldBlock,
                                                           e.NewBlock,

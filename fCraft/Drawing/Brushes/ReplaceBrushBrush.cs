@@ -19,11 +19,9 @@ namespace fCraft.Drawing {
 
         public string[] Aliases { get; private set; }
 
-        const string HelpString = "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
-                                  "Usage: &H/Brush rb <Block> <BrushName>";
-
         public string Help {
-            get { return HelpString; }
+            get { return "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
+                         "Usage: &H/Brush rb <Block> <BrushName>"; }
         }
 
 

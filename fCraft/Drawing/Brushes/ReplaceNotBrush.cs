@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Constructs ReplaceNotBrush. </summary>
@@ -20,11 +19,9 @@ namespace fCraft.Drawing {
 
         public string[] Aliases { get; private set; }
 
-        const string HelpString = "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
-                                  "Usage similar to &H/ReplaceNot&S command.";
-
         public string Help {
-            get { return HelpString; }
+            get { return "ReplaceNot brush: Replaces all blocks except the given type(s) with another type. " +
+                         "Usage similar to &H/ReplaceNot&S command."; }
         }
 
 

@@ -21,7 +21,7 @@ namespace fCraft {
 
         /// <summary> List of Ranks, indexed by their ID. </summary>
         [NotNull]
-        public static Dictionary<string, Rank> RanksByID { get; private set; }
+        public static Dictionary<string, Rank> RanksById { get; private set; }
 
         /// <summary> List of all Ranks, in no particular order. </summary>
         [NotNull]
@@ -60,7 +60,7 @@ namespace fCraft {
             }
             RanksByName = new Dictionary<string, Rank>();
             RanksByFullName = new Dictionary<string, Rank>();
-            RanksByID = new Dictionary<string, Rank>();
+            RanksById = new Dictionary<string, Rank>();
             Ranks = new List<Rank>();
             DefaultRank = null;
             PatrolledRank = null;
@@ -82,7 +82,7 @@ namespace fCraft {
                                                    rank.Name );
             }
 
-            if( RanksByID.ContainsKey( rank.ID ) ) {
+            if( RanksById.ContainsKey( rank.Id ) ) {
                 throw new RankDefinitionException( rank.Name,
                                                    "Duplicate definition for rank \"{0}\" (by ID) was ignored.",
                                                    rank.Name );
@@ -91,7 +91,7 @@ namespace fCraft {
             Ranks.Add( rank );
             RanksByName[rank.Name.ToLower()] = rank;
             RanksByFullName[rank.FullName] = rank;
-            RanksByID[rank.ID] = rank;
+            RanksById[rank.Id] = rank;
             RebuildIndex();
         }
 
@@ -151,9 +151,9 @@ namespace fCraft {
             bool rankLimitsChanged = false;
             Ranks.Remove( deletedRank );
             RanksByName.Remove( deletedRank.Name.ToLower() );
-            RanksByID.Remove( deletedRank.ID );
+            RanksById.Remove( deletedRank.Id );
             RanksByFullName.Remove( deletedRank.FullName );
-            LegacyRankMapping.Add( deletedRank.ID, replacementRank.ID );
+            LegacyRankMapping.Add( deletedRank.Id, replacementRank.Id );
             foreach( Rank rank in Ranks ) {
                 for( int i = 0; i < rank.PermissionLimits.Length; i++ ) {
                     if( rank.GetLimit( (Permission)i ) == deletedRank ) {
@@ -212,7 +212,7 @@ namespace fCraft {
             if( newName == null ) throw new ArgumentNullException( "newName" );
             RanksByName.Remove( rank.Name.ToLower() );
             rank.Name = newName;
-            rank.FullName = rank.Name + "#" + rank.ID;
+            rank.FullName = rank.Name + "#" + rank.Id;
             RanksByName.Add( rank.Name.ToLower(), rank );
         }
 
@@ -263,7 +263,7 @@ namespace fCraft {
         /// <summary> Creates a 16 character unique rank ID, via Server.GetRandomString(). </summary>
         /// <returns> 16 character unique rank ID. </returns>
         [NotNull]
-        public static string GenerateID() {
+        public static string GenerateId() {
             return Server.GetRandomString( 16 );
         }
 

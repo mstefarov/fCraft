@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Constructs NormalBrush. </summary>
