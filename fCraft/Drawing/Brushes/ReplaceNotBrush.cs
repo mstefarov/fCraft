@@ -76,5 +76,9 @@ namespace fCraft.Drawing {
             }
             return Replacement;
         }
+
+        public override IBrush Clone() {
+            return new ReplaceNotBrush(Blocks, Replacement);
+        }
     }
 }

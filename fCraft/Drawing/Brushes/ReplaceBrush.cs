@@ -132,7 +132,7 @@ namespace fCraft.Drawing {
         public void End() {}
 
 
-        public IBrush Clone() {
+        public virtual IBrush Clone() {
             return new ReplaceBrush( Blocks, Replacement );
         }
     }
