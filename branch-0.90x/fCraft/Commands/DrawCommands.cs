@@ -428,7 +428,7 @@ namespace fCraft {
 
         #region Replace
 
-        static void ReplaceHandlerInternal( [NotNull] IBrush factory, [NotNull] Player player,
+        static void ReplaceHandlerInternal( [NotNull] IBrushFactory factory, [NotNull] Player player,
                                             [NotNull] CommandReader cmd ) {
             if( factory == null ) throw new ArgumentNullException( "factory" );
             if( player == null ) throw new ArgumentNullException( "player" );
@@ -436,7 +436,7 @@ namespace fCraft {
 
             CuboidDrawOperation op = new CuboidDrawOperation( player );
 
-            IBrush brush = player.ConfigureBrush(cmd);
+            IBrush brush = factory.MakeBrush( player, cmd );
             if (brush == null) return;
 
             op.Brush = brush;
@@ -458,9 +458,7 @@ namespace fCraft {
         };
 
         static void ReplaceHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            var replaceBrush = ReplaceBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null ) return;
-            ReplaceHandlerInternal( replaceBrush, player, cmd );
+            ReplaceHandlerInternal(ReplaceBrushFactory.Instance, player, cmd);
         }
 
 
@@ -476,9 +474,7 @@ namespace fCraft {
         };
 
         static void ReplaceNotHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            var replaceBrush = ReplaceNotBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null ) return;
-            ReplaceHandlerInternal( replaceBrush, player, cmd );
+            ReplaceHandlerInternal(ReplaceNotBrushFactory.Instance, player, cmd);
         }
 
 
@@ -497,9 +493,7 @@ namespace fCraft {
         };
 
         static void ReplaceBrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            var replaceBrush = ReplaceBrushBrushFactory.Instance.MakeBrush( player, cmd );
-            if( replaceBrush == null ) return;
-            ReplaceHandlerInternal( replaceBrush, player, cmd );
+            ReplaceHandlerInternal(ReplaceBrushBrushFactory.Instance, player, cmd);
         }
 
         #endregion
