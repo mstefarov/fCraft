@@ -26,17 +26,14 @@ namespace fCraft.Drawing {
         static void BrushHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             string brushName = cmd.Next();
             if( brushName == null ) {
-                player.Message( player.LastUsedBrush.Description );
+                player.Message( "Brush: {0}", player.BrushDescription );
             } else {
                 IBrushFactory brushFactory = GetBrushFactory( brushName );
                 if( brushFactory == null ) {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
-                    IBrush newBrush = brushFactory.MakeBrush( player, cmd );
-                    if( newBrush != null ) {
-                        player.LastUsedBrush = newBrush;
-                        player.Message( "Brush set to {0}", player.LastUsedBrush.Description );
-                    }
+                    player.BrushSet( brushFactory );
+                    player.Message("Brush set to {0}", player.BrushDescription);
                 }
             }
         }

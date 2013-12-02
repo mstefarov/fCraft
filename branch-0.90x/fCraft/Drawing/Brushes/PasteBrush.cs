@@ -64,6 +64,11 @@ namespace fCraft.Drawing {
                 return new PasteBrush();
             }
         }
+
+        public IBrush MakeDefault() {
+            // There is no default for this brush: parameters always required.
+            return null;
+        }
     }
 
 
