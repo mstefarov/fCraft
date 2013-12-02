@@ -275,17 +275,9 @@ namespace fCraft {
 
 
         static void DrawOperationBegin( [NotNull] Player player, [NotNull] CommandReader cmd, [NotNull] DrawOperation op ) {
-            // try to create instance of player's currently selected brush
-            // all command parameters are passed to the brush
-            IBrush brush = player.LastUsedBrush;
-            if( cmd.HasNext ) {
-                brush = player.BrushFactory.MakeBrush(player, cmd);
-                // MakeBrush returns null if there were problems with syntax, abort
-                if (brush == null) return;
-            }else if( brush == null ) {
-                player.Message(  );
-            }
-            player.LastUsedBrush = brush;
+            IBrush brush = player.ConfigureBrush( cmd );
+            if( brush == null ) return;
+
             op.Brush = brush;
             player.SelectionStart( op.ExpectedMarks, DrawOperationCallback, op, Permission.Draw );
             player.Message( "{0}: Click or &H/Mark&S {1} blocks.", op.Description, op.ExpectedMarks );
@@ -333,8 +325,9 @@ namespace fCraft {
         static void Fill2DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill2DDrawOperation op = new Fill2DDrawOperation( player );
 
-            IBrushInstance brush = player.LastUsedBrush.MakeInstance( player, cmd, op );
-            if( brush == null ) return;
+            IBrush brush = player.ConfigureBrush(cmd);
+            if (brush == null) return;
+
             op.Brush = brush;
 
             player.SelectionStart( 1, Fill2DCallback, op, Permission.Draw );
@@ -390,8 +383,9 @@ namespace fCraft {
         static void Fill3DHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
             Fill3DDrawOperation op = new Fill3DDrawOperation( player );
 
-            IBrushInstance brush = player.LastUsedBrush.MakeInstance( player, cmd, op );
-            if( brush == null ) return;
+            IBrush brush = player.ConfigureBrush(cmd);
+            if (brush == null) return;
+
             op.Brush = brush;
 
             player.SelectionStart( 1, Fill3DCallback, op, Permission.Draw );
@@ -441,8 +435,10 @@ namespace fCraft {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
 
             CuboidDrawOperation op = new CuboidDrawOperation( player );
-            IBrushInstance brush = factory.MakeInstance( player, cmd, op );
-            if( brush == null ) return;
+
+            IBrush brush = player.ConfigureBrush(cmd);
+            if (brush == null) return;
+
             op.Brush = brush;
 
             player.SelectionStart( 2, DrawOperationCallback, op, Permission.Draw );

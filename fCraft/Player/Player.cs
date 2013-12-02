@@ -597,12 +597,45 @@ namespace fCraft {
 
         #region Drawing, Selection
 
+        public void BrushSet( [NotNull] IBrushFactory brushFactory ) {
+            if( brushFactory == null ) throw new ArgumentNullException( "brushFactory" );
+            BrushFactory = brushFactory;
+            LastUsedBrush = brushFactory.MakeDefault();
+        }
+
+        public void BrushReset() {
+            BrushSet( NormalBrushFactory.Instance );
+        }
+
+        public IBrush ConfigureBrush( [NotNull] CommandReader cmd ) {
+            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+            // try to create instance of player's currently selected brush
+            // all command parameters are passed to the brush
+            if (cmd.HasNext || LastUsedBrush == null) {
+                IBrush newBrush = BrushFactory.MakeBrush(this, cmd);
+                // MakeBrush returns null if there were problems with syntax, abort
+                if (newBrush == null) return null;
+                LastUsedBrush = newBrush;
+            }
+            return LastUsedBrush.Clone();
+        }
+
         [NotNull]
-        public IBrushFactory BrushFactory { get; set; }
+        public IBrushFactory BrushFactory { get; private set; }
 
         /// <summary> Draw brush currently used by the player. Defaults to NormalBrush. May not be null. </summary>
         [CanBeNull]
-        public IBrush LastUsedBrush { get; set; }
+        public IBrush LastUsedBrush { get; private set; }
+
+        public string BrushDescription {
+            get {
+                if( LastUsedBrush != null ) {
+                    return LastUsedBrush.Description;
+                } else {
+                    return BrushFactory.Name;
+                }
+            }
+        }
 
         /// <summary> Last DrawOperation executed by this player this session. May be null (if nothing has been executed yet). </summary>
         [CanBeNull]

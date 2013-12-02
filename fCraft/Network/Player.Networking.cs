@@ -85,7 +85,7 @@ namespace fCraft {
             client.SendTimeout = SocketTimeout;
             client.ReceiveTimeout = SocketTimeout;
 
-            BrushFactory = NormalBrushFactory.Instance;
+            BrushReset();
             Metadata = new MetadataCollection<object>();
 
             try {
