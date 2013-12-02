@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Constructs NormalBrush. </summary>
@@ -64,7 +65,7 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Blocks.Length == 0 ) {
+                if (Blocks == null || Blocks.Length == 0) {
                     return Factory.Name;
                 } else {
                     return String.Format( "{0}({1})", Factory.Name, Blocks.JoinToString() );
@@ -78,7 +79,7 @@ namespace fCraft.Drawing {
         }
 
 
-        public NormalBrush() {}
+        public NormalBrush() { }
 
         public NormalBrush( params Block[] blocks ) {
             Blocks = blocks;

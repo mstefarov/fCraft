@@ -32,7 +32,10 @@ namespace fCraft.Drawing {
                 if( brushFactory == null ) {
                     player.Message( "Unrecognized brush \"{0}\"", brushName );
                 } else {
-                    player.BrushSet( brushFactory );
+                    player.BrushSet(brushFactory);
+                    if( cmd.HasNext ) {
+                        player.ConfigureBrush( cmd );
+                    }
                     player.Message("Brush set to {0}", player.BrushDescription);
                 }
             }
