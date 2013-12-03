@@ -141,9 +141,9 @@ namespace fCraft.Drawing {
 
             // TODO: offset op.Coords
             Vector3I pasteCoords = new Vector3I {
-                X = op.Coords.X%CopyInfo.Bounds.Width,
-                Y = op.Coords.Y%CopyInfo.Bounds.Length,
-                Z = op.Coords.Z%CopyInfo.Bounds.Height
+                X = Mod( op.Coords.X - op.Marks[0].X, CopyInfo.Bounds.Width ),
+                Y = Mod( op.Coords.Y - op.Marks[0].Y, CopyInfo.Bounds.Length ),
+                Z = Mod( op.Coords.Z - op.Marks[0].Z, CopyInfo.Bounds.Height )
             };
             Block blockToPaste = CopyInfo.Blocks[pasteCoords.X, pasteCoords.Y, pasteCoords.Z];
 
@@ -162,6 +162,11 @@ namespace fCraft.Drawing {
             }
         }
 
+        // Computes x%m, but brings negative numbers back into range [0,m)
+        int Mod(int x, int m) {
+            int r = x % m;
+            return r < 0 ? r + m : r;
+        }
 
         public void End() {}
 
