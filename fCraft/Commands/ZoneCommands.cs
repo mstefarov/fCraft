@@ -693,11 +693,11 @@ namespace fCraft {
             if( player.WorldMap.Zones.CheckDetailed( marks[0], player, out allowed, out denied ) ) {
                 foreach( Zone zone in allowed ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
-                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Lime, status );
+                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, ChatColor.Lime, status );
                 }
                 foreach( Zone zone in denied ) {
                     SecurityCheckResult status = zone.Controller.CheckDetailed( player.Info );
-                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, Color.Red, status );
+                    player.Message( "> Zone {0}&S: {1}{2}", zone.ClassyName, ChatColor.Red, status );
                 }
             } else {
                 player.Message( "No zones affect this block." );

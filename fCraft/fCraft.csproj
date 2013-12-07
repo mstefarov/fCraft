@@ -165,7 +165,7 @@
     <Compile Include="Utils\Updater.cs" />
     <Compile Include="Player\RankManager.cs" />
     <Compile Include="Player\Permission.cs" />
-    <Compile Include="Utils\Color.cs" />
+    <Compile Include="Utils\ChatColor.cs" />
     <Compile Include="Network\Heartbeat.cs" />
     <Compile Include="System\Server.cs" />
     <Compile Include="System\Config.cs" />

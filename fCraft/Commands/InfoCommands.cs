@@ -245,7 +245,7 @@ namespace fCraft {
                 if( info.Email != null && (player.Can( Permission.ViewEmails ) || player.Info == info) ) {
                     // Show login information
                     player.Message( "  <{0}> {1} logins since {2:d MMM yyyy}.",
-                                    Color.StripColors( info.Email ),
+                                    ChatColor.StripColors( info.Email ),
                                     info.TimesVisited,
                                     info.FirstLoginDate );
                 } else {
@@ -1092,7 +1092,7 @@ namespace fCraft {
 
             Vector3I targetBlockCoords = target.Position.ToBlockCoords();
             player.Message( "{0}{1} - {2}",
-                            Color.Silver,
+                            ChatColor.Silver,
                             targetBlockCoords,
                             GetCompassString( target.Position.R ) );
         }
@@ -1145,7 +1145,7 @@ namespace fCraft {
                         player.Message( "No help found for \"{0}\"", sectionName );
                     }
                 } else {
-                    StringBuilder sb = new StringBuilder( Color.Help );
+                    StringBuilder sb = new StringBuilder( ChatColor.Help );
                     sb.Append( descriptor.Usage )
                       .Append( "\n&S" );
 
@@ -1267,7 +1267,7 @@ namespace fCraft {
             }
             StringBuilder sb = new StringBuilder( "List of colors: " );
 
-            foreach( var color in Color.ColorNames ) {
+            foreach( var color in ChatColor.ColorNames ) {
                 sb.AppendFormat( "&{0}%{0} {1} ", color.Key, color.Value );
             }
 

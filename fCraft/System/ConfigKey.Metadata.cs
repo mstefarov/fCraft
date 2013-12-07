@@ -342,9 +342,9 @@ namespace fCraft {
 
     internal sealed class ColorKeyAttribute : ConfigKeyAttribute {
         public ColorKeyAttribute( ConfigSection section, [NotNull] string defaultColor, [NotNull] string description )
-            : base( section, typeof( string ), Color.White, description ) {
+            : base( section, typeof( string ), ChatColor.White, description ) {
             if( defaultColor == null ) throw new ArgumentNullException( "defaultColor" );
-            string defaultColorName = Color.GetName( defaultColor );
+            string defaultColorName = ChatColor.GetName( defaultColor );
             if( defaultColorName == null ) {
                 throw new ArgumentException( "Default color must be a valid color name." );
             }
@@ -354,7 +354,7 @@ namespace fCraft {
 
         public override void Validate( string value ) {
             base.Validate( value );
-            string parsedValue = Color.Parse( value );
+            string parsedValue = ChatColor.Parse( value );
             if( parsedValue == null ) {
                 throw new FormatException( "Value cannot be parsed as a color." );
             } else if( parsedValue.Length == 0 && NotBlank ) {

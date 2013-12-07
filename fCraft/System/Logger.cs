@@ -112,7 +112,7 @@ namespace fCraft {
             message = message.Replace( "\r\n", "\n" );
             message = Chat.ReplaceNewlines( message );
             message = Chat.ReplaceEmotesWithUnicode( message );
-            message = Color.StripColors( message );
+            message = ChatColor.StripColors( message );
 
             string line = DecorateLogMessage( type, message );
 

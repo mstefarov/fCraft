@@ -495,7 +495,7 @@ namespace fCraft {
 
             // kill IRC bot
             string quitMsg = ConfigKey.ServerName.GetString() + " - " + shutdownParams.ReasonString;
-            IRC.Disconnect( Color.MinecraftToIrcColors( quitMsg ) );
+            IRC.Disconnect( ChatColor.MinecraftToIrcColors( quitMsg ) );
 
             // kick all players
             Player[] kickedPlayers = null;
@@ -504,7 +504,7 @@ namespace fCraft {
                     Logger.Log( LogType.SystemActivity, "Shutdown: Kicking players..." );
                     foreach( Player p in PlayerIndex ) {
                         // NOTE: kick packet delivery here is not currently guaranteed
-                        p.Kick( "Server shutting down (" + shutdownParams.ReasonString + Color.White + ")",
+                        p.Kick( "Server shutting down (" + shutdownParams.ReasonString + ChatColor.White + ")",
                                 LeaveReason.ServerShutdown );
                     }
                     kickedPlayers = PlayerIndex.ToArray();

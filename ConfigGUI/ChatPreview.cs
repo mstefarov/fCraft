@@ -85,7 +85,7 @@ namespace fCraft.ConfigGUI {
                         int x = 5;
                         string[] plainTextSegments = SplitByColorRegex.Split( lines[i] );
 
-                        int color = MainForm.ParseToIndex( Color.White );
+                        int color = MainForm.ParseToIndex( ChatColor.White );
 
                         for( int j = 0; j < plainTextSegments.Length; j++ ) {
                             if( plainTextSegments[j].Length == 0 ) continue;

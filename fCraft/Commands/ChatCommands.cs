@@ -324,12 +324,12 @@ namespace fCraft {
             Server.Message( player,
                             "{0}{1} rolled {2} ({3}...{4})",
                             player.ClassyName,
-                            Color.Silver,
+                            ChatColor.Silver,
                             num,
                             min,
                             max );
             player.Message( "{0}You rolled {1} ({2}...{3})",
-                            Color.Silver,
+                            ChatColor.Silver,
                             num,
                             min,
                             max );

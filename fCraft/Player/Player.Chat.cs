@@ -349,7 +349,7 @@ namespace fCraft {
             if( IsSuper ) {
                 Logger.LogToConsole( message );
             } else {
-                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.Wrap( ChatColor.Sys + message ) ) {
                     Send( p );
                 }
             }
@@ -396,7 +396,7 @@ namespace fCraft {
                 if( Thread.CurrentThread != ioThread ) {
                     throw new InvalidOperationException( "SendNow may only be called from player's own thread." );
                 }
-                foreach( Packet p in LineWrapper.Wrap( Color.Sys + message ) ) {
+                foreach( Packet p in LineWrapper.Wrap( ChatColor.Sys + message ) ) {
                     SendNow( p );
                 }
             }

@@ -400,35 +400,35 @@ namespace fCraft {
             }
             switch( ch ) {
                 case (byte)'s':
-                    ch = (byte)Color.Sys[1];
+                    ch = (byte)ChatColor.Sys[1];
                     return true;
 
                 case (byte)'y':
-                    ch = (byte)Color.Say[1];
+                    ch = (byte)ChatColor.Say[1];
                     return true;
 
                 case (byte)'p':
-                    ch = (byte)Color.PM[1];
+                    ch = (byte)ChatColor.PM[1];
                     return true;
 
                 case (byte)'r':
-                    ch = (byte)Color.Announcement[1];
+                    ch = (byte)ChatColor.Announcement[1];
                     return true;
 
                 case (byte)'h':
-                    ch = (byte)Color.Help[1];
+                    ch = (byte)ChatColor.Help[1];
                     return true;
 
                 case (byte)'w':
-                    ch = (byte)Color.Warning[1];
+                    ch = (byte)ChatColor.Warning[1];
                     return true;
 
                 case (byte)'m':
-                    ch = (byte)Color.Me[1];
+                    ch = (byte)ChatColor.Me[1];
                     return true;
 
                 case (byte)'i':
-                    ch = (byte)Color.IRC[1];
+                    ch = (byte)ChatColor.IRC[1];
                     return true;
             }
             return false;

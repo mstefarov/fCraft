@@ -148,7 +148,7 @@ namespace fCraft {
 
             var recipientList = Server.Players;
 
-            string formattedMessage = Color.Say + rawMessage;
+            string formattedMessage = ChatColor.Say + rawMessage;
 
             var e = new ChatSendingEventArgs( player,
                                               rawMessage,
@@ -519,7 +519,7 @@ namespace fCraft {
                 }
                 // extract the colorcode
                 char colorCode = message[startIndex + 1];
-                if( Color.IsColorCode( colorCode ) || allowNewlines && (colorCode == 'n' || colorCode == 'N') ) {
+                if( ChatColor.IsColorCode( colorCode ) || allowNewlines && (colorCode == 'n' || colorCode == 'N') ) {
                     if( escaped ) {
                         // it was escaped; remove escaping character
                         startIndex++;

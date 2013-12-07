@@ -349,7 +349,7 @@ namespace fCraft {
         static void ApplyKeyChange( ConfigKey key ) {
             switch( key ) {
                 case ConfigKey.AnnouncementColor:
-                    Color.Announcement = Color.Parse( key.GetString() );
+                    ChatColor.Announcement = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.AntispamInterval:
@@ -424,7 +424,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.HelpColor:
-                    Color.Help = Color.Parse( key.GetString() );
+                    ChatColor.Help = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.IRCDelay:
@@ -432,7 +432,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.IRCMessageColor:
-                    Color.IRC = Color.Parse( key.GetString() );
+                    ChatColor.IRC = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.LogMode:
@@ -452,7 +452,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.MeColor:
-                    Color.Me = Color.Parse( key.GetString() );
+                    ChatColor.Me = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.NoPartialPositionUpdates:
@@ -472,7 +472,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.PrivateMessageColor:
-                    Color.PM = Color.Parse( key.GetString() );
+                    ChatColor.PM = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.RelayAllBlockUpdates:
@@ -480,11 +480,11 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.SayColor:
-                    Color.Say = Color.Parse( key.GetString() );
+                    ChatColor.Say = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.SystemMessageColor:
-                    Color.Sys = Color.Parse( key.GetString() );
+                    ChatColor.Sys = ChatColor.Parse( key.GetString() );
                     break;
 
                 case ConfigKey.TickInterval:
@@ -496,7 +496,7 @@ namespace fCraft {
                     break;
 
                 case ConfigKey.WarningColor:
-                    Color.Warning = Color.Parse( key.GetString() );
+                    ChatColor.Warning = ChatColor.Parse( key.GetString() );
                     break;
             }
         }
