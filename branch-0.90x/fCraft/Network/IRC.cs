@@ -306,7 +306,7 @@ namespace fCraft {
                                     } else {
                                         Server.Message( "&i(IRC) {0}{1}: {2}",
                                                         msg.Nick,
-                                                        Color.White,
+                                                        ChatColor.White,
                                                         processedMessage );
                                         Logger.Log( LogType.IrcChat,
                                                     "{0}: {1}: {2}",
@@ -317,7 +317,7 @@ namespace fCraft {
                                 } else if( msg.Message.StartsWith( "#" ) ) {
                                     Server.Message( "&i(IRC) {0}{1}: {2}",
                                                     msg.Nick,
-                                                    Color.White,
+                                                    ChatColor.White,
                                                     processedMessage.Substring( 1 ) );
                                     Logger.Log( LogType.IrcChat,
                                                 "{0}: {1}: {2}",
@@ -763,13 +763,13 @@ namespace fCraft {
             bool useEmotes = ConfigKey.IRCShowEmotesFromIRC.Enabled();
 
             if( useColor && useEmotes ) {
-                message = Color.IrcToMinecraftColors( message );
+                message = ChatColor.IrcToMinecraftColors( message );
                 message = Chat.ReplaceUnicodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
                 message = Chat.ReplacePercentColorCodes( message, false );
                 message = Chat.StripNewlines( message );
             } else if( useColor ) {
-                message = Color.IrcToMinecraftColors( message );
+                message = ChatColor.IrcToMinecraftColors( message );
                 message = Chat.StripEmotes( message );
                 message = Chat.ReplacePercentColorCodes( message, false );
                 message = Chat.StripNewlines( message );
@@ -778,12 +778,12 @@ namespace fCraft {
                 message = Chat.ReplaceUnicodeWithEmotes( message );
                 message = Chat.ReplaceEmoteKeywords( message );
                 // strips minecraft colors and newlines
-                message = Color.StripColors( message );
+                message = ChatColor.StripColors( message );
             } else {
                 // strips emotes
                 message = IRCColorsAndNonStandardChars.Replace( message, "" );
                 // strips minecraft colors and newlines
-                message = Color.StripColors( message );
+                message = ChatColor.StripColors( message );
             }
 
             message = Chat.UnescapeBackslashes( message );
@@ -806,7 +806,7 @@ namespace fCraft {
             message = Chat.ReplaceNewlines( message );
 
             if( useColor ) {
-                message = Color.MinecraftToIrcColors( message );
+                message = ChatColor.MinecraftToIrcColors( message );
                 message = message.Replace( BoldCode, BoldReplacement );
                 message = message.Replace( ResetCode, ResetReplacement );
             } else {
@@ -814,7 +814,7 @@ namespace fCraft {
                 message = message.Replace( "&N", "\n" );
                 message = message.Replace( BoldCode, "" );
                 message = message.Replace( ResetCode, "" );
-                message = Color.StripColors( message );
+                message = ChatColor.StripColors( message );
             }
             return message.Trim();
         }

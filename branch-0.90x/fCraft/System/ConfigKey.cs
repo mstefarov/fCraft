@@ -112,33 +112,33 @@ will not show custom skins for players with prefixed names." )]
             @"Show messages when players change worlds." )]
         ShowJoinedWorldMessages,
 
-        [ColorKey( ConfigSection.Chat, Color.SysDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.SysDefault,
             @"Color of normal system messages." )]
         SystemMessageColor,
 
-        [ColorKey( ConfigSection.Chat, Color.HelpDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.HelpDefault,
             @"Color of command usage examples in help." )]
         HelpColor,
 
-        [ColorKey( ConfigSection.Chat, Color.SayDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.SayDefault,
             @"Color of messages produced by ""/Say"" command." )]
         SayColor,
 
-        [ColorKey( ConfigSection.Chat, Color.AnnouncementDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.AnnouncementDefault,
             @"Color of announcements and rules. Default is dark-green.
 Note that this default color can be overridden by
 colorcodes in announcement and rule files." )]
         AnnouncementColor,
 
-        [ColorKey( ConfigSection.Chat, Color.PMDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.PMDefault,
             @"Color of private and rank-wide messages." )]
         PrivateMessageColor,
 
-        [ColorKey( ConfigSection.Chat, Color.MeDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.MeDefault,
             @"Color of ""/Me"" command messages." )]
         MeColor,
 
-        [ColorKey( ConfigSection.Chat, Color.WarningDefault,
+        [ColorKey( ConfigSection.Chat, ChatColor.WarningDefault,
             @"Color of error and warning messages." )]
         WarningColor,
 
@@ -401,7 +401,7 @@ or requires identification/authentication." )]
             @"Message to send to nickname registration service bot." )]
         IRCNickServMessage,
 
-        [ColorKey( ConfigSection.IRC, Color.IrcDefault,
+        [ColorKey( ConfigSection.IRC, ChatColor.IrcDefault,
             @"Color of IRC messages and event announcements, as seen on the server/in-game." )]
         IRCMessageColor,
 

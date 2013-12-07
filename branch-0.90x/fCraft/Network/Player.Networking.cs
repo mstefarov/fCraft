@@ -343,7 +343,7 @@ namespace fCraft {
             }
 
             if( message.IndexOf( '&' ) != -1 && !Can( Permission.UseColorCodes ) ) {
-                message = Color.StripColors( message );
+                message = ChatColor.StripColors( message );
             }
 #if DEBUG
             ParseMessage( message, false );

@@ -37,9 +37,9 @@ namespace fCraft {
                     sb.Append( Name );
                 }
                 if( IsBanned ) {
-                    sb.Append( Color.Red ).Append( '*' );
+                    sb.Append( ChatColor.Red ).Append( '*' );
                 } else if( IsFrozen ) {
-                    sb.Append( Color.Blue ).Append( '*' );
+                    sb.Append( ChatColor.Blue ).Append( '*' );
                 }
                 return sb.ToString();
             }

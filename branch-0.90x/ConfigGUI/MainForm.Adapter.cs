@@ -171,31 +171,31 @@ namespace fCraft.ConfigGUI {
 
             colorSys = ParseToIndex( ConfigKey.SystemMessageColor.GetString() );
             ApplyColor( bColorSys, colorSys );
-            Color.Sys = Parse( colorSys );
+            ChatColor.Sys = Parse( colorSys );
 
             colorHelp = ParseToIndex( ConfigKey.HelpColor.GetString() );
             ApplyColor( bColorHelp, colorHelp );
-            Color.Help = Parse( colorHelp );
+            ChatColor.Help = Parse( colorHelp );
 
             colorSay = ParseToIndex( ConfigKey.SayColor.GetString() );
             ApplyColor( bColorSay, colorSay );
-            Color.Say = Parse( colorSay );
+            ChatColor.Say = Parse( colorSay );
 
             colorAnnouncement = ParseToIndex( ConfigKey.AnnouncementColor.GetString() );
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            Color.Announcement = Parse( colorAnnouncement );
+            ChatColor.Announcement = Parse( colorAnnouncement );
 
             colorPM = ParseToIndex( ConfigKey.PrivateMessageColor.GetString() );
             ApplyColor( bColorPM, colorPM );
-            Color.PM = Parse( colorPM );
+            ChatColor.PM = Parse( colorPM );
 
             colorWarning = ParseToIndex( ConfigKey.WarningColor.GetString() );
             ApplyColor( bColorWarning, colorWarning );
-            Color.Warning = Parse( colorWarning );
+            ChatColor.Warning = Parse( colorWarning );
 
             colorMe = ParseToIndex( ConfigKey.MeColor.GetString() );
             ApplyColor( bColorMe, colorMe );
-            Color.Me = Parse( colorMe );
+            ChatColor.Me = Parse( colorMe );
 
             UpdateChatPreview();
         }
@@ -377,7 +377,7 @@ namespace fCraft.ConfigGUI {
 
             colorIRC = ParseToIndex( ConfigKey.IRCMessageColor.GetString() );
             ApplyColor( bColorIRC, colorIRC );
-            Color.IRC = Parse( colorIRC );
+            ChatColor.IRC = Parse( colorIRC );
 
             xIRCShowColorsFromServer.Checked = ConfigKey.IRCShowColorsFromServer.Enabled();
             xIRCShowEmotesFromServer.Checked = ConfigKey.IRCShowEmotesFromServer.Enabled();

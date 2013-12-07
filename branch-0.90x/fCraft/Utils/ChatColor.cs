@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace fCraft {
     /// <summary> Static class with definitions of Minecraft color codes,
     /// parsers, converters, and utilities. </summary>
-    public static class Color {
+    public static class ChatColor {
 #pragma warning disable 1591
         public const string Black = "&0",
                             Navy = "&1",

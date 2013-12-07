@@ -104,7 +104,7 @@ namespace fCraft {
                 if( ConfigKey.RankPrefixesInList.Enabled() ) {
                     formattedName = Info.Rank.Prefix + formattedName;
                 }
-                if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != Color.White ) {
+                if( ConfigKey.RankColorsInChat.Enabled() && Info.Rank.Color != ChatColor.White ) {
                     formattedName = Info.Rank.Color + formattedName;
                 }
                 return formattedName;

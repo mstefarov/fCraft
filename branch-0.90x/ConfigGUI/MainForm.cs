@@ -1432,7 +1432,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorSys = picker.ColorIndex;
             ApplyColor( bColorSys, colorSys );
-            Color.Sys = Parse( colorSys );
+            ChatColor.Sys = Parse( colorSys );
         }
 
 
@@ -1441,7 +1441,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorHelp = picker.ColorIndex;
             ApplyColor( bColorHelp, colorHelp );
-            Color.Help = Parse( colorHelp );
+            ChatColor.Help = Parse( colorHelp );
         }
 
 
@@ -1450,7 +1450,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorSay = picker.ColorIndex;
             ApplyColor( bColorSay, colorSay );
-            Color.Say = Parse( colorSay );
+            ChatColor.Say = Parse( colorSay );
         }
 
 
@@ -1459,7 +1459,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorAnnouncement = picker.ColorIndex;
             ApplyColor( bColorAnnouncement, colorAnnouncement );
-            Color.Announcement = Parse( colorAnnouncement );
+            ChatColor.Announcement = Parse( colorAnnouncement );
         }
 
 
@@ -1468,7 +1468,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorPM = picker.ColorIndex;
             ApplyColor( bColorPM, colorPM );
-            Color.PM = Parse( colorPM );
+            ChatColor.PM = Parse( colorPM );
         }
 
 
@@ -1477,7 +1477,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorWarning = picker.ColorIndex;
             ApplyColor( bColorWarning, colorWarning );
-            Color.Warning = Parse( colorWarning );
+            ChatColor.Warning = Parse( colorWarning );
         }
 
 
@@ -1486,7 +1486,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorMe = picker.ColorIndex;
             ApplyColor( bColorMe, colorMe );
-            Color.Me = Parse( colorMe );
+            ChatColor.Me = Parse( colorMe );
         }
 
 
@@ -1495,7 +1495,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             picker.ShowDialog();
             colorIRC = picker.ColorIndex;
             ApplyColor( bColorIRC, colorIRC );
-            Color.IRC = Parse( colorIRC );
+            ChatColor.IRC = Parse( colorIRC );
         }
 
 
@@ -1632,32 +1632,32 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             if( color == null ) throw new ArgumentNullException( "color" );
             color = color.ToLower();
             if( color.Length == 2 && color[0] == '&' ) {
-                if( Color.ColorNames.ContainsKey( color[1] ) ) {
-                    return Color.ColorNames.IndexOfKey( color[1] );
+                if( ChatColor.ColorNames.ContainsKey( color[1] ) ) {
+                    return ChatColor.ColorNames.IndexOfKey( color[1] );
                 } else {
                     switch( color ) {
                         case "&s":
-                            return Color.ColorNames.IndexOfKey( Color.Sys[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Sys[1] );
                         case "&y":
-                            return Color.ColorNames.IndexOfKey( Color.Say[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Say[1] );
                         case "&p":
-                            return Color.ColorNames.IndexOfKey( Color.PM[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.PM[1] );
                         case "&r":
-                            return Color.ColorNames.IndexOfKey( Color.Announcement[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Announcement[1] );
                         case "&h":
-                            return Color.ColorNames.IndexOfKey( Color.Help[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Help[1] );
                         case "&w":
-                            return Color.ColorNames.IndexOfKey( Color.Warning[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Warning[1] );
                         case "&m":
-                            return Color.ColorNames.IndexOfKey( Color.Me[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.Me[1] );
                         case "&i":
-                            return Color.ColorNames.IndexOfKey( Color.IRC[1] );
+                            return ChatColor.ColorNames.IndexOfKey( ChatColor.IRC[1] );
                         default:
                             return 15;
                     }
                 }
-            } else if( Color.ColorNames.ContainsValue( color ) ) {
-                return Color.ColorNames.IndexOfValue( color );
+            } else if( ChatColor.ColorNames.ContainsValue( color ) ) {
+                return ChatColor.ColorNames.IndexOfValue( color );
             } else {
                 return 15; // white
             }
@@ -1668,7 +1668,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         [Pure]
         public static string Parse( int index ) {
             if( index >= 0 && index <= 15 ) {
-                return "&" + Color.ColorNames.Keys[index];
+                return "&" + ChatColor.ColorNames.Keys[index];
             } else {
                 return null;
             }
@@ -1680,7 +1680,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
         [Pure]
         public static string GetName( int index ) {
             if( index >= 0 && index <= 15 ) {
-                return Color.ColorNames.Values[index];
+                return ChatColor.ColorNames.Values[index];
             } else {
                 return null;
             }
