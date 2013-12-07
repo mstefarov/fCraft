@@ -57,8 +57,6 @@
     <Compile Include="AboutWindow.Designer.cs">
       <DependentUpon>AboutWindow.cs</DependentUpon>
     </Compile>
-    <Compile Include="Drawing\BlockPalette.cs" />
-    <Compile Include="Drawing\DrawImageCommand.cs" />
     <Compile Include="MapGeneration\DefaultMapGenGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -71,21 +69,12 @@
     <Compile Include="MapGeneration\FlatMapGenGui.Designer.cs">
       <DependentUpon>FlatMapGenGui.cs</DependentUpon>
     </Compile>
-    <Compile Include="Drawing\ImageDrawOperation.cs" />
     <Compile Include="MapGeneration\IMapGeneratorGuiProvider.cs" />
     <Compile Include="MapGeneration\MapGeneratorGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Drawing\IsoCat.cs" />
-    <Compile Include="Drawing\IsoCatMode.cs" />
-    <Compile Include="Drawing\IsoCatResult.cs" />
     <Compile Include="MapGeneration\MapGenGuiUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="MapGeneration\RealisticMapGenGui.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -100,10 +89,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Tileset.png" />
-    <Content Include="TilesetShadowed.png" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="AboutWindow.resx">
       <DependentUpon>AboutWindow.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -114,10 +99,6 @@
     <EmbeddedResource Include="MapGeneration\FlatMapGenGui.resx">
       <DependentUpon>FlatMapGenGui.cs</DependentUpon>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="MapGeneration\RealisticMapGenGui.resx">
       <DependentUpon>RealisticMapGenGui.cs</DependentUpon>

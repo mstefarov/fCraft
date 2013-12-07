@@ -12,6 +12,7 @@ using System.Threading;
 using fCraft.Events;
 using fCraft.GUI;
 using fCraft.MapConversion;
+using fCraft.MapRendering;
 using JetBrains.Annotations;
 using Mono.Options;
 

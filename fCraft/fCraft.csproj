@@ -99,6 +99,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Runtime.Serialization">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -109,13 +110,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commands\DrawCommands.cs" />
+    <Compile Include="Drawing\BlockPalette.cs" />
     <Compile Include="Drawing\Brushes\PasteBrush.cs" />
     <Compile Include="Drawing\DrawOperation.cs" />
     <Compile Include="Commands\ModerationCommands.cs" />
     <Compile Include="Commands\MaintenanceCommands.cs" />
     <Compile Include="Commands\ZoneCommands.cs" />
     <Compile Include="Drawing\DrawOps\Fill3DDrawOperation.cs" />
+    <Compile Include="Drawing\DrawOps\ImageDrawOperation.cs" />
     <Compile Include="Drawing\IBrushFactory.cs" />
+    <Compile Include="MapRendering\IsoCat.cs" />
+    <Compile Include="MapRendering\IsoCatMode.cs" />
+    <Compile Include="MapRendering\IsoCatResult.cs" />
     <Compile Include="MapConversion\MapCW.cs" />
     <Compile Include="MapConversion\MapFCMv3.cs" />
     <Compile Include="MapGeneration\EmptyMapGen.cs" />
@@ -132,6 +138,11 @@
     <Compile Include="Player\Player.Chat.cs" />
     <Compile Include="Player\SearchOptions.cs" />
     <Compile Include="Player\SecurityController.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Utils\BitMap3D.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />
     <Compile Include="Utils\fNbt_v0.6.0_Annotated.cs" />
@@ -310,7 +321,16 @@
     <Compile Include="World\World.Events.cs" />
     <Compile Include="Utils\JetBrains.Annotations.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="MapRendering\Tileset.png" />
+    <Content Include="MapRendering\TilesetShadowed.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -4,10 +4,10 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
-using fCraft.GUI.Properties;
+using fCraft.Properties;
 using JetBrains.Annotations;
 
-namespace fCraft.GUI {
+namespace fCraft.MapRendering {
     /// <summary> Isometric map renderer. Creates a bitmap of the map. </summary>
     public sealed unsafe class IsoCat {
         static readonly byte[] Tiles, ShadowTiles;

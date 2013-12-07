@@ -2,7 +2,7 @@
 
 using System.Drawing;
 
-namespace fCraft.GUI {
+namespace fCraft.MapRendering {
     public sealed class IsoCatResult {
         internal IsoCatResult( bool cancelled, Bitmap bitmap, Rectangle cropRectangle ) {
             Cancelled = cancelled;
