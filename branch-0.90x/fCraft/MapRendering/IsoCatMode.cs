@@ -1,6 +1,6 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
-namespace fCraft.GUI {
+namespace fCraft.MapRendering {
     /// <summary> Drawing/clipping mode of IsoCat map renderer. </summary>
     public enum IsoCatMode {
         /// <summary> Normal isometric view. </summary>

@@ -14,6 +14,7 @@ using System.Xml.Linq;
 using fCraft.GUI;
 using fCraft.MapConversion;
 using fCraft.MapGeneration;
+using fCraft.MapRendering;
 using JetBrains.Annotations;
 
 

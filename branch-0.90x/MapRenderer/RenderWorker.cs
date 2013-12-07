@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
-using fCraft.GUI;
+using fCraft.MapRendering;
 using ImageManipulation;
 
 namespace fCraft.MapRenderer {

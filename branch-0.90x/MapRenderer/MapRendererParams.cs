@@ -3,8 +3,8 @@
 using System;
 using System.Drawing.Imaging;
 using System.Text.RegularExpressions;
-using fCraft.GUI;
 using fCraft.MapConversion;
+using fCraft.MapRendering;
 
 namespace fCraft.MapRenderer {
     /// <summary> Holds all parameters for MapRenderer program, and sets some defaults. </summary>
