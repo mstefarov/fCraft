@@ -560,12 +560,6 @@ but will reduce bandwidth use." )]
             @"Moves the emote suffix from end-of-line to immediately after its usage." )]
         MoveEmoteDotToEndOfMessage,
 
-        [BoolKey( ConfigSection.Advanced, true,
-            @"Enables features that depend on GDI+ library. " +
-            "This functionality is always available on Windows, " +
-            "but requires a separate package (libgdiplus) to be installed under Mono." )]
-        LoadGDIPlus,
-
         [BoolKey( ConfigSection.Advanced, false,
             @"If enabled, preserves any unrecognized metadata embedded in map files." )]
         PreserveForeignMapMetadata
