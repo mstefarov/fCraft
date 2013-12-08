@@ -32,6 +32,7 @@
  Feature: Added caret (^) and tilde (~) emotes.
  Feature: Added /To as an alias of /TP, and /Flush as an alias for /WFlush.
  Feature: MapRenderer is now much quicker, thanks to optimization and multithreading.
+ Feature: Added ability to change capitalization of player's name using /SetInfo.
  Fix: Fixed MapGenerator sometimes locking up when working with tiny 16x16 maps (thanks 123DMWM).
  Fix: Fixed world greetings not being saved between restarts (thanks Jonty800).
  Fix: Fixed /WLoad showing incorrect map file names when prompting to replace files (thanks Smokeybacon).
