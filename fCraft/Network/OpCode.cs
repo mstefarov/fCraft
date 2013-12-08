@@ -93,13 +93,13 @@ namespace fCraft {
         /// <summary> Extended server packet. Sets permission to place/delete a block type (replaces SetPermission). </summary>
         SetBlockPermission = 28,
 
-        /// <summary> Allows changing the 3D model that entity/player shows up as. </summary>
+        /// <summary> Extended server packet. Allows changing the 3D model that entity/player shows up as. </summary>
         ChangeModel = 29,
 
-        /// <summary> This extension allows the server to specify custom terrain textures, and tweak appearance of map edges. </summary>
+        /// <summary> Extended server packet. Specifies terrain textures, and tweaks appearance of map edges. </summary>
         EnvMapAppearance = 30,
 
-        /// <summary> This extension allows the server to trigger special weather conditions (like rain and snow) on demand. </summary>
+        /// <summary> Extended server packet. Triggers special weather conditions (like rain and snow) on demand. </summary>
         EnvSetWeatherType = 31
     }
 }
