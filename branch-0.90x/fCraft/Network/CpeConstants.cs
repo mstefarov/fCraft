@@ -44,7 +44,10 @@ namespace fCraft {
 
         /// <summary> This extension allows the server to specify custom terrain textures,
         /// and tweak appearance of map edges. </summary>
-        EnvMapAppearance
+        EnvMapAppearance,
+
+        /// <summary> This extension allows the server to trigger special weather conditions (like rain and snow) on demand. </summary>
+        EnvWeatherType
     }
 
 
