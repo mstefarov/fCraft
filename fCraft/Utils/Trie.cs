@@ -248,24 +248,32 @@ namespace fCraft {
 
         // Encodes ASCII into internal letter code.
         static int CharToCode( char ch ) {
-            if( ch >= 'a' && ch <= 'z' ) return ch - 'a';
-            else if( ch >= 'A' && ch <= 'Z' ) return ch - 'A';
-            else if( ch >= '0' && ch <= '9' ) return ch - '0' + 26;
+            if( ch >= 'a' && ch <= 'z' ) {
+                return ch - 'a';
+            } else if( ch >= 'A' && ch <= 'Z' ) {
+                return ch - 'A';
+            } else if( ch >= '0' && ch <= '9' ) {
+                return ch - '0' + 26;
+            }
             switch( ch ) {
+                default:
+                    return 36; // '_' and everything else
                 case '.':
                     return 37;
                 case '@':
                     return 38;
-                default:
-                    return 36; // '_' and everything else
             }
         }
 
 
         // Decodes internal letter code into ASCII
         static char CodeToChar( int code ) {
-            if( code < 26 ) return (char)(code + 'a');
-            if( code >= 26 && code < 36 ) return (char)(code + '0');
+            if( code < 26 ) {
+                return (char)(code + 'a');
+            }
+            if( code >= 26 && code < 36 ) {
+                return (char)(code + '0');
+            }
             switch( code ) {
                 case 37:
                     return '.';
@@ -279,9 +287,13 @@ namespace fCraft {
 
         // Converts a letter to lowercase, and converts any unrecognized character to '_'
         static char NormalizeChar( char ch ) {
-            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '_' ) return ch;
-            else if( ch >= 'A' && ch <= 'Z' ) return (char)(ch - ('A' - 'a'));
-            return ch == '.' ? '.' : '_';
+            if( ch >= 'a' && ch <= 'z' || ch >= '0' && ch <= '9' || ch == '.' || ch == '@' ) {
+                return ch;
+            } else if( ch >= 'A' && ch <= 'Z' ) {
+                return (char)(ch - ('A' - 'a'));
+            } else {
+                return '_';
+            }
         }
 
 
