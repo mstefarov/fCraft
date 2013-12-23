@@ -17,8 +17,11 @@ namespace fCraft {
     /// Maps can be created blank (using Map constructor), generated terrain (using RealisticMapGenState),
     /// or loaded from file (using fCraft.MapConversion.MapUtility). </summary>
     public sealed unsafe class Map {
-        /// <summary> Current default map format for saving. </summary>
-        public const MapFormat SaveFormat = MapFormat.FCMv3;
+        /// <summary> Default map format for saving. </summary>
+        public const MapFormat SaveFormat = MapFormat.ClassicWorld;
+
+        /// <summary> File extension (including the dot) for current SaveFormat. </summary>
+        public static readonly string SaveExt = "." + SaveFormat.GetExtension();
 
         /// <summary> The world associated with this map, if any. May be null. </summary>
         [CanBeNull]

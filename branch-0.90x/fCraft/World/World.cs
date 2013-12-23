@@ -169,7 +169,9 @@ namespace fCraft {
         /// <summary> Returns the map file name, including MapPath. </summary>
         [NotNull]
         public string MapFileName {
-            get { return Path.Combine( Paths.MapPath, Name + ".fcm" ); }
+            get {
+                return Path.Combine( Paths.MapPath, Name + Map.SaveExt );
+            }
         }
 
 
@@ -699,8 +701,10 @@ namespace fCraft {
 
         #region Backups
 
-        internal const string TimedBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}.fcm";
-        const string MapChangeBackupFormat = "{0}_{1:yyyy-MM-dd_HH-mm}_MapChange.fcm";
+        internal static readonly string TimedBackupFormat =
+            "{0}_{1:yyyy-MM-dd_HH-mm}." + Map.SaveExt;
+        static readonly string MapChangeBackupFormat =
+            "{0}_{1:yyyy-MM-dd_HH-mm}_MapChange." + Map.SaveExt;
 
         DateTime lastBackup = DateTime.UtcNow;
         static readonly object BackupLock = new object();
@@ -853,7 +857,9 @@ namespace fCraft {
 
         static void DeleteOldBackups( [NotNull] DirectoryInfo directory ) {
             if( directory == null ) throw new ArgumentNullException( "directory" );
-            var backupList = directory.GetFiles( "*.fcm" ).OrderBy( fi => -fi.CreationTimeUtc.Ticks ).ToList();
+            var backupList = directory.GetFiles( "*" + Map.SaveExt )
+                                      .OrderByDescending( fi => fi.CreationTimeUtc.Ticks )
+                                      .ToList();
 
             int maxFileCount = ConfigKey.MaxBackups.GetInt();
 

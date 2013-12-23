@@ -1024,8 +1024,8 @@ namespace fCraft {
                 } else {
                     // No world with this name found. Assume that we were given a filename.
                     givenName = givenName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
-                    if( !givenName.EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
-                        givenName += ".fcm";
+                    if( !givenName.EndsWith( Map.SaveExt, StringComparison.OrdinalIgnoreCase ) ) {
+                        givenName += Map.SaveExt;
                     }
                     if( !Paths.IsValidPath( givenName ) ) {
                         player.Message( "Gen: Invalid file name given." );
@@ -2373,7 +2373,7 @@ namespace fCraft {
                                     fullFileName );
                     } else {
                         // Adding a new world
-                        string targetFullFileName = Path.Combine( Paths.MapPath, worldName + ".fcm" );
+                        string targetFullFileName = Path.Combine( Paths.MapPath, worldName + Map.SaveExt );
                         if( !cmd.IsConfirmed &&
                             File.Exists( targetFullFileName ) && // target file already exists
                             !Paths.Compare( targetFullFileName, fullFileName ) ) { // and is different from sourceFile
@@ -2636,12 +2636,12 @@ namespace fCraft {
                 return;
             }
 
-            if( !cmd.IsConfirmed && Paths.FileExists( Path.Combine( Paths.MapPath, newName + ".fcm" ), true ) ) {
+            if( !cmd.IsConfirmed && Paths.FileExists( Path.Combine( Paths.MapPath, newName + Map.SaveExt ), true ) ) {
                 Logger.Log( LogType.UserActivity,
-                            "WRename: Asked {0} to confirm overwriting map file \"{1}.fcm\"",
-                            player.Name,
-                            newName );
-                player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}.fcm\".", newName );
+                            "WRename: Asked {0} to confirm overwriting map file \"{1}{2}\"",
+                            player.Name, newName, Map.SaveExt );
+                player.Confirm( cmd, "Renaming this world will overwrite an existing map file \"{0}{1}\".",
+                                newName, Map.SaveExt );
                 return;
             }
 
@@ -2689,13 +2689,13 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdWorldSave = new CommandDescriptor {
             Name = "WSave",
-            Aliases = new[] {"Save"},
+            Aliases = new[] { "Save" },
             Category = CommandCategory.World,
             IsConsoleSafe = true,
-            Permissions = new[] {Permission.ManageWorlds},
+            Permissions = new[] { Permission.ManageWorlds },
             Usage = "/WSave FileName &Sor&H /WSave WorldName FileName",
             Help = "Saves a map copy to a file with the specified name. " +
-                   "The \".fcm\" file extension can be omitted. " +
+                   "The \"" + Map.SaveExt + "\" file extension can be omitted. " +
                    "If a file with the same name already exists, it will be overwritten.",
             Handler = WorldSaveHandler
         };
@@ -2728,9 +2728,9 @@ namespace fCraft {
             // normalize the path
             fileName = fileName.Replace( Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar );
             if( fileName.EndsWith( "/" ) && fileName.EndsWith( @"\" ) ) {
-                fileName += world.Name + ".fcm";
-            } else if( !fileName.ToLower().EndsWith( ".fcm", StringComparison.OrdinalIgnoreCase ) ) {
-                fileName += ".fcm";
+                fileName += world.Name + Map.SaveExt;
+            } else if( !fileName.ToLower().EndsWith( Map.SaveExt, StringComparison.OrdinalIgnoreCase ) ) {
+                fileName += Map.SaveExt;
             }
             if( !Paths.IsValidPath( fileName ) ) {
                 player.Message( "Invalid file name." );
@@ -3025,9 +3025,8 @@ namespace fCraft {
             }
 
             Server.Message( player, "{0}&S removed {1}&S from the world list.", player.ClassyName, world.ClassyName );
-            player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}.fcm) manually.",
-                            world.ClassyName,
-                            world.Name );
+            player.Message( "Removed {0}&S from the world list. You can now delete the map file ({1}{2}) manually.",
+                            world.ClassyName, world.Name, Map.SaveExt );
             Logger.Log( LogType.UserActivity, "{0} removed \"{1}\" from the world list.", player.Name, worldName );
 
             Server.RequestGC();
