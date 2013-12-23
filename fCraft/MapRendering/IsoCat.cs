@@ -29,7 +29,7 @@ namespace fCraft.MapRendering {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
                             int p = i*TileStride + (y*TileX + x)*4;
-                            System.Drawing.Color c = tilesBmp.GetPixel( x + i*TileX, y );
+                            Color c = tilesBmp.GetPixel( x + i*TileX, y );
                             Tiles[p] = c.B;
                             Tiles[p + 1] = c.G;
                             Tiles[p + 2] = c.R;
@@ -46,7 +46,7 @@ namespace fCraft.MapRendering {
                     for( int y = 0; y < TileY; y++ ) {
                         for( int x = 0; x < TileX; x++ ) {
                             int p = i*TileStride + (y*TileX + x)*4;
-                            System.Drawing.Color c = stilesBmp.GetPixel( x + i*TileX, y );
+                            Color c = stilesBmp.GetPixel( x + i*TileX, y );
                             ShadowTiles[p] = c.B;
                             ShadowTiles[p + 1] = c.G;
                             ShadowTiles[p + 2] = c.R;

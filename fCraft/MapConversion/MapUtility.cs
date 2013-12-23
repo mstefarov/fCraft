@@ -357,5 +357,21 @@ namespace fCraft.MapConversion {
         public static IMapExporter[] GetExporters() {
             return Exporters.Values.ToArray();
         }
+
+
+        /// <summary> Returns file extension for given MapFormat. </summary>
+        /// <exception cref="ArgumentException"> If given MapFormat is unknown or unsupported. </exception>
+        [NotNull]
+        public static string GetExtension( this MapFormat format ) {
+            IMapExporter exporter;
+            if( Exporters.TryGetValue( format, out exporter ) ) {
+                return exporter.FileExtension;
+            }
+            IMapImporter importer;
+            if( Importers.TryGetValue( format, out importer ) ) {
+                return importer.FileExtension;
+            }
+            throw new ArgumentException( "Unknown or unsupported MapFormat: " + format );
+        }
     }
 }

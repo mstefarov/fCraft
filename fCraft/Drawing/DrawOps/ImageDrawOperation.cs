@@ -53,7 +53,22 @@ namespace fCraft.Drawing {
 
         public ImageDrawOperation( [NotNull] Player player )
             : base( player ) {}
-
+        
+        public ImageDrawOperation( [NotNull] Player player, [NotNull] BlockPalette palette, [NotNull] Uri imageUrl )
+            : base( player ) {
+            if( palette == null ) throw new ArgumentNullException( "palette" );
+            if( imageUrl == null ) throw new ArgumentNullException( "imageUrl" );
+            Palette = palette;
+            ImageUrl = imageUrl;
+        }
+        
+        public ImageDrawOperation( [NotNull] Player player, [NotNull] BlockPalette palette, [NotNull] Bitmap bitmap )
+            : base( player ) {
+            if( palette == null ) throw new ArgumentNullException( "palette" );
+            if( bitmap == null ) throw new ArgumentNullException( "bitmap" );
+            Palette = palette;
+            ImageBitmap = bitmap;
+        }
 
         public override bool ReadParams( CommandReader cmd ) {
             // get image URL
@@ -123,25 +138,31 @@ namespace fCraft.Drawing {
             Marks = marks;
 
             // Download the image
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( ImageUrl );
-            request.Timeout = (int)DownloadTimeout.TotalMilliseconds;
-            request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
-            request.UserAgent = Updater.UserAgent;
-            using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
-                // Check that the remote file was found. The ContentType
-                // check is performed since a request for a non-existent
-                // image file might be redirected to a 404-page, which would
-                // yield the StatusCode "OK", even though the image was not found.
-                if( (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Moved ||
-                     response.StatusCode == HttpStatusCode.Redirect) &&
-                    response.ContentType.StartsWith( "image", StringComparison.OrdinalIgnoreCase ) ) {
-                    // if the remote file was found, download it
-                    using( Stream inputStream = response.GetResponseStream() ) {
-                        // TODO: check file size limit?
-                        ImageBitmap = new Bitmap( inputStream );
+            if( ImageBitmap == null ) {
+                if( ImageUrl == null ) {
+                    throw new InvalidOperationException(
+                        "Either ImageBitmap or ImageUrl must be set before calling Prepare()" );
+                }
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( ImageUrl );
+                request.Timeout = (int)DownloadTimeout.TotalMilliseconds;
+                request.ServicePoint.BindIPEndPointDelegate = Server.BindIPEndPointCallback;
+                request.UserAgent = Updater.UserAgent;
+                using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
+                    // Check that the remote file was found. The ContentType
+                    // check is performed since a request for a non-existent
+                    // image file might be redirected to a 404-page, which would
+                    // yield the StatusCode "OK", even though the image was not found.
+                    if( (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Moved ||
+                         response.StatusCode == HttpStatusCode.Redirect) &&
+                        response.ContentType.StartsWith( "image", StringComparison.OrdinalIgnoreCase ) ) {
+                        // if the remote file was found, download it
+                        using( Stream inputStream = response.GetResponseStream() ) {
+                            // TODO: check file size limit?
+                            ImageBitmap = new Bitmap( inputStream );
+                        }
+                    } else {
+                        throw new Exception( "Error downloading image: " + response.StatusCode );
                     }
-                } else {
-                    throw new Exception( "Error downloading image: " + response.StatusCode );
                 }
             }
 
@@ -284,7 +305,7 @@ namespace fCraft.Drawing {
             for( ; imageX <= maxX; imageX++ ) {
                 for( ; imageY <= maxY; imageY++ ) {
                     // find matching palette entry
-                    System.Drawing.Color color = ImageBitmap.GetPixel( imageX, imageY );
+                    Color color = ImageBitmap.GetPixel( imageX, imageY );
                     drawBlocks = Palette.FindBestMatch( color );
                     Coords.Z = coordOffsets.Z - (imageY - minY);
                     // draw layers

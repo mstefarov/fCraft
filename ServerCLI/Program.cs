@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using fCraft.Events;
+using fNbt;
 using JetBrains.Annotations;
 
 namespace fCraft.ServerCLI {
@@ -23,6 +24,10 @@ namespace fCraft.ServerCLI {
                 Environment.ExitCode = (int)ShutdownReason.FailedToInitialize;
                 return;
             }
+
+            NbtFile file = new NbtFile("ClassicWorldTest.cw");
+            string derp = file.ToString();
+
 
             Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
