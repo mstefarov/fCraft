@@ -662,7 +662,7 @@ namespace fCraft.ConfigGUI {
         void ImportSettingsFromFile() {
             if( importSettingsDialog == null ) {
                 importSettingsDialog = new OpenFileDialog {
-                    Filter = "All supported formats|*.fcm;*.ftpl|" +
+                    Filter = "All supported formats|*.fcm;*.ftpl|" + // TODO: support .cw
                              "fCraft Map|*.fcm|" +
                              "fCraft Map Template (Legacy)|*.ftpl|" +
                              "All files|*.*",
@@ -963,7 +963,7 @@ Could not load more information:
 
                     string newFileName = World.FullFileName;
                     Map.Save( newFileName );
-                    string oldFileName = Path.Combine( Paths.MapPath, originalWorldName + ".fcm" );
+                    string oldFileName = Path.Combine( Paths.MapPath, originalWorldName + Map.SaveExt );
 
                     if( originalWorldName != null && originalWorldName != World.Name && File.Exists( oldFileName ) ) {
                         try {
@@ -971,10 +971,8 @@ Could not load more information:
                         } catch( Exception ex ) {
                             string errorMessage =
                                 String.Format(
-                                    "Renaming the map file failed. Please delete the old file ({0}.fcm) manually.{1}{2}",
-                                    originalWorldName,
-                                    Environment.NewLine,
-                                    ex );
+                                    "Renaming the map file failed. Please delete the old file ({0}{1}) manually.{2}{3}",
+                                    originalWorldName, Map.SaveExt, Environment.NewLine, ex );
                             MessageBox.Show( errorMessage, "Error renaming the map file" );
                         }
                     }

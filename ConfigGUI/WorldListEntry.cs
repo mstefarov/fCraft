@@ -14,7 +14,6 @@ namespace fCraft.ConfigGUI {
     public sealed class WorldListEntry : ICloneable {
         public const string WorldInfoSignature = "(ConfigGUI)";
         public const string DefaultRankOption = "(everyone)";
-        const string MapFileExtension = ".fcm";
 
         bool LoadingFailed { get; set; }
 
@@ -184,8 +183,8 @@ namespace fCraft.ConfigGUI {
                     throw new FormatException( "Duplicate world names are not allowed." );
                 } else {
                     string oldName = name;
-                    string oldFileName = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                    string newFileName = Path.Combine( Paths.MapPath, value + ".fcm" );
+                    string oldFileName = Path.Combine( Paths.MapPath, oldName + Map.SaveExt );
+                    string newFileName = Path.Combine( Paths.MapPath, value + Map.SaveExt );
                     if( File.Exists( oldFileName ) ) {
                         bool isSameFile;
                         if( MonoCompat.IsCaseSensitive ) {
@@ -195,7 +194,7 @@ namespace fCraft.ConfigGUI {
                         }
                         if( File.Exists( newFileName ) && !isSameFile ) {
                             string messageText = String.Format( "Map file \"{0}\" already exists. Overwrite?",
-                                                                value + ".fcm" );
+                                                                value + Map.SaveExt );
                             var result = MessageBox.Show( messageText, "", MessageBoxButtons.OKCancel );
                             if( result == DialogResult.Cancel ) return;
                         }
@@ -331,7 +330,7 @@ namespace fCraft.ConfigGUI {
         Map MapHeader {
             get {
                 if( cachedMapHeader == null && !LoadingFailed ) {
-                    string fullFileName = Path.Combine( Paths.MapPath, name + ".fcm" );
+                    string fullFileName = Path.Combine( Paths.MapPath, name + Map.SaveExt );
                     LoadingFailed = !MapUtility.TryLoadHeader( fullFileName, true, out cachedMapHeader );
                 }
                 return cachedMapHeader;
@@ -342,12 +341,12 @@ namespace fCraft.ConfigGUI {
 
 
         internal string FileName {
-            get { return Name + MapFileExtension; }
+            get { return Name + Map.SaveExt; }
         }
 
 
         internal string FullFileName {
-            get { return Path.Combine( Paths.MapPath, Name + MapFileExtension ); }
+            get { return Path.Combine( Paths.MapPath, Name + Map.SaveExt ); }
         }
 
         #region Backup
