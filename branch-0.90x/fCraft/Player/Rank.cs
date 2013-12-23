@@ -86,7 +86,7 @@ namespace fCraft {
             Permissions = new bool[PermissionNames.Length];
             PermissionLimits = new Rank[PermissionNames.Length];
             permissionLimitStrings = new string[PermissionNames.Length];
-            Color = fCraft.ChatColor.White;
+            Color = ChatColor.White;
             Prefix = "";
         }
 
@@ -154,17 +154,17 @@ namespace fCraft {
 
             // Color (optional)
             if( (attr = el.Attribute( "color" )) != null ) {
-                string color = fCraft.ChatColor.Parse( attr.Value );
+                string color = ChatColor.Parse( attr.Value );
                 if( color == null ) {
                     Logger.Log( LogType.Warning,
                                 "Rank({0}): Could not parse rank color. Assuming default (none).",
                                 Name );
-                    Color = fCraft.ChatColor.White;
+                    Color = ChatColor.White;
                 } else {
                     Color = color;
                 }
             } else {
-                Color = fCraft.ChatColor.White;
+                Color = ChatColor.White;
             }
 
 
@@ -376,7 +376,7 @@ namespace fCraft {
             XElement rankTag = new XElement( "Rank" );
             rankTag.Add( new XAttribute( "name", Name ) );
             rankTag.Add( new XAttribute( "id", Id ) );
-            string colorName = fCraft.ChatColor.GetName( Color );
+            string colorName = ChatColor.GetName( Color );
             if( colorName != null ) {
                 rankTag.Add( new XAttribute( "color", colorName ) );
             }

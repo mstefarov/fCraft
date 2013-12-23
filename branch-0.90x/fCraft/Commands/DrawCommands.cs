@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using fCraft.Drawing;
 using fCraft.MapConversion;
 using JetBrains.Annotations;

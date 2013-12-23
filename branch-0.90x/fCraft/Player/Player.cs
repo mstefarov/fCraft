@@ -610,6 +610,8 @@ namespace fCraft {
             BrushSet( NormalBrushFactory.Instance );
         }
 
+
+        [CanBeNull]
         public IBrush ConfigureBrush( [NotNull] CommandReader cmd ) {
             if( cmd == null ) throw new ArgumentNullException( "cmd" );
             // try to create instance of player's currently selected brush
@@ -633,6 +635,7 @@ namespace fCraft {
 
         /// <summary> Returns the description of the last-used brush (if available)
         ///  or the name of the currently-selected brush factory. </summary>
+        [NotNull]
         public string BrushDescription {
             get {
                 if( LastUsedBrush != null ) {

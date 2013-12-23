@@ -671,8 +671,8 @@ namespace fCraft {
                     UpdateWorldList();
 
                     if( moveMapFile ) {
-                        string oldMapFile = Path.Combine( Paths.MapPath, oldName + ".fcm" );
-                        string newMapFile = newName + ".fcm";
+                        string oldMapFile = Path.Combine( Paths.MapPath, oldName + Map.SaveExt );
+                        string newMapFile = newName + Map.SaveExt;
                         if( File.Exists( oldMapFile ) ) {
                             try {
                                 Paths.ForceRename( oldMapFile, newMapFile );
@@ -833,13 +833,13 @@ namespace fCraft {
             // Look for the file
             string sourceFullFileName = Path.Combine( Paths.MapPath, fileName );
             if( !File.Exists( sourceFullFileName ) && !Directory.Exists( sourceFullFileName ) ) {
-                if( File.Exists( sourceFullFileName + ".fcm" ) ) {
+                if( File.Exists( sourceFullFileName + Map.SaveExt ) ) {
                     // Try with extension added
-                    sourceFullFileName += ".fcm";
+                    sourceFullFileName += Map.SaveExt;
                 } else if( MonoCompat.IsCaseSensitive ) {
                     try {
                         // If we're on a case-sensitive OS, try case-insensitive search
-                        FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + ".fcm" );
+                        FileInfo[] candidates = Paths.FindFiles( sourceFullFileName + Map.SaveExt );
                         if( candidates.Length == 0 ) {
                             candidates = Paths.FindFiles( sourceFullFileName );
                         }
