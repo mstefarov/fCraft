@@ -63,6 +63,7 @@ namespace fCraft {
         /// are created. The bots grab messages from IRC.outputQueue whenever they are
         /// not on cooldown (a bit of an intentional race condition). </summary>
         sealed class IrcThread : IDisposable {
+            const int ThreadAbortTimeout = 2000; // ms
             readonly string desiredBotNick;
             TcpClient client;
             StreamReader reader;
@@ -207,6 +208,9 @@ namespace fCraft {
                     } catch( IOException ex ) {
                         LogDisconnectWarning( ex );
                         reconnect = true;
+                    } catch( ThreadAbortException ) {
+                        Logger.Log( LogType.Warning, "IRC: Aborted" );
+                        return;
 #if !DEBUG
                     } catch( Exception ex ) {
                         Logger.LogAndReportCrash( "IRC bot crashed", "fCraft", ex, false );
@@ -538,7 +542,7 @@ namespace fCraft {
                 IsReady = false;
                 AssignBotForInputParsing();
                 if( thread != null && thread.IsAlive ) {
-                    thread.Join( 1000 );
+                    thread.Join( ThreadAbortTimeout );
                     if( thread.IsAlive ) {
                         thread.Abort();
                     }
