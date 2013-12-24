@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
@@ -373,43 +374,35 @@ namespace fCraft {
             if( ex == null ) throw new ArgumentNullException( "ex" );
             string message = null;
             try {
-                if( ex is FileNotFoundException && ex.Message.Contains( "Version=3.5" ) ) {
+                if( ex is FileNotFoundException && ex.Message.Contains( "Version=4.0" ) ) {
                     message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
-                              "Please update to Microsoft .NET Framework 3.5 (Windows) OR Mono 2.6.4+ (Linux, Unix, Mac OS X).";
-                    return true;
+                              "Please update to Microsoft .NET Framework 4.0 (Windows) OR Mono 2.8+ (Linux, Unix, Mac OS X).";
                 } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
                            ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
-                    return true;
                 } else if( ex is MissingMemberException || ex is TypeLoadException ) {
                     message = "Something is incompatible with the current revision of fCraft. " +
                               "If you installed third-party modifications, " +
                               "make sure to use the correct revision (as specified by mod developers). " +
                               "If your own modifications stopped working, your may need to make some updates.";
-                    return true;
                 } else if( ex is UnauthorizedAccessException ) {
                     message = "fCraft was blocked from accessing a file or resource. " +
                               "Make sure that correct permissions are set for the fCraft files, folders, and processes.";
-                    return true;
                 } else if( ex is OutOfMemoryException ) {
                     message = "fCraft ran out of memory. Make sure there is enough RAM to run.";
-                    return true;
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
                     // Ignore Mono-specific bug in MonitorProcessorUsage()
-                    return true;
                 } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
                     message = "Some Windows settings are preventing fCraft from doing player name verification. " +
                               "See http://support.microsoft.com/kb/811833";
-                    return true;
                 } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
                     message =
                         "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
                         "and that no other processes are using server's files or directories.";
-                    return true;
-                } else if( ex.Message.Contains( "UNSTABLE" ) ) {
-                    return true;
+                } else if( ex is SocketException && ex.StackTrace.Contains( "Server.CheckConnections" ) ) {
+                    // ignore attempts to poll Server.listener during shutdown
                 } else {
                     return false;
                 }
@@ -418,6 +411,7 @@ namespace fCraft {
                     Log( LogType.Warning, message );
                 }
             }
+            return true;
         }
 
         #endregion
