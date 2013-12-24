@@ -38,7 +38,7 @@ namespace fCraft {
 
                         int version = ParseHeader( headerText );
                         if( version != FormatVersion ) {
-                            throw new NotSupportedException( "IPBanList.Load: Unsupported PlayerDB file format. " +
+                            throw new NotSupportedException( "IPBanList.Load: Unsupported IPBanList file format. " +
                                                              "Try loading it in an older version of fCraft (before 0.640)." );
                         }
 
