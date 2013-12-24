@@ -9,7 +9,9 @@ namespace fCraft.MapGeneration {
     public class FloatingIslandMapGen : MapGenerator {
         public static FloatingIslandMapGen Instance { get; private set; }
 
-        FloatingIslandMapGen() {}
+        FloatingIslandMapGen() {
+            MinSupportedMapDimension = 32;
+        }
 
         static FloatingIslandMapGen() {
             Instance = new FloatingIslandMapGen {

@@ -509,8 +509,14 @@ namespace fCraft.ConfigGUI {
             }
 
             generator = newGen;
-            genGui = MapGenGuiUtil.GetGuiForGenerator( newGen ).CreateGui();
 
+            // make sure the map dimensions do not conflict with generator's settings
+            if( nMapWidth.Value < generator.MinSupportedMapDimension ) nMapWidth.Value = generator.MinSupportedMapDimension;
+            if( nMapLength.Value < generator.MinSupportedMapDimension ) nMapLength.Value = generator.MinSupportedMapDimension;
+            if( nMapHeight.Value < generator.MinSupportedMapDimension ) nMapHeight.Value = generator.MinSupportedMapDimension;
+
+            // create GUI
+            genGui = MapGenGuiUtil.GetGuiForGenerator( newGen ).CreateGui();
             genGui.Width = generatorParamsPanel.Width;
             generatorParamsPanel.Controls.Add( genGui );
             SetGenParams( generator.CreateDefaultParameters() );
@@ -545,7 +551,9 @@ namespace fCraft.ConfigGUI {
         #region Input Handlers
 
         void MapDimensionValidating( object sender, CancelEventArgs e ) {
-            ((NumericUpDown)sender).Value = Convert.ToInt32( ((NumericUpDown)sender).Value/16 )*16;
+            int value = Convert.ToInt32( ((NumericUpDown)sender).Value/16 )*16;
+            if( value < generator.MinSupportedMapDimension ) value = generator.MinSupportedMapDimension;
+            ((NumericUpDown)sender).Value = value;
             genGui.OnMapDimensionChange( (int)nMapWidth.Value, (int)nMapLength.Value, (int)nMapHeight.Value );
         }
 
@@ -556,7 +564,7 @@ namespace fCraft.ConfigGUI {
                  (originalWorldName != null && tName.Text.ToLower() == originalWorldName.ToLower())) ) {
                 tName.ForeColor = SystemColors.ControlText;
             } else {
-                tName.ForeColor = System.Drawing.Color.Red;
+                tName.ForeColor = Color.Red;
                 e.Cancel = true;
             }
         }

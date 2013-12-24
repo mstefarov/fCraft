@@ -11,6 +11,7 @@ namespace fCraft.MapGeneration {
         protected MapGenerator() {
             Version = new Version( 1, 0 );
             Presets = new[] {"Defaults"};
+            MinSupportedMapDimension = 16;
         }
 
         /// <summary> Name of the map generator. Uses same rules as command and world names. </summary>
@@ -31,6 +32,11 @@ namespace fCraft.MapGeneration {
         /// <summary> Help string, printed when players call "/Help Gen ThisMapGensName" </summary>
         [NotNull]
         public string Help { get; protected set; }
+        
+
+        /// <summary> Minimum map dimension (width, height, or length) supported by this generator. Default is 16. </summary>
+        public int MinSupportedMapDimension { get; protected set; }
+
 
         /// <summary> Creates a IMapGeneratorParameters object containing default parameters. </summary>
         [NotNull]
