@@ -53,6 +53,11 @@ namespace fCraft.MapGeneration {
 
     internal class VanillaMapGenParameters : MapGeneratorParameters {
         static readonly Random SeedRng = new Random();
+        int shroomClusterDensity;
+        int treeClusterDensity;
+        int flowerClusterDensity;
+        double oreDensity;
+        double caveDensity;
 
         public bool AddFlowers { get; set; }
         public bool AddMushrooms { get; set; }
@@ -64,28 +69,73 @@ namespace fCraft.MapGeneration {
         public int WaterSpawnDensity { get; set; }
         public int LavaSpawnDensity { get; set; }
 
-        public int FlowerClusterDensity { get; set; }
+        /// <summary> Spacing between flower clusters; default is 3000; must be greater than 0. </summary>
+        public int FlowerClusterDensity {
+            get { return flowerClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "FlowerClusterDensity must be greater than 0" );
+                }
+                flowerClusterDensity = value;
+            }
+        }
+
         public int FlowerSpread { get; set; }
         public int FlowerChainsPerCluster { get; set; }
         public int FlowersPerChain { get; set; }
 
-        public int ShroomClusterDensity { get; set; }
+        /// <summary> Spacing between mushroom clusters; default is 2000; must be greater than 0. </summary>
+        public int ShroomClusterDensity {
+            get { return shroomClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "ShroomClusterDensity must be greater than 0" );
+                }
+                shroomClusterDensity = value;
+            }
+        }
+
         public int ShroomChainsPerCluster { get; set; }
         public int ShroomHopsPerChain { get; set; }
         public int ShroomSpreadHorizontal { get; set; }
         public int ShroomSpreadVertical { get; set; }
 
-        public int TreeClusterDensity { get; set; }
+        /// <summary> Spacing between tree clusters; default is 4000; must be greater than 0. </summary>
+        public int TreeClusterDensity {
+            get { return treeClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "TreeClusterDensity must be greater than 0" );
+                }
+                treeClusterDensity = value;
+            }
+        }
+
         public int TreeChainsPerCluster { get; set; }
         public int TreeHopsPerChain { get; set; }
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
         /// <summary> Ore density fraction; default is 1; must be between 0.2 and 5.0 </summary>
-        public double OreDensity { get; set; }
+        public double OreDensity {
+            get { return oreDensity; }
+            set {
+                if( value < 0.2 || value > 5 ) {
+                    throw new ArgumentOutOfRangeException( "value", "OreDensity must be between 0.2 and 5" );
+                }
+                oreDensity = value; }
+        }
 
         /// <summary> Cave density fraction; default is 1; must be between 0.1 and 10.0 </summary>
-        public double CaveDensity { get; set; }
+        public double CaveDensity {
+            get { return caveDensity; }
+            set {
+                if( value < 0.1 || value > 10 ) {
+                    throw new ArgumentOutOfRangeException( "value", "CaveDensity must be between 0.2 and 10" );
+                }
+                caveDensity = value;
+            }
+        }
 
         public int Seed { get; set; }
 
@@ -563,7 +613,9 @@ namespace fCraft.MapGeneration {
 
 
         void MakeOreVeins( Block oreTile, int density ) {
-            if( density < 1 || density > 500 ) throw new ArgumentOutOfRangeException( "density", "Ore density must be between 1 and 500" );
+            if( density < 1 || density > 500 ) {
+                throw new ArgumentOutOfRangeException( "density", "Ore density must be between 1 and 500" );
+            }
             Random oreVeinRand = new Random( random.Next() );
             int maxVeins = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/256/64*density/100;
 
