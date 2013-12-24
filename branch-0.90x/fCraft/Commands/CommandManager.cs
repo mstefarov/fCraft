@@ -101,7 +101,7 @@ namespace fCraft {
                                                         "All commands need a name, between 1 and 16 alphanumeric characters long." );
             }
 
-            string normalizedName = descriptor.Name.ToLower();
+            string normalizedName = descriptor.Name.ToLowerInvariant();
 
             if( Commands.ContainsKey( normalizedName ) ) {
                 throw new CommandRegistrationException( descriptor,
@@ -110,20 +110,13 @@ namespace fCraft {
             }
 
             if( ReservedCommandNames.Contains( normalizedName ) ) {
-                throw new CommandRegistrationException( descriptor, "The command name is reserved." );
+                throw new CommandRegistrationException( descriptor, "The command name \"{0}\" is reserved.",
+                                                        normalizedName );
             }
 
             if( descriptor.Handler == null ) {
                 throw new CommandRegistrationException( descriptor,
                                                         "All command descriptors are required to provide a handler callback." );
-            }
-
-            if( descriptor.Aliases != null ) {
-                if( descriptor.Aliases.Any( alias => Commands.ContainsKey( alias.ToLowerInvariant() ) ) ) {
-                    throw new CommandRegistrationException( descriptor,
-                                                            "One of the aliases for \"{0}\" is using the name of an already-defined command.",
-                                                            descriptor.Name );
-                }
             }
 
             if( !Char.IsUpper( descriptor.Name[0] ) ) {
@@ -148,20 +141,26 @@ namespace fCraft {
             if( descriptor.Aliases != null ) {
                 foreach( string alias in descriptor.Aliases ) {
                     string normalizedAlias = alias.ToLowerInvariant();
+
                     if( ReservedCommandNames.Contains( normalizedAlias ) &&
                         !(descriptor.Name == "Cancel" && alias == "Nvm") ) {
                         // special case for cancel/nvm aliases
                         Logger.Log( LogType.Warning,
-                                    "CommandManager.RegisterCommand: Alias \"{0}\" for \"{1}\" ignored (reserved name).",
-                                    alias,
-                                    descriptor.Name );
+                                    "CommandManager.RegisterCommand: Alias \"{0}\" for command \"{1}\" ignored (reserved name).",
+                                    alias, descriptor.Name );
+
+                    } else if( Commands.ContainsKey( normalizedAlias ) ) {
+                        Logger.Log( LogType.Warning,
+                                    "CommandManager.RegisterCommand: Cannot allow \"{0}\" as an alias for \"{1}\". " +
+                                    "A command named \"{2}\" has already been registered.",
+                                    alias, descriptor.Name, Commands[normalizedAlias].Name );
+
                     } else if( Aliases.ContainsKey( normalizedAlias ) ) {
                         Logger.Log( LogType.Warning,
-                                    "CommandManager.RegisterCommand: \"{0}\" was defined as an alias for \"{1}\", " +
-                                    "but has been overridden to resolve to \"{2}\" instead.",
-                                    alias,
-                                    Aliases[normalizedAlias],
-                                    descriptor.Name );
+                                    "CommandManager.RegisterCommand: \"{0}\" was previously defined as an alias for \"{1}\", " +
+                                    "but has now been overridden to resolve to \"{2}\" instead.",
+                                    alias, Aliases[normalizedAlias], descriptor.Name );
+                        Aliases[normalizedAlias] = normalizedName;
                     } else {
                         Aliases.Add( normalizedAlias, normalizedName );
                     }
