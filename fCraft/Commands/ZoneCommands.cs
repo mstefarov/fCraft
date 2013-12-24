@@ -207,6 +207,11 @@ namespace fCraft {
 
             string nextToken;
             while( (nextToken = cmd.Next()) != null ) {
+                if( nextToken.Length < 2 ) {
+                    CdZoneEdit.PrintUsage( player );
+                    return;
+                }
+
                 // Clear whitelist
                 if( nextToken.Equals( "-*" ) ) {
                     PlayerInfo[] oldWhitelist = zone.Controller.ExceptionList.Included;
