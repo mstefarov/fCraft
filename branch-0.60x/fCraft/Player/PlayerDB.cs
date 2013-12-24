@@ -140,7 +140,7 @@ namespace fCraft {
         static void LoadInternal( StreamReader reader, string header ) {
             int version = IdentifyFormatVersion( header );
             if( version == 0 ) {
-                throw new Exception( "PlayerDB.Load: Unsupported PlayerDB file format. " +
+                throw new NotSupportedException( "PlayerDB.Load: Unsupported PlayerDB file format. " +
                                      "Try loading it in an older version of fCraft (before 0.640)." );
             } else if( version > FormatVersion ) {
                 Logger.Log( LogType.Warning,
