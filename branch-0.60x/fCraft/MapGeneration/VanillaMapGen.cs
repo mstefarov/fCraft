@@ -1,8 +1,10 @@
 ﻿// Originally part of FemtoCraft | Copyright 2012-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 // Based in part on Minecraft 0.30 bytecode, copyright 2009 Markus Persson / Mojang AB
+
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using JetBrains.Annotations;
 
 namespace fCraft.MapGeneration {
     /// <summary> Map generator that creates landscapes identical to
@@ -49,8 +51,13 @@ namespace fCraft.MapGeneration {
     }
 
 
-    class VanillaMapGenParameters : MapGeneratorParameters {
-        readonly static Random SeedRng = new Random();
+    internal class VanillaMapGenParameters : MapGeneratorParameters {
+        static readonly Random SeedRng = new Random();
+        int shroomClusterDensity;
+        int treeClusterDensity;
+        int flowerClusterDensity;
+        double oreDensity;
+        double caveDensity;
 
         public bool AddFlowers { get; set; }
         public bool AddMushrooms { get; set; }
@@ -62,28 +69,73 @@ namespace fCraft.MapGeneration {
         public int WaterSpawnDensity { get; set; }
         public int LavaSpawnDensity { get; set; }
 
-        public int FlowerClusterDensity { get; set; }
+        /// <summary> Spacing between flower clusters; default is 3000; must be greater than 0. </summary>
+        public int FlowerClusterDensity {
+            get { return flowerClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "FlowerClusterDensity must be greater than 0" );
+                }
+                flowerClusterDensity = value;
+            }
+        }
+
         public int FlowerSpread { get; set; }
         public int FlowerChainsPerCluster { get; set; }
         public int FlowersPerChain { get; set; }
 
-        public int ShroomClusterDensity { get; set; }
+        /// <summary> Spacing between mushroom clusters; default is 2000; must be greater than 0. </summary>
+        public int ShroomClusterDensity {
+            get { return shroomClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "ShroomClusterDensity must be greater than 0" );
+                }
+                shroomClusterDensity = value;
+            }
+        }
+
         public int ShroomChainsPerCluster { get; set; }
         public int ShroomHopsPerChain { get; set; }
         public int ShroomSpreadHorizontal { get; set; }
         public int ShroomSpreadVertical { get; set; }
 
-        public int TreeClusterDensity { get; set; }
+        /// <summary> Spacing between tree clusters; default is 4000; must be greater than 0. </summary>
+        public int TreeClusterDensity {
+            get { return treeClusterDensity; }
+            set {
+                if( value < 0 ) {
+                    throw new ArgumentOutOfRangeException( "value", "TreeClusterDensity must be greater than 0" );
+                }
+                treeClusterDensity = value;
+            }
+        }
+
         public int TreeChainsPerCluster { get; set; }
         public int TreeHopsPerChain { get; set; }
         public int TreeSpread { get; set; }
         public int TreePlantRatio { get; set; }
 
         /// <summary> Ore density fraction; default is 1; must be between 0.2 and 5.0 </summary>
-        public double OreDensity { get; set; }
+        public double OreDensity {
+            get { return oreDensity; }
+            set {
+                if( value < 0.2 || value > 5 ) {
+                    throw new ArgumentOutOfRangeException( "value", "OreDensity must be between 0.2 and 5" );
+                }
+                oreDensity = value; }
+        }
 
         /// <summary> Cave density fraction; default is 1; must be between 0.1 and 10.0 </summary>
-        public double CaveDensity { get; set; }
+        public double CaveDensity {
+            get { return caveDensity; }
+            set {
+                if( value < 0.1 || value > 10 ) {
+                    throw new ArgumentOutOfRangeException( "value", "CaveDensity must be between 0.2 and 10" );
+                }
+                caveDensity = value;
+            }
+        }
 
         public int Seed { get; set; }
 
@@ -121,7 +173,7 @@ namespace fCraft.MapGeneration {
         }
 
 
-        public VanillaMapGenParameters( XElement baseElement )
+        public VanillaMapGenParameters( [NotNull] XElement baseElement )
             : this() {
             base.LoadProperties( baseElement );
         }
@@ -133,7 +185,7 @@ namespace fCraft.MapGeneration {
     }
 
 
-    sealed class VanillaMapGenState : MapGeneratorState {
+    internal sealed class VanillaMapGenState : MapGeneratorState {
         const int CoalOreDensity = 90,
                   IronOreDensity = 70,
                   GoldOreDensity = 50,
@@ -145,7 +197,8 @@ namespace fCraft.MapGeneration {
         readonly int[] heightmap;
         readonly Map map;
 
-        internal VanillaMapGenState( VanillaMapGenParameters genParams ) {
+        internal VanillaMapGenState( [NotNull] VanillaMapGenParameters genParams ) {
+            if( genParams == null ) throw new ArgumentNullException( "genParams" );
             this.genParams = genParams;
             Parameters = genParams;
             random = new Random( genParams.Seed );
@@ -186,7 +239,7 @@ namespace fCraft.MapGeneration {
                 MakeOreVeins( Block.Coal, density );
                 ReportProgress( 58, "Depositing iron..." );
                 density = (int)Math.Round( genParams.OreDensity*IronOreDensity );
-                MakeOreVeins( Block.IronOre, density);
+                MakeOreVeins( Block.IronOre, density );
                 ReportProgress( 61, "Depositing gold..." );
                 density = (int)Math.Round( genParams.OreDensity*GoldOreDensity );
                 MakeOreVeins( Block.GoldOre, density );
@@ -246,11 +299,9 @@ namespace fCraft.MapGeneration {
                     double d2 = raiseNoise1.GetNoise( x*scale, y*scale )/6 - 4;
                     double d3 = raiseNoise2.GetNoise( x*scale, y*scale )/5 + 10 - 4;
                     double d4 = raiseNoise3.GetNoise( x, y )/8;
-                    if( d4 > 0 )
-                        d3 = d2;
+                    if( d4 > 0 ) d3 = d2;
                     double elevation = Math.Max( d2, d3 )/2;
-                    if( elevation < 0 )
-                        elevation *= 0.8;
+                    if( elevation < 0 ) elevation *= 0.8;
                     heightmap[(x + y*genParams.MapWidth)] = (int)elevation;
                 }
             }
@@ -268,8 +319,7 @@ namespace fCraft.MapGeneration {
                 for( int y = 0; y < genParams.MapLength; y++ ) {
                     double d1 = erodeNoise1.GetNoise( x*2, y*2 )/8;
                     int i7 = erodeNoise2.GetNoise( x*2, y*2 ) > 0 ? 1 : 0;
-                    if( d1 <= 2 )
-                        continue;
+                    if( d1 <= 2 ) continue;
                     int i19 = ((heightmap[(x + y*genParams.MapWidth)] - i7)/2*2) + i7;
                     heightmap[(x + y*genParams.MapWidth)] = i19;
                 }
@@ -287,18 +337,13 @@ namespace fCraft.MapGeneration {
                     int i19 = heightmap[(x + y*genParams.MapWidth)] + waterLevel;
                     int i21 = i19 + i7;
                     heightmap[(x + y*genParams.MapWidth)] = Math.Max( i19, i21 );
-                    if( heightmap[(x + y*genParams.MapWidth)] > genParams.MapHeight - 2 )
-                        heightmap[(x + y*genParams.MapWidth)] = (genParams.MapHeight - 2);
-                    if( heightmap[(x + y*genParams.MapWidth)] < 1 )
-                        heightmap[(x + y*genParams.MapWidth)] = 1;
+                    if( heightmap[(x + y*genParams.MapWidth)] > genParams.MapHeight - 2 ) heightmap[(x + y*genParams.MapWidth)] = (genParams.MapHeight - 2);
+                    if( heightmap[(x + y*genParams.MapWidth)] < 1 ) heightmap[(x + y*genParams.MapWidth)] = 1;
                     for( int z = 0; z < genParams.MapHeight; z++ ) {
                         Block block = Block.Air;
-                        if( z <= i19 )
-                            block = Block.Dirt;
-                        if( z <= i21 )
-                            block = Block.Stone;
-                        if( z == 0 )
-                            block = Block.Lava;
+                        if( z <= i19 ) block = Block.Dirt;
+                        if( z <= i21 ) block = Block.Stone;
+                        if( z == 0 ) block = Block.Lava;
                         int index = (z*genParams.MapLength + y)*genParams.MapWidth + x;
                         blocks[index] = (byte)block;
                     }
@@ -323,8 +368,7 @@ namespace fCraft.MapGeneration {
                 int x = waterRand.Next( genParams.MapWidth );
                 int y = waterRand.Next( genParams.MapLength );
                 int z = waterLevel - 1 - waterRand.Next( 2 );
-                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air )
-                    continue;
+                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air ) continue;
                 FloodFill( x, y, z, Block.StillWater );
             }
         }
@@ -339,13 +383,12 @@ namespace fCraft.MapGeneration {
                 int y = meltRand.Next( genParams.MapLength );
                 // probability of lava spawning increases towards bottom of the map
                 int z = (int)(meltRand.NextDouble()*meltRand.NextDouble()*(waterLevel - 3));
-                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air )
-                    continue;
+                if( blocks[((z*genParams.MapLength + y)*genParams.MapWidth + x)] != (byte)Block.Air ) continue;
                 FloodFill( x, y, z, Block.StillLava );
             }
         }
 
-        
+
         // replaces dirt with sand, grass, or gravel
         void Grow() {
             PerlinNoise growNoise1 = new PerlinNoise( random, 8 );
@@ -388,18 +431,15 @@ namespace fCraft.MapGeneration {
                     for( int hop = 0; hop < genParams.FlowersPerChain; hop++ ) {
                         x += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
                         y += flowerRand.Next( genParams.FlowerSpread ) - flowerRand.Next( genParams.FlowerSpread );
-                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
-                            continue;
+                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) ) continue;
 
                         int z = heightmap[(x + y*genParams.MapWidth)] + 1;
                         int index = Index( x, y, z );
 
                         Block blockAbove = (Block)blocks[index];
-                        if( blockAbove != Block.Air )
-                            continue;
+                        if( blockAbove != Block.Air ) continue;
                         Block blockUnder = (Block)blocks[Index( x, y, z - 1 )];
-                        if( blockUnder != Block.Grass )
-                            continue;
+                        if( blockUnder != Block.Grass ) continue;
 
                         if( flowerType == 0 ) {
                             blocks[index] = (byte)Block.YellowFlower;
@@ -432,16 +472,13 @@ namespace fCraft.MapGeneration {
                         z += shroomRand.Next( genParams.ShroomSpreadVertical ) -
                              shroomRand.Next( genParams.ShroomSpreadVertical );
                         if( (x < 0) || (y < 0) || (z < 1) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) ||
-                            (z >= heightmap[(x + y*genParams.MapWidth)] - 1) )
-                            continue;
+                            (z >= heightmap[(x + y*genParams.MapWidth)] - 1) ) continue;
 
                         int index = Index( x, y, z );
                         Block blockAbove = (Block)blocks[index];
-                        if( blockAbove != Block.Air )
-                            continue;
+                        if( blockAbove != Block.Air ) continue;
                         Block blockUnder = (Block)blocks[Index( x, y, z - 1 )];
-                        if( blockUnder != Block.Stone )
-                            continue;
+                        if( blockUnder != Block.Stone ) continue;
 
                         if( shroomType == 0 ) {
                             blocks[index] = (byte)Block.BrownMushroom;
@@ -466,10 +503,8 @@ namespace fCraft.MapGeneration {
                     for( int hop = 0; hop < genParams.TreeHopsPerChain; hop++ ) {
                         x += treeRand.Next( genParams.TreeSpread ) - treeRand.Next( genParams.TreeSpread );
                         y += treeRand.Next( genParams.TreeSpread ) - treeRand.Next( genParams.TreeSpread );
-                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) )
-                            continue;
-                        if( treeRand.Next( genParams.TreePlantRatio ) != 0 )
-                            continue;
+                        if( (x < 0) || (y < 0) || (x >= genParams.MapWidth) || (y >= genParams.MapLength) ) continue;
+                        if( treeRand.Next( genParams.TreePlantRatio ) != 0 ) continue;
                         int z = heightmap[(x + y*genParams.MapWidth)] + 1;
                         GrowTree( treeRand, x, y, z );
                     }
@@ -479,12 +514,12 @@ namespace fCraft.MapGeneration {
 
 
         // Plant a single tree - Based on Minecraft Classic's "com.mojang.minecraft.level.maybeGrowTree"
-        void GrowTree( Random treeRand, int startX, int startY, int startZ ) {
+        void GrowTree( [NotNull] Random treeRand, int startX, int startY, int startZ ) {
+            if( treeRand == null ) throw new ArgumentNullException( "treeRand" );
             int treeHeight = treeRand.Next( 3 ) + 4;
 
             Block blockUnder = map.GetBlock( startX, startY, startZ - 1 );
-            if( (blockUnder != Block.Grass) || (startZ >= map.Height - treeHeight - 1) )
-                return;
+            if( (blockUnder != Block.Grass) || (startZ >= map.Height - treeHeight - 1) ) return;
 
             for( int z = startZ; z <= startZ + 1 + treeHeight; z++ ) {
                 int extent = 1;
@@ -493,8 +528,7 @@ namespace fCraft.MapGeneration {
                 for( int x = startX - extent; (x <= startX + extent); x++ ) {
                     for( int y = startY - extent; (y <= startY + extent); y++ ) {
                         if( (x >= 0) && (z >= 0) && (y >= 0) && (x < map.Width) && (z < map.Height) && (y < map.Length) ) {
-                            if( map.GetBlock( x, y, z ) != Block.Air )
-                                return;
+                            if( map.GetBlock( x, y, z ) != Block.Air ) return;
                         } else {
                             return;
                         }
@@ -512,8 +546,7 @@ namespace fCraft.MapGeneration {
                     for( int y = startY - foliageExtent; y <= startY + foliageExtent; y++ ) {
                         int i3 = y - startY;
                         if( (Math.Abs( j ) == foliageExtent) && (Math.Abs( i3 ) == foliageExtent) &&
-                            ((treeRand.Next( 2 ) == 0) || (n == 0)) )
-                            continue;
+                            ((treeRand.Next( 2 ) == 0) || (n == 0)) ) continue;
                         map.SetBlock( x, y, z, Block.Leaves );
                     }
                 }
@@ -547,8 +580,7 @@ namespace fCraft.MapGeneration {
                     f10 = f10*0.9 + (carveRand.NextDouble() - carveRand.NextDouble());
                     f11 = (f11 + f12*0.5)*0.5;
                     f12 = f12*0.75 + (carveRand.NextDouble() - carveRand.NextDouble());
-                    if( carveRand.NextDouble() < 0.25 )
-                        continue;
+                    if( carveRand.NextDouble() < 0.25 ) continue;
                     double f1 = startX + (carveRand.NextDouble()*4 - 2)*0.2;
                     double f2 = startZ + (carveRand.NextDouble()*4 - 2)*0.2;
                     double f5 = startY + (carveRand.NextDouble()*4 - 2)*0.2;
@@ -581,8 +613,9 @@ namespace fCraft.MapGeneration {
 
 
         void MakeOreVeins( Block oreTile, int density ) {
-            if( density < 1 || density > 500 )
+            if( density < 1 || density > 500 ) {
                 throw new ArgumentOutOfRangeException( "density", "Ore density must be between 1 and 500" );
+            }
             Random oreVeinRand = new Random( random.Next() );
             int maxVeins = genParams.MapWidth*genParams.MapLength*genParams.MapHeight/256/64*density/100;
 
@@ -594,7 +627,7 @@ namespace fCraft.MapGeneration {
                 double f5 = 0;
                 double f6 = oreVeinRand.NextDouble()*Math.PI*2;
                 double f7 = 0;
-                int m = (int)((oreVeinRand.NextDouble() + oreVeinRand.NextDouble()) * 75 * density / 100);
+                int m = (int)((oreVeinRand.NextDouble() + oreVeinRand.NextDouble())*75*density/100);
                 for( int n = 0; n < m; n++ ) {
                     startX += Math.Sin( f4 )*Math.Cos( f6 );
                     startY += Math.Cos( f4 )*Math.Sin( f6 );
@@ -613,8 +646,7 @@ namespace fCraft.MapGeneration {
                                 f9 = f9*f9 + f10*f10*2 + f11*f11;
                                 if( (f9 >= f8*f8) || (x < 1) || (z < 1) || (y < 1) ||
                                     (x >= genParams.MapWidth - 1) || (z >= genParams.MapHeight - 1) ||
-                                    (y >= genParams.MapLength - 1) )
-                                    continue;
+                                    (y >= genParams.MapLength - 1) ) continue;
                                 int index = Index( x, y, z );
                                 if( (Block)blocks[index] == Block.Stone ) {
                                     blocks[index] = (byte)oreTile;
@@ -635,13 +667,15 @@ namespace fCraft.MapGeneration {
             while( stack.Count > 0 ) {
                 coord = stack.Pop();
                 blocks[Index( coord.X, coord.Y, coord.Z )] = (byte)newBlock;
-                if( coord.X + 1 < genParams.MapWidth && blocks[Index( coord.X + 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
+                if( coord.X + 1 < genParams.MapWidth &&
+                    blocks[Index( coord.X + 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X + 1, coord.Y, coord.Z ) );
                 }
                 if( coord.X - 1 >= 0 && blocks[Index( coord.X - 1, coord.Y, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X - 1, coord.Y, coord.Z ) );
                 }
-                if( coord.Y + 1 < genParams.MapLength && blocks[Index( coord.X, coord.Y + 1, coord.Z )] == (byte)Block.Air ) {
+                if( coord.Y + 1 < genParams.MapLength &&
+                    blocks[Index( coord.X, coord.Y + 1, coord.Z )] == (byte)Block.Air ) {
                     stack.Push( new Vector3I( coord.X, coord.Y + 1, coord.Z ) );
                 }
                 if( coord.Y - 1 >= 0 && blocks[Index( coord.X, coord.Y - 1, coord.Z )] == (byte)Block.Air ) {
