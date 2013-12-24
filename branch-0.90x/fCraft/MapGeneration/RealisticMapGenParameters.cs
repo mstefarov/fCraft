@@ -317,7 +317,7 @@ namespace fCraft.MapGeneration {
         public override void Save( XElement root ) {
             root.Add( new XAttribute( "version", FormatVersion ) );
 
-            root.Add( new XElement( "theme", Theme ) );
+            root.Add( new XElement( "theme", Theme.Theme ) );
             root.Add( new XElement( "seed", Seed ) );
             root.Add( new XElement( "dimX", MapWidth ) );
             root.Add( new XElement( "dimY", MapLength ) );
