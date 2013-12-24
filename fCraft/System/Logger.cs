@@ -394,15 +394,21 @@ namespace fCraft {
                     message = "fCraft ran out of memory. Make sure there is enough RAM to run.";
                 } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
                     // Ignore Mono-specific bug in MonitorProcessorUsage()
-                } else if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
-                    message = "Some Windows settings are preventing fCraft from doing player name verification. " +
-                              "See http://support.microsoft.com/kb/811833";
-                } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
-                    message =
-                        "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
-                        "and that no other processes are using server's files or directories.";
-                } else if( ex is SocketException && ex.StackTrace.Contains( "Server.CheckConnections" ) ) {
-                    // ignore attempts to poll Server.listener during shutdown
+                } else if( ex.StackTrace != null ) {
+                    if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
+                        message = "Some Windows settings are preventing fCraft from doing player name verification. " +
+                                  "See http://support.microsoft.com/kb/811833";
+                    } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
+                        message =
+                            "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
+                            "and that no other processes are using server's files or directories.";
+                    } else if( ex is NotSupportedException &&
+                               ex.Message.Contains( "Try loading it in an older version of fCraft" ) ) {
+                        // ignore attempts to load unsupported PlayerDB and IPBanList files
+                        message = ex.Message;
+                    } else if( ex is SocketException && ex.StackTrace.Contains( "Server.CheckConnections" ) ) {
+                        // ignore attempts to poll Server.listener during shutdown
+                    }
                 } else {
                     return false;
                 }
