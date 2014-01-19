@@ -1,6 +1,7 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
 
 using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace fCraft.ConfigGUI {
@@ -10,22 +11,22 @@ namespace fCraft.ConfigGUI {
 
 
         static ColorPicker() {
-            ColorPairs.Add( 0, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Black ) );
-            ColorPairs.Add( 8, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.DimGray ) );
-            ColorPairs.Add( 1, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Navy ) );
-            ColorPairs.Add( 9, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.RoyalBlue ) );
-            ColorPairs.Add( 2, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Green ) );
-            ColorPairs.Add( 10, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Lime ) );
-            ColorPairs.Add( 3, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Teal ) );
-            ColorPairs.Add( 11, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Aqua ) );
-            ColorPairs.Add( 4, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Maroon ) );
-            ColorPairs.Add( 12, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Red ) );
-            ColorPairs.Add( 5, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Purple ) );
-            ColorPairs.Add( 13, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Magenta ) );
-            ColorPairs.Add( 6, new ColorPair( System.Drawing.Color.White, System.Drawing.Color.Olive ) );
-            ColorPairs.Add( 14, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Yellow ) );
-            ColorPairs.Add( 7, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.Silver ) );
-            ColorPairs.Add( 15, new ColorPair( System.Drawing.Color.Black, System.Drawing.Color.White ) );
+            ColorPairs.Add( 0, new ColorPair( Color.White, Color.Black ) );
+            ColorPairs.Add( 8, new ColorPair( Color.White, Color.DimGray ) );
+            ColorPairs.Add( 1, new ColorPair( Color.White, Color.Navy ) );
+            ColorPairs.Add( 9, new ColorPair( Color.White, Color.RoyalBlue ) );
+            ColorPairs.Add( 2, new ColorPair( Color.White, Color.Green ) );
+            ColorPairs.Add( 10, new ColorPair( Color.Black, Color.Lime ) );
+            ColorPairs.Add( 3, new ColorPair( Color.White, Color.Teal ) );
+            ColorPairs.Add( 11, new ColorPair( Color.Black, Color.Aqua ) );
+            ColorPairs.Add( 4, new ColorPair( Color.White, Color.Maroon ) );
+            ColorPairs.Add( 12, new ColorPair( Color.White, Color.Red ) );
+            ColorPairs.Add( 5, new ColorPair( Color.White, Color.Purple ) );
+            ColorPairs.Add( 13, new ColorPair( Color.Black, Color.Magenta ) );
+            ColorPairs.Add( 6, new ColorPair( Color.White, Color.Olive ) );
+            ColorPairs.Add( 14, new ColorPair( Color.Black, Color.Yellow ) );
+            ColorPairs.Add( 7, new ColorPair( Color.Black, Color.Silver ) );
+            ColorPairs.Add( 15, new ColorPair( Color.Black, Color.White ) );
         }
 
 
@@ -119,13 +120,13 @@ namespace fCraft.ConfigGUI {
 
 
         internal struct ColorPair {
-            public ColorPair( System.Drawing.Color foreground, System.Drawing.Color background ) {
+            public ColorPair( Color foreground, Color background ) {
                 Foreground = foreground;
                 Background = background;
             }
 
-            public System.Drawing.Color Foreground;
-            public System.Drawing.Color Background;
+            public Color Foreground;
+            public Color Background;
         }
     }
 }

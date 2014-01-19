@@ -101,13 +101,13 @@ namespace fCraft.Drawing {
             // Check if player gave optional second argument (palette name)
             string paletteName = cmd.Next();
             if( paletteName != null ) {
-                StandardBlockPalettes paletteType;
+                StandardBlockPalette paletteType;
                 if( EnumUtil.TryParse( paletteName, out paletteType, true ) ) {
                     Palette = BlockPalette.GetPalette( paletteType );
                 } else {
                     Player.Message( "DrawImage: Unrecognized palette \"{0}\". Available palettes are: \"{1}\"",
                                     paletteName,
-                                    Enum.GetNames( typeof( StandardBlockPalettes ) ).JoinToString() );
+                                    Enum.GetNames( typeof( StandardBlockPalette ) ).JoinToString() );
                     return false;
                 }
             } else {

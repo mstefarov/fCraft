@@ -267,25 +267,24 @@ namespace fCraft {
                 rawMessage = rawMessage.Substring( 0, rawMessage.Length - 1 );
             }
             CommandReader cmd = new CommandReader( rawMessage );
-            CommandDescriptor commandDescriptor = CommandManager.GetDescriptor( cmd.Name, true );
 
-            if( commandDescriptor == null ) {
+            if( cmd.Descriptor == null ) {
                 MessageNow( "Unknown command \"{0}\". See &H/Commands", cmd.Name );
-            } else if( Info.IsFrozen && !commandDescriptor.UsableByFrozenPlayers ) {
+            } else if( Info.IsFrozen && !cmd.Descriptor.UsableByFrozenPlayers ) {
                 MessageNow( "&WYou cannot use this command while frozen." );
             } else {
-                if( !commandDescriptor.DisableLogging ) {
+                if( !cmd.Descriptor.DisableLogging ) {
                     Logger.Log( LogType.UserCommand,
                                 "{0}: {1}",
                                 Name,
                                 rawMessage );
                 }
-                if( commandDescriptor.RepeatableSelection ) {
+                if( cmd.Descriptor.RepeatableSelection ) {
                     selectionRepeatCommand = cmd;
                 }
                 SendToSpectators( cmd.RawMessage );
                 CommandManager.ParseCommand( this, cmd, fromConsole );
-                if( !commandDescriptor.NotRepeatable ) {
+                if( !cmd.Descriptor.NotRepeatable ) {
                     LastCommand = cmd;
                 }
             }

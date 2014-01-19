@@ -143,7 +143,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="Utils\BitMap3D.cs" />
+    <Compile Include="Drawing\BitMap3D.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />
     <Compile Include="Utils\fNbt_v0.6.0_Annotated.cs" />
     <Compile Include="Utils\Paths.cs" />
