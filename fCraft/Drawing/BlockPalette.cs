@@ -234,21 +234,21 @@ namespace fCraft.Drawing {
 
 
         [NotNull]
-        public static BlockPalette GetPalette( StandardBlockPalettes palette ) {
+        public static BlockPalette GetPalette( StandardBlockPalette palette ) {
             switch( palette ) {
-                case StandardBlockPalettes.Light:
+                case StandardBlockPalette.Light:
                     return Light;
-                case StandardBlockPalettes.Dark:
+                case StandardBlockPalette.Dark:
                     return Dark;
-                case StandardBlockPalettes.Layered:
+                case StandardBlockPalette.Layered:
                     return Layered;
-                case StandardBlockPalettes.Gray:
+                case StandardBlockPalette.Gray:
                     return Gray;
-                case StandardBlockPalettes.DarkGray:
+                case StandardBlockPalette.DarkGray:
                     return DarkGray;
-                case StandardBlockPalettes.LayeredGray:
+                case StandardBlockPalette.LayeredGray:
                     return LayeredGray;
-                case StandardBlockPalettes.BW:
+                case StandardBlockPalette.BW:
                     return BW;
                 default:
                     throw new ArgumentOutOfRangeException( "palette" );
@@ -377,7 +377,7 @@ namespace fCraft.Drawing {
     }
 
 
-    public enum StandardBlockPalettes {
+    public enum StandardBlockPalette {
         Light, // 1-layer standard blocks, lit
         Dark, // 1-layer standard blocks, shadowed
         Layered, // 2-layer standard blocks

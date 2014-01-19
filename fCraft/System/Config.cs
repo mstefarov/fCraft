@@ -303,7 +303,8 @@ namespace fCraft {
             if( element == null ) throw new ArgumentNullException( "element" );
 
             // ReSharper disable PossibleNullReferenceException
-            string keyName = element.Attribute( "key" ).Value.ToLower();
+            string rawKeyName = element.Attribute( "key" ).Value;
+            string keyName = rawKeyName.ToLower();
             string value = element.Attribute( "value" ).Value;
             // ReSharper restore PossibleNullReferenceException
 
@@ -321,7 +322,7 @@ namespace fCraft {
                 // unknown key
                 Logger.Log( LogType.Warning,
                             "Config: Unrecognized entry ignored: {0} = {1}",
-                            keyName,
+                            rawKeyName,
                             value );
             }
         }

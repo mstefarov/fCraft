@@ -197,7 +197,7 @@ namespace fCraft.ConfigGUI {
             if( IPAddressUtil.IsIP( tIP.Text ) && IPAddress.TryParse( tIP.Text, out IP ) ) {
                 tIP.ForeColor = SystemColors.ControlText;
             } else {
-                tIP.ForeColor = System.Drawing.Color.Red;
+                tIP.ForeColor = Color.Red;
                 e.Cancel = true;
             }
         }
@@ -816,7 +816,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 MessageBox.Show( "Invalid prefix character!\n" +
                                  "Prefixes may only contain characters that are allowed in chat (except space).",
                                  "Warning" );
-                tPrefix.ForeColor = System.Drawing.Color.Red;
+                tPrefix.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
                 tPrefix.ForeColor = SystemColors.ControlText;
@@ -1140,16 +1140,16 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             }
             if( String.IsNullOrWhiteSpace( newName ) ) {
                 MessageBox.Show( "Rank name cannot be blank." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else if( !Rank.IsValidRankName( newName ) ) {
                 MessageBox.Show( "Rank name can only contain letters, digits, and underscores." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else if( !RankManager.CanRenameRank( selectedRank, newName ) ) {
                 MessageBox.Show( "There is already another rank named \"" + newName + "\".\n" +
                                  "Duplicate rank names are not allowed." );
-                tRankName.ForeColor = System.Drawing.Color.Red;
+                tRankName.ForeColor = Color.Red;
                 e.Cancel = true;
             } else {
                 string oldName = ToComboBoxOption( selectedRank );

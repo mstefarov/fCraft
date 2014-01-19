@@ -96,7 +96,7 @@ namespace fCraft.UpdateInstaller {
                     if( preUpdateProcess != null ) preUpdateProcess.WaitForExit();
                 } catch( Exception ex ) {
                     Console.Error.WriteLine( "Failed to run pre-update process, aborting update application: {0}", ex );
-                    return (int)ReturnCodes.FailedToRunPreUpdateCommand;
+                    return (int)ReturnCode.FailedToRunPreUpdateCommand;
                 }
             }
 
@@ -166,7 +166,7 @@ namespace fCraft.UpdateInstaller {
                     if( postUpdateProcess != null ) postUpdateProcess.WaitForExit();
                 } catch( Exception ex ) {
                     Console.Error.WriteLine( "Failed to run post-update process, aborting restart: {0}", ex );
-                    return (int)ReturnCodes.FailedToRunPostUpdateCommand;
+                    return (int)ReturnCode.FailedToRunPostUpdateCommand;
                 }
             }
 
@@ -179,7 +179,7 @@ namespace fCraft.UpdateInstaller {
                 Process.Start( restartTarget, argString );
             }
 
-            return (int)ReturnCodes.Ok;
+            return (int)ReturnCode.Ok;
         }
 
 
@@ -211,7 +211,7 @@ namespace fCraft.UpdateInstaller {
         }
     }
 
-    internal enum ReturnCodes {
+    internal enum ReturnCode {
         Ok = 0,
         FailedToRunPreUpdateCommand = 1,
         FailedToRunPostUpdateCommand = 2

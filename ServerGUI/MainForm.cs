@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -217,21 +218,21 @@ namespace fCraft.ServerGUI {
                     logBox.Select( oldLength, msgToAppend.Length );
                     switch( e.MessageType ) {
                         case LogType.Warning:
-                            logBox.SelectionColor = System.Drawing.Color.Yellow;
+                            logBox.SelectionColor = Color.Yellow;
                             break;
                         case LogType.Debug:
-                            logBox.SelectionColor = System.Drawing.Color.DarkGray;
+                            logBox.SelectionColor = Color.DarkGray;
                             break;
                         case LogType.Error:
                         case LogType.SeriousError:
-                            logBox.SelectionColor = System.Drawing.Color.Red;
+                            logBox.SelectionColor = Color.Red;
                             break;
                         case LogType.ConsoleInput:
                         case LogType.ConsoleOutput:
-                            logBox.SelectionColor = System.Drawing.Color.White;
+                            logBox.SelectionColor = Color.White;
                             break;
                         default:
-                            logBox.SelectionColor = System.Drawing.Color.LightGray;
+                            logBox.SelectionColor = Color.LightGray;
                             break;
                     }
 
@@ -245,7 +246,7 @@ namespace fCraft.ServerGUI {
                                            Environment.NewLine;
                         logBox.SelectedText = textToAdd;
                         userSelectionStart += textToAdd.Length;
-                        logBox.SelectionColor = System.Drawing.Color.DarkGray;
+                        logBox.SelectionColor = Color.DarkGray;
                     }
 
                     // either restore user's selection, or scroll to end

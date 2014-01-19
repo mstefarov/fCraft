@@ -3033,5 +3033,36 @@ namespace fCraft {
         }
 
         #endregion
+
+
+
+        static readonly CommandDescriptor CdWorldImport = new CommandDescriptor {
+            Name = "WImport",
+            Category = CommandCategory.World,
+            IsConsoleSafe=true,
+            Permissions=new []{ Permission.ManageWorlds},
+            Usage="/WImport FromWorld ToWorld DataCategory",
+            Help = "Copies certain information from given world or mapfile into the specified world.", // TODO
+            Handler = WorldImportHandler
+        };
+
+
+        static void WorldImportHandler( Player player, CommandReader cmd ) {
+            throw new NotImplementedException();
+        }
+
+        enum WorldDataCategory {
+            AccessSecurity,
+            BuildSecurity,
+            Environment,
+            Greeting,
+            Backup,
+            BlockDBSettings,
+            BlockDBData,
+            Zones,
+            Spawn,
+            Blocks,
+            GenSettings
+        }
     }
 }

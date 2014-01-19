@@ -270,8 +270,7 @@ namespace fCraft {
         static char CodeToChar( int code ) {
             if( code < 26 ) {
                 return (char)(code + 'a');
-            }
-            if( code >= 26 && code < 36 ) {
+            } else if( code >= 26 && code < 36 ) {
                 return (char)(code + '0');
             }
             switch( code ) {
