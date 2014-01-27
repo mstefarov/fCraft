@@ -1,3 +1,10 @@
+0.644
+ Fix: Fixed a bug that caused character '@' in player names to be treated same as '_' (thanks Dingus)
+ Fix: Fixed a rare crash in /ZEdit when using the command improperly.
+ Fix: Fixed a DataError being thrown in ConfigGUI's "Worlds" tab after toggling rank prefixes on/off.
+ Fix: Improved error reporting.
+ Change: Improved reliability of external IP checks.
+
 0.643
  Fix: Fixed sometimes wrapping last word of a chat message to the next line, when the whole message could fit on one line (thanks AndrewPH).
  Fix: Running UpdateInstaller no longer causes UAC prompts under Windows Vista.
