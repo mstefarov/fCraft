@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 using fCraft.GUI;
 using fCraft.MapGeneration;
@@ -66,9 +67,14 @@ namespace fCraft.ConfigGUI {
 
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
-            MapGenUtil.Init();
 
+            // hook up handlers for various error scenarios
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            Application.ThreadException += ApplicationOnThreadException;
             dgvWorlds.DataError += WorldListErrorHandler;
+
+            // initialize a list of map generators
+            MapGenUtil.Init();
 
             LoadConfig();
 
@@ -78,6 +84,16 @@ namespace fCraft.ConfigGUI {
 
             bReadme.Enabled = File.Exists( ReadmeFileName );
             bChangelog.Enabled = File.Exists( ChangelogFileName );
+        }
+
+
+        void ApplicationOnThreadException(object sender, ThreadExceptionEventArgs e) {
+            Logger.LogAndReportCrash("Unhandled error in WinForms thread", "ConfigGUI", e.Exception, true);
+        }
+
+
+        void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e) {
+            Logger.LogAndReportCrash("Unhandled error", "ConfigGUI", (Exception)e.ExceptionObject, true);
         }
 
 
@@ -262,6 +278,7 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
                 MessageBox.Show(e.Exception.ToString(),
                                 "An error occurred in the world list (column " + column.HeaderText + ")");
             }
+            Logger.LogAndReportCrash("DataError in world grid", "ConfigGUI", e.Exception, true);
         }
 
 
