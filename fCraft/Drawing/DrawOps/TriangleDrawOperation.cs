@@ -1,4 +1,4 @@
-﻿// fCraft is Copyright 2009-2013 Matvei Stefarov <me@matvei.org>
+﻿// fCraft is Copyright 2009-2014 Matvei Stefarov <me@matvei.org>
 // TriangleDrawOperation contributed by Conrad "Redshift" Morgan
 using System;
 

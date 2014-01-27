@@ -10,7 +10,7 @@ using System.Resources;
 [assembly: AssemblyConfiguration( "" )]
 [assembly: AssemblyCompany( "fCraft.net" )]
 [assembly: AssemblyProduct( "fCraft MapRenderer" )]
-[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2013 (matvei.org)" )]
+[assembly: AssemblyCopyright( "fCraft is Copyright © Matvei Stefarov 2009-2014 (matvei.org)" )]
 [assembly: AssemblyTrademark( "" )]
 [assembly: AssemblyCulture( "" )]
 
@@ -32,6 +32,6 @@ using System.Resources;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion( "0.6.4.3" )]
-[assembly: AssemblyFileVersion( "0.6.4.3" )]
+[assembly: AssemblyVersion("0.6.4.4")]
+[assembly: AssemblyFileVersion("0.6.4.4")]
 [assembly: NeutralResourcesLanguageAttribute( "en-US" )]

@@ -210,7 +210,7 @@ fCraft is open-source and free for all uses. fCraft code and binaries are
 licensed and distributed under the permissive MIT License, reproduced here:
 
 ----
-Copyright 2009-2012 Matvei Stefarov <me@matvei.org>
+Copyright 2009-2014 Matvei Stefarov <me@matvei.org>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -244,7 +244,7 @@ or any other files from Minecraft.
 
 === Credits ===================================================================
 
-fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2012
+fCraft was developed by Matvei Stefarov (me@matvei.org) in 2009-2014
 
 Thanks to fCraft code contributors and modders:
     Asiekierka, Dag10, Dankirk, Destroyer, FontPeg, Hellenion, Jonty800,
