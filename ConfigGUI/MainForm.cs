@@ -254,12 +254,13 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         #region Worlds
 
-        void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
-            if( e.Exception is FormatException ) {
-                string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
-                MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
+        void WorldListErrorHandler(object sender, DataGridViewDataErrorEventArgs e) {
+            DataGridViewColumn column = dgvWorlds.Columns[e.ColumnIndex];
+            if (e.Exception is FormatException) {
+                MessageBox.Show(e.Exception.Message, "Error editing " + column.HeaderText);
             } else {
-                MessageBox.Show( e.Exception.ToString(), "An error occurred in the world list" );
+                MessageBox.Show(e.Exception.ToString(),
+                                "An error occurred in the world list (column " + column.HeaderText + ")");
             }
         }
 
@@ -690,8 +691,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void RebuildRankList() {
             vRanks.Items.Clear();
+            int listIndex = 1;
             foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( ToComboBoxOption( rank ) );
+                string rankString = ToComboBoxOption(rank);
+                vRanks.Items.Add( rankString );
+                rankNameList[listIndex] = rankString;
+                listIndex++;
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
@@ -1710,7 +1715,10 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             usePrefixes = xRankPrefixesInChat.Checked;
             tPrefix.Enabled = usePrefixes;
             lPrefix.Enabled = usePrefixes;
-            if( ranksLoaded ) RebuildRankList();
+            if (ranksLoaded) {
+                RebuildRankList();
+                Worlds.ResetBindings();
+            }
         }
 
 
