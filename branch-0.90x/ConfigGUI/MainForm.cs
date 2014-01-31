@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Windows.Forms;
 using fCraft.GUI;
 using fCraft.MapGeneration;
@@ -66,9 +67,14 @@ namespace fCraft.ConfigGUI {
 
             // Initialize fCraft's args, paths, and logging backend.
             Server.InitLibrary( Environment.GetCommandLineArgs() );
-            MapGenUtil.Init();
 
+            // hook up handlers for various error scenarios
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomainOnUnhandledException;
+            Application.ThreadException += ApplicationOnThreadException;
             dgvWorlds.DataError += WorldListErrorHandler;
+
+            // initialize a list of map generators
+            MapGenUtil.Init();
 
             LoadConfig();
 
@@ -87,6 +93,16 @@ namespace fCraft.ConfigGUI {
 
             pauseTrackingSomethingChanged = false;
             ResumeLayout();
+        }
+
+
+        void ApplicationOnThreadException(object sender, ThreadExceptionEventArgs e) {
+            Logger.LogAndReportCrash("Unhandled error in WinForms thread", "ConfigGUI", e.Exception, true);
+        }
+
+
+        void CurrentDomainOnUnhandledException(object sender, UnhandledExceptionEventArgs e) {
+            Logger.LogAndReportCrash("Unhandled error", "ConfigGUI", (Exception)e.ExceptionObject, true);
         }
 
 
@@ -287,20 +303,25 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
             usePrefixes = xRankPrefixesInChat.Checked;
             tPrefix.Enabled = usePrefixes;
             lPrefix.Enabled = usePrefixes;
-            if (ranksLoaded) RebuildRankList();
+            if (ranksLoaded) {
+                RebuildRankList();
+                Worlds.ResetBindings();
+            }
         }
 
         #endregion
 
         #region Worlds
 
-        void WorldListErrorHandler( object sender, DataGridViewDataErrorEventArgs e ) {
-            if( e.Exception is FormatException ) {
-                string columnName = dgvWorlds.Columns[e.ColumnIndex].HeaderText;
-                MessageBox.Show( e.Exception.Message, "Error editing " + columnName );
+        void WorldListErrorHandler(object sender, DataGridViewDataErrorEventArgs e) {
+            DataGridViewColumn column = dgvWorlds.Columns[e.ColumnIndex];
+            if (e.Exception is FormatException) {
+                MessageBox.Show(e.Exception.Message, "Error editing " + column.HeaderText);
             } else {
-                MessageBox.Show( e.Exception.ToString(), "An error occurred in the world list" );
+                MessageBox.Show(e.Exception.ToString(),
+                                "An error occurred in the world list (column " + column.HeaderText + ")");
             }
+            Logger.LogAndReportCrash("DataError in world grid", "ConfigGUI", e.Exception, true);
         }
 
 
@@ -626,8 +647,12 @@ Your rank is {RANK}&S. Type &H/Help&S for help." );
 
         void RebuildRankList() {
             vRanks.Items.Clear();
+            int listIndex = 1;
             foreach( Rank rank in RankManager.Ranks ) {
-                vRanks.Items.Add( ToComboBoxOption( rank ) );
+                string rankString = ToComboBoxOption(rank);
+                vRanks.Items.Add( rankString );
+                rankNameList[listIndex] = rankString;
+                listIndex++;
             }
 
             FillRankList( cDefaultRank, "(lowest rank)" );
