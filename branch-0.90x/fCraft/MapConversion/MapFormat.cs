@@ -39,8 +39,11 @@ namespace fCraft.MapConversion {
         /// <summary> Raw byte array, with no header. For export only. </summary>
         Raw,
 
-        /// <summary> Map format used by CloudBox and fCraft 0.900+ </summary>
-        ClassicWorld
+        /// <summary> Map format used by CloudBox, ClassiCube client, and fCraft 0.900+ </summary>
+        ClassicWorld,
+        
+        /// <summary> Map-fragment format used by MCEdit, WorldEdit, etc. </summary>
+        Schematic
     }
 
 

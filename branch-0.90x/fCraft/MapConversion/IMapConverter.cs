@@ -9,7 +9,7 @@ namespace fCraft.MapConversion {
         [NotNull]
         string ServerName { get; }
 
-        /// <summary> File extension associated with this file.
+        /// <summary> File extension associated with this file (without the dot).
         /// Throws NotSupportedException if this is a directory-based format. </summary>
         [NotNull]
         string FileExtension { get; }
