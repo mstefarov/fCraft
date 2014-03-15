@@ -46,6 +46,7 @@ namespace fCraft.MapConversion {
             RegisterConverter( new MapOpticraft() );
             RegisterConverter( new MapRaw() );
             RegisterConverter( new MapCW() );
+            RegisterConverter( new MapSchematic() );
         }
 
 
