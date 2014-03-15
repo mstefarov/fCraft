@@ -25,10 +25,6 @@ namespace fCraft.ServerCLI {
                 return;
             }
 
-            NbtFile file = new NbtFile("ClassicWorldTest.cw");
-            string derp = file.ToString();
-
-
             Console.Title = "fCraft " + Updater.CurrentRelease.VersionString + " - starting...";
 
             Logger.Logged += OnLogged;
