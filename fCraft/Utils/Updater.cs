@@ -31,7 +31,7 @@ namespace fCraft {
         public static string UserAgent { get; set; }
 
         /// <summary> The latest stable branch/version of fCraft. </summary>
-        public const string LatestStable = "0.643_r2234";
+        public const string LatestStable = "0.644_r2327";
 
         /// <summary> Url to update fCraft from. Use "{0}" as a placeholder for CurrentRelease.Version.Revision </summary>
         public static string UpdateUri { get; set; }
