@@ -11,21 +11,22 @@ namespace fCraft.MapConversion {
                   ModernDiamondBlockID = 57,
                   ModernEmeraldBlockID = 133,
                   ModernHardenedClayBlockID = 159,
-                  MagentaStainedClayData = 2;
+                  MagentaStainedClayData = 2,
+                  LimeStainedClayData = 5;
 
         static readonly Dictionary<Block, byte> ModernWoolColorMapping = new Dictionary<Block, byte> {
             { Block.Red, 14 },
             { Block.Orange, 1 },
             { Block.Yellow, 4 },
             { Block.Lime, 5 },
-            { Block.Green, 13 },
+            { Block.Green, 0 }, // replace with lime hardened clay
             { Block.Teal, 0 }, // replace with emerald block
             { Block.Aqua, 0 }, // replace with diamond block
             { Block.Cyan, 9 },
             { Block.Blue, 3 },
             { Block.Indigo, 10 },
             { Block.Violet, 2 },
-            { Block.Magenta, 0 }, // replace with hardened clay
+            { Block.Magenta, 0 }, // replace with magenta hardened clay
             { Block.Pink, 6 },
             { Block.Black, 7 },
             { Block.Gray, 8 },
@@ -50,16 +51,25 @@ namespace fCraft.MapConversion {
                 Block block = (Block)blocksIDs[i];
                 if( block >= Block.Red && block <= Block.White ) {
                     // Convert wool colors
-                    if( block == Block.Teal ) {
-                        blocksIDs[i] = ModernEmeraldBlockID;
-                    } else if( block == Block.Aqua ) {
-                        blocksIDs[i] = ModernDiamondBlockID;
-                    } else if( block == Block.Magenta ) {
-                        blocksIDs[i] = ModernHardenedClayBlockID;
-                        blockData[i] = MagentaStainedClayData;
-                    } else {
-                        blocksIDs[i] = ModernWoolBlockID;
-                        blockData[i] = ModernWoolColorMapping[block];
+                    switch( block ) {
+                        case Block.Teal:
+                            blocksIDs[i] = ModernEmeraldBlockID;
+                            break;
+                        case Block.Aqua:
+                            blocksIDs[i] = ModernDiamondBlockID;
+                            break;
+                        case Block.Magenta:
+                            blocksIDs[i] = ModernHardenedClayBlockID;
+                            blockData[i] = MagentaStainedClayData;
+                            break;
+                        case Block.Green:
+                            blocksIDs[i] = ModernHardenedClayBlockID;
+                            blockData[i] = LimeStainedClayData;
+                            break;
+                        default:
+                            blocksIDs[i] = ModernWoolBlockID;
+                            blockData[i] = ModernWoolColorMapping[block];
+                            break;
                     }
                 }
             }
