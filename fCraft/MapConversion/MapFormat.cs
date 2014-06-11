@@ -42,8 +42,11 @@ namespace fCraft.MapConversion {
         /// <summary> Map format used by CloudBox, ClassiCube client, and fCraft 0.900+ </summary>
         ClassicWorld,
         
-        /// <summary> Map-fragment format used by MCEdit, WorldEdit, etc. </summary>
-        Schematic
+        /// <summary> Map-fragment format used by MCEdit, WorldEdit, etc. Classic materials. </summary>
+        Schematic,
+        
+        /// <summary> Map-fragment format used by MCEdit, WorldEdit, etc. Converted modern materials. </summary>
+        ModernSchematic
     }
 
 
