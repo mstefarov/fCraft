@@ -34,19 +34,20 @@ namespace fCraft.MapConversion {
 
 
         static MapUtility() {
-            RegisterConverter( new MapFCMv3() );
-            RegisterConverter( new MapFCMv2() );
-            RegisterConverter( new MapDat() );
-            RegisterConverter( new MapMCSharp() );
-            RegisterConverter( new MapD3() );
-            RegisterConverter( new MapJTE() );
-            RegisterConverter( new MapMinerCPP() );
-            RegisterConverter( new MapMyne() );
-            RegisterConverter( new MapIndev() );
-            RegisterConverter( new MapOpticraft() );
-            RegisterConverter( new MapRaw() );
-            RegisterConverter( new MapCW() );
-            RegisterConverter( new MapSchematic() );
+            RegisterConverter(new MapFCMv3());
+            RegisterConverter(new MapFCMv2());
+            RegisterConverter(new MapDat());
+            RegisterConverter(new MapMCSharp());
+            RegisterConverter(new MapD3());
+            RegisterConverter(new MapJTE());
+            RegisterConverter(new MapMinerCPP());
+            RegisterConverter(new MapMyne());
+            RegisterConverter(new MapIndev());
+            RegisterConverter(new MapOpticraft());
+            RegisterConverter(new MapRaw());
+            RegisterConverter(new MapCW());
+            RegisterConverter(new MapSchematic());
+            RegisterConverter(new MapModernSchematic());
         }
 
 
