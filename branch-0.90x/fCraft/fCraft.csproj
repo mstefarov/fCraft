@@ -120,6 +120,7 @@
     <Compile Include="Drawing\DrawOps\Fill3DDrawOperation.cs" />
     <Compile Include="Drawing\DrawOps\ImageDrawOperation.cs" />
     <Compile Include="Drawing\IBrushFactory.cs" />
+    <Compile Include="MapConversion\MapModernSchematic.cs" />
     <Compile Include="MapConversion\MapSchematic.cs" />
     <Compile Include="MapRendering\IsoCat.cs" />
     <Compile Include="MapRendering\IsoCatMode.cs" />

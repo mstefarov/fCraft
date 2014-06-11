@@ -2,9 +2,10 @@
 using fNbt;
 
 namespace fCraft.MapConversion {
-    /// <summary> Schematic conversion implementation, for exporting fCraft maps to MCEdit and WorldEdit. </summary>
+    /// <summary> Schematic conversion implementation, for exporting fCraft maps to MCEdit and WorldEdit
+    /// with Classic materials. For schematics with converted materials, use MapModernSchematic. </summary>
     public class MapSchematic : IMapExporter {
-        public string ServerName {
+        public virtual string ServerName {
             get { return "Schematic"; }
         }
 
@@ -15,23 +16,28 @@ namespace fCraft.MapConversion {
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
+
         public MapFormat Format {
             get { return MapFormat.Schematic; }
         }
 
+
         public void Save(Map mapToSave, string path) {
             string compTagName = Path.GetFileName(path);
-            // TODO: convert CPE types to standard types on export
             NbtCompound rootTag = new NbtCompound(compTagName) {
-                new NbtShort("Width",(short)mapToSave.Width),
-                new NbtShort("Height",(short)mapToSave.Height),
-                new NbtShort("Length",(short)mapToSave.Length),
-                new NbtString("Materials","Classic"),
-                new NbtByteArray("Blocks",mapToSave.Blocks),
-                new NbtByteArray("Data",new byte[mapToSave.Volume]) // empty
+                new NbtShort("Width", (short)mapToSave.Width),
+                new NbtShort("Height", (short)mapToSave.Height),
+                new NbtShort("Length", (short)mapToSave.Length),
+                new NbtString("Materials", "Classic"),
+                new NbtByteArray("Blocks", mapToSave.Blocks),
+                new NbtByteArray("Data", new byte[mapToSave.Volume]) // empty
             };
+            DoConversion(rootTag);
             NbtFile file = new NbtFile(rootTag);
             file.SaveToFile(path, NbtCompression.GZip);
         }
+
+
+        protected virtual void DoConversion(NbtCompound rootTag) {}
     }
 }
