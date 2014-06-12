@@ -177,8 +177,10 @@ namespace fCraft {
 
             int totalCount = infos.Count;
             int bannedCount = infos.Count( info => info.IsBanned );
-            int inactiveCount = infos.Count( info => info.TimeSinceLastSeen >= inactivityTime );
-            infos = infos.Where( info => (info.TimeSinceLastSeen < inactivityTime && !info.IsBanned) ).ToList();
+            int inactiveCount = infos.Count( info => info.TimesVisited ==0 || info.TimeSinceLastSeen >= inactivityTime );
+            infos =
+                infos.Where(info => (info.TimesVisited > 0 && info.TimeSinceLastSeen < inactivityTime && !info.IsBanned))
+                     .ToArray();
 
             if( infos.Count == 0 ) {
                 writer.WriteLine( "{0}: {1} players, {2} banned, {3} inactive",
@@ -270,7 +272,7 @@ namespace fCraft {
                               TimeSpan.FromTicks( stat.TimeSinceFirstLogin.Ticks/infos.Count ).ToCompactString(),
                               stat.TimeSinceFirstLoginMedian.ToCompactString(),
                               stat.TimeSinceFirstLogin.ToCompactString() );
-            if( infos.Count() > TopPlayersToList*2 + 1 ) {
+            if( infos.Count > TopPlayersToList*2 + 1 ) {
                 foreach( PlayerInfo info in stat.TopTimeSinceFirstLogin.Take( TopPlayersToList ) ) {
                     writer.WriteLine( "        {0,20}  {1}", info.TimeSinceFirstLogin.ToCompactString(), info.Name );
                 }
