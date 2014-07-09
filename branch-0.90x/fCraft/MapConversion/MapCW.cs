@@ -225,15 +225,17 @@ namespace fCraft.MapConversion {
 
             // TODO: CPE CustomBlock conversion
 
-            // read metadata
-            NbtCompound metadata = (NbtCompound)root["Metadata"];
-            NbtCompound fCraftMetadata = metadata.Get<NbtCompound>( "fCraft" );
+            // read metadata, if present
+            NbtCompound metadata = root.Get<NbtCompound>("Metadata");
+            if( metadata == null ) return map;
+
+            NbtCompound fCraftMetadata = metadata.Get<NbtCompound>("fCraft");
             if( fCraftMetadata != null ) {
                 foreach( NbtCompound groupTag in fCraftMetadata ) {
                     string groupName = groupTag.Name;
                     foreach( NbtString keyValueTag in groupTag ) {
                         // ReSharper disable AssignNullToNotNullAttribute // names are never null within compound
-                        map.Metadata.Add( groupName, keyValueTag.Name, keyValueTag.Value );
+                        map.Metadata.Add(groupName, keyValueTag.Name, keyValueTag.Value);
                         // ReSharper restore AssignNullToNotNullAttribute
                     }
                 }
@@ -245,7 +247,7 @@ namespace fCraft.MapConversion {
                 // TODO: CPE metadata
             }
 
-            // preserve forign metadata, if needed
+            // preserve foreign metadata, if needed
             if( MapUtility.PreserveForeignMetadata ) {
                 metadata.Remove( "fCraft" );
                 metadata.Remove( "CPE" );
