@@ -33,6 +33,9 @@ namespace fCraft.MapConversion {
         /// <summary> Map format used by D3 server. </summary>
         D3,
 
+        /// <summary> Folder-based map format used by newer D3 servers. </summary>
+        D3Folder,
+
         /// <summary> Format used by Opticraft v0.2+. Support contributed by Jared Klopper (LgZ-optical). </summary>
         Opticraft,
 

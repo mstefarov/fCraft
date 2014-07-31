@@ -39,7 +39,6 @@ namespace fCraft.MapConversion {
 
 
         public bool Claims( string path ) {
-            if( path == null ) throw new ArgumentNullException( "path" );
             return ClaimsName( path );
         }
 
@@ -47,11 +46,9 @@ namespace fCraft.MapConversion {
         public Map LoadHeader( string path ) {
             if( path == null ) throw new ArgumentNullException( "path" );
             string fullMetaDataFileName = Path.Combine( path, MetaDataFileName );
-            Map map;
             using( Stream metaStream = File.OpenRead( fullMetaDataFileName ) ) {
-                map = LoadMeta( metaStream );
+                return LoadMeta( metaStream );
             }
-            return map;
         }
 
 

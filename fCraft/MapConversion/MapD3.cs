@@ -154,7 +154,7 @@ namespace fCraft.MapConversion {
         }
 
 
-        static readonly byte[] Mapping = new byte[256];
+        internal static readonly byte[] Mapping = new byte[256];
 
 
         static MapD3() {
