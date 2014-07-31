@@ -39,6 +39,7 @@ namespace fCraft.MapConversion {
             RegisterConverter(new MapDat());
             RegisterConverter(new MapMCSharp());
             RegisterConverter(new MapD3());
+            RegisterConverter(new MapD3Folder());
             RegisterConverter(new MapJTE());
             RegisterConverter(new MapMinerCPP());
             RegisterConverter(new MapMyne());
