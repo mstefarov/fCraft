@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
     public sealed class MapD3 : IMapImporter, IMapExporter {
+        const int WriteBufferSize = 8*1024;
+
         public string ServerName {
             get { return "D3"; }
         }
@@ -124,10 +126,11 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException("fileName");
             using( FileStream mapStream = File.Create(fileName) ) {
                 using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress) ) {
-                    using( BufferedStream bs = new BufferedStream(gs) ) {
+                    // Buffering necessary to avoid overhead of writing byte-at-a-time
+                    using( BufferedStream bs = new BufferedStream(gs, WriteBufferSize) ) {
                         BinaryWriter bw = new BinaryWriter(bs);
 
-                        // Write the magic number
+                        // Write the format version
                         bw.Write(1050);
 
                         // Write the map dimensions
@@ -135,6 +138,7 @@ namespace fCraft.MapConversion {
                         bw.Write((short)mapToSave.Length);
                         bw.Write((short)mapToSave.Height);
 
+                        // Write spawn coordinates
                         Vector3I spawn = mapToSave.Spawn.ToBlockCoords();
                         bw.Write((short)spawn.X);
                         bw.Write((short)spawn.Y);
@@ -144,9 +148,10 @@ namespace fCraft.MapConversion {
 
                         // Write the map data
                         for( int i = 0; i < mapToSave.Volume; i++ ) {
-                            bw.Write(mapToSave.Blocks[i]);
-                            bw.Write((byte)0);
-                            bw.Write((ushort)0xFFFF);
+                            bs.WriteByte(mapToSave.Blocks[i]);
+                            bs.WriteByte(0);
+                            bs.WriteByte(0xFF);
+                            bs.WriteByte(0xFF);
                         }
                     }
                 }
