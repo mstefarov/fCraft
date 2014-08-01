@@ -193,49 +193,60 @@ namespace fCraft.MapConverter {
         }
 
 
-        static bool ConvertOneMap( [NotNull] FileSystemInfo fileSystemInfo, [NotNull] string relativeName ) {
-            if( fileSystemInfo == null ) throw new ArgumentNullException( "fileSystemInfo" );
+        static bool ConvertOneMap( [NotNull] FileSystemInfo sourceFile, [NotNull] string relativeName ) {
+            if( sourceFile == null ) throw new ArgumentNullException( "sourceFile" );
             if( relativeName == null ) throw new ArgumentNullException( "relativeName" );
 
             try {
                 // if output directory was not given, save to same directory as the map file
                 if( !outputDirGiven ) {
-                    outputDirName = Paths.GetDirectoryNameOrRoot( fileSystemInfo.FullName );
+                    outputDirName = Paths.GetDirectoryNameOrRoot( sourceFile.FullName );
                 }
 
                 // load the map file
                 Map map;
                 if( importer != null ) {
-                    if( !importer.ClaimsName( fileSystemInfo.FullName ) ) {
+                    if( !importer.ClaimsName( sourceFile.FullName ) ) {
                         return false;
                     }
                     Console.Write( "Loading {0}... ", relativeName );
-                    map = importer.Load( fileSystemInfo.FullName );
+                    map = importer.Load( sourceFile.FullName );
                 } else {
                     Console.Write( "Checking {0}... ", relativeName );
-                    map = MapUtility.Load( fileSystemInfo.FullName, tryHard );
+                    map = MapUtility.Load( sourceFile.FullName, tryHard );
                 }
 
                 // select target map file name
-                string targetFileName;
-                if( (fileSystemInfo.Attributes & FileAttributes.Directory) == FileAttributes.Directory ) {
-                    targetFileName = fileSystemInfo.Name + '.' + exporter.FileExtension;
-                } else {
-                    targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + '.' +
+                string targetName;
+                bool sourceIsDir = (sourceFile.Attributes & FileAttributes.Directory) == FileAttributes.Directory;
+                bool targetIsDir = exporter.StorageType == MapStorageType.SingleFile;
+                if( targetIsDir ) {
+                    if( sourceIsDir ) {
+                        targetName = sourceFile.Name + '.' + exporter.FileExtension;
+                    } else {
+                        targetName = Path.GetFileNameWithoutExtension(sourceFile.Name) + '.' +
                                      exporter.FileExtension;
+                    }
+                } else {
+                    if( sourceIsDir ) {
+                        targetName = sourceFile.Name;
+                    } else {
+                        targetName = Path.GetFileNameWithoutExtension(sourceFile.Name);
+                    }
                 }
 
                 // get full target map file name, check if it already exists
-                string targetPath = Path.Combine( outputDirName, targetFileName );
-                if( !overwrite && File.Exists( targetPath ) ) {
+                string targetPath = Path.Combine( outputDirName, targetName );
+                if( !overwrite && (!targetIsDir && File.Exists( targetPath ) || targetIsDir && Directory.Exists(targetPath)) ) {
+                    string targetType = (targetIsDir ? "Directory" : "File");
                     Console.WriteLine();
-                    if( !ConsoleUtil.ShowYesNo( "File \"{0}\" already exists. Overwrite?", targetFileName ) ) {
+                    if( !ConsoleUtil.ShowYesNo( "{0} \"{1}\" already exists. Overwrite?", targetType, targetName ) ) {
                         return false;
                     }
                 }
 
                 // save
-                Console.Write( "Saving {0}... ", Path.GetFileName( targetFileName ) );
+                Console.Write( "Saving {0}... ", Path.GetFileName( targetName ) );
                 exporter.Save( map, targetPath );
                 Console.WriteLine( "ok" );
                 return true;
