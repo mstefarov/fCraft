@@ -8,6 +8,7 @@ namespace fCraft.MapConversion {
     public class MapD3Folder : IMapImporter, IMapExporter {
         const string DataFileName = "Data-Layer.gz";
         const string ConfigFileName = "Config.txt";
+        const int WriteBufferSize = 8*1024;
 
         public string ServerName { get; private set; }
         public MapStorageType StorageType { get; private set; }
@@ -21,6 +22,7 @@ namespace fCraft.MapConversion {
             if( !Directory.Exists(path) ) {
                 Directory.CreateDirectory(path);
             }
+            // Write metadata/config file
             using( StreamWriter sw = File.CreateText(Path.Combine(path, ConfigFileName)) ) {
                 sw.WriteLine("; Converted by {0} on {1}", Updater.UserAgent, DateTime.Now.ToCompactString());
                 sw.WriteLine("Size_X = {0}", mapToSave.Width);
@@ -32,14 +34,17 @@ namespace fCraft.MapConversion {
                 sw.WriteLine("Spawn_Rot = {0}", FromPositionAngle(mapToSave.Spawn.R));
                 sw.WriteLine("Spawn_Look = {0}", FromPositionAngle(mapToSave.Spawn.L));
             }
+            // Write compressed block data
             using( FileStream fs = File.Create(Path.Combine(path, DataFileName)) ) {
                 using( GZipStream gs = new GZipStream(fs, CompressionMode.Compress) ) {
-                    // Write the map data
-                    for( int i = 0; i < mapToSave.Volume; i++ ) {
-                        gs.WriteByte(mapToSave.Blocks[i]);
-                        gs.WriteByte(0); // permission byte
-                        gs.WriteByte(0xFF); // ownership short
-                        gs.WriteByte(0xFF);
+                    // Buffering necessary to avoid overhead of writing byte-at-a-time
+                    using( BufferedStream bs = new BufferedStream(gs, WriteBufferSize) ) {
+                        for( int i = 0; i < mapToSave.Volume; i++ ) {
+                            bs.WriteByte(mapToSave.Blocks[i]);
+                            bs.WriteByte(0);
+                            bs.WriteByte(0xFF);
+                            bs.WriteByte(0xFF);
+                        }
                     }
                 }
             }

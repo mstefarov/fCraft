@@ -30,26 +30,26 @@ namespace fCraft.MapConverter {
         static string[] inputPathList;
 
 
-        static int Main( string[] args ) {
+        static int Main([NotNull] string[] args ) {
             Logger.Logged += OnLogged;
             Logger.DisableFileLogging();
 
-            ReturnCode optionParsingResult = ParseOptions( args );
+            ReturnCode optionParsingResult = ParseOptions(args);
             if( optionParsingResult != ReturnCode.Success ) {
                 return (int)optionParsingResult;
             }
 
             // parse importer name
-            if( importerName != null && !importerName.Equals( "auto", StringComparison.OrdinalIgnoreCase ) ) {
+            if( importerName != null && !importerName.Equals("auto", StringComparison.OrdinalIgnoreCase) ) {
                 MapFormat importFormat;
-                if( !EnumUtil.TryParse( importerName, out importFormat, true ) ) {
-                    Console.Error.WriteLine( "MapConverter: Unsupported importer \"{0}\"", importerName );
+                if( !EnumUtil.TryParse(importerName, out importFormat, true) ) {
+                    Console.Error.WriteLine("MapConverter: Unsupported importer \"{0}\"", importerName);
                     PrintUsage();
                     return (int)ReturnCode.UnrecognizedImporter;
                 }
-                importer = MapUtility.GetImporter( importFormat );
+                importer = MapUtility.GetImporter(importFormat);
                 if( importer == null ) {
-                    Console.Error.WriteLine( "MapConverter: Loading from \"{0}\" is not supported", importFormat );
+                    Console.Error.WriteLine("MapConverter: Loading from \"{0}\" is not supported", importFormat);
                     PrintUsage();
                     return (int)ReturnCode.UnsupportedLoadFormat;
                 }
@@ -57,14 +57,14 @@ namespace fCraft.MapConverter {
 
             // parse exporter format
             MapFormat exportFormat;
-            if( !EnumUtil.TryParse( exporterName, out exportFormat, true ) ) {
-                Console.Error.WriteLine( "MapConverter: Unrecognized exporter \"{0}\"", exporterName );
+            if( !EnumUtil.TryParse(exporterName, out exportFormat, true) ) {
+                Console.Error.WriteLine("MapConverter: Unrecognized exporter \"{0}\"", exporterName);
                 PrintUsage();
                 return (int)ReturnCode.UnrecognizedExporter;
             }
-            exporter = MapUtility.GetExporter( exportFormat );
+            exporter = MapUtility.GetExporter(exportFormat);
             if( exporter == null ) {
-                Console.Error.WriteLine( "MapConverter: Saving to \"{0}\" is not supported", exportFormat );
+                Console.Error.WriteLine("MapConverter: Saving to \"{0}\" is not supported", exportFormat);
                 PrintUsage();
                 return (int)ReturnCode.UnsupportedSaveFormat;
             }
@@ -74,17 +74,17 @@ namespace fCraft.MapConverter {
                  hadDir = false;
             foreach( string inputPath in inputPathList ) {
                 if( hadDir ) {
-                    Console.Error.WriteLine( "MapConverter: Only one directory may be specified at a time." );
+                    Console.Error.WriteLine("MapConverter: Only one directory may be specified at a time.");
                     return (int)ReturnCode.ArgumentError;
                 }
                 // check if input path exists, and if it's a file or directory
                 try {
-                    if( File.Exists( inputPath ) ) {
+                    if( File.Exists(inputPath) ) {
                         hadFile = true;
-                    } else if( Directory.Exists( inputPath ) ) {
+                    } else if( Directory.Exists(inputPath) ) {
                         hadDir = true;
                         if( hadFile ) {
-                            Console.Error.WriteLine( "MapConverter: Cannot mix directories and files in input." );
+                            Console.Error.WriteLine("MapConverter: Cannot mix directories and files in input.");
                             return (int)ReturnCode.ArgumentError;
                         }
                         directoryMode = true;
@@ -92,36 +92,36 @@ namespace fCraft.MapConverter {
                             outputDirName = inputPath;
                         }
                     } else {
-                        Console.Error.WriteLine( "MapConverter: Cannot locate \"{0}\"", inputPath );
+                        Console.Error.WriteLine("MapConverter: Cannot locate \"{0}\"", inputPath);
                         return (int)ReturnCode.InputPathNotFound;
                     }
                 } catch( Exception ex ) {
-                    Console.Error.WriteLine( "MapConverter: {0}: {1}",
-                                             ex.GetType().Name,
-                                             ex.Message );
+                    Console.Error.WriteLine("MapConverter: {0}: {1}",
+                                            ex.GetType().Name,
+                                            ex.Message);
                     return (int)ReturnCode.PathError;
                 }
             }
 
             // check recursive flag
             if( recursive && !directoryMode ) {
-                Console.Error.WriteLine( "MapConverter: Recursive flag is given, but input is not a directory." );
+                Console.Error.WriteLine("MapConverter: Recursive flag is given, but input is not a directory.");
                 return (int)ReturnCode.ArgumentError;
             }
 
             // check input filter
             if( inputFilter != null && !directoryMode ) {
-                Console.Error.WriteLine( "MapConverter: Filter param is given, but input is not a directory." );
+                Console.Error.WriteLine("MapConverter: Filter param is given, but input is not a directory.");
                 return (int)ReturnCode.ArgumentError;
             }
 
             // check regex filter
             if( useRegex ) {
                 try {
-                    filterRegex = new Regex( inputFilter );
+                    filterRegex = new Regex(inputFilter);
                 } catch( ArgumentException ex ) {
-                    Console.Error.WriteLine( "MapConverter: Cannot parse filter regex: {0}",
-                                             ex.Message );
+                    Console.Error.WriteLine("MapConverter: Cannot parse filter regex: {0}",
+                                            ex.Message);
                     return (int)ReturnCode.ArgumentError;
                 }
             }
@@ -129,19 +129,19 @@ namespace fCraft.MapConverter {
             // check if output dir exists; create it if needed
             if( outputDirName != null ) {
                 try {
-                    if( !Directory.Exists( outputDirName ) ) {
-                        Directory.CreateDirectory( outputDirName );
+                    if( !Directory.Exists(outputDirName) ) {
+                        Directory.CreateDirectory(outputDirName);
                     }
                 } catch( Exception ex ) {
-                    Console.Error.WriteLine( "MapRenderer: Error checking output directory: {0}: {1}",
-                                             ex.GetType().Name,
-                                             ex.Message );
+                    Console.Error.WriteLine("MapRenderer: Error checking output directory: {0}: {1}",
+                                            ex.GetType().Name,
+                                            ex.Message);
                 }
             }
 
             // process inputs, one path at a time
             foreach( string inputPath in inputPathList ) {
-                ReturnCode code = ProcessInputPath( inputPath );
+                ReturnCode code = ProcessInputPath(inputPath);
                 if( code != ReturnCode.Success ) {
                     return (int)code;
                 }
@@ -219,24 +219,25 @@ namespace fCraft.MapConverter {
                 // select target map file name
                 string targetName;
                 bool sourceIsDir = (sourceFile.Attributes & FileAttributes.Directory) == FileAttributes.Directory;
-                bool targetIsDir = exporter.StorageType == MapStorageType.SingleFile;
+                bool targetIsDir = (exporter.StorageType == MapStorageType.Directory);
                 if( targetIsDir ) {
+                    if( sourceIsDir ) {
+                        targetName = sourceFile.Name;
+                    } else {
+                        targetName = Path.GetFileNameWithoutExtension(sourceFile.Name);
+                    }
+                } else {
                     if( sourceIsDir ) {
                         targetName = sourceFile.Name + '.' + exporter.FileExtension;
                     } else {
                         targetName = Path.GetFileNameWithoutExtension(sourceFile.Name) + '.' +
                                      exporter.FileExtension;
                     }
-                } else {
-                    if( sourceIsDir ) {
-                        targetName = sourceFile.Name;
-                    } else {
-                        targetName = Path.GetFileNameWithoutExtension(sourceFile.Name);
-                    }
                 }
 
                 // get full target map file name, check if it already exists
                 string targetPath = Path.Combine( outputDirName, targetName );
+                Console.WriteLine("targetPath="+targetPath+" | fileExists="+File.Exists(targetPath)+" | dirExists="+Directory.Exists(targetPath));
                 if( !overwrite && (!targetIsDir && File.Exists( targetPath ) || targetIsDir && Directory.Exists(targetPath)) ) {
                     string targetType = (targetIsDir ? "Directory" : "File");
                     Console.WriteLine();
@@ -256,23 +257,26 @@ namespace fCraft.MapConverter {
             } catch( Exception ex ) {
                 Console.WriteLine( "ERROR" );
                 Console.Error.WriteLine( "{0}: {1}", ex.GetType().Name, ex.Message );
+                Console.Error.WriteLine(ex.StackTrace);
                 return false;
             }
         }
 
 
-        static void OnLogged( object sender, LogEventArgs e ) {
+        static void OnLogged([NotNull] object sender, [NotNull] LogEventArgs e ) {
+            if( e == null ) throw new ArgumentNullException("e");
             switch( e.MessageType ) {
                 case LogType.Error:
                 case LogType.SeriousError:
                 case LogType.Warning:
-                    Console.Error.WriteLine( e.MessageType );
+                    Console.Error.WriteLine(e.MessageType);
                     return;
                 default:
-                    Console.WriteLine( e.Message );
+                    Console.WriteLine(e.Message);
                     return;
             }
         }
+
 
         #region Options and help
 
