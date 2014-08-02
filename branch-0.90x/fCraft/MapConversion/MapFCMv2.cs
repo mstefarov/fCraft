@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for obsolete format version #2 (2010). </summary>
-    public sealed class MapFCMv2 : IMapImporter {
+    internal sealed class MapFCMv2 : IMapImporter {
         const uint Identifier = 0xfc000002;
 
         public string ServerName {

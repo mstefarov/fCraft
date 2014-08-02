@@ -5,7 +5,7 @@ using System.IO;
 
 namespace fCraft.MapConversion {
     /// <summary> Map exporter that just saves the raw block array, with no metadata. </summary>
-    public sealed class MapRaw : IMapExporter {
+    internal sealed class MapRaw : IMapExporter {
         public string ServerName {
             get { return "Raw"; }
         }

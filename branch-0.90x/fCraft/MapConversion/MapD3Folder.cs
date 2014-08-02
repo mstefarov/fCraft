@@ -5,7 +5,7 @@ using System.IO.Compression;
 using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
-    public class MapD3Folder : IMapImporter, IMapExporter {
+    internal class MapD3Folder : IMapImporter, IMapExporter {
         const string DataFileName = "Data-Layer.gz";
         const string ConfigFileName = "Config.txt";
         const int WriteBufferSize = 8*1024;

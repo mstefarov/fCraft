@@ -96,7 +96,7 @@ namespace fCraft.MapConversion {
     }
 
     /// <summary> Opticraft map conversion implementation, for converting Opticraft map format into fCraft's default map format. </summary>
-    public sealed class MapOpticraft : IMapImporter, IMapExporter {
+    internal sealed class MapOpticraft : IMapImporter, IMapExporter {
         const short MapVersion = 2;
 
         public string ServerName {

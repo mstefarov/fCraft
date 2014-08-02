@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> fCraft map format converter, for format version #3 (2011).
     /// Soon to be obsoleted by FCMv4. </summary>
-    public sealed class MapFCMv3 : IMapImporter, IMapExporter {
+    internal sealed class MapFCMv3 : IMapImporter, IMapExporter {
         const int Identifier = 0x0FC2AF40;
         const byte Revision = 13;
 

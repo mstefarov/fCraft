@@ -7,7 +7,7 @@ using System.Net;
 
 namespace fCraft.MapConversion {
     /// <summary> .Dat map conversion implementation, for converting .Dat map format into fCraft's default map format. </summary>
-    public sealed class MapDat : IMapImporter {
+    internal sealed class MapDat : IMapImporter {
         public string ServerName {
             get { return "Classic/Vanilla"; }
         }

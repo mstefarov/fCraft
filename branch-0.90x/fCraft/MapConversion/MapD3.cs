@@ -7,7 +7,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> D3 map conversion implementation, for converting D3 map format into fCraft's default map format. </summary>
-    public sealed class MapD3 : IMapImporter, IMapExporter {
+    internal sealed class MapD3 : IMapImporter, IMapExporter {
         const int WriteBufferSize = 8*1024;
 
         public string ServerName {
