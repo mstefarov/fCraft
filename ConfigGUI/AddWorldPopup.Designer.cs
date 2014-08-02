@@ -28,6 +28,7 @@
             System.Windows.Forms.ToolStripSeparator tsSeparator3;
             System.Windows.Forms.ToolStripSeparator tsSeparator4;
             System.Windows.Forms.ToolStripSeparator tsSeparator5;
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddWorldPopup));
             this.bGenerate = new System.Windows.Forms.Button();
             this.cWorld = new System.Windows.Forms.ComboBox();
             this.tFile = new System.Windows.Forms.TextBox();
@@ -158,7 +159,7 @@
             // 
             // tFile
             // 
-            this.tFile.Location = new System.Drawing.Point(72, 90);
+            this.tFile.Location = new System.Drawing.Point(72, 105);
             this.tFile.Name = "tFile";
             this.tFile.ReadOnly = true;
             this.tFile.Size = new System.Drawing.Size(238, 20);
@@ -166,7 +167,7 @@
             // 
             // bBrowseFile
             // 
-            this.bBrowseFile.Location = new System.Drawing.Point(316, 88);
+            this.bBrowseFile.Location = new System.Drawing.Point(316, 103);
             this.bBrowseFile.Name = "bBrowseFile";
             this.bBrowseFile.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFile.TabIndex = 4;
@@ -457,27 +458,25 @@
             this.lFileFormatList1.Location = new System.Drawing.Point(6, 6);
             this.lFileFormatList1.Margin = new System.Windows.Forms.Padding(3);
             this.lFileFormatList1.Name = "lFileFormatList1";
-            this.lFileFormatList1.Size = new System.Drawing.Size(162, 78);
+            this.lFileFormatList1.Size = new System.Drawing.Size(211, 91);
             this.lFileFormatList1.TabIndex = 0;
-            this.lFileFormatList1.Text = "Supported file formats:\r\n- fCraft and SpaceCraft (.fcm)\r\n- Vanilla / Creative (.d" +
-    "at)\r\n- MCSharp, MCZall, MCLawl (.lvl)\r\n- Survival Test (.mine)\r\n- Survival Indev" +
-    " (.mclevel)";
+            this.lFileFormatList1.Text = resources.GetString("lFileFormatList1.Text");
             // 
             // lFileFormatList2
             // 
             this.lFileFormatList2.AutoSize = true;
-            this.lFileFormatList2.Location = new System.Drawing.Point(211, 6);
+            this.lFileFormatList2.Location = new System.Drawing.Point(223, 6);
             this.lFileFormatList2.Margin = new System.Windows.Forms.Padding(3);
             this.lFileFormatList2.Name = "lFileFormatList2";
-            this.lFileFormatList2.Size = new System.Drawing.Size(151, 78);
+            this.lFileFormatList2.Size = new System.Drawing.Size(163, 91);
             this.lFileFormatList2.TabIndex = 1;
             this.lFileFormatList2.Text = "\r\n- MinerCPP and LuaCraft (.dat)\r\n- D3 (.map)\r\n- JTE\'s (.gz)\r\n- OptiCraft (.save)" +
-    "\r\n- FemtoCraft (.lvl)";
+    "\r\n- FemtoCraft (.lvl)\r\n- ClassiCube / ClassicWorld (.cw)";
             // 
             // lFile
             // 
             this.lFile.AutoSize = true;
-            this.lFile.Location = new System.Drawing.Point(19, 93);
+            this.lFile.Location = new System.Drawing.Point(19, 108);
             this.lFile.Name = "lFile";
             this.lFile.Size = new System.Drawing.Size(47, 13);
             this.lFile.TabIndex = 2;
@@ -486,17 +485,17 @@
             // lFolderList
             // 
             this.lFolderList.AutoSize = true;
-            this.lFolderList.Location = new System.Drawing.Point(6, 125);
+            this.lFolderList.Location = new System.Drawing.Point(6, 140);
             this.lFolderList.Margin = new System.Windows.Forms.Padding(3);
             this.lFolderList.Name = "lFolderList";
-            this.lFolderList.Size = new System.Drawing.Size(173, 26);
+            this.lFolderList.Size = new System.Drawing.Size(193, 26);
             this.lFolderList.TabIndex = 5;
-            this.lFolderList.Text = "Supported folder formats:\r\n- Myne, MyneCraft, Hyvebuilt, iCraft";
+            this.lFolderList.Text = "Supported folder formats:\r\n- Myne, MyneCraft, Hyvebuilt, iCraft, D3";
             // 
             // lFolder
             // 
             this.lFolder.AutoSize = true;
-            this.lFolder.Location = new System.Drawing.Point(6, 160);
+            this.lFolder.Location = new System.Drawing.Point(6, 175);
             this.lFolder.Name = "lFolder";
             this.lFolder.Size = new System.Drawing.Size(60, 13);
             this.lFolder.TabIndex = 6;
@@ -504,7 +503,7 @@
             // 
             // tFolder
             // 
-            this.tFolder.Location = new System.Drawing.Point(72, 157);
+            this.tFolder.Location = new System.Drawing.Point(72, 172);
             this.tFolder.Name = "tFolder";
             this.tFolder.ReadOnly = true;
             this.tFolder.Size = new System.Drawing.Size(238, 20);
@@ -512,7 +511,7 @@
             // 
             // bBrowseFolder
             // 
-            this.bBrowseFolder.Location = new System.Drawing.Point(316, 155);
+            this.bBrowseFolder.Location = new System.Drawing.Point(316, 170);
             this.bBrowseFolder.Name = "bBrowseFolder";
             this.bBrowseFolder.Size = new System.Drawing.Size(74, 23);
             this.bBrowseFolder.TabIndex = 8;
@@ -526,11 +525,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tLoadFileInfo.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 184);
+            this.tLoadFileInfo.Location = new System.Drawing.Point(3, 198);
             this.tLoadFileInfo.Multiline = true;
             this.tLoadFileInfo.Name = "tLoadFileInfo";
             this.tLoadFileInfo.ReadOnly = true;
-            this.tLoadFileInfo.Size = new System.Drawing.Size(387, 251);
+            this.tLoadFileInfo.Size = new System.Drawing.Size(387, 237);
             this.tLoadFileInfo.TabIndex = 9;
             this.tLoadFileInfo.TabStop = false;
             // 
