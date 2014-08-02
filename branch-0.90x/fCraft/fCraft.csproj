@@ -121,6 +121,7 @@
     <Compile Include="Drawing\DrawOps\ImageDrawOperation.cs" />
     <Compile Include="Drawing\IBrushFactory.cs" />
     <Compile Include="MapConversion\MapD3Folder.cs" />
+    <Compile Include="MapConversion\MapMCF.cs" />
     <Compile Include="MapConversion\MapModernSchematic.cs" />
     <Compile Include="MapConversion\MapSchematic.cs" />
     <Compile Include="MapRendering\IsoCat.cs" />
