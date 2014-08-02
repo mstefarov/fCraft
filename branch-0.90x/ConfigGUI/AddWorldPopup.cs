@@ -32,7 +32,7 @@ namespace fCraft.ConfigGUI {
         Tabs tab;
         MapGeneratorGui genGui;
 
-        const string MapLoadFilter = "Minecraft Maps|*.fcm;*.lvl;*.dat;*.mclevel;*.gz;*.map;*.meta;*.mine;*.save;*.cw";
+        const string MapLoadFilter = "Minecraft Maps|*.cw;*.dat;*.fcm;*.gz;*.lvl;*.map;*.mcf;*.mclevel;*.mine;*.save|All files (*.*)|*.*";
 
         readonly object redrawLock = new object();
 
