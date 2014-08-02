@@ -4,7 +4,7 @@ using fNbt;
 namespace fCraft.MapConversion {
     /// <summary> Schematic conversion implementation, for exporting fCraft maps to MCEdit and WorldEdit
     /// with Classic materials. For schematics with converted materials, use MapModernSchematic. </summary>
-    public class MapSchematic : IMapExporter {
+    internal class MapSchematic : IMapExporter {
         public virtual string ServerName {
             get { return "Schematic"; }
         }

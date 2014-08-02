@@ -6,7 +6,7 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     /// <summary> Schematic conversion implementation, for exporting fCraft maps to MCEdit and WorldEdit
     /// with converted modern materials. </summary>
-    public class MapModernSchematic : MapSchematic {
+    internal class MapModernSchematic : MapSchematic {
         const int ModernWoolBlockID = 35,
                   ModernDiamondBlockID = 57,
                   ModernEmeraldBlockID = 133,

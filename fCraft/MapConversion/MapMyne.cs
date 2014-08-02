@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> Myne map conversion implementation, for converting Myne map format into fCraft's default map format. </summary>
-    public sealed class MapMyne : IMapImporter {
+    internal sealed class MapMyne : IMapImporter {
         const string BlockStoreFileName = "blocks.gz";
         const string MetaDataFileName = "world.meta";
 

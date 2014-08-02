@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapConversion {
     /// <summary> JTE map conversion implementation, for converting JTE map format into fCraft's default map format. </summary>
-    public sealed class MapJTE : IMapImporter, IMapExporter {
+    internal sealed class MapJTE : IMapImporter, IMapExporter {
         public string ServerName {
             get { return "JTE's"; }
         }

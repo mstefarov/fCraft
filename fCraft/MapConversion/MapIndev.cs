@@ -7,7 +7,7 @@ using fNbt;
 
 namespace fCraft.MapConversion {
     /// <summary> NBT map conversion implementation, for converting NBT map format into fCraft's default map format. </summary>
-    public sealed class MapIndev : IMapImporter {
+    internal sealed class MapIndev : IMapImporter {
         public string ServerName {
             get { return "Indev"; }
         }
