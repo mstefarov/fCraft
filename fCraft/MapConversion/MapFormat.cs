@@ -15,6 +15,9 @@ namespace fCraft.MapConversion {
         /// <summary> Map format used by MCSharp and its forks (MCZall/MCLawl). Initial support added by Tyler (TkTech). </summary>
         MCSharp,
 
+        /// <summary> Map format used by MCForge-Redux. </summary>
+        MCF,
+
         /// <summary> Map format used by MinerCPP and LuaCraft. Initial support added by Tyler (TkTech). </summary>
         MinerCPP,
 

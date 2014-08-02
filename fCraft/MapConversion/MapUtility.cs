@@ -38,6 +38,7 @@ namespace fCraft.MapConversion {
             RegisterConverter(new MapFCMv2());
             RegisterConverter(new MapDat());
             RegisterConverter(new MapMCSharp());
+            RegisterConverter(new MapMCF());
             RegisterConverter(new MapD3());
             RegisterConverter(new MapD3Folder());
             RegisterConverter(new MapJTE());
