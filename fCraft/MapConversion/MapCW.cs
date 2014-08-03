@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using fCraft.MapGeneration;
@@ -8,22 +9,18 @@ using JetBrains.Annotations;
 namespace fCraft.MapConversion {
     internal class MapCW : IMapExporter, IMapImporter {
         const string RootTagName = "ClassicWorld";
-
-        public string ServerName {
-            get { return "fCraft/CloudBox"; }
+        
+        internal MapCW() {
+            ServerName = "fCraft/CloudBox";
+            FileExtension = "cw";
+            StorageType = MapStorageType.SingleFile;
+            Format = MapFormat.ClassicWorld;
         }
 
-        public string FileExtension {
-            get { return "cw"; }
-        }
-
-        public MapStorageType StorageType {
-            get { return MapStorageType.SingleFile; }
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.ClassicWorld; }
-        }
+        public string ServerName { get; private set; }
+        public string FileExtension { get; private set; }
+        public MapStorageType StorageType { get; private set; }
+        public MapFormat Format { get; private set; }
 
         public void Save( Map mapToSave, string path ) {
             using( FileStream fs = new FileStream( path, FileMode.Create ) ) {
@@ -148,13 +145,13 @@ namespace fCraft.MapConversion {
                     do {
                         switch( reader.TagName ) {
                             case "X":
-                                width = reader.ReadValueAs<int>();
+                                width = reader.ReadValueAs<short>();
                                 break;
                             case "Y":
-                                height = reader.ReadValueAs<int>();
+                                height = reader.ReadValueAs<short>();
                                 break;
                             case "Z":
-                                length = reader.ReadValueAs<int>();
+                                length = reader.ReadValueAs<short>();
                                 break;
                         }
                         if( width > 0 && length > 0 && height > 0 ) {
