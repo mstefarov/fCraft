@@ -335,12 +335,14 @@ namespace fCraft.ConfigGUI {
         }
 
 
-        void AsyncDrawProgress( object sender, ProgressChangedEventArgs e ) {
+        void AsyncDrawProgress(object sender, ProgressChangedEventArgs e) {
+            if( IsDisposed ) return;
             progressBar.Value = e.ProgressPercentage;
         }
 
 
         void AsyncDrawCompleted( object sender, RunWorkerCompletedEventArgs e ) {
+            if( IsDisposed ) return;
             stopwatch.Stop();
             tStatus2.Text = String.Format( "drawn ({0:0.000}s)", stopwatch.Elapsed.TotalSeconds );
             if( previewImage != null && previewImage != preview.Image ) {
@@ -970,21 +972,23 @@ Could not load more information:
                     Refresh();
 
                     string newFileName = World.FullFileName;
-                    Map.Save( newFileName );
-                    string oldFileName = Path.Combine( Paths.MapPath, originalWorldName + Map.SaveExt );
+                    Map.Save(newFileName);
+                    string oldFileName = Path.Combine(Paths.MapPath, originalWorldName + Map.SaveExt);
 
-                    if( originalWorldName != null && originalWorldName != World.Name && File.Exists( oldFileName ) ) {
+                    if( originalWorldName != null && originalWorldName != World.Name && File.Exists(oldFileName) ) {
                         try {
-                            File.Delete( oldFileName );
+                            File.Delete(oldFileName);
                         } catch( Exception ex ) {
                             string errorMessage =
                                 String.Format(
                                     "Renaming the map file failed. Please delete the old file ({0}{1}) manually.{2}{3}",
-                                    originalWorldName, Map.SaveExt, Environment.NewLine, ex );
-                            MessageBox.Show( errorMessage, "Error renaming the map file" );
+                                    originalWorldName, Map.SaveExt, Environment.NewLine, ex);
+                            MessageBox.Show(errorMessage, "Error renaming the map file");
                         }
                     }
                 }
+            } else {
+                ClearPreview();
             }
         }
     }
