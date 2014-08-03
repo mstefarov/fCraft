@@ -498,7 +498,7 @@ namespace fCraft {
             bool mapped = false;
             fixed( byte* ptr = Blocks ) {
                 for( int j = 0; j < Blocks.Length; j++ ) {
-                    if( ptr[j] > 49 ) {
+                    if( ptr[j] > 49 ) { // TODO: CustomBlocks
                         ptr[j] = mapping[ptr[j]];
                         mapped = true;
                     }

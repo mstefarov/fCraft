@@ -150,7 +150,7 @@
     </Compile>
     <Compile Include="Drawing\BitMap3D.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />
-    <Compile Include="Utils\fNbt_v0.6.0_Annotated.cs" />
+    <Compile Include="Utils\fNbt_v0.6.1_Annotated.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />
