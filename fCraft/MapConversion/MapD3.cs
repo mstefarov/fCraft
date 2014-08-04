@@ -1,5 +1,4 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
-
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -10,21 +9,17 @@ namespace fCraft.MapConversion {
     internal sealed class MapD3 : IMapImporter, IMapExporter {
         const int WriteBufferSize = 8*1024;
 
-        public string ServerName {
-            get { return "D3"; }
+        internal MapD3() {
+            ServerName = "D3";
+            FileExtension = "map";
+            StorageType = MapStorageType.SingleFile;
+            Format = MapFormat.D3;
         }
 
-        public string FileExtension {
-            get { return "map"; }
-        }
-
-        public MapStorageType StorageType {
-            get { return MapStorageType.SingleFile; }
-        }
-
-        public MapFormat Format {
-            get { return MapFormat.D3; }
-        }
+        public string ServerName { get; private set; }
+        public string FileExtension { get; private set; }
+        public MapStorageType StorageType { get; private set; }
+        public MapFormat Format { get; private set; }
 
 
         public bool ClaimsName(string fileName) {
@@ -45,6 +40,7 @@ namespace fCraft.MapConversion {
                     }
                 }
             } catch( Exception ) {
+                // Exceptions can be ignored here
                 return false;
             }
         }
@@ -54,19 +50,20 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException("fileName");
             using( FileStream fs = File.OpenRead(fileName) ) {
                 using( GZipStream gs = new GZipStream(fs, CompressionMode.Decompress) ) {
-                    return LoadHeaderInternal(gs);
+                    int formatVersion;
+                    return LoadHeaderInternal(gs, out formatVersion);
                 }
             }
         }
 
 
         [NotNull]
-        static Map LoadHeaderInternal([NotNull] Stream gs) {
+        static Map LoadHeaderInternal([NotNull] Stream gs, out int formatVersion) {
             if( gs == null ) throw new ArgumentNullException("gs");
             // Setup a GZipStream to decompress and read the map file
             BinaryReader bs = new BinaryReader(gs);
 
-            int formatVersion = bs.ReadInt32();
+            formatVersion = bs.ReadInt32();
 
             // Read in the map dimensions
             int width = bs.ReadInt16();
@@ -104,17 +101,20 @@ namespace fCraft.MapConversion {
             if( fileName == null ) throw new ArgumentNullException("fileName");
             using( FileStream fs = File.OpenRead(fileName) ) {
                 using( GZipStream gs = new GZipStream(fs, CompressionMode.Decompress) ) {
-                    Map map = LoadHeaderInternal(gs);
+                    int formatVersion;
+                    Map map = LoadHeaderInternal(gs, out formatVersion);
 
-                    // Read in the map data
-                    byte[] buffer = new byte[4];
                     map.Blocks = new byte[map.Volume];
-                    for( int i = 0; i < map.Volume; i++ ) {
-                        gs.Read(buffer, 0, 4);
-                        map.Blocks[i] = buffer[0];
+                    if( formatVersion != 1050 ) {
+                        BufferUtil.ReadAll(gs, map.Blocks);
+                    } else {
+                        byte[] buffer = new byte[4];
+                        for( int i = 0; i < map.Volume; i++ ) {
+                            gs.Read(buffer, 0, 4);
+                            map.Blocks[i] = buffer[0];
+                        }
                     }
                     map.ConvertBlockTypes(Mapping);
-
                     return map;
                 }
             }
