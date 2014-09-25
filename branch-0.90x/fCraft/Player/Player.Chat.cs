@@ -226,9 +226,13 @@ namespace fCraft {
                         return;
                     }
                     bool messageSent = false;
-                    if( target.CanHear( this ) ) {
-                        messageSent = Chat.SendPM( this, target, messageText );
-                        SendToSpectators( "to {0}&F: {1}", target.ClassyName, messageText );
+                    if( target.CanHear(this) ) {
+                        messageSent = Chat.SendPM(this, target, messageText);
+                        // Echo this message to spectators,
+                        // excluding the PM target, and anyone from whom the target is hiding.
+                        Server.Players
+                              .Where(p => p.spectatedPlayer == this && p != target && p.CanSee(target))
+                              .Message("[Spectate]: &Fto {0}&F: {1}", target.ClassyName, messageText);
                     }
 
                     if( !CanSee( target ) ) {
