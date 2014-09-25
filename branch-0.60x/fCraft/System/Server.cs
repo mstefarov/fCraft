@@ -220,6 +220,11 @@ namespace fCraft {
 #if DEBUG_EVENTS
             Logger.PrepareEventTracing();
 #endif
+            // Instantiate DeflateStream to make sure that libMonoPosix is present.
+            // This allows catching misconfigured Mono installs early, and stopping the server.
+            using( var testMemStream = new MemoryStream() ) {
+                using( new DeflateStream( testMemStream, CompressionMode.Compress ) ) {}
+            }
 
             Logger.Log( LogType.Debug, "Working directory: {0}", Directory.GetCurrentDirectory() );
             Logger.Log( LogType.Debug, "Log path: {0}", Path.GetFullPath( Paths.LogPath ) );
@@ -243,12 +248,6 @@ namespace fCraft {
                 throw new InvalidOperationException( "Server.InitLibrary must be called before Server.InitServer" );
             }
             RaiseEvent( Initializing );
-
-            // Instantiate DeflateStream to make sure that libMonoPosix is present.
-            // This allows catching misconfigured Mono installs early, and stopping the server.
-            using( var testMemStream = new MemoryStream() ) {
-                using( new DeflateStream( testMemStream, CompressionMode.Compress ) ) {}
-            }
 
             // warnings/disclaimers
             if( Updater.CurrentRelease.IsFlagged( ReleaseFlags.Dev ) ) {
