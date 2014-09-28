@@ -65,11 +65,11 @@ namespace fCraft {
 
         #region Contructors
 
-        public PerlinNoise3D( [NotNull] Random rand ) {
-            if( rand == null ) throw new ArgumentNullException( "rand" );
+        public PerlinNoise3D([NotNull] Random rand) {
+            if (rand == null) throw new ArgumentNullException("rand");
             permutation = new int[256];
             p = new int[permutation.Length*2];
-            InitNoiseFunctions( rand );
+            InitNoiseFunctions(rand);
 
             // Default values
             Frequency = 0.023f;
@@ -82,19 +82,19 @@ namespace fCraft {
 
         #region Methods
 
-        void InitNoiseFunctions( [NotNull] Random rand ) {
-            if( rand == null ) throw new ArgumentNullException( "rand" );
+        void InitNoiseFunctions([NotNull] Random rand) {
+            if (rand == null) throw new ArgumentNullException("rand");
 
             // Fill empty
-            for( int i = 0; i < permutation.Length; i++ ) {
+            for (int i = 0; i < permutation.Length; i++) {
                 permutation[i] = -1;
             }
 
             // Generate random numbers
-            for( int i = 0; i < permutation.Length; i++ ) {
-                while( true ) {
+            for (int i = 0; i < permutation.Length; i++) {
+                while (true) {
                     int iP = rand.Next()%permutation.Length;
-                    if( permutation[iP] == -1 ) {
+                    if (permutation[iP] == -1) {
                         permutation[iP] = i;
                         break;
                     }
@@ -102,18 +102,18 @@ namespace fCraft {
             }
 
             // Copy
-            for( int i = 0; i < permutation.Length; i++ ) {
+            for (int i = 0; i < permutation.Length; i++) {
                 p[permutation.Length + i] = p[i] = permutation[i];
             }
         }
 
 
-        public float Compute( float x, float y, float z ) {
+        public float Compute(float x, float y, float z) {
             float noise = 0;
             float amp = Amplitude;
             float freq = Frequency;
-            for( int i = 0; i < Octaves; i++ ) {
-                noise += Noise( x*freq, y*freq, z*freq )*amp;
+            for (int i = 0; i < Octaves; i++) {
+                noise += Noise(x*freq, y*freq, z*freq)*amp;
                 freq *= 2; // octave is the double of the previous frequency
                 amp *= Persistence;
             }
@@ -121,21 +121,21 @@ namespace fCraft {
         }
 
 
-        float Noise( float x, float y, float z ) {
+        float Noise(float x, float y, float z) {
             // Find unit cube that contains point
-            int iX = (int)Math.Floor( x ) & 255;
-            int iY = (int)Math.Floor( y ) & 255;
-            int iZ = (int)Math.Floor( z ) & 255;
+            int iX = (int)Math.Floor(x) & 255;
+            int iY = (int)Math.Floor(y) & 255;
+            int iZ = (int)Math.Floor(z) & 255;
 
             // Find relative x, y, z of the point in the cube.
-            x -= (float)Math.Floor( x );
-            y -= (float)Math.Floor( y );
-            z -= (float)Math.Floor( z );
+            x -= (float)Math.Floor(x);
+            y -= (float)Math.Floor(y);
+            z -= (float)Math.Floor(z);
 
             // Compute fade curves for each of x, y, z
-            float u = Fade( x );
-            float v = Fade( y );
-            float w = Fade( z );
+            float u = Fade(x);
+            float v = Fade(y);
+            float w = Fade(z);
 
             // Hash coordinates of the 8 cube corners
             int a = p[iX] + iY;
@@ -146,37 +146,37 @@ namespace fCraft {
             int bb = p[b + 1] + iZ;
 
             // And add blended results from 8 corners of cube.
-            return Lerp( w,
-                         Lerp( v,
-                               Lerp( u,
-                                     Grad( p[aa], x, y, z ),
-                                     Grad( p[ba], x - 1, y, z ) ),
-                               Lerp( u,
-                                     Grad( p[ab], x, y - 1, z ),
-                                     Grad( p[bb], x - 1, y - 1, z ) ) ),
-                         Lerp( v,
-                               Lerp( u,
-                                     Grad( p[aa + 1], x, y, z - 1 ),
-                                     Grad( p[ba + 1], x - 1, y, z - 1 ) ),
-                               Lerp( u,
-                                     Grad( p[ab + 1], x, y - 1, z - 1 ),
-                                     Grad( p[bb + 1], x - 1, y - 1, z - 1 ) ) ) );
+            return Lerp(w,
+                        Lerp(v,
+                             Lerp(u,
+                                  Grad(p[aa], x, y, z),
+                                  Grad(p[ba], x - 1, y, z)),
+                             Lerp(u,
+                                  Grad(p[ab], x, y - 1, z),
+                                  Grad(p[bb], x - 1, y - 1, z))),
+                        Lerp(v,
+                             Lerp(u,
+                                  Grad(p[aa + 1], x, y, z - 1),
+                                  Grad(p[ba + 1], x - 1, y, z - 1)),
+                             Lerp(u,
+                                  Grad(p[ab + 1], x, y - 1, z - 1),
+                                  Grad(p[bb + 1], x - 1, y - 1, z - 1))));
         }
 
 
-        static float Fade( float t ) {
+        static float Fade(float t) {
             // Smooth interpolation parameter
             return (t*t*t*(t*(t*6 - 15) + 10));
         }
 
 
-        static float Lerp( float alpha, float a, float b ) {
+        static float Lerp(float alpha, float a, float b) {
             // Linear interpolation
             return (a + alpha*(b - a));
         }
 
 
-        static float Grad( int hashCode, float x, float y, float z ) {
+        static float Grad(int hashCode, float x, float y, float z) {
             // Convert lower 4 bits of hash code into 12 gradient directions
             int h = hashCode & 15;
             float u = h < 8 ? x : y;

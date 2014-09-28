@@ -15,47 +15,48 @@ namespace fCraft.ServerGUI {
         readonly bool autoUpdate;
         bool closeFormWhenDownloaded;
 
-        public UpdateWindow( UpdaterResult update ) {
+
+        public UpdateWindow(UpdaterResult update) {
             InitializeComponent();
-            updaterFullPath = Path.Combine( Paths.WorkingPath, Paths.UpdateInstallerFileName );
+            updaterFullPath = Path.Combine(Paths.WorkingPath, Paths.UpdateInstallerFileName);
             updateResult = update;
             autoUpdate = (ConfigKey.UpdaterMode.GetEnum<UpdaterMode>() == UpdaterMode.Auto);
             CreateDetailedChangeLog();
-            lVersion.Text = String.Format( lVersion.Text,
-                                           Updater.CurrentRelease.VersionString,
-                                           updateResult.LatestRelease.VersionString,
-                                           updateResult.LatestRelease.Age.TotalDays );
+            lVersion.Text = String.Format(lVersion.Text,
+                                          Updater.CurrentRelease.VersionString,
+                                          updateResult.LatestRelease.VersionString,
+                                          updateResult.LatestRelease.Age.TotalDays);
             Shown += Download;
             DialogResult = DialogResult.OK;
         }
 
 
-        void Download( object caller, EventArgs args ) {
+        void Download(object caller, EventArgs args) {
             xShowDetails.Focus();
             downloader.DownloadProgressChanged += DownloadProgress;
             downloader.DownloadFileCompleted += DownloadComplete;
-            downloader.DownloadFileAsync( updateResult.DownloadUri, updaterFullPath );
+            downloader.DownloadFileAsync(updateResult.DownloadUri, updaterFullPath);
         }
 
 
-        void DownloadProgress( object sender, DownloadProgressChangedEventArgs e ) {
-            Invoke( (Action)delegate {
+        void DownloadProgress(object sender, DownloadProgressChangedEventArgs e) {
+            Invoke((Action)delegate {
                 progress.Value = e.ProgressPercentage;
                 lProgress.Text = "Downloading (" + e.ProgressPercentage + "%)";
-            } );
+            });
         }
 
 
-        void DownloadComplete( object sender, AsyncCompletedEventArgs e ) {
-            if( closeFormWhenDownloaded ) {
+        void DownloadComplete(object sender, AsyncCompletedEventArgs e) {
+            if (closeFormWhenDownloaded) {
                 Close();
             } else {
                 progress.Value = 100;
-                if( e.Cancelled || e.Error != null ) {
-                    MessageBox.Show( e.Error.ToString(),
-                                     "Error occurred while trying to download " + Paths.UpdateInstallerFileName );
-                } else if( autoUpdate ) {
-                    bUpdateNow_Click( null, null );
+                if (e.Cancelled || e.Error != null) {
+                    MessageBox.Show(e.Error.ToString(),
+                                    "Error occurred while trying to download " + Paths.UpdateInstallerFileName);
+                } else if (autoUpdate) {
+                    bUpdateNow_Click(null, null);
                 } else {
                     bUpdateNow.Enabled = true;
                     bUpdateLater.Enabled = true;
@@ -64,50 +65,54 @@ namespace fCraft.ServerGUI {
         }
 
 
-        void bCancel_Click( object sender, EventArgs e ) {
+        void bCancel_Click(object sender, EventArgs e) {
             Close();
         }
 
-        void bUpdateNow_Click( object sender, EventArgs e ) {
+
+        void bUpdateNow_Click(object sender, EventArgs e) {
             string args = Server.GetArgString() +
-                          String.Format( "--restart=\"{0}\"", MonoCompat.PrependMono( "ServerGUI.exe" ) );
-            MonoCompat.StartDotNetProcess( updaterFullPath, args, true );
-            Server.Shutdown( new ShutdownParams( ShutdownReason.RestartForUpdate, TimeSpan.Zero, false ), false );
+                          String.Format("--restart=\"{0}\"", MonoCompat.PrependMono("ServerGUI.exe"));
+            MonoCompat.StartDotNetProcess(updaterFullPath, args, true);
+            Server.Shutdown(new ShutdownParams(ShutdownReason.RestartForUpdate, TimeSpan.Zero, false), false);
             DialogResult = DialogResult.Cancel;
         }
 
 
         void CreateDetailedChangeLog() {
             StringBuilder sb = new StringBuilder();
-            foreach( ReleaseInfo release in updateResult.History ) {
-                sb.AppendFormat( "{0} - {1:0} days ago - {2}",
-                                 release.VersionString,
-                                 release.Age.TotalDays,
-                                 String.Join( ", ", release.FlagsList ) );
+            foreach (ReleaseInfo release in updateResult.History) {
+                sb.AppendFormat("{0} - {1:0} days ago - {2}",
+                                release.VersionString,
+                                release.Age.TotalDays,
+                                String.Join(", ", release.FlagsList));
                 sb.AppendLine();
-                if( xShowDetails.Checked ) {
-                    sb.AppendFormat( "    {0}", String.Join( Environment.NewLine + "    ", release.ChangeLog ) );
+                if (xShowDetails.Checked) {
+                    sb.AppendFormat("    {0}", String.Join(Environment.NewLine + "    ", release.ChangeLog));
                 } else {
-                    sb.AppendFormat( "    {0}", release.Summary );
+                    sb.AppendFormat("    {0}", release.Summary);
                 }
                 sb.AppendLine().AppendLine();
             }
             tChangeLog.Text = sb.ToString();
         }
 
-        void xShowDetails_CheckedChanged( object sender, EventArgs e ) {
+
+        void xShowDetails_CheckedChanged(object sender, EventArgs e) {
             CreateDetailedChangeLog();
         }
 
-        void bUpdateLater_Click( object sender, EventArgs e ) {
+
+        void bUpdateLater_Click(object sender, EventArgs e) {
             Updater.RunAtShutdown = true;
-            Logger.Log( LogType.SystemActivity,
-                        "An fCraft update will be applied next time the server is shut down or restarted." );
+            Logger.Log(LogType.SystemActivity,
+                       "An fCraft update will be applied next time the server is shut down or restarted.");
             Close();
         }
 
-        void UpdateWindow_FormClosing( object sender, FormClosingEventArgs e ) {
-            if( !downloader.IsBusy ) return;
+
+        void UpdateWindow_FormClosing(object sender, FormClosingEventArgs e) {
+            if (!downloader.IsBusy) return;
             downloader.CancelAsync();
             closeFormWhenDownloaded = true;
             e.Cancel = true;

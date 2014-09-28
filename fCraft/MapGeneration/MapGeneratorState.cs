@@ -41,7 +41,6 @@ namespace fCraft.MapGeneration {
         [CanBeNull]
         public Map Result { get; protected set; }
 
-
         /// <summary> Event that is raised when progress percentage or status string change. </summary>
         public event ProgressChangedEventHandler ProgressChanged;
 
@@ -51,20 +50,21 @@ namespace fCraft.MapGeneration {
         [CanBeNull]
         public abstract Map Generate();
 
+
         /// <summary> Signals this task to asynchronously finish executing. </summary>
         public void CancelAsync() {
             Canceled = true;
         }
 
 
-        protected void ReportProgress( int progressPercent, [NotNull] string statusString ) {
-            if( statusString == null ) throw new ArgumentNullException( "statusString" );
+        protected void ReportProgress(int progressPercent, [NotNull] string statusString) {
+            if (statusString == null) throw new ArgumentNullException("statusString");
             Progress = progressPercent;
             StatusString = statusString;
             var handler = ProgressChanged;
-            if( handler != null ) {
-                ProgressChangedEventArgs args = new ProgressChangedEventArgs( progressPercent, statusString );
-                handler( this, args );
+            if (handler != null) {
+                ProgressChangedEventArgs args = new ProgressChangedEventArgs(progressPercent, statusString);
+                handler(this, args);
             }
         }
     }

@@ -28,13 +28,12 @@ namespace fCraft.Drawing {
             }
         }
 
-
         CloudyBrushFactory() {}
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (cmd == null) throw new ArgumentNullException("cmd");
 
             List<Block> blocks = new List<Block>();
             List<int> blockRatios = new List<int>();
@@ -45,56 +44,56 @@ namespace fCraft.Drawing {
                 turbulence = 100;
             UInt16 seed = CloudyBrush.NextSeed();
 
-            while( true ) {
+            while (true) {
                 int offset = cmd.Offset;
                 string rawNextParam = cmd.Next();
-                if( rawNextParam == null ) break;
+                if (rawNextParam == null) break;
 
-                if( rawNextParam.EndsWith( "%" ) ) {
-                    string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
+                if (rawNextParam.EndsWith("%")) {
+                    string numPart = rawNextParam.Substring(0, rawNextParam.Length - 1);
                     int tempScale;
-                    if( !Int32.TryParse( numPart, out tempScale ) ) {
+                    if (!Int32.TryParse(numPart, out tempScale)) {
                         player.Message(
-                            "Cloudy brush: To specify scale, write a number followed by a percentage (e.g. 100%)." );
+                            "Cloudy brush: To specify scale, write a number followed by a percentage (e.g. 100%).");
                         return null;
                     }
-                    if( scaleSpecified ) {
-                        player.Message( "Cloudy brush: Scale has been specified twice." );
+                    if (scaleSpecified) {
+                        player.Message("Cloudy brush: Scale has been specified twice.");
                         return null;
                     }
-                    if( scale < 1 || tempScale > CloudyBrush.MaxScale ) {
-                        player.Message( "Cloudy brush: Invalid scale ({0}). Must be between 1 and {1}",
-                                        scale,
-                                        CloudyBrush.MaxScale );
+                    if (scale < 1 || tempScale > CloudyBrush.MaxScale) {
+                        player.Message("Cloudy brush: Invalid scale ({0}). Must be between 1 and {1}",
+                                       scale,
+                                       CloudyBrush.MaxScale);
                         return null;
                     }
                     scale = tempScale;
                     scaleSpecified = true;
                     continue;
-                } else if( rawNextParam.EndsWith( "T", StringComparison.OrdinalIgnoreCase ) ) {
-                    string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
+                } else if (rawNextParam.EndsWith("T", StringComparison.OrdinalIgnoreCase)) {
+                    string numPart = rawNextParam.Substring(0, rawNextParam.Length - 1);
                     int tempTurbulence;
-                    if( Int32.TryParse( numPart, out tempTurbulence ) ) {
-                        if( turbulenceSpecified ) {
-                            player.Message( "Cloudy brush: Turbulence has been specified twice." );
+                    if (Int32.TryParse(numPart, out tempTurbulence)) {
+                        if (turbulenceSpecified) {
+                            player.Message("Cloudy brush: Turbulence has been specified twice.");
                             return null;
                         }
-                        if( turbulence < 1 || tempTurbulence > CloudyBrush.MaxTurbulence ) {
-                            player.Message( "Cloudy brush: Invalid turbulence ({0}). Must be between 1 and {1}",
-                                            turbulence,
-                                            CloudyBrush.MaxTurbulence );
+                        if (turbulence < 1 || tempTurbulence > CloudyBrush.MaxTurbulence) {
+                            player.Message("Cloudy brush: Invalid turbulence ({0}). Must be between 1 and {1}",
+                                           turbulence,
+                                           CloudyBrush.MaxTurbulence);
                             return null;
                         }
                         turbulence = tempTurbulence;
                         turbulenceSpecified = true;
                         continue;
                     }
-                } else if( rawNextParam.EndsWith( "S", StringComparison.OrdinalIgnoreCase ) ) {
-                    string numPart = rawNextParam.Substring( 0, rawNextParam.Length - 1 );
+                } else if (rawNextParam.EndsWith("S", StringComparison.OrdinalIgnoreCase)) {
+                    string numPart = rawNextParam.Substring(0, rawNextParam.Length - 1);
                     try {
-                        seed = UInt16.Parse( numPart, NumberStyles.HexNumber );
-                        if( seedSpecified ) {
-                            player.Message( "Cloudy brush: Seed has been specified twice." );
+                        seed = UInt16.Parse(numPart, NumberStyles.HexNumber);
+                        if (seedSpecified) {
+                            player.Message("Cloudy brush: Seed has been specified twice.");
                             return null;
                         }
                         seedSpecified = true;
@@ -107,26 +106,26 @@ namespace fCraft.Drawing {
                 cmd.Offset = offset;
                 int ratio;
                 Block block;
-                if( !cmd.NextBlockWithParam( player, true, out block, out ratio ) ) return null;
-                if( ratio < 1 || ratio > CloudyBrush.MaxRatio ) {
-                    player.Message( "{0} brush: Invalid block ratio ({1}). Must be between 1 and {2}.",
-                                    Name, ratio, CloudyBrush.MaxRatio );
+                if (!cmd.NextBlockWithParam(player, true, out block, out ratio)) return null;
+                if (ratio < 1 || ratio > CloudyBrush.MaxRatio) {
+                    player.Message("{0} brush: Invalid block ratio ({1}). Must be between 1 and {2}.",
+                                   Name, ratio, CloudyBrush.MaxRatio);
                     return null;
                 }
-                blocks.Add( block );
-                blockRatios.Add( ratio );
+                blocks.Add(block);
+                blockRatios.Add(ratio);
             }
 
             CloudyBrush madeBrush;
-            switch( blocks.Count ) {
+            switch (blocks.Count) {
                 case 0:
-                    player.Message( "{0} brush: Please specify at least one block type.", Name );
+                    player.Message("{0} brush: Please specify at least one block type.", Name);
                     return null;
                 case 1:
-                    madeBrush = new CloudyBrush( blocks[0], blockRatios[0] );
+                    madeBrush = new CloudyBrush(blocks[0], blockRatios[0]);
                     break;
                 default:
-                    madeBrush = new CloudyBrush( blocks.ToArray(), blockRatios.ToArray() );
+                    madeBrush = new CloudyBrush(blocks.ToArray(), blockRatios.ToArray());
                     break;
             }
 
@@ -159,14 +158,12 @@ namespace fCraft.Drawing {
         public const float TurbulenceDefault = 0.75f,
                            FrequencyDefault = 0.08f;
 
-
         float[] computedThresholds;
 
         float normMultiplier,
               normConstant;
 
         PerlinNoise3D noise3D;
-
 
         public int AlternateBlocks {
             get { return 1; }
@@ -195,47 +192,45 @@ namespace fCraft.Drawing {
         [NotNull]
         public int[] BlockRatios { get; private set; }
 
-
         public IBrushFactory Factory {
             get { return CloudyBrushFactory.Instance; }
         }
 
-
         public string Description {
             get {
-                StringBuilder sb = new StringBuilder( Factory.Name );
-                if( Blocks.Length == 0 ) {
+                StringBuilder sb = new StringBuilder(Factory.Name);
+                if (Blocks.Length == 0) {
                     return sb.ToString();
                 }
-                sb.Append( '(' );
+                sb.Append('(');
 
-                if( BlockRatios.All( r => r == 1 ) &&
-                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None) ) {
-                    sb.Append( Blocks[0] );
+                if (BlockRatios.All(r => r == 1) &&
+                    (Blocks.Length == 1 || Blocks.Length == 2 && Blocks[1] == Block.None)) {
+                    sb.Append(Blocks[0]);
                 } else {
-                    for( int i = 0; i < Blocks.Length; i++ ) {
-                        if( i != 0 ) sb.Append( ',' ).Append( ' ' );
-                        sb.Append( Blocks[i] );
-                        if( BlockRatios[i] > 1 ) {
-                            sb.Append( '/' );
-                            sb.Digits( BlockRatios[i] );
+                    for (int i = 0; i < Blocks.Length; i++) {
+                        if (i != 0) sb.Append(',').Append(' ');
+                        sb.Append(Blocks[i]);
+                        if (BlockRatios[i] > 1) {
+                            sb.Append('/');
+                            sb.Digits(BlockRatios[i]);
                         }
                     }
                 }
 
-                sb.Append( " -" );
+                sb.Append(" -");
 
-                if( Math.Abs( Frequency - FrequencyDefault ) > 0.00001f ) {
-                    int scale = (int) Math.Round( (FrequencyDefault*100)/Frequency );
-                    sb.AppendFormat( " {0:0}%", scale );
+                if (Math.Abs(Frequency - FrequencyDefault) > 0.00001f) {
+                    int scale = (int)Math.Round((FrequencyDefault*100)/Frequency);
+                    sb.AppendFormat(" {0:0}%", scale);
                 }
 
-                if( Math.Abs( Turbulence - TurbulenceDefault ) > 0.00001f ) {
-                    int turbulence = (int) Math.Round( (Turbulence*100)/TurbulenceDefault );
-                    sb.AppendFormat( " {0:0}T", turbulence );
+                if (Math.Abs(Turbulence - TurbulenceDefault) > 0.00001f) {
+                    int turbulence = (int)Math.Round((Turbulence*100)/TurbulenceDefault);
+                    sb.AppendFormat(" {0:0}T", turbulence);
                 }
 
-                sb.AppendFormat( " {0:X})", Seed );
+                sb.AppendFormat(" {0:X})", Seed);
                 return sb.ToString();
             }
         }
@@ -251,42 +246,42 @@ namespace fCraft.Drawing {
         }
 
 
-        public CloudyBrush( Block oneBlock, int ratio )
+        public CloudyBrush(Block oneBlock, int ratio)
             : this() {
-            Blocks = new[] {oneBlock, Block.None};
-            BlockRatios = new[] {ratio, 1};
+            Blocks = new[] { oneBlock, Block.None };
+            BlockRatios = new[] { ratio, 1 };
         }
 
 
-        public CloudyBrush( [NotNull] Block[] blocks, [NotNull] int[] ratios )
+        public CloudyBrush([NotNull] Block[] blocks, [NotNull] int[] ratios)
             : this() {
-            if( blocks == null ) throw new ArgumentNullException( "blocks" );
-            if( ratios == null ) throw new ArgumentNullException( "ratios" );
-            if( blocks.Length == 0 ) throw new ArgumentException( "At least one block type required." );
-            if( blocks.Length != ratios.Length ) throw new ArgumentException( "Number of ratios must match number of blocks." );
+            if (blocks == null) throw new ArgumentNullException("blocks");
+            if (ratios == null) throw new ArgumentNullException("ratios");
+            if (blocks.Length == 0) throw new ArgumentException("At least one block type required.");
+            if (blocks.Length != ratios.Length) throw new ArgumentException("Number of ratios must match number of blocks.");
             Blocks = blocks;
             BlockRatios = ratios;
         }
 
 
         public static UInt16 NextSeed() {
-            lock( SeedGenLock ) {
-                return (UInt16) SeedGenerator.Next( UInt16.MaxValue );
+            lock (SeedGenLock) {
+                return (UInt16)SeedGenerator.Next(UInt16.MaxValue);
             }
         }
 
 
-        public bool Begin( Player player, DrawOperation op ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( op == null ) throw new ArgumentNullException( "op" );
+        public bool Begin(Player player, DrawOperation op) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (op == null) throw new ArgumentNullException("op");
 
             bool extraLarge = (op.Bounds.Volume > ExtraLargeThreshold);
 
-            if( extraLarge ) {
-                player.MessageNow( "{0} brush: Preparing, please wait...", Factory.Name );
+            if (extraLarge) {
+                player.MessageNow("{0} brush: Preparing, please wait...", Factory.Name);
             }
 
-            noise3D = new PerlinNoise3D( new Random( Seed ) ) {
+            noise3D = new PerlinNoise3D(new Random(Seed)) {
                 Amplitude = 1,
                 Frequency = Frequency,
                 Octaves = Octaves,
@@ -295,50 +290,50 @@ namespace fCraft.Drawing {
 
             BoundingBox samplerBox = op.Bounds;
             int sampleScale = 1;
-            if( extraLarge ) {
-                samplerBox = new BoundingBox( op.Bounds.MinVertex,
-                                              op.Bounds.Width/2,
-                                              op.Bounds.Length/2,
-                                              op.Bounds.Height/2 );
+            if (extraLarge) {
+                samplerBox = new BoundingBox(op.Bounds.MinVertex,
+                                             op.Bounds.Width/2,
+                                             op.Bounds.Length/2,
+                                             op.Bounds.Height/2);
                 sampleScale = 2;
             }
 
             // generate and normalize the raw (float) data
             float[,,] rawData = new float[samplerBox.Width, samplerBox.Length, samplerBox.Height];
-            for( int x = 0; x < samplerBox.Width; x++ ) {
-                for( int y = 0; y < samplerBox.Length; y++ ) {
-                    for( int z = 0; z < samplerBox.Height; z++ ) {
-                        rawData[x, y, z] = noise3D.Compute( x*sampleScale, y*sampleScale, z*sampleScale );
+            for (int x = 0; x < samplerBox.Width; x++) {
+                for (int y = 0; y < samplerBox.Length; y++) {
+                    for (int z = 0; z < samplerBox.Height; z++) {
+                        rawData[x, y, z] = noise3D.Compute(x*sampleScale, y*sampleScale, z*sampleScale);
                     }
                 }
             }
-            Noise.Normalize( rawData, out normMultiplier, out normConstant );
+            Noise.Normalize(rawData, out normMultiplier, out normConstant);
 
             // create a mapping of raw data to blocks
             int totalBlocks = BlockRatios.Sum();
             int blocksSoFar = BlockRatios[0];
             computedThresholds = new float[Blocks.Length];
             computedThresholds[0] = 0;
-            for( int i = 1; i < Blocks.Length; i++ ) {
-                float desiredCoverage = blocksSoFar/(float) totalBlocks;
-                computedThresholds[i] = Noise.FindThreshold( rawData, desiredCoverage );
+            for (int i = 1; i < Blocks.Length; i++) {
+                float desiredCoverage = blocksSoFar/(float)totalBlocks;
+                computedThresholds[i] = Noise.FindThreshold(rawData, desiredCoverage);
                 blocksSoFar += BlockRatios[i];
             }
             return true;
         }
 
 
-        public Block NextBlock( DrawOperation op ) {
-            if( op == null ) throw new ArgumentNullException( "op" );
+        public Block NextBlock(DrawOperation op) {
+            if (op == null) throw new ArgumentNullException("op");
             Vector3I relativeCoords = op.Coords - op.Bounds.MinVertex;
-            float value = noise3D.Compute( relativeCoords.X, relativeCoords.Y, relativeCoords.Z );
+            float value = noise3D.Compute(relativeCoords.X, relativeCoords.Y, relativeCoords.Z);
 
             // normalize value
             value = value*normMultiplier + normConstant;
 
             // find the right block type for given value
-            for( int i = 1; i < Blocks.Length; i++ ) {
-                if( computedThresholds[i] > value ) {
+            for (int i = 1; i < Blocks.Length; i++) {
+                if (computedThresholds[i] > value) {
                     return Blocks[i - 1];
                 }
             }

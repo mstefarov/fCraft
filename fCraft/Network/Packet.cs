@@ -22,15 +22,15 @@ namespace fCraft {
 
 
         /// <summary> Creates a new packet from given raw bytes. Data not be null. </summary>
-        public Packet( [NotNull] byte[] rawBytes ) {
-            if( rawBytes == null ) throw new ArgumentNullException( "rawBytes" );
+        public Packet([NotNull] byte[] rawBytes) {
+            if (rawBytes == null) throw new ArgumentNullException("rawBytes");
             Bytes = rawBytes;
         }
 
 
         /// <summary> Creates a packet of correct size for a given opCode,
         /// and sets the first (opCode) byte. </summary>
-        Packet( OpCode opCode ) {
+        Packet(OpCode opCode) {
             Bytes = new byte[PacketSizes[(int)opCode]];
             Bytes[0] = (byte)opCode;
         }
@@ -43,15 +43,15 @@ namespace fCraft {
         /// Used to determine DeleteAdmincrete permission, for client-side checks. May not be null. </param>
         /// <param name="motd"> Message-of-the-day (text displayed below the server name). May not be null. </param>
         /// <exception cref="ArgumentNullException"> player, serverName, or motd is null </exception>
-        public static Packet MakeHandshake( [NotNull] Player player, [NotNull] string serverName, [NotNull] string motd ) {
-            if( serverName == null ) throw new ArgumentNullException( "serverName" );
-            if( motd == null ) throw new ArgumentNullException( "motd" );
+        public static Packet MakeHandshake([NotNull] Player player, [NotNull] string serverName, [NotNull] string motd) {
+            if (serverName == null) throw new ArgumentNullException("serverName");
+            if (motd == null) throw new ArgumentNullException("motd");
 
-            Packet packet = new Packet( OpCode.Handshake );
+            Packet packet = new Packet(OpCode.Handshake);
             packet.Bytes[1] = Config.ProtocolVersion;
-            Encoding.ASCII.GetBytes( serverName.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
-            Encoding.ASCII.GetBytes( motd.PadRight( 64 ), 0, 64, packet.Bytes, 66 );
-            packet.Bytes[130] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
+            Encoding.ASCII.GetBytes(serverName.PadRight(64), 0, 64, packet.Bytes, 2);
+            Encoding.ASCII.GetBytes(motd.PadRight(64), 0, 64, packet.Bytes, 66);
+            packet.Bytes[130] = (byte)(player.Can(Permission.DeleteAdmincrete) ? 100 : 0);
             return packet;
         }
 
@@ -61,11 +61,11 @@ namespace fCraft {
         /// <param name="y"> Y coordinate (horizontal, along length) of the block. </param>
         /// <param name="z"> Z coordinate (vertical, along height) of the block. </param>
         /// <param name="type"> Block type to set at given coordinates. </param>
-        public static Packet MakeSetBlock( short x, short y, short z, Block type ) {
-            Packet packet = new Packet( OpCode.SetBlockServer );
-            ToNetOrder( x, packet.Bytes, 1 );
-            ToNetOrder( z, packet.Bytes, 3 );
-            ToNetOrder( y, packet.Bytes, 5 );
+        public static Packet MakeSetBlock(short x, short y, short z, Block type) {
+            Packet packet = new Packet(OpCode.SetBlockServer);
+            ToNetOrder(x, packet.Bytes, 1);
+            ToNetOrder(z, packet.Bytes, 3);
+            ToNetOrder(y, packet.Bytes, 5);
             packet.Bytes[7] = (byte)type;
             return packet;
         }
@@ -74,11 +74,11 @@ namespace fCraft {
         /// <summary> Creates a new SetBlockServer (0x06) packet. </summary>
         /// <param name="coords"> Coordinates of the block. </param>
         /// <param name="type"> Block type to set at given coordinates. </param>
-        public static Packet MakeSetBlock( Vector3I coords, Block type ) {
-            Packet packet = new Packet( OpCode.SetBlockServer );
-            ToNetOrder( (short)coords.X, packet.Bytes, 1 );
-            ToNetOrder( (short)coords.Z, packet.Bytes, 3 );
-            ToNetOrder( (short)coords.Y, packet.Bytes, 5 );
+        public static Packet MakeSetBlock(Vector3I coords, Block type) {
+            Packet packet = new Packet(OpCode.SetBlockServer);
+            ToNetOrder((short)coords.X, packet.Bytes, 1);
+            ToNetOrder((short)coords.Z, packet.Bytes, 3);
+            ToNetOrder((short)coords.Y, packet.Bytes, 5);
             packet.Bytes[7] = (byte)type;
             return packet;
         }
@@ -89,15 +89,15 @@ namespace fCraft {
         /// <param name="name"> Entity name. May not be null. </param>
         /// <param name="spawnPosition"> Spawning position for the player. </param>
         /// <exception cref="ArgumentNullException"> name is null </exception>
-        public static Packet MakeAddEntity( sbyte id, [NotNull] string name, Position spawnPosition ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public static Packet MakeAddEntity(sbyte id, [NotNull] string name, Position spawnPosition) {
+            if (name == null) throw new ArgumentNullException("name");
 
-            Packet packet = new Packet( OpCode.AddEntity );
+            Packet packet = new Packet(OpCode.AddEntity);
             packet.Bytes[1] = (byte)id;
-            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
-            ToNetOrder( spawnPosition.X, packet.Bytes, 66 );
-            ToNetOrder( spawnPosition.Z, packet.Bytes, 68 );
-            ToNetOrder( spawnPosition.Y, packet.Bytes, 70 );
+            Encoding.ASCII.GetBytes(name.PadRight(64), 0, 64, packet.Bytes, 2);
+            ToNetOrder(spawnPosition.X, packet.Bytes, 66);
+            ToNetOrder(spawnPosition.Z, packet.Bytes, 68);
+            ToNetOrder(spawnPosition.Y, packet.Bytes, 70);
             packet.Bytes[72] = spawnPosition.R;
             packet.Bytes[73] = spawnPosition.L;
             return packet;
@@ -107,12 +107,12 @@ namespace fCraft {
         /// <summary> Creates a new Teleport (0x08) packet. </summary>
         /// <param name="id"> Entity ID. Negative values refer to "self". </param>
         /// <param name="newPosition"> Position to teleport the entity to. </param>
-        public static Packet MakeTeleport( sbyte id, Position newPosition ) {
-            Packet packet = new Packet( OpCode.Teleport );
+        public static Packet MakeTeleport(sbyte id, Position newPosition) {
+            Packet packet = new Packet(OpCode.Teleport);
             packet.Bytes[1] = (byte)id;
-            ToNetOrder( newPosition.X, packet.Bytes, 2 );
-            ToNetOrder( newPosition.Z, packet.Bytes, 4 );
-            ToNetOrder( newPosition.Y, packet.Bytes, 6 );
+            ToNetOrder(newPosition.X, packet.Bytes, 2);
+            ToNetOrder(newPosition.Z, packet.Bytes, 4);
+            ToNetOrder(newPosition.Y, packet.Bytes, 6);
             packet.Bytes[8] = newPosition.R;
             packet.Bytes[9] = newPosition.L;
             return packet;
@@ -121,8 +121,8 @@ namespace fCraft {
 
         /// <summary> Creates a new Teleport (0x08) packet, and sets ID to -1 ("self"). </summary>
         /// <param name="newPosition"> Position to teleport player to. </param>
-        public static Packet MakeSelfTeleport( Position newPosition ) {
-            return MakeTeleport( -1, newPosition.GetFixed() );
+        public static Packet MakeSelfTeleport(Position newPosition) {
+            return MakeTeleport(-1, newPosition.GetFixed());
         }
 
 
@@ -131,8 +131,8 @@ namespace fCraft {
         /// <param name="positionDelta"> Positioning information.
         /// Coordinates (X/Y/Z) should be relative and between -128 and 127.
         /// Rotation (R/L) should be absolute. </param>
-        public static Packet MakeMoveRotate( sbyte id, Position positionDelta ) {
-            Packet packet = new Packet( OpCode.MoveRotate );
+        public static Packet MakeMoveRotate(sbyte id, Position positionDelta) {
+            Packet packet = new Packet(OpCode.MoveRotate);
             packet.Bytes[1] = (byte)id;
             packet.Bytes[2] = (byte)(positionDelta.X & 0xFF);
             packet.Bytes[3] = (byte)(positionDelta.Z & 0xFF);
@@ -147,8 +147,8 @@ namespace fCraft {
         /// <param name="id"> Entity ID. </param>
         /// <param name="positionDelta"> Positioning information.
         /// Coordinates (X/Y/Z) should be relative and between -128 and 127. Rotation (R/L) is not sent. </param>
-        public static Packet MakeMove( sbyte id, Position positionDelta ) {
-            Packet packet = new Packet( OpCode.Move );
+        public static Packet MakeMove(sbyte id, Position positionDelta) {
+            Packet packet = new Packet(OpCode.Move);
             packet.Bytes[1] = (byte)id;
             packet.Bytes[2] = (byte)positionDelta.X;
             packet.Bytes[3] = (byte)positionDelta.Z;
@@ -161,8 +161,8 @@ namespace fCraft {
         /// <param name="id"> Entity ID. </param>
         /// <param name="newPosition"> Positioning information.
         /// Rotation (R/L) should be absolute. Coordinates (X/Y/Z) are not sent. </param>
-        public static Packet MakeRotate( sbyte id, Position newPosition ) {
-            Packet packet = new Packet( OpCode.Rotate );
+        public static Packet MakeRotate(sbyte id, Position newPosition) {
+            Packet packet = new Packet(OpCode.Rotate);
             packet.Bytes[1] = (byte)id;
             packet.Bytes[2] = newPosition.R;
             packet.Bytes[3] = newPosition.L;
@@ -172,8 +172,8 @@ namespace fCraft {
 
         /// <summary> Creates a new RemoveEntity (0x0C) packet. </summary>
         /// <param name="id"> Entity ID. </param>
-        public static Packet MakeRemoveEntity( sbyte id ) {
-            Packet packet = new Packet( OpCode.RemoveEntity );
+        public static Packet MakeRemoveEntity(sbyte id) {
+            Packet packet = new Packet(OpCode.RemoveEntity);
             packet.Bytes[1] = (byte)id;
             return packet;
         }
@@ -182,11 +182,11 @@ namespace fCraft {
         /// <summary> Creates a new Kick (0x0E) packet. </summary>
         /// <param name="reason"> Given reason. Only first 64 characters will be sent. May not be null. </param>
         /// <exception cref="ArgumentNullException"> reason is null </exception>
-        public static Packet MakeKick( [NotNull] string reason ) {
-            if( reason == null ) throw new ArgumentNullException( "reason" );
+        public static Packet MakeKick([NotNull] string reason) {
+            if (reason == null) throw new ArgumentNullException("reason");
 
-            Packet packet = new Packet( OpCode.Kick );
-            Encoding.ASCII.GetBytes( reason.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
+            Packet packet = new Packet(OpCode.Kick);
+            Encoding.ASCII.GetBytes(reason.PadRight(64), 0, 64, packet.Bytes, 1);
             return packet;
         }
 
@@ -195,11 +195,11 @@ namespace fCraft {
         /// <param name="player"> Player to whom this packet is being sent.
         /// Used to determine DeleteAdmincrete permission, for client-side checks. May not be null. </param>
         /// <exception cref="ArgumentNullException"> player is null </exception>
-        public static Packet MakeSetPermission( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public static Packet MakeSetPermission([NotNull] Player player) {
+            if (player == null) throw new ArgumentNullException("player");
 
-            Packet packet = new Packet( OpCode.SetPermission );
-            packet.Bytes[1] = (byte)(player.Can( Permission.DeleteAdmincrete ) ? 100 : 0);
+            Packet packet = new Packet(OpCode.SetPermission);
+            packet.Bytes[1] = (byte)(player.Can(Permission.DeleteAdmincrete) ? 100 : 0);
             return packet;
         }
 
@@ -208,45 +208,45 @@ namespace fCraft {
         #region Making extended packets
 
         [Pure]
-        public static Packet MakeExtInfo( short extCount ) {
-            Packet packet = new Packet( OpCode.ExtInfo );
+        public static Packet MakeExtInfo(short extCount) {
+            Packet packet = new Packet(OpCode.ExtInfo);
             string serverId = "fCraft " + Updater.CurrentRelease.VersionString;
             Encoding.ASCII.GetBytes(serverId.PadRight(64), 0, 64, packet.Bytes, 1);
-            ToNetOrder( extCount, packet.Bytes, 65 );
+            ToNetOrder(extCount, packet.Bytes, 65);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeExtEntry( [NotNull] string name, int version ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            Packet packet = new Packet( OpCode.ExtEntry );
-            Encoding.ASCII.GetBytes( name.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
-            ToNetOrder( version, packet.Bytes, 65 );
+        public static Packet MakeExtEntry([NotNull] string name, int version) {
+            if (name == null) throw new ArgumentNullException("name");
+            Packet packet = new Packet(OpCode.ExtEntry);
+            Encoding.ASCII.GetBytes(name.PadRight(64), 0, 64, packet.Bytes, 1);
+            ToNetOrder(version, packet.Bytes, 65);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeSetClickDistance( short distance ) {
-            if( distance < 0 ) throw new ArgumentOutOfRangeException( "distance" );
-            Packet packet = new Packet( OpCode.SetClickDistance );
-            ToNetOrder( distance, packet.Bytes, 1 );
+        public static Packet MakeSetClickDistance(short distance) {
+            if (distance < 0) throw new ArgumentOutOfRangeException("distance");
+            Packet packet = new Packet(OpCode.SetClickDistance);
+            ToNetOrder(distance, packet.Bytes, 1);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeCustomBlockSupportLevel( byte level ) {
-            Packet packet = new Packet( OpCode.CustomBlockSupportLevel );
+        public static Packet MakeCustomBlockSupportLevel(byte level) {
+            Packet packet = new Packet(OpCode.CustomBlockSupportLevel);
             packet.Bytes[1] = level;
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeHoldThis( Block block, bool preventChange ) {
-            Packet packet = new Packet( OpCode.HoldThis );
+        public static Packet MakeHoldThis(Block block, bool preventChange) {
+            Packet packet = new Packet(OpCode.HoldThis);
             packet.Bytes[1] = (byte)block;
             packet.Bytes[2] = (byte)(preventChange ? 1 : 0);
             return packet;
@@ -254,146 +254,151 @@ namespace fCraft {
 
 
         [Pure]
-        public static Packet MakeSetTextHotKey( [NotNull] string label, [NotNull] string action, int keyCode,
-                                                byte keyMods ) {
-            if( label == null ) throw new ArgumentNullException( "label" );
-            if( action == null ) throw new ArgumentNullException( "action" );
-            Packet packet = new Packet( OpCode.SetTextHotKey );
-            Encoding.ASCII.GetBytes( label.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
-            Encoding.ASCII.GetBytes( action.PadRight( 64 ), 0, 64, packet.Bytes, 65 );
-            ToNetOrder( keyCode, packet.Bytes, 129 );
+        public static Packet MakeSetTextHotKey([NotNull] string label, [NotNull] string action, int keyCode,
+                                               byte keyMods) {
+            if (label == null) throw new ArgumentNullException("label");
+            if (action == null) throw new ArgumentNullException("action");
+            Packet packet = new Packet(OpCode.SetTextHotKey);
+            Encoding.ASCII.GetBytes(label.PadRight(64), 0, 64, packet.Bytes, 1);
+            Encoding.ASCII.GetBytes(action.PadRight(64), 0, 64, packet.Bytes, 65);
+            ToNetOrder(keyCode, packet.Bytes, 129);
             packet.Bytes[133] = keyMods;
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeExtAddPlayerName( short nameId, string playerName, string listName, string groupName,
-                                                   byte groupRank ) {
-            if( playerName == null ) throw new ArgumentNullException( "playerName" );
-            if( listName == null ) throw new ArgumentNullException( "listName" );
-            if( groupName == null ) throw new ArgumentNullException( "groupName" );
-            Packet packet = new Packet( OpCode.ExtAddPlayerName );
-            ToNetOrder( nameId, packet.Bytes, 1 );
-            Encoding.ASCII.GetBytes( playerName.PadRight( 64 ), 0, 64, packet.Bytes, 3 );
-            Encoding.ASCII.GetBytes( listName.PadRight( 64 ), 0, 64, packet.Bytes, 67 );
-            Encoding.ASCII.GetBytes( groupName.PadRight( 64 ), 0, 64, packet.Bytes, 131 );
+        public static Packet MakeExtAddPlayerName(short nameId, string playerName, string listName, string groupName,
+                                                  byte groupRank) {
+            if (playerName == null) throw new ArgumentNullException("playerName");
+            if (listName == null) throw new ArgumentNullException("listName");
+            if (groupName == null) throw new ArgumentNullException("groupName");
+            Packet packet = new Packet(OpCode.ExtAddPlayerName);
+            ToNetOrder(nameId, packet.Bytes, 1);
+            Encoding.ASCII.GetBytes(playerName.PadRight(64), 0, 64, packet.Bytes, 3);
+            Encoding.ASCII.GetBytes(listName.PadRight(64), 0, 64, packet.Bytes, 67);
+            Encoding.ASCII.GetBytes(groupName.PadRight(64), 0, 64, packet.Bytes, 131);
             packet.Bytes[195] = groupRank;
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeExtAddEntity( byte entityId, [NotNull] string inGameName, [NotNull] string skinName ) {
-            if( inGameName == null ) throw new ArgumentNullException( "inGameName" );
-            if( skinName == null ) throw new ArgumentNullException( "skinName" );
-            Packet packet = new Packet( OpCode.ExtAddEntity );
+        public static Packet MakeExtAddEntity(byte entityId, [NotNull] string inGameName, [NotNull] string skinName) {
+            if (inGameName == null) throw new ArgumentNullException("inGameName");
+            if (skinName == null) throw new ArgumentNullException("skinName");
+            Packet packet = new Packet(OpCode.ExtAddEntity);
             packet.Bytes[1] = entityId;
-            Encoding.ASCII.GetBytes( inGameName.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
-            Encoding.ASCII.GetBytes( skinName.PadRight( 64 ), 0, 64, packet.Bytes, 66 );
+            Encoding.ASCII.GetBytes(inGameName.PadRight(64), 0, 64, packet.Bytes, 2);
+            Encoding.ASCII.GetBytes(skinName.PadRight(64), 0, 64, packet.Bytes, 66);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeExtRemovePlayerName( short nameId ) {
-            Packet packet = new Packet( OpCode.ExtRemovePlayerName );
-            ToNetOrder( nameId, packet.Bytes, 1 );
+        public static Packet MakeExtRemovePlayerName(short nameId) {
+            Packet packet = new Packet(OpCode.ExtRemovePlayerName);
+            ToNetOrder(nameId, packet.Bytes, 1);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeEnvSetColor( EnvVariable variable, int color ) {
-            Packet packet = new Packet( OpCode.EnvSetColor );
+        public static Packet MakeEnvSetColor(EnvVariable variable, int color) {
+            Packet packet = new Packet(OpCode.EnvSetColor);
             packet.Bytes[1] = (byte)variable;
-            ToNetOrder( (short)((color >> 16) & 0xFF), packet.Bytes, 2 );
-            ToNetOrder( (short)((color >> 8) & 0xFF), packet.Bytes, 4 );
-            ToNetOrder( (short)(color & 0xFF), packet.Bytes, 6 );
+            ToNetOrder((short)((color >> 16) & 0xFF), packet.Bytes, 2);
+            ToNetOrder((short)((color >> 8) & 0xFF), packet.Bytes, 4);
+            ToNetOrder((short)(color & 0xFF), packet.Bytes, 6);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeMakeSelection( byte selectionId, [NotNull] string label, [NotNull] BoundingBox bounds,
-                                                int color, byte opacity ) {
-            if( label == null ) throw new ArgumentNullException( "label" );
-            if( bounds == null ) throw new ArgumentNullException( "bounds" );
-            Packet packet = new Packet( OpCode.MakeSelection );
+        public static Packet MakeMakeSelection(byte selectionId, [NotNull] string label, [NotNull] BoundingBox bounds,
+                                               int color, byte opacity) {
+            if (label == null) throw new ArgumentNullException("label");
+            if (bounds == null) throw new ArgumentNullException("bounds");
+            Packet packet = new Packet(OpCode.MakeSelection);
             packet.Bytes[1] = selectionId;
-            Encoding.ASCII.GetBytes( label.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
-            ToNetOrder( bounds.XMin, packet.Bytes, 66 );
-            ToNetOrder( bounds.ZMin, packet.Bytes, 68 );
-            ToNetOrder( bounds.YMin, packet.Bytes, 70 );
-            ToNetOrder( bounds.XMax, packet.Bytes, 72 );
-            ToNetOrder( bounds.ZMax, packet.Bytes, 74 );
-            ToNetOrder( bounds.YMax, packet.Bytes, 76 );
-            ToNetOrder( (short)((color >> 16) & 0xFF), packet.Bytes, 78 );
-            ToNetOrder( (short)((color >> 8) & 0xFF), packet.Bytes, 80 );
-            ToNetOrder( (short)(color & 0xFF), packet.Bytes, 82 );
-            ToNetOrder( opacity, packet.Bytes, 84 );
+            Encoding.ASCII.GetBytes(label.PadRight(64), 0, 64, packet.Bytes, 2);
+            ToNetOrder(bounds.XMin, packet.Bytes, 66);
+            ToNetOrder(bounds.ZMin, packet.Bytes, 68);
+            ToNetOrder(bounds.YMin, packet.Bytes, 70);
+            ToNetOrder(bounds.XMax, packet.Bytes, 72);
+            ToNetOrder(bounds.ZMax, packet.Bytes, 74);
+            ToNetOrder(bounds.YMax, packet.Bytes, 76);
+            ToNetOrder((short)((color >> 16) & 0xFF), packet.Bytes, 78);
+            ToNetOrder((short)((color >> 8) & 0xFF), packet.Bytes, 80);
+            ToNetOrder((short)(color & 0xFF), packet.Bytes, 82);
+            ToNetOrder(opacity, packet.Bytes, 84);
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeRemoveSelection( byte selectionId ) {
-            Packet packet = new Packet( OpCode.RemoveSelection );
+        public static Packet MakeRemoveSelection(byte selectionId) {
+            Packet packet = new Packet(OpCode.RemoveSelection);
             packet.Bytes[1] = selectionId;
             return packet;
         }
 
 
         [Pure]
-        public static Packet MakeSetBlockPermission( Block block, bool canPlace, bool canDelete ) {
-            Packet packet = new Packet( OpCode.SetBlockPermission );
+        public static Packet MakeSetBlockPermission(Block block, bool canPlace, bool canDelete) {
+            Packet packet = new Packet(OpCode.SetBlockPermission);
             packet.Bytes[1] = (byte)block;
             packet.Bytes[2] = (byte)(canPlace ? 1 : 0);
             packet.Bytes[3] = (byte)(canDelete ? 1 : 0);
             return packet;
         }
 
+
         [Pure]
-        public static Packet MakeChangeModel( byte entityId, [NotNull] string modelName ) {
-            if( modelName == null ) throw new ArgumentNullException( "modelName" );
-            Packet packet = new Packet( OpCode.ChangeModel );
+        public static Packet MakeChangeModel(byte entityId, [NotNull] string modelName) {
+            if (modelName == null) throw new ArgumentNullException("modelName");
+            Packet packet = new Packet(OpCode.ChangeModel);
             packet.Bytes[1] = entityId;
-            Encoding.ASCII.GetBytes( modelName.PadRight( 64 ), 0, 64, packet.Bytes, 2 );
+            Encoding.ASCII.GetBytes(modelName.PadRight(64), 0, 64, packet.Bytes, 2);
             return packet;
         }
 
+
         [Pure]
-        public static Packet MakeEnvSetMapAppearance( [NotNull] string textureUrl, Block sideBlock, Block edgeBlock,
-                                                      short sideLevel ) {
-            if( textureUrl == null ) throw new ArgumentNullException( "textureUrl" );
-            Packet packet = new Packet( OpCode.EnvMapAppearance );
-            Encoding.ASCII.GetBytes( textureUrl.PadRight( 64 ), 0, 64, packet.Bytes, 1 );
+        public static Packet MakeEnvSetMapAppearance([NotNull] string textureUrl, Block sideBlock, Block edgeBlock,
+                                                     short sideLevel) {
+            if (textureUrl == null) throw new ArgumentNullException("textureUrl");
+            Packet packet = new Packet(OpCode.EnvMapAppearance);
+            Encoding.ASCII.GetBytes(textureUrl.PadRight(64), 0, 64, packet.Bytes, 1);
             packet.Bytes[65] = (byte)sideBlock;
             packet.Bytes[66] = (byte)edgeBlock;
-            ToNetOrder( sideLevel, packet.Bytes, 67 );
+            ToNetOrder(sideLevel, packet.Bytes, 67);
             return packet;
         }
 
+
         [Pure]
-        public static Packet MakeEnvSetWeatherType( WeatherType weather ) {
-            Packet packet = new Packet( OpCode.EnvSetWeatherType );
+        public static Packet MakeEnvSetWeatherType(WeatherType weather) {
+            Packet packet = new Packet(OpCode.EnvSetWeatherType);
             packet.Bytes[1] = (byte)weather;
             return packet;
         }
 
         #endregion
 
-        static void ToNetOrder( short number, [NotNull] byte[] arr, int offset ) {
+        static void ToNetOrder(short number, [NotNull] byte[] arr, int offset) {
             arr[offset] = (byte)((number & 0xff00) >> 8);
             arr[offset + 1] = (byte)(number & 0x00ff);
         }
 
-        static void ToNetOrder( int number, [NotNull] byte[] arr, int offset ) {
+
+        static void ToNetOrder(int number, [NotNull] byte[] arr, int offset) {
             arr[offset] = (byte)((number & 0xff000000) >> 24);
             arr[offset + 1] = (byte)((number & 0x00ff0000) >> 16);
             arr[offset + 2] = (byte)((number & 0x0000ff00) >> 8);
             arr[offset + 3] = (byte)(number & 0x000000ff);
         }
+
 
         static readonly int[] PacketSizes = {
             131, // Handshake
@@ -424,7 +429,7 @@ namespace fCraft {
             130, // ExtAddEntity
             3, // ExtRemovePlayerName
             8, // EnvSetColor
-            86  , // MakeSelection
+            86, // MakeSelection
             2, // RemoveSelection
             4, // SetBlockPermission
             66, // ChangeModel

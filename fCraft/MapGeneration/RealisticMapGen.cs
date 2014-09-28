@@ -11,17 +11,18 @@ namespace fCraft.MapGeneration {
 
         RealisticMapGen() {}
 
+
         static RealisticMapGen() {
             Instance = new RealisticMapGen {
                 Name = "Realistic",
-                Version = new Version( 2, 1 ),
-                Presets = Enum.GetNames( typeof( RealisticMapGenTerrainType ) ),
+                Version = new Version(2, 1),
+                Presets = Enum.GetNames(typeof(RealisticMapGenTerrainType)),
                 Help = "&S\"Realistic\" map generator:\n" +
                        "Creates realistic looking landscapes. " +
                        "Default settings produce a random forested landscape. " +
                        "You can specify two parameters, in either order: a terrain type, and a block theme. " +
-                       "Terrain types are: " + Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() +
-                       ". Block themes are: " + Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() +
+                       "Terrain types are: " + Enum.GetNames(typeof(RealisticMapGenTerrainType)).JoinToString() +
+                       ". Block themes are: " + Enum.GetNames(typeof(MapGenTheme)).JoinToString() +
                        ". For example: &H/SetGen Realistic Forest River&S. More options coming soon."
             };
         }
@@ -32,14 +33,14 @@ namespace fCraft.MapGeneration {
         }
 
 
-        public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
-            return new RealisticMapGenParameters( serializedParameters );
+        public override MapGeneratorParameters CreateParameters(XElement serializedParameters) {
+            return new RealisticMapGenParameters(serializedParameters);
         }
 
 
-        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
+        public override MapGeneratorParameters CreateParameters(Player player, CommandReader cmd) {
             string themeName = cmd.Next();
-            if( themeName == null ) {
+            if (themeName == null) {
                 return CreateDefaultParameters();
             }
 
@@ -47,63 +48,63 @@ namespace fCraft.MapGeneration {
             RealisticMapGenTerrainType terrainType;
 
             string templateName = cmd.Next();
-            if( templateName == null ) {
-                player.Message( "SetGen: Realistic MapGen requires both a theme and a terrainType. " +
-                                "See &H/Help SetGen Realistic&S or check wiki.fCraft.net for details" );
+            if (templateName == null) {
+                player.Message("SetGen: Realistic MapGen requires both a theme and a terrainType. " +
+                               "See &H/Help SetGen Realistic&S or check wiki.fCraft.net for details");
                 return null;
             }
 
             // parse theme
             bool swapThemeAndTemplate;
-            if( EnumUtil.TryParse( themeName, out theme, true ) ) {
+            if (EnumUtil.TryParse(themeName, out theme, true)) {
                 swapThemeAndTemplate = false;
-            } else if( EnumUtil.TryParse( templateName, out theme, true ) ) {
+            } else if (EnumUtil.TryParse(templateName, out theme, true)) {
                 swapThemeAndTemplate = true;
             } else {
-                player.Message( "SetGen: Unrecognized theme \"{0}\". Available themes are: {1}",
-                                themeName,
-                                Enum.GetNames( typeof( MapGenTheme ) ).JoinToString() );
+                player.Message("SetGen: Unrecognized theme \"{0}\". Available themes are: {1}",
+                               themeName,
+                               Enum.GetNames(typeof(MapGenTheme)).JoinToString());
                 return null;
             }
 
             // parse terrainType
-            if( swapThemeAndTemplate && !EnumUtil.TryParse( themeName, out terrainType, true ) ) {
-                MessageTemplateList( themeName, player );
+            if (swapThemeAndTemplate && !EnumUtil.TryParse(themeName, out terrainType, true)) {
+                MessageTemplateList(themeName, player);
                 return null;
-            } else if( !EnumUtil.TryParse( templateName, out terrainType, true ) ) {
-                MessageTemplateList( templateName, player );
+            } else if (!EnumUtil.TryParse(templateName, out terrainType, true)) {
+                MessageTemplateList(templateName, player);
                 return null;
             }
 
             // TODO: optional parameters for preset customization
-            return CreateParameters( terrainType, theme );
+            return CreateParameters(terrainType, theme);
         }
 
 
-        static void MessageTemplateList( [NotNull] string templateName, [NotNull] Player player ) {
-            if( templateName == null ) throw new ArgumentNullException( "templateName" );
-            if( player == null ) throw new ArgumentNullException( "player" );
-            player.Message( "SetGen: Unrecognized terrainType \"{0}\". Available terrain types: {1}",
-                            templateName,
-                            Enum.GetNames( typeof( RealisticMapGenTerrainType ) ).JoinToString() );
+        static void MessageTemplateList([NotNull] string templateName, [NotNull] Player player) {
+            if (templateName == null) throw new ArgumentNullException("templateName");
+            if (player == null) throw new ArgumentNullException("player");
+            player.Message("SetGen: Unrecognized terrainType \"{0}\". Available terrain types: {1}",
+                           templateName,
+                           Enum.GetNames(typeof(RealisticMapGenTerrainType)).JoinToString());
         }
 
 
-        public override MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == null ) throw new ArgumentNullException( "presetName" );
+        public override MapGeneratorParameters CreateParameters(string presetName) {
+            if (presetName == null) throw new ArgumentNullException("presetName");
             RealisticMapGenTerrainType terrainType;
-            if( EnumUtil.TryParse( presetName, out terrainType, true ) ) {
-                return CreateParameters( terrainType, MapGenTheme.Forest );
+            if (EnumUtil.TryParse(presetName, out terrainType, true)) {
+                return CreateParameters(terrainType, MapGenTheme.Forest);
             } else {
                 return null;
             }
         }
 
 
-        public static RealisticMapGenParameters CreateParameters( RealisticMapGenTerrainType terrainType,
-                                                                  MapGenTheme theme ) {
+        public static RealisticMapGenParameters CreateParameters(RealisticMapGenTerrainType terrainType,
+                                                                 MapGenTheme theme) {
             RealisticMapGenParameters genParams;
-            switch( terrainType ) {
+            switch (terrainType) {
                 case RealisticMapGenTerrainType.Archipelago:
                     genParams = new RealisticMapGenParameters {
                         MaxHeight = 8,
@@ -117,7 +118,7 @@ namespace fCraft.MapGeneration {
 
                 case RealisticMapGenTerrainType.Atoll:
                     genParams = new RealisticMapGenParameters {
-                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Desert ),
+                        Theme = new RealisticMapGenBlockTheme(MapGenTheme.Desert),
                         MaxHeight = 2,
                         MaxDepth = 39,
                         UseBias = true,
@@ -153,7 +154,7 @@ namespace fCraft.MapGeneration {
                     genParams = new RealisticMapGenParameters {
                         AddTrees = false,
                         AddWater = false,
-                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Desert ),
+                        Theme = new RealisticMapGenBlockTheme(MapGenTheme.Desert),
                         MaxHeight = 12,
                         MaxDepth = 7,
                         FeatureScale = 2,
@@ -177,7 +178,7 @@ namespace fCraft.MapGeneration {
 
                 case RealisticMapGenTerrainType.Ice:
                     genParams = new RealisticMapGenParameters {
-                        Theme = new RealisticMapGenBlockTheme( MapGenTheme.Arctic ),
+                        Theme = new RealisticMapGenBlockTheme(MapGenTheme.Arctic),
                         AddTrees = false,
                         MaxHeight = 2,
                         MaxDepth = 2032,
@@ -299,11 +300,11 @@ namespace fCraft.MapGeneration {
                     break;
 
                 default:
-                    throw new ArgumentOutOfRangeException( "terrainType" );
+                    throw new ArgumentOutOfRangeException("terrainType");
             }
 
-            genParams.Theme = new RealisticMapGenBlockTheme( theme );
-            switch( theme ) {
+            genParams.Theme = new RealisticMapGenBlockTheme(theme);
+            switch (theme) {
                 case MapGenTheme.Arctic:
                 case MapGenTheme.Desert:
                 case MapGenTheme.Grass:

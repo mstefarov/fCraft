@@ -9,10 +9,11 @@ namespace fCraft.MapGeneration {
     /// Provides general information about this generator, and ways to create IMapGeneratorParameters objects. </summary>
     public abstract class MapGenerator {
         protected MapGenerator() {
-            Version = new Version( 1, 0 );
-            Presets = new[] {"Defaults"};
+            Version = new Version(1, 0);
+            Presets = new[] { "Defaults" };
             MinSupportedMapDimension = 16;
         }
+
 
         /// <summary> Name of the map generator. Uses same rules as command and world names. </summary>
         [NotNull]
@@ -32,7 +33,6 @@ namespace fCraft.MapGeneration {
         /// <summary> Help string, printed when players call "/Help Gen ThisMapGensName" </summary>
         [NotNull]
         public string Help { get; protected set; }
-        
 
         /// <summary> Minimum map dimension (width, height, or length) supported by this generator. Default is 16. </summary>
         public int MinSupportedMapDimension { get; protected set; }
@@ -42,22 +42,25 @@ namespace fCraft.MapGeneration {
         [NotNull]
         public abstract MapGeneratorParameters CreateDefaultParameters();
 
+
         /// <summary> Parses serialized map generation parameters into a IMapGeneratorParameters object,
         /// (to load settings stored in template files or map metadata). Throws exceptions on failure. </summary>
         /// <remarks> When implementing, throw appropriate exceptions on failure (do not return null). </remarks>
         [NotNull]
-        public abstract MapGeneratorParameters CreateParameters( [NotNull] XElement serializedParameters );
+        public abstract MapGeneratorParameters CreateParameters([NotNull] XElement serializedParameters);
+
 
         /// <summary> Parses command arguments to the generator, coming from in-game commands. </summary>
         /// <remarks> In case of command-parsing problems, inform the player and return null. </remarks>
         [CanBeNull]
-        public abstract MapGeneratorParameters CreateParameters( [NotNull] Player player, [NotNull] CommandReader cmd );
+        public abstract MapGeneratorParameters CreateParameters([NotNull] Player player, [NotNull] CommandReader cmd);
+
 
         /// <summary> Creates parameters for a given preset name.
         /// Returns null if preset name was not recognized. Throws exceptions in case of other failures. </summary>
         /// <param name="presetName"> Name of preset. May be null (meaning "return defaults"). </param>
         /// <returns> MapGeneratorParameters object for given preset; null if presetName was not recognized. </returns>
         [CanBeNull]
-        public abstract MapGeneratorParameters CreateParameters( [NotNull] string presetName );
+        public abstract MapGeneratorParameters CreateParameters([NotNull] string presetName);
     }
 }

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 namespace fCraft {
     /// <summary> Struct representing a single block change.
     /// You may safely cast byte* pointers directly to BlockDBEntry* and vice versa. </summary>
-    [StructLayout( LayoutKind.Sequential, Pack = 1 )]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BlockDBEntry {
         /// <summary> UTC Unix timestamp of the change. </summary>
         public readonly int Timestamp;
@@ -32,8 +32,9 @@ namespace fCraft {
         /// <summary> Context for this block change. </summary>
         public readonly BlockChangeContext Context;
 
-        public BlockDBEntry( int timestamp, int playerId, Vector3I coords,
-                             Block oldBlock, Block newBlock, BlockChangeContext flags ) {
+
+        public BlockDBEntry(int timestamp, int playerId, Vector3I coords,
+                            Block oldBlock, Block newBlock, BlockChangeContext flags) {
             Timestamp = timestamp;
             PlayerId = playerId;
             X = (short)coords.X;
@@ -44,15 +45,16 @@ namespace fCraft {
             Context = flags;
         }
 
-        public void Serialize( BinaryWriter writer ) {
-            writer.Write( Timestamp );
-            writer.Write( PlayerId );
-            writer.Write( X );
-            writer.Write( Y );
-            writer.Write( Z );
-            writer.Write( (byte)OldBlock );
-            writer.Write( (byte)NewBlock );
-            writer.Write( (int)Context );
+
+        public void Serialize(BinaryWriter writer) {
+            writer.Write(Timestamp);
+            writer.Write(PlayerId);
+            writer.Write(X);
+            writer.Write(Y);
+            writer.Write(Z);
+            writer.Write((byte)OldBlock);
+            writer.Write((byte)NewBlock);
+            writer.Write((int)Context);
         }
     }
 }

@@ -8,7 +8,8 @@ namespace fCraft {
     /// <summary> A task to be executed by the Scheduler.
     /// Stores timing information and state. </summary>
     public sealed class SchedulerTask {
-        static readonly TimeSpan DefaultInterval = TimeSpan.FromMinutes( 1 );
+        static readonly TimeSpan DefaultInterval = TimeSpan.FromMinutes(1);
+
 
         SchedulerTask() {
             AdjustForExecutionTime = true;
@@ -18,21 +19,22 @@ namespace fCraft {
         }
 
 
-        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground )
+        internal SchedulerTask([NotNull] SchedulerCallback callback, bool isBackground)
             : this() {
-            if( callback == null ) throw new ArgumentNullException( "callback" );
+            if (callback == null) throw new ArgumentNullException("callback");
             Callback = callback;
             IsBackground = isBackground;
         }
 
 
-        internal SchedulerTask( [NotNull] SchedulerCallback callback, bool isBackground, [CanBeNull] object userState )
+        internal SchedulerTask([NotNull] SchedulerCallback callback, bool isBackground, [CanBeNull] object userState)
             : this() {
-            if( callback == null ) throw new ArgumentNullException( "callback" );
+            if (callback == null) throw new ArgumentNullException("callback");
             Callback = callback;
             IsBackground = isBackground;
             UserState = userState;
         }
+
 
         /// <summary> Next scheduled execution time (UTC). </summary>
         public DateTime NextTime { get; set; }
@@ -87,16 +89,16 @@ namespace fCraft {
         /// Callback is invoked from the Scheduler thread. </summary>
         [NotNull]
         public SchedulerTask RunOnce() {
-            NextTime = DateTime.UtcNow.Add( Delay );
+            NextTime = DateTime.UtcNow.Add(Delay);
             IsRecurring = false;
-            Scheduler.AddTask( this );
+            Scheduler.AddTask(this);
             return this;
         }
 
 
         /// <summary> Runs the task once, after a given delay. </summary>
         [NotNull]
-        public SchedulerTask RunOnce( TimeSpan delay ) {
+        public SchedulerTask RunOnce(TimeSpan delay) {
             Delay = delay;
             return RunOnce();
         }
@@ -105,29 +107,29 @@ namespace fCraft {
         /// <summary> Runs the task once at a given date.
         /// If the given date is in the past, the task is ran immediately. </summary>
         [NotNull]
-        public SchedulerTask RunOnce( DateTime time ) {
-            Delay = time.Subtract( DateTime.UtcNow );
+        public SchedulerTask RunOnce(DateTime time) {
+            Delay = time.Subtract(DateTime.UtcNow);
             NextTime = time;
             IsRecurring = false;
-            Scheduler.AddTask( this );
+            Scheduler.AddTask(this);
             return this;
         }
 
 
         /// <summary> Runs the task once, after a given delay. </summary>
         [NotNull]
-        public SchedulerTask RunOnce( [CanBeNull] object userState, TimeSpan delay ) {
+        public SchedulerTask RunOnce([CanBeNull] object userState, TimeSpan delay) {
             UserState = userState;
-            return RunOnce( delay );
+            return RunOnce(delay);
         }
 
 
         /// <summary> Runs the task once at a given date.
         /// If the given date is in the past, the task is ran immediately. </summary>
         [NotNull]
-        public SchedulerTask RunOnce( [CanBeNull] object userState, DateTime time ) {
+        public SchedulerTask RunOnce([CanBeNull] object userState, DateTime time) {
             UserState = userState;
-            return RunOnce( time );
+            return RunOnce(time);
         }
 
         #endregion
@@ -137,16 +139,16 @@ namespace fCraft {
         [NotNull]
         SchedulerTask RunForever() {
             IsRecurring = true;
-            NextTime = DateTime.UtcNow.Add( Delay );
-            Scheduler.AddTask( this );
+            NextTime = DateTime.UtcNow.Add(Delay);
+            Scheduler.AddTask(this);
             return this;
         }
 
 
         /// <summary> Runs the task forever at a given interval, until manually stopped. </summary>
         [NotNull]
-        public SchedulerTask RunForever( TimeSpan interval ) {
-            if( interval.Ticks < 0 ) throw new ArgumentException( "Interval must be positive", "interval" );
+        public SchedulerTask RunForever(TimeSpan interval) {
+            if (interval.Ticks < 0) throw new ArgumentException("Interval must be positive", "interval");
             Interval = interval;
             return RunForever();
         }
@@ -154,8 +156,8 @@ namespace fCraft {
 
         /// <summary> Runs the task forever at a given interval after an initial delay, until manually stopped. </summary>
         [NotNull]
-        public SchedulerTask RunForever( TimeSpan interval, TimeSpan delay ) {
-            if( interval.Ticks < 0 ) throw new ArgumentException( "Interval must be positive", "interval" );
+        public SchedulerTask RunForever(TimeSpan interval, TimeSpan delay) {
+            if (interval.Ticks < 0) throw new ArgumentException("Interval must be positive", "interval");
             Interval = interval;
             Delay = delay;
             return RunForever();
@@ -164,9 +166,9 @@ namespace fCraft {
 
         /// <summary> Runs the task forever at a given interval after an initial delay, until manually stopped. </summary>
         [NotNull]
-        public SchedulerTask RunForever( [NotNull] object userState, TimeSpan interval, TimeSpan delay ) {
+        public SchedulerTask RunForever([NotNull] object userState, TimeSpan interval, TimeSpan delay) {
             UserState = userState;
-            return RunForever( interval, delay );
+            return RunForever(interval, delay);
         }
 
         #endregion
@@ -175,27 +177,28 @@ namespace fCraft {
 
         /// <summary> Runs the task a given number of times, at a given interval after an initial delay. </summary>
         [NotNull]
-        public SchedulerTask RunRepeating( TimeSpan delay, TimeSpan interval, int times ) {
-            if( times < 1 ) throw new ArgumentException( "Must be ran at least 1 time.", "times" );
+        public SchedulerTask RunRepeating(TimeSpan delay, TimeSpan interval, int times) {
+            if (times < 1) throw new ArgumentException("Must be ran at least 1 time.", "times");
             MaxRepeats = times;
-            return RunForever( interval, delay );
+            return RunForever(interval, delay);
         }
 
 
         /// <summary> Runs the task a given number of times, at a given interval after an initial delay. </summary>
         [NotNull]
-        public SchedulerTask RunRepeating( [CanBeNull] object userState, TimeSpan delay, TimeSpan interval, int times ) {
-            if( times < 1 ) throw new ArgumentException( "Must be ran at least 1 time.", "times" );
+        public SchedulerTask RunRepeating([CanBeNull] object userState, TimeSpan delay, TimeSpan interval, int times) {
+            if (times < 1) throw new ArgumentException("Must be ran at least 1 time.", "times");
             UserState = userState;
             MaxRepeats = times;
-            return RunForever( interval, delay );
+            return RunForever(interval, delay);
         }
 
         #endregion
 
         #region Run Manual
 
-        static readonly TimeSpan CloseEnoughToForever = TimeSpan.FromDays( 36525 ); // >100 years
+        static readonly TimeSpan CloseEnoughToForever = TimeSpan.FromDays(36525); // >100 years
+
 
         /// <summary> Executes the task once immediately, and suspends (but does not stop).
         /// A SchedulerTask object can be reused many times if ran manually. </summary>
@@ -206,33 +209,35 @@ namespace fCraft {
             NextTime = DateTime.UtcNow;
             MaxRepeats = -1;
             Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
+            Scheduler.AddTask(this);
             return this;
         }
+
 
         /// <summary> Executes the task once after a delay, and suspends (but does not stop).
         /// A SchedulerTask object can be reused many times if ran manually. </summary>
         [NotNull]
-        public SchedulerTask RunManual( TimeSpan delay ) {
+        public SchedulerTask RunManual(TimeSpan delay) {
             Delay = delay;
             IsRecurring = true;
-            NextTime = DateTime.UtcNow.Add( Delay );
+            NextTime = DateTime.UtcNow.Add(Delay);
             MaxRepeats = -1;
             Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
+            Scheduler.AddTask(this);
             return this;
         }
+
 
         /// <summary> Executes the task once at a given time, and suspends (but does not stop).
         /// A SchedulerTask object can be reused many times if ran manually. </summary>
         [NotNull]
-        public SchedulerTask RunManual( DateTime time ) {
-            Delay = time.Subtract( DateTime.UtcNow );
+        public SchedulerTask RunManual(DateTime time) {
+            Delay = time.Subtract(DateTime.UtcNow);
             IsRecurring = true;
             NextTime = time;
             MaxRepeats = -1;
             Interval = CloseEnoughToForever;
-            Scheduler.AddTask( this );
+            Scheduler.AddTask(this);
             return this;
         }
 
@@ -247,33 +252,33 @@ namespace fCraft {
 
 
         public override string ToString() {
-            StringBuilder sb = new StringBuilder( "Task(" );
+            StringBuilder sb = new StringBuilder("Task(");
 
-            if( IsStopped ) {
-                sb.Append( "STOPPED " );
+            if (IsStopped) {
+                sb.Append("STOPPED ");
             }
 
-            if( Callback.Target != null ) {
-                sb.Append( Callback.Target ).Append( "::" );
+            if (Callback.Target != null) {
+                sb.Append(Callback.Target).Append("::");
             }
             Type declaringType = Callback.Method.DeclaringType;
-            if( declaringType != null ) {
-                sb.Append( declaringType.Name );
-                sb.Append( '.' );
+            if (declaringType != null) {
+                sb.Append(declaringType.Name);
+                sb.Append('.');
             }
-            sb.Append( Callback.Method.Name );
-            sb.Append( " @ " );
+            sb.Append(Callback.Method.Name);
+            sb.Append(" @ ");
 
-            if( IsRecurring ) {
-                sb.Append( Interval.ToCompactString() );
+            if (IsRecurring) {
+                sb.Append(Interval.ToCompactString());
             }
-            sb.Append( "+" ).Append( Delay.ToCompactString() );
+            sb.Append("+").Append(Delay.ToCompactString());
 
-            if( UserState != null ) {
-                sb.Append( " -> " );
-                sb.Append( UserState );
+            if (UserState != null) {
+                sb.Append(" -> ");
+                sb.Append(UserState);
             }
-            sb.Append( ')' );
+            sb.Append(')');
             return sb.ToString();
         }
     }
@@ -281,7 +286,7 @@ namespace fCraft {
 
     /// <summary> Represents the method that is called when a SchedulerTask is executed. </summary>
     /// <param name="task"> SchedulerTask associated with the task that was called. </param>
-    public delegate void SchedulerCallback( [NotNull] SchedulerTask task );
+    public delegate void SchedulerCallback([NotNull] SchedulerTask task);
 
 
 #if DEBUG_SCHEDULER

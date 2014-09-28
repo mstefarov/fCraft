@@ -31,72 +31,73 @@ namespace fCraft.Drawing {
         /// <summary> Opacity level (between 0.0 and 1.0) below which pixel is considered transparent.
         /// Default is 0.2 (20% opaque / 80% transparent). </summary>
         public float TransparencyThreshold { get; private set; }
-        const float TransparencyThresholdDefault = 0.2f;
 
+        const float TransparencyThresholdDefault = 0.2f;
 
         readonly Block[] transparent;
 
-        protected BlockPalette( [NotNull] string name, int layers ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+
+        protected BlockPalette([NotNull] string name, int layers) {
+            if (name == null) throw new ArgumentNullException("name");
             Name = name;
             Layers = layers;
             TransparencyThreshold = TransparencyThresholdDefault;
             transparent = new Block[layers];
-            for( int i = 0; i < layers; i++ ) {
+            for (int i = 0; i < layers; i++) {
                 transparent[i] = Block.None;
             }
         }
 
 
-        protected void Add( RgbColor color, [NotNull] Block[] blocks ) {
-            Add( RgbToLab( color, false ), blocks );
+        protected void Add(RgbColor color, [NotNull] Block[] blocks) {
+            Add(RgbToLab(color, false), blocks);
         }
 
 
-        protected void Add( LabColor color, Block[] blocks ) {
-            if( blocks == null ) {
-                throw new ArgumentNullException( "blocks" );
+        protected void Add(LabColor color, Block[] blocks) {
+            if (blocks == null) {
+                throw new ArgumentNullException("blocks");
             }
-            if( blocks.Length != Layers ) {
-                throw new ArgumentException( "Number of blocks must match number the of layers." );
+            if (blocks.Length != Layers) {
+                throw new ArgumentException("Number of blocks must match number the of layers.");
             }
-            palette.Add( color, blocks );
+            palette.Add(color, blocks);
         }
 
 
         [NotNull]
-        public Block[] FindBestMatch( RgbColor color ) {
-            if( color.A < TransparencyThreshold*255 ) {
+        public Block[] FindBestMatch(RgbColor color) {
+            if (color.A < TransparencyThreshold*255) {
                 return transparent;
             }
-            LabColor pixelColor = RgbToLab( color, true );
+            LabColor pixelColor = RgbToLab(color, true);
             double closestDistance = double.MaxValue;
             Block[] bestMatch = null;
-            foreach( var pair in palette ) {
-                double distance = ColorDifference( pixelColor, pair.Key );
-                if( distance < closestDistance ) {
+            foreach (var pair in palette) {
+                double distance = ColorDifference(pixelColor, pair.Key);
+                if (distance < closestDistance) {
                     bestMatch = pair.Value;
                     closestDistance = distance;
                 }
             }
-            if( bestMatch == null ) {
-                throw new Exception( "Could not find match: palette is empty!" );
+            if (bestMatch == null) {
+                throw new Exception("Could not find match: palette is empty!");
             }
             return bestMatch;
         }
 
 
         // CIE76 formula for Delta-E, over CIELAB color space
-        static double ColorDifference( LabColor color1, LabColor color2 ) {
+        static double ColorDifference(LabColor color1, LabColor color2) {
             return
-                Math.Sqrt( (color2.L - color1.L)*(color2.L - color1.L)*1.2 +
-                           (color2.a - color1.a)*(color2.a - color1.a) +
-                           (color2.b - color1.b)*(color2.b - color1.b) );
+                Math.Sqrt((color2.L - color1.L)*(color2.L - color1.L)*1.2 +
+                          (color2.a - color1.a)*(color2.a - color1.a) +
+                          (color2.b - color1.b)*(color2.b - color1.b));
         }
 
 
         // Conversion from RGB to CIELAB, using illuminant D65.
-        static LabColor RgbToLab( RgbColor color, bool adjustContrast ) {
+        static LabColor RgbToLab(RgbColor color, bool adjustContrast) {
             // RGB are assumed to be in [0...255] range
             double R = color.R/255d;
             double G = color.G/255d;
@@ -113,20 +114,20 @@ namespace fCraft.Drawing {
 
             LabColor result = new LabColor {
                 // L is normalized to [0...100]
-                L = 116*XyzToLab( yRatio ) - 16,
-                a = 500*(XyzToLab( xRatio ) - XyzToLab( yRatio )),
-                b = 200*(XyzToLab( yRatio ) - XyzToLab( zRatio ))
+                L = 116*XyzToLab(yRatio) - 16,
+                a = 500*(XyzToLab(xRatio) - XyzToLab(yRatio)),
+                b = 200*(XyzToLab(yRatio) - XyzToLab(zRatio))
             };
-            if( adjustContrast ) {
+            if (adjustContrast) {
                 result.L *= .75;
             }
             return result;
         }
 
 
-        static double XyzToLab( double ratio ) {
-            if( ratio > LinearThreshold ) {
-                return Math.Pow( ratio, 1/3d );
+        static double XyzToLab(double ratio) {
+            if (ratio > LinearThreshold) {
+                return Math.Pow(ratio, 1/3d);
             } else {
                 return LinearMultiplier*ratio + LinearConstant;
             }
@@ -145,7 +146,7 @@ namespace fCraft.Drawing {
         [NotNull]
         public static BlockPalette Light {
             get {
-                if( lightPalette == null ) {
+                if (lightPalette == null) {
                     lightPalette = DefineLight();
                 }
                 return lightPalette;
@@ -154,11 +155,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette lightPalette;
 
-
         [NotNull]
         public static BlockPalette Dark {
             get {
-                if( darkPalette == null ) {
+                if (darkPalette == null) {
                     darkPalette = DefineDark();
                 }
                 return darkPalette;
@@ -167,11 +167,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette darkPalette;
 
-
         [NotNull]
         public static BlockPalette Layered {
             get {
-                if( layeredPalette == null ) {
+                if (layeredPalette == null) {
                     layeredPalette = DefineLayered();
                 }
                 return layeredPalette;
@@ -180,11 +179,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette layeredPalette;
 
-
         [NotNull]
         public static BlockPalette Gray {
             get {
-                if( grayPalette == null ) {
+                if (grayPalette == null) {
                     grayPalette = DefineGray();
                 }
                 return grayPalette;
@@ -193,11 +191,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette grayPalette;
 
-
         [NotNull]
         public static BlockPalette DarkGray {
             get {
-                if( darkGrayPalette == null ) {
+                if (darkGrayPalette == null) {
                     darkGrayPalette = DefineDarkGray();
                 }
                 return darkGrayPalette;
@@ -206,11 +203,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette darkGrayPalette;
 
-
         [NotNull]
         public static BlockPalette LayeredGray {
             get {
-                if( layeredGrayPalette == null ) {
+                if (layeredGrayPalette == null) {
                     layeredGrayPalette = DefineLayeredGray();
                 }
                 return layeredGrayPalette;
@@ -219,11 +215,10 @@ namespace fCraft.Drawing {
 
         static BlockPalette layeredGrayPalette;
 
-
         [NotNull]
         public static BlockPalette BW {
             get {
-                if( bwPalette == null ) {
+                if (bwPalette == null) {
                     bwPalette = DefineBW();
                 }
                 return bwPalette;
@@ -234,8 +229,8 @@ namespace fCraft.Drawing {
 
 
         [NotNull]
-        public static BlockPalette GetPalette( StandardBlockPalette palette ) {
-            switch( palette ) {
+        public static BlockPalette GetPalette(StandardBlockPalette palette) {
+            switch (palette) {
                 case StandardBlockPalette.Light:
                     return Light;
                 case StandardBlockPalette.Dark:
@@ -251,111 +246,111 @@ namespace fCraft.Drawing {
                 case StandardBlockPalette.BW:
                     return BW;
                 default:
-                    throw new ArgumentOutOfRangeException( "palette" );
+                    throw new ArgumentOutOfRangeException("palette");
             }
         }
 
 
         [NotNull]
         static BlockPalette DefineLight() {
-            return new BlockPalette( "Light", 1 ) {
-                {RgbColor.FromArgb( 109, 80, 57 ), new[] {Block.Dirt}},
-                {RgbColor.FromArgb( 176, 170, 130 ), new[] {Block.Sand}},
-                {RgbColor.FromArgb( 111, 104, 104 ), new[] {Block.Gravel}},
-                {RgbColor.FromArgb( 179, 44, 44 ), new[] {Block.Red}},
-                {RgbColor.FromArgb( 179, 111, 44 ), new[] {Block.Orange}},
-                {RgbColor.FromArgb( 179, 179, 44 ), new[] {Block.Yellow}},
-                {RgbColor.FromArgb( 109, 179, 44 ), new[] {Block.Lime}},
-                {RgbColor.FromArgb( 44, 179, 44 ), new[] {Block.Green}},
-                {RgbColor.FromArgb( 44, 179, 111 ), new[] {Block.Teal}},
-                {RgbColor.FromArgb( 44, 179, 179 ), new[] {Block.Aqua}},
-                {RgbColor.FromArgb( 86, 132, 179 ), new[] {Block.Cyan}},
-                {RgbColor.FromArgb( 99, 99, 180 ), new[] {Block.Blue}},
-                {RgbColor.FromArgb( 111, 44, 180 ), new[] {Block.Indigo}},
-                {RgbColor.FromArgb( 141, 62, 179 ), new[] {Block.Violet}},
-                {RgbColor.FromArgb( 180, 44, 180 ), new[] {Block.Magenta}},
-                {RgbColor.FromArgb( 179, 44, 111 ), new[] {Block.Pink}},
-                {RgbColor.FromArgb( 64, 64, 64 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 118, 118, 118 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            return new BlockPalette("Light", 1) {
+                { RgbColor.FromArgb(109, 80, 57), new[] { Block.Dirt } },
+                { RgbColor.FromArgb(176, 170, 130), new[] { Block.Sand } },
+                { RgbColor.FromArgb(111, 104, 104), new[] { Block.Gravel } },
+                { RgbColor.FromArgb(179, 44, 44), new[] { Block.Red } },
+                { RgbColor.FromArgb(179, 111, 44), new[] { Block.Orange } },
+                { RgbColor.FromArgb(179, 179, 44), new[] { Block.Yellow } },
+                { RgbColor.FromArgb(109, 179, 44), new[] { Block.Lime } },
+                { RgbColor.FromArgb(44, 179, 44), new[] { Block.Green } },
+                { RgbColor.FromArgb(44, 179, 111), new[] { Block.Teal } },
+                { RgbColor.FromArgb(44, 179, 179), new[] { Block.Aqua } },
+                { RgbColor.FromArgb(86, 132, 179), new[] { Block.Cyan } },
+                { RgbColor.FromArgb(99, 99, 180), new[] { Block.Blue } },
+                { RgbColor.FromArgb(111, 44, 180), new[] { Block.Indigo } },
+                { RgbColor.FromArgb(141, 62, 179), new[] { Block.Violet } },
+                { RgbColor.FromArgb(180, 44, 180), new[] { Block.Magenta } },
+                { RgbColor.FromArgb(179, 44, 111), new[] { Block.Pink } },
+                { RgbColor.FromArgb(64, 64, 64), new[] { Block.Black } },
+                { RgbColor.FromArgb(118, 118, 118), new[] { Block.Gray } },
+                { RgbColor.FromArgb(179, 179, 179), new[] { Block.White } },
+                { RgbColor.FromArgb(21, 19, 29), new[] { Block.Obsidian } }
             };
         }
 
 
         [NotNull]
         static BlockPalette DefineDark() {
-            return new BlockPalette( "Dark", 1 ) {
-                {RgbColor.FromArgb( 67, 50, 37 ), new[] {Block.Dirt}},
-                {RgbColor.FromArgb( 108, 104, 80 ), new[] {Block.Sand}},
-                {RgbColor.FromArgb( 68, 64, 64 ), new[] {Block.Gravel}},
-                {RgbColor.FromArgb( 109, 28, 28 ), new[] {Block.Red}},
-                {RgbColor.FromArgb( 110, 70, 31 ), new[] {Block.Orange}},
-                {RgbColor.FromArgb( 109, 109, 29 ), new[] {Block.Yellow}},
-                {RgbColor.FromArgb( 68, 109, 29 ), new[] {Block.Lime}},
-                {RgbColor.FromArgb( 28, 109, 31 ), new[] {Block.Green}},
-                {RgbColor.FromArgb( 28, 109, 69 ), new[] {Block.Teal}},
-                {RgbColor.FromArgb( 28, 109, 108 ), new[] {Block.Aqua}},
-                {RgbColor.FromArgb( 53, 81, 109 ), new[] {Block.Cyan}},
-                {RgbColor.FromArgb( 61, 61, 109 ), new[] {Block.Blue}},
-                {RgbColor.FromArgb( 68, 28, 109 ), new[] {Block.Indigo}},
-                {RgbColor.FromArgb( 87, 40, 110 ), new[] {Block.Violet}},
-                {RgbColor.FromArgb( 109, 28, 110 ), new[] {Block.Magenta}},
-                {RgbColor.FromArgb( 109, 29, 69 ), new[] {Block.Pink}},
-                {RgbColor.FromArgb( 41, 41, 41 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 72, 72, 72 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 109, 109, 109 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 15, 14, 20 ), new[] {Block.Obsidian}}
+            return new BlockPalette("Dark", 1) {
+                { RgbColor.FromArgb(67, 50, 37), new[] { Block.Dirt } },
+                { RgbColor.FromArgb(108, 104, 80), new[] { Block.Sand } },
+                { RgbColor.FromArgb(68, 64, 64), new[] { Block.Gravel } },
+                { RgbColor.FromArgb(109, 28, 28), new[] { Block.Red } },
+                { RgbColor.FromArgb(110, 70, 31), new[] { Block.Orange } },
+                { RgbColor.FromArgb(109, 109, 29), new[] { Block.Yellow } },
+                { RgbColor.FromArgb(68, 109, 29), new[] { Block.Lime } },
+                { RgbColor.FromArgb(28, 109, 31), new[] { Block.Green } },
+                { RgbColor.FromArgb(28, 109, 69), new[] { Block.Teal } },
+                { RgbColor.FromArgb(28, 109, 108), new[] { Block.Aqua } },
+                { RgbColor.FromArgb(53, 81, 109), new[] { Block.Cyan } },
+                { RgbColor.FromArgb(61, 61, 109), new[] { Block.Blue } },
+                { RgbColor.FromArgb(68, 28, 109), new[] { Block.Indigo } },
+                { RgbColor.FromArgb(87, 40, 110), new[] { Block.Violet } },
+                { RgbColor.FromArgb(109, 28, 110), new[] { Block.Magenta } },
+                { RgbColor.FromArgb(109, 29, 69), new[] { Block.Pink } },
+                { RgbColor.FromArgb(41, 41, 41), new[] { Block.Black } },
+                { RgbColor.FromArgb(72, 72, 72), new[] { Block.Gray } },
+                { RgbColor.FromArgb(109, 109, 109), new[] { Block.White } },
+                { RgbColor.FromArgb(15, 14, 20), new[] { Block.Obsidian } }
             };
         }
 
 
         [NotNull]
         static BlockPalette DefineLayered() {
-            BlockPalette palette = new BlockPalette( "Layered", 2 );
-            foreach( var pair in Light.palette ) {
-                palette.Add( pair.Key, new[] {Block.None, pair.Value[0]} );
+            BlockPalette palette = new BlockPalette("Layered", 2);
+            foreach (var pair in Light.palette) {
+                palette.Add(pair.Key, new[] { Block.None, pair.Value[0] });
             }
-            foreach( var pair in Dark.palette ) {
-                palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
+            foreach (var pair in Dark.palette) {
+                palette.Add(pair.Key, new[] { pair.Value[0], Block.Air });
             }
-            palette.Add( RgbColor.FromArgb( 61, 74, 167 ), new[] {Block.White, Block.StillWater} );
-            palette.Add( RgbColor.FromArgb( 47, 59, 152 ), new[] {Block.Gray, Block.StillWater} );
-            palette.Add( RgbColor.FromArgb( 34, 47, 140 ), new[] {Block.Black, Block.StillWater} );
+            palette.Add(RgbColor.FromArgb(61, 74, 167), new[] { Block.White, Block.StillWater });
+            palette.Add(RgbColor.FromArgb(47, 59, 152), new[] { Block.Gray, Block.StillWater });
+            palette.Add(RgbColor.FromArgb(34, 47, 140), new[] { Block.Black, Block.StillWater });
             return palette;
         }
 
 
         [NotNull]
         static BlockPalette DefineGray() {
-            return new BlockPalette( "Gray", 1 ) {
-                {RgbColor.FromArgb( 64, 64, 64 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 118, 118, 118 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            return new BlockPalette("Gray", 1) {
+                { RgbColor.FromArgb(64, 64, 64), new[] { Block.Black } },
+                { RgbColor.FromArgb(118, 118, 118), new[] { Block.Gray } },
+                { RgbColor.FromArgb(179, 179, 179), new[] { Block.White } },
+                { RgbColor.FromArgb(21, 19, 29), new[] { Block.Obsidian } }
             };
         }
 
 
         [NotNull]
         static BlockPalette DefineDarkGray() {
-            return new BlockPalette( "DarkGray", 1 ) {
-                {RgbColor.FromArgb( 41, 41, 41 ), new[] {Block.Black}},
-                {RgbColor.FromArgb( 72, 72, 72 ), new[] {Block.Gray}},
-                {RgbColor.FromArgb( 109, 109, 109 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 15, 14, 20 ), new[] {Block.Obsidian}}
+            return new BlockPalette("DarkGray", 1) {
+                { RgbColor.FromArgb(41, 41, 41), new[] { Block.Black } },
+                { RgbColor.FromArgb(72, 72, 72), new[] { Block.Gray } },
+                { RgbColor.FromArgb(109, 109, 109), new[] { Block.White } },
+                { RgbColor.FromArgb(15, 14, 20), new[] { Block.Obsidian } }
             };
         }
 
 
         [NotNull]
         static BlockPalette DefineLayeredGray() {
-            BlockPalette palette = new BlockPalette( "LayeredGray", 2 );
-            foreach( var pair in Gray.palette ) {
-                palette.Add( pair.Key, new[] {Block.None, pair.Value[0]} );
+            BlockPalette palette = new BlockPalette("LayeredGray", 2);
+            foreach (var pair in Gray.palette) {
+                palette.Add(pair.Key, new[] { Block.None, pair.Value[0] });
             }
-            foreach( var pair in DarkGray.palette ) {
-                palette.Add( pair.Key, new[] {pair.Value[0], Block.Air} );
+            foreach (var pair in DarkGray.palette) {
+                palette.Add(pair.Key, new[] { pair.Value[0], Block.Air });
             }
             return palette;
         }
@@ -363,9 +358,9 @@ namespace fCraft.Drawing {
 
         [NotNull]
         static BlockPalette DefineBW() {
-            return new BlockPalette( "BW", 1 ) {
-                {RgbColor.FromArgb( 179, 179, 179 ), new[] {Block.White}},
-                {RgbColor.FromArgb( 21, 19, 29 ), new[] {Block.Obsidian}}
+            return new BlockPalette("BW", 1) {
+                { RgbColor.FromArgb(179, 179, 179), new[] { Block.White } },
+                { RgbColor.FromArgb(21, 19, 29), new[] { Block.Obsidian } }
             };
         }
 

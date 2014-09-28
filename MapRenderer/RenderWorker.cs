@@ -18,13 +18,14 @@ namespace fCraft.MapRenderer {
         IsoCat renderer;
         readonly Thread thread;
 
-        public RenderWorker( BlockingCollection<RenderTask> inputQueue,
-                             BlockingCollection<RenderTask> outputQueue,
-                             MapRendererParams taskParams ) {
+
+        public RenderWorker(BlockingCollection<RenderTask> inputQueue,
+                            BlockingCollection<RenderTask> outputQueue,
+                            MapRendererParams taskParams) {
             inQueue = inputQueue;
             outQueue = outputQueue;
             threadCount++;
-            thread = new Thread( RenderLoop ) {
+            thread = new Thread(RenderLoop) {
                 IsBackground = true,
                 Name = "RenderWorker" + threadCount
             };
@@ -39,48 +40,48 @@ namespace fCraft.MapRenderer {
 
         void RenderLoop() {
             renderer = MakeRenderer();
-            using( MemoryStream ms = new MemoryStream() ) {
+            using (MemoryStream ms = new MemoryStream()) {
                 // loop terminates with the rest of the program (this is a background thread)
-                while( true ) {
+                while (true) {
                     // wait (block) until a map is available for drawing
                     RenderTask task = inQueue.Take();
                     try {
                         // render the map
-                        IsoCatResult result = renderer.Draw( task.Map );
+                        IsoCatResult result = renderer.Draw(task.Map);
                         task.Map = null;
 
                         // crop image (if needed)
                         Image image;
-                        if( p.Uncropped ) {
+                        if (p.Uncropped) {
                             image = result.Bitmap;
                         } else {
-                            image = result.Bitmap.Clone( result.CropRectangle, result.Bitmap.PixelFormat );
+                            image = result.Bitmap.Clone(result.CropRectangle, result.Bitmap.PixelFormat);
                             result.Bitmap.Dispose();
                         }
 
                         // encode image
-                        if( p.ExportFormat.Equals( ImageFormat.Jpeg ) ) {
+                        if (p.ExportFormat.Equals(ImageFormat.Jpeg)) {
                             EncoderParameters encoderParams = new EncoderParameters();
-                            encoderParams.Param[0] = new EncoderParameter( Encoder.Quality, p.JpegQuality );
-                            image.Save( ms, p.ImageEncoder, encoderParams );
-                        } else if( p.ExportFormat.Equals( ImageFormat.Gif ) ) {
-                            OctreeQuantizer q = new OctreeQuantizer( 255, 8 );
-                            image = q.Quantize( image );
-                            image.Save( ms, p.ExportFormat );
+                            encoderParams.Param[0] = new EncoderParameter(Encoder.Quality, p.JpegQuality);
+                            image.Save(ms, p.ImageEncoder, encoderParams);
+                        } else if (p.ExportFormat.Equals(ImageFormat.Gif)) {
+                            OctreeQuantizer q = new OctreeQuantizer(255, 8);
+                            image = q.Quantize(image);
+                            image.Save(ms, p.ExportFormat);
                         } else {
-                            image.Save( ms, p.ExportFormat );
+                            image.Save(ms, p.ExportFormat);
                         }
                         image.Dispose();
 
                         // store result as a byte[]
                         task.Result = ms.ToArray();
-                    } catch( Exception ex ) {
+                    } catch (Exception ex) {
                         task.Exception = ex;
                     }
 
                     // send stack to the results queue
-                    outQueue.Add( task );
-                    ms.SetLength( 0 );
+                    outQueue.Add(task);
+                    ms.SetLength(0);
                 }
             }
         }
@@ -95,10 +96,10 @@ namespace fCraft.MapRenderer {
                 Gradient = !p.NoGradient,
                 DrawShadows = !p.NoShadows
             };
-            if( p.Mode == IsoCatMode.Chunk ) {
+            if (p.Mode == IsoCatMode.Chunk) {
                 newRenderer.Chunk = p.Region;
             }
-            switch( p.Angle ) {
+            switch (p.Angle) {
                 case 90:
                     newRenderer.Rotation = 1;
                     break;

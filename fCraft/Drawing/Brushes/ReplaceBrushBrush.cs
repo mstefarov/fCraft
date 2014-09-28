@@ -9,9 +9,11 @@ namespace fCraft.Drawing {
         /// <summary> Singleton instance of the ReplaceBrushBrushFactory. </summary>
         public static readonly ReplaceBrushBrushFactory Instance = new ReplaceBrushBrushFactory();
 
+
         ReplaceBrushBrushFactory() {
-            Aliases = new[] {"rb"};
+            Aliases = new[] { "rb" };
         }
+
 
         public string Name {
             get { return "ReplaceBrush"; }
@@ -20,41 +22,43 @@ namespace fCraft.Drawing {
         public string[] Aliases { get; private set; }
 
         public string Help {
-            get { return "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
-                         "Usage: &H/Brush rb <Block> <BrushName>"; }
+            get {
+                return "ReplaceBrush brush: Replaces blocks of a given type with output of another brush. " +
+                       "Usage: &H/Brush rb <Block> <BrushName>";
+            }
         }
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (cmd == null) throw new ArgumentNullException("cmd");
 
-            if( !cmd.HasNext ) {
-                player.Message( "ReplaceBrush usage: &H/Brush rb <Block> <BrushName>" );
+            if (!cmd.HasNext) {
+                player.Message("ReplaceBrush usage: &H/Brush rb <Block> <BrushName>");
                 return null;
             }
 
             Block block;
-            if( !cmd.NextBlock( player, false, out block ) ) return null;
+            if (!cmd.NextBlock(player, false, out block)) return null;
 
             string brushName = cmd.Next();
-            if( brushName == null || !CommandManager.IsValidCommandName( brushName ) ) {
-                player.Message( "ReplaceBrush usage: &H/Brush rb <Block> <BrushName>" );
+            if (brushName == null || !CommandManager.IsValidCommandName(brushName)) {
+                player.Message("ReplaceBrush usage: &H/Brush rb <Block> <BrushName>");
                 return null;
             }
-            IBrushFactory brushFactory = BrushManager.GetBrushFactory( brushName );
+            IBrushFactory brushFactory = BrushManager.GetBrushFactory(brushName);
 
-            if( brushFactory == null ) {
-                player.Message( "Unrecognized brush \"{0}\"", brushName );
-                return null;
-            }
-
-            IBrush newBrush = brushFactory.MakeBrush( player, cmd );
-            if( newBrush == null ) {
+            if (brushFactory == null) {
+                player.Message("Unrecognized brush \"{0}\"", brushName);
                 return null;
             }
 
-            return new ReplaceBrushBrush( block, newBrush );
+            IBrush newBrush = brushFactory.MakeBrush(player, cmd);
+            if (newBrush == null) {
+                return null;
+            }
+
+            return new ReplaceBrushBrush(block, newBrush);
         }
 
 
@@ -81,33 +85,33 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                return String.Format( "{0}({1} -> {2})",
-                                      Factory.Name,
-                                      Block,
-                                      Replacement.Description );
+                return String.Format("{0}({1} -> {2})",
+                                     Factory.Name,
+                                     Block,
+                                     Replacement.Description);
             }
         }
 
 
-        public ReplaceBrushBrush( Block block, [NotNull] IBrush replacement ) {
+        public ReplaceBrushBrush(Block block, [NotNull] IBrush replacement) {
             Block = block;
             Replacement = replacement;
         }
 
 
-        public bool Begin( Player player, DrawOperation op ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( op == null ) throw new ArgumentNullException( "op" );
+        public bool Begin(Player player, DrawOperation op) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (op == null) throw new ArgumentNullException("op");
             op.Context |= BlockChangeContext.Replaced;
-            return Replacement.Begin( player, op );
+            return Replacement.Begin(player, op);
         }
 
 
-        public Block NextBlock( DrawOperation op ) {
-            if( op == null ) throw new ArgumentNullException( "op" );
-            Block block = op.Map.GetBlock( op.Coords );
-            if( block == Block ) {
-                return Replacement.NextBlock( op );
+        public Block NextBlock(DrawOperation op) {
+            if (op == null) throw new ArgumentNullException("op");
+            Block block = op.Map.GetBlock(op.Coords);
+            if (block == Block) {
+                return Replacement.NextBlock(op);
             }
             return Block.None;
         }
@@ -119,7 +123,7 @@ namespace fCraft.Drawing {
 
 
         public IBrush Clone() {
-            return new ReplaceBrushBrush( Block, Replacement.Clone() );
+            return new ReplaceBrushBrush(Block, Replacement.Clone());
         }
     }
 }

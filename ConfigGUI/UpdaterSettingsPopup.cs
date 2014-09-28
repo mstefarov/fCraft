@@ -7,7 +7,7 @@ namespace fCraft.ConfigGUI {
     public sealed partial class UpdaterSettingsPopup : Form {
         public string RunBeforeUpdate {
             get {
-                if( xRunBeforeUpdate.Checked ) return tRunBeforeUpdate.Text;
+                if (xRunBeforeUpdate.Checked) return tRunBeforeUpdate.Text;
                 else return "";
             }
             set { tRunBeforeUpdate.Text = value; }
@@ -15,7 +15,7 @@ namespace fCraft.ConfigGUI {
 
         public string RunAfterUpdate {
             get {
-                if( xRunAfterUpdate.Checked ) return tRunAfterUpdate.Text;
+                if (xRunAfterUpdate.Checked) return tRunAfterUpdate.Text;
                 else return "";
             }
             set { tRunAfterUpdate.Text = value; }
@@ -23,13 +23,13 @@ namespace fCraft.ConfigGUI {
 
         public UpdaterMode UpdaterMode {
             get {
-                if( rDisabled.Checked ) return UpdaterMode.Disabled;
-                if( rNotify.Checked ) return UpdaterMode.Notify;
-                if( rPrompt.Checked ) return UpdaterMode.Prompt;
+                if (rDisabled.Checked) return UpdaterMode.Disabled;
+                if (rNotify.Checked) return UpdaterMode.Notify;
+                if (rPrompt.Checked) return UpdaterMode.Prompt;
                 return UpdaterMode.Auto;
             }
             set {
-                switch( value ) {
+                switch (value) {
                     case UpdaterMode.Disabled:
                         rDisabled.Checked = true;
                         break;
@@ -55,6 +55,7 @@ namespace fCraft.ConfigGUI {
         UpdaterMode oldUpdaterMode;
         bool oldBackupBeforeUpdate;
 
+
         public UpdaterSettingsPopup() {
             InitializeComponent();
             Shown += delegate {
@@ -64,7 +65,7 @@ namespace fCraft.ConfigGUI {
                 oldBackupBeforeUpdate = BackupBeforeUpdate;
             };
             FormClosed += delegate {
-                if( DialogResult != DialogResult.OK ) {
+                if (DialogResult != DialogResult.OK) {
                     RunBeforeUpdate = oldRunBeforeUpdate;
                     RunAfterUpdate = oldRunAfterUpdate;
                     UpdaterMode = oldUpdaterMode;
@@ -73,27 +74,31 @@ namespace fCraft.ConfigGUI {
             };
         }
 
-        void xRunBeforeUpdate_CheckedChanged( object sender, EventArgs e ) {
+
+        void xRunBeforeUpdate_CheckedChanged(object sender, EventArgs e) {
             tRunBeforeUpdate.Enabled = xRunBeforeUpdate.Checked;
         }
 
-        void xRunAfterUpdate_CheckedChanged( object sender, EventArgs e ) {
+
+        void xRunAfterUpdate_CheckedChanged(object sender, EventArgs e) {
             tRunAfterUpdate.Enabled = xRunAfterUpdate.Checked;
         }
 
-        void rDisabled_CheckedChanged( object sender, EventArgs e ) {
+
+        void rDisabled_CheckedChanged(object sender, EventArgs e) {
             gOptions.Enabled = !rDisabled.Checked;
         }
 
 
-        void tRunBeforeUpdate_TextChanged( object sender, EventArgs e ) {
-            if( tRunBeforeUpdate.Text.Length > 0 ) {
+        void tRunBeforeUpdate_TextChanged(object sender, EventArgs e) {
+            if (tRunBeforeUpdate.Text.Length > 0) {
                 xRunBeforeUpdate.Checked = true;
             }
         }
 
-        void tRunAfterUpdate_TextChanged( object sender, EventArgs e ) {
-            if( tRunAfterUpdate.Text.Length > 0 ) {
+
+        void tRunAfterUpdate_TextChanged(object sender, EventArgs e) {
+            if (tRunAfterUpdate.Text.Length > 0) {
                 xRunAfterUpdate.Checked = true;
             }
         }

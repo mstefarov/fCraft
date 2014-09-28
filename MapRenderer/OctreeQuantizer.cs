@@ -22,19 +22,19 @@ namespace ImageManipulation {
         /// the second pass quantizes a color based on the nodes in the tree. </remarks>
         /// <param name="maxColors"> The maximum number of colors to return. </param>
         /// <param name="maxColorBits"> The number of significant bits. </param>
-        public OctreeQuantizer( int maxColors, int maxColorBits )
-            : base( false ) {
-            if( maxColors > 255 )
-                throw new ArgumentOutOfRangeException( "maxColors",
-                                                       maxColors,
-                                                       "The number of colors should be less than 256" );
+        public OctreeQuantizer(int maxColors, int maxColorBits)
+            : base(false) {
+            if (maxColors > 255)
+                throw new ArgumentOutOfRangeException("maxColors",
+                                                      maxColors,
+                                                      "The number of colors should be less than 256");
 
-            if( (maxColorBits < 1) | (maxColorBits > 8) ){
-                throw new ArgumentOutOfRangeException( "maxColorBits", maxColorBits, "This should be between 1 and 8" );
+            if ((maxColorBits < 1) | (maxColorBits > 8)) {
+                throw new ArgumentOutOfRangeException("maxColorBits", maxColorBits, "This should be between 1 and 8");
             }
 
             // Construct the octree
-            octree = new Octree( maxColorBits );
+            octree = new Octree(maxColorBits);
 
             this.maxColors = maxColors;
         }
@@ -44,21 +44,21 @@ namespace ImageManipulation {
         /// <param name="pixel"> The pixel to quantize. </param>
         /// <remarks> This function need only be overridden if your quantize algorithm needs two passes,
         /// such as an Octree quantizer. </remarks>
-        protected override void InitialQuantizePixel( Color32* pixel ) {
+        protected override void InitialQuantizePixel(Color32* pixel) {
             // Add the color to the octree
-            octree.AddColor( pixel );
+            octree.AddColor(pixel);
         }
 
 
         /// <summary> Override this to process the pixel in the second pass of the algorithm. </summary>
         /// <param name="pixel"> The pixel to quantize. </param>
         /// <returns> The quantized value. </returns>
-        protected override byte QuantizePixel( Color32* pixel ) {
+        protected override byte QuantizePixel(Color32* pixel) {
             byte paletteIndex = (byte)maxColors; // The color at [_maxColors] is set to transparent
 
             // Get the palette index if this non-transparent
-            if( pixel->Alpha > 0 ) {
-                paletteIndex = (byte)octree.GetPaletteIndex( pixel );
+            if (pixel->Alpha > 0) {
+                paletteIndex = (byte)octree.GetPaletteIndex(pixel);
             }
 
             return paletteIndex;
@@ -68,17 +68,17 @@ namespace ImageManipulation {
         /// <summary> Retrieve the palette for the quantized image. </summary>
         /// <param name="original"> Any old palette, this is overwritten. </param>
         /// <returns> The new color palette. </returns>
-        protected override ColorPalette GetPalette( ColorPalette original ) {
+        protected override ColorPalette GetPalette(ColorPalette original) {
             // First off convert the octree to _maxColors colors
-            ArrayList palette = octree.Palletize( maxColors - 1 );
+            ArrayList palette = octree.Palletize(maxColors - 1);
 
             // Then convert the palette based on those colors
-            for( int index = 0; index < palette.Count; index++ ) {
+            for (int index = 0; index < palette.Count; index++) {
                 original.Entries[index] = (Color)palette[index];
             }
 
             // Add the transparent color
-            original.Entries[maxColors] = Color.FromArgb( 0, 0, 0, 0 );
+            original.Entries[maxColors] = Color.FromArgb(0, 0, 0, 0);
 
             return original;
         }
@@ -95,31 +95,31 @@ namespace ImageManipulation {
         sealed class Octree {
             /// <summary> Construct the octree. </summary>
             /// <param name="maxColorBits"> The maximum number of significant bits in the image. </param>
-            public Octree( int maxColorBits ) {
+            public Octree(int maxColorBits) {
                 this.maxColorBits = maxColorBits;
                 leafCount = 0;
                 reducibleNodes = new OctreeNode[9];
-                root = new OctreeNode( 0, this.maxColorBits, this );
+                root = new OctreeNode(0, this.maxColorBits, this);
                 previousColor = 0;
                 previousNode = null;
             }
 
 
             /// <summary> Add a given color value to the octree. </summary>
-            public void AddColor( Color32* pixel ) {
+            public void AddColor(Color32* pixel) {
                 // Check if this request is for the same color as the last
-                if( previousColor == pixel->ARGB ) {
+                if (previousColor == pixel->ARGB) {
                     // If so, check if I have a previous node setup. This will only occur if the first color in the image
                     // happens to be black, with an alpha component of zero.
-                    if( null == previousNode ) {
+                    if (null == previousNode) {
                         previousColor = pixel->ARGB;
-                        root.AddColor( pixel, maxColorBits, 0, this );
+                        root.AddColor(pixel, maxColorBits, 0, this);
                     } else
                         // Just update the previous node
-                        previousNode.Increment( pixel );
+                        previousNode.Increment(pixel);
                 } else {
                     previousColor = pixel->ARGB;
-                    root.AddColor( pixel, maxColorBits, 0, this );
+                    root.AddColor(pixel, maxColorBits, 0, this);
                 }
             }
 
@@ -129,7 +129,7 @@ namespace ImageManipulation {
                 int index;
 
                 // Find the deepest level containing at least one reducible node
-                for( index = maxColorBits - 1; (index > 0) && (null == reducibleNodes[index]); index-- ) {}
+                for (index = maxColorBits - 1; (index > 0) && (null == reducibleNodes[index]); index--) {}
 
                 // Reduce the node most recently added to the list at level 'index'
                 OctreeNode node = reducibleNodes[index];
@@ -158,7 +158,7 @@ namespace ImageManipulation {
 
             /// <summary> Keep track of the previous node that was quantized. </summary>
             /// <param name="node"> The node last quantized. </param>
-            void TrackPrevious( OctreeNode node ) {
+            void TrackPrevious(OctreeNode node) {
                 previousNode = node;
             }
 
@@ -166,15 +166,15 @@ namespace ImageManipulation {
             /// <summary> Convert the nodes in the octree to a palette with a maximum of colorCount colors. </summary>
             /// <param name="colorCount"> The maximum number of colors. </param>
             /// <returns> An ArrayList with the palettized colors. </returns>
-            public ArrayList Palletize( int colorCount ) {
-                while( Leaves > colorCount ) {
+            public ArrayList Palletize(int colorCount) {
+                while (Leaves > colorCount) {
                     Reduce();
                 }
 
                 // Now palettize the nodes
-                ArrayList palette = new ArrayList( Leaves );
+                ArrayList palette = new ArrayList(Leaves);
                 int paletteIndex = 0;
-                root.ConstructPalette( palette, ref paletteIndex );
+                root.ConstructPalette(palette, ref paletteIndex);
 
                 // And return the palette
                 return palette;
@@ -182,13 +182,13 @@ namespace ImageManipulation {
 
 
             /// <summary> Get the palette index for the passed color. </summary>
-            public int GetPaletteIndex( Color32* pixel ) {
-                return root.GetPaletteIndex( pixel, 0 );
+            public int GetPaletteIndex(Color32* pixel) {
+                return root.GetPaletteIndex(pixel, 0);
             }
 
 
             /// <summary> Mask used when getting the appropriate pixels for a given node. </summary>
-            static readonly int[] Mask = {0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01};
+            static readonly int[] Mask = { 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02, 0x01 };
 
             /// <summary> The root of the octree. </summary>
             readonly OctreeNode root;
@@ -215,7 +215,7 @@ namespace ImageManipulation {
                 /// <param name="level"> The level in the tree = 0 - 7 </param>
                 /// <param name="colorBits"> The number of significant color bits in the image. </param>
                 /// <param name="octree"> The tree to which this node belongs. </param>
-                public OctreeNode( int level, int colorBits, Octree octree ) {
+                public OctreeNode(int level, int colorBits, Octree octree) {
                     // Construct the new node
                     leaf = (level == colorBits);
 
@@ -223,7 +223,7 @@ namespace ImageManipulation {
                     pixelCount = 0;
 
                     // If a leaf, increment the leaf count
-                    if( leaf ) {
+                    if (leaf) {
                         octree.Leaves++;
                         NextReducible = null;
                         children = null;
@@ -241,12 +241,12 @@ namespace ImageManipulation {
                 /// <param name="colorBits"> The number of significant color bits. </param>
                 /// <param name="level"> The level in the tree. </param>
                 /// <param name="octree"> The tree to which this node belongs. </param>
-                public void AddColor( Color32* pixel, int colorBits, int level, Octree octree ) {
+                public void AddColor(Color32* pixel, int colorBits, int level, Octree octree) {
                     // Update the color information if this is a leaf
-                    if( leaf ) {
-                        Increment( pixel );
+                    if (leaf) {
+                        Increment(pixel);
                         // Setup the previous node
-                        octree.TrackPrevious( this );
+                        octree.TrackPrevious(this);
                     } else {
                         // Go to the next level down in the tree
                         int shift = 7 - level;
@@ -256,14 +256,14 @@ namespace ImageManipulation {
 
                         OctreeNode child = children[index];
 
-                        if( null == child ) {
+                        if (null == child) {
                             // Create a new child node & store in the array
-                            child = new OctreeNode( level + 1, colorBits, octree );
+                            child = new OctreeNode(level + 1, colorBits, octree);
                             children[index] = child;
                         }
 
                         // Add the color to the child node
-                        child.AddColor( pixel, colorBits, level + 1, octree );
+                        child.AddColor(pixel, colorBits, level + 1, octree);
                     }
                 }
 
@@ -279,8 +279,8 @@ namespace ImageManipulation {
                     int reducedChildren = 0;
 
                     // Loop through all children and add their information to this node
-                    for( int index = 0; index < 8; index++ ) {
-                        if( null != children[index] ) {
+                    for (int index = 0; index < 8; index++) {
+                        if (null != children[index]) {
                             red += children[index].red;
                             green += children[index].green;
                             blue += children[index].blue;
@@ -301,18 +301,18 @@ namespace ImageManipulation {
                 /// <summary> Traverse the tree, building up the color palette. </summary>
                 /// <param name="palette"> The palette. </param>
                 /// <param name="currentPaletteIndex"> The current palette index. </param>
-                public void ConstructPalette( IList palette, ref int currentPaletteIndex ) {
-                    if( leaf ) {
+                public void ConstructPalette(IList palette, ref int currentPaletteIndex) {
+                    if (leaf) {
                         // Consume the next palette index
                         paletteIndex = currentPaletteIndex++;
 
                         // And set the color of the palette entry
-                        palette.Add( Color.FromArgb( red/pixelCount, green/pixelCount, blue/pixelCount ) );
+                        palette.Add(Color.FromArgb(red/pixelCount, green/pixelCount, blue/pixelCount));
                     } else {
                         // Loop through children looking for leaves
-                        for( int index = 0; index < 8; index++ ) {
-                            if( null != children[index] ) {
-                                children[index].ConstructPalette( palette, ref currentPaletteIndex );
+                        for (int index = 0; index < 8; index++) {
+                            if (null != children[index]) {
+                                children[index].ConstructPalette(palette, ref currentPaletteIndex);
                             }
                         }
                     }
@@ -320,19 +320,19 @@ namespace ImageManipulation {
 
 
                 /// <summary> Return the palette index for the passed color. </summary>
-                public int GetPaletteIndex( Color32* pixel, int level ) {
+                public int GetPaletteIndex(Color32* pixel, int level) {
                     int result = paletteIndex;
 
-                    if( !leaf ) {
+                    if (!leaf) {
                         int shift = 7 - level;
                         int index = ((pixel->Red & Mask[level]) >> (shift - 2)) |
                                     ((pixel->Green & Mask[level]) >> (shift - 1)) |
                                     ((pixel->Blue & Mask[level]) >> (shift));
 
-                        if( null != children[index] ) {
-                            result = children[index].GetPaletteIndex( pixel, level + 1 );
+                        if (null != children[index]) {
+                            result = children[index].GetPaletteIndex(pixel, level + 1);
                         } else {
-                            throw new Exception( "Didn't expect this!" );
+                            throw new Exception("Didn't expect this!");
                         }
                     }
 
@@ -341,7 +341,7 @@ namespace ImageManipulation {
 
 
                 /// <summary> Increment the pixel count and add to the color information. </summary>
-                public void Increment( Color32* pixel ) {
+                public void Increment(Color32* pixel) {
                     pixelCount++;
                     red += pixel->Red;
                     green += pixel->Green;

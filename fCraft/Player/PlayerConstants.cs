@@ -49,7 +49,6 @@ namespace fCraft {
         /// <summary> Banned indirectly by /BanAll </summary>
         BanAll = 0x22,
 
-
         /// <summary> Server-side error (uncaught exception in session's thread) </summary>
         ServerError = 0x30,
 
@@ -61,7 +60,6 @@ namespace fCraft {
 
         /// <summary> World was full (forced join failed) </summary>
         WorldFull = 0x33,
-
 
         /// <summary> Login failed due to protocol violation/mismatch (e.g. SMP client) </summary>
         ProtocolViolation = 0x41,

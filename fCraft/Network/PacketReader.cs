@@ -7,8 +7,8 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     internal sealed class PacketReader : BinaryReader {
-        public PacketReader( [NotNull] Stream stream )
-            : base( stream ) {}
+        public PacketReader([NotNull] Stream stream)
+            : base(stream) {}
 
 
         public OpCode ReadOpCode() {
@@ -17,17 +17,17 @@ namespace fCraft {
 
 
         public override short ReadInt16() {
-            return IPAddress.NetworkToHostOrder( base.ReadInt16() );
+            return IPAddress.NetworkToHostOrder(base.ReadInt16());
         }
 
 
         public override int ReadInt32() {
-            return IPAddress.NetworkToHostOrder( base.ReadInt32() );
+            return IPAddress.NetworkToHostOrder(base.ReadInt32());
         }
 
 
         public override string ReadString() {
-            return Encoding.ASCII.GetString( ReadBytes( 64 ) ).Trim();
+            return Encoding.ASCII.GetString(ReadBytes(64)).Trim();
         }
     }
 }

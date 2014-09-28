@@ -16,12 +16,12 @@ namespace fCraft {
         /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
         /// <returns> Whether parsing succeeded. </returns>
         /// <exception cref="ArgumentNullException"> value is null. </exception>
-        public static bool TryParse<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
-            if( value == null ) throw new ArgumentNullException( "value" );
+        public static bool TryParse<TEnum>([NotNull] string value, out TEnum output, bool ignoreCase) {
+            if (value == null) throw new ArgumentNullException("value");
             try {
-                output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
-                return Enum.IsDefined( typeof( TEnum ), output );
-            } catch( ArgumentException ) {} catch( OverflowException ) {}
+                output = (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase);
+                return Enum.IsDefined(typeof(TEnum), output);
+            } catch (ArgumentException) {} catch (OverflowException) {}
             output = default(TEnum);
             return false;
         }
@@ -38,20 +38,20 @@ namespace fCraft {
         /// <param name="ignoreCase"> Whether parsing should be case-insensitive. </param>
         /// <returns> Whether parsing/completion succeeded. </returns>
         /// <exception cref="ArgumentNullException"> value is null. </exception>
-        public static bool TryComplete<TEnum>( [NotNull] string value, out TEnum output, bool ignoreCase ) {
-            if( value == null ) throw new ArgumentNullException( "value" );
+        public static bool TryComplete<TEnum>([NotNull] string value, out TEnum output, bool ignoreCase) {
+            if (value == null) throw new ArgumentNullException("value");
             output = default(TEnum);
 
             // first, try to find an exact match
             try {
-                output = (TEnum)Enum.Parse( typeof( TEnum ), value, ignoreCase );
-                if( Enum.IsDefined( typeof( TEnum ), output ) ) {
+                output = (TEnum)Enum.Parse(typeof(TEnum), value, ignoreCase);
+                if (Enum.IsDefined(typeof(TEnum), output)) {
                     return true;
                 }
-            } catch( ArgumentException ) {
+            } catch (ArgumentException) {
                 // No exact match found. Proceed unless value was an empty string.
-                if( value.Length == 0 ) return false;
-            } catch( OverflowException ) {
+                if (value.Length == 0) return false;
+            } catch (OverflowException) {
                 // Value was a numeric string, beyond enum's scope.
                 return false;
             }
@@ -61,15 +61,15 @@ namespace fCraft {
             StringComparison comparison = (ignoreCase
                                                ? StringComparison.OrdinalIgnoreCase
                                                : StringComparison.Ordinal);
-            foreach( string name in Enum.GetNames( typeof( TEnum ) ) ) {
-                if( name.StartsWith( value, comparison ) ) {
-                    if( matchFound ) {
+            foreach (string name in Enum.GetNames(typeof(TEnum))) {
+                if (name.StartsWith(value, comparison)) {
+                    if (matchFound) {
                         // Multiple matches found. Fail.
                         output = default(TEnum);
                         return false;
                     } else {
                         // First (and hopefully only) partial match found.
-                        output = (TEnum)Enum.Parse( typeof( TEnum ), name );
+                        output = (TEnum)Enum.Parse(typeof(TEnum), name);
                         matchFound = true;
                     }
                 }

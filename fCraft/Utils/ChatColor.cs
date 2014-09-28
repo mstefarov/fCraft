@@ -62,7 +62,6 @@ namespace fCraft {
         [NotNull]
         public static string Warning { get; set; }
 
-
         // Defaults for user-defined colors.
         /// <summary> Default color of system messages, nickserv, chanserv. Yellow. </summary>
         public const string SysDefault = Yellow;
@@ -88,25 +87,24 @@ namespace fCraft {
         /// <summary> Default color of warning messages. Red. </summary>
         public const string WarningDefault = Red;
 
-
         /// <summary> List of color names indexed by their id. </summary>
         public static readonly SortedList<char, string> ColorNames = new SortedList<char, string> {
-            {'0', "black"},
-            {'1', "navy"},
-            {'2', "green"},
-            {'3', "teal"},
-            {'4', "maroon"},
-            {'5', "purple"},
-            {'6', "olive"},
-            {'7', "silver"},
-            {'8', "gray"},
-            {'9', "blue"},
-            {'a', "lime"},
-            {'b', "aqua"},
-            {'c', "red"},
-            {'d', "magenta"},
-            {'e', "yellow"},
-            {'f', "white"}
+            { '0', "black" },
+            { '1', "navy" },
+            { '2', "green" },
+            { '3', "teal" },
+            { '4', "maroon" },
+            { '5', "purple" },
+            { '6', "olive" },
+            { '7', "silver" },
+            { '8', "gray" },
+            { '9', "blue" },
+            { 'a', "lime" },
+            { 'b', "aqua" },
+            { 'c', "red" },
+            { 'd', "magenta" },
+            { 'e', "yellow" },
+            { 'f', "white" }
         };
 
 
@@ -117,13 +115,13 @@ namespace fCraft {
         /// <returns> Lowercase color name if input code was recognized; otherwise null. </returns>
         [CanBeNull]
         [Pure]
-        public static string GetName( char code ) {
-            code = Char.ToLower( code );
-            if( IsStandardColorCode( code ) ) {
+        public static string GetName(char code) {
+            code = Char.ToLower(code);
+            if (IsStandardColorCode(code)) {
                 return ColorNames[code];
             }
-            string color = Parse( code );
-            if( color != null ) {
+            string color = Parse(code);
+            if (color != null) {
                 return ColorNames[color[1]];
             }
             return null;
@@ -138,16 +136,16 @@ namespace fCraft {
         /// If input is null or cannot be parsed, returns null. </returns>
         [CanBeNull]
         [Pure]
-        public static string GetName( [NotNull] string color ) {
-            if( color == null ) throw new ArgumentNullException( "color" );
-            if( color.Length == 0 ) {
+        public static string GetName([NotNull] string color) {
+            if (color == null) throw new ArgumentNullException("color");
+            if (color.Length == 0) {
                 return "";
             } else {
-                string parsedColor = Parse( color );
-                if( parsedColor == null ) {
+                string parsedColor = Parse(color);
+                if (parsedColor == null) {
                     return null;
                 } else {
-                    return GetName( parsedColor[1] );
+                    return GetName(parsedColor[1]);
                 }
             }
         }
@@ -161,12 +159,12 @@ namespace fCraft {
         /// <returns> Standard Minecraft ampersand-color-code if input code was recognized; otherwise null. </returns>
         [CanBeNull]
         [Pure]
-        public static string Parse( char code ) {
-            code = Char.ToLower( code );
-            if( IsStandardColorCode( code ) ) {
+        public static string Parse(char code) {
+            code = Char.ToLower(code);
+            if (IsStandardColorCode(code)) {
                 return "&" + code;
             } else {
-                switch( code ) {
+                switch (code) {
                     case 's':
                         return Sys;
                     case 'y':
@@ -201,24 +199,24 @@ namespace fCraft {
         /// If input is cannot be parsed, returns null. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="color"/> is null </exception>
         [CanBeNull]
-        public static string Parse( [NotNull] string color ) {
-            if( color == null ) throw new ArgumentNullException( "color" );
-            switch( color.Length ) {
+        public static string Parse([NotNull] string color) {
+            if (color == null) throw new ArgumentNullException("color");
+            switch (color.Length) {
                 case 2:
-                    if( color[0] == '&' ) {
-                        return Parse( color[1] );
+                    if (color[0] == '&') {
+                        return Parse(color[1]);
                     }
                     break;
 
                 case 1:
-                    return Parse( color[0] );
+                    return Parse(color[0]);
 
                 case 0:
                     return "";
             }
             color = color.ToLower();
-            if( ColorNames.ContainsValue( color ) ) {
-                return "&" + ColorNames.Keys[ColorNames.IndexOfValue( color )];
+            if (ColorNames.ContainsValue(color)) {
+                return "&" + ColorNames.Keys[ColorNames.IndexOfValue(color)];
             } else {
                 return null;
             }
@@ -230,7 +228,7 @@ namespace fCraft {
         /// Does not recognize fCraft-specific color codes. </summary>
         /// <returns> True if given char is a recognized standard color code; otherwise false. </returns>
         [Pure]
-        public static bool IsStandardColorCode( char code ) {
+        public static bool IsStandardColorCode(char code) {
             return (code >= '0' && code <= '9') || (code >= 'a' && code <= 'f') || (code >= 'A' && code <= 'F');
         }
 
@@ -239,7 +237,7 @@ namespace fCraft {
         /// Both standard (0-F) and fCraft-specific (H, I, M, P, R, S, W, and Y) color codes are accepted. </summary>
         /// <returns> True if given char is a recognized color code; otherwise false. </returns>
         [Pure]
-        public static bool IsColorCode( char code ) {
+        public static bool IsColorCode(char code) {
             return (code >= '0' && code <= '9') ||
                    (code >= 'a' && code <= 'f') ||
                    (code >= 'A' && code <= 'F') ||
@@ -261,11 +259,11 @@ namespace fCraft {
         /// <param name="sb"> StringBuilder, contents of which will be processed. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> sb is null. </exception>
-        public static void SubstituteSpecialColors( [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            for( int i = sb.Length - 1; i > 0; i-- ) {
-                if( sb[i - 1] == '&' ) {
-                    switch( Char.ToLower( sb[i] ) ) {
+        public static void SubstituteSpecialColors([NotNull] StringBuilder sb) {
+            if (sb == null) throw new ArgumentNullException("sb");
+            for (int i = sb.Length - 1; i > 0; i--) {
+                if (sb[i - 1] == '&') {
+                    switch (Char.ToLower(sb[i])) {
                         case 's':
                             sb[i] = Sys[1];
                             break;
@@ -291,8 +289,8 @@ namespace fCraft {
                             sb[i] = IRC[1];
                             break;
                         default:
-                            if( !IsStandardColorCode( sb[i] ) ) {
-                                sb.Remove( i - 1, 2 );
+                            if (!IsStandardColorCode(sb[i])) {
+                                sb.Remove(i - 1, 2);
                                 i--;
                             }
                             break;
@@ -311,10 +309,10 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
         [Pure]
-        public static string SubstituteSpecialColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
-            SubstituteSpecialColors( sb );
+        public static string SubstituteSpecialColors([NotNull] string input) {
+            if (input == null) throw new ArgumentNullException("input");
+            StringBuilder sb = new StringBuilder(input);
+            SubstituteSpecialColors(sb);
             return sb.ToString();
         }
 
@@ -326,42 +324,42 @@ namespace fCraft {
         /// <returns> A processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
         [NotNull]
-        public static string StripColors( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            int start = message.IndexOf( '&' );
-            if( start == -1 ) {
+        public static string StripColors([NotNull] string message) {
+            if (message == null) throw new ArgumentNullException("message");
+            int start = message.IndexOf('&');
+            if (start == -1) {
                 return message;
             }
             int lastInsert = 0;
-            StringBuilder output = new StringBuilder( message.Length );
-            while( start != -1 ) {
-                output.Append( message, lastInsert, start - lastInsert );
-                lastInsert = Math.Min( start + 2, message.Length );
-                start = message.IndexOf( '&', lastInsert );
+            StringBuilder output = new StringBuilder(message.Length);
+            while (start != -1) {
+                output.Append(message, lastInsert, start - lastInsert);
+                lastInsert = Math.Min(start + 2, message.Length);
+                start = message.IndexOf('&', lastInsert);
             }
-            output.Append( message, lastInsert, message.Length - lastInsert );
+            output.Append(message, lastInsert, message.Length - lastInsert);
             return output.ToString();
         }
 
         #region IRC Colors
 
         static readonly Dictionary<string, string> MinecraftToIRCColors = new Dictionary<string, string> {
-            {White, "\u000300"},
-            {Black, "\u000301"},
-            {Navy, "\u000302"},
-            {Green, "\u000303"},
-            {Red, "\u000304"},
-            {Maroon, "\u000305"},
-            {Purple, "\u000306"},
-            {Olive, "\u000307"},
-            {Yellow, "\u000308"},
-            {Lime, "\u000309"},
-            {Teal, "\u000310"},
-            {Aqua, "\u000311"},
-            {Blue, "\u000312"},
-            {Magenta, "\u000313"},
-            {Gray, "\u000314"},
-            {Silver, "\u000315"},
+            { White, "\u000300" },
+            { Black, "\u000301" },
+            { Navy, "\u000302" },
+            { Green, "\u000303" },
+            { Red, "\u000304" },
+            { Maroon, "\u000305" },
+            { Purple, "\u000306" },
+            { Olive, "\u000307" },
+            { Yellow, "\u000308" },
+            { Lime, "\u000309" },
+            { Teal, "\u000310" },
+            { Aqua, "\u000311" },
+            { Blue, "\u000312" },
+            { Magenta, "\u000313" },
+            { Gray, "\u000314" },
+            { Silver, "\u000315" },
         };
 
 
@@ -369,11 +367,11 @@ namespace fCraft {
         /// Opposite of IrcToMinecraftColors method. </summary>
         /// <param name="sb"> StringBuilder objects, the contents of which will be processed. </param>
         /// <exception cref="ArgumentNullException"> sb is null. </exception>
-        public static void MinecraftToIrcColors( [NotNull] StringBuilder sb ) {
-            if( sb == null ) throw new ArgumentNullException( "sb" );
-            SubstituteSpecialColors( sb );
-            foreach( var codePair in MinecraftToIRCColors ) {
-                sb.Replace( codePair.Key, codePair.Value );
+        public static void MinecraftToIrcColors([NotNull] StringBuilder sb) {
+            if (sb == null) throw new ArgumentNullException("sb");
+            SubstituteSpecialColors(sb);
+            foreach (var codePair in MinecraftToIRCColors) {
+                sb.Replace(codePair.Key, codePair.Value);
             }
         }
 
@@ -385,15 +383,16 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
         [Pure]
-        public static string MinecraftToIrcColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            StringBuilder sb = new StringBuilder( input );
-            MinecraftToIrcColors( sb );
+        public static string MinecraftToIrcColors([NotNull] string input) {
+            if (input == null) throw new ArgumentNullException("input");
+            StringBuilder sb = new StringBuilder(input);
+            MinecraftToIrcColors(sb);
             return sb.ToString();
         }
 
 
-        static readonly Regex IrcTwoColorCode = new Regex( "(\x03\\d{1,2}),\\d{1,2}" );
+        static readonly Regex IrcTwoColorCode = new Regex("(\x03\\d{1,2}),\\d{1,2}");
+
 
         /// <summary> Replaces IRC color codes with equivalent Minecraft color codes, in the given string.
         /// Opposite of MinecraftToIrcColors method. </summary>
@@ -402,15 +401,15 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> input is null. </exception>
         [NotNull]
         [Pure]
-        public static string IrcToMinecraftColors( [NotNull] string input ) {
-            if( input == null ) throw new ArgumentNullException( "input" );
-            input = IrcTwoColorCode.Replace( input, "$1" );
-            StringBuilder sb = new StringBuilder( input );
-            foreach( var codePair in MinecraftToIRCColors ) {
-                sb.Replace( codePair.Value, codePair.Key );
+        public static string IrcToMinecraftColors([NotNull] string input) {
+            if (input == null) throw new ArgumentNullException("input");
+            input = IrcTwoColorCode.Replace(input, "$1");
+            StringBuilder sb = new StringBuilder(input);
+            foreach (var codePair in MinecraftToIRCColors) {
+                sb.Replace(codePair.Value, codePair.Key);
             }
-            sb.Replace( "\u0003", White ); // color reset
-            sb.Replace( "\u000f", White ); // reset
+            sb.Replace("\u0003", White); // color reset
+            sb.Replace("\u000f", White); // reset
             return sb.ToString();
         }
 

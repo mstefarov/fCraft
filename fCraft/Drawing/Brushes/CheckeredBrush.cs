@@ -8,7 +8,6 @@ namespace fCraft.Drawing {
         /// <summary> Singleton instance of the CheckeredBrushFactory. </summary>
         public static readonly CheckeredBrushFactory Instance = new CheckeredBrushFactory();
 
-
         public string Name {
             get { return "Checkered"; }
         }
@@ -24,30 +23,30 @@ namespace fCraft.Drawing {
 
 
         CheckeredBrushFactory() {
-            Aliases = new[] {"ch"};
+            Aliases = new[] { "ch" };
         }
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (cmd == null) throw new ArgumentNullException("cmd");
 
             Block block, altBlock;
 
             // first block type is required
-            if( !cmd.NextBlock( player, true, out block ) ) {
-                player.Message( "{0}: Please specify at least one block type.", Name );
+            if (!cmd.NextBlock(player, true, out block)) {
+                player.Message("{0}: Please specify at least one block type.", Name);
                 return null;
             }
 
             // second block type is optional
-            if( cmd.HasNext ) {
-                if( !cmd.NextBlock( player, true, out altBlock ) ) return null;
+            if (cmd.HasNext) {
+                if (!cmd.NextBlock(player, true, out altBlock)) return null;
             } else {
                 altBlock = Block.None;
             }
 
-            return new CheckeredBrush( block, altBlock );
+            return new CheckeredBrush(block, altBlock);
         }
 
 
@@ -72,10 +71,10 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Block2 != Block.None ) {
-                    return String.Format( "{0}({1},{2})", Factory.Name, Block1, Block2 );
-                } else if( Block1 != Block.None ) {
-                    return String.Format( "{0}({1})", Factory.Name, Block1 );
+                if (Block2 != Block.None) {
+                    return String.Format("{0}({1},{2})", Factory.Name, Block1, Block2);
+                } else if (Block1 != Block.None) {
+                    return String.Format("{0}({1})", Factory.Name, Block1);
                 } else {
                     return Factory.Name;
                 }
@@ -88,31 +87,34 @@ namespace fCraft.Drawing {
 
 
         /// <summary> Initializes a new instance of CheckeredBrush. </summary>
-        public CheckeredBrush( Block block1, Block block2 ) {
+        public CheckeredBrush(Block block1, Block block2) {
             Block1 = block1;
             Block2 = block2;
         }
 
 
-        public bool Begin( Player player, DrawOperation state ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( state == null ) throw new ArgumentNullException( "state" );
+        public bool Begin(Player player, DrawOperation state) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (state == null) throw new ArgumentNullException("state");
             return true;
         }
 
-        public Block NextBlock( DrawOperation state ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
-            if( ((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1 ) {
+
+        public Block NextBlock(DrawOperation state) {
+            if (state == null) throw new ArgumentNullException("state");
+            if (((state.Coords.X + state.Coords.Y + state.Coords.Z) & 1) == 1) {
                 return Block1;
             } else {
                 return Block2;
             }
         }
 
+
         public void End() {}
 
+
         public IBrush Clone() {
-            return new CheckeredBrush( Block1, Block2 );
+            return new CheckeredBrush(Block1, Block2);
         }
     }
 }

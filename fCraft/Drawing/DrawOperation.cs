@@ -72,7 +72,7 @@ namespace fCraft.Drawing {
 
         /// <summary> Estimated total blocks left to process. </summary>
         public int BlocksLeftToProcess {
-            get { return Math.Max( 0, BlocksTotalEstimate - BlocksProcessed ); }
+            get { return Math.Max(0, BlocksTotalEstimate - BlocksProcessed); }
         }
 
         /// <summary> Undo state associated with this operation. Created by DrawOperation.Begin(). </summary>
@@ -81,12 +81,12 @@ namespace fCraft.Drawing {
         /// <summary> Approximate completion percentage of this command. </summary>
         public int PercentDone {
             get {
-                if( !HasBegun ) {
+                if (!HasBegun) {
                     return 0;
-                } else if( IsDone || BlocksTotalEstimate == 0 ) {
+                } else if (IsDone || BlocksTotalEstimate == 0) {
                     return 100;
                 } else {
-                    return (int)Math.Min( 100, Math.Max( 0, (BlocksProcessed*100L)/BlocksTotalEstimate ) );
+                    return (int)Math.Min(100, Math.Max(0, (BlocksProcessed*100L)/BlocksTotalEstimate));
                 }
             }
         }
@@ -108,7 +108,7 @@ namespace fCraft.Drawing {
         /// and the brush's instance description. </summary>
         [NotNull]
         public virtual string Description {
-            get { return String.Format( "{0}/{1}", Name, Brush.Description ); }
+            get { return String.Format("{0}/{1}", Name, Brush.Description); }
         }
 
         /// <summary> Whether completion or cancellation of this DrawOperation should be announced to Player. </summary>
@@ -116,7 +116,6 @@ namespace fCraft.Drawing {
 
         /// <summary> Whether completion or cancellation of this DrawOperation should be logged. </summary>
         public bool LogCompletion { get; set; }
-
 
         const int MaxBlocksToProcessPerBatch = 25000;
         int batchStartProcessedCount;
@@ -131,8 +130,8 @@ namespace fCraft.Drawing {
         }
 
 
-        protected DrawOperation( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        protected DrawOperation([NotNull] Player player) {
+            if (player == null) throw new ArgumentNullException("player");
             Player = player;
             Map = player.WorldMap;
 
@@ -150,22 +149,22 @@ namespace fCraft.Drawing {
         /// <exception cref="ArgumentNullException"> marks is null. </exception>
         /// <exception cref="ArgumentException"> Wrong number of marks is given. </exception>
         /// <exception cref="NullReferenceException"> DrawOperation's Brush property is not set before calling Prepare. </exception>
-        public virtual bool Prepare( [NotNull] Vector3I[] marks ) {
-            if( marks == null ) throw new ArgumentNullException( "marks" );
-            if( marks.Length != ExpectedMarks ) {
-                string msg = String.Format( "Wrong number of marks ({0}), expecting {1}.",
-                                            marks.Length,
-                                            ExpectedMarks );
-                throw new ArgumentException( msg, "marks" );
+        public virtual bool Prepare([NotNull] Vector3I[] marks) {
+            if (marks == null) throw new ArgumentNullException("marks");
+            if (marks.Length != ExpectedMarks) {
+                string msg = String.Format("Wrong number of marks ({0}), expecting {1}.",
+                                           marks.Length,
+                                           ExpectedMarks);
+                throw new ArgumentException(msg, "marks");
             }
 
             Marks = marks;
-            if( marks.Length == 2 ) {
-                Bounds = new BoundingBox( Marks[0], Marks[1] );
+            if (marks.Length == 2) {
+                Bounds = new BoundingBox(Marks[0], Marks[1]);
             }
 
-            if( Brush == null ) throw new NullReferenceException( Name + ": Brush not set" );
-            return Brush.Begin( Player, this );
+            if (Brush == null) throw new NullReferenceException(Name + ": Brush not set");
+            return Brush.Begin(Player, this);
         }
 
 
@@ -174,17 +173,17 @@ namespace fCraft.Drawing {
         /// <returns> True if operation started successfully.
         /// False if operation was cancelled by an event callback. </returns>
         public virtual bool Begin() {
-            if( !RaiseBeginningEvent( this ) ) return false;
-            UndoState = Player.DrawBegin( this );
+            if (!RaiseBeginningEvent(this)) return false;
+            UndoState = Player.DrawBegin(this);
             StartTime = DateTime.UtcNow;
             HasBegun = true;
-            Map.QueueDrawOp( this );
-            RaiseBeganEvent( this );
+            Map.QueueDrawOp(this);
+            RaiseBeganEvent(this);
             return true;
         }
 
 
-        public abstract int DrawBatch( int maxBlocksToDraw );
+        public abstract int DrawBatch(int maxBlocksToDraw);
 
 
         /// <summary> Asynchronously cancels this draw operation. </summary>
@@ -194,21 +193,21 @@ namespace fCraft.Drawing {
 
 
         internal void End() {
-            if( IsCancelled ) {
+            if (IsCancelled) {
                 OnCancellation();
             } else {
                 OnCompletion();
             }
-            Player.Info.ProcessDrawCommand( BlocksUpdated );
+            Player.Info.ProcessDrawCommand(BlocksUpdated);
             Brush.End();
-            RaiseEndedEvent( this );
+            RaiseEndedEvent(this);
         }
 
 
         protected bool DrawOneBlock() {
             BlocksProcessed++;
 
-            if( !Map.InBounds( Coords ) ) {
+            if (!Map.InBounds(Coords)) {
                 BlocksSkipped++;
                 return false;
             }
@@ -217,40 +216,40 @@ namespace fCraft.Drawing {
             TestForDuplicateModification();
 #endif
 
-            Block newBlock = Brush.NextBlock( this );
-            if( newBlock == Block.None ) return false;
+            Block newBlock = Brush.NextBlock(this);
+            if (newBlock == Block.None) return false;
 
-            int blockIndex = Map.Index( Coords );
+            int blockIndex = Map.Index(Coords);
 
             Block oldBlock = (Block)Map.Blocks[blockIndex];
-            if( oldBlock == newBlock ) {
+            if (oldBlock == newBlock) {
                 BlocksSkipped++;
                 return false;
             }
 
-            if( Player.CanPlace( Map, Coords, newBlock, Context ) != CanPlaceResult.Allowed ) {
+            if (Player.CanPlace(Map, Coords, newBlock, Context) != CanPlaceResult.Allowed) {
                 BlocksDenied++;
                 return false;
             }
 
-            Map.SetBlock( blockIndex, newBlock );
+            Map.SetBlock(blockIndex, newBlock);
 
             World world = Map.World;
-            if( world != null && !world.IsFlushing ) {
-                world.Players.SendLowPriority( Packet.MakeSetBlock( Coords, newBlock ) );
+            if (world != null && !world.IsFlushing) {
+                world.Players.SendLowPriority(Packet.MakeSetBlock(Coords, newBlock));
             }
 
-            Player.RaisePlayerPlacedBlockEvent( Player,
-                                                Map,
-                                                Coords,
-                                                oldBlock,
-                                                newBlock,
-                                                Context );
+            Player.RaisePlayerPlacedBlockEvent(Player,
+                                               Map,
+                                               Coords,
+                                               oldBlock,
+                                               newBlock,
+                                               Context);
 
-            if( !UndoState.IsTooLargeToUndo ) {
-                if( !UndoState.Add( Coords, oldBlock ) ) {
+            if (!UndoState.IsTooLargeToUndo) {
+                if (!UndoState.Add(Coords, oldBlock)) {
                     Player.LastDrawOp = null;
-                    Player.Message( "{0}: Too many blocks to undo.", Description );
+                    Player.Message("{0}: Too many blocks to undo.", Description);
                 }
             }
 
@@ -259,14 +258,14 @@ namespace fCraft.Drawing {
         }
 
 
-        protected int DrawBatchWithinBounds( int maxBlocksToDraw ) {
+        protected int DrawBatchWithinBounds(int maxBlocksToDraw) {
             int blocksDone = 0;
-            for( ; Coords.X <= Bounds.XMax; Coords.X++ ) {
-                for( ; Coords.Y <= Bounds.YMax; Coords.Y++ ) {
-                    for( ; Coords.Z <= Bounds.ZMax; Coords.Z++ ) {
-                        if( !DrawOneBlock() ) continue;
+            for (; Coords.X <= Bounds.XMax; Coords.X++) {
+                for (; Coords.Y <= Bounds.YMax; Coords.Y++) {
+                    for (; Coords.Z <= Bounds.ZMax; Coords.Z++) {
+                        if (!DrawOneBlock()) continue;
                         blocksDone++;
-                        if( blocksDone >= maxBlocksToDraw ) {
+                        if (blocksDone >= maxBlocksToDraw) {
                             Coords.Z++;
                             return blocksDone;
                         }
@@ -274,7 +273,7 @@ namespace fCraft.Drawing {
                     Coords.Z = Bounds.ZMin;
                 }
                 Coords.Y = Bounds.YMin;
-                if( TimeToEndBatch ) {
+                if (TimeToEndBatch) {
                     Coords.X++;
                     return blocksDone;
                 }
@@ -284,15 +283,15 @@ namespace fCraft.Drawing {
         }
 
 
-        protected int DrawBatchFromEnumerable( int maxBlocksToDraw, IEnumerator<Vector3I> coordEnumerator ) {
+        protected int DrawBatchFromEnumerable(int maxBlocksToDraw, IEnumerator<Vector3I> coordEnumerator) {
             int blocksDone = 0;
-            while( coordEnumerator.MoveNext() ) {
+            while (coordEnumerator.MoveNext()) {
                 Coords = coordEnumerator.Current;
-                if( DrawOneBlock() ) {
+                if (DrawOneBlock()) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw ) return blocksDone;
+                    if (blocksDone >= maxBlocksToDraw) return blocksDone;
                 }
-                if( TimeToEndBatch ) return blocksDone;
+                if (TimeToEndBatch) return blocksDone;
             }
             IsDone = true;
             return blocksDone;
@@ -300,21 +299,21 @@ namespace fCraft.Drawing {
 
 
         // Contributed by Conrad "Redshift" Morgan
-        protected static IEnumerable<Vector3I> LineEnumerator( Vector3I a, Vector3I b ) {
+        protected static IEnumerable<Vector3I> LineEnumerator(Vector3I a, Vector3I b) {
             Vector3I pixel = a;
             Vector3I d = b - a;
-            Vector3I inc = new Vector3I( Math.Sign( d.X ),
-                                         Math.Sign( d.Y ),
-                                         Math.Sign( d.Z ) );
+            Vector3I inc = new Vector3I(Math.Sign(d.X),
+                                        Math.Sign(d.Y),
+                                        Math.Sign(d.Z));
             d = d.Abs();
             Vector3I d2 = d*2;
 
             int x, y, z;
-            if( (d.X >= d.Y) && (d.X >= d.Z) ) {
+            if ((d.X >= d.Y) && (d.X >= d.Z)) {
                 x = 0;
                 y = 1;
                 z = 2;
-            } else if( (d.Y >= d.X) && (d.Y >= d.Z) ) {
+            } else if ((d.Y >= d.X) && (d.Y >= d.Z)) {
                 x = 1;
                 y = 2;
                 z = 0;
@@ -326,13 +325,13 @@ namespace fCraft.Drawing {
 
             int err1 = d2[y] - d[x];
             int err2 = d2[z] - d[x];
-            for( int i = 0; i < d[x]; i++ ) {
+            for (int i = 0; i < d[x]; i++) {
                 yield return pixel;
-                if( err1 > 0 ) {
+                if (err1 > 0) {
                     pixel[y] += inc[y];
                     err1 -= d2[x];
                 }
-                if( err2 > 0 ) {
+                if (err2 > 0) {
                     pixel[z] += inc[z];
                     err2 -= d2[x];
                 }
@@ -346,81 +345,82 @@ namespace fCraft.Drawing {
 
 
         void OnCompletion() {
-            if( AnnounceCompletion ) {
-                if( BlocksUpdated > 0 ) {
-                    if( BlocksDenied > 0 ) {
+            if (AnnounceCompletion) {
+                if (BlocksUpdated > 0) {
+                    if (BlocksDenied > 0) {
                         Player.Message(
                             "{0}: Finished in {1}, updated {2} blocks. &WSkipped {3} blocks due to permission issues.",
                             Description,
-                            DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                            DateTime.UtcNow.Subtract(StartTime).ToMiniString(),
                             BlocksUpdated,
-                            BlocksDenied );
+                            BlocksDenied);
                     } else {
-                        Player.Message( "{0}: Finished in {1}, updated {2} blocks.",
-                                        Description,
-                                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                        BlocksUpdated );
+                        Player.Message("{0}: Finished in {1}, updated {2} blocks.",
+                                       Description,
+                                       DateTime.UtcNow.Subtract(StartTime).ToMiniString(),
+                                       BlocksUpdated);
                     }
                 } else {
-                    if( BlocksDenied > 0 ) {
+                    if (BlocksDenied > 0) {
                         Player.Message(
                             "{0}: Finished in {1}, no changes made. &WSkipped {2} blocks due to permission issues.",
                             Description,
-                            DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                            BlocksDenied );
+                            DateTime.UtcNow.Subtract(StartTime).ToMiniString(),
+                            BlocksDenied);
                     } else {
-                        Player.Message( "{0}: Finished in {1}, no changes needed.",
-                                        Description,
-                                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString() );
+                        Player.Message("{0}: Finished in {1}, no changes needed.",
+                                       Description,
+                                       DateTime.UtcNow.Subtract(StartTime).ToMiniString());
                     }
                 }
             }
-            if( AnnounceCompletion && Map.World != null ) {
-                Logger.Log( LogType.UserActivity,
-                            "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
-                            Player.Name,
-                            Description,
-                            Map.World.Name,
-                            Bounds.MinVertex,
-                            Bounds.MaxVertex,
-                            BlocksProcessed,
-                            BlocksUpdated,
-                            BlocksSkipped,
-                            BlocksDenied );
+            if (AnnounceCompletion && Map.World != null) {
+                Logger.Log(LogType.UserActivity,
+                           "Player {0} executed {1} on world {2} (between {3} and {4}). Processed {5}, Updated {6}, Skipped {7}, Denied {8} blocks.",
+                           Player.Name,
+                           Description,
+                           Map.World.Name,
+                           Bounds.MinVertex,
+                           Bounds.MaxVertex,
+                           BlocksProcessed,
+                           BlocksUpdated,
+                           BlocksSkipped,
+                           BlocksDenied);
             }
         }
 
 
         void OnCancellation() {
-            if( AnnounceCompletion ) {
-                if( BlocksDenied > 0 ) {
+            if (AnnounceCompletion) {
+                if (BlocksDenied > 0) {
                     Player.Message(
                         "{0}: Cancelled after {1}. Processed {2}, updated {3}. Skipped {4} due to permission issues.",
                         Description,
-                        DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
+                        DateTime.UtcNow.Subtract(StartTime).ToMiniString(),
                         BlocksProcessed,
                         BlocksUpdated,
-                        BlocksDenied );
+                        BlocksDenied);
                 } else {
-                    Player.Message( "{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
-                                    Description,
-                                    DateTime.UtcNow.Subtract( StartTime ).ToMiniString(),
-                                    BlocksProcessed,
-                                    BlocksUpdated );
+                    Player.Message("{0}: Cancelled after {1}. Processed {2} blocks, updated {3} blocks.",
+                                   Description,
+                                   DateTime.UtcNow.Subtract(StartTime).ToMiniString(),
+                                   BlocksProcessed,
+                                   BlocksUpdated);
                 }
             }
-            if( LogCompletion && Map.World != null ) {
-                Logger.Log( LogType.UserActivity,
-                            "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
-                            Player,
-                            Description,
-                            Map.World.Name,
-                            BlocksProcessed,
-                            BlocksUpdated,
-                            BlocksSkipped,
-                            BlocksDenied );
+            if (LogCompletion && Map.World != null) {
+                Logger.Log(LogType.UserActivity,
+                           "Player {0} cancelled {1} on world {2}. Processed {3}, Updated {4}, Skipped {5}, Denied {6} blocks.",
+                           Player,
+                           Description,
+                           Map.World.Name,
+                           BlocksProcessed,
+                           BlocksUpdated,
+                           BlocksSkipped,
+                           BlocksDenied);
             }
         }
+
 
 #if DEBUG_CHECK_DUPLICATE_COORDS
 
@@ -442,22 +442,24 @@ namespace fCraft.Drawing {
         public static event EventHandler<DrawOperationEventArgs> Ended;
 
         // Returns false if cancelled
-        protected static bool RaiseBeginningEvent( DrawOperation op ) {
+        protected static bool RaiseBeginningEvent(DrawOperation op) {
             var h = Beginning;
-            if( h == null ) return true;
-            var e = new DrawOperationBeginningEventArgs( op );
-            h( null, e );
+            if (h == null) return true;
+            var e = new DrawOperationBeginningEventArgs(op);
+            h(null, e);
             return !e.Cancel;
         }
 
-        protected static void RaiseBeganEvent( DrawOperation op ) {
+
+        protected static void RaiseBeganEvent(DrawOperation op) {
             var h = Began;
-            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+            if (h != null) h(null, new DrawOperationEventArgs(op));
         }
 
-        protected static void RaiseEndedEvent( DrawOperation op ) {
+
+        protected static void RaiseEndedEvent(DrawOperation op) {
             var h = Ended;
-            if( h != null ) h( null, new DrawOperationEventArgs( op ) );
+            if (h != null) h(null, new DrawOperationEventArgs(op));
         }
 
         #endregion
@@ -466,18 +468,20 @@ namespace fCraft.Drawing {
 
 namespace fCraft.Events {
     public sealed class DrawOperationEventArgs : EventArgs {
-        public DrawOperationEventArgs( DrawOperation drawOp ) {
+        public DrawOperationEventArgs(DrawOperation drawOp) {
             DrawOp = drawOp;
         }
+
 
         public DrawOperation DrawOp { get; private set; }
     }
 
 
     public sealed class DrawOperationBeginningEventArgs : EventArgs, ICancelableEvent {
-        public DrawOperationBeginningEventArgs( DrawOperation drawOp ) {
+        public DrawOperationBeginningEventArgs(DrawOperation drawOp) {
             DrawOp = drawOp;
         }
+
 
         public DrawOperation DrawOp { get; private set; }
         public bool Cancel { get; set; }

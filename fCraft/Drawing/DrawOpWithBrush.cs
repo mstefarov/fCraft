@@ -8,11 +8,12 @@ namespace fCraft.Drawing {
     public abstract class DrawOpWithBrush : DrawOperation, IBrushFactory, IBrush {
         public abstract override string Description { get; }
 
-        protected DrawOpWithBrush( Player player )
-            : base( player ) {}
 
-        public abstract bool ReadParams( CommandReader cmd );
+        protected DrawOpWithBrush(Player player)
+            : base(player) {}
 
+
+        public abstract bool ReadParams(CommandReader cmd);
 
         protected abstract Block NextBlock();
 
@@ -30,9 +31,11 @@ namespace fCraft.Drawing {
             get { return null; }
         }
 
-        IBrush IBrushFactory.MakeBrush( Player player, CommandReader cmd ) {
+
+        IBrush IBrushFactory.MakeBrush(Player player, CommandReader cmd) {
             return this;
         }
+
 
         IBrush IBrushFactory.MakeDefault() {
             throw new NotImplementedException();
@@ -54,15 +57,19 @@ namespace fCraft.Drawing {
             get { return 1; }
         }
 
-        bool IBrush.Begin( Player player, DrawOperation op ) {
+
+        bool IBrush.Begin(Player player, DrawOperation op) {
             return true;
         }
 
-        Block IBrush.NextBlock( DrawOperation op ) {
+
+        Block IBrush.NextBlock(DrawOperation op) {
             return NextBlock();
         }
 
+
         void IBrush.End() {}
+
 
         IBrush IBrush.Clone() {
             throw new NotImplementedException();

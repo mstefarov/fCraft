@@ -29,8 +29,8 @@ namespace fCraft {
 
 
         /// <summary> Creates a copy of an existing command. </summary>
-        public CommandReader( [NotNull] CommandReader other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
+        public CommandReader([NotNull] CommandReader other) {
+            if (other == null) throw new ArgumentNullException("other");
             Offset = other.Offset;
             Descriptor = other.Descriptor;
             RawMessage = other.RawMessage;
@@ -40,15 +40,15 @@ namespace fCraft {
 
 
         /// <summary> Creates a command from a raw message. </summary>
-        public CommandReader( [NotNull] string rawMessage ) {
-            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
+        public CommandReader([NotNull] string rawMessage) {
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
             Offset = 1;
             RawMessage = rawMessage;
             string name = Next();
-            if( name == null ) {
-                throw new ArgumentException( "Raw message must contain the command name.", "rawMessage" );
+            if (name == null) {
+                throw new ArgumentException("Raw message must contain the command name.", "rawMessage");
             }
-            Descriptor = CommandManager.GetDescriptor( name, true );
+            Descriptor = CommandManager.GetDescriptor(name, true);
             Name = name.ToLower();
         }
 
@@ -56,7 +56,7 @@ namespace fCraft {
         /// <summary> Creates a copy of this command.
         /// Use the copy constructor instead of this, if possible. </summary>
         public object Clone() {
-            return new CommandReader( this );
+            return new CommandReader(this);
         }
 
 
@@ -67,20 +67,20 @@ namespace fCraft {
         [DebuggerStepThrough]
         [CanBeNull]
         public string Next() {
-            for( ; Offset < RawMessage.Length; Offset++ ) {
+            for (; Offset < RawMessage.Length; Offset++) {
                 int t, j;
-                if( RawMessage[Offset] == '"' ) {
+                if (RawMessage[Offset] == '"') {
                     j = Offset + 1;
-                    for( ; j < RawMessage.Length && RawMessage[j] != '"'; j++ ) {}
+                    for (; j < RawMessage.Length && RawMessage[j] != '"'; j++) {}
                     t = Offset;
                     Offset = j;
-                    return RawMessage.Substring( t + 1, Offset - t - 1 );
-                } else if( RawMessage[Offset] != ' ' ) {
+                    return RawMessage.Substring(t + 1, Offset - t - 1);
+                } else if (RawMessage[Offset] != ' ') {
                     j = Offset;
-                    for( ; j < RawMessage.Length && RawMessage[j] != ' '; j++ ) {}
+                    for (; j < RawMessage.Length && RawMessage[j] != ' '; j++) {}
                     t = Offset;
                     Offset = j;
-                    return RawMessage.Substring( t, Offset - t );
+                    return RawMessage.Substring(t, Offset - t);
                 }
             }
             return null;
@@ -91,9 +91,7 @@ namespace fCraft {
         /// Does not modify the offset. </summary>
         public bool HasNext {
             [DebuggerStepThrough]
-            get {
-                return Offset < RawMessage.Length;
-            }
+            get { return Offset < RawMessage.Length; }
         }
 
 
@@ -103,13 +101,13 @@ namespace fCraft {
         /// <returns> Returns true if parsing succeeded,
         /// and false if parsing failed or if there are no more arguments. </returns>
         [DebuggerStepThrough]
-        public bool NextInt( out int number ) {
+        public bool NextInt(out int number) {
             string nextVal = Next();
-            if( nextVal == null ) {
+            if (nextVal == null) {
                 number = 0;
                 return false;
             } else {
-                return Int32.TryParse( nextVal, out number );
+                return Int32.TryParse(nextVal, out number);
             }
         }
 
@@ -119,12 +117,12 @@ namespace fCraft {
         public bool HasInt {
             [DebuggerStepThrough]
             get {
-                if( HasNext ) {
+                if (HasNext) {
                     int startOffset = Offset;
                     string nextVal = Next();
-                    if( nextVal != null ) {
+                    if (nextVal != null) {
                         int number;
-                        if( Int32.TryParse( nextVal, out number ) ) {
+                        if (Int32.TryParse(nextVal, out number)) {
                             Offset = startOffset;
                             return true;
                         }
@@ -145,8 +143,8 @@ namespace fCraft {
         [NotNull]
         [DebuggerStepThrough]
         public string NextAll() {
-            for( ; Offset < RawMessage.Length; Offset++ ) {
-                if( RawMessage[Offset] != ' ' ) return RawMessage.Substring( Offset );
+            for (; Offset < RawMessage.Length; Offset++) {
+                if (RawMessage[Offset] != ' ') return RawMessage.Substring(Offset);
             }
             return "";
         }
@@ -158,14 +156,13 @@ namespace fCraft {
             get {
                 int startOffset = Offset;
                 int i = 0;
-                while( Next() != null ) {
+                while (Next() != null) {
                     i++;
                 }
                 Offset = startOffset;
                 return i;
             }
         }
-
 
         /// <summary> Counts the total number of arguments.
         /// Does not modify the offset. </summary>
@@ -174,7 +171,7 @@ namespace fCraft {
                 int startOffset = Offset;
                 Rewind();
                 int i = 1;
-                while( Next() != null ) {
+                while (Next() != null) {
                     i++;
                 }
                 Offset = startOffset;
@@ -202,18 +199,18 @@ namespace fCraft {
         /// if next parameter could not be parsed as a block name;
         /// or if "none" block type was given and allowNoneBlock is false. </returns>
         [DebuggerStepThrough]
-        public bool NextBlock( [CanBeNull] Player player, bool allowNoneBlock, out Block block ) {
+        public bool NextBlock([CanBeNull] Player player, bool allowNoneBlock, out Block block) {
             string blockName = Next();
             block = Block.None;
-            if( blockName != null ) {
-                if( Map.GetBlockByName( blockName, true, out block ) ) {
-                    if( block != Block.None || allowNoneBlock ) {
+            if (blockName != null) {
+                if (Map.GetBlockByName(blockName, true, out block)) {
+                    if (block != Block.None || allowNoneBlock) {
                         return true;
-                    } else if( player != null ) {
-                        player.Message( "The \"none\" block is not allowed here" );
+                    } else if (player != null) {
+                        player.Message("The \"none\" block is not allowed here");
                     }
-                } else if( player != null ) {
-                    player.Message( "Unrecognized block type \"{0}\"", blockName );
+                } else if (player != null) {
+                    player.Message("Unrecognized block type \"{0}\"", blockName);
                 }
             }
             return false;
@@ -233,42 +230,42 @@ namespace fCraft {
         /// if next parameter could not be parsed as a block name;
         /// if optional parameter was given but was not an integer;
         /// or if "none" block type was given and allowNoneBlock is false. </returns>
-        public bool NextBlockWithParam( [CanBeNull] Player player, bool allowNoneBlock, out Block block, out int param ) {
+        public bool NextBlockWithParam([CanBeNull] Player player, bool allowNoneBlock, out Block block, out int param) {
             block = Block.None;
             param = 1;
 
             string jointString = Next();
-            if( jointString == null ) {
+            if (jointString == null) {
                 return false;
             }
 
-            int slashIndex = jointString.IndexOf( '/' );
-            if( slashIndex != -1 ) {
-                string blockName = jointString.Substring( 0, slashIndex );
-                string paramString = jointString.Substring( slashIndex + 1 );
+            int slashIndex = jointString.IndexOf('/');
+            if (slashIndex != -1) {
+                string blockName = jointString.Substring(0, slashIndex);
+                string paramString = jointString.Substring(slashIndex + 1);
 
-                if( Map.GetBlockByName( blockName, true, out block ) ) {
-                    if( block == Block.None && !allowNoneBlock ) {
-                        if( player != null ) {
-                            player.Message( "The \"none\" block is not allowed here" );
+                if (Map.GetBlockByName(blockName, true, out block)) {
+                    if (block == Block.None && !allowNoneBlock) {
+                        if (player != null) {
+                            player.Message("The \"none\" block is not allowed here");
                         }
-                    } else if( Int32.TryParse( paramString, out param ) ) {
+                    } else if (Int32.TryParse(paramString, out param)) {
                         return true;
-                    } else if( player != null ) {
-                        player.Message( "Could not parse \"{0}\" as an integer.", paramString );
+                    } else if (player != null) {
+                        player.Message("Could not parse \"{0}\" as an integer.", paramString);
                     }
-                } else if( player != null ) {
-                    player.Message( "Unrecognized block type \"{0}\"", blockName );
+                } else if (player != null) {
+                    player.Message("Unrecognized block type \"{0}\"", blockName);
                 }
             } else {
-                if( Map.GetBlockByName( jointString, true, out block ) ) {
-                    if( block != Block.None || allowNoneBlock ) {
+                if (Map.GetBlockByName(jointString, true, out block)) {
+                    if (block != Block.None || allowNoneBlock) {
                         return true;
-                    } else if( player != null ) {
-                        player.Message( "The \"none\" block is not allowed here" );
+                    } else if (player != null) {
+                        player.Message("The \"none\" block is not allowed here");
                     }
-                } else if( player != null ) {
-                    player.Message( "Unrecognized block type \"{0}\"", jointString );
+                } else if (player != null) {
+                    player.Message("Unrecognized block type \"{0}\"", jointString);
                 }
             }
             return false;
@@ -281,16 +278,16 @@ namespace fCraft {
         /// or if an unrecognized string was given) this is set to false. </param>
         /// <returns> true if a valid string ("on"/"1" or "off"/"0") was given;
         /// false if nothing or an unrecognized string was given. </returns>
-        public bool NextOnOff( out bool param ) {
+        public bool NextOnOff(out bool param) {
             string token = Next();
-            if( token == null ) {
+            if (token == null) {
                 // nothing given
                 param = false;
                 return false;
-            } else if( token.Equals( "on", StringComparison.OrdinalIgnoreCase ) || token == "1" ) {
+            } else if (token.Equals("on", StringComparison.OrdinalIgnoreCase) || token == "1") {
                 // "on" or "1" given
                 param = true;
-            } else if( token.Equals( "off", StringComparison.OrdinalIgnoreCase ) || token == "0" ) {
+            } else if (token.Equals("off", StringComparison.OrdinalIgnoreCase) || token == "0") {
                 // "off" or "0" given
                 param = false;
             } else {
@@ -303,10 +300,10 @@ namespace fCraft {
 
         [Pure]
         public override string ToString() {
-            if( IsConfirmed ) {
-                return String.Format( "Command(\"{0}\",{1},confirmed)", RawMessage, Offset );
+            if (IsConfirmed) {
+                return String.Format("Command(\"{0}\",{1},confirmed)", RawMessage, Offset);
             } else {
-                return String.Format( "Command(\"{0}\",{1})", RawMessage, Offset );
+                return String.Format("Command(\"{0}\",{1})", RawMessage, Offset);
             }
         }
     }
