@@ -9,6 +9,7 @@ using System.Net.Sockets;
 using System.Text;
 using fCraft.Events;
 using JetBrains.Annotations;
+
 #if DEBUG_EVENTS
 using System.Linq;
 using System.Reflection;
@@ -33,9 +34,9 @@ namespace fCraft {
                      ShortDateFormat = "yyyy'-'MM'-'dd",
                      TimeFormat = "HH':'mm':'ss";
 
-        static readonly Uri CrashReportUri = new Uri( "http://www.fcraft.net/crashreport.php" );
+        static readonly Uri CrashReportUri = new Uri("http://www.fcraft.net/crashreport.php");
 
-        static readonly string SessionStart = DateTime.Now.ToString( LongDateFormat ); // localized
+        static readonly string SessionStart = DateTime.Now.ToString(LongDateFormat); // localized
         static readonly Queue<string> RecentMessages = new Queue<string>();
         const int MaxRecentMessages = 25;
 
@@ -44,17 +45,16 @@ namespace fCraft {
         [NotNull]
         public static string CurrentLogFileName {
             get {
-                switch( SplittingType ) {
+                switch (SplittingType) {
                     case LogSplittingType.SplitBySession:
                         return SessionStart + ".log";
                     case LogSplittingType.SplitByDay:
-                        return DateTime.Now.ToString( ShortDateFormat ) + ".log"; // localized
+                        return DateTime.Now.ToString(ShortDateFormat) + ".log"; // localized
                     default:
                         return DefaultLogFileName;
                 }
             }
         }
-
 
         public static LogSplittingType SplittingType { get; set; }
 
@@ -63,10 +63,10 @@ namespace fCraft {
             // initialize defaults
             SplittingType = LogSplittingType.OneFile;
             Enabled = true;
-            int typeCount = Enum.GetNames( typeof( LogType ) ).Length;
+            int typeCount = Enum.GetNames(typeof(LogType)).Length;
             ConsoleOptions = new bool[typeCount];
             LogFileOptions = new bool[typeCount];
-            for( int i = 0; i < typeCount; i++ ) {
+            for (int i = 0; i < typeCount; i++) {
                 ConsoleOptions[i] = true;
                 LogFileOptions[i] = true;
             }
@@ -75,19 +75,19 @@ namespace fCraft {
 
         internal static void MarkLogStart() {
             // Mark start of logging
-            Log( LogType.SystemActivity,
-                 "------ Log Starts {0} ({1}) ------",
-                 DateTime.Now.ToLongDateString(),
-                 DateTime.Now.ToShortDateString() ); // localized
+            Log(LogType.SystemActivity,
+                "------ Log Starts {0} ({1}) ------",
+                DateTime.Now.ToLongDateString(),
+                DateTime.Now.ToShortDateString()); // localized
         }
 
 
         /// <summary> Logs a message of type ConsoleOutput, strips colors,
         /// and splits into multiple messages at newlines.
         /// Use this method for all messages of LogType.ConsoleOutput </summary>
-        public static void LogToConsole( [NotNull] string message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            Log( LogType.ConsoleOutput, "# " + message );
+        public static void LogToConsole([NotNull] string message) {
+            if (message == null) throw new ArgumentNullException("message");
+            Log(LogType.ConsoleOutput, "# " + message);
         }
 
 
@@ -99,41 +99,41 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> Message or args is null. </exception>
         /// <exception cref="FormatException"> String.Format rejected formatting. </exception>
         [DebuggerStepThrough]
-        [StringFormatMethod( "message" )]
-        public static void Log( LogType type, [NotNull] string message, [NotNull] params object[] args ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( args == null ) throw new ArgumentNullException( "args" );
-            if( !Enabled ) return;
+        [StringFormatMethod("message")]
+        public static void Log(LogType type, [NotNull] string message, [NotNull] params object[] args) {
+            if (message == null) throw new ArgumentNullException("message");
+            if (args == null) throw new ArgumentNullException("args");
+            if (!Enabled) return;
 
-            if( args.Length > 0 ) {
-                message = String.Format( message, args );
+            if (args.Length > 0) {
+                message = String.Format(message, args);
             }
 
             // occasionally \r\n newlines slip into the system, e.g. in stack traces
-            message = message.Replace( "\r\n", "\n" );
-            message = Chat.ReplaceNewlines( message );
-            message = Chat.ReplaceEmotesWithUnicode( message );
-            message = ChatColor.StripColors( message );
+            message = message.Replace("\r\n", "\n");
+            message = Chat.ReplaceNewlines(message);
+            message = Chat.ReplaceEmotesWithUnicode(message);
+            message = ChatColor.StripColors(message);
 
-            string line = DecorateLogMessage( type, message );
+            string line = DecorateLogMessage(type, message);
 
-            lock( LogLock ) {
-                RaiseLoggedEvent( message, line, type );
+            lock (LogLock) {
+                RaiseLoggedEvent(message, line, type);
 
-                RecentMessages.Enqueue( line );
-                while( RecentMessages.Count > MaxRecentMessages ) {
+                RecentMessages.Enqueue(line);
+                while (RecentMessages.Count > MaxRecentMessages) {
                     RecentMessages.Dequeue();
                 }
 
-                if( LogFileOptions[(int)type] ) {
+                if (LogFileOptions[(int)type]) {
                     try {
-                        File.AppendAllText( Path.Combine( Paths.LogPath, CurrentLogFileName ),
-                                            line + Environment.NewLine );
-                    } catch( Exception ex ) {
+                        File.AppendAllText(Path.Combine(Paths.LogPath, CurrentLogFileName),
+                                           line + Environment.NewLine);
+                    } catch (Exception ex) {
                         string errorMessage = "Logger.Log: " + ex;
-                        RaiseLoggedEvent( errorMessage,
-                                          DecorateLogMessage( LogType.Error, errorMessage ),
-                                          LogType.Error );
+                        RaiseLoggedEvent(errorMessage,
+                                         DecorateLogMessage(LogType.Error, errorMessage),
+                                         LogType.Error);
                     }
                 }
             }
@@ -143,20 +143,20 @@ namespace fCraft {
         // Adds timestamp and prefix to given message
         [NotNull]
         [DebuggerStepThrough]
-        static string DecorateLogMessage( LogType type, [NotNull] String message ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            return String.Format( "{0} {1} > {2}",
-                                  // localized time
-                                  DateTime.Now.ToString( TimeFormat ),
-                                  GetPrefix( type ),
-                                  message );
+        static string DecorateLogMessage(LogType type, [NotNull] String message) {
+            if (message == null) throw new ArgumentNullException("message");
+            return String.Format("{0} {1} > {2}",
+                                 // localized time
+                                 DateTime.Now.ToString(TimeFormat),
+                                 GetPrefix(type),
+                                 message);
         }
 
 
         [NotNull]
         [DebuggerStepThrough]
-        static string GetPrefix( LogType level ) {
-            switch( level ) {
+        static string GetPrefix(LogType level) {
+            switch (level) {
                 case LogType.ConsoleInput:
                     return "CI";
                 case LogType.ConsoleOutput:
@@ -190,14 +190,14 @@ namespace fCraft {
                 case LogType.Warning:
                     return "WW";
                 default:
-                    throw new ArgumentOutOfRangeException( "level" );
+                    throw new ArgumentOutOfRangeException("level");
             }
         }
 
 
         /// <summary> Disables all file logging (sets all LogFileOptions to false). </summary>
         public static void DisableFileLogging() {
-            for( int i = 0; i < LogFileOptions.Length; i++ ) {
+            for (int i = 0; i < LogFileOptions.Length; i++) {
                 LogFileOptions[i] = false;
             }
         }
@@ -205,14 +205,14 @@ namespace fCraft {
         #region Crash Handling
 
         static readonly object CrashReportLock = new object();
-                               // mutex to prevent simultaneous reports (messes up the timers/requests)
+        // mutex to prevent simultaneous reports (messes up the timers/requests)
 
         static DateTime lastCrashReport = DateTime.MinValue;
 
-        static readonly TimeSpan MinCrashReportInterval = TimeSpan.FromSeconds( 61 );
-                                 // minimum interval between submitting crash reports, in seconds
+        static readonly TimeSpan MinCrashReportInterval = TimeSpan.FromSeconds(61);
+        // minimum interval between submitting crash reports, in seconds
 
-        static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds( 15 );
+        static readonly TimeSpan CrashReporterTimeout = TimeSpan.FromSeconds(15);
 
 
         /// <summary> Logs and reports a crash or an unhandled exception.
@@ -224,107 +224,107 @@ namespace fCraft {
         /// <param name="exception"> Exception. May be null. </param>
         /// <param name="shutdownImminent"> Whether this crash will likely report in a server shutdown.
         /// Used for Logger.Crashed event. </param>
-        public static void LogAndReportCrash( [CanBeNull] string message, [CanBeNull] string assembly,
-                                              [CanBeNull] Exception exception, bool shutdownImminent ) {
-            if( message == null ) message = "(none)";
-            if( assembly == null ) assembly = "(none)";
-            if( exception == null ) exception = new Exception( "(none)" );
+        public static void LogAndReportCrash([CanBeNull] string message, [CanBeNull] string assembly,
+                                             [CanBeNull] Exception exception, bool shutdownImminent) {
+            if (message == null) message = "(none)";
+            if (assembly == null) assembly = "(none)";
+            if (exception == null) exception = new Exception("(none)");
 
-            Log( LogType.SeriousError, "{0}: {1}", message, exception );
+            Log(LogType.SeriousError, "{0}: {1}", message, exception);
 
             // see if crash report should be submitted or skipped, based on CheckForCommonErrors and Crashed event
             try {
                 bool submitCrashReport = ConfigKey.SubmitCrashReports.Enabled();
-                bool isCommon = CheckForCommonErrors( exception );
+                bool isCommon = CheckForCommonErrors(exception);
 
                 try {
-                    var eventArgs = new CrashedEventArgs( message,
-                                                          assembly,
-                                                          exception,
-                                                          submitCrashReport && !isCommon,
-                                                          isCommon,
-                                                          shutdownImminent );
-                    RaiseCrashedEvent( eventArgs );
+                    var eventArgs = new CrashedEventArgs(message,
+                                                         assembly,
+                                                         exception,
+                                                         submitCrashReport && !isCommon,
+                                                         isCommon,
+                                                         shutdownImminent);
+                    RaiseCrashedEvent(eventArgs);
                     isCommon = eventArgs.IsCommonProblem;
-                } catch( Exception ex ) {
-                    Log( LogType.Error, "Crash reporter callback failure: {0}", ex );
+                } catch (Exception ex) {
+                    Log(LogType.Error, "Crash reporter callback failure: {0}", ex);
                 }
 
-                if( !submitCrashReport || isCommon ) {
+                if (!submitCrashReport || isCommon) {
                     return;
                 }
-            } catch( Exception ex ) {
-                Log( LogType.Error, "Crash reporter failure: {0}", ex );
+            } catch (Exception ex) {
+                Log(LogType.Error, "Crash reporter failure: {0}", ex);
             }
 
-            lock( CrashReportLock ) {
+            lock (CrashReportLock) {
                 // For compatibility with lighttpd server (that received crash reports)
                 ServicePointManager.Expect100Continue = false;
 
                 // Make sure tight errors-in-loops don't spam the reporter
-                if( DateTime.UtcNow.Subtract( lastCrashReport ) < MinCrashReportInterval ) {
-                    Log( LogType.Warning,
-                         "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent." );
+                if (DateTime.UtcNow.Subtract(lastCrashReport) < MinCrashReportInterval) {
+                    Log(LogType.Warning,
+                        "Logger.SubmitCrashReport: Could not submit crash report, reports too frequent.");
                     return;
                 }
 
                 lastCrashReport = DateTime.UtcNow;
-                LogAndReportCrashInner( message, assembly, exception );
+                LogAndReportCrashInner(message, assembly, exception);
             }
         }
 
 
-        static void LogAndReportCrashInner( [NotNull] string message, [NotNull] string assembly,
-                                            [NotNull] Exception exception ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( assembly == null ) throw new ArgumentNullException( "assembly" );
-            if( exception == null ) throw new ArgumentNullException( "exception" );
-            if( exception.InnerException != null ) {
-                LogAndReportCrashInner( "(inner)" + message, assembly, exception.InnerException );
+        static void LogAndReportCrashInner([NotNull] string message, [NotNull] string assembly,
+                                           [NotNull] Exception exception) {
+            if (message == null) throw new ArgumentNullException("message");
+            if (assembly == null) throw new ArgumentNullException("assembly");
+            if (exception == null) throw new ArgumentNullException("exception");
+            if (exception.InnerException != null) {
+                LogAndReportCrashInner("(inner)" + message, assembly, exception.InnerException);
             }
 
             try {
                 StringBuilder sb = new StringBuilder();
-                sb.Append( "version=" ).Append( Uri.EscapeDataString( Updater.CurrentRelease.VersionString ) );
-                sb.Append( "&message=" ).Append( Uri.EscapeDataString( message ) );
-                sb.Append( "&assembly=" ).Append( Uri.EscapeDataString( assembly ) );
-                sb.Append( "&runtime=" );
-                if( MonoCompat.IsMono ) {
-                    sb.Append( Uri.EscapeDataString( "Mono " + MonoCompat.MonoVersionString ) );
+                sb.Append("version=").Append(Uri.EscapeDataString(Updater.CurrentRelease.VersionString));
+                sb.Append("&message=").Append(Uri.EscapeDataString(message));
+                sb.Append("&assembly=").Append(Uri.EscapeDataString(assembly));
+                sb.Append("&runtime=");
+                if (MonoCompat.IsMono) {
+                    sb.Append(Uri.EscapeDataString("Mono " + MonoCompat.MonoVersionString));
                 } else {
-                    sb.Append( Uri.EscapeDataString( "CLR " + Environment.Version ) );
+                    sb.Append(Uri.EscapeDataString("CLR " + Environment.Version));
                 }
-                sb.Append( "&os=" )
-                  .Append( Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString );
+                sb.Append("&os=")
+                  .Append(Environment.OSVersion.Platform + " / " + Environment.OSVersion.VersionString);
 
-                sb.Append( "&exceptiontype=" ).Append( Uri.EscapeDataString( exception.GetType().ToString() ) );
-                sb.Append( "&exceptionmessage=" ).Append( Uri.EscapeDataString( exception.Message ) );
-                sb.Append( "&exceptionstacktrace=" );
-                if( exception.StackTrace != null ) {
-                    sb.Append( Uri.EscapeDataString( exception.StackTrace ) );
+                sb.Append("&exceptiontype=").Append(Uri.EscapeDataString(exception.GetType().ToString()));
+                sb.Append("&exceptionmessage=").Append(Uri.EscapeDataString(exception.Message));
+                sb.Append("&exceptionstacktrace=");
+                if (exception.StackTrace != null) {
+                    sb.Append(Uri.EscapeDataString(exception.StackTrace));
                 } else {
-                    sb.Append( "(none)" );
+                    sb.Append("(none)");
                 }
 
-                sb.Append( "&config=" );
-                if( File.Exists( Paths.ConfigFileName ) ) {
-                    sb.Append( Uri.EscapeDataString( File.ReadAllText( Paths.ConfigFileName ) ) );
+                sb.Append("&config=");
+                if (File.Exists(Paths.ConfigFileName)) {
+                    sb.Append(Uri.EscapeDataString(File.ReadAllText(Paths.ConfigFileName)));
                 }
 
                 string assemblies = AppDomain.CurrentDomain
                                              .GetAssemblies()
-                                             .JoinToString( Environment.NewLine, asm => asm.FullName );
-                sb.Append( "&asm=" ).Append( Uri.EscapeDataString( assemblies ) );
+                                             .JoinToString(Environment.NewLine, asm => asm.FullName);
+                sb.Append("&asm=").Append(Uri.EscapeDataString(assemblies));
 
                 string[] lastFewLines;
-                lock( LogLock ) {
+                lock (LogLock) {
                     lastFewLines = RecentMessages.ToArray();
                 }
-                sb.Append( "&log=" ).Append( Uri.EscapeDataString( String.Join( Environment.NewLine, lastFewLines ) ) );
+                sb.Append("&log=").Append(Uri.EscapeDataString(String.Join(Environment.NewLine, lastFewLines)));
 
-                byte[] formData = Encoding.UTF8.GetBytes( sb.ToString() );
+                byte[] formData = Encoding.UTF8.GetBytes(sb.ToString());
 
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create( CrashReportUri );
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(CrashReportUri);
                 request.CachePolicy = Server.CachePolicy;
                 request.ContentType = "application/x-www-form-urlencoded";
                 request.Method = "POST";
@@ -335,16 +335,16 @@ namespace fCraft {
 
                 request.ContentLength = formData.Length;
 
-                using( Stream requestStream = request.GetRequestStream() ) {
-                    requestStream.Write( formData, 0, formData.Length );
+                using (Stream requestStream = request.GetRequestStream()) {
+                    requestStream.Write(formData, 0, formData.Length);
                     requestStream.Flush();
                 }
 
                 string responseString;
-                using( HttpWebResponse response = (HttpWebResponse)request.GetResponse() ) {
-                    using( Stream responseStream = response.GetResponseStream() ) {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse()) {
+                    using (Stream responseStream = response.GetResponseStream()) {
                         // ReSharper disable AssignNullToNotNullAttribute
-                        using( StreamReader reader = new StreamReader( responseStream ) ) {
+                        using (StreamReader reader = new StreamReader(responseStream)) {
                             // ReSharper restore AssignNullToNotNullAttribute
                             responseString = reader.ReadLine();
                         }
@@ -352,69 +352,69 @@ namespace fCraft {
                 }
                 request.Abort();
 
-                if( responseString != null && responseString.StartsWith( "ERROR" ) ) {
-                    Log( LogType.Error, "Crash report could not be processed by fCraft.net." );
+                if (responseString != null && responseString.StartsWith("ERROR")) {
+                    Log(LogType.Error, "Crash report could not be processed by fCraft.net.");
                 } else {
                     int referenceNumber;
-                    if( responseString != null && Int32.TryParse( responseString, out referenceNumber ) ) {
-                        Log( LogType.SystemActivity, "Crash report submitted (Reference #{0})", referenceNumber );
+                    if (responseString != null && Int32.TryParse(responseString, out referenceNumber)) {
+                        Log(LogType.SystemActivity, "Crash report submitted (Reference #{0})", referenceNumber);
                     } else {
-                        Log( LogType.SystemActivity, "Crash report submitted." );
+                        Log(LogType.SystemActivity, "Crash report submitted.");
                     }
                 }
-            } catch( Exception ex ) {
-                Log( LogType.Warning, "Logger.SubmitCrashReport: {0}", ex );
+            } catch (Exception ex) {
+                Log(LogType.Warning, "Logger.SubmitCrashReport: {0}", ex);
             }
         }
 
 
         // Called by the Logger in case of serious errors to print troubleshooting advice.
         // Returns true if this type of error is common, and crash report should NOT be submitted.
-        static bool CheckForCommonErrors( [CanBeNull] Exception ex ) {
-            if( ex == null ) throw new ArgumentNullException( "ex" );
+        static bool CheckForCommonErrors([CanBeNull] Exception ex) {
+            if (ex == null) throw new ArgumentNullException("ex");
             string message = null;
             try {
-                if( ex is FileNotFoundException && ex.Message.Contains( "Version=4.0" ) ) {
+                if (ex is FileNotFoundException && ex.Message.Contains("Version=4.0")) {
                     message = "Your crash was likely caused by using a wrong version of .NET or Mono runtime. " +
                               "Please update to Microsoft .NET Framework 4.0 (Windows) OR Mono 2.8+ (Linux, Unix, Mac OS X).";
-                } else if( ex.Message.Contains( "libMonoPosixHelper" ) ||
-                           ex is EntryPointNotFoundException && ex.Message.Contains( "CreateZStream" ) ) {
+                } else if (ex.Message.Contains("libMonoPosixHelper") ||
+                           ex is EntryPointNotFoundException && ex.Message.Contains("CreateZStream")) {
                     message = "fCraft could not locate Mono's compression functionality. " +
                               "Please make sure that you have zlib (sometimes called \"libz\" or just \"z\") installed. " +
                               "Some versions of Mono may also require \"libmono-posix-2.0-cil\" package to be installed.";
-                } else if( ex is MissingMemberException || ex is TypeLoadException ) {
+                } else if (ex is MissingMemberException || ex is TypeLoadException) {
                     message = "Something is incompatible with the current revision of fCraft. " +
                               "If you installed third-party modifications, " +
                               "make sure to use the correct revision (as specified by mod developers). " +
                               "If your own modifications stopped working, your may need to make some updates.";
-                } else if( ex is UnauthorizedAccessException ) {
+                } else if (ex is UnauthorizedAccessException) {
                     message = "fCraft was blocked from accessing a file or resource. " +
                               "Make sure that correct permissions are set for the fCraft files, folders, and processes.";
-                } else if( ex is OutOfMemoryException ) {
+                } else if (ex is OutOfMemoryException) {
                     message = "fCraft ran out of memory. Make sure there is enough RAM to run.";
-                } else if( ex is SystemException && ex.Message == "Can't find current process" ) {
+                } else if (ex is SystemException && ex.Message == "Can't find current process") {
                     // Ignore Mono-specific bug in MonitorProcessorUsage()
-                } else if( ex.StackTrace != null ) {
-                    if( ex is InvalidOperationException && ex.StackTrace.Contains( "MD5CryptoServiceProvider" ) ) {
+                } else if (ex.StackTrace != null) {
+                    if (ex is InvalidOperationException && ex.StackTrace.Contains("MD5CryptoServiceProvider")) {
                         message = "Some Windows settings are preventing fCraft from doing player name verification. " +
                                   "See http://support.microsoft.com/kb/811833";
-                    } else if( ex.StackTrace.Contains( "__Error.WinIOError" ) ) {
+                    } else if (ex.StackTrace.Contains("__Error.WinIOError")) {
                         message =
                             "A filesystem-related error has occurred. Make sure that only one instance of fCraft is running, " +
                             "and that no other processes are using server's files or directories.";
-                    } else if( ex is NotSupportedException &&
-                               ex.Message.Contains( "Try loading it in an older version of fCraft" ) ) {
+                    } else if (ex is NotSupportedException &&
+                               ex.Message.Contains("Try loading it in an older version of fCraft")) {
                         // ignore attempts to load unsupported PlayerDB and IPBanList files
                         message = ex.Message;
-                    } else if( ex is SocketException && ex.StackTrace.Contains( "Server.CheckConnections" ) ) {
+                    } else if (ex is SocketException && ex.StackTrace.Contains("Server.CheckConnections")) {
                         // ignore attempts to poll Server.listener during shutdown
                     }
                 } else {
                     return false;
                 }
             } finally {
-                if( message != null ) {
-                    Log( LogType.Warning, message );
+                if (message != null) {
+                    Log(LogType.Warning, message);
                 }
             }
             return true;
@@ -426,7 +426,7 @@ namespace fCraft {
 
 #if DEBUG_EVENTS
 
-        // list of events in this assembly
+    // list of events in this assembly
         static readonly Dictionary<int, EventInfo> EventsMap = new Dictionary<int, EventInfo>();
 
 
@@ -560,7 +560,6 @@ namespace fCraft {
         /// <summary> Occurs after a message has been logged. </summary>
         public static event EventHandler<LogEventArgs> Logged;
 
-
         /// <summary> Occurs when the server "crashes" (has an unhandled exception).
         /// Note that such occurrences will not always cause shutdowns - check ShutdownImminent property.
         /// Reporting of the crash may be suppressed. </summary>
@@ -568,24 +567,24 @@ namespace fCraft {
 
 
         [DebuggerStepThrough]
-        static void RaiseLoggedEvent( [NotNull] string rawMessage, [NotNull] string line, LogType logType ) {
-            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            if( line == null ) throw new ArgumentNullException( "line" );
+        static void RaiseLoggedEvent([NotNull] string rawMessage, [NotNull] string line, LogType logType) {
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+            if (line == null) throw new ArgumentNullException("line");
             var h = Logged;
-            if( h != null )
-                h( null,
-                   new LogEventArgs( rawMessage,
-                                     line,
-                                     logType,
-                                     LogFileOptions[(int)logType],
-                                     ConsoleOptions[(int)logType] ) );
+            if (h != null)
+                h(null,
+                  new LogEventArgs(rawMessage,
+                                   line,
+                                   logType,
+                                   LogFileOptions[(int)logType],
+                                   ConsoleOptions[(int)logType]));
         }
 
 
-        static void RaiseCrashedEvent( [NotNull] CrashedEventArgs e ) {
-            if( e == null ) throw new ArgumentNullException( "e" );
+        static void RaiseCrashedEvent([NotNull] CrashedEventArgs e) {
+            if (e == null) throw new ArgumentNullException("e");
             var h = Crashed;
-            if( h != null ) h( null, e );
+            if (h != null) h(null, e);
         }
 
         #endregion
@@ -664,16 +663,17 @@ namespace fCraft.Events {
     /// <summary> Provides data for Logger.Logged event. Immutable. </summary>
     public sealed class LogEventArgs : EventArgs {
         [DebuggerStepThrough]
-        internal LogEventArgs( [NotNull] string rawMessage, [NotNull] string message,
-                               LogType messageType, bool writeToFile, bool writeToConsole ) {
-            if( rawMessage == null ) throw new ArgumentNullException( "rawMessage" );
-            if( message == null ) throw new ArgumentNullException( "message" );
+        internal LogEventArgs([NotNull] string rawMessage, [NotNull] string message,
+                              LogType messageType, bool writeToFile, bool writeToConsole) {
+            if (rawMessage == null) throw new ArgumentNullException("rawMessage");
+            if (message == null) throw new ArgumentNullException("message");
             RawMessage = rawMessage;
             Message = message;
             MessageType = messageType;
             WriteToFile = writeToFile;
             WriteToConsole = writeToConsole;
         }
+
 
         [NotNull]
         public string RawMessage { get; private set; }
@@ -689,11 +689,11 @@ namespace fCraft.Events {
 
     /// <summary> Provides for Logger.Crashed event. Crash reporting can be cancelled. </summary>
     public sealed class CrashedEventArgs : EventArgs {
-        internal CrashedEventArgs( [NotNull] string message, [NotNull] string location, [NotNull] Exception exception,
-                                   bool submitCrashReport, bool isCommonProblem, bool shutdownImminent ) {
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( location == null ) throw new ArgumentNullException( "location" );
-            if( exception == null ) throw new ArgumentNullException( "exception" );
+        internal CrashedEventArgs([NotNull] string message, [NotNull] string location, [NotNull] Exception exception,
+                                  bool submitCrashReport, bool isCommonProblem, bool shutdownImminent) {
+            if (message == null) throw new ArgumentNullException("message");
+            if (location == null) throw new ArgumentNullException("location");
+            if (exception == null) throw new ArgumentNullException("exception");
             Message = message;
             Location = location;
             Exception = exception;
@@ -701,6 +701,7 @@ namespace fCraft.Events {
             IsCommonProblem = isCommonProblem;
             ShutdownImminent = shutdownImminent;
         }
+
 
         [NotNull]
         public string Message { get; private set; }

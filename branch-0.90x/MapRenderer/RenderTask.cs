@@ -12,7 +12,8 @@ namespace fCraft.MapRenderer {
         public string TargetPath { get; private set; }
         public string RelativeName { get; private set; }
 
-        public RenderTask( string mapPath, string targetPath, string relativeName ) {
+
+        public RenderTask(string mapPath, string targetPath, string relativeName) {
             MapPath = mapPath;
             TargetPath = targetPath;
             RelativeName = relativeName;

@@ -9,11 +9,10 @@ namespace fCraft.Drawing {
     /// <summary> Constructs PasteBrush. </summary>
     public sealed class PasteBrushFactory : IBrushFactory {
         /// <summary> Global singleton instance that provides "Paste" brushes. </summary>
-        public static readonly PasteBrushFactory PasteInstance = new PasteBrushFactory( false );
+        public static readonly PasteBrushFactory PasteInstance = new PasteBrushFactory(false);
 
         /// <summary> Global singleton instance that provides "PasteNot" brushes. </summary>
-        public static readonly PasteBrushFactory PasteNotInstance = new PasteBrushFactory( true );
-
+        public static readonly PasteBrushFactory PasteNotInstance = new PasteBrushFactory(true);
 
         /// <summary> Whether this factory creates inclusive-filtering (Paste) or
         /// exclusive-filtering (PasteNot) variation of the brush. </summary>
@@ -24,7 +23,7 @@ namespace fCraft.Drawing {
         }
 
         public string[] Aliases {
-            get { return new[] {Not ? "PN" : "P"}; }
+            get { return new[] { Not ? "PN" : "P" }; }
         }
 
         public string Help {
@@ -32,38 +31,39 @@ namespace fCraft.Drawing {
         }
 
 
-        PasteBrushFactory( bool not ) {
+        PasteBrushFactory(bool not) {
             Not = not;
         }
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (cmd == null) throw new ArgumentNullException("cmd");
 
             // read the block filter list
             HashSet<Block> blocks = new HashSet<Block>();
-            while( cmd.HasNext ) {
+            while (cmd.HasNext) {
                 Block block;
-                if( !cmd.NextBlock( player, false, out block ) ) {
+                if (!cmd.NextBlock(player, false, out block)) {
                     return null;
                 }
-                if( !blocks.Add( block ) ) {
+                if (!blocks.Add(block)) {
                     // just a warning -- don't abort
-                    player.Message( "{0}: {1} was specified twice!", Name, block );
+                    player.Message("{0}: {1} was specified twice!", Name, block);
                 }
             }
 
             // create a brush
-            if( blocks.Count > 0 ) {
-                return new PasteBrush( blocks.ToArray(), Not );
-            } else if( Not ) {
-                player.Message( "PasteNot brush requires at least 1 block." );
+            if (blocks.Count > 0) {
+                return new PasteBrush(blocks.ToArray(), Not);
+            } else if (Not) {
+                player.Message("PasteNot brush requires at least 1 block.");
                 return null;
             } else {
                 return new PasteBrush();
             }
         }
+
 
         public IBrush MakeDefault() {
             // There is no default for this brush: parameters always required.
@@ -97,12 +97,12 @@ namespace fCraft.Drawing {
 
         public string Description {
             get {
-                if( Blocks == null ) {
+                if (Blocks == null) {
                     return Factory.Name;
                 } else {
-                    return String.Format( "{0}({1})",
-                                          Factory.Name,
-                                          Blocks.JoinToString() );
+                    return String.Format("{0}({1})",
+                                         Factory.Name,
+                                         Blocks.JoinToString());
                 }
             }
         }
@@ -111,62 +111,65 @@ namespace fCraft.Drawing {
         /// <summary> Creates a new all-inclusive Paste brush. </summary>
         public PasteBrush() {}
 
+
         /// <summary> Creates a new filtering Paste or PasteNot brush. </summary>
         /// <param name="blocks"> Array of block types for filtering. May not be null or empty. </param>
         /// <param name="not"> Whether filtering should be inclusive (Paste) or exclusive (PasteNot). </param>
         /// <exception cref="ArgumentNullException"> blocks is null </exception>
         /// <exception cref="ArgumentException"> blocks is 0-length </exception>
-        public PasteBrush( [NotNull] Block[] blocks, bool not ) {
-            if( blocks == null ) throw new ArgumentNullException( "blocks" );
-            if( blocks.Length == 0 ) {
-                throw new ArgumentException( "At least one block type must be specified.", "blocks" );
+        public PasteBrush([NotNull] Block[] blocks, bool not) {
+            if (blocks == null) throw new ArgumentNullException("blocks");
+            if (blocks.Length == 0) {
+                throw new ArgumentException("At least one block type must be specified.", "blocks");
             }
             Not = not;
             Blocks = blocks;
         }
 
 
-        public bool Begin( Player player, DrawOperation op ) {
+        public bool Begin(Player player, DrawOperation op) {
             CopyInfo = player.GetCopyState();
-            if( CopyInfo == null ) {
-                player.Message( "{0}: Nothing to paste! Copy something first.", Factory.Name );
+            if (CopyInfo == null) {
+                player.Message("{0}: Nothing to paste! Copy something first.", Factory.Name);
                 return false;
             }
             return true;
         }
 
 
-        public Block NextBlock( DrawOperation op ) {
-            if( op == null ) throw new ArgumentNullException( "op" );
+        public Block NextBlock(DrawOperation op) {
+            if (op == null) throw new ArgumentNullException("op");
 
             // TODO: offset op.Coords
             Vector3I pasteCoords = new Vector3I {
-                X = Mod( op.Coords.X - op.Marks[0].X, CopyInfo.Bounds.Width ),
-                Y = Mod( op.Coords.Y - op.Marks[0].Y, CopyInfo.Bounds.Length ),
-                Z = Mod( op.Coords.Z - op.Marks[0].Z, CopyInfo.Bounds.Height )
+                X = Mod(op.Coords.X - op.Marks[0].X, CopyInfo.Bounds.Width),
+                Y = Mod(op.Coords.Y - op.Marks[0].Y, CopyInfo.Bounds.Length),
+                Z = Mod(op.Coords.Z - op.Marks[0].Z, CopyInfo.Bounds.Height)
             };
             Block blockToPaste = CopyInfo.Blocks[pasteCoords.X, pasteCoords.Y, pasteCoords.Z];
 
-            if( Blocks == null ) {
+            if (Blocks == null) {
                 return blockToPaste;
-            } else if( Not ) {
-                for( int i = 0; i < Blocks.Length; i++ ) {
-                    if( blockToPaste == Blocks[i] ) return Block.None;
+            } else if (Not) {
+                for (int i = 0; i < Blocks.Length; i++) {
+                    if (blockToPaste == Blocks[i]) return Block.None;
                 }
                 return blockToPaste;
             } else {
-                for( int i = 0; i < Blocks.Length; i++ ) {
-                    if( blockToPaste == Blocks[i] ) return blockToPaste;
+                for (int i = 0; i < Blocks.Length; i++) {
+                    if (blockToPaste == Blocks[i]) return blockToPaste;
                 }
                 return Block.None;
             }
         }
 
+
         // Computes x%m, but brings negative numbers back into range [0,m)
         int Mod(int x, int m) {
-            int r = x % m;
+            int r = x%m;
             return r < 0 ? r + m : r;
         }
+
 
         public void End() {}
 

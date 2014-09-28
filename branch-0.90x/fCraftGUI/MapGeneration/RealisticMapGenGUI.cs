@@ -16,23 +16,26 @@ namespace fCraft.GUI {
         public RealisticMapGenGui() {
             InitializeComponent();
 
-            cTheme.Items.AddRange( Enum.GetNames( typeof( MapGenTheme ) ) );
+            cTheme.Items.AddRange(Enum.GetNames(typeof(MapGenTheme)));
         }
 
-        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
+
+        public override void SetParameters(MapGeneratorParameters generatorParameters) {
             genParameters = (RealisticMapGenParameters)generatorParameters;
             LoadGeneratorArgs();
         }
 
+
         public override MapGeneratorParameters GetParameters() {
-            if( !xSeed.Checked ) {
+            if (!xSeed.Checked) {
                 nSeed.Value = GetRandomSeed();
             }
             SaveGeneratorArgs();
             return genParameters;
         }
 
-        public override void OnMapDimensionChange( int width, int length, int height ) {
+
+        public override void OnMapDimensionChange(int width, int length, int height) {
             mapWidth = width;
             mapLength = length;
             mapHeight = height;
@@ -42,6 +45,7 @@ namespace fCraft.GUI {
 
 
         readonly Random rand = new Random();
+
 
         int GetRandomSeed() {
             return rand.Next() - rand.Next();
@@ -65,7 +69,7 @@ namespace fCraft.GUI {
             nSeed.Value = genParameters.Seed;
             xAddWater.Checked = genParameters.AddWater;
 
-            if( genParameters.UseBias ) sBias.Value = (int)(genParameters.Bias*100);
+            if (genParameters.UseBias) sBias.Value = (int)(genParameters.Bias*100);
             else sBias.Value = 0;
             xDelayBias.Checked = genParameters.DelayBias;
 
@@ -90,7 +94,7 @@ namespace fCraft.GUI {
 
             xWaterLevel.Checked = genParameters.CustomWaterLevel;
             nWaterLevel.Maximum = genParameters.MapHeight;
-            nWaterLevel.Value = Math.Min( genParameters.WaterLevel, genParameters.MapHeight );
+            nWaterLevel.Value = Math.Min(genParameters.WaterLevel, genParameters.MapHeight);
 
             xAddSnow.Checked = genParameters.AddSnow;
 
@@ -106,14 +110,15 @@ namespace fCraft.GUI {
             nBeachExtent.Value = genParameters.BeachExtent;
             nBeachHeight.Value = genParameters.BeachHeight;
 
-            sAboveFunc.Value = ExponentToTrackBar( sAboveFunc, genParameters.AboveFuncExponent );
-            sBelowFunc.Value = ExponentToTrackBar( sBelowFunc, genParameters.BelowFuncExponent );
+            sAboveFunc.Value = ExponentToTrackBar(sAboveFunc, genParameters.AboveFuncExponent);
+            sBelowFunc.Value = ExponentToTrackBar(sBelowFunc, genParameters.BelowFuncExponent);
 
             nMaxHeightVariation.Value = genParameters.MaxHeightVariation;
             nMaxDepthVariation.Value = genParameters.MaxDepthVariation;
 
             xAddFloodBarrier.Checked = genParameters.AddFloodBarrier;
         }
+
 
         void SaveGeneratorArgs() {
             genParameters = new RealisticMapGenParameters {
@@ -131,7 +136,7 @@ namespace fCraft.GUI {
                 AddGiantTrees = xGiantTrees.Checked,
                 Roughness = sRoughness.Value/100f,
                 Seed = (int)nSeed.Value,
-                Theme = new RealisticMapGenBlockTheme( (MapGenTheme)cTheme.SelectedIndex ),
+                Theme = new RealisticMapGenBlockTheme((MapGenTheme)cTheme.SelectedIndex),
                 TreeHeightMax = (int)(nTreeHeight.Value + nTreeHeightVariation.Value),
                 TreeHeightMin = (int)(nTreeHeight.Value - nTreeHeightVariation.Value),
                 TreeSpacingMax = (int)(nTreeSpacing.Value + nTreeSpacingVariation.Value),
@@ -162,8 +167,8 @@ namespace fCraft.GUI {
                 AddBeaches = xAddBeaches.Checked,
                 BeachExtent = (int)nBeachExtent.Value,
                 BeachHeight = (int)nBeachHeight.Value,
-                AboveFuncExponent = TrackBarToExponent( sAboveFunc ),
-                BelowFuncExponent = TrackBarToExponent( sBelowFunc ),
+                AboveFuncExponent = TrackBarToExponent(sAboveFunc),
+                BelowFuncExponent = TrackBarToExponent(sBelowFunc),
                 MaxHeightVariation = (int)nMaxHeightVariation.Value,
                 MaxDepthVariation = (int)nMaxDepthVariation.Value,
                 AddFloodBarrier = xAddFloodBarrier.Checked
@@ -171,40 +176,48 @@ namespace fCraft.GUI {
         }
 
 
-        void xAddCaves_CheckedChanged( object sender, EventArgs e ) {
+        void xAddCaves_CheckedChanged(object sender, EventArgs e) {
             gCaves.Visible = xAddCaves.Checked && xAdvanced.Checked;
         }
 
-        void sCaveDensity_ValueChanged( object sender, EventArgs e ) {
+
+        void sCaveDensity_ValueChanged(object sender, EventArgs e) {
             lCaveDensityDisplay.Text = sCaveDensity.Value + "%";
         }
 
-        void sCaveSize_ValueChanged( object sender, EventArgs e ) {
+
+        void sCaveSize_ValueChanged(object sender, EventArgs e) {
             lCaveSizeDisplay.Text = sCaveSize.Value + "%";
         }
 
-        void xWaterLevel_CheckedChanged( object sender, EventArgs e ) {
+
+        void xWaterLevel_CheckedChanged(object sender, EventArgs e) {
             nWaterLevel.Enabled = xWaterLevel.Checked;
         }
 
-        void xAddTrees_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAddTrees_CheckedChanged(object sender, EventArgs e) {
             gTrees.Visible = xAddTrees.Checked;
         }
 
-        void xAddWater_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAddWater_CheckedChanged(object sender, EventArgs e) {
             xAddBeaches.Enabled = xAddWater.Checked;
         }
 
-        void sAboveFunc_ValueChanged( object sender, EventArgs e ) {
-            lAboveFuncUnits.Text = (1/TrackBarToExponent( sAboveFunc )).ToString( "0.0%" );
+
+        void sAboveFunc_ValueChanged(object sender, EventArgs e) {
+            lAboveFuncUnits.Text = (1/TrackBarToExponent(sAboveFunc)).ToString("0.0%");
         }
 
-        void sBelowFunc_ValueChanged( object sender, EventArgs e ) {
-            lBelowFuncUnits.Text = (1/TrackBarToExponent( sBelowFunc )).ToString( "0.0%" );
+
+        void sBelowFunc_ValueChanged(object sender, EventArgs e) {
+            lBelowFuncUnits.Text = (1/TrackBarToExponent(sBelowFunc)).ToString("0.0%");
         }
 
-        static float TrackBarToExponent( TrackBar bar ) {
-            if( bar.Value >= bar.Maximum/2 ) {
+
+        static float TrackBarToExponent(TrackBar bar) {
+            if (bar.Value >= bar.Maximum/2) {
                 float normalized = (bar.Value - bar.Maximum/2f)/(bar.Maximum/2f);
                 return 1 + normalized*normalized*3;
             } else {
@@ -213,9 +226,10 @@ namespace fCraft.GUI {
             }
         }
 
-        static int ExponentToTrackBar( TrackBar bar, float val ) {
-            if( val >= 1 ) {
-                float normalized = (float)Math.Sqrt( (val - 1)/3f );
+
+        static int ExponentToTrackBar(TrackBar bar, float val) {
+            if (val >= 1) {
+                float normalized = (float)Math.Sqrt((val - 1)/3f);
                 return (int)(bar.Maximum/2f + normalized*(bar.Maximum/2f));
             } else {
                 float normalized = (val - .25f)/.75f;
@@ -223,24 +237,28 @@ namespace fCraft.GUI {
             }
         }
 
-        void sCliffThreshold_ValueChanged( object sender, EventArgs e ) {
+
+        void sCliffThreshold_ValueChanged(object sender, EventArgs e) {
             lCliffThresholdUnits.Text = sCliffThreshold.Value + "%";
         }
 
-        void xAddSnow_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAddSnow_CheckedChanged(object sender, EventArgs e) {
             gSnow.Visible = xAdvanced.Checked && xAddSnow.Checked;
         }
 
-        void xAddCliffs_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAddCliffs_CheckedChanged(object sender, EventArgs e) {
             gCliffs.Visible = xAdvanced.Checked && xAddCliffs.Checked;
         }
 
-        void xAddBeaches_CheckedChanged( object sender, EventArgs e ) {
+
+        void xAddBeaches_CheckedChanged(object sender, EventArgs e) {
             gBeaches.Visible = xAdvanced.Checked && xAddBeaches.Checked;
         }
 
 
-        void xAdvanced_CheckedChanged( object sender, EventArgs e ) {
+        void xAdvanced_CheckedChanged(object sender, EventArgs e) {
             gTerrainFeatures.Visible = xAdvanced.Checked;
             gHeightmapCreation.Visible = xAdvanced.Checked;
             gTrees.Visible = xAdvanced.Checked && xAddTrees.Checked;
@@ -252,7 +270,7 @@ namespace fCraft.GUI {
 
 
         void MapDimensionChanged() {
-            sFeatureScale.Maximum = (int)Math.Log( Math.Max( mapWidth, mapLength ), 2 );
+            sFeatureScale.Maximum = (int)Math.Log(Math.Max(mapWidth, mapLength), 2);
             int value = sDetailScale.Maximum - sDetailScale.Value;
             sDetailScale.Maximum = sFeatureScale.Maximum;
             sDetailScale.Value = sDetailScale.Maximum - value;
@@ -264,35 +282,35 @@ namespace fCraft.GUI {
         }
 
 
-        void sFeatureScale_ValueChanged( object sender, EventArgs e ) {
+        void sFeatureScale_ValueChanged(object sender, EventArgs e) {
             int resolution = 1 << (sFeatureScale.Maximum - sFeatureScale.Value);
             lFeatureSizeDisplay.Text = resolution + "×" + resolution;
-            if( sDetailScale.Value < sFeatureScale.Value ) {
+            if (sDetailScale.Value < sFeatureScale.Value) {
                 sDetailScale.Value = sFeatureScale.Value;
             }
         }
 
 
-        void sDetailScale_ValueChanged( object sender, EventArgs e ) {
+        void sDetailScale_ValueChanged(object sender, EventArgs e) {
             int resolution = 1 << (sDetailScale.Maximum - sDetailScale.Value);
             lDetailSizeDisplay.Text = resolution + "×" + resolution;
-            if( sFeatureScale.Value > sDetailScale.Value ) {
+            if (sFeatureScale.Value > sDetailScale.Value) {
                 sFeatureScale.Value = sDetailScale.Value;
             }
         }
 
 
-        void xMatchWaterCoverage_CheckedChanged( object sender, EventArgs e ) {
+        void xMatchWaterCoverage_CheckedChanged(object sender, EventArgs e) {
             sWaterCoverage.Enabled = xMatchWaterCoverage.Checked;
         }
 
 
-        void sWaterCoverage_ValueChanged( object sender, EventArgs e ) {
+        void sWaterCoverage_ValueChanged(object sender, EventArgs e) {
             lMatchWaterCoverageDisplay.Text = sWaterCoverage.Value + "%";
         }
 
 
-        void sBias_ValueChanged( object sender, EventArgs e ) {
+        void sBias_ValueChanged(object sender, EventArgs e) {
             lBiasDisplay.Text = sBias.Value + "%";
             bool useBias = (sBias.Value != 0);
 
@@ -303,23 +321,23 @@ namespace fCraft.GUI {
         }
 
 
-        void sRoughness_ValueChanged( object sender, EventArgs e ) {
+        void sRoughness_ValueChanged(object sender, EventArgs e) {
             lRoughnessDisplay.Text = sRoughness.Value + "%";
         }
 
 
-        void xSeed_CheckedChanged( object sender, EventArgs e ) {
+        void xSeed_CheckedChanged(object sender, EventArgs e) {
             nSeed.Enabled = xSeed.Checked;
         }
 
 
-        void nRaisedCorners_ValueChanged( object sender, EventArgs e ) {
-            nLoweredCorners.Value = Math.Min( 4 - nRaisedCorners.Value, nLoweredCorners.Value );
+        void nRaisedCorners_ValueChanged(object sender, EventArgs e) {
+            nLoweredCorners.Value = Math.Min(4 - nRaisedCorners.Value, nLoweredCorners.Value);
         }
 
 
-        void nLoweredCorners_ValueChanged( object sender, EventArgs e ) {
-            nRaisedCorners.Value = Math.Min( 4 - nLoweredCorners.Value, nRaisedCorners.Value );
+        void nLoweredCorners_ValueChanged(object sender, EventArgs e) {
+            nRaisedCorners.Value = Math.Min(4 - nLoweredCorners.Value, nRaisedCorners.Value);
         }
     }
 
@@ -333,11 +351,13 @@ namespace fCraft.GUI {
             get { return "RealisticMapGen GUI"; }
         }
 
-        public bool IsCompatible( string generatorName, Version generatorVersion ) {
+
+        public bool IsCompatible(string generatorName, Version generatorVersion) {
             return generatorName == RealisticMapGen.Instance.Name &&
                    generatorVersion.Major == 2 &&
                    generatorVersion.Minor == 1;
         }
+
 
         public MapGeneratorGui CreateGui() {
             return new RealisticMapGenGui();

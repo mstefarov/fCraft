@@ -16,7 +16,6 @@ namespace fCraft.MapConversion {
             get { return "mclevel"; }
         }
 
-
         public MapStorageType StorageType {
             get { return MapStorageType.SingleFile; }
         }
@@ -26,54 +25,55 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return fileName.EndsWith( ".mclevel", StringComparison.OrdinalIgnoreCase );
+        public bool ClaimsName(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            return fileName.EndsWith(".mclevel", StringComparison.OrdinalIgnoreCase);
         }
 
 
-        public bool Claims( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public bool Claims(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress, true );
-                    BinaryReader bs = new BinaryReader( gs );
-                    return (bs.ReadByte() == 10 && Swap( bs.ReadInt16() ) == 14);
+                using (FileStream mapStream = File.OpenRead(fileName)) {
+                    GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress, true);
+                    BinaryReader bs = new BinaryReader(gs);
+                    return (bs.ReadByte() == 10 && Swap(bs.ReadInt16()) == 14);
                 }
-            } catch( Exception ) {
+            } catch (Exception) {
                 return false;
             }
         }
 
-        static short Swap( short v ) {
+
+        static short Swap(short v) {
             return (short)((v >> 8) & 0x00FF |
                            (v << 8) & 0xFF00);
         }
 
 
-        public Map LoadHeader( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            Map map = Load( fileName );
+        public Map LoadHeader(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            Map map = Load(fileName);
             map.Blocks = null;
             return map;
         }
 
 
-        public Map Load( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            NbtFile file = new NbtFile( fileName );
+        public Map Load(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            NbtFile file = new NbtFile(fileName);
 
             NbtCompound mapTag = file.RootTag;
 
-            Map map = new Map( null,
-                               mapTag["Width"].ShortValue,
-                               mapTag["Length"].ShortValue,
-                               mapTag["Height"].ShortValue,
-                               false );
+            Map map = new Map(null,
+                              mapTag["Width"].ShortValue,
+                              mapTag["Length"].ShortValue,
+                              mapTag["Height"].ShortValue,
+                              false);
 
-            map.Spawn = new Position( mapTag["Spawn"][0].ShortValue,
-                                      mapTag["Spawn"][2].ShortValue,
-                                      mapTag["Spawn"][1].ShortValue );
+            map.Spawn = new Position(mapTag["Spawn"][0].ShortValue,
+                                     mapTag["Spawn"][2].ShortValue,
+                                     mapTag["Spawn"][1].ShortValue);
 
             map.Blocks = mapTag["Blocks"].ByteArrayValue;
             map.RemoveUnknownBlockTypes();

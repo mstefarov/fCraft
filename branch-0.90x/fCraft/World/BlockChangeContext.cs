@@ -40,7 +40,6 @@ namespace fCraft {
         /// <summary> Redone, opposite of UndoneSelf/UndoneOther </summary>
         Redone = 512,
 
-
         /// <summary> Combination of Manual and Replaced (as used by /Paint). </summary>
         PaintedCombo = Manual | Replaced,
 

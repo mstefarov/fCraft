@@ -1,4 +1,5 @@
 // Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
+
 using System;
 using System.IO;
 using System.IO.Compression;
@@ -9,12 +10,14 @@ namespace fCraft.MapConversion {
     internal sealed class MapD3 : IMapImporter, IMapExporter {
         const int WriteBufferSize = 8*1024;
 
+
         internal MapD3() {
             ServerName = "D3";
             FileExtension = "map";
             StorageType = MapStorageType.SingleFile;
             Format = MapFormat.D3;
         }
+
 
         public string ServerName { get; private set; }
         public string FileExtension { get; private set; }
@@ -23,23 +26,23 @@ namespace fCraft.MapConversion {
 
 
         public bool ClaimsName(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
+            if (fileName == null) throw new ArgumentNullException("fileName");
             return fileName.EndsWith(".map", StringComparison.OrdinalIgnoreCase);
         }
 
 
         public bool Claims(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
+            if (fileName == null) throw new ArgumentNullException("fileName");
             try {
-                using( FileStream mapStream = File.OpenRead(fileName) ) {
-                    using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress) ) {
+                using (FileStream mapStream = File.OpenRead(fileName)) {
+                    using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
                         BinaryReader bs = new BinaryReader(gs);
                         int formatVersion = bs.ReadInt32();
                         return (formatVersion == 1000 || formatVersion == 1010 || formatVersion == 1020 ||
                                 formatVersion == 1030 || formatVersion == 1040 || formatVersion == 1050);
                     }
                 }
-            } catch( Exception ) {
+            } catch (Exception) {
                 // Exceptions can be ignored here
                 return false;
             }
@@ -47,9 +50,9 @@ namespace fCraft.MapConversion {
 
 
         public Map LoadHeader(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream fs = File.OpenRead(fileName) ) {
-                using( GZipStream gs = new GZipStream(fs, CompressionMode.Decompress) ) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream fs = File.OpenRead(fileName)) {
+                using (GZipStream gs = new GZipStream(fs, CompressionMode.Decompress)) {
                     int formatVersion;
                     return LoadHeaderInternal(gs, out formatVersion);
                 }
@@ -59,7 +62,7 @@ namespace fCraft.MapConversion {
 
         [NotNull]
         static Map LoadHeaderInternal([NotNull] Stream gs, out int formatVersion) {
-            if( gs == null ) throw new ArgumentNullException("gs");
+            if (gs == null) throw new ArgumentNullException("gs");
             // Setup a GZipStream to decompress and read the map file
             BinaryReader bs = new BinaryReader(gs);
 
@@ -72,7 +75,7 @@ namespace fCraft.MapConversion {
 
             Map map = new Map(null, width, length, height, false);
 
-            switch( formatVersion ) {
+            switch (formatVersion) {
                 case 1000:
                 case 1010:
                     break;
@@ -98,18 +101,18 @@ namespace fCraft.MapConversion {
 
 
         public Map Load(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream fs = File.OpenRead(fileName) ) {
-                using( GZipStream gs = new GZipStream(fs, CompressionMode.Decompress) ) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream fs = File.OpenRead(fileName)) {
+                using (GZipStream gs = new GZipStream(fs, CompressionMode.Decompress)) {
                     int formatVersion;
                     Map map = LoadHeaderInternal(gs, out formatVersion);
 
                     map.Blocks = new byte[map.Volume];
-                    if( formatVersion != 1050 ) {
+                    if (formatVersion != 1050) {
                         BufferUtil.ReadAll(gs, map.Blocks);
                     } else {
                         byte[] buffer = new byte[4];
-                        for( int i = 0; i < map.Volume; i++ ) {
+                        for (int i = 0; i < map.Volume; i++) {
                             gs.Read(buffer, 0, 4);
                             map.Blocks[i] = buffer[0];
                         }
@@ -122,12 +125,12 @@ namespace fCraft.MapConversion {
 
 
         public void Save(Map mapToSave, string fileName) {
-            if( mapToSave == null ) throw new ArgumentNullException("mapToSave");
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream mapStream = File.Create(fileName) ) {
-                using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress) ) {
+            if (mapToSave == null) throw new ArgumentNullException("mapToSave");
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.Create(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress)) {
                     // Buffering necessary to avoid overhead of writing byte-at-a-time
-                    using( BufferedStream bs = new BufferedStream(gs, WriteBufferSize) ) {
+                    using (BufferedStream bs = new BufferedStream(gs, WriteBufferSize)) {
                         BinaryWriter bw = new BinaryWriter(bs);
 
                         // Write the format version
@@ -147,7 +150,7 @@ namespace fCraft.MapConversion {
                         bw.Write((short)mapToSave.Spawn.L);
 
                         // Write the map data
-                        for( int i = 0; i < mapToSave.Volume; i++ ) {
+                        for (int i = 0; i < mapToSave.Volume; i++) {
                             bs.WriteByte(mapToSave.Blocks[i]);
                             bs.WriteByte(0);
                             bs.WriteByte(0xFF);

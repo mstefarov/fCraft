@@ -25,81 +25,81 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return fileName.EndsWith( ".dat", StringComparison.OrdinalIgnoreCase ) ||
-                   fileName.EndsWith( ".mine", StringComparison.OrdinalIgnoreCase );
+        public bool ClaimsName(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            return fileName.EndsWith(".dat", StringComparison.OrdinalIgnoreCase) ||
+                   fileName.EndsWith(".mine", StringComparison.OrdinalIgnoreCase);
         }
 
 
-        public bool Claims( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public bool Claims(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
+                using (FileStream mapStream = File.OpenRead(fileName)) {
                     byte[] temp = new byte[8];
-                    mapStream.Seek( -4, SeekOrigin.End );
-                    mapStream.Read( temp, 0, 4 );
-                    mapStream.Seek( 0, SeekOrigin.Begin );
-                    int length = BitConverter.ToInt32( temp, 0 );
+                    mapStream.Seek(-4, SeekOrigin.End);
+                    mapStream.Read(temp, 0, 4);
+                    mapStream.Seek(0, SeekOrigin.Begin);
+                    int length = BitConverter.ToInt32(temp, 0);
                     byte[] data = new byte[length];
-                    using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                        reader.Read( data, 0, length );
+                    using (GZipStream reader = new GZipStream(mapStream, CompressionMode.Decompress, true)) {
+                        reader.Read(data, 0, length);
                     }
 
-                    for( int i = 0; i < length - 1; i++ ) {
-                        if( data[i] == 0xAC && data[i + 1] == 0xED ) {
+                    for (int i = 0; i < length - 1; i++) {
+                        if (data[i] == 0xAC && data[i + 1] == 0xED) {
                             return true;
                         }
                     }
                     return false;
                 }
-            } catch( Exception ) {
+            } catch (Exception) {
                 return false;
             }
         }
 
 
-        public Map LoadHeader( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            Map map = Load( fileName );
+        public Map LoadHeader(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            Map map = Load(fileName);
             map.Blocks = null;
             return map;
         }
 
 
-        internal static byte MapSurvivalTestBlock( byte block ) {
+        internal static byte MapSurvivalTestBlock(byte block) {
             return Mapping[block];
         }
 
 
-        public Map Load( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+        public Map Load(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.OpenRead(fileName)) {
                 byte[] temp = new byte[8];
                 Map map = null;
 
-                mapStream.Seek( -4, SeekOrigin.End );
-                mapStream.Read( temp, 0, 4 );
-                mapStream.Seek( 0, SeekOrigin.Begin );
-                int uncompressedLength = BitConverter.ToInt32( temp, 0 );
+                mapStream.Seek(-4, SeekOrigin.End);
+                mapStream.Read(temp, 0, 4);
+                mapStream.Seek(0, SeekOrigin.Begin);
+                int uncompressedLength = BitConverter.ToInt32(temp, 0);
                 byte[] data = new byte[uncompressedLength];
-                using( GZipStream reader = new GZipStream( mapStream, CompressionMode.Decompress, true ) ) {
-                    reader.Read( data, 0, uncompressedLength );
+                using (GZipStream reader = new GZipStream(mapStream, CompressionMode.Decompress, true)) {
+                    reader.Read(data, 0, uncompressedLength);
                 }
 
-                for( int i = 0; i < uncompressedLength - 1; i++ ) {
-                    if( data[i] != 0xAC || data[i + 1] != 0xED ) continue;
+                for (int i = 0; i < uncompressedLength - 1; i++) {
+                    if (data[i] != 0xAC || data[i + 1] != 0xED) continue;
 
                     // bypassing the header crap
                     int pointer = i + 6;
-                    Array.Copy( data, pointer, temp, 0, 2 );
-                    pointer += IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                    Array.Copy(data, pointer, temp, 0, 2);
+                    pointer += IPAddress.HostToNetworkOrder(BitConverter.ToInt16(temp, 0));
                     pointer += 13;
 
                     int headerEnd;
                     // find the end of serialization listing
-                    for( headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++ ) {
-                        if( data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70 ) {
+                    for (headerEnd = pointer; headerEnd < data.Length - 1; headerEnd++) {
+                        if (data[headerEnd] == 0x78 && data[headerEnd + 1] == 0x70) {
                             headerEnd += 2;
                             break;
                         }
@@ -111,8 +111,8 @@ namespace fCraft.MapConversion {
                     short x = 0,
                           y = 0,
                           z = 0;
-                    while( pointer < headerEnd ) {
-                        switch( (char)data[pointer] ) {
+                    while (pointer < headerEnd) {
+                        switch ((char)data[pointer]) {
                             case 'Z':
                                 offset++;
                                 break;
@@ -126,57 +126,57 @@ namespace fCraft.MapConversion {
                         }
 
                         pointer += 1;
-                        Array.Copy( data, pointer, temp, 0, 2 );
-                        short skip = IPAddress.HostToNetworkOrder( BitConverter.ToInt16( temp, 0 ) );
+                        Array.Copy(data, pointer, temp, 0, 2);
+                        short skip = IPAddress.HostToNetworkOrder(BitConverter.ToInt16(temp, 0));
                         pointer += 2;
 
                         // look for relevant variables
-                        Array.Copy( data, headerEnd + offset - 4, temp, 0, 4 );
-                        if( BufferUtil.MemCmp( data, pointer, "width" ) ) {
-                            width = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( BufferUtil.MemCmp( data, pointer, "depth" ) ) {
-                            height = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( BufferUtil.MemCmp( data, pointer, "height" ) ) {
-                            length = (ushort)IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) );
-                        } else if( BufferUtil.MemCmp( data, pointer, "xSpawn" ) ) {
-                            x = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) )*32 + 16);
-                        } else if( BufferUtil.MemCmp( data, pointer, "ySpawn" ) ) {
-                            y = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) )*32 + 16);
-                        } else if( BufferUtil.MemCmp( data, pointer, "zSpawn" ) ) {
-                            z = (short)(IPAddress.HostToNetworkOrder( BitConverter.ToInt32( temp, 0 ) )*32 + 16);
+                        Array.Copy(data, headerEnd + offset - 4, temp, 0, 4);
+                        if (BufferUtil.MemCmp(data, pointer, "width")) {
+                            width = (ushort)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0));
+                        } else if (BufferUtil.MemCmp(data, pointer, "depth")) {
+                            height = (ushort)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0));
+                        } else if (BufferUtil.MemCmp(data, pointer, "height")) {
+                            length = (ushort)IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0));
+                        } else if (BufferUtil.MemCmp(data, pointer, "xSpawn")) {
+                            x = (short)(IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0))*32 + 16);
+                        } else if (BufferUtil.MemCmp(data, pointer, "ySpawn")) {
+                            y = (short)(IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0))*32 + 16);
+                        } else if (BufferUtil.MemCmp(data, pointer, "zSpawn")) {
+                            z = (short)(IPAddress.HostToNetworkOrder(BitConverter.ToInt32(temp, 0))*32 + 16);
                         }
 
                         pointer += skip;
                     }
 
-                    map = new Map( null, width, length, height, false ) {
-                        Spawn = new Position( x, y, z )
+                    map = new Map(null, width, length, height, false) {
+                        Spawn = new Position(x, y, z)
                     };
 
                     // find the start of the block array
                     bool foundBlockArray = false;
-                    offset = Array.IndexOf<byte>( data, 0x00, headerEnd );
-                    while( offset != -1 && offset < data.Length - 2 ) {
-                        if( data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70 ) {
+                    offset = Array.IndexOf<byte>(data, 0x00, headerEnd);
+                    while (offset != -1 && offset < data.Length - 2) {
+                        if (data[offset] == 0x00 && data[offset + 1] == 0x78 && data[offset + 2] == 0x70) {
                             foundBlockArray = true;
                             pointer = offset + 7;
                         }
-                        offset = Array.IndexOf<byte>( data, 0x00, offset + 1 );
+                        offset = Array.IndexOf<byte>(data, 0x00, offset + 1);
                     }
 
                     // copy the block array... or fail
-                    if( foundBlockArray ) {
+                    if (foundBlockArray) {
                         map.Blocks = new byte[map.Volume];
-                        Array.Copy( data, pointer, map.Blocks, 0, map.Blocks.Length );
-                        map.ConvertBlockTypes( Mapping );
+                        Array.Copy(data, pointer, map.Blocks, 0, map.Blocks.Length);
+                        map.ConvertBlockTypes(Mapping);
                     } else {
-                        throw new MapFormatException( "MapDAT: Could not locate block array." );
+                        throw new MapFormatException("MapDAT: Could not locate block array.");
                     }
                     break;
                 }
 
-                if( map == null ) {
-                    throw new MapFormatException( "MapDAT: No data." );
+                if (map == null) {
+                    throw new MapFormatException("MapDAT: No data.");
                 }
                 return map;
             }
@@ -184,6 +184,7 @@ namespace fCraft.MapConversion {
 
 
         static readonly byte[] Mapping = new byte[256];
+
 
         static MapDat() {
             Mapping[50] = (byte)Block.Air; // torch

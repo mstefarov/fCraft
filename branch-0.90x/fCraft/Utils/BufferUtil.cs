@@ -11,21 +11,21 @@ namespace fCraft {
         /// <param name="array"> Array to work with. </param>
         /// <param name="value"> Value to assign to each byte of the array. </param>
         /// <exception cref="ArgumentNullException"> array is null. </exception>
-        public static void MemSet( [NotNull] this byte[] array, byte value ) {
-            if( array == null ) throw new ArgumentNullException( "array" );
-            byte[] rawValue = {value, value, value, value, value, value, value, value};
-            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+        public static void MemSet([NotNull] this byte[] array, byte value) {
+            if (array == null) throw new ArgumentNullException("array");
+            byte[] rawValue = { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64(rawValue, 0);
 
-            fixed( byte* ptr = array ) {
+            fixed (byte* ptr = array) {
                 Int64* dest = (Int64*)ptr;
                 int length = array.Length;
-                while( length >= 8 ) {
+                while (length >= 8) {
                     *dest = fillValue;
                     dest++;
                     length -= 8;
                 }
                 byte* bDest = (byte*)dest;
-                for( byte i = 0; i < length; i++ ) {
+                for (byte i = 0; i < length; i++) {
                     *bDest = value;
                     bDest++;
                 }
@@ -41,27 +41,27 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> array is null. </exception>
         /// <exception cref="ArgumentOutOfRangeException"> length is negative; startIndex is negative;
         /// or if (length+startIndex) is greater than array length. </exception>
-        public static void MemSet( [NotNull] this byte[] array, byte value, int startIndex, int length ) {
-            if( array == null ) throw new ArgumentNullException( "array" );
-            if( length < 0 || length > array.Length ) {
-                throw new ArgumentOutOfRangeException( "length" );
+        public static void MemSet([NotNull] this byte[] array, byte value, int startIndex, int length) {
+            if (array == null) throw new ArgumentNullException("array");
+            if (length < 0 || length > array.Length) {
+                throw new ArgumentOutOfRangeException("length");
             }
-            if( startIndex < 0 || startIndex + length > array.Length ) {
-                throw new ArgumentOutOfRangeException( "startIndex" );
+            if (startIndex < 0 || startIndex + length > array.Length) {
+                throw new ArgumentOutOfRangeException("startIndex");
             }
 
-            byte[] rawValue = {value, value, value, value, value, value, value, value};
-            Int64 fillValue = BitConverter.ToInt64( rawValue, 0 );
+            byte[] rawValue = { value, value, value, value, value, value, value, value };
+            Int64 fillValue = BitConverter.ToInt64(rawValue, 0);
 
-            fixed( byte* ptr = &array[startIndex] ) {
+            fixed (byte* ptr = &array[startIndex]) {
                 Int64* dest = (Int64*)ptr;
-                while( length >= 8 ) {
+                while (length >= 8) {
                     *dest = fillValue;
                     dest++;
                     length -= 8;
                 }
                 byte* bDest = (byte*)dest;
-                for( byte i = 0; i < length; i++ ) {
+                for (byte i = 0; i < length; i++) {
                     *bDest = value;
                     bDest++;
                 }
@@ -73,10 +73,10 @@ namespace fCraft {
         /// <param name="src"> Source array/pointer. </param>
         /// <param name="dest"> Destination array/pointer. </param>
         /// <param name="len"> Number of bytes to copy. </param>
-        public static void MemCpy( [NotNull] byte* src, [NotNull] byte* dest, int len ) {
-            if( src == null ) throw new ArgumentNullException( "src" );
-            if( dest == null ) throw new ArgumentNullException( "dest" );
-            if( len >= 0x10 ) {
+        public static void MemCpy([NotNull] byte* src, [NotNull] byte* dest, int len) {
+            if (src == null) throw new ArgumentNullException("src");
+            if (dest == null) throw new ArgumentNullException("dest");
+            if (len >= 0x10) {
                 do {
                     *((int*)dest) = *((int*)src);
                     *((int*)(dest + 4)) = *((int*)(src + 4));
@@ -84,26 +84,26 @@ namespace fCraft {
                     *((int*)(dest + 12)) = *((int*)(src + 12));
                     dest += 0x10;
                     src += 0x10;
-                } while( (len -= 0x10) >= 0x10 );
+                } while ((len -= 0x10) >= 0x10);
             }
-            if( len > 0 ) {
-                if( (len & 8) != 0 ) {
+            if (len > 0) {
+                if ((len & 8) != 0) {
                     *((int*)dest) = *((int*)src);
                     *((int*)(dest + 4)) = *((int*)(src + 4));
                     dest += 8;
                     src += 8;
                 }
-                if( (len & 4) != 0 ) {
+                if ((len & 4) != 0) {
                     *((int*)dest) = *((int*)src);
                     dest += 4;
                     src += 4;
                 }
-                if( (len & 2) != 0 ) {
+                if ((len & 2) != 0) {
                     *((short*)dest) = *((short*)src);
                     dest += 2;
                     src += 2;
                 }
-                if( (len & 1) != 0 ) {
+                if ((len & 1) != 0) {
                     dest++;
                     src++;
                     dest[0] = src[0];
@@ -121,12 +121,12 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> data or value is null. </exception>
         /// <exception cref="ArgumentOutOfRangeException"> offset is less than 0 or greater than data.Length. </exception>
         [Pure]
-        public static bool MemCmp( [NotNull] byte[] data, int offset, [NotNull] string value ) {
-            if( data == null ) throw new ArgumentNullException( "data" );
-            if( value == null ) throw new ArgumentNullException( "value" );
-            if( offset < 0 || offset > data.Length ) throw new ArgumentOutOfRangeException( "offset" );
-            for( int i = 0; i < value.Length; i++ ) {
-                if( offset + i >= data.Length || data[offset + i] != value[i] ) return false;
+        public static bool MemCmp([NotNull] byte[] data, int offset, [NotNull] string value) {
+            if (data == null) throw new ArgumentNullException("data");
+            if (value == null) throw new ArgumentNullException("value");
+            if (offset < 0 || offset > data.Length) throw new ArgumentOutOfRangeException("offset");
+            for (int i = 0; i < value.Length; i++) {
+                if (offset + i >= data.Length || data[offset + i] != value[i]) return false;
             }
             return true;
         }
@@ -137,14 +137,14 @@ namespace fCraft {
         /// <param name="destination"> Byte array to write to. Length of this array is used. </param>
         /// <exception cref="ArgumentNullException"> source or destination is null. </exception>
         /// <exception cref="EndOfStreamException"> The end of stream is reached before destination array was filled. </exception>
-        public static void ReadAll( [NotNull] Stream source, [NotNull] byte[] destination ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( destination == null ) throw new ArgumentNullException( "destination" );
+        public static void ReadAll([NotNull] Stream source, [NotNull] byte[] destination) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (destination == null) throw new ArgumentNullException("destination");
             int bytesRead = 0;
             int bytesLeft = destination.Length;
-            while( bytesLeft > 0 ) {
-                int readPass = source.Read( destination, bytesRead, bytesLeft );
-                if( readPass == 0 ) throw new EndOfStreamException();
+            while (bytesLeft > 0) {
+                int readPass = source.Read(destination, bytesRead, bytesLeft);
+                if (readPass == 0) throw new EndOfStreamException();
                 bytesRead += readPass;
                 bytesLeft -= readPass;
             }

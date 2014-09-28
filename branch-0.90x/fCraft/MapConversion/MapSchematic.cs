@@ -40,7 +40,7 @@ namespace fCraft.MapConversion {
             DoConversion(rootTag);
             NbtFile file = new NbtFile(rootTag);
             file.SaveToFile(path, NbtCompression.GZip);
-            File.WriteAllText("debug.txt",file.RootTag.ToString("    "));
+            File.WriteAllText("debug.txt", file.RootTag.ToString("    "));
         }
 
 

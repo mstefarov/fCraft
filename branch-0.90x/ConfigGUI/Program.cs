@@ -8,9 +8,9 @@ namespace fCraft.ConfigGUI {
         [STAThread]
         static void Main() {
             Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault( false );
+            Application.SetCompatibleTextRenderingDefault(false);
 #if DEBUG
-            Application.Run( new MainForm() );
+            Application.Run(new MainForm());
 #else
             try {
                 Application.Run( new MainForm() );

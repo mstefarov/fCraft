@@ -36,22 +36,22 @@ namespace fCraft.MapConversion {
         public override string ServerName {
             get { return "ModernSchematic"; }
         }
-        
+
         public override MapFormat Format {
             get { return MapFormat.ModernSchematic; }
         }
 
 
         protected override void DoConversion([NotNull] NbtCompound rootTag) {
-            if( rootTag == null ) throw new ArgumentNullException("rootTag");
+            if (rootTag == null) throw new ArgumentNullException("rootTag");
             byte[] blocksIDs = rootTag["Blocks"].ByteArrayValue;
             byte[] blockData = rootTag["Data"].ByteArrayValue;
             rootTag.Get<NbtString>("Materials").Value = "Alpha";
-            for( int i = 0; i < blocksIDs.Length; i++ ) {
+            for (int i = 0; i < blocksIDs.Length; i++) {
                 Block block = (Block)blocksIDs[i];
-                if( block >= Block.Red && block <= Block.White ) {
+                if (block >= Block.Red && block <= Block.White) {
                     // Convert wool colors
-                    switch( block ) {
+                    switch (block) {
                         case Block.Teal:
                             blocksIDs[i] = ModernEmeraldBlockID;
                             break;

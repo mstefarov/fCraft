@@ -25,16 +25,17 @@ namespace fCraft {
         public Rank MinRank {
             get { return minRank ?? RankManager.LowestRank; }
             set {
-                if( value == null ) throw new ArgumentNullException( "value" );
-                if( minRank != value ) {
+                if (value == null) throw new ArgumentNullException("value");
+                if (minRank != value) {
                     minRank = value;
                     RaiseChangedEvent();
                 }
             }
         }
 
+
         public void ResetMinRank() {
-            if( minRank != null ) {
+            if (minRank != null) {
                 minRank = null;
                 RaiseChangedEvent();
             }
@@ -47,7 +48,6 @@ namespace fCraft {
         public bool HasRankRestriction {
             get { return (minRank != null); }
         }
-
 
         /// <summary> True if this controller has any restrictions
         /// (per-rank or per-player). </summary>
@@ -66,9 +66,9 @@ namespace fCraft {
 
 
         void UpdatePlayerListCache() {
-            lock( locker ) {
-                ExceptionList = new PlayerExceptions( includedPlayers.Values.ToArray(),
-                                                      excludedPlayers.Values.ToArray() );
+            lock (locker) {
+                ExceptionList = new PlayerExceptions(includedPlayers.Values.ToArray(),
+                                                     excludedPlayers.Values.ToArray());
             }
         }
 
@@ -77,18 +77,18 @@ namespace fCraft {
         /// was previously neutral), or removes a specific exclusion. </summary>
         /// <param name="info"> Player's info. </param>
         /// <returns> Previous exception state of the player. </returns>
-        public PermissionOverride Include( [NotNull] PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            lock( locker ) {
-                if( includedPlayers.ContainsValue( info ) ) {
+        public PermissionOverride Include([NotNull] PlayerInfo info) {
+            if (info == null) throw new ArgumentNullException("info");
+            lock (locker) {
+                if (includedPlayers.ContainsValue(info)) {
                     return PermissionOverride.Allow;
-                } else if( excludedPlayers.ContainsValue( info ) ) {
-                    excludedPlayers.Remove( info.Name.ToLower() );
+                } else if (excludedPlayers.ContainsValue(info)) {
+                    excludedPlayers.Remove(info.Name.ToLower());
                     UpdatePlayerListCache();
                     RaiseChangedEvent();
                     return PermissionOverride.Deny;
                 } else {
-                    includedPlayers.Add( info.Name.ToLower(), info );
+                    includedPlayers.Add(info.Name.ToLower(), info);
                     UpdatePlayerListCache();
                     RaiseChangedEvent();
                     return PermissionOverride.None;
@@ -101,18 +101,18 @@ namespace fCraft {
         /// was previously neutral), or removes a specific inclusion. </summary>
         /// <param name="info"> Player's info. </param>
         /// <returns> Previous exception state of the player. </returns>
-        public PermissionOverride Exclude( [NotNull] PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
-            lock( locker ) {
-                if( excludedPlayers.ContainsValue( info ) ) {
+        public PermissionOverride Exclude([NotNull] PlayerInfo info) {
+            if (info == null) throw new ArgumentNullException("info");
+            lock (locker) {
+                if (excludedPlayers.ContainsValue(info)) {
                     return PermissionOverride.Deny;
-                } else if( includedPlayers.ContainsValue( info ) ) {
-                    includedPlayers.Remove( info.Name.ToLower() );
+                } else if (includedPlayers.ContainsValue(info)) {
+                    includedPlayers.Remove(info.Name.ToLower());
                     UpdatePlayerListCache();
                     RaiseChangedEvent();
                     return PermissionOverride.Allow;
                 } else {
-                    excludedPlayers.Add( info.Name.ToLower(), info );
+                    excludedPlayers.Add(info.Name.ToLower(), info);
                     UpdatePlayerListCache();
                     RaiseChangedEvent();
                     return PermissionOverride.None;
@@ -124,19 +124,19 @@ namespace fCraft {
         /// <summary> Checks whether a player is allowed by this controller. </summary>
         /// <param name="info"> Player to check. </param>
         /// <returns> True if player is allowed. </returns>
-        public bool Check( [NotNull] PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
+        public bool Check([NotNull] PlayerInfo info) {
+            if (info == null) throw new ArgumentNullException("info");
             PlayerExceptions listCache = ExceptionList;
-            for( int i = 0; i < listCache.Excluded.Length; i++ ) {
-                if( listCache.Excluded[i] == info ) {
+            for (int i = 0; i < listCache.Excluded.Length; i++) {
+                if (listCache.Excluded[i] == info) {
                     return false;
                 }
             }
 
-            if( info.Rank >= MinRank ) return true;
+            if (info.Rank >= MinRank) return true;
 
-            for( int i = 0; i < listCache.Included.Length; i++ ) {
-                if( listCache.Included[i] == info ) {
+            for (int i = 0; i < listCache.Included.Length; i++) {
+                if (listCache.Included[i] == info) {
                     return true;
                 }
             }
@@ -148,21 +148,21 @@ namespace fCraft {
         /// <summary> Checks player's permission status with this controller, in detail. </summary>
         /// <param name="info"> Player to check. </param>
         /// <returns> Security check result. </returns>
-        public SecurityCheckResult CheckDetailed( [NotNull] PlayerInfo info ) {
-            if( info == null ) throw new ArgumentNullException( "info" );
+        public SecurityCheckResult CheckDetailed([NotNull] PlayerInfo info) {
+            if (info == null) throw new ArgumentNullException("info");
             PlayerExceptions listCache = ExceptionList;
-            for( int i = 0; i < listCache.Excluded.Length; i++ ) {
-                if( listCache.Excluded[i] == info ) {
+            for (int i = 0; i < listCache.Excluded.Length; i++) {
+                if (listCache.Excluded[i] == info) {
                     return SecurityCheckResult.BlackListed;
                 }
             }
 
-            if( info.Rank >= MinRank ) {
+            if (info.Rank >= MinRank) {
                 return SecurityCheckResult.Allowed;
             }
 
-            for( int i = 0; i < listCache.Included.Length; i++ ) {
-                if( listCache.Included[i] == info ) {
+            for (int i = 0; i < listCache.Included.Length; i++) {
+                if (listCache.Included[i] == info) {
                     return SecurityCheckResult.WhiteListed;
                 }
             }
@@ -177,35 +177,35 @@ namespace fCraft {
         /// <param name="verb"> The action, in past tense, that this
         /// controller manages (e.g. "accessed" or "modified"). </param>
         [NotNull]
-        public string GetDescription( [NotNull] IClassy target, [NotNull] string noun, [NotNull] string verb ) {
-            if( target == null ) throw new ArgumentNullException( "target" );
-            if( noun == null ) throw new ArgumentNullException( "noun" );
-            if( verb == null ) throw new ArgumentNullException( "verb" );
+        public string GetDescription([NotNull] IClassy target, [NotNull] string noun, [NotNull] string verb) {
+            if (target == null) throw new ArgumentNullException("target");
+            if (noun == null) throw new ArgumentNullException("noun");
+            if (verb == null) throw new ArgumentNullException("verb");
             PlayerExceptions list = ExceptionList;
 
-            StringBuilder message = new StringBuilder( noun );
-            message[0] = Char.ToUpper( message[0] ); // capitalize first letter.
+            StringBuilder message = new StringBuilder(noun);
+            message[0] = Char.ToUpper(message[0]); // capitalize first letter.
 
-            if( HasRankRestriction ) {
-                message.AppendFormat( " {0}&S can only be {1} by {2}+&S",
-                                      target.ClassyName,
-                                      verb,
-                                      MinRank.ClassyName );
+            if (HasRankRestriction) {
+                message.AppendFormat(" {0}&S can only be {1} by {2}+&S",
+                                     target.ClassyName,
+                                     verb,
+                                     MinRank.ClassyName);
             } else {
-                message.AppendFormat( " {0}&S can be {1} by anyone",
-                                      target.ClassyName,
-                                      verb );
+                message.AppendFormat(" {0}&S can be {1} by anyone",
+                                     target.ClassyName,
+                                     verb);
             }
 
-            if( list.Included.Length > 0 ) {
-                message.AppendFormat( " and {0}&S", list.Included.JoinToClassyString() );
+            if (list.Included.Length > 0) {
+                message.AppendFormat(" and {0}&S", list.Included.JoinToClassyString());
             }
 
-            if( list.Excluded.Length > 0 ) {
-                message.AppendFormat( ", except {0}&S", list.Excluded.JoinToClassyString() );
+            if (list.Excluded.Length > 0) {
+                message.AppendFormat(", except {0}&S", list.Excluded.JoinToClassyString());
             }
 
-            message.Append( '.' );
+            message.Append('.');
             return message.ToString();
         }
 
@@ -215,57 +215,58 @@ namespace fCraft {
 
         readonly XElement[] rawExceptions;
 
-        public SecurityController( [NotNull] XContainer el, bool parseExceptions ) {
-            if( el == null ) throw new ArgumentNullException( "el" );
-            XElement minRankEl = el.Element( "minRank" );
-            if( minRankEl != null ) {
-                minRank = Rank.Parse( minRankEl.Value );
+
+        public SecurityController([NotNull] XContainer el, bool parseExceptions) {
+            if (el == null) throw new ArgumentNullException("el");
+            XElement minRankEl = el.Element("minRank");
+            if (minRankEl != null) {
+                minRank = Rank.Parse(minRankEl.Value);
             } else {
                 minRank = null;
             }
 
-            if( parseExceptions ) {
-                foreach( XElement player in el.Elements( "included" ) ) {
-                    if( !Player.IsValidPlayerName( player.Value ) ) continue;
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                    if( info != null ) Include( info );
+            if (parseExceptions) {
+                foreach (XElement player in el.Elements("included")) {
+                    if (!Player.IsValidPlayerName(player.Value)) continue;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact(player.Value);
+                    if (info != null) Include(info);
                 }
 
-                foreach( XElement player in el.Elements( "excluded" ) ) {
-                    if( !Player.IsValidPlayerName( player.Value ) ) continue;
-                    PlayerInfo info = PlayerDB.FindPlayerInfoExact( player.Value );
-                    if( info != null ) Exclude( info );
+                foreach (XElement player in el.Elements("excluded")) {
+                    if (!Player.IsValidPlayerName(player.Value)) continue;
+                    PlayerInfo info = PlayerDB.FindPlayerInfoExact(player.Value);
+                    if (info != null) Exclude(info);
                 }
             } else {
-                rawExceptions = el.Elements( "included" ).Union( el.Elements( "excluded" ) ).ToArray();
+                rawExceptions = el.Elements("included").Union(el.Elements("excluded")).ToArray();
             }
             UpdatePlayerListCache();
         }
 
 
         public XElement Serialize() {
-            return Serialize( XmlRootElementName );
+            return Serialize(XmlRootElementName);
         }
 
 
-        public XElement Serialize( [NotNull] string tagName ) {
-            if( tagName == null ) throw new ArgumentNullException( "tagName" );
+        public XElement Serialize([NotNull] string tagName) {
+            if (tagName == null) throw new ArgumentNullException("tagName");
 
-            XElement root = new XElement( tagName );
-            if( HasRankRestriction ) {
-                root.Add( new XElement( "minRank", MinRank.FullName ) );
+            XElement root = new XElement(tagName);
+            if (HasRankRestriction) {
+                root.Add(new XElement("minRank", MinRank.FullName));
             }
 
-            lock( locker ) {
-                foreach( string playerName in includedPlayers.Keys ) {
-                    root.Add( new XElement( "included", playerName ) );
+            lock (locker) {
+                foreach (string playerName in includedPlayers.Keys) {
+                    root.Add(new XElement("included", playerName));
                 }
-                foreach( string playerName in excludedPlayers.Keys ) {
-                    root.Add( new XElement( "excluded", playerName ) );
+                foreach (string playerName in excludedPlayers.Keys) {
+                    root.Add(new XElement("excluded", playerName));
                 }
-                if( rawExceptions != null ) {
-                    foreach( XElement exception in rawExceptions ) {
-                        root.Add( exception );
+                if (rawExceptions != null) {
+                    foreach (XElement exception in rawExceptions) {
+                        root.Add(exception);
                     }
                 }
             }
@@ -278,7 +279,7 @@ namespace fCraft {
 
         /// <summary> Clears the list of specifically included players. </summary>
         public void ResetIncludedList() {
-            lock( locker ) {
+            lock (locker) {
                 includedPlayers.Clear();
                 UpdatePlayerListCache();
             }
@@ -287,7 +288,7 @@ namespace fCraft {
 
         /// <summary> Clears the list of specifically excluded players. </summary>
         public void ResetExcludedList() {
-            lock( locker ) {
+            lock (locker) {
                 excludedPlayers.Clear();
                 UpdatePlayerListCache();
             }
@@ -307,13 +308,13 @@ namespace fCraft {
         #region Cloning
 
         /// <summary> Creates a copy of an existing controller. </summary>
-        public SecurityController( [NotNull] SecurityController other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
+        public SecurityController([NotNull] SecurityController other) {
+            if (other == null) throw new ArgumentNullException("other");
             minRank = other.minRank;
             rawExceptions = other.rawExceptions;
-            lock( other.locker ) {
-                includedPlayers = new Dictionary<string, PlayerInfo>( other.includedPlayers );
-                excludedPlayers = new Dictionary<string, PlayerInfo>( other.excludedPlayers );
+            lock (other.locker) {
+                includedPlayers = new Dictionary<string, PlayerInfo>(other.includedPlayers);
+                excludedPlayers = new Dictionary<string, PlayerInfo>(other.excludedPlayers);
             }
             UpdatePlayerListCache();
         }
@@ -321,28 +322,30 @@ namespace fCraft {
 
         /// <summary> Creates a copy of an existing controller. </summary>
         public object Clone() {
-            return new SecurityController( this );
+            return new SecurityController(this);
         }
 
         #endregion
 
         public event EventHandler Changed;
 
+
         void RaiseChangedEvent() {
             var h = Changed;
-            if( h != null ) h( null, EventArgs.Empty );
+            if (h != null) h(null, EventArgs.Empty);
         }
     }
 
 
     /// <summary> Immutable list of included and excluded players. </summary>
     public struct PlayerExceptions {
-        public PlayerExceptions( [NotNull] PlayerInfo[] included, [NotNull] PlayerInfo[] excluded ) {
-            if( included == null ) throw new ArgumentNullException( "included" );
-            if( excluded == null ) throw new ArgumentNullException( "excluded" );
+        public PlayerExceptions([NotNull] PlayerInfo[] included, [NotNull] PlayerInfo[] excluded) {
+            if (included == null) throw new ArgumentNullException("included");
+            if (excluded == null) throw new ArgumentNullException("excluded");
             Included = included;
             Excluded = excluded;
         }
+
 
         // keeping both lists on one object allows lock-free synchronization
         public readonly PlayerInfo[] Included;

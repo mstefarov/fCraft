@@ -9,23 +9,26 @@ namespace fCraft {
         /// <summary> Error code associated with the error. </summary>
         public WorldOpExceptionCode ErrorCode { get; private set; }
 
+
         /// <summary> Creates a new instance of fCraft.WorldOpException, with the specified world and error code. </summary>
         /// <param name="worldName"> World where exception took place. May be null if no relevant world exists. </param>
         /// <param name="errorCode"> Error that took place. </param>
-        public WorldOpException( [CanBeNull] string worldName, WorldOpExceptionCode errorCode )
-            : base( GetMessage( worldName, errorCode ) ) {
+        public WorldOpException([CanBeNull] string worldName, WorldOpExceptionCode errorCode)
+            : base(GetMessage(worldName, errorCode)) {
             ErrorCode = errorCode;
         }
 
-        public WorldOpException( [CanBeNull] string worldName, WorldOpExceptionCode errorCode, Exception innerException )
-            : base( GetMessage( worldName, errorCode ), innerException ) {
+
+        public WorldOpException([CanBeNull] string worldName, WorldOpExceptionCode errorCode, Exception innerException)
+            : base(GetMessage(worldName, errorCode), innerException) {
             ErrorCode = errorCode;
         }
+
 
         [NotNull]
-        static string GetMessage( [CanBeNull] string worldName, WorldOpExceptionCode code ) {
-            if( worldName != null ) {
-                switch( code ) {
+        static string GetMessage([CanBeNull] string worldName, WorldOpExceptionCode code) {
+            if (worldName != null) {
+                switch (code) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
                         return "This operation cannot be done on the main world (" +
                                worldName + "). Assign a new main world and try again.";
@@ -71,7 +74,7 @@ namespace fCraft {
                         return "Unexpected error occurred while working on world \"" + worldName + "\"";
                 }
             } else {
-                switch( code ) {
+                switch (code) {
                     case WorldOpExceptionCode.CannotDoThatToMainWorld:
                         return "This operation cannot be done on the main world. " +
                                "Assign a new main world and try again.";

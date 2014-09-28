@@ -10,11 +10,13 @@ namespace fCraft.Drawing {
             get { return Not ? "PasteNot" : "Paste"; }
         }
 
-        public QuickPasteDrawOperation( [NotNull] Player player, bool not )
-            : base( player, not ) {}
 
-        public override bool Prepare( Vector3I[] marks ) {
-            return base.Prepare( new[] {marks[0], marks[0]} );
+        public QuickPasteDrawOperation([NotNull] Player player, bool not)
+            : base(player, not) {}
+
+
+        public override bool Prepare(Vector3I[] marks) {
+            return base.Prepare(new[] { marks[0], marks[0] });
         }
     }
 }

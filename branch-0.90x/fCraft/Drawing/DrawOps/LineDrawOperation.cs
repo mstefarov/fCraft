@@ -14,24 +14,26 @@ namespace fCraft.Drawing {
             get { return 2; }
         }
 
-        public LineDrawOperation( Player player )
-            : base( player ) {}
+
+        public LineDrawOperation(Player player)
+            : base(player) {}
 
 
-        public override bool Prepare( Vector3I[] marks ) {
-            if( !base.Prepare( marks ) ) return false;
+        public override bool Prepare(Vector3I[] marks) {
+            if (!base.Prepare(marks)) return false;
 
-            BlocksTotalEstimate = Math.Max( Bounds.Width, Math.Max( Bounds.Height, Bounds.Length ) );
+            BlocksTotalEstimate = Math.Max(Bounds.Width, Math.Max(Bounds.Height, Bounds.Length));
 
-            coordEnumerator = LineEnumerator( marks[0], marks[1] ).GetEnumerator();
+            coordEnumerator = LineEnumerator(marks[0], marks[1]).GetEnumerator();
             return true;
         }
 
 
         IEnumerator<Vector3I> coordEnumerator;
 
-        public override int DrawBatch( int maxBlocksToDraw ) {
-            return DrawBatchFromEnumerable( maxBlocksToDraw, coordEnumerator );
+
+        public override int DrawBatch(int maxBlocksToDraw) {
+            return DrawBatchFromEnumerable(maxBlocksToDraw, coordEnumerator);
         }
     }
 }

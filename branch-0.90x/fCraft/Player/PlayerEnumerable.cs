@@ -18,11 +18,11 @@ namespace fCraft {
         /// <param name="rank"> Desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Ranked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank == rank ) {
+        public static IEnumerable<Player> Ranked([NotNull] this IEnumerable<Player> source, [NotNull] Rank rank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (rank == null) throw new ArgumentNullException("rank");
+            foreach (Player player in source) {
+                if (player.Info.Rank == rank) {
                     yield return player;
                 }
             }
@@ -34,11 +34,11 @@ namespace fCraft {
         /// <param name="rank"> Undesired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotRanked( [NotNull] this IEnumerable<Player> source, [NotNull] Rank rank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( rank == null ) throw new ArgumentNullException( "rank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank != rank ) {
+        public static IEnumerable<Player> NotRanked([NotNull] this IEnumerable<Player> source, [NotNull] Rank rank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (rank == null) throw new ArgumentNullException("rank");
+            foreach (Player player in source) {
+                if (player.Info.Rank != rank) {
                     yield return player;
                 }
             }
@@ -50,11 +50,11 @@ namespace fCraft {
         /// <param name="minRank"> All ranks above this one will be kept. This and lower ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAbove( [NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( minRank == null ) throw new ArgumentNullException( "minRank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank > minRank ) {
+        public static IEnumerable<Player> RankedAbove([NotNull] this IEnumerable<Player> source, [NotNull] Rank minRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (minRank == null) throw new ArgumentNullException("minRank");
+            foreach (Player player in source) {
+                if (player.Info.Rank > minRank) {
                     yield return player;
                 }
             }
@@ -66,12 +66,12 @@ namespace fCraft {
         /// <param name="minRank"> Minimum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtLeast( [NotNull] this IEnumerable<Player> source,
-                                                         [NotNull] Rank minRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( minRank == null ) throw new ArgumentNullException( "minRank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank >= minRank ) {
+        public static IEnumerable<Player> RankedAtLeast([NotNull] this IEnumerable<Player> source,
+                                                        [NotNull] Rank minRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (minRank == null) throw new ArgumentNullException("minRank");
+            foreach (Player player in source) {
+                if (player.Info.Rank >= minRank) {
                     yield return player;
                 }
             }
@@ -83,11 +83,11 @@ namespace fCraft {
         /// <param name="maxRank"> All ranks below this one will be kept. This and higher ranks will be filtered out. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedBelow( [NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank < maxRank ) {
+        public static IEnumerable<Player> RankedBelow([NotNull] this IEnumerable<Player> source, [NotNull] Rank maxRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (maxRank == null) throw new ArgumentNullException("maxRank");
+            foreach (Player player in source) {
+                if (player.Info.Rank < maxRank) {
                     yield return player;
                 }
             }
@@ -99,12 +99,12 @@ namespace fCraft {
         /// <param name="maxRank"> Maximum desired rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> RankedAtMost( [NotNull] this IEnumerable<Player> source,
-                                                        [NotNull] Rank maxRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( maxRank == null ) throw new ArgumentNullException( "maxRank" );
-            foreach( Player player in source ) {
-                if( player.Info.Rank <= maxRank ) {
+        public static IEnumerable<Player> RankedAtMost([NotNull] this IEnumerable<Player> source,
+                                                       [NotNull] Rank maxRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (maxRank == null) throw new ArgumentNullException("maxRank");
+            foreach (Player player in source) {
+                if (player.Info.Rank <= maxRank) {
                     yield return player;
                 }
             }
@@ -119,10 +119,10 @@ namespace fCraft {
         /// <param name="permission"> Permission that players are required to have. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            foreach( Player player in source ) {
-                if( player.Can( permission ) ) {
+        public static IEnumerable<Player> Can([NotNull] this IEnumerable<Player> source, Permission permission) {
+            if (source == null) throw new ArgumentNullException("source");
+            foreach (Player player in source) {
+                if (player.Can(permission)) {
                     yield return player;
                 }
             }
@@ -136,12 +136,12 @@ namespace fCraft {
         /// <param name="affectedRank"> Permission limit will be checked against this rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Can( [NotNull] this IEnumerable<Player> source, Permission permission,
-                                               [NotNull] Rank affectedRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
-            foreach( Player player in source ) {
-                if( player.Can( permission, affectedRank ) ) {
+        public static IEnumerable<Player> Can([NotNull] this IEnumerable<Player> source, Permission permission,
+                                              [NotNull] Rank affectedRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (affectedRank == null) throw new ArgumentNullException("affectedRank");
+            foreach (Player player in source) {
+                if (player.Can(permission, affectedRank)) {
                     yield return player;
                 }
             }
@@ -153,9 +153,9 @@ namespace fCraft {
         /// <param name="permission"> Permission that players are required to NOT have. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission ) {
-            foreach( Player player in source ) {
-                if( !player.Can( permission ) ) {
+        public static IEnumerable<Player> Cant([NotNull] this IEnumerable<Player> source, Permission permission) {
+            foreach (Player player in source) {
+                if (!player.Can(permission)) {
                     yield return player;
                 }
             }
@@ -169,12 +169,12 @@ namespace fCraft {
         /// <param name="affectedRank"> Permission limit will be checked against this rank. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Cant( [NotNull] this IEnumerable<Player> source, Permission permission,
-                                                [NotNull] Rank affectedRank ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( affectedRank == null ) throw new ArgumentNullException( "affectedRank" );
-            foreach( Player player in source ) {
-                if( !player.Can( permission, affectedRank ) ) {
+        public static IEnumerable<Player> Cant([NotNull] this IEnumerable<Player> source, Permission permission,
+                                               [NotNull] Rank affectedRank) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (affectedRank == null) throw new ArgumentNullException("affectedRank");
+            foreach (Player player in source) {
+                if (!player.Can(permission, affectedRank)) {
                     yield return player;
                 }
             }
@@ -187,12 +187,12 @@ namespace fCraft {
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> CanSee( [NotNull] this IEnumerable<Player> source,
-                                                  [NotNull] Player targetPlayer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
-            foreach( Player player in source ) {
-                if( player != targetPlayer && player.CanSee( targetPlayer ) ) {
+        public static IEnumerable<Player> CanSee([NotNull] this IEnumerable<Player> source,
+                                                 [NotNull] Player targetPlayer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (targetPlayer == null) throw new ArgumentNullException("targetPlayer");
+            foreach (Player player in source) {
+                if (player != targetPlayer && player.CanSee(targetPlayer)) {
                     yield return player;
                 }
             }
@@ -205,12 +205,12 @@ namespace fCraft {
         /// <param name="targetPlayer"> Player whose visibility is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> CantSee( [NotNull] this IEnumerable<Player> source,
-                                                   [NotNull] Player targetPlayer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( targetPlayer == null ) throw new ArgumentNullException( "targetPlayer" );
-            foreach( Player player in source ) {
-                if( player != targetPlayer && !player.CanSee( targetPlayer ) ) {
+        public static IEnumerable<Player> CantSee([NotNull] this IEnumerable<Player> source,
+                                                  [NotNull] Player targetPlayer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (targetPlayer == null) throw new ArgumentNullException("targetPlayer");
+            foreach (Player player in source) {
+                if (player != targetPlayer && !player.CanSee(targetPlayer)) {
                     yield return player;
                 }
             }
@@ -222,12 +222,12 @@ namespace fCraft {
         /// <param name="observer"> Player whose vision is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> CanBeSeen( [NotNull] this IEnumerable<Player> source,
-                                                     [NotNull] Player observer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( observer == null ) throw new ArgumentNullException( "observer" );
-            foreach( Player player in source ) {
-                if( player != observer && observer.CanSee( player ) ) {
+        public static IEnumerable<Player> CanBeSeen([NotNull] this IEnumerable<Player> source,
+                                                    [NotNull] Player observer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (observer == null) throw new ArgumentNullException("observer");
+            foreach (Player player in source) {
+                if (player != observer && observer.CanSee(player)) {
                     yield return player;
                 }
             }
@@ -239,12 +239,12 @@ namespace fCraft {
         /// <param name="observer"> Player whose vision is being tested. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> CantBeSeen( [NotNull] this IEnumerable<Player> source,
-                                                      [NotNull] Player observer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( observer == null ) throw new ArgumentNullException( "observer" );
-            foreach( Player player in source ) {
-                if( player != observer && !observer.CanSee( player ) ) {
+        public static IEnumerable<Player> CantBeSeen([NotNull] this IEnumerable<Player> source,
+                                                     [NotNull] Player observer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (observer == null) throw new ArgumentNullException("observer");
+            foreach (Player player in source) {
+                if (player != observer && !observer.CanSee(player)) {
                     yield return player;
                 }
             }
@@ -259,11 +259,11 @@ namespace fCraft {
         /// <param name="player"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source, [NotNull] Player player ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( player == null ) throw new ArgumentNullException( "player" );
-            foreach( Player otherPlayer in source ) {
-                if( otherPlayer.IsIgnoring( player.Info ) ) {
+        public static IEnumerable<Player> Ignoring([NotNull] this IEnumerable<Player> source, [NotNull] Player player) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (player == null) throw new ArgumentNullException("player");
+            foreach (Player otherPlayer in source) {
+                if (otherPlayer.IsIgnoring(player.Info)) {
                     yield return otherPlayer;
                 }
             }
@@ -275,12 +275,12 @@ namespace fCraft {
         /// <param name="player"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source,
-                                                       [NotNull] Player player ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( player == null ) throw new ArgumentNullException( "player" );
-            foreach( Player otherPlayer in source ) {
-                if( !otherPlayer.IsIgnoring( player.Info ) ) {
+        public static IEnumerable<Player> NotIgnoring([NotNull] this IEnumerable<Player> source,
+                                                      [NotNull] Player player) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (player == null) throw new ArgumentNullException("player");
+            foreach (Player otherPlayer in source) {
+                if (!otherPlayer.IsIgnoring(player.Info)) {
                     yield return otherPlayer;
                 }
             }
@@ -292,12 +292,12 @@ namespace fCraft {
         /// <param name="playerInfo"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> Ignoring( [NotNull] this IEnumerable<Player> source,
-                                                    [NotNull] PlayerInfo playerInfo ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
-            foreach( Player otherPlayer in source ) {
-                if( otherPlayer.IsIgnoring( playerInfo ) ) {
+        public static IEnumerable<Player> Ignoring([NotNull] this IEnumerable<Player> source,
+                                                   [NotNull] PlayerInfo playerInfo) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (playerInfo == null) throw new ArgumentNullException("playerInfo");
+            foreach (Player otherPlayer in source) {
+                if (otherPlayer.IsIgnoring(playerInfo)) {
                     yield return otherPlayer;
                 }
             }
@@ -309,12 +309,12 @@ namespace fCraft {
         /// <param name="playerInfo"> Player whose ignore standing is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotIgnoring( [NotNull] this IEnumerable<Player> source,
-                                                       [NotNull] PlayerInfo playerInfo ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( playerInfo == null ) throw new ArgumentNullException( "playerInfo" );
-            foreach( Player otherPlayer in source ) {
-                if( !otherPlayer.IsIgnoring( playerInfo ) ) {
+        public static IEnumerable<Player> NotIgnoring([NotNull] this IEnumerable<Player> source,
+                                                      [NotNull] PlayerInfo playerInfo) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (playerInfo == null) throw new ArgumentNullException("playerInfo");
+            foreach (Player otherPlayer in source) {
+                if (!otherPlayer.IsIgnoring(playerInfo)) {
                     yield return otherPlayer;
                 }
             }
@@ -326,11 +326,11 @@ namespace fCraft {
         /// <param name="ignorer"> Player whose disposition is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> IgnoredBy( [NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
-            foreach( Player otherPlayer in source ) {
-                if( ignorer.IsIgnoring( otherPlayer.Info ) ) {
+        public static IEnumerable<Player> IgnoredBy([NotNull] this IEnumerable<Player> source, [NotNull] Player ignorer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (ignorer == null) throw new ArgumentNullException("ignorer");
+            foreach (Player otherPlayer in source) {
+                if (ignorer.IsIgnoring(otherPlayer.Info)) {
                     yield return otherPlayer;
                 }
             }
@@ -342,12 +342,12 @@ namespace fCraft {
         /// <param name="ignorer"> Player whose disposition is being checked. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotIgnoredBy( [NotNull] this IEnumerable<Player> source,
-                                                        [NotNull] Player ignorer ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( ignorer == null ) throw new ArgumentNullException( "ignorer" );
-            foreach( Player otherPlayer in source ) {
-                if( !ignorer.IsIgnoring( otherPlayer.Info ) ) {
+        public static IEnumerable<Player> NotIgnoredBy([NotNull] this IEnumerable<Player> source,
+                                                       [NotNull] Player ignorer) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (ignorer == null) throw new ArgumentNullException("ignorer");
+            foreach (Player otherPlayer in source) {
+                if (!ignorer.IsIgnoring(otherPlayer.Info)) {
                     yield return otherPlayer;
                 }
             }
@@ -362,11 +362,11 @@ namespace fCraft {
         /// <param name="world"> World that players are desired to be on. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> InWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( world == null ) throw new ArgumentNullException( "world" );
-            foreach( Player player in source ) {
-                if( player.World == world ) {
+        public static IEnumerable<Player> InWorld([NotNull] this IEnumerable<Player> source, [NotNull] World world) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (world == null) throw new ArgumentNullException("world");
+            foreach (Player player in source) {
+                if (player.World == world) {
                     yield return player;
                 }
             }
@@ -378,11 +378,11 @@ namespace fCraft {
         /// <param name="world"> World that players are desired to NOT be on. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotInWorld( [NotNull] this IEnumerable<Player> source, [NotNull] World world ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( world == null ) throw new ArgumentNullException( "world" );
-            foreach( Player player in source ) {
-                if( player.World != world ) {
+        public static IEnumerable<Player> NotInWorld([NotNull] this IEnumerable<Player> source, [NotNull] World world) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (world == null) throw new ArgumentNullException("world");
+            foreach (Player player in source) {
+                if (player.World != world) {
                     yield return player;
                 }
             }
@@ -399,16 +399,16 @@ namespace fCraft {
         /// <param name="includedPlayer"> Player to add to the set. </param>
         /// <returns> A set that contains all players in the input sequence, plus the given player. </returns>
         [NotNull]
-        public static IEnumerable<Player> Union( [NotNull] this IEnumerable<Player> source,
-                                                 [NotNull] Player includedPlayer ) {
+        public static IEnumerable<Player> Union([NotNull] this IEnumerable<Player> source,
+                                                [NotNull] Player includedPlayer) {
             bool found = false;
-            foreach( Player player in source ) {
+            foreach (Player player in source) {
                 yield return player;
-                if( player == includedPlayer ) {
+                if (player == includedPlayer) {
                     found = true;
                 }
             }
-            if( !found ) {
+            if (!found) {
                 yield return includedPlayer;
             }
         }
@@ -420,10 +420,10 @@ namespace fCraft {
         /// <param name="excludedPlayer"> Player to remove from the set. </param>
         /// <returns> A set that contains all players in the input sequence, minus the given player. </returns>
         [NotNull]
-        public static IEnumerable<Player> Except( [NotNull] this IEnumerable<Player> source,
-                                                  [CanBeNull] Player excludedPlayer ) {
-            foreach( Player player in source ) {
-                if( player != excludedPlayer ) {
+        public static IEnumerable<Player> Except([NotNull] this IEnumerable<Player> source,
+                                                 [CanBeNull] Player excludedPlayer) {
+            foreach (Player player in source) {
+                if (player != excludedPlayer) {
                     yield return player;
                 }
             }
@@ -438,11 +438,11 @@ namespace fCraft {
         /// <param name="ip"> IP that we are including. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> FromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( ip == null ) throw new ArgumentNullException( "ip" );
-            foreach( Player player in source ) {
-                if( ip.Equals( player.IP ) ) {
+        public static IEnumerable<Player> FromIP([NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (ip == null) throw new ArgumentNullException("ip");
+            foreach (Player player in source) {
+                if (ip.Equals(player.IP)) {
                     yield return player;
                 }
             }
@@ -454,11 +454,11 @@ namespace fCraft {
         /// <param name="ip"> IP that we are excluding. </param>
         /// <returns> Filtered collection of players. </returns>
         [NotNull]
-        public static IEnumerable<Player> NotFromIP( [NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( ip == null ) throw new ArgumentNullException( "ip" );
-            foreach( Player player in source ) {
-                if( !ip.Equals( player.IP ) ) {
+        public static IEnumerable<Player> NotFromIP([NotNull] this IEnumerable<Player> source, [NotNull] IPAddress ip) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (ip == null) throw new ArgumentNullException("ip");
+            foreach (Player player in source) {
+                if (!ip.Equals(player.IP)) {
                     yield return player;
                 }
             }
@@ -475,20 +475,20 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
         /// <exception cref="FormatException"> Message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public static int Message( [NotNull] this IEnumerable<Player> source,
-                                   [NotNull] string message,
-                                   [NotNull] params object[] formatArgs ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
+        [StringFormatMethod("message")]
+        public static int Message([NotNull] this IEnumerable<Player> source,
+                                  [NotNull] string message,
+                                  [NotNull] params object[] formatArgs) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (message == null) throw new ArgumentNullException("message");
+            if (formatArgs == null) throw new ArgumentNullException("formatArgs");
+            if (formatArgs.Length > 0) {
+                message = String.Format(message, formatArgs);
             }
             Player[] sourceArray = source.ToArray();
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
-                foreach( Player player in sourceArray ) {
-                    player.Send( packet );
+            foreach (Packet packet in LineWrapper.Wrap(message)) {
+                foreach (Player player in sourceArray) {
+                    player.Send(packet);
                 }
             }
             return sourceArray.Length;
@@ -503,27 +503,27 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> source, message, or formatArgs is null. </exception>
         /// <exception cref="FormatException"> Message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public static int Message( [NotNull] this IEnumerable<Player> source,
-                                   [CanBeNull] Player except,
-                                   [NotNull] string message,
-                                   [NotNull] params object[] formatArgs ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
+        [StringFormatMethod("message")]
+        public static int Message([NotNull] this IEnumerable<Player> source,
+                                  [CanBeNull] Player except,
+                                  [NotNull] string message,
+                                  [NotNull] params object[] formatArgs) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (message == null) throw new ArgumentNullException("message");
+            if (formatArgs == null) throw new ArgumentNullException("formatArgs");
+            if (formatArgs.Length > 0) {
+                message = String.Format(message, formatArgs);
             }
             int skipped = 0;
             Player[] sourceArray = source.ToArray();
-            foreach( Packet packet in LineWrapper.Wrap( message ) ) {
+            foreach (Packet packet in LineWrapper.Wrap(message)) {
                 skipped = 0;
-                foreach( Player player in sourceArray ) {
-                    if( player == except ) {
+                foreach (Player player in sourceArray) {
+                    if (player == except) {
                         skipped++;
                         continue;
                     }
-                    player.Send( packet );
+                    player.Send(packet);
                 }
             }
             return sourceArray.Length - skipped;
@@ -539,20 +539,20 @@ namespace fCraft {
         /// <returns> Number of players who received the message. </returns>
         /// <exception cref="ArgumentNullException"> source, prefix, message, or formatArgs is null. </exception>
         /// <exception cref="FormatException"> Message format is invalid. </exception>
-        [StringFormatMethod( "message" )]
-        public static int MessagePrefixed( [NotNull] this IEnumerable<Player> source, [NotNull] string prefix,
-                                           [NotNull] string message, [NotNull] params object[] formatArgs ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
-            if( message == null ) throw new ArgumentNullException( "message" );
-            if( prefix == null ) throw new ArgumentNullException( "prefix" );
-            if( formatArgs == null ) throw new ArgumentNullException( "formatArgs" );
-            if( formatArgs.Length > 0 ) {
-                message = String.Format( message, formatArgs );
+        [StringFormatMethod("message")]
+        public static int MessagePrefixed([NotNull] this IEnumerable<Player> source, [NotNull] string prefix,
+                                          [NotNull] string message, [NotNull] params object[] formatArgs) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (message == null) throw new ArgumentNullException("message");
+            if (prefix == null) throw new ArgumentNullException("prefix");
+            if (formatArgs == null) throw new ArgumentNullException("formatArgs");
+            if (formatArgs.Length > 0) {
+                message = String.Format(message, formatArgs);
             }
             Player[] sourceArray = source.ToArray();
-            foreach( Packet packet in LineWrapper.WrapPrefixed( prefix, message ) ) {
-                foreach( Player player in sourceArray ) {
-                    player.Send( packet );
+            foreach (Packet packet in LineWrapper.WrapPrefixed(prefix, message)) {
+                foreach (Player player in sourceArray) {
+                    player.Send(packet);
                 }
             }
             return sourceArray.Length;
@@ -566,11 +566,11 @@ namespace fCraft {
         /// <param name="source"> List of players who will receive the packet. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
-        public static int Send( [NotNull] this IEnumerable<Player> source, Packet packet ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
+        public static int Send([NotNull] this IEnumerable<Player> source, Packet packet) {
+            if (source == null) throw new ArgumentNullException("source");
             int i = 0;
-            foreach( Player player in source ) {
-                player.Send( packet );
+            foreach (Player player in source) {
+                player.Send(packet);
                 i++;
             }
             return i;
@@ -582,12 +582,12 @@ namespace fCraft {
         /// <param name="except"> Player to exclude from the recipient list. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
-        public static int Send( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, Packet packet ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
+        public static int Send([NotNull] this IEnumerable<Player> source, [CanBeNull] Player except, Packet packet) {
+            if (source == null) throw new ArgumentNullException("source");
             int i = 0;
-            foreach( Player player in source ) {
-                if( player == except ) continue;
-                player.Send( packet );
+            foreach (Player player in source) {
+                if (player == except) continue;
+                player.Send(packet);
                 i++;
             }
             return i;
@@ -598,11 +598,11 @@ namespace fCraft {
         /// <param name="source"> List of players who will receive the packet. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
-        public static int SendLowPriority( [NotNull] this IEnumerable<Player> source, Packet packet ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
+        public static int SendLowPriority([NotNull] this IEnumerable<Player> source, Packet packet) {
+            if (source == null) throw new ArgumentNullException("source");
             int i = 0;
-            foreach( Player player in source ) {
-                player.SendLowPriority( packet );
+            foreach (Player player in source) {
+                player.SendLowPriority(packet);
                 i++;
             }
             return i;
@@ -614,13 +614,13 @@ namespace fCraft {
         /// <param name="except"> Player to exclude from the recipient list. </param>
         /// <param name="packet"> Packet to send. </param>
         /// <returns> Number of players who received the packet. </returns>
-        public static int SendLowPriority( [NotNull] this IEnumerable<Player> source, [CanBeNull] Player except,
-                                           Packet packet ) {
-            if( source == null ) throw new ArgumentNullException( "source" );
+        public static int SendLowPriority([NotNull] this IEnumerable<Player> source, [CanBeNull] Player except,
+                                          Packet packet) {
+            if (source == null) throw new ArgumentNullException("source");
             int i = 0;
-            foreach( Player player in source ) {
-                if( player == except ) continue;
-                player.SendLowPriority( packet );
+            foreach (Player player in source) {
+                if (player == except) continue;
+                player.SendLowPriority(packet);
                 i++;
             }
             return i;

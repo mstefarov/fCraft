@@ -22,11 +22,12 @@ namespace fCraft.MapConversion {
             get { return MapFormat.Raw; }
         }
 
-        public void Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.Create( fileName ) ) {
-                mapStream.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
+
+        public void Save(Map mapToSave, string fileName) {
+            if (mapToSave == null) throw new ArgumentNullException("mapToSave");
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.Create(fileName)) {
+                mapStream.Write(mapToSave.Blocks, 0, mapToSave.Blocks.Length);
             }
         }
     }

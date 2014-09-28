@@ -41,8 +41,9 @@ namespace JetBrains.Annotations {
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter |
         AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class CanBeNullAttribute : Attribute { }
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public sealed class CanBeNullAttribute : Attribute {}
+
 
     /// <summary>
     /// Indicates that the value of the marked element could never be <c>null</c>
@@ -55,6 +56,6 @@ namespace JetBrains.Annotations {
     [AttributeUsage(
         AttributeTargets.Method | AttributeTargets.Parameter |
         AttributeTargets.Property | AttributeTargets.Delegate |
-        AttributeTargets.Field, AllowMultiple = false, Inherited = true )]
-    public sealed class NotNullAttribute : Attribute { }
+        AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
+    public sealed class NotNullAttribute : Attribute {}
 }

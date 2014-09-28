@@ -25,27 +25,30 @@ namespace fCraft.MapConversion {
     /// <summary> IMapConverter that provides functionality for identifying and saving maps from files. </summary>
     public interface IMapImporter : IMapConverter {
         /// <summary> Returns true if the file name (or directory name) matches this format's expectations. </summary>
-        bool ClaimsName( [NotNull] string path );
+        bool ClaimsName([NotNull] string path);
+
 
         /// <summary> Allows validating the map format while using minimal resources. </summary>
         /// <returns> Returns true if specified file/directory is valid for this format. </returns>
-        bool Claims( [NotNull] string path );
+        bool Claims([NotNull] string path);
+
 
         /// <summary> Attempts to load map dimensions from specified location.
         /// Throws MapFormatException on failure. </summary>
         [NotNull]
-        Map LoadHeader( [NotNull] string path );
+        Map LoadHeader([NotNull] string path);
+
 
         /// <summary> Fully loads map from specified location.
         /// Throws MapFormatException on failure. </summary>
         [NotNull]
-        Map Load( [NotNull] string path );
+        Map Load([NotNull] string path);
     }
 
 
     /// <summary> IMapConverter that provides functionality for saving maps to files. </summary>
     public interface IMapExporter : IMapConverter {
         /// <summary> Saves given map at the given location. </summary>
-        void Save( [NotNull] Map mapToSave, [NotNull] string path );
+        void Save([NotNull] Map mapToSave, [NotNull] string path);
     }
 }

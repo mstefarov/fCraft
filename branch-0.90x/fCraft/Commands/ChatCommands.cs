@@ -8,31 +8,31 @@ using JetBrains.Annotations;
 namespace fCraft {
     internal static class ChatCommands {
         public static void Init() {
-            CommandManager.RegisterCommand( CdSay );
-            CommandManager.RegisterCommand( CdStaff );
+            CommandManager.RegisterCommand(CdSay);
+            CommandManager.RegisterCommand(CdStaff);
 
-            CommandManager.RegisterCommand( CdIgnore );
-            CommandManager.RegisterCommand( CdUnignore );
+            CommandManager.RegisterCommand(CdIgnore);
+            CommandManager.RegisterCommand(CdUnignore);
 
-            CommandManager.RegisterCommand( CdMe );
+            CommandManager.RegisterCommand(CdMe);
 
-            CommandManager.RegisterCommand( CdRoll );
+            CommandManager.RegisterCommand(CdRoll);
 
-            CommandManager.RegisterCommand( CdDeafen );
+            CommandManager.RegisterCommand(CdDeafen);
 
-            CommandManager.RegisterCommand( CdClear );
+            CommandManager.RegisterCommand(CdClear);
 
-            CommandManager.RegisterCommand( CdTimer );
-            CommandManager.RegisterCommand( CdReply );
+            CommandManager.RegisterCommand(CdTimer);
+            CommandManager.RegisterCommand(CdReply);
         }
 
         #region Reply
 
         static readonly CommandDescriptor CdReply = new CommandDescriptor {
             Name = "Reply",
-            Aliases = new[] {"Re"},
+            Aliases = new[] { "Re" },
             Category = CommandCategory.Chat,
-            Permissions = new[] {Permission.Chat},
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             UsableByFrozenPlayers = true,
             Usage = "/Re <Message>",
@@ -41,41 +41,42 @@ namespace fCraft {
             Handler = ReplyHandler
         };
 
-        static void ReplyHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+
+        static void ReplyHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
             string messageText = cmd.NextAll();
-            if( messageText.Length == 0 ) {
-                player.Message( "Reply: No message to send!" );
+            if (messageText.Length == 0) {
+                player.Message("Reply: No message to send!");
                 return;
             }
             string targetName = player.LastPrivateMessageSender;
-            if( targetName != null ) {
-                Player targetPlayer = Server.FindPlayerExact( player,
-                                                              targetName,
-                                                              SearchOptions.IncludeHidden );
-                if( targetPlayer != null ) {
-                    if( player.CanSee( targetPlayer ) ) {
-                        if( targetPlayer.IsDeaf ) {
-                            player.Message( "Cannot PM {0}&S: they are currently deaf.", targetPlayer.ClassyName );
-                        } else if( targetPlayer.IsIgnoring( player.Info ) ) {
-                            player.Message( "&WCannot PM {0}&W: you are ignored.", targetPlayer.ClassyName );
+            if (targetName != null) {
+                Player targetPlayer = Server.FindPlayerExact(player,
+                                                             targetName,
+                                                             SearchOptions.IncludeHidden);
+                if (targetPlayer != null) {
+                    if (player.CanSee(targetPlayer)) {
+                        if (targetPlayer.IsDeaf) {
+                            player.Message("Cannot PM {0}&S: they are currently deaf.", targetPlayer.ClassyName);
+                        } else if (targetPlayer.IsIgnoring(player.Info)) {
+                            player.Message("&WCannot PM {0}&W: you are ignored.", targetPlayer.ClassyName);
                         } else {
-                            Chat.SendPM( player, targetPlayer, messageText );
-                            player.MessageNow( "&Pto {0}: {1}", targetPlayer.Name, messageText );
+                            Chat.SendPM(player, targetPlayer, messageText);
+                            player.MessageNow("&Pto {0}: {1}", targetPlayer.Name, messageText);
                         }
                     } else {
-                        player.Message( "Reply: Cannot send message; player {0}&S is offline.",
-                                        PlayerDB.FindExactClassyName( targetName ) );
-                        if( targetPlayer.CanHear( player ) ) {
-                            Chat.SendPM( player, targetPlayer, messageText );
+                        player.Message("Reply: Cannot send message; player {0}&S is offline.",
+                                       PlayerDB.FindExactClassyName(targetName));
+                        if (targetPlayer.CanHear(player)) {
+                            Chat.SendPM(player, targetPlayer, messageText);
                             player.Info.DecrementMessageWritten();
                         }
                     }
                 } else {
-                    player.Message( "Reply: Cannot send message; player {0}&S is offline.",
-                                    PlayerDB.FindExactClassyName( targetName ) );
+                    player.Message("Reply: Cannot send message; player {0}&S is offline.",
+                                   PlayerDB.FindExactClassyName(targetName));
                 }
             } else {
-                player.Message( "Reply: You have not sent any messages yet." );
+                player.Message("Reply: You have not sent any messages yet.");
             }
         }
 
@@ -85,36 +86,37 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdSay = new CommandDescriptor {
             Name = "Say",
-            Aliases = new[] {"Broadcast"},
+            Aliases = new[] { "Broadcast" },
             Category = CommandCategory.Chat,
             IsConsoleSafe = true,
             NotRepeatable = true,
             DisableLogging = true,
             UsableByFrozenPlayers = true,
-            Permissions = new[] {Permission.Chat, Permission.Say},
+            Permissions = new[] { Permission.Chat, Permission.Say },
             Usage = "/Say Message",
             Help = "Shows a message in special color, without the player name prefix. " +
                    "Can be used for making announcements.",
             Handler = SayHandler
         };
 
-        static void SayHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( player.Info.IsMuted ) {
+
+        static void SayHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (player.Info.IsMuted) {
                 player.MessageMuted();
                 return;
             }
 
-            if( player.DetectChatSpam() ) return;
+            if (player.DetectChatSpam()) return;
 
-            if( player.Can( Permission.Say ) ) {
-                string msg = cmd.NextAll().Trim( ' ' );
-                if( msg.Length > 0 ) {
-                    Chat.SendSay( player, msg );
+            if (player.Can(Permission.Say)) {
+                string msg = cmd.NextAll().Trim(' ');
+                if (msg.Length > 0) {
+                    Chat.SendSay(player, msg);
                 } else {
-                    CdSay.PrintUsage( player );
+                    CdSay.PrintUsage(player);
                 }
             } else {
-                player.MessageNoAccess( Permission.Say );
+                player.MessageNoAccess(Permission.Say);
             }
         }
 
@@ -124,9 +126,9 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdStaff = new CommandDescriptor {
             Name = "Staff",
-            Aliases = new[] {"St"},
+            Aliases = new[] { "St" },
             Category = CommandCategory.Chat | CommandCategory.Moderation,
-            Permissions = new[] {Permission.Chat},
+            Permissions = new[] { Permission.Chat },
             NotRepeatable = true,
             IsConsoleSafe = true,
             DisableLogging = true,
@@ -136,17 +138,18 @@ namespace fCraft {
             Handler = StaffHandler
         };
 
-        static void StaffHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( player.Info.IsMuted ) {
+
+        static void StaffHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (player.Info.IsMuted) {
                 player.MessageMuted();
                 return;
             }
 
-            if( player.DetectChatSpam() ) return;
+            if (player.DetectChatSpam()) return;
 
-            string message = cmd.NextAll().Trim( ' ' );
-            if( message.Length > 0 ) {
-                Chat.SendStaff( player, message );
+            string message = cmd.NextAll().Trim(' ');
+            if (message.Length > 0) {
+                Chat.SendStaff(player, message);
             }
         }
 
@@ -164,31 +167,32 @@ namespace fCraft {
             Handler = IgnoreHandler
         };
 
-        static void IgnoreHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+
+        static void IgnoreHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
             string name = cmd.Next();
-            if( name != null ) {
-                if( cmd.HasNext ) {
+            if (name != null) {
+                if (cmd.HasNext) {
                     // too many parameters given
-                    CdIgnore.PrintUsage( player );
+                    CdIgnore.PrintUsage(player);
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player,
-                                                                               name,
-                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
-                if( targetInfo == null ) return;
-                if( targetInfo == player.Info ) {
-                    player.Message( "You cannot &H/Ignore&S yourself." );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches(player,
+                                                                              name,
+                                                                              SearchOptions.ReturnSelfIfOnlyMatch);
+                if (targetInfo == null) return;
+                if (targetInfo == player.Info) {
+                    player.Message("You cannot &H/Ignore&S yourself.");
                     return;
                 }
 
-                if( player.Ignore( targetInfo ) ) {
-                    player.MessageNow( "You are now ignoring {0}", targetInfo.ClassyName );
+                if (player.Ignore(targetInfo)) {
+                    player.MessageNow("You are now ignoring {0}", targetInfo.ClassyName);
                 } else {
-                    player.MessageNow( "You are already ignoring {0}", targetInfo.ClassyName );
+                    player.MessageNow("You are already ignoring {0}", targetInfo.ClassyName);
                 }
             } else {
-                ListIgnoredPlayers( player );
+                ListIgnoredPlayers(player);
             }
         }
 
@@ -202,42 +206,43 @@ namespace fCraft {
             Handler = UnignoreHandler
         };
 
-        static void UnignoreHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+
+        static void UnignoreHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
             string name = cmd.Next();
-            if( name != null ) {
-                if( cmd.HasNext ) {
+            if (name != null) {
+                if (cmd.HasNext) {
                     // too many parameters given
-                    CdUnignore.PrintUsage( player );
+                    CdUnignore.PrintUsage(player);
                     return;
                 }
                 // A name was given -- let's find the target
-                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches( player,
-                                                                               name,
-                                                                               SearchOptions.ReturnSelfIfOnlyMatch );
-                if( targetInfo == null ) return;
-                if( targetInfo == player.Info ) {
-                    player.Message( "You cannot &H/Ignore&S (or &H/Unignore&S) yourself." );
+                PlayerInfo targetInfo = PlayerDB.FindPlayerInfoOrPrintMatches(player,
+                                                                              name,
+                                                                              SearchOptions.ReturnSelfIfOnlyMatch);
+                if (targetInfo == null) return;
+                if (targetInfo == player.Info) {
+                    player.Message("You cannot &H/Ignore&S (or &H/Unignore&S) yourself.");
                     return;
                 }
 
-                if( player.Unignore( targetInfo ) ) {
-                    player.MessageNow( "You are no longer ignoring {0}", targetInfo.ClassyName );
+                if (player.Unignore(targetInfo)) {
+                    player.MessageNow("You are no longer ignoring {0}", targetInfo.ClassyName);
                 } else {
-                    player.MessageNow( "You are not currently ignoring {0}", targetInfo.ClassyName );
+                    player.MessageNow("You are not currently ignoring {0}", targetInfo.ClassyName);
                 }
             } else {
-                ListIgnoredPlayers( player );
+                ListIgnoredPlayers(player);
             }
         }
 
 
-        static void ListIgnoredPlayers( [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        static void ListIgnoredPlayers([NotNull] Player player) {
+            if (player == null) throw new ArgumentNullException("player");
             PlayerInfo[] ignoreList = player.IgnoreList;
-            if( ignoreList.Length > 0 ) {
-                player.MessageNow( "Ignored players: {0}", ignoreList.JoinToClassyString() );
+            if (ignoreList.Length > 0) {
+                player.MessageNow("Ignored players: {0}", ignoreList.JoinToClassyString());
             } else {
-                player.MessageNow( "You are not currently ignoring anyone." );
+                player.MessageNow("You are not currently ignoring anyone.");
             }
         }
 
@@ -248,7 +253,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdMe = new CommandDescriptor {
             Name = "Me",
             Category = CommandCategory.Chat,
-            Permissions = new[] {Permission.Chat},
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             NotRepeatable = true,
             DisableLogging = true,
@@ -258,19 +263,20 @@ namespace fCraft {
             Handler = MeHandler
         };
 
-        static void MeHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( player.Info.IsMuted ) {
+
+        static void MeHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (player.Info.IsMuted) {
                 player.MessageMuted();
                 return;
             }
 
-            if( player.DetectChatSpam() ) return;
+            if (player.DetectChatSpam()) return;
 
-            string msg = cmd.NextAll().Trim( ' ' );
-            if( msg.Length > 0 ) {
-                Chat.SendMe( player, msg );
+            string msg = cmd.NextAll().Trim(' ');
+            if (msg.Length > 0) {
+                Chat.SendMe(player, msg);
             } else {
-                CdMe.PrintUsage( player );
+                CdMe.PrintUsage(player);
             }
         }
 
@@ -281,7 +287,7 @@ namespace fCraft {
         static readonly CommandDescriptor CdRoll = new CommandDescriptor {
             Name = "Roll",
             Category = CommandCategory.Chat,
-            Permissions = new[] {Permission.Chat},
+            Permissions = new[] { Permission.Chat },
             IsConsoleSafe = true,
             Help = "Gives random number between 1 and 100.\n" +
                    "&H/Roll MaxNumber\n" +
@@ -291,48 +297,49 @@ namespace fCraft {
             Handler = RollHandler
         };
 
-        static void RollHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( player.Info.IsMuted ) {
+
+        static void RollHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (player.Info.IsMuted) {
                 player.MessageMuted();
                 return;
             }
 
-            if( player.DetectChatSpam() ) return;
+            if (player.DetectChatSpam()) return;
 
             Random rand = new Random();
             int n1;
             int min, max;
-            if( cmd.NextInt( out n1 ) ) {
+            if (cmd.NextInt(out n1)) {
                 int n2;
-                if( !cmd.NextInt( out n2 ) ) {
+                if (!cmd.NextInt(out n2)) {
                     n2 = 1;
                 }
-                min = Math.Min( n1, n2 );
-                max = Math.Max( n1, n2 );
+                min = Math.Min(n1, n2);
+                max = Math.Max(n1, n2);
             } else {
                 min = 1;
                 max = 100;
             }
-            if( max == Int32.MaxValue - 1 ) {
-                player.Message( "Roll: Given values must be between {0} and {1}",
-                                Int32.MinValue,
-                                Int32.MaxValue - 1 );
+            if (max == Int32.MaxValue - 1) {
+                player.Message("Roll: Given values must be between {0} and {1}",
+                               Int32.MinValue,
+                               Int32.MaxValue - 1);
                 return;
             }
 
-            int num = rand.Next( min, max + 1 );
-            Server.Message( player,
-                            "{0}{1} rolled {2} ({3}...{4})",
-                            player.ClassyName,
-                            ChatColor.Silver,
-                            num,
-                            min,
-                            max );
-            player.Message( "{0}You rolled {1} ({2}...{3})",
-                            ChatColor.Silver,
-                            num,
-                            min,
-                            max );
+            int num = rand.Next(min, max + 1);
+            Server.Message(player,
+                           "{0}{1} rolled {2} ({3}...{4})",
+                           player.ClassyName,
+                           ChatColor.Silver,
+                           num,
+                           min,
+                           max);
+            player.Message("{0}You rolled {1} ({2}...{3})",
+                           ChatColor.Silver,
+                           num,
+                           min,
+                           max);
         }
 
         #endregion
@@ -341,27 +348,28 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdDeafen = new CommandDescriptor {
             Name = "Deafen",
-            Aliases = new[] {"Deaf"},
+            Aliases = new[] { "Deaf" },
             Category = CommandCategory.Chat,
             Help = "Blocks all chat messages from being sent to you.",
             Handler = DeafenHandler
         };
 
-        static void DeafenHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                CdDeafen.PrintUsage( player );
+
+        static void DeafenHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (cmd.HasNext) {
+                CdDeafen.PrintUsage(player);
                 return;
             }
-            if( !player.IsDeaf ) {
-                for( int i = 0; i < LinesToClear; i++ ) {
-                    player.MessageNow( "" );
+            if (!player.IsDeaf) {
+                for (int i = 0; i < LinesToClear; i++) {
+                    player.MessageNow("");
                 }
-                player.MessageNow( "Deafened mode: ON" );
-                player.MessageNow( "You will not see ANY messages until you type &H/Deafen&S again." );
+                player.MessageNow("Deafened mode: ON");
+                player.MessageNow("You will not see ANY messages until you type &H/Deafen&S again.");
                 player.IsDeaf = true;
             } else {
                 player.IsDeaf = false;
-                player.MessageNow( "Deafened mode: OFF" );
+                player.MessageNow("Deafened mode: OFF");
             }
         }
 
@@ -379,13 +387,14 @@ namespace fCraft {
             Handler = ClearHandler
         };
 
-        static void ClearHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                CdClear.PrintUsage( player );
+
+        static void ClearHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            if (cmd.HasNext) {
+                CdClear.PrintUsage(player);
                 return;
             }
-            for( int i = 0; i < LinesToClear; i++ ) {
-                player.Message( "" );
+            for (int i = 0; i < LinesToClear; i++) {
+                player.Message("");
             }
         }
 
@@ -395,7 +404,7 @@ namespace fCraft {
 
         static readonly CommandDescriptor CdTimer = new CommandDescriptor {
             Name = "Timer",
-            Permissions = new[] {Permission.UseTimers},
+            Permissions = new[] { Permission.UseTimers },
             IsConsoleSafe = true,
             Category = CommandCategory.Chat,
             Usage = "/Timer <Duration> <Message>",
@@ -411,82 +420,83 @@ namespace fCraft {
             Handler = TimerHandler
         };
 
-        static void TimerHandler( [NotNull] Player player, [NotNull] CommandReader cmd ) {
+
+        static void TimerHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
             string param = cmd.Next();
 
             // List timers
-            if( param == null ) {
-                ChatTimer[] list = ChatTimer.TimerList.OrderBy( timer => timer.TimeLeft ).ToArray();
-                if( list.Length == 0 ) {
-                    player.Message( "No timers running." );
+            if (param == null) {
+                ChatTimer[] list = ChatTimer.TimerList.OrderBy(timer => timer.TimeLeft).ToArray();
+                if (list.Length == 0) {
+                    player.Message("No timers running.");
                 } else {
-                    player.Message( "There are {0} timers running:", list.Length );
-                    foreach( ChatTimer timer in list ) {
-                        player.Message( "  #{0} \"{1}&S\" (started by {2}, {3} left)",
-                                        timer.Id,
-                                        timer.Message,
-                                        timer.StartedBy,
-                                        timer.TimeLeft.ToMiniString() );
+                    player.Message("There are {0} timers running:", list.Length);
+                    foreach (ChatTimer timer in list) {
+                        player.Message("  #{0} \"{1}&S\" (started by {2}, {3} left)",
+                                       timer.Id,
+                                       timer.Message,
+                                       timer.StartedBy,
+                                       timer.TimeLeft.ToMiniString());
                     }
                 }
                 return;
             }
 
             // Abort a timer
-            if( param.Equals( "abort", StringComparison.OrdinalIgnoreCase ) ) {
+            if (param.Equals("abort", StringComparison.OrdinalIgnoreCase)) {
                 int timerId;
-                if( cmd.NextInt( out timerId ) ) {
-                    ChatTimer timer = ChatTimer.FindTimerById( timerId );
-                    if( timer == null || !timer.IsRunning ) {
-                        player.Message( "Given timer (#{0}) does not exist.", timerId );
+                if (cmd.NextInt(out timerId)) {
+                    ChatTimer timer = ChatTimer.FindTimerById(timerId);
+                    if (timer == null || !timer.IsRunning) {
+                        player.Message("Given timer (#{0}) does not exist.", timerId);
                     } else {
                         timer.Abort();
-                        string abortMsg = String.Format( "&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",
-                                                         player.ClassyName,
-                                                         timer.TimeLeft.ToMiniString(),
-                                                         timer.Message );
-                        Chat.SendSay( player, abortMsg );
+                        string abortMsg = String.Format("&Y(Timer) {0}&Y aborted a timer with {1} left: {2}",
+                                                        player.ClassyName,
+                                                        timer.TimeLeft.ToMiniString(),
+                                                        timer.Message);
+                        Chat.SendSay(player, abortMsg);
                     }
                 } else {
-                    CdTimer.PrintUsage( player );
+                    CdTimer.PrintUsage(player);
                 }
                 return;
             }
 
             // Start a timer
-            if( player.Info.IsMuted ) {
+            if (player.Info.IsMuted) {
                 player.MessageMuted();
                 return;
             }
-            if( player.DetectChatSpam() ) return;
+            if (player.DetectChatSpam()) return;
             TimeSpan duration;
-            if( !param.TryParseMiniTimeSpan( out duration ) ) {
-                CdTimer.PrintUsage( player );
+            if (!param.TryParseMiniTimeSpan(out duration)) {
+                CdTimer.PrintUsage(player);
                 return;
             }
-            if( duration > DateTimeUtil.MaxTimeSpan ) {
+            if (duration > DateTimeUtil.MaxTimeSpan) {
                 player.MessageMaxTimeSpan();
                 return;
             }
-            if( duration < ChatTimer.MinDuration ) {
-                player.Message( "Timer: Must be at least 1 second." );
+            if (duration < ChatTimer.MinDuration) {
+                player.Message("Timer: Must be at least 1 second.");
                 return;
             }
 
             string sayMessage;
             string message = cmd.NextAll();
-            if( String.IsNullOrWhiteSpace( message ) ) {
-                sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer",
-                                            player.ClassyName,
-                                            duration.ToMiniString() );
+            if (String.IsNullOrWhiteSpace(message)) {
+                sayMessage = String.Format("&Y(Timer) {0}&Y started a {1} timer",
+                                           player.ClassyName,
+                                           duration.ToMiniString());
             } else {
-                sayMessage = String.Format( "&Y(Timer) {0}&Y started a {1} timer: {2}",
-                                            player.ClassyName,
-                                            duration.ToMiniString(),
-                                            message );
+                sayMessage = String.Format("&Y(Timer) {0}&Y started a {1} timer: {2}",
+                                           player.ClassyName,
+                                           duration.ToMiniString(),
+                                           message);
             }
-            Chat.SendSay( player, sayMessage );
-            ChatTimer.Start( duration, message, player.Name );
+            Chat.SendSay(player, sayMessage);
+            ChatTimer.Start(duration, message, player.Name);
         }
 
         #endregion

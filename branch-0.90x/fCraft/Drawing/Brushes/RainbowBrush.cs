@@ -19,7 +19,6 @@ namespace fCraft.Drawing {
             Block.Violet
         };
 
-
         public string Name {
             get { return "Rainbow"; }
         }
@@ -36,7 +35,6 @@ namespace fCraft.Drawing {
             get { return "Rainbow brush: Creates a diagonal 7-color rainbow pattern."; }
         }
 
-
         public string Description {
             get { return Name; }
         }
@@ -45,26 +43,29 @@ namespace fCraft.Drawing {
             get { return this; }
         }
 
-
         RainbowBrush() {}
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
             return this;
         }
+
 
         public IBrush MakeDefault() {
             return this;
         }
 
-        public bool Begin( Player player, DrawOperation state ) {
+
+        public bool Begin(Player player, DrawOperation state) {
             return true;
         }
 
-        public Block NextBlock( DrawOperation state ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
+
+        public Block NextBlock(DrawOperation state) {
+            if (state == null) throw new ArgumentNullException("state");
             return Rainbow[(state.Coords.X + state.Coords.Y + state.Coords.Z)%7];
         }
+
 
         public void End() {}
 

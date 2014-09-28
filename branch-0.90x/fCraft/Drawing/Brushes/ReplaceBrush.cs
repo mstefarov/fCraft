@@ -9,9 +9,11 @@ namespace fCraft.Drawing {
         /// <summary> Singleton instance of the ReplaceBrushFactory. </summary>
         public static readonly ReplaceBrushFactory Instance = new ReplaceBrushFactory();
 
+
         ReplaceBrushFactory() {
-            Aliases = new[] {"r"};
+            Aliases = new[] { "r" };
         }
+
 
         public string Name {
             get { return "Replace"; }
@@ -27,25 +29,25 @@ namespace fCraft.Drawing {
         }
 
 
-        public IBrush MakeBrush( Player player, CommandReader cmd ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( cmd == null ) throw new ArgumentNullException( "cmd" );
+        public IBrush MakeBrush(Player player, CommandReader cmd) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (cmd == null) throw new ArgumentNullException("cmd");
 
             Stack<Block> blocks = new Stack<Block>();
-            while( cmd.HasNext ) {
+            while (cmd.HasNext) {
                 Block block;
-                if( !cmd.NextBlock( player, false, out block ) ) return null;
-                blocks.Push( block );
+                if (!cmd.NextBlock(player, false, out block)) return null;
+                blocks.Push(block);
             }
-            switch( blocks.Count ) {
+            switch (blocks.Count) {
                 case 0:
-                    player.Message( "{0}: Please specify at least one block type.", Name );
+                    player.Message("{0}: Please specify at least one block type.", Name);
                     return null;
                 case 1:
-                    return new ReplaceBrush( blocks.ToArray(), Block.None );
+                    return new ReplaceBrush(blocks.ToArray(), Block.None);
                 default:
                     Block replacement = blocks.Pop();
-                    return new ReplaceBrush( blocks.ToArray(), replacement );
+                    return new ReplaceBrush(blocks.ToArray(), replacement);
             }
         }
 
@@ -64,7 +66,7 @@ namespace fCraft.Drawing {
         public Block Replacement { get; protected set; }
 
 
-        public ReplaceBrush( Block[] blocks, Block replacement ) {
+        public ReplaceBrush(Block[] blocks, Block replacement) {
             Blocks = blocks;
             Replacement = replacement;
         }
@@ -74,42 +76,40 @@ namespace fCraft.Drawing {
             get { return ReplaceBrushFactory.Instance; }
         }
 
-
         public string Description {
             get {
-                if( Blocks == null ) {
+                if (Blocks == null) {
                     return Factory.Name;
-                } else if( Replacement == Block.None ) {
-                    return String.Format( "{0}({1} -> ?)",
-                                          Factory.Name,
-                                          Blocks.JoinToString() );
+                } else if (Replacement == Block.None) {
+                    return String.Format("{0}({1} -> ?)",
+                                         Factory.Name,
+                                         Blocks.JoinToString());
                 } else {
-                    return String.Format( "{0}({1} -> {2})",
-                                          Factory.Name,
-                                          Blocks.JoinToString(),
-                                          Replacement );
+                    return String.Format("{0}({1} -> {2})",
+                                         Factory.Name,
+                                         Blocks.JoinToString(),
+                                         Replacement);
                 }
             }
         }
-
 
         public int AlternateBlocks {
             get { return 1; }
         }
 
 
-        public bool Begin( Player player, DrawOperation op ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
-            if( op == null ) throw new ArgumentNullException( "op" );
-            if( Blocks == null || Blocks.Length == 0 ) {
-                throw new InvalidOperationException( "No blocks given." );
+        public bool Begin(Player player, DrawOperation op) {
+            if (player == null) throw new ArgumentNullException("player");
+            if (op == null) throw new ArgumentNullException("op");
+            if (Blocks == null || Blocks.Length == 0) {
+                throw new InvalidOperationException("No blocks given.");
             }
-            if( Replacement == Block.None ) {
-                if( player.LastUsedBlockType == Block.None ) {
-                    player.Message( "Cannot deduce desired replacement block. Click a block or type out the block name." );
+            if (Replacement == Block.None) {
+                if (player.LastUsedBlockType == Block.None) {
+                    player.Message("Cannot deduce desired replacement block. Click a block or type out the block name.");
                     return false;
                 } else {
-                    Replacement = player.GetBind( player.LastUsedBlockType );
+                    Replacement = player.GetBind(player.LastUsedBlockType);
                 }
             }
             op.Context |= BlockChangeContext.Replaced;
@@ -117,11 +117,11 @@ namespace fCraft.Drawing {
         }
 
 
-        public virtual Block NextBlock( DrawOperation op ) {
-            if( op == null ) throw new ArgumentNullException( "op" );
-            Block block = op.Map.GetBlock( op.Coords );
-            for( int i = 0; i < Blocks.Length; i++ ) {
-                if( block == Blocks[i] ) {
+        public virtual Block NextBlock(DrawOperation op) {
+            if (op == null) throw new ArgumentNullException("op");
+            Block block = op.Map.GetBlock(op.Coords);
+            for (int i = 0; i < Blocks.Length; i++) {
+                if (block == Blocks[i]) {
                     return Replacement;
                 }
             }
@@ -133,7 +133,7 @@ namespace fCraft.Drawing {
 
 
         public virtual IBrush Clone() {
-            return new ReplaceBrush( Blocks, Replacement );
+            return new ReplaceBrush(Blocks, Replacement);
         }
     }
 }

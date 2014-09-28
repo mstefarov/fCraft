@@ -13,13 +13,13 @@ namespace fCraft {
         /// If the items are not strings, .ToString() is called on them. </summary>
         [NotNull]
         [Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items ) {
-            if( items == null ) throw new ArgumentNullException( "items" );
+        public static string JoinToString<T>([NotNull] this IEnumerable<T> items) {
+            if (items == null) throw new ArgumentNullException("items");
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            foreach( T item in items ) {
-                if( !first ) sb.Append( ',' ).Append( ' ' );
-                sb.Append( item );
+            foreach (T item in items) {
+                if (!first) sb.Append(',').Append(' ');
+                sb.Append(item);
                 first = false;
             }
             return sb.ToString();
@@ -30,14 +30,14 @@ namespace fCraft {
         /// If the items are not strings, .ToString() is called on them. </summary>
         [NotNull]
         [Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator ) {
-            if( items == null ) throw new ArgumentNullException( "items" );
-            if( separator == null ) throw new ArgumentNullException( "separator" );
+        public static string JoinToString<T>([NotNull] this IEnumerable<T> items, [NotNull] string separator) {
+            if (items == null) throw new ArgumentNullException("items");
+            if (separator == null) throw new ArgumentNullException("separator");
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            foreach( T item in items ) {
-                if( !first ) sb.Append( separator );
-                sb.Append( item );
+            foreach (T item in items) {
+                if (!first) sb.Append(separator);
+                sb.Append(item);
                 first = false;
             }
             return sb.ToString();
@@ -48,15 +48,15 @@ namespace fCraft {
         /// A specified string conversion function is called on each item before concatenation. </summary>
         [NotNull]
         [Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items,
-                                              [NotNull] Func<T, string> stringConversionFunction ) {
-            if( items == null ) throw new ArgumentNullException( "items" );
-            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
+        public static string JoinToString<T>([NotNull] this IEnumerable<T> items,
+                                             [NotNull] Func<T, string> stringConversionFunction) {
+            if (items == null) throw new ArgumentNullException("items");
+            if (stringConversionFunction == null) throw new ArgumentNullException("stringConversionFunction");
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            foreach( T item in items ) {
-                if( !first ) sb.Append( ',' ).Append( ' ' );
-                sb.Append( stringConversionFunction( item ) );
+            foreach (T item in items) {
+                if (!first) sb.Append(',').Append(' ');
+                sb.Append(stringConversionFunction(item));
                 first = false;
             }
             return sb.ToString();
@@ -67,16 +67,16 @@ namespace fCraft {
         /// A specified string conversion function is called on each item before concatenation. </summary>
         [NotNull]
         [Pure]
-        public static string JoinToString<T>( [NotNull] this IEnumerable<T> items, [NotNull] string separator,
-                                              [NotNull] Func<T, string> stringConversionFunction ) {
-            if( items == null ) throw new ArgumentNullException( "items" );
-            if( separator == null ) throw new ArgumentNullException( "separator" );
-            if( stringConversionFunction == null ) throw new ArgumentNullException( "stringConversionFunction" );
+        public static string JoinToString<T>([NotNull] this IEnumerable<T> items, [NotNull] string separator,
+                                             [NotNull] Func<T, string> stringConversionFunction) {
+            if (items == null) throw new ArgumentNullException("items");
+            if (separator == null) throw new ArgumentNullException("separator");
+            if (stringConversionFunction == null) throw new ArgumentNullException("stringConversionFunction");
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            foreach( T item in items ) {
-                if( !first ) sb.Append( separator );
-                sb.Append( stringConversionFunction( item ) );
+            foreach (T item in items) {
+                if (!first) sb.Append(separator);
+                sb.Append(stringConversionFunction(item));
                 first = false;
             }
             return sb.ToString();
@@ -86,9 +86,9 @@ namespace fCraft {
         /// <summary> Joins formatted names of all IClassy objects in a collection into one comma-separated string. </summary>
         [NotNull]
         [Pure]
-        public static string JoinToClassyString( [NotNull] this IEnumerable<IClassy> items ) {
-            if( items == null ) throw new ArgumentNullException( "items" );
-            return items.JoinToString( "  ", p => p.ClassyName );
+        public static string JoinToClassyString([NotNull] this IEnumerable<IClassy> items) {
+            if (items == null) throw new ArgumentNullException("items");
+            return items.JoinToString("  ", p => p.ClassyName);
         }
     }
 }

@@ -26,112 +26,115 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool ClaimsName( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            return fileName.EndsWith( ".gz", StringComparison.OrdinalIgnoreCase );
+        public bool ClaimsName(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            return fileName.EndsWith(".gz", StringComparison.OrdinalIgnoreCase);
         }
 
 
-        public bool Claims( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
+        public bool Claims(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
             try {
-                using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                    using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
-                        BinaryReader bs = new BinaryReader( gs );
+                using (FileStream mapStream = File.OpenRead(fileName)) {
+                    using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
+                        BinaryReader bs = new BinaryReader(gs);
                         byte version = bs.ReadByte();
                         return (version == 1 || version == 2);
                     }
                 }
-            } catch( Exception ) {
+            } catch (Exception) {
                 return false;
             }
         }
 
 
-        public Map LoadHeader( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress ) ) {
-                    return LoadHeaderInternal( gs );
+        public Map LoadHeader(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.OpenRead(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
+                    return LoadHeaderInternal(gs);
                 }
             }
         }
 
 
         [NotNull]
-        static Map LoadHeaderInternal( [NotNull] Stream stream ) {
-            if( stream == null ) throw new ArgumentNullException( "stream" );
-            BinaryReader bs = new BinaryReader( stream );
+        static Map LoadHeaderInternal([NotNull] Stream stream) {
+            if (stream == null) throw new ArgumentNullException("stream");
+            BinaryReader bs = new BinaryReader(stream);
 
             byte version = bs.ReadByte();
-            if( version != 1 && version != 2 ) throw new MapFormatException();
+            if (version != 1 && version != 2) throw new MapFormatException();
 
             // read spawn location and orientation
-            short x = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
-            short z = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
-            short y = (short)(IPAddress.NetworkToHostOrder( bs.ReadInt16() )*32);
-            Position spawn = new Position( x, y, z, bs.ReadByte(), bs.ReadByte() );
+            short x = (short)(IPAddress.NetworkToHostOrder(bs.ReadInt16())*32);
+            short z = (short)(IPAddress.NetworkToHostOrder(bs.ReadInt16())*32);
+            short y = (short)(IPAddress.NetworkToHostOrder(bs.ReadInt16())*32);
+            Position spawn = new Position(x, y, z, bs.ReadByte(), bs.ReadByte());
 
             // Read in the map dimensions
-            int width = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            int length = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
-            int height = IPAddress.NetworkToHostOrder( bs.ReadInt16() );
+            int width = IPAddress.NetworkToHostOrder(bs.ReadInt16());
+            int length = IPAddress.NetworkToHostOrder(bs.ReadInt16());
+            int height = IPAddress.NetworkToHostOrder(bs.ReadInt16());
 
-            return new Map( null, width, length, height, false ) {Spawn = spawn};
+            return new Map(null, width, length, height, false) {
+                Spawn = spawn
+            };
         }
 
 
-        public Map Load( string fileName ) {
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.OpenRead( fileName ) ) {
+        public Map Load(string fileName) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.OpenRead(fileName)) {
                 // Setup a GZipStream to decompress and read the map file
-                GZipStream gs = new GZipStream( mapStream, CompressionMode.Decompress );
+                GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress);
 
-                Map map = LoadHeaderInternal( gs );
+                Map map = LoadHeaderInternal(gs);
 
                 // Read in the map data
                 map.Blocks = new byte[map.Volume];
-                mapStream.Read( map.Blocks, 0, map.Blocks.Length );
+                mapStream.Read(map.Blocks, 0, map.Blocks.Length);
 
-                map.ConvertBlockTypes( Mapping );
+                map.ConvertBlockTypes(Mapping);
 
                 return map;
             }
         }
 
 
-        public void Save( Map mapToSave, string fileName ) {
-            if( mapToSave == null ) throw new ArgumentNullException( "mapToSave" );
-            if( fileName == null ) throw new ArgumentNullException( "fileName" );
-            using( FileStream mapStream = File.Create( fileName ) ) {
-                using( GZipStream gs = new GZipStream( mapStream, CompressionMode.Compress ) ) {
-                    BinaryWriter bs = new BinaryWriter( gs );
+        public void Save(Map mapToSave, string fileName) {
+            if (mapToSave == null) throw new ArgumentNullException("mapToSave");
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.Create(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress)) {
+                    BinaryWriter bs = new BinaryWriter(gs);
 
                     // Write the magic number
-                    bs.Write( (byte)0x01 );
+                    bs.Write((byte)0x01);
 
                     // Write the spawn location
-                    bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.X/32) ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.Z/32) ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( (short)(mapToSave.Spawn.Y/32) ) );
+                    bs.Write(IPAddress.NetworkToHostOrder((short)(mapToSave.Spawn.X/32)));
+                    bs.Write(IPAddress.NetworkToHostOrder((short)(mapToSave.Spawn.Z/32)));
+                    bs.Write(IPAddress.NetworkToHostOrder((short)(mapToSave.Spawn.Y/32)));
 
                     //Write the spawn orientation
-                    bs.Write( mapToSave.Spawn.R );
-                    bs.Write( mapToSave.Spawn.L );
+                    bs.Write(mapToSave.Spawn.R);
+                    bs.Write(mapToSave.Spawn.L);
 
                     // Write the map dimensions
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Width ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Length ) );
-                    bs.Write( IPAddress.NetworkToHostOrder( mapToSave.Height ) );
+                    bs.Write(IPAddress.NetworkToHostOrder(mapToSave.Width));
+                    bs.Write(IPAddress.NetworkToHostOrder(mapToSave.Length));
+                    bs.Write(IPAddress.NetworkToHostOrder(mapToSave.Height));
 
                     // Write the map data
-                    bs.Write( mapToSave.Blocks, 0, mapToSave.Blocks.Length );
+                    bs.Write(mapToSave.Blocks, 0, mapToSave.Blocks.Length);
                 }
             }
         }
 
 
         static readonly byte[] Mapping = new byte[256];
+
 
         static MapJTE() {
             Mapping[255] = (byte)Block.Sponge; // lava sponge

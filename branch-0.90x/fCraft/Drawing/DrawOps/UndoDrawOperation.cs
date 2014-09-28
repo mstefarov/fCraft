@@ -34,20 +34,20 @@ namespace fCraft.Drawing {
         /// <param name="state"> UndoState to work with. May not be null. </param>
         /// <param name="redo"> Whether state should be undone (false) or redone (true). </param>
         /// <exception cref="ArgumentNullException"> player or state is null </exception>
-        public UndoDrawOperation( [NotNull] Player player, [NotNull] UndoState state, bool redo )
-            : base( player ) {
-            if( state == null ) throw new ArgumentNullException( "state" );
+        public UndoDrawOperation([NotNull] Player player, [NotNull] UndoState state, bool redo)
+            : base(player) {
+            if (state == null) throw new ArgumentNullException("state");
             State = state;
             Redo = redo;
-            if( Redo ) {
+            if (Redo) {
                 undoContext |= BlockChangeContext.Redone;
             }
         }
 
 
-        public override bool Prepare( Vector3I[] marks ) {
+        public override bool Prepare(Vector3I[] marks) {
             Brush = this;
-            if( !base.Prepare( marks ) ) return false;
+            if (!base.Prepare(marks)) return false;
             BlocksTotalEstimate = State.Buffer.Count;
             Context = undoContext;
             Bounds = State.CalculateBounds();
@@ -56,16 +56,16 @@ namespace fCraft.Drawing {
 
 
         public override bool Begin() {
-            if( !RaiseBeginningEvent( this ) ) return false;
-            if( Redo ) {
-                UndoState = Player.RedoBegin( this );
+            if (!RaiseBeginningEvent(this)) return false;
+            if (Redo) {
+                UndoState = Player.RedoBegin(this);
             } else {
-                UndoState = Player.UndoBegin( this );
+                UndoState = Player.UndoBegin(this);
             }
             StartTime = DateTime.UtcNow;
             HasBegun = true;
-            Map.QueueDrawOp( this );
-            RaiseBeganEvent( this );
+            Map.QueueDrawOp(this);
+            RaiseBeganEvent(this);
             return true;
         }
 
@@ -73,15 +73,16 @@ namespace fCraft.Drawing {
         int undoBufferIndex;
         Block block;
 
-        public override int DrawBatch( int maxBlocksToDraw ) {
+
+        public override int DrawBatch(int maxBlocksToDraw) {
             int blocksDone = 0;
-            for( ; undoBufferIndex < State.Buffer.Count; undoBufferIndex++ ) {
-                UndoBlock blockUpdate = State.Get( undoBufferIndex );
-                Coords = new Vector3I( blockUpdate.X, blockUpdate.Y, blockUpdate.Z );
+            for (; undoBufferIndex < State.Buffer.Count; undoBufferIndex++) {
+                UndoBlock blockUpdate = State.Get(undoBufferIndex);
+                Coords = new Vector3I(blockUpdate.X, blockUpdate.Y, blockUpdate.Z);
                 block = blockUpdate.Block;
-                if( DrawOneBlock() ) {
+                if (DrawOneBlock()) {
                     blocksDone++;
-                    if( blocksDone >= maxBlocksToDraw || TimeToEndBatch ) {
+                    if (blocksDone >= maxBlocksToDraw || TimeToEndBatch) {
                         undoBufferIndex++;
                         return blocksDone;
                     }
@@ -96,7 +97,8 @@ namespace fCraft.Drawing {
             return block;
         }
 
-        public override bool ReadParams( CommandReader cmd ) {
+
+        public override bool ReadParams(CommandReader cmd) {
             return true;
         }
     }

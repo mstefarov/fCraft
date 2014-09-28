@@ -34,6 +34,7 @@ namespace fCraft.MapRenderer {
         public bool UseRegex { get; set; }
         public Regex FilterRegex { get; set; }
 
+
         public MapRendererParams() {
             Mode = IsoCatMode.Normal;
             Region = BoundingBox.Empty;

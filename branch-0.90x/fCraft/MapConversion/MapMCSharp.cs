@@ -24,30 +24,30 @@ namespace fCraft.MapConversion {
 
 
         public bool ClaimsName(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
+            if (fileName == null) throw new ArgumentNullException("fileName");
             return fileName.EndsWith("." + FileExtension, StringComparison.OrdinalIgnoreCase);
         }
 
 
         public bool Claims(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
+            if (fileName == null) throw new ArgumentNullException("fileName");
             try {
-                using( FileStream mapStream = File.OpenRead(fileName) ) {
-                    using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress) ) {
+                using (FileStream mapStream = File.OpenRead(fileName)) {
+                    using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
                         BinaryReader bs = new BinaryReader(gs);
                         return (bs.ReadUInt16() == 0x752);
                     }
                 }
-            } catch( Exception ) {
+            } catch (Exception) {
                 return false;
             }
         }
 
 
         public Map LoadHeader(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream mapStream = File.OpenRead(fileName) ) {
-                using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress) ) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.OpenRead(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
                     return LoadHeaderInternal(gs);
                 }
             }
@@ -56,11 +56,11 @@ namespace fCraft.MapConversion {
 
         [NotNull]
         static Map LoadHeaderInternal([NotNull] Stream stream) {
-            if( stream == null ) throw new ArgumentNullException("stream");
+            if (stream == null) throw new ArgumentNullException("stream");
             BinaryReader bs = new BinaryReader(stream);
 
             // Read in the magic number
-            if( bs.ReadUInt16() != 0x752 ) {
+            if (bs.ReadUInt16() != 0x752) {
                 throw new MapFormatException();
             }
 
@@ -88,9 +88,9 @@ namespace fCraft.MapConversion {
 
 
         public Map Load(string fileName) {
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream mapStream = File.OpenRead(fileName) ) {
-                using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress) ) {
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.OpenRead(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Decompress)) {
                     Map map = LoadHeaderInternal(gs);
                     // Read in the map data
                     LoadBlockData(map, gs);
@@ -101,10 +101,10 @@ namespace fCraft.MapConversion {
 
 
         public void Save(Map mapToSave, string fileName) {
-            if( mapToSave == null ) throw new ArgumentNullException("mapToSave");
-            if( fileName == null ) throw new ArgumentNullException("fileName");
-            using( FileStream mapStream = File.Create(fileName) ) {
-                using( GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress) ) {
+            if (mapToSave == null) throw new ArgumentNullException("mapToSave");
+            if (fileName == null) throw new ArgumentNullException("fileName");
+            using (FileStream mapStream = File.Create(fileName)) {
+                using (GZipStream gs = new GZipStream(mapStream, CompressionMode.Compress)) {
                     BinaryWriter bs = new BinaryWriter(gs);
 
                     // Write the magic number

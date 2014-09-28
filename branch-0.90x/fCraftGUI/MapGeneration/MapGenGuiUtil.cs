@@ -11,9 +11,10 @@ namespace fCraft.GUI {
         static readonly Dictionary<string, IMapGeneratorGuiProvider> Generators =
             new Dictionary<string, IMapGeneratorGuiProvider>();
 
+
         static MapGenGuiUtil() {
-            RegisterGui( RealisticMapGenGuiProvider.Instance, RealisticMapGen.Instance.Name );
-            RegisterGui( FlatMapGenGuiProvider.Instance, FlatMapGen.Instance.Name );
+            RegisterGui(RealisticMapGenGuiProvider.Instance, RealisticMapGen.Instance.Name);
+            RegisterGui(FlatMapGenGuiProvider.Instance, FlatMapGen.Instance.Name);
         }
 
 
@@ -22,17 +23,17 @@ namespace fCraft.GUI {
         /// <param name="provider"> IMapGeneratorGuiProvider to register. </param>
         /// <param name="genName"> Name of the generator for which GuiProvider is being registered. </param>
         /// <exception cref="ArgumentNullException"> provider or genName is null. </exception>
-        public static void RegisterGui( [NotNull] IMapGeneratorGuiProvider provider, [NotNull] string genName ) {
-            if( provider == null ) {
-                throw new ArgumentNullException( "provider" );
+        public static void RegisterGui([NotNull] IMapGeneratorGuiProvider provider, [NotNull] string genName) {
+            if (provider == null) {
+                throw new ArgumentNullException("provider");
             }
             IMapGeneratorGuiProvider oldProvider;
-            if( Generators.TryGetValue( genName.ToLowerInvariant(), out oldProvider ) ) {
-                Logger.Log( LogType.Warning,
-                            "More than one GUI has been registered for \"{0}\" map generator. {1} now overrides {2}.",
-                            oldProvider.Name,
-                            provider.Name,
-                            genName );
+            if (Generators.TryGetValue(genName.ToLowerInvariant(), out oldProvider)) {
+                Logger.Log(LogType.Warning,
+                           "More than one GUI has been registered for \"{0}\" map generator. {1} now overrides {2}.",
+                           oldProvider.Name,
+                           provider.Name,
+                           genName);
             }
             Generators[genName.ToLowerInvariant()] = provider;
         }
@@ -44,12 +45,12 @@ namespace fCraft.GUI {
         /// or default GUI provider as fallback. </returns>
         /// <exception cref="ArgumentNullException"> genName is null. </exception>
         [NotNull]
-        public static IMapGeneratorGuiProvider GetGuiForGenerator( [NotNull] string genName ) {
-            if( genName == null ) {
-                throw new ArgumentNullException( "genName" );
+        public static IMapGeneratorGuiProvider GetGuiForGenerator([NotNull] string genName) {
+            if (genName == null) {
+                throw new ArgumentNullException("genName");
             }
             IMapGeneratorGuiProvider provider;
-            if( Generators.TryGetValue( genName.ToLowerInvariant(), out provider ) ) {
+            if (Generators.TryGetValue(genName.ToLowerInvariant(), out provider)) {
                 return provider;
             } else {
                 return DefaultMapGenGuiProvider.Instance;
@@ -63,11 +64,11 @@ namespace fCraft.GUI {
         /// or default GUI provider as fallback. </returns>
         /// <exception cref="ArgumentNullException"> gen is null. </exception>
         [NotNull]
-        public static IMapGeneratorGuiProvider GetGuiForGenerator( [NotNull] MapGenerator gen ) {
-            if( gen == null ) {
-                throw new ArgumentNullException( "gen" );
+        public static IMapGeneratorGuiProvider GetGuiForGenerator([NotNull] MapGenerator gen) {
+            if (gen == null) {
+                throw new ArgumentNullException("gen");
             }
-            return GetGuiForGenerator( gen.Name );
+            return GetGuiForGenerator(gen.Name);
         }
 
 

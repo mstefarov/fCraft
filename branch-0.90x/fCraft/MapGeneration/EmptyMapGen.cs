@@ -10,6 +10,7 @@ namespace fCraft.MapGeneration {
     public sealed class EmptyMapGen : MapGenerator {
         public static EmptyMapGen Instance { get; private set; }
 
+
         static EmptyMapGen() {
             Instance = new EmptyMapGen {
                 Name = "Empty",
@@ -18,25 +19,29 @@ namespace fCraft.MapGeneration {
             };
         }
 
+
         public override MapGeneratorParameters CreateDefaultParameters() {
             return new EmptyMapGenParams();
         }
 
-        public override MapGeneratorParameters CreateParameters( XElement serializedParameters ) {
+
+        public override MapGeneratorParameters CreateParameters(XElement serializedParameters) {
             return CreateDefaultParameters();
         }
 
-        public override MapGeneratorParameters CreateParameters( Player player, CommandReader cmd ) {
-            if( cmd.HasNext ) {
-                player.Message( "Empty map generator does not take any parameters." );
+
+        public override MapGeneratorParameters CreateParameters(Player player, CommandReader cmd) {
+            if (cmd.HasNext) {
+                player.Message("Empty map generator does not take any parameters.");
             }
             return CreateDefaultParameters();
         }
 
-        public override MapGeneratorParameters CreateParameters( string presetName ) {
-            if( presetName == null ) {
-                throw new ArgumentNullException( "presetName" );
-            } else if( presetName.Equals( Presets[0], StringComparison.OrdinalIgnoreCase ) ) {
+
+        public override MapGeneratorParameters CreateParameters(string presetName) {
+            if (presetName == null) {
+                throw new ArgumentNullException("presetName");
+            } else if (presetName.Equals(Presets[0], StringComparison.OrdinalIgnoreCase)) {
                 return CreateDefaultParameters();
             } else {
                 return null;
@@ -50,20 +55,22 @@ namespace fCraft.MapGeneration {
             Generator = EmptyMapGen.Instance;
         }
 
+
         public override MapGeneratorState CreateGenerator() {
-            return new EmptyMapGenState( this );
+            return new EmptyMapGenState(this);
         }
     }
 
 
     internal class EmptyMapGenState : MapGeneratorState {
-        public EmptyMapGenState( [NotNull] MapGeneratorParameters genParams ) {
-            if( genParams == null ) throw new ArgumentNullException( "genParams" );
+        public EmptyMapGenState([NotNull] MapGeneratorParameters genParams) {
+            if (genParams == null) throw new ArgumentNullException("genParams");
             Parameters = genParams;
         }
 
+
         public override Map Generate() {
-            return new Map( null, Parameters.MapWidth, Parameters.MapLength, Parameters.MapHeight, true );
+            return new Map(null, Parameters.MapWidth, Parameters.MapLength, Parameters.MapHeight, true);
         }
     }
 }

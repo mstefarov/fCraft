@@ -9,27 +9,30 @@ using JetBrains.Annotations;
 
 namespace fCraft {
     /// <summary> A collection of zones within a map. </summary>
-    [DebuggerDisplay( "Count = {Count}" )]
+    [DebuggerDisplay("Count = {Count}")]
     public sealed class ZoneCollection : ICollection<Zone>, ICollection, ICloneable, INotifiesOnChange {
         readonly Dictionary<string, Zone> store = new Dictionary<string, Zone>();
 
         public Zone[] Cache { get; private set; }
 
+
         public ZoneCollection() {
             Cache = new Zone[0];
         }
 
-        public ZoneCollection( [NotNull] ZoneCollection other ) {
-            if( other == null ) throw new ArgumentNullException( "other" );
-            lock( other.syncRoot ) {
-                foreach( Zone zone in other.store.Values ) {
-                    Add( zone );
+
+        public ZoneCollection([NotNull] ZoneCollection other) {
+            if (other == null) throw new ArgumentNullException("other");
+            lock (other.syncRoot) {
+                foreach (Zone zone in other.store.Values) {
+                    Add(zone);
                 }
             }
         }
 
+
         void UpdateCache() {
-            lock( syncRoot ) {
+            lock (syncRoot) {
                 Cache = store.Values.ToArray();
             }
         }
@@ -40,14 +43,14 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> zoneToAdd is null. </exception>
         /// <exception cref="ArgumentException"> This exact zone,
         /// or another zone with the same name is already in this ZoneCollection. </exception>
-        public void Add( [NotNull] Zone zoneToAdd ) {
-            if( zoneToAdd == null ) throw new ArgumentNullException( "zoneToAdd" );
-            lock( syncRoot ) {
+        public void Add([NotNull] Zone zoneToAdd) {
+            if (zoneToAdd == null) throw new ArgumentNullException("zoneToAdd");
+            lock (syncRoot) {
                 string zoneName = zoneToAdd.Name.ToLower();
-                if( store.ContainsValue( zoneToAdd ) ) {
-                    throw new ArgumentException( "Duplicate zone.", "zoneToAdd" );
+                if (store.ContainsValue(zoneToAdd)) {
+                    throw new ArgumentException("Duplicate zone.", "zoneToAdd");
                 }
-                store.Add( zoneName, zoneToAdd );
+                store.Add(zoneName, zoneToAdd);
                 zoneToAdd.Changed += OnZoneChanged;
                 UpdateCache();
                 RaiseChangedEvent();
@@ -57,9 +60,9 @@ namespace fCraft {
 
         /// <summary> Removes all zones from the collection. </summary>
         public void Clear() {
-            lock( syncRoot ) {
-                if( store.Count <= 0 ) return;
-                foreach( Zone zone in store.Values ) {
+            lock (syncRoot) {
+                if (store.Count <= 0) return;
+                foreach (Zone zone in store.Values) {
                     zone.Changed -= OnZoneChanged;
                 }
                 store.Clear();
@@ -71,19 +74,19 @@ namespace fCraft {
 
         /// <summary> Checks whether a given zone is in the collection. </summary>
         /// <exception cref="ArgumentNullException"> zone is null. </exception>
-        public bool Contains( [NotNull] Zone zone ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
+        public bool Contains([NotNull] Zone zone) {
+            if (zone == null) throw new ArgumentNullException("zone");
             Zone[] cache = Cache;
-            return cache.Any( t => t == zone );
+            return cache.Any(t => t == zone);
         }
 
 
         /// <summary> Checks whether any zone with a given name is in the collection. </summary>
         /// <exception cref="ArgumentNullException"> zoneName is null. </exception>
-        public bool Contains( [NotNull] string zoneName ) {
-            if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
+        public bool Contains([NotNull] string zoneName) {
+            if (zoneName == null) throw new ArgumentNullException("zoneName");
             Zone[] cache = Cache;
-            return cache.Any( t => t.Name.Equals( zoneName, StringComparison.OrdinalIgnoreCase ) );
+            return cache.Any(t => t.Name.Equals(zoneName, StringComparison.OrdinalIgnoreCase));
         }
 
 
@@ -97,11 +100,11 @@ namespace fCraft {
         /// <returns> True if the given zone was found and removed.
         /// False if this collection did not contain the given zone. </returns>
         /// <exception cref="ArgumentNullException"> zoneToRemove is null. </exception>
-        public bool Remove( [NotNull] Zone zoneToRemove ) {
-            if( zoneToRemove == null ) throw new ArgumentNullException( "zoneToRemove" );
-            lock( syncRoot ) {
-                if( store.ContainsValue( zoneToRemove ) ) {
-                    store.Remove( zoneToRemove.Name.ToLower() );
+        public bool Remove([NotNull] Zone zoneToRemove) {
+            if (zoneToRemove == null) throw new ArgumentNullException("zoneToRemove");
+            lock (syncRoot) {
+                if (store.ContainsValue(zoneToRemove)) {
+                    store.Remove(zoneToRemove.Name.ToLower());
                     UpdateCache();
                     RaiseChangedEvent();
                     zoneToRemove.Changed -= OnZoneChanged;
@@ -117,14 +120,14 @@ namespace fCraft {
         /// <returns> True if the given zone was found and removed.
         /// False if this collection did not contain the given zone. </returns>
         /// <exception cref="ArgumentNullException"> zoneName is null. </exception>
-        public bool Remove( [NotNull] string zoneName ) {
-            if( zoneName == null ) throw new ArgumentNullException( "zoneName" );
-            lock( syncRoot ) {
+        public bool Remove([NotNull] string zoneName) {
+            if (zoneName == null) throw new ArgumentNullException("zoneName");
+            lock (syncRoot) {
                 string zoneNameLower = zoneName.ToLower();
                 Zone item;
-                if( store.TryGetValue( zoneNameLower, out item ) ) {
+                if (store.TryGetValue(zoneNameLower, out item)) {
                     item.Changed -= OnZoneChanged;
-                    store.Remove( zoneNameLower );
+                    store.Remove(zoneNameLower);
                     UpdateCache();
                     RaiseChangedEvent();
                     return true;
@@ -143,16 +146,16 @@ namespace fCraft {
         /// Allow if ALL affecting zones allow the player.
         /// Deny if ANY affecting zone denies the player. </returns>
         /// <exception cref="ArgumentNullException"> player is null. </exception>
-        public PermissionOverride Check( Vector3I coords, [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public PermissionOverride Check(Vector3I coords, [NotNull] Player player) {
+            if (player == null) throw new ArgumentNullException("player");
 
             PermissionOverride result = PermissionOverride.None;
-            if( Cache.Length == 0 ) return result;
+            if (Cache.Length == 0) return result;
 
             Zone[] zoneListCache = Cache;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( coords ) ) {
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
+            for (int i = 0; i < zoneListCache.Length; i++) {
+                if (zoneListCache[i].Bounds.Contains(coords)) {
+                    if (zoneListCache[i].Controller.Check(player.Info)) {
                         result = PermissionOverride.Allow;
                     } else {
                         return PermissionOverride.Deny;
@@ -171,21 +174,21 @@ namespace fCraft {
         /// <param name="deniedZones"> Array of zones that deny the player from building. </param>
         /// <returns> True if any zones were found. False if none affect the given coordinate. </returns>
         /// <exception cref="ArgumentNullException"> player is null. </exception>
-        public bool CheckDetailed( Vector3I coords, [NotNull] Player player,
-                                   [NotNull] out Zone[] allowedZones, [NotNull] out Zone[] deniedZones ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public bool CheckDetailed(Vector3I coords, [NotNull] Player player,
+                                  [NotNull] out Zone[] allowedZones, [NotNull] out Zone[] deniedZones) {
+            if (player == null) throw new ArgumentNullException("player");
             var allowedList = new List<Zone>();
             var deniedList = new List<Zone>();
             bool found = false;
 
             Zone[] zoneListCache = Cache;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( coords ) ) {
+            for (int i = 0; i < zoneListCache.Length; i++) {
+                if (zoneListCache[i].Bounds.Contains(coords)) {
                     found = true;
-                    if( zoneListCache[i].Controller.Check( player.Info ) ) {
-                        allowedList.Add( zoneListCache[i] );
+                    if (zoneListCache[i].Controller.Check(player.Info)) {
+                        allowedList.Add(zoneListCache[i]);
                     } else {
-                        deniedList.Add( zoneListCache[i] );
+                        deniedList.Add(zoneListCache[i]);
                     }
                 }
             }
@@ -203,12 +206,12 @@ namespace fCraft {
         /// null if none of the zones deny the player. </returns>
         /// <exception cref="ArgumentNullException"> player is null. </exception>
         [CanBeNull]
-        public Zone FindDenied( Vector3I coords, [NotNull] Player player ) {
-            if( player == null ) throw new ArgumentNullException( "player" );
+        public Zone FindDenied(Vector3I coords, [NotNull] Player player) {
+            if (player == null) throw new ArgumentNullException("player");
             Zone[] zoneListCache = Cache;
-            for( int i = 0; i < zoneListCache.Length; i++ ) {
-                if( zoneListCache[i].Bounds.Contains( coords ) &&
-                    !zoneListCache[i].Controller.Check( player.Info ) ) {
+            for (int i = 0; i < zoneListCache.Length; i++) {
+                if (zoneListCache[i].Bounds.Contains(coords) &&
+                    !zoneListCache[i].Controller.Check(player.Info)) {
                     return zoneListCache[i];
                 }
             }
@@ -223,11 +226,11 @@ namespace fCraft {
         /// null if no Zone with the given name could be found. </returns>
         /// <exception cref="ArgumentNullException"> name is null. </exception>
         [CanBeNull]
-        public Zone FindExact( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
-            lock( syncRoot ) {
+        public Zone FindExact([NotNull] string name) {
+            if (name == null) throw new ArgumentNullException("name");
+            lock (syncRoot) {
                 Zone result;
-                if( store.TryGetValue( name.ToLower(), out result ) ) {
+                if (store.TryGetValue(name.ToLower(), out result)) {
                     return result;
                 }
             }
@@ -243,21 +246,21 @@ namespace fCraft {
         /// null if no Zone with the given name could be found. </returns>
         /// <exception cref="ArgumentNullException"> name is null. </exception>
         [CanBeNull]
-        public Zone Find( [NotNull] string name ) {
-            if( name == null ) throw new ArgumentNullException( "name" );
+        public Zone Find([NotNull] string name) {
+            if (name == null) throw new ArgumentNullException("name");
             // try to find exact match
-            lock( syncRoot ) {
+            lock (syncRoot) {
                 Zone result;
-                if( store.TryGetValue( name.ToLower(), out result ) ) {
+                if (store.TryGetValue(name.ToLower(), out result)) {
                     return result;
                 }
             }
             // try to autocomplete
             Zone match = null;
             Zone[] cache = Cache;
-            foreach( Zone zone in cache ) {
-                if( zone.Name.StartsWith( name, StringComparison.OrdinalIgnoreCase ) ) {
-                    if( match == null ) {
+            foreach (Zone zone in cache) {
+                if (zone.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase)) {
+                    if (match == null) {
                         // first (and hopefully only) match found
                         match = zone;
                     } else {
@@ -276,19 +279,19 @@ namespace fCraft {
         /// <exception cref="ArgumentNullException"> zone or newName is null. </exception>
         /// <exception cref="System.ArgumentException"> A zone with a given newName already exists,
         /// or trying to rename a zone that does not exist. </exception>
-        public void Rename( [NotNull] Zone zone, [NotNull] string newName ) {
-            if( zone == null ) throw new ArgumentNullException( "zone" );
-            if( newName == null ) throw new ArgumentNullException( "newName" );
-            lock( syncRoot ) {
+        public void Rename([NotNull] Zone zone, [NotNull] string newName) {
+            if (zone == null) throw new ArgumentNullException("zone");
+            if (newName == null) throw new ArgumentNullException("newName");
+            lock (syncRoot) {
                 Zone oldZone;
-                if( store.TryGetValue( newName.ToLower(), out oldZone ) && oldZone != zone ) {
-                    throw new ArgumentException( "Zone with a given name already exists.", "newName" );
+                if (store.TryGetValue(newName.ToLower(), out oldZone) && oldZone != zone) {
+                    throw new ArgumentException("Zone with a given name already exists.", "newName");
                 }
-                if( !store.Remove( zone.Name.ToLower() ) ) {
-                    throw new ArgumentException( "Trying to rename a zone that does not exist.", "zone" );
+                if (!store.Remove(zone.Name.ToLower())) {
+                    throw new ArgumentException("Trying to rename a zone that does not exist.", "zone");
                 }
                 zone.Name = newName;
-                store.Add( newName.ToLower(), zone );
+                store.Add(newName.ToLower(), zone);
                 UpdateCache();
                 RaiseChangedEvent();
             }
@@ -306,19 +309,19 @@ namespace fCraft {
         }
 
 
-        public void CopyTo( Zone[] array, int arrayIndex ) {
-            if( array == null ) throw new ArgumentNullException( "array" );
-            if( arrayIndex < 0 || arrayIndex > array.Length ) throw new ArgumentOutOfRangeException( "arrayIndex" );
+        public void CopyTo(Zone[] array, int arrayIndex) {
+            if (array == null) throw new ArgumentNullException("array");
+            if (arrayIndex < 0 || arrayIndex > array.Length) throw new ArgumentOutOfRangeException("arrayIndex");
             Zone[] cache = Cache;
-            Array.Copy( cache, 0, array, arrayIndex, cache.Length );
+            Array.Copy(cache, 0, array, arrayIndex, cache.Length);
         }
 
 
-        void ICollection.CopyTo( Array array, int index ) {
-            if( array == null ) throw new ArgumentNullException( "array" );
-            if( index < 0 || index > array.Length ) throw new ArgumentOutOfRangeException( "index" );
+        void ICollection.CopyTo(Array array, int index) {
+            if (array == null) throw new ArgumentNullException("array");
+            if (index < 0 || index > array.Length) throw new ArgumentOutOfRangeException("index");
             Zone[] cache = Cache;
-            Array.Copy( cache, 0, array, index, cache.Length );
+            Array.Copy(cache, 0, array, index, cache.Length);
         }
 
 
@@ -326,11 +329,9 @@ namespace fCraft {
             get { return false; }
         }
 
-
         public bool IsSynchronized {
             get { return true; }
         }
-
 
         public object SyncRoot {
             get { return syncRoot; }
@@ -341,21 +342,23 @@ namespace fCraft {
         #endregion
 
         public object Clone() {
-            lock( syncRoot ) {
-                return new ZoneCollection( this );
+            lock (syncRoot) {
+                return new ZoneCollection(this);
             }
         }
 
 
         public event EventHandler Changed;
 
-        void OnZoneChanged( [CanBeNull] object sender, [CanBeNull] EventArgs e ) {
+
+        void OnZoneChanged([CanBeNull] object sender, [CanBeNull] EventArgs e) {
             RaiseChangedEvent();
         }
 
+
         void RaiseChangedEvent() {
             var handler = Changed;
-            if( handler != null ) handler( null, EventArgs.Empty );
+            if (handler != null) handler(null, EventArgs.Empty);
         }
     }
 }

@@ -38,7 +38,7 @@ namespace fCraft {
         /// Returns "?" if CreatedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string CreatedByClassy {
-            get { return PlayerDB.FindExactClassyName( CreatedBy ); }
+            get { return PlayerDB.FindExactClassyName(CreatedBy); }
         }
 
         /// <summary> Player who was the last to edit this zone. May be null if unknown. </summary>
@@ -49,7 +49,7 @@ namespace fCraft {
         /// Returns "?" if EditedBy name is unknown, unrecognized, or null. </summary>
         [NotNull]
         public string EditedByClassy {
-            get { return PlayerDB.FindExactClassyName( EditedBy ); }
+            get { return PlayerDB.FindExactClassyName(EditedBy); }
         }
 
         /// <summary> Map that this zone is on. </summary>
@@ -60,9 +60,9 @@ namespace fCraft {
         /// <summary> Creates the zone boundaries, and sets CreatedDate/CreatedBy. </summary>
         /// <param name="bounds"> New zone boundaries. </param>
         /// <param name="createdBy"> Player who created this zone. </param>
-        public void Create( [NotNull] BoundingBox bounds, [NotNull] PlayerInfo createdBy ) {
-            if( bounds == null ) throw new ArgumentNullException( "bounds" );
-            if( createdBy == null ) throw new ArgumentNullException( "createdBy" );
+        public void Create([NotNull] BoundingBox bounds, [NotNull] PlayerInfo createdBy) {
+            if (bounds == null) throw new ArgumentNullException("bounds");
+            if (createdBy == null) throw new ArgumentNullException("createdBy");
             CreatedDate = DateTime.UtcNow;
             Bounds = bounds;
             CreatedBy = createdBy.Name;
@@ -72,8 +72,8 @@ namespace fCraft {
         /// <summary> Sets EditedBy and EditedDate fields, and raises Changed event. </summary>
         /// <param name="editedBy"> Name of player or entity who edited this zone. </param>
         /// <exception cref="ArgumentNullException"> editedBy is null. </exception>
-        public void OnEdited( [NotNull] string editedBy ) {
-            if( editedBy == null ) throw new ArgumentNullException( "editedBy" );
+        public void OnEdited([NotNull] string editedBy) {
+            if (editedBy == null) throw new ArgumentNullException("editedBy");
             EditedDate = DateTime.UtcNow;
             EditedBy = editedBy;
             RaiseChangedEvent();
@@ -81,86 +81,86 @@ namespace fCraft {
 
 
         public Zone() {
-            Controller.Changed += ( o, e ) => RaiseChangedEvent();
+            Controller.Changed += (o, e) => RaiseChangedEvent();
         }
 
 
-        public Zone( [NotNull] string raw, [CanBeNull] World world )
+        public Zone([NotNull] string raw, [CanBeNull] World world)
             : this() {
-            if( raw == null ) throw new ArgumentNullException( "raw" );
-            string[] parts = raw.Split( ',' );
+            if (raw == null) throw new ArgumentNullException("raw");
+            string[] parts = raw.Split(',');
 
-            string[] header = parts[0].Split( ' ' );
+            string[] header = parts[0].Split(' ');
             Name = header[0];
-            Bounds = new BoundingBox( Int32.Parse( header[1] ),
-                                      Int32.Parse( header[2] ),
-                                      Int32.Parse( header[3] ),
-                                      Int32.Parse( header[4] ),
-                                      Int32.Parse( header[5] ),
-                                      Int32.Parse( header[6] ) );
+            Bounds = new BoundingBox(Int32.Parse(header[1]),
+                                     Int32.Parse(header[2]),
+                                     Int32.Parse(header[3]),
+                                     Int32.Parse(header[4]),
+                                     Int32.Parse(header[5]),
+                                     Int32.Parse(header[6]));
 
             // If no ranks are loaded (e.g. MapConverter/MapRenderer)(
-            if( RankManager.Ranks.Count > 0 ) {
-                Rank buildRank = Rank.Parse( header[7] );
+            if (RankManager.Ranks.Count > 0) {
+                Rank buildRank = Rank.Parse(header[7]);
                 // if all else fails, fall back to lowest class
-                if( buildRank == null ) {
-                    if( world != null ) {
+                if (buildRank == null) {
+                    if (world != null) {
                         Controller.MinRank = world.BuildSecurity.MinRank;
                     } else {
                         Controller.ResetMinRank();
                     }
-                    Logger.Log( LogType.Error,
-                                "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).",
-                                header[7],
-                                Controller.MinRank.Name );
+                    Logger.Log(LogType.Error,
+                               "Zone: Error parsing zone definition: unknown rank \"{0}\". Permission reset to default ({1}).",
+                               header[7],
+                               Controller.MinRank.Name);
                 } else {
                     Controller.MinRank = buildRank;
                 }
             }
 
             // If PlayerDB is not loaded (e.g. ConfigGUI)
-            if( PlayerDB.IsLoaded ) {
+            if (PlayerDB.IsLoaded) {
                 // Part 2:
-                if( parts[1].Length > 0 ) {
-                    foreach( string playerName in parts[1].Split( ' ' ) ) {
-                        if( !Player.IsValidPlayerName( playerName ) ) {
-                            Logger.Log( LogType.Warning,
-                                        "Invalid entry in zone \"{0}\" whitelist: {1}",
-                                        Name,
-                                        playerName );
+                if (parts[1].Length > 0) {
+                    foreach (string playerName in parts[1].Split(' ')) {
+                        if (!Player.IsValidPlayerName(playerName)) {
+                            Logger.Log(LogType.Warning,
+                                       "Invalid entry in zone \"{0}\" whitelist: {1}",
+                                       Name,
+                                       playerName);
                             continue;
                         }
-                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
-                        if( info == null ) {
-                            Logger.Log( LogType.Warning,
-                                        "Unrecognized player in zone \"{0}\" whitelist: {1}",
-                                        Name,
-                                        playerName );
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact(playerName);
+                        if (info == null) {
+                            Logger.Log(LogType.Warning,
+                                       "Unrecognized player in zone \"{0}\" whitelist: {1}",
+                                       Name,
+                                       playerName);
                             continue; // player name not found in the DB (discarded)
                         }
-                        Controller.Include( info );
+                        Controller.Include(info);
                     }
                 }
 
                 // Part 3: excluded list
-                if( parts[2].Length > 0 ) {
-                    foreach( string playerName in parts[2].Split( ' ' ) ) {
-                        if( !Player.IsValidPlayerName( playerName ) ) {
-                            Logger.Log( LogType.Warning,
-                                        "Invalid entry in zone \"{0}\" blacklist: {1}",
-                                        Name,
-                                        playerName );
+                if (parts[2].Length > 0) {
+                    foreach (string playerName in parts[2].Split(' ')) {
+                        if (!Player.IsValidPlayerName(playerName)) {
+                            Logger.Log(LogType.Warning,
+                                       "Invalid entry in zone \"{0}\" blacklist: {1}",
+                                       Name,
+                                       playerName);
                             continue;
                         }
-                        PlayerInfo info = PlayerDB.FindPlayerInfoExact( playerName );
-                        if( info == null ) {
-                            Logger.Log( LogType.Warning,
-                                        "Unrecognized player in zone \"{0}\" whitelist: {1}",
-                                        Name,
-                                        playerName );
+                        PlayerInfo info = PlayerDB.FindPlayerInfoExact(playerName);
+                        if (info == null) {
+                            Logger.Log(LogType.Warning,
+                                       "Unrecognized player in zone \"{0}\" whitelist: {1}",
+                                       Name,
+                                       playerName);
                             continue; // player name not found in the DB (discarded)
                         }
-                        Controller.Exclude( info );
+                        Controller.Exclude(info);
                     }
                 }
             } else {
@@ -169,40 +169,40 @@ namespace fCraft {
             }
 
             // Part 4: extended header
-            if( parts.Length > 3 ) {
-                string[] xheader = parts[3].Split( ' ' );
-                if( xheader[0] == "-" ) {
+            if (parts.Length > 3) {
+                string[] xheader = parts[3].Split(' ');
+                if (xheader[0] == "-") {
                     CreatedBy = null;
                     CreatedDate = DateTime.MinValue;
                 } else {
                     CreatedBy = xheader[0];
-                    CreatedDate = DateTime.Parse( xheader[1] );
+                    CreatedDate = DateTime.Parse(xheader[1]);
                 }
 
-                if( xheader[2] == "-" ) {
+                if (xheader[2] == "-") {
                     EditedBy = null;
                     EditedDate = DateTime.MinValue;
                 } else {
                     EditedBy = xheader[2];
-                    EditedDate = DateTime.Parse( xheader[3] );
+                    EditedDate = DateTime.Parse(xheader[3]);
                 }
             }
         }
 
+
         internal readonly string RawWhitelist,
                                  RawBlacklist;
-
 
         public string ClassyName {
             get { return Controller.MinRank.Color + Name; }
         }
 
-
         public event EventHandler Changed;
+
 
         void RaiseChangedEvent() {
             var h = Changed;
-            if( h != null ) h( null, EventArgs.Empty );
+            if (h != null) h(null, EventArgs.Empty);
         }
     }
 }

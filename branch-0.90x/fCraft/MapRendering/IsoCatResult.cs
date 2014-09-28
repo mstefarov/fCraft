@@ -5,11 +5,12 @@ using JetBrains.Annotations;
 
 namespace fCraft.MapRendering {
     public sealed class IsoCatResult {
-        internal IsoCatResult( bool cancelled, [CanBeNull] Bitmap bitmap, Rectangle cropRectangle ) {
+        internal IsoCatResult(bool cancelled, [CanBeNull] Bitmap bitmap, Rectangle cropRectangle) {
             Cancelled = cancelled;
             Bitmap = bitmap;
             CropRectangle = cropRectangle;
         }
+
 
         public bool Cancelled { get; private set; }
 

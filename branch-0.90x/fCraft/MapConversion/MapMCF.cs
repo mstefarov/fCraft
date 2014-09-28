@@ -10,10 +10,10 @@ namespace fCraft.MapConversion {
 
 
         protected override void LoadBlockData(Map map, Stream stream) {
-            for( int i = 0; i < map.Volume; i++ ) {
+            for (int i = 0; i < map.Volume; i++) {
                 map.Blocks[i] = (byte)stream.ReadByte();
                 int msb = stream.ReadByte();
-                if( msb == 1 ) {
+                if (msb == 1) {
                     map.Blocks[i] = ReduxExtraMapping[map.Blocks[i]];
                 }
             }
@@ -22,7 +22,7 @@ namespace fCraft.MapConversion {
 
 
         protected override void SaveBlockData(Map mapToSave, Stream stream) {
-            for( int i = 0; i < mapToSave.Volume; i++ ) {
+            for (int i = 0; i < mapToSave.Volume; i++) {
                 stream.WriteByte(mapToSave.Blocks[i]);
                 stream.WriteByte(0);
             }

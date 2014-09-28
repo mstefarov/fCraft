@@ -14,40 +14,41 @@ namespace fCraft.MapConversion {
         readonly Dictionary<string, Dictionary<string, string>> contents =
             new Dictionary<string, Dictionary<string, string>>();
 
-        public string this[ [NotNull] string section, [NotNull] string key ] {
+        public string this[[NotNull] string section, [NotNull] string key] {
             get {
-                if( section == null ) throw new ArgumentNullException( "section" );
-                if( key == null ) throw new ArgumentNullException( "key" );
+                if (section == null) throw new ArgumentNullException("section");
+                if (key == null) throw new ArgumentNullException("key");
                 return contents[section][key];
             }
         }
 
-        public MyneMetaFile( [NotNull] Stream fileStream ) {
-            if( fileStream == null ) throw new ArgumentNullException( "fileStream" );
-            StreamReader reader = new StreamReader( fileStream );
+
+        public MyneMetaFile([NotNull] Stream fileStream) {
+            if (fileStream == null) throw new ArgumentNullException("fileStream");
+            StreamReader reader = new StreamReader(fileStream);
             Dictionary<string, string> section = null;
             string lastKey = null;
-            while( true ) {
+            while (true) {
                 string line = reader.ReadLine();
-                if( line == null ) break;
+                if (line == null) break;
 
-                if( line.StartsWith( "#" ) ) {
+                if (line.StartsWith("#")) {
                     lastKey = null;
-                } else if( line.StartsWith( "[" ) ) {
+                } else if (line.StartsWith("[")) {
                     lastKey = null;
-                    string sectionName = line.Substring( 1, line.IndexOf( ']' ) - 1 ).Trim().ToLower();
+                    string sectionName = line.Substring(1, line.IndexOf(']') - 1).Trim().ToLower();
                     section = new Dictionary<string, string>();
-                    contents.Add( sectionName, section );
-                } else if( line.StartsWith( "\t" ) ) {
-                    if( lastKey != null ) {
-                        section[lastKey] += Environment.NewLine + line.Substring( 1 );
+                    contents.Add(sectionName, section);
+                } else if (line.StartsWith("\t")) {
+                    if (lastKey != null) {
+                        section[lastKey] += Environment.NewLine + line.Substring(1);
                     }
-                } else if( line.Contains( Separator ) && section != null ) {
+                } else if (line.Contains(Separator) && section != null) {
                     string keyName =
-                        line.Substring( 0, line.IndexOf( Separator, StringComparison.Ordinal ) ).TrimEnd().ToLower();
+                        line.Substring(0, line.IndexOf(Separator, StringComparison.Ordinal)).TrimEnd().ToLower();
                     string valueName =
-                        line.Substring( line.IndexOf( Separator, StringComparison.Ordinal ) + 1 ).TrimStart();
-                    section.Add( keyName, valueName );
+                        line.Substring(line.IndexOf(Separator, StringComparison.Ordinal) + 1).TrimStart();
+                    section.Add(keyName, valueName);
                     lastKey = keyName;
                 } else {
                     lastKey = null;
@@ -56,11 +57,11 @@ namespace fCraft.MapConversion {
         }
 
 
-        public bool Contains( [NotNull] string section, [NotNull] params string[] keys ) {
-            if( section == null ) throw new ArgumentNullException( "section" );
-            if( keys == null ) throw new ArgumentNullException( "keys" );
-            if( contents.ContainsKey( section.ToLower() ) ) {
-                return keys.All( key => contents[section.ToLower()].ContainsKey( key.ToLower() ) );
+        public bool Contains([NotNull] string section, [NotNull] params string[] keys) {
+            if (section == null) throw new ArgumentNullException("section");
+            if (keys == null) throw new ArgumentNullException("keys");
+            if (contents.ContainsKey(section.ToLower())) {
+                return keys.All(key => contents[section.ToLower()].ContainsKey(key.ToLower()));
             } else {
                 return false;
             }

@@ -8,32 +8,38 @@ namespace fCraft.GUI {
     public partial class FlatMapGenGui : MapGeneratorGui {
         MapGeneratorParameters genParams;
 
+
         public FlatMapGenGui() {
             InitializeComponent();
         }
 
-        public override void SetParameters( MapGeneratorParameters generatorParameters ) {
+
+        public override void SetParameters(MapGeneratorParameters generatorParameters) {
             genParams = generatorParameters;
             pgDetails.SelectedObject = genParams;
-            lPreset.Text = "Preset: " + genParams.ToString().Split( ' ' )[1];
+            lPreset.Text = "Preset: " + genParams.ToString().Split(' ')[1];
         }
+
 
         public override MapGeneratorParameters GetParameters() {
             return genParams;
         }
 
-        public override void OnMapDimensionChange( int width, int length, int height ) {
+
+        public override void OnMapDimensionChange(int width, int length, int height) {
             genParams.MapWidth = width;
             genParams.MapLength = length;
             genParams.MapHeight = height;
         }
 
-        void xCustom_CheckedChanged( object sender, EventArgs e ) {
+
+        void xCustom_CheckedChanged(object sender, EventArgs e) {
             pgDetails.Visible = xCustom.Checked;
         }
 
-        void pgDetails_PropertyValueChanged( object s, PropertyValueChangedEventArgs e ) {
-            lPreset.Text = "Preset: " + genParams.ToString().Split( ' ' )[1] + " (Modified)";
+
+        void pgDetails_PropertyValueChanged(object s, PropertyValueChangedEventArgs e) {
+            lPreset.Text = "Preset: " + genParams.ToString().Split(' ')[1] + " (Modified)";
         }
     }
 
@@ -49,9 +55,11 @@ namespace fCraft.GUI {
             get { return "Flat"; }
         }
 
-        public bool IsCompatible( string generatorName, Version generatorVersion ) {
+
+        public bool IsCompatible(string generatorName, Version generatorVersion) {
             return true;
         }
+
 
         public MapGeneratorGui CreateGui() {
             return new FlatMapGenGui();
