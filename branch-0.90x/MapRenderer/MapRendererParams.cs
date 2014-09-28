@@ -25,7 +25,7 @@ namespace fCraft.MapRenderer {
         public bool SeeThroughWater { get; set; }
         public bool SeeThroughLava { get; set; }
         public bool Recursive { get; set; }
-        public bool AlwaysOverwrite { get; set; }
+        public OverwritePolicy OverwritePolicy { get; set; }
         public bool Uncropped { get; set; }
         public string InputFilter { get; set; }
         public bool OutputDirGiven { get; set; }
@@ -41,6 +41,7 @@ namespace fCraft.MapRenderer {
             ThreadCount = Environment.ProcessorCount;
             ExportFormat = ImageFormat.Png;
             ImageFileExtension = ".png";
+            OverwritePolicy = OverwritePolicy.Ask;
         }
     }
 }

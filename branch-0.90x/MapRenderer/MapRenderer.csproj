@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="MapRenderer.cs" />
     <Compile Include="MapRendererParams.cs" />
+    <Compile Include="OverwritePolicy.cs" />
     <Compile Include="RenderTask.cs" />
     <Compile Include="OctreeQuantizer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,10 +60,6 @@
     <None Include="app.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\fCraftGUI\fCraftGUI.csproj">
-      <Project>{AFAEE6CC-8B4F-40CD-9623-7FFDC8E52222}</Project>
-      <Name>fCraftGUI</Name>
-    </ProjectReference>
     <ProjectReference Include="..\fCraft\fCraft.csproj">
       <Project>{7FBE7809-6F77-415C-ABEB-A3F627E817B0}</Project>
       <Name>fCraft</Name>

@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using fCraft.Events;
-using fCraft.GUI;
 using fCraft.MapConversion;
 using fCraft.MapRendering;
 using JetBrains.Annotations;
@@ -277,10 +276,38 @@ namespace fCraft.MapRenderer {
                 targetFileName = Path.GetFileNameWithoutExtension( fileSystemInfo.Name ) + p.ImageFileExtension;
             }
 
-            // get full target image file name, check if it already exists
+            // get full target image file name
             string targetPath = Path.Combine( p.OutputDirName, targetFileName );
 
+
+
+            // check if target file can be overwritten
+            if( File.Exists(targetPath) ) {
+                if( p.OverwritePolicy == OverwritePolicy.Never ) {
+                    return;
+                }else if( p.OverwritePolicy == OverwritePolicy.IfNewer ) {
+                    DateTime imageModTime = File.GetLastWriteTimeUtc(targetPath);
+                    DateTime mapModTime = GetLastModTimeUtc(fileSystemInfo);
+                    if( mapModTime < imageModTime ) {
+                        // policy is IfNewer, and map is NOT newer than the image
+                        return;
+                    }
+                }
+            }
+
             InputPaths.Enqueue( new RenderTask( mapPath, targetPath, relativeName ) );
+        }
+
+
+        // Gets modification date of given file, or modification date of the newest file in given directory.
+        static DateTime GetLastModTimeUtc([NotNull] FileSystemInfo fsi) {
+            if( fsi == null ) throw new ArgumentNullException("fsi");
+            DirectoryInfo di = fsi as DirectoryInfo;
+            if( di != null ) {
+                return di.GetFiles().Max(fi => fi.LastWriteTimeUtc);
+            } else {
+                return fsi.LastWriteTimeUtc;
+            }
         }
 
 
@@ -289,7 +316,7 @@ namespace fCraft.MapRenderer {
                 Console.WriteLine( "{0}: Error rendering image:", task.RelativeName );
                 Console.Error.WriteLine( "{0}: {1}", task.Exception.GetType().Name, task.Exception );
             } else {
-                if( !p.AlwaysOverwrite && File.Exists( task.TargetPath ) ) {
+                if( p.OverwritePolicy == OverwritePolicy.Ask && File.Exists( task.TargetPath ) ) {
                     Console.WriteLine();
                     if( !ConsoleUtil.ShowYesNo( "File \"{0}\" already exists. Overwrite?",
                                                 Path.GetFileName( task.TargetPath ) ) ) {
@@ -333,7 +360,8 @@ namespace fCraft.MapRenderer {
                    angleString = null,
                    isoCatModeName = null,
                    regionString = null,
-                   threadCountString = null;
+                   threadCountString = null,
+                   overwritePolicyString = null;
 
             string importerList = MapUtility.GetImporters().JoinToString( c => c.Format.ToString() );
 
@@ -344,7 +372,7 @@ namespace fCraft.MapRenderer {
                       "Angle (orientation) from which the map is drawn. May be -90, 0, 90, 180, or 270. Default is 0.",
                       o => angleString = o )
 
-                .Add( "d|tryhard",
+                .Add( "tryhard",
                       "Try ALL the map converters on map files that cannot be loaded normally.",
                       o => p.TryHard = (o != null) )
 
@@ -416,9 +444,9 @@ namespace fCraft.MapRenderer {
                       "Enable regular expressions in \"filter\".",
                       o => p.UseRegex = (o != null) )
 
-                .Add( "y|overwrite",
-                      "Do not ask for confirmation to overwrite existing files.",
-                      o => p.AlwaysOverwrite = (o != null) )
+                .Add( "y|overwrite=",
+                      "When to overwrite existing image files: Never, Ask (default), IfNewer, Always",
+                      o => overwritePolicyString = o )
 
                 .Add( "?|h|help",
                       "Prints out the options.",
@@ -539,6 +567,7 @@ namespace fCraft.MapRenderer {
                 return ReturnCode.ArgumentError;
             }
 
+            // Parse theread count
             byte tempThreadCount = 2;
             if( threadCountString != null &&
                 (!Byte.TryParse( threadCountString, out tempThreadCount ) || tempThreadCount < 1) ) {
@@ -548,6 +577,15 @@ namespace fCraft.MapRenderer {
             p.ThreadCount = tempThreadCount;
 
             p.OutputDirGiven = (p.OutputDirName != null);
+
+            // Parse OverwritePolicy
+            OverwritePolicy op = OverwritePolicy.Ask;
+            if( overwritePolicyString != null && !Enum.TryParse(overwritePolicyString,true, out op)) {
+                Console.Error.WriteLine(
+                    "MapRenderer: Overwrite mode should be: \"never\", \"ask\", \"ifNewer\", or \"always\"." );
+                return ReturnCode.ArgumentError;
+            }
+            p.OverwritePolicy = op;
 
             return ReturnCode.Success;
         }
