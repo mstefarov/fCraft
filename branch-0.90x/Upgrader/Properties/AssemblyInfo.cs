@@ -1,17 +1,16 @@
-﻿using System;
-using System.Reflection;
-using System.Resources;
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("fCraft core")]
-[assembly: AssemblyDescription("Core components of fCraft, a better Minecraft Classic server.")]
+[assembly: AssemblyTitle("Upgrader")]
+[assembly: AssemblyDescription("Utility for upgrading fCraft 0.6xx installations to 0.9xx")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("fCraft.net")]
-[assembly: AssemblyProduct("fCraft core")]
+[assembly: AssemblyProduct("fCraft Upgrader")]
 [assembly: AssemblyCopyright("fCraft is Copyright 2009-2014 Matvei Stefarov (matvei.org)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -24,7 +23,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("a9789af1-183f-4d6d-aef3-8fbacdaecdf4")]
+[assembly: Guid("bbc6a718-3e5d-4822-ba1f-6f5208d7c8da")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -39,5 +38,3 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("0.9.0.0")]
 [assembly: AssemblyFileVersion("0.9.0.0")]
-[assembly: CLSCompliant(false)]
-[assembly: NeutralResourcesLanguage("en-US")]
