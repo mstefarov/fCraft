@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 
 namespace fCraft.Drawing {
     /// <summary> Class that describes a configured brush, and allows creating instances for specific DrawOperations.
-    /// Configuration-free brush types may combine IBrushFactory and IBrushType into one class. </summary>
+    /// Configuration-free brush types may combine IBrushFactory and IBrush into one class. </summary>
     public interface IBrush {
         /// <summary> IBrushFactory associated with this brush type. </summary>
         [NotNull]
