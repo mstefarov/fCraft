@@ -143,7 +143,7 @@ namespace fCraft.MapConversion {
                     bs.Write(IPAddress.HostToNetworkOrder(mapToSave.Blocks.Length));
 
                     // Write out the map data
-                    bs.Write(mapToSave.Blocks);
+                    BufferUtil.WriteAll(mapToSave.Blocks, gs);
                 }
             }
         }

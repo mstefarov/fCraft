@@ -149,5 +149,26 @@ namespace fCraft {
                 bytesLeft -= readPass;
             }
         }
+
+
+        // Write at most 512 MiB at a time.
+        const int MaxWriteChunk = 512*1024*1024;
+
+
+        /// <summary> Writes contents of given byte array to a stream, in chunks of at most 512 MiB. 
+        /// Works around an overflow in BufferedStream.Write(byte[]) that happens on 1 GiB+ writes. </summary>
+        /// <param name="source"> Byte array to read from. Must not be null. </param>
+        /// <param name="destination"> Stream to write to. Must not be null. </param>
+        /// <exception cref="ArgumentNullException"> source or destination is null. </exception>
+        public static void WriteAll([NotNull] byte[] source, [NotNull] Stream destination) {
+            if (source == null) throw new ArgumentNullException("source");
+            if (destination == null) throw new ArgumentNullException("destination");
+            int written = 0;
+            while (written < source.Length) {
+                int toWrite = Math.Min(MaxWriteChunk, source.Length - written);
+                destination.Write(source, written, toWrite);
+                written += toWrite;
+            }
+        }
     }
 }

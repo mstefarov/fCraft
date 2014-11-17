@@ -27,7 +27,7 @@ namespace fCraft.MapConversion {
             if (mapToSave == null) throw new ArgumentNullException("mapToSave");
             if (fileName == null) throw new ArgumentNullException("fileName");
             using (FileStream mapStream = File.Create(fileName)) {
-                mapStream.Write(mapToSave.Blocks, 0, mapToSave.Blocks.Length);
+                BufferUtil.WriteAll(mapToSave.Blocks, mapStream);
             }
         }
     }

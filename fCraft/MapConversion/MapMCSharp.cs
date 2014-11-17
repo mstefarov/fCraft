@@ -19,7 +19,7 @@ namespace fCraft.MapConversion {
 
         public string ServerName { get; protected set; }
         public string FileExtension { get; protected set; }
-        public MapStorageType StorageType { get; protected set; }
+        public MapStorageType StorageType { get; private set; }
         public MapFormat Format { get; protected set; }
 
 
@@ -127,7 +127,6 @@ namespace fCraft.MapConversion {
                     // Write the VisitPermission and BuildPermission bytes
                     bs.Write((byte)0);
                     bs.Write((byte)0);
-                    bs.Close();
 
                     // Write the map data
                     SaveBlockData(mapToSave, gs);
@@ -144,7 +143,7 @@ namespace fCraft.MapConversion {
 
 
         protected virtual void SaveBlockData([NotNull] Map mapToSave, [NotNull] Stream stream) {
-            stream.Write(mapToSave.Blocks, 0, mapToSave.Blocks.Length);
+            BufferUtil.WriteAll(mapToSave.Blocks, stream);
         }
 
 

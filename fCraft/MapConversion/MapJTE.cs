@@ -127,7 +127,7 @@ namespace fCraft.MapConversion {
                     bs.Write(IPAddress.NetworkToHostOrder(mapToSave.Height));
 
                     // Write the map data
-                    bs.Write(mapToSave.Blocks, 0, mapToSave.Blocks.Length);
+                    BufferUtil.WriteAll(mapToSave.Blocks, gs);
                 }
             }
         }
