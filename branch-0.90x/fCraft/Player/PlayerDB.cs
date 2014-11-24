@@ -1,5 +1,4 @@
 ﻿// Part of fCraft | Copyright 2009-2013 Matvei Stefarov <me@matvei.org> | BSD-3 | See LICENSE.txt
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,10 +20,11 @@ namespace fCraft {
         /// <summary> Cached list of all players in the database.
         /// May be quite long. Make sure to copy a reference to
         /// the list before accessing it in a loop, since this 
-        /// array be frequently be replaced by an updated one. </summary>
+        /// value may be unexpectedly updated or replaced. </summary>
         [NotNull]
         public static PlayerInfo[] PlayerInfoList { get; private set; }
 
+        // Highest used ID number. IDs 0 through 255 are reserved.
         static int maxId = 255;
         const int BufferSize = 64*1024;
 
@@ -46,7 +46,7 @@ namespace fCraft {
                               "PreviousRank,RankChangeReason,TimesKicked,TimesKickedOthers," +
                               "TimesBannedOthers,ID,RankChangeType,LastKickDate,LastSeen,BlocksDrawn," +
                               "LastKickBy,LastKickReason,BannedUntil,IsFrozen,FrozenBy,FrozenOn,MutedUntil,MutedBy," +
-                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName,AccountType,Email";
+                              "Password,IsOnline,BandwidthUseMode,IsHidden,LastModified,DisplayedName,AccountType,Email,AltAccounts";
 
         // used to ensure PlayerDB consistency when adding/removing PlayerDB entries
         static readonly object AddLocker = new object();
@@ -157,44 +157,54 @@ namespace fCraft {
 #if !DEBUG
                     try {
 #endif
-                    PlayerInfo info = PlayerInfo.LoadFormat2(fields);
+                        PlayerInfo info = PlayerInfo.LoadFormat2(fields);
 
-                    if (info.Id > maxId) {
-                        Logger.Log(LogType.Warning,
-                                   "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
-                                   maxId,
-                                   info.Id);
-                        maxId = info.Id;
-                    }
+                        if (info.Id > maxId) {
+                            Logger.Log(LogType.Warning,
+                                       "PlayerDB.Load: Adjusting wrongly saved MaxID ({0} to {1}).",
+                                       maxId,
+                                       info.Id);
+                            maxId = info.Id;
+                        }
 
-                    // A record is considered "empty" if the player has never logged in.
-                    // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
-                    // Deleting such records should have no negative impact on DB completeness.
-                    if ((info.LastIP.Equals(IPAddress.None) || info.LastIP.Equals(IPAddress.Any) ||
-                         info.TimesVisited == 0) &&
-                        !info.IsBanned && info.Rank == RankManager.DefaultRank) {
-                        Logger.Log(LogType.SystemActivity,
-                                   "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
-                                   info.Name);
-                        emptyRecords++;
-                        continue;
-                    }
+                        // A record is considered "empty" if the player has never logged in.
+                        // Empty records may be created by /Import, /Ban, and /Rank commands on typos.
+                        // Deleting such records should have no negative impact on DB completeness.
+                        if ((info.LastIP.Equals(IPAddress.None) || info.LastIP.Equals(IPAddress.Any) ||
+                             info.TimesVisited == 0) &&
+                            !info.IsBanned && info.Rank == RankManager.DefaultRank) {
+                            Logger.Log(LogType.SystemActivity,
+                                       "PlayerDB.Load: Skipping an empty record for player \"{0}\"",
+                                       info.Name);
+                            emptyRecords++;
+                            continue;
+                        }
 
-                    // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
-                    if (Trie.ContainsKey(info.Name)) {
-                        Logger.Log(LogType.Error,
-                                   "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
-                                   info.Name);
-                    } else {
-                        Trie.Add(info.Name, info);
-                        list.Add(info);
-                    }
+                        // Check alt account consistency
+                        CheckAltAccounts(info);
+
+                        // Check for duplicates. Unless PlayerDB.txt was altered externally, this does not happen.
+                        if (Trie.ContainsKey(info.Name)) {
+                            Logger.Log(LogType.Error,
+                                       "PlayerDB.Load: Duplicate record for player \"{0}\" skipped.",
+                                       info.Name);
+                        } else {
+                            Trie.Add(info.Name, info);
+                            if (info.AltNames != null) {
+                                for (int i = 0; i < info.AltNames.Length; i++) {
+                                    // All alt names point to the same info object
+                                    Trie.Add(info.AltNames[i], info);
+                                }
+                            }
+
+                            list.Add(info);
+                        }
 #if !DEBUG
-                    } catch( Exception ex ) {
-                        Logger.LogAndReportCrash( "Error while parsing PlayerInfo record: " + line,
-                                                  "fCraft",
-                                                  ex,
-                                                  false );
+                    } catch (Exception ex) {
+                        Logger.LogAndReportCrash("Error while parsing PlayerInfo record: " + line,
+                                                 "fCraft",
+                                                 ex,
+                                                 false);
                     }
 #endif
                 } else {
@@ -213,6 +223,68 @@ namespace fCraft {
 
             RunCompatibilityChecks(version);
         }
+
+
+        // It's safe to assume that CheckAltAccounts will never be called twice from different threads,
+        // because it's only called inside a synchronized block in Load().
+        // This HashSet is reused by all calls to CheckAltAccounts() to improve performance.
+        static readonly HashSet<string> DupeNameChecker = new HashSet<string>();
+
+
+        static void CheckAltAccounts([NotNull] PlayerInfo info) {
+            if (info == null) throw new ArgumentNullException("info");
+
+            string[] altAccounts = info.AltNames;
+            if (altAccounts == null) return;
+
+            DupeNameChecker.Clear();
+            for (int i = 0; i < altAccounts.Length; i++) {
+                // Make sure we have no invalid or duplicate account names.
+                bool skip = false;
+                String acct = altAccounts[i];
+                if (!Player.IsValidAccountName(acct)) {
+                    Logger.Log(LogType.Warning, "Skipping unacceptable alt account name for {0}: {1}",
+                               info.Name, acct);
+                    skip = true;
+                } else if (acct == info.Name || Trie.ContainsKey(acct) || !DupeNameChecker.Add(acct)) {
+                    // Alt names must be different than:
+                    // 1) the main account name
+                    // 2) all other accounts' names
+                    // 3) all other alt names for this account
+                    Logger.Log(LogType.Warning, "Skipping duplicate alt account name for {0}: {1}",
+                               info.Name, acct);
+                    skip = true;
+                }
+
+                if (skip) {
+                    // Remove this alt name from the alt account list by re-allocating the array
+                    // and copying everything into it except the problematic element.
+                    altAccounts = RemoveAt(altAccounts, i);
+                    i--;
+                }
+            }
+
+            // If there are no alts, we might as well null it.
+            if (altAccounts.Length == 0) {
+                altAccounts = null;
+            }
+            info.AltNames = altAccounts;
+        }
+
+
+        static T[] RemoveAt<T>(T[] source, int index) {
+            T[] dest = new T[source.Length - 1];
+            if (index > 0) {
+                Array.Copy(source, 0, dest, 0, index);
+            }
+
+            if (index < source.Length - 1) {
+                Array.Copy(source, index + 1, dest, index, source.Length - index - 1);
+            }
+
+            return dest;
+        }
+
 
 
         static void RunCompatibilityChecks(int loadedVersion) {

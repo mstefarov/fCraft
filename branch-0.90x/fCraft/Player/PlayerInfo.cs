@@ -73,6 +73,12 @@ namespace fCraft {
         public AccountType AccountType;
 
 
+        /// <summary> List of alternative account names that this player goes by.
+        /// All players share the same stats. Players may only sign in from one account name at a time. </summary>
+        [CanBeNull]
+        public string[] AltNames;
+
+
         /// <summary> Begins to asynchronously check player's account type. </summary>
         public void CheckAccountType() {
             if (AccountType != AccountType.Paid) {
@@ -517,6 +523,10 @@ namespace fCraft {
                 info.Email = PlayerDB.Unescape(fields[49]);
             }
 
+            if (fields.Length > 50 && fields[50].Length > 0) {
+                info.AltNames = fields[50].Split('|');
+            }
+
             // date consistency checks
             if (info.LastSeen < info.FirstLoginDate) {
                 info.LastSeen = info.FirstLoginDate;
@@ -677,7 +687,15 @@ namespace fCraft {
 
             sb.Append(',');
             if (Email != null) {
-                sb.AppendEscaped(Email);
+                sb.AppendEscaped(Email); // 49
+            }
+
+            sb.Append(',');
+            if (AltNames != null) { // 50
+                for (int i = 0; i < AltNames.Length; i++) {
+                    if (i > 0) sb.Append('|');
+                    sb.Append(AltNames[i]);
+                }
             }
         }
 
