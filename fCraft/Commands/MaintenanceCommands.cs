@@ -20,13 +20,10 @@ namespace fCraft {
             CommandManager.RegisterCommand(CdShutdown);
             CommandManager.RegisterCommand(CdRestart);
 
-            CommandManager.RegisterCommand(CdPruneDB);
-
-            CommandManager.RegisterCommand(CdImport);
             //CommandManager.RegisterCommand( CdImportRankList );
             //CommandManager.RegisterCommand( CdExport );
 
-            CommandManager.RegisterCommand(CdInfoSwap);
+            CommandManager.RegisterCommand(CdPlayerDb);
 
 #if DEBUG
             CommandManager.RegisterCommand(new CommandDescriptor {
@@ -69,6 +66,127 @@ namespace fCraft {
             });
 #endif
         }
+
+
+        static readonly CommandDescriptor CdPlayerDb = new CommandDescriptor {
+            Name = "PlayerDB",
+            Category = CommandCategory.Maintenance,
+            IsConsoleSafe = true,
+            IsHidden = false,
+            Permissions = new[] { Permission.EditPlayerDB },
+            Help = "Maintenance functions for PlayerDB. See &H/Help PlayerDB <Function>&S for detailed help.",
+            HelpSections = {
+                {
+                    "swap",
+                    "/PlayerDB Swap Player1 Player2\n" +
+                    "Swaps stats of two players in the database. Both players should be offline."
+                }, {
+                    "importbans",
+                    "/PlayerDB Import Bans Software File\n" +
+                    "Imports a list of bans from file formats used by other servers. Currently only MCSharp/MCZall/MCLawl/MCForge and CommandBook files are supported. " +
+                    "Additional permissions required: Import, Ban."
+                }, {
+                    "importranks",
+                    "/PlayerDB Import Ranks Software File Rank\n" +
+                    "Imports a rank list formats used by other servers. Currently only MCSharp/MCZall/MCLawl/MCForge files are supported. " +
+                    "Players are promoted/demoted as needed. Additional permissions required: Import, Promote, Demote."
+                }, {
+                    "prune",
+                    "Removes inactive players from the player database. Use with caution."
+                }
+            },
+            Usage = "/PlayerDB (Merge|Split|Swap|ImportBans|ImportRanks|ExportRanks|Prune) [Options]",
+            Handler = PlayerDbHandler
+        };
+
+
+        static void PlayerDbHandler(Player player, CommandReader cmd) {
+            string command = cmd.Next();
+            if (command == null) {
+                CdPlayerDb.PrintUsage(player);
+                return;
+            }
+            switch (command.ToUpperInvariant()) {
+                case "MERGE":
+                    player.Message("TODO: PlayerDB MERGE"); // TODO
+                    break;
+                case "SPLIT":
+                    player.Message("TODO: PlayerDB SPLIT"); // TODO
+                    break;
+                case "SWAP":
+                    InfoSwapHandler(player, cmd);
+                    break;
+                case "IMPORTBANS":
+                    if (player.Can(Permission.Import, Permission.Ban)) {
+                        ImportBans(player, cmd);
+                    } else {
+                        player.MessageNoAccess(Permission.Import, Permission.Ban);
+                    }
+                    break;
+                case "IMPORTRANKS":
+                    if (player.Can(Permission.Import, Permission.Promote, Permission.Demote)) {
+                        ImportRanks(player, cmd);
+                    } else {
+                        player.MessageNoAccess(Permission.Import, Permission.Promote, Permission.Demote);
+                    }
+                    break;
+                case "PRUNE":
+                    PruneDBHandler(player, cmd);
+                    break;
+                default:
+                    player.Message("Unknown PlayerDB function: " + command);
+                    CdPlayerDb.PrintUsage(player);
+                    break;
+            }
+        }
+
+
+        static void InfoSwapHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
+            string p1Name = cmd.Next();
+            string p2Name = cmd.Next();
+            if (p1Name == null || p2Name == null) {
+                player.Message(CdPlayerDb.HelpSections["swap"]);
+                return;
+            }
+
+            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches(player, p1Name, SearchOptions.IncludeSelf);
+            if (p1 == null) return;
+            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches(player, p2Name, SearchOptions.IncludeSelf);
+            if (p2 == null) return;
+
+            if (p1 == p2) {
+                player.Message("InfoSwap: Please specify 2 different players.");
+                return;
+            }
+
+            if (p1.IsOnline || p2.IsOnline) {
+                player.Message("InfoSwap: Both players must be offline to swap info.");
+                return;
+            }
+
+            if (!cmd.IsConfirmed) {
+                Logger.Log(LogType.UserActivity,
+                           "InfoSwap: Asked {0} to confirm swapping stats of players {1} and {2}",
+                           player.Name,
+                           p1.Name,
+                           p2.Name);
+                player.Confirm(cmd,
+                               "InfoSwap: Swap stats of players {0}&S and {1}&S?",
+                               p1.ClassyName,
+                               p2.ClassyName);
+            } else {
+                PlayerDB.SwapPlayerInfo(p1, p2);
+                Logger.Log(LogType.UserActivity,
+                           "Player {0} swapped stats of players {1} and {2}",
+                           player.Name,
+                           p1.Name,
+                           p2.Name);
+                player.Message("InfoSwap: Stats of {0}&S and {1}&S have been swapped.",
+                               p1.ClassyName,
+                               p2.ClassyName);
+            }
+        }
+
 
         #region DumpStats
 
@@ -1316,16 +1434,6 @@ namespace fCraft {
 
         #region PruneDB
 
-        static readonly CommandDescriptor CdPruneDB = new CommandDescriptor {
-            Name = "PruneDB",
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
-            Help = "Removes inactive players from the player database. Use with caution.",
-            Handler = PruneDBHandler
-        };
-
 
         static void PruneDBHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
             if (!cmd.IsConfirmed) {
@@ -1362,50 +1470,6 @@ namespace fCraft {
 
         #region Import / Export
 
-        static readonly CommandDescriptor CdImport = new CommandDescriptor {
-            Name = "Import",
-            Aliases = new[] { "ImportBans", "ImportRanks" },
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            Permissions = new[] { Permission.Import },
-            Usage = "/Import Bans Software File&S or &H/Import Ranks Software File Rank",
-            Help = "Imports data from formats used by other servers. " +
-                   "Currently only MCSharp/MCZall/MCLawl/MCForge files are supported.",
-            Handler = ImportHandler
-        };
-
-
-        static void ImportHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
-            string action = cmd.Next();
-            if (action == null) {
-                CdImport.PrintUsage(player);
-                return;
-            }
-
-            switch (action.ToLower()) {
-                case "bans":
-                    if (!player.Can(Permission.Ban)) {
-                        player.MessageNoAccess(Permission.Ban);
-                        return;
-                    }
-                    ImportBans(player, cmd);
-                    break;
-
-                case "ranks":
-                    if (!player.Can(Permission.Promote)) {
-                        player.MessageNoAccess(Permission.Promote);
-                        return;
-                    }
-                    ImportRanks(player, cmd);
-                    break;
-
-                default:
-                    CdImport.PrintUsage(player);
-                    break;
-            }
-        }
-
-
         static void ImportBans([NotNull] Player player, [NotNull] CommandReader cmd) {
             if (player == null) throw new ArgumentNullException("player");
             if (cmd == null) throw new ArgumentNullException("cmd");
@@ -1414,7 +1478,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if (serverName == null || fileName == null) {
-                CdImport.PrintUsage(player);
+                player.Message(CdPlayerDb.HelpSections["importbans"]);
                 return;
             }
 
@@ -1616,7 +1680,7 @@ namespace fCraft {
 
             // Make sure all parameters are specified
             if (serverName == null || fileName == null || rankName == null) {
-                CdImport.PrintUsage(player);
+                player.Message(CdPlayerDb.HelpSections["import"]);
                 return;
             }
 
@@ -1773,63 +1837,5 @@ namespace fCraft {
         }
 
         #endregion
-
-        static readonly CommandDescriptor CdInfoSwap = new CommandDescriptor {
-            Name = "InfoSwap",
-            Category = CommandCategory.Maintenance,
-            IsConsoleSafe = true,
-            IsHidden = true,
-            Permissions = new[] { Permission.EditPlayerDB },
-            Usage = "/InfoSwap Player1 Player2",
-            Help = "Swaps stats of two players in the database. Both players should be offline.",
-            Handler = InfoSwapHandler
-        };
-
-
-        static void InfoSwapHandler([NotNull] Player player, [NotNull] CommandReader cmd) {
-            string p1Name = cmd.Next();
-            string p2Name = cmd.Next();
-            if (p1Name == null || p2Name == null) {
-                CdInfoSwap.PrintUsage(player);
-                return;
-            }
-
-            PlayerInfo p1 = PlayerDB.FindPlayerInfoOrPrintMatches(player, p1Name, SearchOptions.IncludeSelf);
-            if (p1 == null) return;
-            PlayerInfo p2 = PlayerDB.FindPlayerInfoOrPrintMatches(player, p2Name, SearchOptions.IncludeSelf);
-            if (p2 == null) return;
-
-            if (p1 == p2) {
-                player.Message("InfoSwap: Please specify 2 different players.");
-                return;
-            }
-
-            if (p1.IsOnline || p2.IsOnline) {
-                player.Message("InfoSwap: Both players must be offline to swap info.");
-                return;
-            }
-
-            if (!cmd.IsConfirmed) {
-                Logger.Log(LogType.UserActivity,
-                           "InfoSwap: Asked {0} to confirm swapping stats of players {1} and {2}",
-                           player.Name,
-                           p1.Name,
-                           p2.Name);
-                player.Confirm(cmd,
-                               "InfoSwap: Swap stats of players {0}&S and {1}&S?",
-                               p1.ClassyName,
-                               p2.ClassyName);
-            } else {
-                PlayerDB.SwapPlayerInfo(p1, p2);
-                Logger.Log(LogType.UserActivity,
-                           "Player {0} swapped stats of players {1} and {2}",
-                           player.Name,
-                           p1.Name,
-                           p2.Name);
-                player.Message("InfoSwap: Stats of {0}&S and {1}&S have been swapped.",
-                               p1.ClassyName,
-                               p2.ClassyName);
-            }
-        }
     }
 }
