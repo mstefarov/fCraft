@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Threading;
+using fNbt;
 using JetBrains.Annotations;
 
 namespace fCraft {
@@ -697,6 +698,141 @@ namespace fCraft {
                     sb.Append(AltNames[i]);
                 }
             }
+        }
+
+
+        internal void SaveNBT(NbtWriter writer) {
+            writer.BeginCompound();
+
+            // Identity
+            writer.WriteInt("ID",Id);
+            writer.WriteString("N",Name);
+            if (DisplayedName != null) {
+                writer.WriteString("DN", DisplayedName);
+            }
+            if (Email != null) {
+                writer.WriteString("E",Email);
+            }
+
+            // Network information
+            if (AccountType != AccountType.Unknown) {
+                writer.WriteByte("AT", (byte)AccountType);
+            }
+            if (!Equals(LastIP, IPAddress.None)) {
+                writer.WriteByteArray("IP", LastIP.GetAddressBytes());
+            }
+            if (LastFailedLoginDate != DateTime.MinValue) {
+                writer.WriteLong("LFD", LastFailedLoginDate.ToUnixTime());
+                writer.WriteByteArray("LFIP",LastFailedLoginIP.GetAddressBytes());
+            }
+            if (BandwidthUseMode != BandwidthUseMode.Default) {
+                writer.WriteByte("BUM",(byte)BandwidthUseMode);
+            }
+
+            // Online status
+            writer.WriteLong("LFD",FirstLoginDate.ToUnixTime());
+            writer.WriteLong("LLD",LastLoginDate.ToUnixTime());
+            DateTime lastSeen;
+            if (IsOnline) {
+                lastSeen = DateTime.UtcNow;
+            } else {
+                lastSeen = LastSeen;
+            }
+            writer.WriteLong("LS", lastSeen.ToUnixTime());
+            writer.WriteByte("IH", (byte)(IsHidden ? 1 : 0));
+
+            // Rank information
+            writer.WriteString("R",Rank.FullName);
+            if (PreviousRank != null) {
+                writer.WriteString("PR",PreviousRank.FullName);
+            }
+            if (RankChangeDate != DateTime.MinValue) {
+                writer.WriteLong("RCD",RankChangeDate.ToUnixTime());
+            }
+            if (RankChangedBy != null) {
+                writer.WriteString("RCB",RankChangedBy);
+            }
+            if (RankChangeReason != null) {
+                writer.WriteString("RCR",RankChangeReason);
+            }
+            writer.WriteByte("RCT",(byte)RankChangeType);
+
+            // Kicks
+            if (TimesKicked > 0) {
+                writer.WriteInt("TK",TimesKicked);
+                writer.WriteLong("LKD",LastKickDate.ToUnixTime());
+                if (LastKickBy != null) {
+                    writer.WriteString("LKB", LastKickBy);
+                }
+                if (LastKickReason != null) {
+                    writer.WriteString("LKR",LastKickReason);
+                }
+            }
+
+            // Bans
+            if (BanStatus != BanStatus.NotBanned) {
+                writer.WriteByte("BS",(byte)BanStatus);
+            }
+
+            if (BanDate != DateTime.MinValue) {
+                writer.WriteLong("BD",BanDate.ToUnixTime());
+            }
+            if (BannedBy != null) {
+                writer.WriteString("BB",BannedBy);
+            }
+            if (BanReason != null) {
+                writer.WriteString("BR",BanReason);
+            }
+            if (UnbanDate != DateTime.MinValue) {
+                writer.WriteLong("UD",UnbanDate.ToUnixTime());
+            }
+            if (UnbannedBy != null) {
+                writer.WriteString("UB",UnbannedBy);
+            }
+            if (UnbanReason != null) {
+                writer.WriteString("UR",UnbanReason);
+            }
+
+            // Freeze
+            if (IsFrozen) {
+                writer.WriteByte("IF",1);
+                if (FrozenBy != null) {
+                writer.WriteString("FB",FrozenBy);
+                }
+                writer.WriteLong("FD",FrozenOn.ToUnixTime());
+            }
+
+            // Mute
+            if (IsMuted) {
+            writer.WriteLong("MU",MutedUntil.ToUnixTime());
+                if (MutedBy != null) {
+                    writer.WriteString("MB",MutedBy);
+                }
+            }
+
+            // Stats
+            writer.WriteInt("BBC",BlocksBuilt);
+            writer.WriteInt("BDC",BlocksDeleted);
+            writer.WriteLong("BRC",BlocksDrawn);
+            writer.WriteInt("MW",MessagesWritten);
+            writer.WriteInt("TV", TimesVisited);
+
+            int seconds;
+            Player pObject = PlayerObject;
+            if (pObject != null) {
+                seconds = (int)TotalTime.Add(TimeSinceLastLogin).TotalSeconds;
+            } else {
+                seconds = (int)TotalTime.TotalSeconds;
+            }
+            writer.WriteInt("TT", seconds);
+            if (TimesKickedOthers > 0) {
+                writer.WriteInt("TKO", TimesKickedOthers);
+            }
+            if (TimesBannedOthers > 0) {
+                writer.WriteInt("TBO", TimesBannedOthers);
+            }
+
+            writer.EndCompound();
         }
 
         #endregion

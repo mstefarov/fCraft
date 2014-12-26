@@ -95,6 +95,9 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="fNbt">
+      <HintPath>lib\fNbt.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -150,7 +153,6 @@
     </Compile>
     <Compile Include="Drawing\BitMap3D.cs" />
     <Compile Include="Utils\ConsoleUtil.cs" />
-    <Compile Include="Utils\fNbt_v0.6.2_Annotated.cs" />
     <Compile Include="Utils\Paths.cs" />
     <Compile Include="System\Scheduler.cs" />
     <Compile Include="Utils\Vector3F.cs" />
