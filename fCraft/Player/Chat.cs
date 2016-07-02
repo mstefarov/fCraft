@@ -543,7 +543,7 @@ namespace fCraft {
         }
 
 
-        /// <summary> Unescapes backslashes. Any paid of backslashes (\\) is converted to a single one (\). </summary>
+        /// <summary> Unescapes backslashes. Any pair of backslashes (\\) is converted to a single one (\). </summary>
         /// <param name="message"> String to process. </param>
         /// <returns> Processed string. </returns>
         /// <exception cref="ArgumentNullException"> message is null. </exception>
